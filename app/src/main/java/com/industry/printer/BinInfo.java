@@ -39,7 +39,7 @@ public class BinInfo {
 	private static int columnExtension = 1;
 	private File mFile;
 	private FileInputStream mFStream;
-	// This is a test
+	
 	private MessageTask mTask;
 
 	private ExtendStat mExtend;
