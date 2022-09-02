@@ -320,6 +320,9 @@
 <!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 	<string name="str_toast_ink_error">墨盒異常!!!</string>
 <!-- H.M.Wang End of 2020-2-25 增加墨盒错误提示 -->
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_toast_ink_error_ink_changed">請勿帶電插拔墨盒</string>
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_toast_no_bin">沒有可供打印的bin文件</string>
 	<string name="str_message_no_content">无法生成预览</string>
 	<string name="str_page_forward">前翻</string>

@@ -337,6 +337,9 @@
 <!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 	<string name="str_toast_ink_error">잉크통 이상!!!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_toast_ink_error_ink_changed">Please turn of power before replace cartridge</string>
+<!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_toast_no_bin">프린트에 저공할 bin문서 없음</string>
 	<string name="str_message_no_content">미리보기 이룰수 없음</string>
 	<string name="str_page_forward">앞으로번지기</string>

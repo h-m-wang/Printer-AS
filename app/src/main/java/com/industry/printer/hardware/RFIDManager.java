@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
+import com.industry.printer.Rfid.EncryptionMethod;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Configs;
@@ -39,7 +40,10 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 	public static final int MSG_RFID_INIT = 107;
 	public static final int MSG_RFID_CHECK_FAIL = 108;
 	public static final int MSG_RFID_CHECK_SUCCESS = 109;
-	
+// H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
+	public static final int MSG_RFID_CHECK_FAIL_INK_CHANGED = 110;
+// End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
+
 	public static final int MSG_RFID_SWITCH_DEVICE = 1;
 	public static final int MSG_RFID_INIT_NEXT = 2;
 	
@@ -130,6 +134,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 // End of H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次。上述尝试失败以后，向应用层报错
 
 						byte[] orgSN = mDevice.mSN.clone();
+						byte[] orgRFIDKeyA = mDevice.mRFIDKeyA.clone();
 // H.M.Wang 2022-2-16 取消2022-1-13的修改，这个修改在第一次读取SN的时候，如果出错会报错，但是如果尝试第二次，则会两个相同的错误进行比较，误判为正确。改为读取失败后，将mValid设为false比较稳妥
 // H.M.Wang 2022-1-13 追加清空SN，如果不清空，会导致如果读失败时保留原值，从而忽略掉拔卡或者读卡错误的问题
 //						Arrays.fill(mDevice.mSN, (byte)0x00);
@@ -140,7 +145,12 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 							mHandler.sendEmptyMessageDelayed(MSG_RFID_CHECK_SWITCH_DEVICE, 200);
 						} else {
 							Message msg = mHandler.obtainMessage(MSG_RFID_CHECK_COMPLETE);
-							msg.arg1 = 0;
+// H.M.Wang 2022-8-31 对于打印前更换了墨盒的情况，禁止打印，恢复原来的SN和KEY值，并且在主画面显示不要带电更换墨盒的信息
+//							msg.arg1 = 0;
+							msg.arg1 = -1;
+							mDevice.mSN = orgSN;
+							mDevice.mRFIDKeyA = orgRFIDKeyA;
+// End of H.M.Wang 2022-8-31 对于打印前更换了墨盒的情况，禁止打印，恢复原来的SN和KEY值，并且在主画面显示不要带电更换墨盒的信息
 							msg.sendToTarget();
 						}
 					}
@@ -159,10 +169,14 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 				if (msg.arg1 > 0 && mDevice.isValid()) {
 // End of H.M.Wang 2021-3-16 修改不检测特征码的问题
 					mCallback.sendEmptyMessageDelayed(MSG_RFID_CHECK_SUCCESS, 100);
+// H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
+				} else if(msg.arg1 == -1) {
+					mCallback.sendEmptyMessageDelayed(MSG_RFID_CHECK_FAIL_INK_CHANGED, 100);
+// End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 				} else {
 					mCallback.sendEmptyMessageDelayed(MSG_RFID_CHECK_FAIL, 100);
 				}
-				
+
 				break;
 			}
 		}

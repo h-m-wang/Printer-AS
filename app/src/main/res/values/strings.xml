@@ -360,6 +360,9 @@
 <!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 	<string name="str_toast_ink_error">Ink Error!!!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_toast_ink_error_ink_changed">Please turn of power before replace cartridge</string>
+<!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_rfid_initfail_notify">RFID initiallize fail！</string>
 	<string name="str_page_forward"> 《 </string>
 	<string name="str_page_backward"> 》 </string>
@@ -456,12 +459,12 @@
 	<string name="str_textview_param62">62.Warming</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
 	<string name="str_textview_param63">63.Reserved</string>
-	<string name="str_textview_param64">64.Reserved</string>
+<!-- H.M.Wang 2022-9-1 追加客户APK启动参数
+	<string name="str_textview_param64">64.Reserved</string>-->
+	<string name="str_textview_param64">64.User APK</string>
+<!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
 	<string name="str_btn_settings_sync">Ok</string>
 
-	
-
-	
 	<string name="str_time_unit_0_1v">0.1V</string>
 	<string name="str_length_unit_mm">mm</string>
 	<string name="str_length_unit_6_1mm">1/6mm</string>
@@ -479,7 +482,7 @@
 	<string name="str_toast_photoelectricity_delay">Photoelectricity high delay out level set to default:100</string>
 	<string name="str_toast_photoelectricity_antishake">Photoelectricity anti shake out level set to default:20</string>
 	<string name="str_toast_timingprint">Timing print out level, set to default:1000</string>
-	
+
 <!-- 树莓派3 编辑界面相关 -->
 	<string name="str_edit_btn_insert">Insert</string>
 	<string name="str_edit_btn_temp1">Temp1</string>

@@ -1605,6 +1605,26 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						}
 					}.start();
 					break;
+// H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
+				case RFIDManager.MSG_RFID_CHECK_FAIL_INK_CHANGED:
+					Debug.d(TAG, "--->Print check UUID fail. Ink Changed!!!");
+					handleError(R.string.str_toast_ink_error_ink_changed, pcMsg);
+					new Thread() {
+						@Override
+						public void run() {
+							try{
+								ExtGpio.playClick();
+								sleep(50);
+								ExtGpio.playClick();
+								sleep(50);
+								ExtGpio.playClick();
+							} catch (Exception e) {
+								Debug.e(TAG, e.getMessage());
+							}
+						}
+					}.start();
+					break;
+// End of  H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 // H.M.Wang 2022-1-13 追加获取RFID写3次失败后的通知
                 case RFIDManager.MSG_RFID_WRITE_FAIL:
                     ToastUtil.show(mContext, "rfid write failed.");

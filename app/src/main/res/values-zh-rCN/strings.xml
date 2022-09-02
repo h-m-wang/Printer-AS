@@ -337,6 +337,9 @@
 <!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 	<string name="str_toast_ink_error">墨盒异常!!!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_toast_ink_error_ink_changed">请勿带电插拔墨盒</string>
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_toast_no_bin">没有可供打印的bin文件</string>
 	<string name="str_message_no_content">无法生成预览</string>
 	<string name="str_page_forward">前翻</string>
@@ -434,26 +437,29 @@
 	<string name="str_textview_param62">62.喷嘴加热</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
 	<string name="str_textview_param63">63.保留</string>
-	<string name="str_textview_param64">64.保留</string>
-	<string name="str_btn_settings_sync">确认</string>
-	<string name="str_time_unit_0_1v">0.1伏</string>
-	<string name="str_length_unit_mm">毫米</string>
-	<string name="str_length_unit_6_1mm">1/6毫米</string>
-	<string name="str_time_unit_ms">毫秒</string>
-	<string name="str_time_unit_mm_s">毫米/秒</string>
-	<string name="str_time_unit_us">微秒</string>
-	<string name="str_time_unit_0_1us">0.1us</string>
-	<string name="str_time_unit_100us">100微秒</string>
-	<string name="str_setting_time">时间设置</string>
-	<string name="str_system_setting">系统设置</string>
-	<string name="str_upgrade_progress">系统升级中....</string>
-	<string name="str_time_format">%1$02d:%2$02d:%3$02d %4$02d:%5$02d:%6$02d</string>
-	<string name="str_toast_ink_unvalid">墨点大小超出范围,设为默认值: 800</string>
-	<string name="str_toast_photoelectricity_delay">光电延时超出范围，设为默认值:100</string>
-	<string name="str_toast_photoelectricity_antishake">光电防抖超出范围，设为默认值:20</string>
-	<string name="str_toast_timingprint">定时打印超出范围，设为默认值:1000</string>
+<!-- H.M.Wang 2022-9-1 追加客户APK启动参数
+        <string name="str_textview_param64">64.保留</string>-->
+	<string name="str_textview_param64">64.客户APK</string>
+<!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
+        <string name="str_btn_settings_sync">确认</string>
+        <string name="str_time_unit_0_1v">0.1伏</string>
+        <string name="str_length_unit_mm">毫米</string>
+        <string name="str_length_unit_6_1mm">1/6毫米</string>
+        <string name="str_time_unit_ms">毫秒</string>
+        <string name="str_time_unit_mm_s">毫米/秒</string>
+        <string name="str_time_unit_us">微秒</string>
+        <string name="str_time_unit_0_1us">0.1us</string>
+        <string name="str_time_unit_100us">100微秒</string>
+        <string name="str_setting_time">时间设置</string>
+        <string name="str_system_setting">系统设置</string>
+        <string name="str_upgrade_progress">系统升级中....</string>
+        <string name="str_time_format">%1$02d:%2$02d:%3$02d %4$02d:%5$02d:%6$02d</string>
+        <string name="str_toast_ink_unvalid">墨点大小超出范围,设为默认值: 800</string>
+        <string name="str_toast_photoelectricity_delay">光电延时超出范围，设为默认值:100</string>
+        <string name="str_toast_photoelectricity_antishake">光电防抖超出范围，设为默认值:20</string>
+        <string name="str_toast_timingprint">定时打印超出范围，设为默认值:1000</string>
 
-<!-- 树莓派3 编辑界面相关 -->
+    <!-- 树莓派3 编辑界面相关 -->
 	<string name="str_edit_btn_insert">插入</string>
 	<string name="str_edit_btn_temp1">测试1</string>
 	<string name="str_edit_btn_temp2">测试2</string>

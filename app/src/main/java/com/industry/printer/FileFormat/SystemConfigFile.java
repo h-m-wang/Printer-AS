@@ -152,6 +152,10 @@ public class SystemConfigFile{
 
 	public static final int INDEX_PARAM_63 = 62;
 
+// H.M.Wang 2022-9-1 追加一个客户apk启动的参数，该参数为1时，启动客户的apk，为0时不启动
+	public static final int INDEX_USER_APK_START = 63;
+// End of H.M.Wang 2022-9-1 追加一个客户apk启动的参数，该参数为1时，启动客户的apk，为0时不启动
+
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
 	public static final int DATA_SOURCE_BIN 		= 1;		// 数据源使用BIN

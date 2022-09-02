@@ -114,7 +114,9 @@ public enum PrinterNozzle {
             // H.M.Wang 追加下列一行
             case NozzleType.NOZZLE_TYPE_64_DOT:
 // H.M.Wang 2020-8-26 追加64SN打印头
-            case NozzleType.NOZZLE_TYPE_64SN:
+// H.M.Wang 2022-9-1 取消原有的64SN的设置
+//            case NozzleType.NOZZLE_TYPE_64SN:
+// End of H.M.Wang 2022-9-1 取消原有的64SN的设置
 // End of H.M.Wang 2020-8-26 追加64SN打印头
                 reverseEnable = false;
 //                reverseEnable = true;
@@ -124,6 +126,14 @@ public enum PrinterNozzle {
                 rotateAble = true;
                 break;
 // End of H.M.Wang 2020-3-2 修改64点头，不支持反转和镜像
+// H.M.Wang 2022-9-1 因为64SN的变形处理是假借有4个头来在正式处理流程里面做的，因此，  mirrorEnable和   reverseEnable也都必须有效，否则不会被处理
+            case NozzleType.NOZZLE_TYPE_64SN:
+                reverseEnable = true;
+                shiftEnable = true;
+                mirrorEnable = true;
+                rotateAble = true;
+                break;
+// End of H.M.Wang 2022-9-1 因为64SN的变形处理是假借有4个头来在正式处理流程里面做的，因此，  mirrorEnable和   reverseEnable也都必须有效，否则不会被处理
 // H.M.Wang 2021-8-16 追加96DN头
 // H.M.Wang 2022-8-19 修改96DN头的操作。mirror打开，否则打印方向调整会不起作用，shift关闭，否则会导致标准的便宜处理和96DN的特殊处理叠加，出现错位的问题
             case NozzleType.NOZZLE_TYPE_96DN:

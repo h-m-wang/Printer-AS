@@ -12,7 +12,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import rx.Observable;
@@ -22,23 +21,16 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.inputmethodservice.InputMethodService;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,7 +58,6 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -81,7 +72,6 @@ import com.industry.printer.Utils.ZipUtil;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
-import com.industry.printer.object.N_BaseObject;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -1808,9 +1798,22 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public String DeviceInfosr(Context context){
 
 		PackageManager mPackageManager = context.getPackageManager();
-		PackageInfo mPackageInfo = null;
+		PackageInfo mPackageInfo = null, mp = null;
 		try {
 			mPackageInfo = mPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_ACTIVITIES);
+// H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
+			if(SystemConfigFile.getInstance(this).getParam(SystemConfigFile.INDEX_USER_APK_START) == 1) {
+				mp = mPackageManager.getPackageArchiveInfo("/system/app/UserAPK.apk", PackageManager.GET_ACTIVITIES);
+				if(null != mp ) {
+					Debug.d(TAG, "Package Name: " + mp.applicationInfo.packageName);
+					Intent mIntent =  getPackageManager().getLaunchIntentForPackage(mp.applicationInfo.packageName);
+					if(mIntent != null) startActivity(mIntent);
+				} else {
+//					ToastUtil.show(this, "User APK start fail");
+					Debug.e(TAG, "UserAPK.apk not found!");
+				}
+			}
+// End of H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
 		} catch (PackageManager.NameNotFoundException e) {
 			e.printStackTrace();
 		}

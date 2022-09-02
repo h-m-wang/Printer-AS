@@ -163,15 +163,21 @@ public class BufferRebuilder {
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
 
-            if (bytesPerColumn != 4) {
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+//            if (bytesPerColumn != 4) {
+            if ((bytesPerColumn % 4) != 0) {
                 Debug.e(TAG, "Not proper bytes of column!");
                 return this;
             }
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
 
             byte[] newBuf = new byte[mByteBuffer.length];
 
-            // 4头整体反转
             for(int i=0; i<mColNum; i++) {
+                // 4头整体反转
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+                System.arraycopy(mByteBuffer, i * bytesPerColumn, newBuf, i * bytesPerColumn,  bytesPerColumn);
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                 if (pattern == 0x0f) {
                     byte[] tmp = new byte[bytesPerColumn];
                     System.arraycopy(mByteBuffer, i * bytesPerColumn, tmp, 0,  bytesPerColumn);
@@ -183,13 +189,23 @@ public class BufferRebuilder {
                         System.arraycopy(mByteBuffer, i * bytesPerColumn, tmp, 0,  bytesPerColumn/2);
                         System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn,  bytesPerColumn/2);
                     } else if ((pattern & 0x03) == 0x01) {		//仅1头反转
-                        newBuf[i * bytesPerColumn] = revert(mByteBuffer[i * bytesPerColumn]);
-                        newBuf[i * bytesPerColumn + 1] = mByteBuffer[i * bytesPerColumn + 1];
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+//                        newBuf[i * bytesPerColumn] = revert(mByteBuffer[i * bytesPerColumn]);
+//                        newBuf[i * bytesPerColumn + 1] = mByteBuffer[i * bytesPerColumn + 1];
+                        byte[] tmp = new byte[bytesPerColumn/4];
+                        System.arraycopy(mByteBuffer, i * bytesPerColumn, tmp, 0,  bytesPerColumn/4);
+                        System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn,  bytesPerColumn/4);
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                     } else if ((pattern & 0x03) == 0x02) {		//仅2头反转
-                        newBuf[i * bytesPerColumn] = mByteBuffer[i * bytesPerColumn];
-                        newBuf[i * bytesPerColumn + 1] = revert(mByteBuffer[i * bytesPerColumn + 1]);
-                    } else {
-                        System.arraycopy(mByteBuffer, i * bytesPerColumn, newBuf, i * bytesPerColumn,  bytesPerColumn/2);
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+//                        newBuf[i * bytesPerColumn] = mByteBuffer[i * bytesPerColumn];
+//                        newBuf[i * bytesPerColumn + 1] = revert(mByteBuffer[i * bytesPerColumn + 1]);
+                        byte[] tmp = new byte[bytesPerColumn/4];
+                        System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn / 4, tmp, 0,  bytesPerColumn/4);
+                        System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn + bytesPerColumn / 4,  bytesPerColumn/4);
+//                    } else {
+//                        System.arraycopy(mByteBuffer, i * bytesPerColumn, newBuf, i * bytesPerColumn,  bytesPerColumn/2);
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                     }
                     // 3-4反转
                     if ((pattern & 0x0C) == 0x0C) {
@@ -197,13 +213,23 @@ public class BufferRebuilder {
                         System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn/2, tmp, 0,  bytesPerColumn/2);
                         System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn + bytesPerColumn/2,  bytesPerColumn/2);
                     } else if ((pattern & 0x0C) == 0x04) {		//仅3头反转
-                        newBuf[i * bytesPerColumn + 2] = revert(mByteBuffer[i * bytesPerColumn + 2]);
-                        newBuf[i * bytesPerColumn + 3] = mByteBuffer[i * bytesPerColumn + 3];
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+//                        newBuf[i * bytesPerColumn + 2] = revert(mByteBuffer[i * bytesPerColumn + 2]);
+//                        newBuf[i * bytesPerColumn + 3] = mByteBuffer[i * bytesPerColumn + 3];
+                        byte[] tmp = new byte[bytesPerColumn/4];
+                        System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn/2, tmp, 0,  bytesPerColumn/4);
+                        System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn + bytesPerColumn/2,  bytesPerColumn/4);
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                     } else if ((pattern & 0x0C) == 0x08) {		//仅4头反转
-                        newBuf[i * bytesPerColumn + 2] = mByteBuffer[i * bytesPerColumn + 2];
-                        newBuf[i * bytesPerColumn + 3] = revert(mByteBuffer[i * bytesPerColumn + 3]);
-                    } else {
-                        System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn/2, newBuf, i * bytesPerColumn + bytesPerColumn/2,  bytesPerColumn/2);
+// H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
+//                        newBuf[i * bytesPerColumn + 2] = mByteBuffer[i * bytesPerColumn + 2];
+//                        newBuf[i * bytesPerColumn + 3] = revert(mByteBuffer[i * bytesPerColumn + 3]);
+                        byte[] tmp = new byte[bytesPerColumn/4];
+                        System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn*3/4, tmp, 0,  bytesPerColumn/4);
+                        System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn + bytesPerColumn*3/4,  bytesPerColumn/4);
+//                    } else {
+//                        System.arraycopy(mByteBuffer, i * bytesPerColumn + bytesPerColumn/2, newBuf, i * bytesPerColumn + bytesPerColumn/2,  bytesPerColumn/2);
+// End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                     }
                 }
             }

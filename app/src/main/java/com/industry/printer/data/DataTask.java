@@ -614,7 +614,22 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 	private boolean isNeedRebuild() {
 		MessageObject object = mTask.getMsgObject();
 		PrinterNozzle nozzle = object.getPNozzle();
-		for (int i = 0; i < nozzle.mHeads; i++) {
+
+// 2022-9-1 因为64SN头需要按着4个头进行变形操作，但是PrinterNozzle当中定义的是1个头，因此这里要偷梁换柱一下，否则无法检查到各个头的变形参数设置
+		int heads = nozzle.mHeads;
+		if( nozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+			nozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+			nozzle == PrinterNozzle.MESSAGE_TYPE_32DN ||
+				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32SN ||
+				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SN ||
+				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
+			heads = 4;
+		}
+//		for (int i = 0; i < nozzle.mHeads; i++) {
+		for (int i = 0; i < heads; i++) {
+// End of 2022-9-1 因为64SN头需要按着4个头进行变形操作，但是PrinterNozzle当中定义的是1个头，因此这里要偷梁换柱一下，否则无法检查到各个头的变形参数设置
 			int shift = nozzle.shiftEnable ? Configs.getMessageShift(i) : 0;
 			if (shift > 0 ) {
 				return true;
@@ -1313,7 +1328,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 	 * 对buffer进行左右移动变换，生成真正的打印数据
 	 */
 	public void rebuildBuffer() {
-
 		if (!isNeedRebuild()) {
 			mBuffer = mPrintBuffer;
 		}
