@@ -1,0 +1,19 @@
+[armeabi-v7a] Compile thumb  : hp22mm <= hp22mm.c
+[armeabi-v7a] Compile thumb  : hp22mm <= common.c
+[armeabi-v7a] Compile thumb  : hp22mm <= ids.c
+[armeabi-v7a] Compile thumb  : hp22mm <= common_service.c
+[armeabi-v7a] Compile thumb  : hp22mm <= fw_reflash.c
+[armeabi-v7a] Compile thumb  : hp22mm <= IDS.c
+[armeabi-v7a] Compile thumb  : hp22mm <= ids_service.c
+[armeabi-v7a] Compile thumb  : hp22mm <= frame.c
+[armeabi-v7a] Compile thumb  : hp22mm <= print_head_driver.c
+[armeabi-v7a] Compile thumb  : hp22mm <= service.c
+[armeabi-v7a] Compile thumb  : hp22mm <= crc.c
+[armeabi-v7a] Compile thumb  : hp22mm <= debug_log.c
+[armeabi-v7a] Compile thumb  : hp22mm <= srec.c
+[armeabi-v7a] Compile thumb  : hp22mm <= oem_lib.c
+[armeabi-v7a] Compile thumb  : hp22mm <= uart.c
+[armeabi-v7a] Compile thumb  : hp22mm <= file.c
+[armeabi-v7a] Compile thumb  : hp22mm <= lock.c
+[armeabi-v7a] Compile thumb  : hp22mm <= oem_time.c
+[armeabi-v7a] SharedLibrary  : libhp22mm.so

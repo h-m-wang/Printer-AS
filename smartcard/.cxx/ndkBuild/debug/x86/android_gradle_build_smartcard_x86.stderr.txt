@@ -1,0 +1,17 @@
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/smartcard/src/main/jni/com_smartcard.c:1044:42: warning: passing 'int16_t *' (aka 'short *') to parameter of type 'uint16_t *' (aka 'unsigned short *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if(LEVEL_I2C_OK != readManufactureID(&manID)) {
+                                         ^~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/smartcard/src/main/jni/src/level_memory_access.h:190:33: note: passing argument to parameter 'data' here
+int readManufactureID(uint16_t *data);
+                                ^
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/smartcard/src/main/jni/com_smartcard.c:1073:37: warning: passing 'int16_t *' (aka 'short *') to parameter of type 'uint16_t *' (aka 'unsigned short *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    if(LEVEL_I2C_OK != readDeviceID(&devID)) {
+                                    ^~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/smartcard/src/main/jni/src/level_memory_access.h:192:28: note: passing argument to parameter 'data' here
+int readDeviceID(uint16_t *data);
+                           ^
+2 warnings generated.
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/smartcard/src/main/jni/drivers/sc_gpio_adapter.c:191:1: warning: control reaches end of non-void function [-Wreturn-type]
+}
+^
+1 warning generated.

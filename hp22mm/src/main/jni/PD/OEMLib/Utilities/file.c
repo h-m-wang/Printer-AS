@@ -95,7 +95,7 @@ int file_read_line(void *file_handle, char *buf, size_t buf_size) {
     size_t len = 0;
     char *line = NULL;
     
-    read = fgets(&line, &len, (FILE*)file_handle);
+// 临时取消2022-9-3    read = fgets(&line, &len, (FILE*)file_handle);
     if((read > 0) && (buf_size >= read)) {
         
         strncpy(buf, line, buf_size);   /* copy to caller supplied bufer */

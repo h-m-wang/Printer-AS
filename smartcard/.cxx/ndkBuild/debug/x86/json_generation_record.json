@@ -1,0 +1,20 @@
+[
+  {
+    "level": "INFO",
+    "message": "Start JSON generation. Platform version: 17 min SDK version: x86",
+    "file": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\smartcard\\src\\main\\jni\\Android.mk",
+    "tag": "debug|x86"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON \u0027D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\smartcard\\.cxx\\ndkBuild\\debug\\x86\\android_gradle_build.json\u0027 was up-to-date",
+    "file": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\smartcard\\src\\main\\jni\\Android.mk",
+    "tag": "debug|x86"
+  },
+  {
+    "level": "INFO",
+    "message": "JSON generation completed without problems",
+    "file": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\smartcard\\src\\main\\jni\\Android.mk",
+    "tag": "debug|x86"
+  }
+]

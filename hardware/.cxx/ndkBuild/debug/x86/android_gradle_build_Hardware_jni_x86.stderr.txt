@@ -1,0 +1,53 @@
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:37:8: warning: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        char *dev_utf = (*env)->GetStringUTFChars(env, dev, JNI_FALSE);
+              ^         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:114:9: warning: incompatible pointer types initializing 'jchar *' (aka 'unsigned short *') with an expression of type 'jbyte *' (aka 'signed char *') [-Wincompatible-pointer-types]
+        jchar *buf_utf = (*env)->GetByteArrayElements(env, buf, NULL);
+               ^         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:151:2: warning: implicitly declaring library function 'bzero' with type 'void (void *, unsigned int)' [-Wimplicit-function-declaration]
+        bzero(tempBuff, sizeof(tempBuff));
+        ^
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:151:2: note: include the header <strings.h> or explicitly provide a declaration for 'bzero'
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:186:52: warning: passing 'char [256]' to parameter of type 'const jbyte *' (aka 'const signed char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+                (*env)->SetByteArrayRegion(env, jResp, 0, nread, tempBuff);
+                                                                 ^~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_UsbSerial.c:149:20: warning: implicit conversion from 'int' to 'cc_t' (aka 'unsigned char') changes value from 1000 to 232 [-Wconstant-conversion]
+        Opt.c_cc[VTIME] = 1000;
+                        ~ ^~~~
+5 warnings generated.
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RFIDOperation.c:79:23: warning: implicit conversion from 'int' to 'cc_t' (aka 'unsigned char') changes value from 1500 to 220 [-Wconstant-conversion]
+    opt.c_cc[VTIME] = 1500; /*ds*/
+                    ~ ^~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RFIDOperation.c:141:8: warning: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        char *dev_utf = (*env)->GetStringUTFChars(env, dev, JNI_FALSE);
+              ^         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RFIDOperation.c:218:2: warning: implicitly declaring library function 'bzero' with type 'void (void *, unsigned int)' [-Wimplicit-function-declaration]
+        bzero(tempBuff, sizeof(tempBuff));
+        ^
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RFIDOperation.c:218:2: note: include the header <strings.h> or explicitly provide a declaration for 'bzero'
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RFIDOperation.c:278:52: warning: passing 'char [256]' to parameter of type 'const jbyte *' (aka 'const signed char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+                (*env)->SetByteArrayRegion(env, jResp, 0, nread, tempBuff);
+                                                                 ^~~~~~~~
+4 warnings generated.
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_GPIOOperation.c:29:8: warning: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        char *dev_utf = (*env)->GetStringUTFChars(env, dev, JNI_FALSE);
+              ^         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RTCDevice.c:27:8: warning: initializing 'char *' with an expression of type 'const char *' discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        char *dev_utf = (*env)->GetStringUTFChars(env, dev, JNI_FALSE);
+              ^         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RTCDevice.c:78:25: warning: format specifies type 'int' but the argument has type '__kernel_time_t' (aka 'long') [-Wformat]
+        ALOGD("--->tv_sec:%d", tv.tv_sec);
+                          ~~   ^~~~~~~~~
+                          %ld
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RTCDevice.c:18:67: note: expanded from macro 'ALOGD'
+#define ALOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_TAG,__VA_ARGS__)
+                                                                  ^~~~~~~~~~~
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RTCDevice.c:102:25: warning: format specifies type 'int' but the argument has type '__kernel_time_t' (aka 'long') [-Wformat]
+        ALOGD("--->tv_sec:%d", tv.tv_sec);
+                          ~~   ^~~~~~~~~
+                          %ld
+D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni/com_industry_printer_RTCDevice.c:18:67: note: expanded from macro 'ALOGD'
+#define ALOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_TAG,__VA_ARGS__)
+                                                                  ^~~~~~~~~~~
+3 warnings generated.
