@@ -1,6 +1,0 @@
-[armeabi-v7a] Compile thumb  : Hardware_jni <= com_industry_printer_UsbSerial.c
-[armeabi-v7a] Compile thumb  : Hardware_jni <= com_industry_printer_RFIDOperation.c
-[armeabi-v7a] Compile thumb  : Hardware_jni <= com_industry_printer_GPIOOperation.c
-[armeabi-v7a] Compile thumb  : Hardware_jni <= com_industry_printer_RTCDevice.c
-[armeabi-v7a] Compile thumb  : Hardware_jni <= com_industry_printer_HardwareJni.c
-[armeabi-v7a] SharedLibrary  : libHardware_jni.so

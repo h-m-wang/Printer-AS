@@ -915,6 +915,24 @@ public class SmartCardManager implements IInkDevice {
         return 0;
     }
 
+// H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
+    private void trySmartCardDownLocal(final int cardIdx) {
+        int tryNum;
+        for(tryNum = 0; tryNum<3; tryNum++) {
+            if(SmartCard.SC_SUCCESS == SmartCard.downLocal(mCards[cardIdx].mCardType)) break;
+        }
+        if(tryNum >= 3) {
+            mHandler.obtainMessage(MSG_SHOW_CONSISTENCY, "Smartcard access error!").sendToTarget();
+            mCachedThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    initComponent(cardIdx);
+                }
+            });
+        }
+    }
+// End of H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
+
     @Override
     public void downLocal(final int cardIdx) {
         Debug.d(TAG, "---> enter downLocal(" + cardIdx + ")");
@@ -934,12 +952,17 @@ public class SmartCardManager implements IInkDevice {
             public void run() {
                 synchronized (SmartCardManager.this) {
                     if(mCards[cardIdx].mInitialized && mCards[cardIdx].mValid) {
+// H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
+                        trySmartCardDownLocal(cardIdx);
+/*
 // H.M.Wang 2021-8-7 追加当写SC卡出现错误的时候报错的处理
                         int ret = SmartCard.downLocal(mCards[cardIdx].mCardType);
                         if(SmartCard.SC_SUCCESS != ret) {
                             mHandler.obtainMessage(MSG_SHOW_CONSISTENCY, "Smartcard access error!").sendToTarget();
                         }
 // End of H.M.Wang 2021-8-7 追加当写SC卡出现错误的时候报错的处理
+*/
+// End of H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
 // H.M.Wang 2021-8-23 取消重新读取卡中的值来修正本地值的操作
 //                        mCards[cardIdx].mInkLevel = mCards[cardIdx].mMaxVolume - SmartCard.getLocalInk(mCards[cardIdx].mCardType);
 // End of H.M.Wang 2021-8-23 取消重新读取卡中的值来修正本地值的操作
@@ -948,12 +971,17 @@ public class SmartCardManager implements IInkDevice {
                     }
 // H.M.Wang 2022-4-16 将墨袋的减锁和墨盒的减锁分离
                     if(mCards[mCurBagIdx].mInitialized && mCards[mCurBagIdx].mValid) {
+// H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
+                        trySmartCardDownLocal(mCurBagIdx);
+/*
 // H.M.Wang 2021-8-7 追加当写SC卡出现错误的时候报错的处理
                         int ret = SmartCard.downLocal(mCards[mCurBagIdx].mCardType);
                         if(SmartCard.SC_SUCCESS != ret) {
                             mHandler.obtainMessage(MSG_SHOW_CONSISTENCY, "Smartcard access error!").sendToTarget();
                         }
 // End of H.M.Wang 2021-8-7 追加当写SC卡出现错误的时候报错的处理
+*/
+// End of H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化
 // H.M.Wang 2021-8-23 取消重新读取卡中的值来修正本地值的操作
 //                        mCards[mCurBagIdx].mInkLevel = mCards[mCurBagIdx].mMaxVolume - SmartCard.getLocalInk(mCards[mCurBagIdx].mCardType);
 // End of H.M.Wang 2021-8-23 取消重新读取卡中的值来修正本地值的操作

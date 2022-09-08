@@ -1,0 +1,49 @@
+{
+  "buildFiles": [
+    "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\Android.mk"
+  ],
+  "cleanCommands": [
+    "C:\\Users\\hmwan\\AppData\\Local\\Android\\Sdk\\ndk\\21.0.6113669\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\build\\intermediates\\ndkBuild\\release\\lib clean"
+  ],
+  "buildTargetsCommand": "C:\\Users\\hmwan\\AppData\\Local\\Android\\Sdk\\ndk\\21.0.6113669\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\build\\intermediates\\ndkBuild\\release\\lib {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "Hardware_jni-release-x86": {
+      "buildCommand": "C:\\Users\\hmwan\\AppData\\Local\\Android\\Sdk\\ndk\\21.0.6113669\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\build\\intermediates\\ndkBuild\\release\\lib D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/build/intermediates/ndkBuild/release/obj/local/x86/libHardware_jni.so",
+      "toolchain": "toolchain-x86",
+      "abi": "x86",
+      "artifactName": "Hardware_jni",
+      "files": [
+        {
+          "src": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\com_industry_printer_GPIOOperation.c",
+          "flags": "-target i686-none-linux-android17 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot C:/Users/hmwan/AppData/Local/Android/Sdk/ndk/21.0.6113669/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -D_FORTIFY_SOURCE\u003d2 -fPIC -O2 -DNDEBUG -ID:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni -DANDROID -Wformat -Werror\u003dformat-security -mstackrealign"
+        },
+        {
+          "src": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\com_industry_printer_HardwareJni.c",
+          "flags": "-target i686-none-linux-android17 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot C:/Users/hmwan/AppData/Local/Android/Sdk/ndk/21.0.6113669/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -D_FORTIFY_SOURCE\u003d2 -fPIC -O2 -DNDEBUG -ID:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni -DANDROID -Wformat -Werror\u003dformat-security -mstackrealign"
+        },
+        {
+          "src": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\com_industry_printer_RFIDOperation.c",
+          "flags": "-target i686-none-linux-android17 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot C:/Users/hmwan/AppData/Local/Android/Sdk/ndk/21.0.6113669/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -D_FORTIFY_SOURCE\u003d2 -fPIC -O2 -DNDEBUG -ID:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni -DANDROID -Wformat -Werror\u003dformat-security -mstackrealign"
+        },
+        {
+          "src": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\com_industry_printer_RTCDevice.c",
+          "flags": "-target i686-none-linux-android17 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot C:/Users/hmwan/AppData/Local/Android/Sdk/ndk/21.0.6113669/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -D_FORTIFY_SOURCE\u003d2 -fPIC -O2 -DNDEBUG -ID:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni -DANDROID -Wformat -Werror\u003dformat-security -mstackrealign"
+        },
+        {
+          "src": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\src\\main\\jni\\com_industry_printer_UsbSerial.c",
+          "flags": "-target i686-none-linux-android17 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot C:/Users/hmwan/AppData/Local/Android/Sdk/ndk/21.0.6113669/build//../toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -D_FORTIFY_SOURCE\u003d2 -fPIC -O2 -DNDEBUG -ID:/Users/hmwan/Documents/Projects/Printer-AS-Git/hardware/src/main/jni -DANDROID -Wformat -Werror\u003dformat-security -mstackrealign"
+        }
+      ],
+      "output": "D:\\Users\\hmwan\\Documents\\Projects\\Printer-AS-Git\\hardware\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libHardware_jni.so"
+    }
+  },
+  "toolchains": {
+    "toolchain-x86": {
+      "cCompilerExecutable": "C:\\Users\\hmwan\\AppData\\Local\\Android\\Sdk\\ndk\\21.0.6113669\\build\\..\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": []
+}

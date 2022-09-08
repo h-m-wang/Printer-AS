@@ -1,8 +1,0 @@
-D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hp22mm/src/main/jni/PD/MaxLib/PrintHead/service.c:185:39: warning: implicit conversion from enumeration type 'Service_t' to different enumeration type 'IdsService_t' [-Wenum-conversion]
-        return _simple_command(instance, -1, BLUR_TERMINATE_SESSION, "sevice_terminate_session");
-               ~~~~~~~~~~~~~~~               ^~~~~~~~~~~~~~~~~~~~~~
-1 warning generated.
-D:/Users/hmwan/Documents/Projects/Printer-AS-Git/hp22mm/src/main/jni/PD/MaxLib/Utilities/debug_log.c:148:35: warning: flag '0' results in undefined behavior with 's' conversion specifier [-Wformat]
-    snprintf(buf, BUFF_SIZE, "%s:%0s(%d): ", LOG_TAG, file, line);
-                                 ~^~
-1 warning generated.

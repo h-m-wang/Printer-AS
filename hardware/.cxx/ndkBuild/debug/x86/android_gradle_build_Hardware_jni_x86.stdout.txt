@@ -1,6 +1,1 @@
-[x86] Compile        : Hardware_jni <= com_industry_printer_UsbSerial.c
-[x86] Compile        : Hardware_jni <= com_industry_printer_RFIDOperation.c
-[x86] Compile        : Hardware_jni <= com_industry_printer_GPIOOperation.c
-[x86] Compile        : Hardware_jni <= com_industry_printer_RTCDevice.c
-[x86] Compile        : Hardware_jni <= com_industry_printer_HardwareJni.c
-[x86] SharedLibrary  : libHardware_jni.so
+make: Nothing to be done for 'Hardware_jni'.

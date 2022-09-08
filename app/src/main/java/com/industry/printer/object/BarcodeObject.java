@@ -254,6 +254,21 @@ public class BarcodeObject extends BaseObject {
 		return mTextSize;
 	}
 
+// H.M.Wang 2022-9-7 将根据字数重新计算宽度的操作独立出来，只有在编辑页面保存的时候才会调用，中途内容发生变化的时候，不修改宽度
+	public void calWidth() {
+		if (!is2D()) {
+//			if (mWidth <= 0) {
+				mWidth = mContent.length() * 50 * mRatio * mHeight / 152;
+//			}
+		} else {
+//			if (mWidth <= 0) {
+				mWidth = mHeight;
+//			}
+		}
+		setWidth(mWidth);
+	}
+// End of H.M.Wang 2022-9-7 将根据字数重新计算宽度的操作独立出来，只有在编辑页面保存的时候才会调用，中途内容发生变化的时候，不修改宽度
+
 	@Override
 	public void setContent(String content)
 	{
@@ -270,7 +285,8 @@ public class BarcodeObject extends BaseObject {
 //			mWidth = 0;
 //		}
 		check();
-		if (!is2D()) {
+// H.M.Wang 2022-9-7 取消设置内容是重新计算宽度，否则会在运行时由于内容字数的变化而产生宽度的变化，而倒置后面的内容被后移。只有在编辑页面保存时才根据字数重新计算宽度
+/*		if (!is2D()) {
 //			if (mWidth <= 0) {
 				mWidth = mContent.length() * 50 * mRatio * mHeight / 152;
 //			}
@@ -279,7 +295,8 @@ public class BarcodeObject extends BaseObject {
 				mWidth = mHeight;
 //			}
 		}
-		setWidth(mWidth);
+		setWidth(mWidth);*/
+// End of H.M.Wang 2022-9-7 取消设置内容是重新计算宽度，否则会在运行时由于内容字数的变化而产生宽度的变化，而倒置后面的内容被后移。只有在编辑页面保存时才根据字数重新计算宽度
 // End of H.M.Wang 2020-12-25 这里当生成条码的时候，会因为宽度为0，而在getPrintBitmap函数里面异常退出
 
 		isNeedRedraw = true;
@@ -522,7 +539,7 @@ public class BarcodeObject extends BaseObject {
 	}
 
 	private Bitmap drawDataMatrix(String content, int w, int h) {
-		
+
 		DataMatrixWriter writer = new DataMatrixWriter();
 
 		// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形

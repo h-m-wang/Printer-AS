@@ -1,4 +1,0 @@
-[armeabi-v7a] Compile++ thumb: NativeGraphicJni <= com_industry_printer_data_NativeGraphicJni.cpp
-[armeabi-v7a] SharedLibrary  : libNativeGraphicJni.so
-[armeabi-v7a] Compile++ thumb: SerialPort <= com_industry_printer_Serial_SerialPort.cpp
-[armeabi-v7a] SharedLibrary  : libSerialPort.so
