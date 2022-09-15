@@ -105,6 +105,10 @@ public class SmartCardManager implements IInkDevice {
     private static final int MSG_SHOW_CONSISTENCY       = 101;
     private static final int MSG_SHOW_LEVEL             = 102;
     private static final int MSG_SHOW_OIB_ERROR         = 103;
+// H.M.Wang 2022-9-15 单独设置一个错误显示消息，用来显示错误信息，并且禁止后续信息显示替换掉改内容，错误信息被后续信息覆盖
+    private static final int MSG_SHOW_ACCESS_ERROR      = 104;
+    private boolean mErrorShowing                       = false;
+// End of H.M.Wang 2022-9-15 单独设置一个错误显示消息，用来显示错误信息，并且禁止后续信息显示替换掉改内容，错误信息被后续信息覆盖
 
     private final static int READ_LEVEL_INTERVAL        = 10;
     private final static int MSG_READ_CONSISTENCY_INTERVAL   = 1000 * 60;
@@ -119,10 +123,22 @@ public class SmartCardManager implements IInkDevice {
             switch (msg.what) {
                 case MSG_SHOW_CONSISTENCY:
                     if (null != mRecvedLevelPromptDlg) {
-                        mRecvedLevelPromptDlg.setTitle("Legality" + " - " + MAX_BAG_INK_VOLUME);
+                        if(!mRecvedLevelPromptDlg.isShowing() || !mErrorShowing) {
+                            mRecvedLevelPromptDlg.setTitle("Legality" + " - " + MAX_BAG_INK_VOLUME);
+                            mRecvedLevelPromptDlg.setMessage((String) msg.obj);
+                            mRecvedLevelPromptDlg.show();
+                            mRecvedLevelPromptDlg.show();
+                            mErrorShowing = false;
+                        }
+                    }
+                    break;
+                case MSG_SHOW_ACCESS_ERROR:
+                    if (null != mRecvedLevelPromptDlg) {
+                        mRecvedLevelPromptDlg.setTitle("Error");
                         mRecvedLevelPromptDlg.setMessage((String) msg.obj);
                         mRecvedLevelPromptDlg.show();
                         mRecvedLevelPromptDlg.show();
+                        mErrorShowing = true;
                     }
                     break;
                 case MSG_SHOW_LEVEL:
@@ -874,7 +890,7 @@ public class SmartCardManager implements IInkDevice {
 
     @Override
     public boolean isValid(final int cardIdx) {
-        Debug.d(TAG, "---> enter isValid(" + cardIdx + ")" + "mInitialized=" + !mCards[cardIdx].mInitialized + "mValid=" + !mCards[cardIdx].mValid + "mOIB=" + !mCards[cardIdx].mOIB);
+        Debug.d(TAG, "---> enter isValid(" + cardIdx + ")" + " - mInitialized=" + mCards[cardIdx].mInitialized + "; mValid=" + mCards[cardIdx].mValid + "; mOIB=" + mCards[cardIdx].mOIB);
         boolean ret = false;
 
         if(cardIdx < mPenNum + mBagNum) {
@@ -919,16 +935,13 @@ public class SmartCardManager implements IInkDevice {
     private void trySmartCardDownLocal(final int cardIdx) {
         int tryNum;
         for(tryNum = 0; tryNum<3; tryNum++) {
+            Debug.d(TAG, "Try Downlocal " + (tryNum+1) + " times");
             if(SmartCard.SC_SUCCESS == SmartCard.downLocal(mCards[cardIdx].mCardType)) break;
         }
         if(tryNum >= 3) {
-            mHandler.obtainMessage(MSG_SHOW_CONSISTENCY, "Smartcard access error!").sendToTarget();
-            mCachedThreadPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    initComponent(cardIdx);
-                }
-            });
+            mHandler.obtainMessage(MSG_SHOW_ACCESS_ERROR, "Smartcard access error!").sendToTarget();
+            Debug.d(TAG, "Launch initComponent");
+            initComponent(cardIdx);
         }
     }
 // End of H.M.Wang 2022-9-8 将SmartCard.downLocal的调用提取出来，并且增加如果失败，尝试3次，3次都失败，尝试初始化

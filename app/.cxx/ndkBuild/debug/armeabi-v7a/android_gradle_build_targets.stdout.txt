@@ -1,0 +1,2 @@
+make: Nothing to be done for 'NativeGraphicJni'.
+make: Nothing to be done for 'SerialPort'.

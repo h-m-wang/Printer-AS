@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.387"
+#define VERSION_CODE                            "1.0.388"
 // 1.0.378
 //   readDeviceID函数内，执行一次重启一次Level设备
 // 1.0.379
@@ -49,6 +49,9 @@ extern "C"
 //   (1) 暂时取消重新起振的尝试操作，改为每读5次关闭一次，再关闭的状态读，下一次读再打开
 // 1.0.387
 //   (1) 在shutdown函数中，增加排斥锁的使用，在获取锁后才shutdown
+// 1.0.388
+//   (1) initComponent函数中，对于adjustLocalInkValue函数的调用，原来传递的参数错误，没有起到调整的作用
+//   (2) 为adjustLocalInkValue函数和getMaxVolume函数添加log
 
 
 #define SC_SUCCESS                              0
@@ -232,8 +235,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
             pthread_mutex_unlock(&mutex);
             return SC_INIT_PRNT_CTRG_INIT_FAILED;
         }
-
-        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN1);
+// H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
+//        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN1);
+        adjustLocalInkValue(card);
+// End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(CARD_SELECT_PEN2 == card) {
         // Initialize Smart Card 0, this should be a print cartridge
         if (HP_SMART_CARD_OK != LIB_HP_SMART_CARD_device_present(HP_SMART_CARD_DEVICE_PEN2)) {
@@ -248,7 +253,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
             return SC_INIT_PRNT_CTRG_INIT_FAILED;
         }
 
-        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN2);
+// H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
+//        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN2);
+        adjustLocalInkValue(card);
+// End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(CARD_SELECT_BULK1 == card || CARD_SELECT_BULKX == card) {
         if(CARD_SELECT_BULKX == card) {     // 2022-4-15 墨盒替代墨袋的时候，显示log的时候使用ink的访问信息，不适用supply的信息。
             FIELD_NAME[HP_SMART_CARD_DEVICE_BULK1] = inkFamilyGetFiledName;
@@ -278,7 +286,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
             return SC_INIT_BULK_CTRG_INIT_FAILED;
         }
 
-        adjustLocalInkValue(HP_SMART_CARD_DEVICE_BULK1);
+// H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
+//        adjustLocalInkValue(HP_SMART_CARD_DEVICE_BULK1);
+        adjustLocalInkValue(card);
+// End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(SELECT_LEVEL1 == card) {
         SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_PEN1);
 
@@ -519,6 +530,7 @@ JNIEXPORT int JNICALL Java_com_Smartcard_getMaxVolume(JNIEnv *env, jclass arg, j
     } else if(CARD_SELECT_PEN2 == card) {
         inkReadTag5DropVolume(HP_SMART_CARD_DEVICE_PEN2, &drop_volume);
     } else {
+        LOGD(">>> getMaxVolume(#%d) = %d (pre-calculated)", card, MaxBagInkVolume);
         return MaxBagInkVolume;
     }
 
@@ -536,6 +548,8 @@ JNIEXPORT int JNICALL Java_com_Smartcard_getMaxVolume(JNIEnv *env, jclass arg, j
     MaxPenInkVolume                      = MaxBagInkVolume * PEN_VS_BAG_RATIO;
     InkVolOfBagPercentage                = MaxBagInkVolume / 100;
     InkVolOfPenPercentage                = MaxPenInkVolume / 100;
+
+    LOGD(">>> getMaxVolume(#%d) = %d", card, MaxBagInkVolume);
 
     return MaxBagInkVolume;
 }
@@ -714,6 +728,8 @@ static void adjustLocalInkValue(jint card) {
     if (HP_SMART_CARD_OK != ret) {
         x = 0;
     }
+
+    LOGD(">>> AdjustLocalInkValue(Card:%d): ILG=%d, Value=(%d -> %d)", card, ilg, x, (quit == 1 ? ilg * vol_percentage + x % vol_percentage : x));
 
     x = (quit == 1 ? ilg * vol_percentage + x % vol_percentage : x);
 
@@ -920,7 +936,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
         chData = 0;
     }
 
-    if(chData == 0xFFFFFFFF) {
+    if(chData == 0x0FFFFFFF) {
         uint16_t config;
         if(LEVEL_I2C_OK == readConfig(&config)) {
             config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
