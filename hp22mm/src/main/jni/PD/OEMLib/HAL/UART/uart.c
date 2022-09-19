@@ -115,7 +115,10 @@ UartResult_t uart_lib_shutdown() {
 
     if(false == is_lib_initialized) return UART_OK;
 
-    is_lib_initialized = true;
+// H.M.Wang 2022-9-16 是否应该设false？
+//    is_lib_initialized = true;        // 原代码
+    is_lib_initialized = false;         // 建议修改代码
+// End of H.M.Wang 2022-9-16 是否应该设false？
 
     mutex_destroy(&shared_lock);
 

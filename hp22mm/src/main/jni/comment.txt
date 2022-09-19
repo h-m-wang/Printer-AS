@@ -1,0 +1,10 @@
+1， ids.c, oem_lib.c, uart.c 均包含一个is_lib_initialized变量，用来记忆各自的库是否初始化，但彼此不关联
+2.  uart.c的118行，uart_lib_shutdown函数中的
+   is_lib_initialized = true;
+   是否应该为
+   is_lib_initialized = false;
+   ？？？？？
+3. IDS_INSTANCE(2) 和 PD_INSTANCE(1) 似乎没有什么实际意义
+4. common.c(176)ids_info函数和common.c(186)pd_get_system_status调用，除了得到一些版本参数，没有什么实际的意义
+5. common.c(225)ids_set_platform_info和common.c(227)pd_set_platform_info，设置的内容都一样，但是底层的service索引值不一样，ids_set_platform_info和common使用的是IDS_SERVICE_SET_PLATFORM_INFO，pd_set_platform_info使用的是info->first_srvc_id+MULTIHEAD_GET_SET_PLATFORMINFO_IDX
+6. common.c(217) - common.c(223)设置的内容，可能需要根据实际内容进行修改，这个例子里面仅仅是个例子

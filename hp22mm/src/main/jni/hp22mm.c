@@ -27,7 +27,7 @@ extern "C"
  ***********************************************************/
 
 JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
-    LOGI("Initializing smart card library....%s\n", VERSION_CODE);
+    LOGI("Initializing hp22mm smart card library....%s\n", VERSION_CODE);
 
     IDSResult_t ids_r;
     PDResult_t pd_r;
