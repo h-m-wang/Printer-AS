@@ -1738,7 +1738,10 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2020-10.17 大字机墨水消耗计算， 加入墨点大小修正
 //                rate = Math.max(0.5f, ((1.0f * config.getParam(SystemConfigFile.INDEX_DOT_SIZE)-450)*4+1000)/1200);
 // H.M.Wang 2020-11-24 修改计算公式
-                rate = Math.max(0.5f, (1.0f * config.getParam(SystemConfigFile.INDEX_DOT_SIZE)+640)/1600);
+// H.M.Wang 2022-9-29 修改下列计算公式，取参数35和参数33的最大值
+//				rate = Math.max(0.5f, (1.0f * config.getParam(SystemConfigFile.INDEX_DOT_SIZE)+640)/1600);
+				rate = Math.max(0.5f, (1.0f * Math.max(config.getParam(SystemConfigFile.INDEX_STR), config.getParam(SystemConfigFile.INDEX_DOT_SIZE))+640)/1600);
+// End of H.M.Wang 2022-9-29 修改下列计算公式，取参数35和参数33的最大值
 			}
 // End of H.M.Wang 2020-10.17 大字机墨水消耗计算， 加入墨点大小修正
 // End of H.M.Wang 2020-6-12 16,32,64点头减锁修改为不受分辨率影响

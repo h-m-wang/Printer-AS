@@ -205,10 +205,10 @@ public class Paramter {
 		mFPGAParam[13] *= (param[SystemConfigFile.INDEX_WIDTH_RATIO] <= 10 ? 100 : param[SystemConfigFile.INDEX_WIDTH_RATIO]);
 		mFPGAParam[13] /= 100;
 // End of H.M.Wang 2022-5-30 增加编码器变倍
-	    mFPGAParam[14] = param[34];
+	    mFPGAParam[14] = param[SystemConfigFile.INDEX_STR];
 	    mFPGAParam[20] = param[36];
 	    mFPGAParam[21] = param[33];
-	    mFPGAParam[22] = param[32];
+	    mFPGAParam[22] = param[SystemConfigFile.INDEX_DOT_SIZE];
 	    mFPGAParam[23] = param[39] == 0 ? (mFPGAParam[23] & 0xFFFE) : (mFPGAParam[23] | 0x0001);
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 		mFPGAParam[23] = param[SystemConfigFile.INDEX_NOZZLE_WARMING] == 0 ? (mFPGAParam[23] & 0xFFFD) : (mFPGAParam[23] | 0x0002);

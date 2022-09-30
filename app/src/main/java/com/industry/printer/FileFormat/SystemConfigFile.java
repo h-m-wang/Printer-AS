@@ -126,6 +126,10 @@ public class SystemConfigFile{
 
     public static final int INDEX_DOT_SIZE = 32;
 
+// H.M.Wang 2022-9-29 增加一个现有参数的索引
+	public static final int INDEX_STR = 34;
+// End of H.M.Wang 2022-9-29 增加一个现有参数的索引
+
 	public static final int INDEX_SLANT = 35;
 
 // H.M.Wang 2019-9-28 增加1带多参数索引
