@@ -271,7 +271,10 @@ public class TLKFileParser  extends TlkFile{
 				((BarcodeObject) obj).setWithFrame(withFrame == 0 ? false : true);
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
-				if(source == 1) {
+// H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
+//				if(source == 1) {
+				if(source == 1 && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_AUTO_DATA) {
+// End of H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
 					((BarcodeObject) obj).setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
 				}
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶

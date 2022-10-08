@@ -250,6 +250,9 @@ public class SystemConfigFile{
 // H.M.Wang 2022-5-16 追加串口协议2无线
 	public static final int DATA_SOURCE_RS232_2_WIFI = 23;      // 串口协议2无线。与串口协议2完全一致，只是走CH341串口（ttyUSB0）
 // End of H.M.Wang 2022-5-16 追加串口协议2无线
+// H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
+	public static final int DATA_SOURCE_AUTO_DATA = 24;      	// 该数据源的意图是，使得动态条码使用变量本身保存的信息作为生成条码的依据，而不使用桶里的内容，也不影响桶里的内容，此时，本信息的内容主要为超文本
+// End of H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。

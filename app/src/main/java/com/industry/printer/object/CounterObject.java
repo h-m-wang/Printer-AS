@@ -33,7 +33,7 @@ public class CounterObject extends BaseObject {
 	private Direction mDirection;
 	private int mValue;
 // H.M.Wang 2021-5-7 追加实际打印计数器变量，目的是记忆实际打印（而非apk下发，这个在FIFO打印时可能不一致）数量
-	private int mPritedValue;
+	private int mPrintedValue;
 // End of H.M.Wang 2021-5-7 追加实际打印计数器变量，目的是记忆实际打印（而非apk下发，这个在FIFO打印时可能不一致）数量
 	private int mStepLen;
 	// 计数器初始值对应设置里10个计数器值的编号
@@ -46,7 +46,7 @@ public class CounterObject extends BaseObject {
 		mStart = 0;
 		mEnd = 99999;
 		mValue = 0;
-		mPritedValue = 0;
+		mPrintedValue = 0;
 		mDirection = Direction.INCREASE;
 		mStepLen=1;
 		mCounterIndex = 0;
@@ -171,7 +171,7 @@ public class CounterObject extends BaseObject {
 // End of H.M.Wang 2022-2-14 取消这个值相同不操作的判断。原因是value和mValue可能不在start和end之间，需要后续的调整。还有在本次修改之前，有些对mValue的修改没有反应到super.SetContent里面，导致Value和Content不一致
 
 		mValue = Math.min(Math.max(value, Math.min(mStart, mEnd)), Math.max(mStart, mEnd));
-		mPritedValue = mValue;
+		mPrintedValue = mValue;
 
 		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mValue);
 		RTCDevice.getInstance(mContext).write(mValue, mCounterIndex);
@@ -205,13 +205,13 @@ public class CounterObject extends BaseObject {
 	}
 
 	public void goPrintedNext() {
-		int value = (mDirection == Direction.INCREASE ? mPritedValue + mStepLen : mPritedValue - mStepLen);
-		mPritedValue = (mDirection == Direction.INCREASE ? (value > mEnd ? mStart : value) : (value < mEnd ? mStart : value));
+		int value = (mDirection == Direction.INCREASE ? mPrintedValue + mStepLen : mPrintedValue - mStepLen);
+		mPrintedValue = (mDirection == Direction.INCREASE ? (value > mEnd ? mStart : value) : (value < mEnd ? mStart : value));
 
-		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mPritedValue);
-		RTCDevice.getInstance(mContext).write(mPritedValue, mCounterIndex);
+		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mPrintedValue);
+		RTCDevice.getInstance(mContext).write(mPrintedValue, mCounterIndex);
 
-		Debug.d(TAG, "Go Printed Next: " + mPritedValue);
+		Debug.d(TAG, "Go Printed Next: " + mPrintedValue);
 	}
 
 	public void setCounterIndex(int index) {
