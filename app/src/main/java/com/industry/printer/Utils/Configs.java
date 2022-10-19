@@ -19,7 +19,6 @@ import com.industry.printer.R;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.object.BaseObject;
-import com.industry.printer.object.data.SegmentBuffer;
 
 public class Configs {
 

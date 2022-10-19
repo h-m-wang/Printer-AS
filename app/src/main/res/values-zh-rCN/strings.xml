@@ -441,6 +441,40 @@
         <string name="str_textview_param64">64.保留</string>-->
 	<string name="str_textview_param64">64.客户APK</string>
 <!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
+<!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
+	<string name="str_textview_param65">65.旋转2</string>
+	<string name="str_textview_param66">66.调整2</string>
+	<string name="str_textview_param67">67.保留</string>
+	<string name="str_textview_param68">68.保留</string>
+	<string name="str_textview_param69">69.保留</string>
+	<string name="str_textview_param70">70.保留</string>
+	<string name="str_textview_param71">71.保留</string>
+	<string name="str_textview_param72">72.保留</string>
+	<string name="str_textview_param73">73.保留</string>
+	<string name="str_textview_param74">74.保留</string>
+	<string name="str_textview_param75">75.保留</string>
+	<string name="str_textview_param76">76.保留</string>
+	<string name="str_textview_param77">77.保留</string>
+	<string name="str_textview_param78">78.保留</string>
+	<string name="str_textview_param79">79.保留</string>
+	<string name="str_textview_param80">80.保留</string>
+	<string name="str_textview_param81">81.保留</string>
+	<string name="str_textview_param82">82.保留</string>
+	<string name="str_textview_param83">83.保留</string>
+	<string name="str_textview_param84">84.保留</string>
+	<string name="str_textview_param85">85.保留</string>
+	<string name="str_textview_param86">86.保留</string>
+	<string name="str_textview_param87">87.保留</string>
+	<string name="str_textview_param88">88.保留</string>
+	<string name="str_textview_param89">89.保留</string>
+	<string name="str_textview_param90">90.保留</string>
+	<string name="str_textview_param91">91.保留</string>
+	<string name="str_textview_param92">92.保留</string>
+	<string name="str_textview_param93">93.保留</string>
+	<string name="str_textview_param94">94.保留</string>
+	<string name="str_textview_param95">95.保留</string>
+	<string name="str_textview_param96">96.保留</string>
+<!-- End of H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
         <string name="str_btn_settings_sync">确认</string>
         <string name="str_time_unit_0_1v">0.1伏</string>
         <string name="str_length_unit_mm">毫米</string>

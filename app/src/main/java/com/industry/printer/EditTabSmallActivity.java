@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.renderscript.BaseObj;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -333,11 +335,10 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 	public static final int OBJECT_UPDATE = 3;
 
 	public static final int OBJECT_UPDATE_CONTENT = 4;
-	
-	
+
 	public Handler mObjRefreshHandler = new Handler(){
 		@Override
-		public void  handleMessage (Message msg)
+		public void  handleMessage (@NonNull Message msg)
 		{
 			Debug.d(TAG, "====== 44444");
 			BaseObject obj = (BaseObject) msg.obj;
@@ -387,6 +388,9 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 // H.M.Wang 2020-8-26 追加64SN打印头
 					case MESSAGE_TYPE_64SN:
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+					case MESSAGE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 					case MESSAGE_TYPE_9MM:
 // H.M.Wang 2021-3-6 追加E6X48,E6X50头
 					case MESSAGE_TYPE_E6X48:

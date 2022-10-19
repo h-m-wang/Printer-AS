@@ -305,24 +305,26 @@ public class MessageTask {
 
 				// H.M.Wang 修改下列两行
 //				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT) {
-// H.M.Wang 2020-7-23 追加32DN打印头
 //				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+// H.M.Wang 2020-7-23 追加32DN打印头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32DN ||
+// End of H.M.Wang 2020-7-23 追加32DN打印头
 // H.M.Wang 2020-8-18 追加32SN打印头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32SN ||
 // End of H.M.Wang 2020-8-18 追加32SN打印头
 // H.M.Wang 2020-8-26 追加64SN打印头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-//					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2021-8-16 追加96DN头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 
@@ -781,12 +783,14 @@ public class MessageTask {
 // H.M.Wang 2020-8-26 追加64SN打印头
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64SN) ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT) ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2) ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
-//			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT)) {
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) ||
+// H.M.Wang 2021-8-16 追加96DN头
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN)) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 

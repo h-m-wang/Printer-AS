@@ -107,6 +107,40 @@ public class SystemConfigFile{
 	public static final String PH_SETTING_RESERVED_62 = "_10062";
 	public static final String PH_SETTING_RESERVED_63 = "_10063";
 	public static final String PH_SETTING_RESERVED_64 = "_10064";
+// H.M.Wang 2022-10-18 参数扩容32项目
+	public static final String PH_SETTING_RESERVED_65 = "_10065";
+	public static final String PH_SETTING_RESERVED_66 = "_10066";
+	public static final String PH_SETTING_RESERVED_67 = "_10067";
+	public static final String PH_SETTING_RESERVED_68 = "_10068";
+	public static final String PH_SETTING_RESERVED_69 = "_10069";
+	public static final String PH_SETTING_RESERVED_70 = "_10070";
+	public static final String PH_SETTING_RESERVED_71 = "_10071";
+	public static final String PH_SETTING_RESERVED_72 = "_10072";
+	public static final String PH_SETTING_RESERVED_73 = "_10073";
+	public static final String PH_SETTING_RESERVED_74 = "_10074";
+	public static final String PH_SETTING_RESERVED_75 = "_10075";
+	public static final String PH_SETTING_RESERVED_76 = "_10076";
+	public static final String PH_SETTING_RESERVED_77 = "_10077";
+	public static final String PH_SETTING_RESERVED_78 = "_10078";
+	public static final String PH_SETTING_RESERVED_79 = "_10079";
+	public static final String PH_SETTING_RESERVED_80 = "_10080";
+	public static final String PH_SETTING_RESERVED_81 = "_10081";
+	public static final String PH_SETTING_RESERVED_82 = "_10082";
+	public static final String PH_SETTING_RESERVED_83 = "_10083";
+	public static final String PH_SETTING_RESERVED_84 = "_10084";
+	public static final String PH_SETTING_RESERVED_85 = "_10085";
+	public static final String PH_SETTING_RESERVED_86 = "_10086";
+	public static final String PH_SETTING_RESERVED_87 = "_10087";
+	public static final String PH_SETTING_RESERVED_88 = "_10088";
+	public static final String PH_SETTING_RESERVED_89 = "_10089";
+	public static final String PH_SETTING_RESERVED_90 = "_10090";
+	public static final String PH_SETTING_RESERVED_91 = "_10091";
+	public static final String PH_SETTING_RESERVED_92 = "_10092";
+	public static final String PH_SETTING_RESERVED_93 = "_10093";
+	public static final String PH_SETTING_RESERVED_94 = "_10094";
+	public static final String PH_SETTING_RESERVED_95 = "_10095";
+	public static final String PH_SETTING_RESERVED_96 = "_10096";
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 
 	public static final String LAST_MESSAGE = "message";
 	public static final String FEATURE_CODE = "code";
@@ -159,6 +193,10 @@ public class SystemConfigFile{
 // H.M.Wang 2022-9-1 追加一个客户apk启动的参数，该参数为1时，启动客户的apk，为0时不启动
 	public static final int INDEX_USER_APK_START = 63;
 // End of H.M.Wang 2022-9-1 追加一个客户apk启动的参数，该参数为1时，启动客户的apk，为0时不启动
+// H.M.Wang 2022-10-18 追加两个参数，Slant2和ADJ2。Slant2用于定义64SLANT喷头的第二头倾斜斜率，ADJ2用于定义64SLANT喷头的第二头间隔列数
+	public static final int INDEX_SLANT2 = 64;
+	public static final int INDEX_ADJ2 = 65;
+// End of H.M.Wang 2022-10-18 追加两个参数，Slant2和ADJ2。Slant2用于定义64SLANT喷头的第二头倾斜斜率，ADJ2用于定义64SLANT喷头的第二头间隔列数
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -451,7 +489,10 @@ public class SystemConfigFile{
 	 * 3、參數31：是否双列
 	 * 4、參數32：双列偏移量
 	 */
-	public int mParam[] = new int[64];
+// H.M.Wang 2022-10-18 参数扩容32项目
+//	public int mParam[] = new int[64];
+	public int mParam[] = new int[96];
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 	public int mFPGAParam[] = new int[24];
 	
 	public Context mContext;
@@ -677,6 +718,72 @@ public class SystemConfigFile{
 					mParam[62] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_64)) {
 					mParam[63] = Integer.parseInt(t.getValue());
+// H.M.Wang 2022-10-18 参数扩容32项目
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_65)) {
+					mParam[64] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_66)) {
+					mParam[65] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_67)) {
+					mParam[66] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_68)) {
+					mParam[67] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_69)) {
+					mParam[68] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_70)) {
+					mParam[69] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_71)) {
+					mParam[70] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_72)) {
+					mParam[71] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_73)) {
+					mParam[72] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_74)) {
+					mParam[73] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_75)) {
+					mParam[74] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_76)) {
+					mParam[75] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_77)) {
+					mParam[76] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_78)) {
+					mParam[77] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_79)) {
+					mParam[78] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_80)) {
+					mParam[79] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_81)) {
+					mParam[80] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_82)) {
+					mParam[81] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_83)) {
+					mParam[82] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_84)) {
+					mParam[83] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_85)) {
+					mParam[84] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_86)) {
+					mParam[85] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_87)) {
+					mParam[86] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_88)) {
+					mParam[87] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_89)) {
+					mParam[88] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_90)) {
+					mParam[89] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_91)) {
+					mParam[90] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_92)) {
+					mParam[91] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_93)) {
+					mParam[92] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_94)) {
+					mParam[93] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_95)) {
+					mParam[94] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_96)) {
+					mParam[95] = Integer.parseInt(t.getValue());
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 				}
 				Debug.d(TAG, "===>tag key:" + tag + ", value:" + t.getValue());
 			} catch ( Exception e) {
@@ -945,6 +1052,72 @@ public class SystemConfigFile{
 		list.add(tag1);
 		tag1 = new XmlTag(PH_SETTING_RESERVED_64, String.valueOf(mParam[63]));
 		list.add(tag1);
+// H.M.Wang 2022-10-18 参数扩容32项目
+		tag1 = new XmlTag(PH_SETTING_RESERVED_65, String.valueOf(mParam[64]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_66, String.valueOf(mParam[65]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_67, String.valueOf(mParam[66]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_68, String.valueOf(mParam[67]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_69, String.valueOf(mParam[68]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_70, String.valueOf(mParam[69]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_71, String.valueOf(mParam[70]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_72, String.valueOf(mParam[71]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_73, String.valueOf(mParam[72]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_74, String.valueOf(mParam[73]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_75, String.valueOf(mParam[74]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_76, String.valueOf(mParam[75]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_77, String.valueOf(mParam[76]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_78, String.valueOf(mParam[77]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_79, String.valueOf(mParam[78]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_80, String.valueOf(mParam[79]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_81, String.valueOf(mParam[80]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_82, String.valueOf(mParam[81]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_83, String.valueOf(mParam[82]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_84, String.valueOf(mParam[83]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_85, String.valueOf(mParam[84]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_86, String.valueOf(mParam[85]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_87, String.valueOf(mParam[86]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_88, String.valueOf(mParam[87]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_89, String.valueOf(mParam[88]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_90, String.valueOf(mParam[89]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_91, String.valueOf(mParam[90]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_92, String.valueOf(mParam[91]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_93, String.valueOf(mParam[92]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_94, String.valueOf(mParam[93]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_95, String.valueOf(mParam[94]));
+		list.add(tag1);
+		tag1 = new XmlTag(PH_SETTING_RESERVED_96, String.valueOf(mParam[95]));
+		list.add(tag1);
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 		XmlOutputStream stream = new XmlOutputStream(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_XML);
 		stream.write(list);
 		stream.close();
@@ -1568,6 +1741,11 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_64SN;
 				break;
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_64SLANT;
+				break;
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X2:
 				nozzle = PrinterNozzle.MESSAGE_TYPE_32X2;

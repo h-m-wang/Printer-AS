@@ -307,6 +307,9 @@ public class FpgaGpioOperation {
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
             config.setParam(2, 150);
         }
@@ -367,9 +370,11 @@ public class FpgaGpioOperation {
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64_DOT ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN ||
-// H.M.Wang 2021-8-16 追加96DN头
-//                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN) {
+// H.M.Wang 2022-10-19 追加64SLANT头。
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // H.M.Wang 2021-12-31 将data[15]原来强制设为8改为2（其实2是对应于300dpi的，150dpi应该是1
@@ -387,9 +392,11 @@ public class FpgaGpioOperation {
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64_DOT ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN ||
-// H.M.Wang 2021-8-16 追加96DN头
-//                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN) {
+// H.M.Wang 2022-10-19 追加64SLANT头。
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
                 data[15] = (char) (Configs.GetDpiVersion() == DPI_VERSION_300 ? 2 : 1);

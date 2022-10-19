@@ -104,6 +104,9 @@
         <!-- H.M.Wang 2022-5-27 追加32x2头类型 -->
         <item>32x2</item>
         <!-- End of H.M.Wang 2022-5-27 追加32x2头类型 -->
+        <!-- H.M.Wang 2022-10-19 追加64SLANT头 -->
+        <item>64SLANT</item>
+        <!-- End of H.M.Wang 2022-10-19 追加64SLANT头 -->
     </string-array>
 
     <string-array name="strFontArray">

@@ -60,8 +60,15 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-5-27 追加32x2头类型
 //  新增32x2喷头类型， 实际就是64点双列的，只不过打印buffer 要转换
 //  奇数bit,进上32, 偶数bit进下32 bit, 然后 上32bit , 后移4 列。大概原理如此， 后面要实验调整
-    MESSAGE_TYPE_32X2(MessageType.NOZZLE_INDEX_32X2, NozzleType.NOZZLE_TYPE_32X2, 1, 1);
+    MESSAGE_TYPE_32X2(MessageType.NOZZLE_INDEX_32X2, NozzleType.NOZZLE_TYPE_32X2, 1, 1),
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2022-10-19 追加64SLANT头。
+// 此类型暂时理解为两个32 点喷头，1-32点和33-64点。
+// 原有 喷头一  镜像/倒置/偏移，  控制1 头。    二头的控制二头。
+// 增加 Slant2 参数。 用于控制第二喷头倾斜。（原有SLANT  用于控制第一个32 点喷头倾斜）
+// 增加 “调整2”“/”ADJ2”参数，  用于调整喷头2的宽度，规则：默认值是0， 设为n, 则展宽为 32+n
+    MESSAGE_TYPE_64SLANT(MessageType.NOZZLE_INDEX_64SLANT, NozzleType.NOZZLE_TYPE_64SLANT, 1, 1);
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 
     public final int mIndex;
     public final int mType;
@@ -128,6 +135,9 @@ public enum PrinterNozzle {
 // End of H.M.Wang 2020-3-2 修改64点头，不支持反转和镜像
 // H.M.Wang 2022-9-1 因为64SN的变形处理是假借有4个头来在正式处理流程里面做的，因此，  mirrorEnable和   reverseEnable也都必须有效，否则不会被处理
             case NozzleType.NOZZLE_TYPE_64SN:
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 reverseEnable = true;
                 shiftEnable = true;
                 mirrorEnable = true;
@@ -183,6 +193,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2021-8-16 追加96DN头
             case NozzleType.NOZZLE_TYPE_96DN:
 // End of H.M.Wang 2021-8-16 追加96DN头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 editZoomable = false;
                 buffer8Enable = true;
                 factorScale = 1;
@@ -241,6 +254,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2020-8-26 追加64SN打印头
             case NozzleType.NOZZLE_TYPE_64SN:
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 mHeight = 64;
                 break;
             case NozzleType.NOZZLE_TYPE_1_INCH:
@@ -406,6 +422,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2020-8-26 追加64SN打印头
             case NozzleType.NOZZLE_TYPE_64SN:
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 scaleW = 64f/152;
                 scaleH = 64f/152;
                 break;
@@ -500,6 +519,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2020-8-26 追加64SN打印头
             case NozzleType.NOZZLE_TYPE_64SN:
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
                 ratio = 64f / 304;
                 break;
             case NozzleType.NOZZLE_TYPE_9MM:
@@ -647,7 +669,10 @@ public enum PrinterNozzle {
             case MessageType.NOZZLE_INDEX_64SN:
                 return MESSAGE_TYPE_64SN;
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+                return MESSAGE_TYPE_64SLANT;
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
             case MessageType.NOZZLE_INDEX_1_INCH:
                 return MESSAGE_TYPE_1_INCH;
             case MessageType.NOZZLE_INDEX_1_INCH_DUAL:
@@ -730,7 +755,10 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_64SN:
                 return MESSAGE_TYPE_64SN;
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            case NozzleType.NOZZLE_TYPE_64SLANT:
+                return MESSAGE_TYPE_64SLANT;
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_1_INCH:
                 return MESSAGE_TYPE_1_INCH;
             case NozzleType.NOZZLE_TYPE_1_INCH_DUAL:
@@ -834,6 +862,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-5-27 追加32x2头类型
         public static final int NOZZLE_INDEX_32X2 = 24;
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2022-10-19 追加64SLANT头
+        public static final int NOZZLE_INDEX_64SLANT = 25;
+// End of H.M.Wang 2022-10-19 追加64SLANT头
     }
 
     public static class NozzleType {
@@ -885,5 +916,8 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-5-27 追加32x2头类型
         public static final int NOZZLE_TYPE_32X2 = 43;
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2022-10-19 追加64SLANT头
+        public static final int NOZZLE_TYPE_64SLANT = 44;
+// End of H.M.Wang 2022-10-19 追加64SLANT头
     }
 }

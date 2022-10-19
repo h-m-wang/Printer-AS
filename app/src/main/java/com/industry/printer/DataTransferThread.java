@@ -211,25 +211,27 @@ public class DataTransferThread {
 
 		// H.M.Wang 修改下列两行
 //		final boolean dotHd = (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT);
-// H.M.Wang 2020-7-23 追加32DN打印头
 //		final boolean dotHd = (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT || head == PrinterNozzle.MESSAGE_TYPE_64_DOT);
 		final boolean dotHd =
 				(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 				head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+// H.M.Wang 2020-7-23 追加32DN打印头
 				head == PrinterNozzle.MESSAGE_TYPE_32DN ||
+// End of H.M.Wang 2020-7-23 追加32DN打印头
 // H.M.Wang 2020-8-18 追加32SN打印头
                 head == PrinterNozzle.MESSAGE_TYPE_32SN ||
 // End of H.M.Wang 2020-8-18 追加32SN打印头
 // H.M.Wang 2020-8-26 追加64SN打印头
                 head == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-//				head == PrinterNozzle.MESSAGE_TYPE_64_DOT);
-// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+				head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 				head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
 				head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2021-8-16 追加96DN头
 				head == PrinterNozzle.MESSAGE_TYPE_96DN);
 // End of H.M.Wang 2021-8-16 追加96DN头
 
@@ -349,24 +351,26 @@ public class DataTransferThread {
 
 		// H.M.Wang 修改下列两行
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT) {
-// H.M.Wang 2020-7-23 追加32DN打印头
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT && head != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 			head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
+// H.M.Wang 2020-7-23 追加32DN打印头
 			head != PrinterNozzle.MESSAGE_TYPE_32DN &&
+// End of H.M.Wang 2020-7-23 追加32DN打印头
 // H.M.Wang 2020-8-18 追加32SN打印头
             head != PrinterNozzle.MESSAGE_TYPE_32SN &&
 // End of H.M.Wang 2020-8-18 追加32SN打印头
 // H.M.Wang 2020-8-26 追加64SN打印头
             head != PrinterNozzle.MESSAGE_TYPE_64SN &&
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-//			head != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+			head != PrinterNozzle.MESSAGE_TYPE_64SLANT &&
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 			head != PrinterNozzle.MESSAGE_TYPE_32X2 &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
 			head != PrinterNozzle.MESSAGE_TYPE_64_DOT &&
+// H.M.Wang 2021-8-16 追加96DN头
 			head != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 			return;
@@ -1693,24 +1697,26 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2020-6-12 16,32,64点头减锁修改为不受分辨率影响
 			final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 			final PrinterNozzle hType = PrinterNozzle.getInstance(headIndex);
-// H.M.Wang 2020-7-23 追加32DN打印头
 //			if (hType != PrinterNozzle.MESSAGE_TYPE_16_DOT && hType != PrinterNozzle.MESSAGE_TYPE_32_DOT && hType != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			if (hType != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 				hType != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
+// H.M.Wang 2020-7-23 追加32DN打印头
 				hType != PrinterNozzle.MESSAGE_TYPE_32DN &&
+// End of H.M.Wang 2020-7-23 追加32DN打印头
 // H.M.Wang 2020-8-18 追加32SN打印头
                 hType != PrinterNozzle.MESSAGE_TYPE_32SN &&
 // End of H.M.Wang 2020-8-18 追加32SN打印头
 // H.M.Wang 2020-8-26 追加64SN打印头
                 hType != PrinterNozzle.MESSAGE_TYPE_64SN &&
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-//				hType != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+				hType != PrinterNozzle.MESSAGE_TYPE_64SLANT &&
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 				hType != PrinterNozzle.MESSAGE_TYPE_32X2 &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
 				hType != PrinterNozzle.MESSAGE_TYPE_64_DOT &&
+// H.M.Wang 2021-8-16 追加96DN头
 				hType != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // H.M.Wang 2021-7-9 300dpi的时候生成的打印图案会比原来宽一倍，参数设置为300dpi的时候，返回值会差一倍，最如下修正

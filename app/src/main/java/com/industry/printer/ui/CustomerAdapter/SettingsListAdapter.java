@@ -100,8 +100,11 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
-	
-	private ItemOneLine[] mSettingItems = new ItemOneLine[64];
+
+// H.M.Wang 2022-10-18 参数扩容32项目
+//	private ItemOneLine[] mSettingItems = new ItemOneLine[64];
+	private ItemOneLine[] mSettingItems = new ItemOneLine[96];
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 
 	// H.M.Wang 增加16行。接收计数器更新值，设置到编辑区内
 	public static final String ACTION_PARAM_CHANGED = "com.industry.printer.PARAM_CHANGED";
@@ -185,9 +188,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			case MSG_SELECTED_HEADER:
 				int index = msg.arg1;
 				Debug.d(TAG, "--->index: " + index);
-				mSettingItems[30].setValue(index);
-				mSysconfig.setParam(SystemConfigFile.INDEX_HEAD_TYPE, mSettingItems[30].getValue());
-				String value = mSettingItems[30].getDisplayValue();
+				mSettingItems[SystemConfigFile.INDEX_HEAD_TYPE].setValue(index);
+				mSysconfig.setParam(SystemConfigFile.INDEX_HEAD_TYPE, mSettingItems[SystemConfigFile.INDEX_HEAD_TYPE].getValue());
+				String value = mSettingItems[SystemConfigFile.INDEX_HEAD_TYPE].getDisplayValue();
 				
 				notifyDataSetChanged();
 				break;
@@ -600,6 +603,40 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
 		mSettingItems[62] = new ItemOneLine(63, R.string.str_textview_param63, 0);
 		mSettingItems[63] = new ItemOneLine(64, R.string.str_textview_param64, 0);
+// H.M.Wang 2022-10-18 参数扩容32项目
+		mSettingItems[64] = new ItemOneLine(65, R.string.str_textview_param65, 0);
+		mSettingItems[65] = new ItemOneLine(66, R.string.str_textview_param66, 0);
+		mSettingItems[66] = new ItemOneLine(67, R.string.str_textview_param67, 0);
+		mSettingItems[67] = new ItemOneLine(68, R.string.str_textview_param68, 0);
+		mSettingItems[68] = new ItemOneLine(69, R.string.str_textview_param69, 0);
+		mSettingItems[69] = new ItemOneLine(70, R.string.str_textview_param70, 0);
+		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, 0);
+		mSettingItems[71] = new ItemOneLine(72, R.string.str_textview_param72, 0);
+		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, 0);
+		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, 0);
+		mSettingItems[74] = new ItemOneLine(75, R.string.str_textview_param75, 0);
+		mSettingItems[75] = new ItemOneLine(76, R.string.str_textview_param76, 0);
+		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0);
+		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, 0);
+		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, 0);
+		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
+		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, 0);
+		mSettingItems[81] = new ItemOneLine(82, R.string.str_textview_param82, 0);
+		mSettingItems[82] = new ItemOneLine(83, R.string.str_textview_param83, 0);
+		mSettingItems[83] = new ItemOneLine(84, R.string.str_textview_param84, 0);
+		mSettingItems[84] = new ItemOneLine(85, R.string.str_textview_param85, 0);
+		mSettingItems[85] = new ItemOneLine(86, R.string.str_textview_param86, 0);
+		mSettingItems[86] = new ItemOneLine(87, R.string.str_textview_param87, 0);
+		mSettingItems[87] = new ItemOneLine(88, R.string.str_textview_param88, 0);
+		mSettingItems[88] = new ItemOneLine(89, R.string.str_textview_param89, 0);
+		mSettingItems[89] = new ItemOneLine(90, R.string.str_textview_param90, 0);
+		mSettingItems[90] = new ItemOneLine(91, R.string.str_textview_param91, 0);
+		mSettingItems[91] = new ItemOneLine(92, R.string.str_textview_param92, 0);
+		mSettingItems[92] = new ItemOneLine(93, R.string.str_textview_param93, 0);
+		mSettingItems[93] = new ItemOneLine(94, R.string.str_textview_param94, 0);
+		mSettingItems[94] = new ItemOneLine(95, R.string.str_textview_param95, 0);
+		mSettingItems[95] = new ItemOneLine(96, R.string.str_textview_param96, 0);
+// End of H.M.Wang 2022-10-18 参数扩容32项目
 		Debug.d(TAG, "--->loadSettings");
 	}
 

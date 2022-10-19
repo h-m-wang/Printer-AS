@@ -311,18 +311,20 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-5-27 追加32x2头类型
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
-//				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ) {
+// H.M.Wang 2022-10-19 追加64SLANT头
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2021-8-16 追加96DN头
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN ) {
 // End of H.M.Wang 2021-8-16 追加96DN头
-// H.M.Wang 2021-8-20 由于复制操作已到了倾斜操作之前，所以不需要这个SLANT的判断了
+// H.M.Wang 2021-8-20 由于复制操作移到了倾斜操作之前，所以不需要这个SLANT的判断了
 //				if(sysconf.getParam(SystemConfigFile.INDEX_SLANT) >= 100) {
 //					maxColNumPerUnit = sysconf.getParam(SystemConfigFile.INDEX_REPEAT_PRINT) * 8;
 //				} else {
 					maxColNumPerUnit = sysconf.getParam(SystemConfigFile.INDEX_REPEAT_PRINT) / 4;		//4mm一列
 //				}
-// End of H.M.Wang 2021-8-20 由于复制操作已到了倾斜操作之前，所以不需要这个SLANT的判断了
+// End of H.M.Wang 2021-8-20 由于复制操作移到了倾斜操作之前，所以不需要这个SLANT的判断了
 			}
 
 			Debug.d(TAG, "maxColNumPerUnit = " + maxColNumPerUnit + "; mBinInfo.getBytesFeed() / 2 = " + mBinInfo.getBytesFeed() / 2);
@@ -590,12 +592,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
                 head != PrinterNozzle.MESSAGE_TYPE_32DN &&
                 head != PrinterNozzle.MESSAGE_TYPE_32SN &&
                 head != PrinterNozzle.MESSAGE_TYPE_64SN &&
-// H.M.Wang 2021-8-16 追加96DN头
-//                head != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
+// H.M.Wang 2022-10-19 追加64SLANT头
+				head != PrinterNozzle.MESSAGE_TYPE_64SLANT &&
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 				head != PrinterNozzle.MESSAGE_TYPE_32X2 &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 				head != PrinterNozzle.MESSAGE_TYPE_64_DOT &&
+// H.M.Wang 2021-8-16 追加96DN头
 				head != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
                 dots[j] *= 2;
@@ -620,11 +624,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		if( nozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32DN ||
-				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32SN ||
-				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SN ||
-				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
-				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
-				object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
+			nozzle == PrinterNozzle.MESSAGE_TYPE_32SN ||
+			nozzle == PrinterNozzle.MESSAGE_TYPE_64SN ||
+// H.M.Wang 2022-10-19 追加64SLANT头
+			nozzle == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
+			nozzle == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+			nozzle == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+			nozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
 			heads = 4;
 		}
 //		for (int i = 0; i < nozzle.mHeads; i++) {
@@ -643,7 +650,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		int revert = 0;
 		SystemConfigFile sysconf = SystemConfigFile.getInstance(mContext);
 		if (nozzle.reverseEnable) {
-
 			if (sysconf.getParam(14) > 0) {
 				revert |= 0x01;
 			}
@@ -662,7 +668,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		if (revert > 0 ) {
 			return true;
 		}
-		int rotate = nozzle.rotateAble ? sysconf.getParam(35): 0;
+		int rotate = nozzle.rotateAble ? sysconf.getParam(SystemConfigFile.INDEX_SLANT): 0;
 		if (rotate > 0) {
 			return  true;
 		}
@@ -771,7 +777,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // H.M.Wang 2022-5-27 追加32x2头类型
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN) {
-		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2) {
+// H.M.Wang 2022-10-19 追加64SLANT头
+//		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2) {
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2020-8-26 追加64SN打印头
 			div = 152f/64f;
@@ -819,12 +828,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				(headType != PrinterNozzle.MESSAGE_TYPE_32DN) &&
 				(headType != PrinterNozzle.MESSAGE_TYPE_32SN) &&
 				(headType != PrinterNozzle.MESSAGE_TYPE_64SN) &&
-// H.M.Wang 2021-8-16 追加96DN头
-//				(headType != PrinterNozzle.MESSAGE_TYPE_64_DOT)) {
+// H.M.Wang 2022-10-19 追加64SLANT头
+				(headType != PrinterNozzle.MESSAGE_TYPE_64SLANT) &&
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 				(headType != PrinterNozzle.MESSAGE_TYPE_32X2) &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 				(headType != PrinterNozzle.MESSAGE_TYPE_64_DOT) &&
+// H.M.Wang 2021-8-16 追加96DN头
 				(headType != PrinterNozzle.MESSAGE_TYPE_96DN)) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 ///./...				Debug.d(TAG, "--->High Resolution");
@@ -1410,30 +1421,33 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 */
 		int offsetDiv = 1;
 
-// H.M.Wang 2020-7-23 追加32DN打印头
 //		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 		if( object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+// H.M.Wang 2020-7-23 追加32DN打印头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32DN ||
+// End of H.M.Wang 2020-7-23 追加32DN打印头
 // H.M.Wang 2020-8-17 追加32SN打印头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32SN ||
 // End of H.M.Wang 2020-8-17 追加32SN打印头
 // H.M.Wang 2020-8-26 追加64SN打印头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
-// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2022-5-27 追加32x2头类型
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2021-8-16 追加96DN头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2021-8-16 追加96DN头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 			heads = 4;		// 16点，32点和64点，在这里假设按4个头来算，主要是为了就和当前的实现逻辑
-// H.M.Wang 2021-11-3 大字节4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
+// H.M.Wang 2021-11-3 大字机4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
 //			offsetDiv = 6;	// 打字机位移量除6
 			offsetDiv = 24;
-// End of H.M.Wang 2021-11-3 大字节4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
+// End of H.M.Wang 2021-11-3 大字机4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
 		}
 
 		SystemConfigFile sysconf = SystemConfigFile.getInstance(mContext);
@@ -1463,7 +1477,24 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				revert |= 0x08;
 			}
 		}
-
+// H.M.Wang 2022-10-19 对于64SLANT头做特殊处理，由于大字机缺省是每列按着4个头（分成上下4段）进行变换，4个头的变化参数负责指定每个段的变换方法，
+// 但是，64SLANT是将每列的1-32和33-64点分成两个头来看待，由两个头的设置指定动作方法，因此需要特殊处理
+		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+			shifts[2] = shifts[1];
+			shifts[3] = shifts[1];
+			shifts[1] = shifts[0];
+			mirrors[2] = mirrors[1];
+			mirrors[3] = mirrors[1];
+			mirrors[1] = mirrors[0];
+			revert = 0x00;
+			if (sysconf.getParam(14) > 0) {
+				revert |= 0x03;
+			}
+			if (sysconf.getParam(15) > 0) {
+				revert |= 0x0C;
+			}
+		}
+// End of H.M.Wang 2022-10-19 对于64SLANT头做特殊处理。。。
 		BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mBinInfo.getCharsFeed(), heads);
 		br.mirror(mirrors)
 		  .shift(shifts)
@@ -1471,12 +1502,20 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		mBuffer = br.getCharBuffer();
 // End of H.M.Wang 2020-3-3 修改生成偏移，镜像以及倒置的算法
 
-		int slant = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_SLANT);
-///./...		Debug.d(TAG, "--->slant: " + slant);
-// H.M.Wang 2021-12-29 将下列判断移到这里，保证正常打印的逻辑不变
 		if (mTask != null && mTask.getNozzle() != null && mTask.getNozzle().buffer8Enable) {
-			expendColumn(mBuffer, br.getColumnNum(), slant);
+// H.M.Wang 2022-10-19 对于64SLANT头做特殊处理。64SLANT是将每列的1-32和33-64点分成两个头来看待，
+// Slant2用于控制第二喷头倾斜。（原有SLANT  用于控制第一个32 点喷头倾斜）
+// “调整2”“/”ADJ2”参数，  用于调整喷头2的宽度，规则：默认值是0， 设为n, 则展宽为 32+n，
+			if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+				expendColumn(mBuffer,
+						br.getColumnNum(),
+						new int[] {0, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ADJ2)},
+						new int[] {SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SLANT), SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SLANT2)});
+			} else {
+				expendColumn(mBuffer, br.getColumnNum(), SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_SLANT));
+			}
 		}
+
 // End of H.M.Wang 2021-12-29 将下列判断移到这里，保证正常打印的逻辑不变
 	}
 	/**
@@ -1940,9 +1979,9 @@ public char[] bitShiftFor64SN() {
 //			return;
 //		}
 // End of H.M.Wang 2021-12-29 将下列判断移到正常打印流程，取消这里的判断，否则清洗时做的slant会因为mTask为null而返回空
+		Debug.d(TAG, "expendColumn---> slant: " + slant);
 		int extension = 0;
 		int shift = 0;
-		Debug.d(TAG, "--->slant: " + slant);
 		if (slant >= 100 ) {
 			extension = Configs.CONST_EXPAND;
 			shift = slant - 100;
@@ -1989,6 +2028,84 @@ public char[] bitShiftFor64SN() {
 		for (int i = afterColumns - 1; i > 0; i--) {
 			if (shiftBuffer[charsPerColumn * i] != 0 || shiftBuffer[charsPerColumn *i + 1] != 0) {
 				break;
+			}
+			realColumns--;
+		}
+		if (realColumns + 8 < afterColumns) {
+			realColumns += 8;
+		}
+
+		mBuffer = Arrays.copyOf(shiftBuffer, realColumns * charsPerColumn);
+	}
+
+/* H.M.Wang 2022-10-17 将SLANT函数扩充为支持两路处理，即：
+	第一路: 处理上一半数据的倾斜，如64点的碰头，处理0-31个bit的数据
+	第二路: 处理下一半数据的倾斜，如64点的碰头，处理32-63个bit的数据
+   主要目的是为了适应64Slant类型头的打印要求，该打印头的原始要求(by 吕总)是：
+   		a.	增加64Slant喷头类型。 （此类型暂时理解为两个32 点喷头，1-31点和33-64点）。
+		b.	原有 喷头一  镜像/倒置/偏移，  控制1 头。    二头的控制二头。
+ 		c.	增加 Slant2 参数。 用于控制第二喷头倾斜。（原有SLANT  用于控制第一个32 点喷头倾斜）
+		d.	增加 “调整2”“/”ADJ2”参数，  用于调整喷头2的宽度，规则：默认值是0， 设为n, 则展宽为 32+n,
+*/
+	public void expendColumn(char[] buffer, int columns, int[] adj, int[] slant) {
+		Debug.d(TAG, "expendColumn---> adj: " + adj[0] + ", " + adj[1] + "; slant: " + slant[0] + ", " + slant[1]);
+		int[] extension = new int[2];
+		float[] shift = new float[2];
+
+		if(slant[0] < 100 && slant[1] < 100) {
+			return;
+		}
+		extension[0] = 1;
+		if (slant[0] >= 100 ) {
+			extension[0] = Configs.CONST_EXPAND + adj[0];
+			shift[0] = slant[0] >= 10000 ? 1.0f * slant[0] / 100 - 100 : slant[0] - 100;
+		}
+		extension[1] = 1;
+		if (slant[1] >= 100 ) {
+			extension[1] = Configs.CONST_EXPAND + adj[1];
+			shift[1] = slant[1] >= 10000 ? 1.0f * slant[1] / 100 - 100 : slant[1] - 100;
+		}
+		// CharArrayWriter writer = new CharArrayWriter();
+		Debug.d(TAG, "--->extension: " + extension[0] + ", " + extension[1] + "; shift: " +  + shift[0] + ", " + shift[1]);
+		int charsPerColumn = buffer.length/columns;
+		int columnH = charsPerColumn * 16;
+		int afterColumns = columns * Math.max(extension[0], extension[1]) + (int)Math.max((shift[0] > 0 ? (shift[0]+1) * (columnH/2 - 1) : 0), (shift[1] > 0 ? (shift[1]+1) * (columnH/2 - 1) : 0));
+		char[] buffer_8 = new char[columns * Math.max(extension[0], extension[1]) * charsPerColumn];
+
+		// the  final extension and shift buffer
+		// mBuffer = new char[afterColumns * charsPerColumn];
+		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
+		// 8 times extension buffer
+		for (int i = 0; i < columns; i++) {
+			for (int j = 0; j < charsPerColumn; j++) {
+				buffer_8[i * extension[j*2/charsPerColumn] * charsPerColumn + j] = buffer[i * charsPerColumn + j];
+			}
+		}
+		if (shift[0] == 0 && shift[1] == 0) {
+			mBuffer = buffer_8;
+			return;
+		}
+
+		// shift operation
+		char[] shiftBuffer = new char[afterColumns * charsPerColumn];
+		for (int i = 0; i < columns * Math.max(extension[0], extension[1]); i++) {
+			for (int j = 0; j < columnH; j++) {
+				int rowShift = Math.round(shift[j*2/columnH] * ((j*2)%columnH)/2);
+				int bit = j%16;
+				char data = buffer_8[i * charsPerColumn + j/16];
+				if ((data & (0x0001<< bit)) != 0) {
+					int index = (i+rowShift)*charsPerColumn + j/16;
+
+					shiftBuffer[index] |= (0x0001<< bit);
+				}
+			}
+		}
+		int realColumns = afterColumns;
+		outerloop: for (int i = afterColumns - 1; i > 0; i--) {
+			for (int j=0; j<charsPerColumn; j++) {
+				if (shiftBuffer[charsPerColumn * i + j] != 0) {
+					break outerloop;
+				}
 			}
 			realColumns--;
 		}

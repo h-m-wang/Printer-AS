@@ -174,11 +174,11 @@ public class BufferRebuilder {
             byte[] newBuf = new byte[mByteBuffer.length];
 
             for(int i=0; i<mColNum; i++) {
-                // 4头整体反转
 // H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                 System.arraycopy(mByteBuffer, i * bytesPerColumn, newBuf, i * bytesPerColumn,  bytesPerColumn);
 // End of H.M.Wang 2022-9-1 取消每列必须是4个字节的限制，改为必须是4的倍数
                 if (pattern == 0x0f) {
+                    // 4头整体反转
                     byte[] tmp = new byte[bytesPerColumn];
                     System.arraycopy(mByteBuffer, i * bytesPerColumn, tmp, 0,  bytesPerColumn);
                     System.arraycopy(revert(tmp), 0, newBuf, i * bytesPerColumn,  bytesPerColumn);

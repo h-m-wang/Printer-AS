@@ -364,6 +364,9 @@ public class BaseObject{
 			type == PrinterNozzle.MESSAGE_TYPE_32DN ||
 			type == PrinterNozzle.MESSAGE_TYPE_32SN ||
 			type == PrinterNozzle.MESSAGE_TYPE_64SN ||
+// H.M.Wang 2022-10-19 追加64SLANT头。
+			type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 // H.M.Wang 2022-5-27 追加32x2头类型
 			type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -456,6 +459,9 @@ public class BaseObject{
 // H.M.Wang 2020-8-26 追加64SN打印头
             head == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+			head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 // H.M.Wang 2021-8-16 追加96DN头
 //			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
@@ -555,6 +561,9 @@ public class BaseObject{
 // H.M.Wang 2020-8-26 追加64SN打印头
             head == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+			head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 // H.M.Wang 2021-8-16 追加96DN头
 //			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
@@ -919,13 +928,16 @@ public class BaseObject{
 
 		// H.M.Wang 追加下列11行
 		// H.M.Wang 2019-09-11 MessageObject.mDotSizes 修改为 MessageObject.mDot_64_Size
-// H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2020-8-26 追加64SN打印头
 //        } else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
+// H.M.Wang 2022-5-27 追加32x2头类型
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
-// End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+//		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
+		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// End of H.M.Wang 2020-8-26 追加64SN打印头
 			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_64_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 64;
@@ -1510,13 +1522,16 @@ public class BaseObject{
 			}
 
 		// H.M.Wang 追加下列8行
-// H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2020-8-26 追加64SN打印头
 //        } else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
+// H.M.Wang 2022-5-27 追加32x2头类型
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
-// End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+//		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
+		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// End of H.M.Wang 2020-8-26 追加64SN打印头
 			if (mHeight <= 152f * 5 / 64 + 1) {					// 11.875
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 64 + 1) {			// 19
@@ -1637,6 +1652,9 @@ public class BaseObject{
 // H.M.Wang 2020-8-26 追加64SN打印头
             type == PrinterNozzle.MESSAGE_TYPE_64SN ||
 // End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头。
+			type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
 			type == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // End of H.M.Wang 2020-7-23 追加32DN打印头
 			return false;
