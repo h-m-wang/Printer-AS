@@ -661,6 +661,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 
 		FpgaGpioOperation.updateSettings(mContext, null, FpgaGpioOperation.SETTING_TYPE_NORMAL);
+// H.M.Wang 2022-10-24 如果不是盖章机，则停在停止状态。目的是尝试防止待机后就去清洗的话，有不启动清洗的问题
+		if(!PlatformInfo.getImgUniqueCode().startsWith("GZJ")) {
+			FpgaGpioOperation.uninit();
+		}
+// End of H.M.Wang 2022-10-24 如果不是盖章机，则停在停止状态
 		/****鍒濆鍖朢FID****/
 		mInkManager = InkManagerFactory.inkManager(mContext);
 		mHandler.sendEmptyMessageDelayed(RFIDManager.MSG_RFID_INIT, 1000);
