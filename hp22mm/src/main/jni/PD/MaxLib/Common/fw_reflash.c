@@ -53,13 +53,14 @@ ReflashResult_t validate_srec(const char *fw_file_name, uint32_t *first_address,
 
         len = file_read_line(file_handle, buf, sizeof(buf));
         if(len <= 0) break; /* End of file */
-        
+
         /* parse the records */
         uint8_t srec_data[MAX_SREC_DATA_SIZE];
         size_t srec_data_len = 0;
         uint32_t address;
         sr = srec_parse_line(buf, &address, srec_data, sizeof(srec_data), &srec_data_len);
-        
+//        LOGE("srec_parse_line(): sr=%d, address=0x%08x, srec_data_len=%d\n", sr, address, srec_data_len);
+
         /* If this was a file header skip it */
         if(sr == SREC_OK_RECORD_HEADER) continue;
         if(sr < 0) 
@@ -69,9 +70,8 @@ ReflashResult_t validate_srec(const char *fw_file_name, uint32_t *first_address,
             return REFLASH_INVALID_FILE;
         }
         
-        if(srec_data_len == 0) 
-            break;
-            
+        if(srec_data_len == 0) break;
+
         if(address < *first_address) 
             *first_address = address;
         

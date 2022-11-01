@@ -14,6 +14,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.industry.printer.MessageTask;
 import com.industry.printer.R;
 import com.industry.printer.Utils.ConfigPath;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.ui.CustomerAdapter.MessageListAdater;
@@ -149,7 +150,7 @@ public class MessageGroupsortDialog extends CustomerDialogBase implements View.O
                 gnDlg.setOKListener(new GroupNamingDialog.OnOKListener() {
                     @Override
                     public void onOK(String name) {
-                        String group = "G-" + name;
+                        String group = Configs.GROUP_PREFIX + name;
                         MessageTask.saveGroup(group, resString);
                         if (pListener != null) {
                             pListener.onClick(group);
@@ -175,7 +176,7 @@ public class MessageGroupsortDialog extends CustomerDialogBase implements View.O
     	String[] files = dir.list(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				if (name != null && name.startsWith("G-")) {
+				if (name != null && name.startsWith(Configs.GROUP_PREFIX)) {
 					return true;
 				} else {
 					return false;

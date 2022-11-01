@@ -31,8 +31,8 @@
  ***********************************************************/
 
 // Pen and Supply to use (only one pen and one supply are used in example code)
-#define PEN_IDX 0
-#define SUPPLY_IDX 0
+#define PEN_IDX 1
+#define SUPPLY_IDX 1
 
 // Instance values match dev kit defaults
 #define PD_INSTANCE     1

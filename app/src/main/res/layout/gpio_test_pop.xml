@@ -77,6 +77,21 @@
             android:textColor="@color/black"
             android:gravity="center" />
 <!-- End of H.M.Wang 2022-7-20 增加Bag减1的操作内容 -->
+<!-- H.M.Wang 2022-10-14 增加Hp22mm库的测试 -->
+        <TextView
+            android:id="@+id/btn_hp22mm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="30sp"
+            android:background="@color/button_background"
+            android:text="22mm"
+            android:textColor="@color/black"
+            android:gravity="center" />
+<!-- End of H.M.Wang 2022-10-14 增加Hp22mm库的测试 -->
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/title_area"
@@ -85,14 +100,14 @@
         android:layout_alignParentTop="true" >
         <TextView
             android:id="@+id/test_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btn_quit"
             android:layout_margin="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:layout_alignParentLeft="true"
             android:textSize="30sp"
             android:textColor="@color/white"
             android:gravity="center" />
@@ -105,7 +120,7 @@
             android:paddingBottom="5dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
             android:textSize="30sp"
             android:background="@color/button_background"
             android:text="@string/str_quit"
@@ -122,8 +137,7 @@
             android:id="@+id/id_test_area"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:orientation="horizontal" >
+            android:visibility="gone" >
             <TextView
                 android:id="@+id/id_test_result"
                 android:layout_width="match_parent"
@@ -171,5 +185,18 @@
                 android:orientation="vertical" >
             </LinearLayout>
         </LinearLayout>
+<!-- H.M.Wang 2022-10-15 增加Hp22mm库的测试 -->
+        <ListView
+            android:id="@+id/lv_hp22mm_test"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:visibility="gone"
+            android:background="@color/transparent"
+            android:divider="@color/background"
+            android:dividerHeight="10dp"
+            />
+<!-- End of H.M.Wang 2022-10-15 增加Hp22mm库的测试 -->
     </FrameLayout>
 </RelativeLayout>

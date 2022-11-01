@@ -31,7 +31,8 @@ Made in U.S.A.
 #define UART_MUX_SEL_PIN    7       /* Wiring Pi = 7, BCM = 4 */
 
 #ifndef UART_DEVICE_NAME
-#define UART_DEVICE_NAME    "/dev/serial0"
+#define UART_DEVICE_NAME    "/dev/ttyS3"                  // "/dev/serial0"
+#define UART_SWITCH_DEVICE_NAME    "/dev/ext-gpio"
 #endif
 
 #ifndef UART_BAUD_RATE
@@ -66,6 +67,7 @@ Made in U.S.A.
 typedef struct
 {
     int fs;
+    int switch_fd;
 } UartHandle_t;
 
 #ifndef NUM_BLUR_INSTANCES
@@ -139,6 +141,87 @@ UartResult_t uart_unlock() {
     return UART_OK;
 }
 
+int set_options(int fd, int databits, int stopbits, int parity)
+{
+    struct termios opt;
+    if(fd <= 0)
+        return 0;
+    if(tcgetattr(fd, &opt) != 0)
+    {
+        LOGD("SetupSerial 1\n");
+        return -1;
+    }
+    opt.c_cflag &= ~CSIZE;
+    opt.c_lflag &= ~(ICANON|ECHO|ECHOE|ISIG);
+    opt.c_oflag &= ~OPOST;
+
+    switch(databits)
+    {
+        case 7: opt.c_cflag |= CS7; break;
+        case 8: opt.c_cflag |= CS8; break;
+        default: fprintf(stderr, "Unsupported data size\n");
+            return -1;
+    }
+    switch(parity)
+    {
+        case 'n':
+        case 'N': opt.c_cflag &= ~PARENB;
+            opt.c_iflag &= ~INPCK;
+            break;
+        case 'o':
+        case 'O': opt.c_cflag |= (PARODD|PARENB);
+            opt.c_iflag |= INPCK;
+            break;
+        case 'e':
+        case 'E': opt.c_cflag |= PARENB;
+            opt.c_cflag &= ~PARODD;
+            opt.c_iflag |= INPCK;
+            break;
+        case 's':
+        case 'S': opt.c_cflag &= ~PARENB;
+            opt.c_cflag &= ~CSTOPB;
+            break;
+        default: fprintf(stderr, "Unsupported parity\n");
+            return -1;
+
+    }
+    switch(stopbits)
+    {
+        case 1: opt.c_cflag &= ~CSTOPB;
+            break;
+        case 2: opt.c_cflag |= CSTOPB;
+            break;
+        default: fprintf(stderr,"Unsupported stop bits\n");
+            return -1;
+    }
+
+    if (parity != 'n')  opt.c_iflag |= INPCK;
+//    tcflush(fd,TCIFLUSH);
+    opt.c_cc[VTIME] = 1500; /*ds*/
+    opt.c_cc[VMIN] = 8;
+
+    //
+    opt.c_iflag &= ~(IXON | IXOFF | IXANY);
+    // 处理无法接收特殊字符的问题
+    opt.c_iflag &= ~(BRKINT | ISTRIP);
+    opt.c_iflag &= ~(INLCR | ICRNL | IGNCR);
+
+    opt.c_oflag &= ~(ONLCR | OCRNL);
+    //opt.c_oflag &= ~OPOST;
+    opt.c_cflag |= CLOCAL | CREAD;
+    //opt.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    //tcsetattr(fd,TCSAFLUSH,&opt);
+    cfmakeraw(&opt);
+
+    tcflush(fd, TCIOFLUSH);
+    if (tcsetattr(fd,TCSANOW,&opt) != 0)
+    {
+        LOGD("SetupSerial 3\n");
+        return -1;
+    }
+    return 0;
+}
+
 UartResult_t uart_init(int32_t instance) {
     LOGI("Enter %s", __FUNCTION__);
 
@@ -155,7 +238,9 @@ UartResult_t uart_init(int32_t instance) {
 
     UartHandle_t *handle = &uart_handle;
 
-    handle->fs = open(UART_DEVICE_NAME, O_RDWR | O_NOCTTY /*| O_NDELAY*/);
+    handle->fs = open(UART_DEVICE_NAME, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
+    handle->switch_fd = open(UART_SWITCH_DEVICE_NAME, O_RDWR);
+
     if (handle->fs == -1) {
         /* Failed to open UART */
         char msg[MSG_SIZE];
@@ -163,17 +248,23 @@ UartResult_t uart_init(int32_t instance) {
         perror(msg);
         return UART_ERROR_NO_DEVICE;
     }
+    LOGI("Opened serial port [%s] as [%d]", UART_DEVICE_NAME, handle->fs);
+    LOGI("Opened IDS/PD switcher [%s] as [%d]", UART_SWITCH_DEVICE_NAME, handle->switch_fd);
 
     /* Configure UART
        The flags are defined in termios.h -
        see http://pubs.opengroup.org/onlinepubs/007908799/xsh/termios.h.html
      */
+    set_options(handle->fs, 8, 1, 'n');
+
     struct termios options;
     tcgetattr(handle->fs, &options);
-    options.c_cflag = UART_BAUD_RATE | CS8 | CLOCAL | CREAD;
-    options.c_iflag = 0;
-    options.c_oflag = 0;
-    options.c_lflag = 0;
+//    options.c_cflag = UART_BAUD_RATE | CS8 | CLOCAL | CREAD;
+//    options.c_iflag = 0;
+//    options.c_oflag = 0;
+//    options.c_lflag = 0;
+    cfsetispeed(&options, UART_BAUD_RATE);
+    cfsetospeed(&options, UART_BAUD_RATE);
     tcflush(handle->fs, TCIFLUSH);
     tcsetattr(handle->fs, TCSANOW, &options);
 
@@ -229,10 +320,18 @@ UartResult_t uart_shutdown(int32_t instance) {
     return UART_OK;
 }
 
+static int makeGpioValue(int group, int index, int value) {
+    return (((group - 'A') & 0x0f) << 12) | ((index & 0x0ff) << 4) | value;
+}
+
 /* Select the UART based on the instance */
 UartResult_t uart_select_mux(int32_t instance) {
 //    if(instance == 2)   digitalWrite (UART_MUX_SEL_PIN, HIGH); /* Select IDS */
 //    else                digitalWrite (UART_MUX_SEL_PIN, LOW);  /* Select PD  */
+    LOGI("Enter %s", __FUNCTION__);
+
+    if(instance == 2)   ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 1)); /* Select IDS */
+    else                ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 0));  /* Select PD  */
 
     return UART_OK;
 }
@@ -297,12 +396,13 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
         /* send the data */
 
         while (residual_size >= SPLIT_SIZE) {
-            LOGD("residual size = %d \n", residual_size);
+//            LOGD("residual size = %d \n", residual_size);
 
             transmitted = write(handle->fs, data, SPLIT_SIZE);
+            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
-                LOGE("Bytes transmitted = %d\n", transmitted);
+//                LOGE("Bytes transmitted = %d\n", transmitted);
                 return UART_ERROR;
             }
             usleep(50*1000);//50ms delay
@@ -315,9 +415,10 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
             //  dcpy = data + SPLIT_SIZE;
             splitsize = (size_t)residual_size;//(resisize - splitsize) ;
             transmitted = write(handle->fs, data, splitsize);
+            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
-                LOGE("Bytes transmitted = %d\n", transmitted);
+//                LOGE("Bytes transmitted = %d\n", transmitted);
                 return UART_ERROR;
             }
         }
@@ -331,7 +432,7 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
     /* Send break */
     /* tcsendbreak(handle->fs, 0); */
     /****************************************************************/
-    LOGD("Bytes transmitted = %d\n", transmitted);
+//    LOGD("Bytes transmitted = %d\n", transmitted);
 
     LOGI("%s done", __FUNCTION__);
 

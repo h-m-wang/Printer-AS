@@ -215,7 +215,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 					ArrayList<Integer> selected = mFileAdapter.getSelected();
 					for(Integer idx : selected) {
 						String title = mTotalContents[idx];
-						if (title.startsWith("G-")) {
+						if (title.startsWith(Configs.GROUP_PREFIX)) {
 							continue;
 						}
 						mTitles.add(title);
@@ -279,7 +279,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 			mTitles.add(mTotalContents[mDispIndex.get(position)]);
 		} else {
 			String title = mTotalContents[mDispIndex.get(position)];
-			if (title == null || title.startsWith("G-")) {
+			if (title == null || title.startsWith(Configs.GROUP_PREFIX)) {
 				return;
 			}
 			if (mTitles.contains(title)) {
@@ -406,7 +406,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 					@Override
 					public boolean accept(File arg0, String arg1) {
 //						Debug.d(TAG, arg0.getAbsolutePath() + ":" + arg1);
-						if (mFrom == OpenFrom.OPEN_EDIT && arg1.startsWith("G-")) {
+						if (mFrom == OpenFrom.OPEN_EDIT && arg1.startsWith(Configs.GROUP_PREFIX)) {
 							return false;
 						}
 						return true;

@@ -13,8 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -48,6 +51,9 @@ public class GpioTestPopWindow {
 // H.M.Wang 2022-7-20 增加Bag减1的操作内容
     private final int TEST_PHASE_REDUCE_BAG = 5;
 // End of H.M.Wang 2022-7-20 增加Bag减1的操作内容
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+    private final int TEST_PHASE_HP22MM = 6;
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
     private int mCurrentTestPhase = TEST_PHASE_NONE;
 
@@ -58,6 +64,55 @@ public class GpioTestPopWindow {
     String[] OUT_PINS = new String[] {
             "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", "Serial"
     };
+
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+    private String[] HP22MM_TEST_ITEMS = new String[] {
+        "Init IDS",
+        "Init PD",
+        "ids_set_platform_info",
+        "pd_set_platform_info",
+        "ids_set_date",
+        "pd_set_date",
+        "ids_set_stall_insert_count(1)",
+        "ids_get_supply_status(1)",
+        "ids_get_supply_id(1)",
+        "pd_get_print_head_status(0)",
+        "pd_get_print_head_status(1)",
+        "pd_sc_get_info(0)",
+        "pd_sc_get_info(1)",
+        "DeletePairing",
+        "DoPairing(1,0)",
+        "DoPairing(1,1)",
+        "DoOverrides(1,0)",
+        "DoOverrides(1,1)",
+        "Update PD MCU",
+        "Update FPGA FLASH",
+        "Update IDS MCU"
+    };
+    private String[] HP22MM_TEST_RESULT = new String[HP22MM_TEST_ITEMS.length];
+    private final static int HP22MM_TEST_INIT_IDS                       = 0;
+    private final static int HP22MM_TEST_INIT_PD                        = 1;
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 2;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 3;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 4;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 5;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 6;
+    private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 7;
+    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS      = 9;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS      = 10;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 11;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 12;
+    private final static int HP22MM_TEST_DELETE_PAIRING                 = 13;
+    private final static int HP22MM_TEST_DO_PAIRING10                   = 14;
+    private final static int HP22MM_TEST_DO_PAIRING11                   = 15;
+    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 16;
+    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 17;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 18;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 19;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 20;
+
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
     private final int PIN_ENABLE = 1;
     private final int PIN_DISABLE = 0;
@@ -73,6 +128,9 @@ public class GpioTestPopWindow {
     private ScrollView mTestArea = null;
     private TextView mTestResult = null;
 // End of H.M.Wang 2022-5-20 修改测试页面的布局，追加ID，SC及Level的测试功能。当前仅实现了ID，后续完善SC和Level
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+    private ListView mHp22mmTestLV = null;
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
     private LinearLayout mPinsTestArea = null;
     private LinearLayout mOutPinLayout = null;
@@ -224,6 +282,11 @@ public class GpioTestPopWindow {
                 }
                 mTestArea.setVisibility(View.GONE);
                 break;
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+            case TEST_PHASE_HP22MM:
+                mHp22mmTestLV.setVisibility(View.GONE);
+                break;
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
         }
 
         mCurrentTestPhase = testPhase;
@@ -353,6 +416,12 @@ public class GpioTestPopWindow {
                     mHandler.sendMessage(msg);
                 }
                 break;
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+            case TEST_PHASE_HP22MM:
+                mTestTitle.setText("Hp22mm Test");
+                mHp22mmTestLV.setVisibility(View.VISIBLE);
+                break;
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
         }
     }
 
@@ -413,6 +482,62 @@ public class GpioTestPopWindow {
         });
 // End of H.M.Wang 2022-7-20 增加Bag减1的操作内容
         mTestResult = (TextView)popupView.findViewById(R.id.id_test_result);
+
+// H.M.Wang 2022-10-15 增加Hp22mm库的测试
+        mHp22mmTestLV = (ListView) popupView.findViewById(R.id.lv_hp22mm_test);
+        mHp22mmTestLV.setAdapter(new BaseAdapter() {
+            @Override
+            public int getCount() {
+                return HP22MM_TEST_ITEMS.length;
+            }
+
+            @Override
+            public Object getItem(int i) {
+                return HP22MM_TEST_ITEMS[i];
+            }
+
+            @Override
+            public long getItemId(int i) {
+                return 0;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if(null == convertView) {
+                    convertView = ((LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.hp22mm_test_item, null);
+                }
+
+                TextView cmd = (TextView) convertView.findViewById(R.id.hp22mm_test_cmd);
+                cmd.setText(HP22MM_TEST_ITEMS[position]);
+                TextView result = (TextView) convertView.findViewById(R.id.hp22mm_test_result);
+                result.setText(HP22MM_TEST_RESULT[position]);
+                if(HP22MM_TEST_RESULT[position].isEmpty()) {
+                    result.setVisibility(View.GONE);
+                } else if(HP22MM_TEST_RESULT[position].startsWith("Success")) {
+                    result.setTextColor(Color.GREEN);
+                    result.setVisibility(View.VISIBLE);
+                } else {
+                    result.setTextColor(Color.RED);
+                    result.setVisibility(View.VISIBLE);
+                }
+
+                return convertView;
+            }
+        });
+        mHp22mmTestLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Debug.d(TAG, "onItemClick " + i) ;
+            }
+        });
+        TextView testHp22mm = (TextView)popupView.findViewById(R.id.btn_hp22mm);
+        testHp22mm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTestPhase(TEST_PHASE_HP22MM);
+            }
+        });
+// End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
         mPinsTestArea = (LinearLayout) popupView.findViewById(R.id.pins_test_area);
         TextView testpins = (TextView)popupView.findViewById(R.id.btn_testpins);

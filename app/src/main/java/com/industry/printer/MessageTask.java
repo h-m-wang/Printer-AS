@@ -1225,6 +1225,37 @@ public class MessageTask {
 		return 4f/getHeads();
 	}
 
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+	private void saveQuickGroup() {
+		StringBuilder sb = new StringBuilder();
+		int objIndex = 1;
+		for (BaseObject obj: mObjects) {
+			if (obj instanceof HyperTextObject) {
+				MessageTask msgTask = new MessageTask(mContext);
+
+				MessageObject msgObject = new MessageObject(mContext, 0);
+				msgObject.setType(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_HEAD_TYPE));
+				msgTask.addObject(msgObject);
+
+				HyperTextObject hypertext = new HyperTextObject(mContext, 0);
+				hypertext.setY(0);
+				hypertext.setContent(obj.getContent());
+				msgTask.addObject(hypertext);
+
+				msgTask.setName(mName + "/" + objIndex);
+				msgTask.createTaskFolderIfNeed();
+				msgTask.save(null, null);
+
+				if(objIndex > 1) sb.append("^");
+				sb.append(objIndex++);
+			}
+		}
+
+		String cnt = sb.toString();
+		if(!cnt.isEmpty())
+			saveGroup(mName + "/" + Configs.GROUP_PREFIX + "1", cnt);
+	}
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
 
 	public class SaveTask extends AsyncTask<Void, Void, Void>{
 
@@ -1257,6 +1288,12 @@ public class MessageTask {
 			//保存1.bmp文件
 			savePreview();
 //			Debug.d(TAG, "SaveTime: - Finished : " + System.currentTimeMillis());
+
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+			if(mName.indexOf("/") == -1 && mName.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+				saveQuickGroup();
+			}
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
 
 			//
 			return null;
@@ -1338,6 +1375,36 @@ public class MessageTask {
 		BitmapWriter.saveBitmap(bmp, dir.getAbsolutePath(), "1.bmp");
 
 	}
+
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，打印的时候，因为内部设置的群组保存在信息目录的里面因此，parseGroup的处理方法需要改进
+	public static List<String> parseQuickGroup(String name) {
+		Debug.d(TAG, "--->parseQuickGroup: " + name);
+		File file = new File(ConfigPath.getTlkDir(name + "/" + Configs.GROUP_PREFIX + "1"), "1.TLK");
+		if (!file.exists()) {
+			return null;
+		}
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String content = reader.readLine();
+			String[] group = content.split("\\^");
+			if (group == null) {
+				return null;
+			}
+			ArrayList<String> gl = new ArrayList<String>();
+			for (int i = 0; i < group.length; i++) {
+				File f = new File(ConfigPath.getTlkDir(name + "/" + group[i]));
+				if (!f.exists()) {
+					continue;
+				}
+				gl.add(group[i]);
+			}
+			return gl;
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，
 
 	public static List<String> parseGroup(String name) {
 		Debug.d(TAG, "--->parseGroup: " + name);

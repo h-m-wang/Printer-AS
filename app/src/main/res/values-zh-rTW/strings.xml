@@ -567,4 +567,8 @@
 	<string name="str_quit">退出</string>
 	<string name="str_quit_confirm">確定要退出嗎？</string>
 	<string name="tips_import">導入數據</string>
+<!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+	<string name="strNotice">提示</string>
+	<string name="strQuickGroupPrompt">將保存爲快速分組</string>
+<!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
 </resources>

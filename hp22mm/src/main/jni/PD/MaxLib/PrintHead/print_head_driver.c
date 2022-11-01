@@ -267,8 +267,10 @@ static PDResult_t _pd_init_head_info(int32_t instance,  Headinfo_t * info) {
 	Response_t res;
 	ServiceResult_t sr =  service_check_extension( instance, EXTENSION_MULTIHEAD_ID, &res);
     if(sr != SERVICE_OK) return PD_ERROR;
-	
-	/* if there is response to be processed..8 bytes of response is expected */
+
+    LOGD("res.res_size: %d\n", res.res_size);
+
+    /* if there is response to be processed..8 bytes of response is expected */
 	if(res.res_size != 0 && res.res_size == 8) {
 			/* decode the response data */
 			info->first_srvc_id = res.data[0] ;
@@ -319,7 +321,7 @@ PDResult_t pd_init(int32_t instance) {
     ServiceResult_t sr = service_device_identification(instance);
     if(sr != SERVICE_OK) {
         /* Lock ends here. Unlock mutex is done here */
-        oem_unlock(instance);     
+        oem_unlock(instance);
         return PD_ERROR;
     }
     
@@ -329,7 +331,7 @@ PDResult_t pd_init(int32_t instance) {
 	if(PD_OK != pr) {
         /* do nothing */
     }
-    
+
     _pd_handle[instance-1].is_initialized = true;
 
     /* Lock ends here. Unlock mutex is done here */
@@ -566,13 +568,17 @@ PDResult_t pd_get_system_status(int32_t instance, PDSystemStatus *pd_system_stat
     pd_system_status->blur_board_rev 	    = (board_rev & 0xFF000000)>>24;
     pd_system_status->driver_board0_rev     = (board_rev & 0x00FF0000)>>16;
     pd_system_status->driver_board1_rev     = (board_rev & 0x0000FF00)>>8;
-    pd_system_status->pd_status             = sys_status;
     pd_system_status->board_id              = board_id;
+    pd_system_status->pd_status             = sys_status;
 
-    LOGD(" pd_get_system_status success .  FW-rev-major:%d FW-rev-minor:%d FPGA-rev-major:%d FPGA-rev-minor:%d\n",
-											pd_system_status->fw_rev_major, pd_system_status->fw_rev_minor, pd_system_status->fpga_rev_major,pd_system_status->fpga_rev_minor);
-    LOGD(" pd_get_system_status success .  BLR-bd-rev:%d DRV_bd0-rev:%d DRV_bd1_rev:%d System-status:%d\n",
-											pd_system_status->blur_board_rev, pd_system_status->driver_board0_rev, pd_system_status->driver_board1_rev,pd_system_status->pd_status);
+    LOGD("uC FW REV. = %d.%d\n", pd_system_status->fw_rev_major, pd_system_status->fw_rev_minor);
+    LOGD("Bootloader REV = %d.%d\n", pd_system_status->boot_rev_major, pd_system_status->boot_rev_minor);
+    LOGD("FPGA REV = %d.%d\n", pd_system_status->fpga_rev_major, pd_system_status->fpga_rev_minor);
+    LOGD("BLUR(PD PCA) REV = %d\n", pd_system_status->blur_board_rev);
+    LOGD("BOARD0 REV = %d\n", pd_system_status->driver_board0_rev);
+    LOGD("BOARD1 REV = %d\n", pd_system_status->driver_board1_rev);
+    LOGD("BOARD ID = %d\n", pd_system_status->board_id);
+    LOGD("BOARD STATUS = %d\n", pd_system_status->pd_status);
 
     LOGI("%s done", __FUNCTION__);
 
@@ -898,8 +904,9 @@ static PDResult_t _pd_fpgaflash_program(int32_t instance,Flashinfo_t * info, uin
 	Response_t res;
 	ServiceResult_t sr =  service_flash_wrenbl(instance, info, &res);
     if(sr != SERVICE_OK) return PD_ERROR;
-
+///// H.M.Wang 2022-10-9 停在了这个函数里面
 	sr =  service_write_data(instance, info->objects[FLASH_PGPGM].addr+1, data, data_size);
+///// End of H.M.Wang 2022-10-9 停在了这个函数里面
     if(sr != SERVICE_OK) return PD_ERROR;
 	
 	sr =  service_flash_pgm(instance, info, &res, data_size);
@@ -1258,7 +1265,19 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
         oem_unlock(instance);
         return pr;
     }
-
+/*
+    LOGE("FlashInfo.rev = %d", fpgaflashinfo.rev);
+    LOGE("FlashInfo.total_srvcs = %d", fpgaflashinfo.total_srvcs);
+    LOGE("FlashInfo.total_evnts = %d", fpgaflashinfo.total_evnts);
+    LOGE("FlashInfo.first_srvc_id = %d", fpgaflashinfo.first_srvc_id);
+    LOGE("FlashInfo.first_evnt_id = %d", fpgaflashinfo.first_evnt_id);
+    LOGE("FlashInfo.total_dvcs = %d", fpgaflashinfo.total_dvcs);
+    LOGE("FlashInfo.dev_name = [%s]", fpgaflashinfo.dev_name);
+    LOGE("FlashInfo.dev_id = %d", fpgaflashinfo.dev_id);
+    for(int i=0; i<MAX_FLASH_OBJECTS; i++) {
+        LOGE("FlashInfo.objects[%d] = {id=%d, size=%d, addr=%d}", i, fpgaflashinfo.objects[i].id, fpgaflashinfo.objects[i].size, fpgaflashinfo.objects[i].addr);
+    }
+*/
     /* Put FPGA in reset mode before starting reflash. */
     pr = _pd_fpga_setreset( instance, 0);
     if(PD_OK != pr) {
@@ -1276,6 +1295,7 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     	oem_unlock(instance);
     	return pr;
     }
+//    LOGE("fpgaflash status = %d", status);
 	if(status & FLASH_WP_MASK) {
         LOGI("FPGA flash is write protected. Trying to write enable..\n");
 						

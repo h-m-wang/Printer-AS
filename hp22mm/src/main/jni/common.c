@@ -185,7 +185,7 @@ int InitSystem() {
     if (pd_check("pd_init", pd_r)) return -1;
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
-    LOGD("PD FW = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
+
     return 0;
 }
 

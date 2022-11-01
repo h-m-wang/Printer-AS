@@ -571,7 +571,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
                     Debug.d(TAG, "Quit Realtime Preview");
 					mPrePrintBitmap.recycle();
 					mPrePrintBitmap = null;
-					if (mObjPath.startsWith("G-")) {   // group messages
+					if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
 						List<String> paths = MessageTask.parseGroup(mObjPath);
 						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(paths.get(mDTransThread.index())));
 					} else {
@@ -1358,7 +1358,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 					if(Configs.USER_MODE == Configs.USER_MODE_2) {
-						if (mObjPath.startsWith("G-")) {
+						if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {
 							mEditArea.setVisibility(View.GONE);
 						} else {
 							mEditTask = new MessageTask(mContext, mObjPath);
@@ -1406,7 +1406,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						public void run() {
 							mMsgTask.clear();
 							/**鑾峰彇鎵撳嵃缂╃暐鍥撅紝鐢ㄤ簬棰勮灞曠幇**/
-							if (mObjPath.startsWith("G-")) {   // group messages
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+							if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+								List<String> paths = MessageTask.parseQuickGroup(mObjPath);
+								for (String path : paths) {
+									MessageTask task = new MessageTask(mContext, mObjPath + "/" + path);
+									mMsgTask.add(task);
+								}
+							} else
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+							if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
 								List<String> paths = MessageTask.parseGroup(mObjPath);
 								for (String path : paths) {
 									MessageTask task = new MessageTask(mContext, path);
@@ -2669,7 +2678,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			@Override
 			public int compare(String s, String t1) {
 				try {
-					if (s.startsWith("G-") && t1.startsWith("G-")) {
+					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
 						String g1 = s.substring(6);
 						String g2 = s.substring(6);
 						int gi1 = Integer.parseInt(g1);
@@ -2681,9 +2690,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						} else {
 							return 0;
 						}
-					} else if (s.startsWith("G-")) {
+					} else if (s.startsWith(Configs.GROUP_PREFIX)) {
 						return -1;
-					} else if (t1.startsWith("G-")) {
+					} else if (t1.startsWith(Configs.GROUP_PREFIX)) {
 						return 1;
 					} else {
 						int gi1 = Integer.parseInt(s);
@@ -2723,7 +2732,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			public int compare(String s, String t1) {
 
 				try {
-					if (s.startsWith("G-") && t1.startsWith("G-")) {
+					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
 						String g1 = s.substring(6);
 						String g2 = s.substring(6);
 						int gi1 = Integer.parseInt(g1);
@@ -2735,9 +2744,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						} else {
 							return 0;
 						}
-					} else if (s.startsWith("G-")) {
+					} else if (s.startsWith(Configs.GROUP_PREFIX)) {
 						return -1;
-					} else if (t1.startsWith("G-")) {
+					} else if (t1.startsWith(Configs.GROUP_PREFIX)) {
 						return 1;
 					} else {
 						int gi1 = Integer.parseInt(s);
@@ -3897,7 +3906,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				public void run() {
 					mGroupIndex.setText("No. " + (index + 1));
 					mGroupIndex.setVisibility(View.VISIBLE);
-					if (mObjPath.startsWith("G-")) {   // group messages
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+					if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+						List<String> paths = MessageTask.parseQuickGroup(mObjPath);
+// H.M.Wang 2021-7-26 改用mPreBitmap，取消aotu变量bmp
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + "/" + paths.get(index)));
+						dispPreview(mPreBitmap);
+// End of H.M.Wang 2021-7-26 改用mPreBitmap，取消aotu变量bmp
+					} else
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+					if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
 						List<String> paths = MessageTask.parseGroup(mObjPath);
 // H.M.Wang 2021-7-26 改用mPreBitmap，取消aotu变量bmp
 						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(paths.get(index)));

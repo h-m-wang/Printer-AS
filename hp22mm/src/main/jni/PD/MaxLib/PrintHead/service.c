@@ -401,7 +401,7 @@ ServiceResult_t service_clear_data(int32_t instance, uint32_t first_address, siz
     LOGI("Enter %s", __FUNCTION__);
 
 //    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
-    if(total_size <= 0 || total_size > PROTOCOL_DATA_SIZE) {
+    if(total_size <= 0) {
         LOGE("Invalid data size [%d]!", total_size);
         return SERVICE_ERROR;
     }
@@ -656,10 +656,10 @@ ServiceResult_t service_execute(Frame_t             *frame,
         LOGE("frame NULL!");
         return SERVICE_ERROR;
     }
-    if(NULL == rsp_buf) {
-        LOGE("rsp_buf NULL!");
-        return SERVICE_ERROR;
-    }
+//    if(NULL == rsp_buf) {
+//        LOGE("rsp_buf NULL!");
+//        return SERVICE_ERROR;
+//    }
     if(NULL == rsp_size) {
         LOGE("rsp_size NULL!");
         return SERVICE_ERROR;
@@ -673,9 +673,8 @@ ServiceResult_t service_execute(Frame_t             *frame,
 	uart_lock();	// @@@ LOCK UART @@@
     
     LOGD("Service Request : %d\n", frame->service);
-    char log_buf[1024] = {0x00};
-    memset(log_buf, 0x00, 1024);
-    toHexString(buf, log_buf, (data_size > 1024 ? 1024 : data_size), ',');
+    char log_buf[1000] = {0x00};
+    toHexString(buf, log_buf, data_size, 1000, ',');
     LOGD("UART_Send_buffer: [%s](%d)", log_buf, data_size);
                             
     /* Send the command to uart */
@@ -698,8 +697,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     }
     
     LOGD("service_execute(): Response : No. Bytes recvd = %d\n", recvd_size);
-    memset(log_buf, 0x00, 1024);
-    toHexString(resp_buf, log_buf, (recvd_size > 1024 ? 1024 : recvd_size), ',');
+    toHexString(resp_buf, log_buf, recvd_size, 1000, ',');
     LOGD("UART_Resp_buffer: [%s](%d)", log_buf, recvd_size);
 
     fr = frame_response_init(frame, resp_buf, recvd_size);
@@ -723,8 +721,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
                         &n, _get_response_timeout());
                         
     LOGD("service_execute(): Response : No. Bytes recvd = %d\n", n);
-    memset(log_buf, 0x00, 1024);
-    toHexString(resp_buf, log_buf, (n > 1024 ? 1024 : n), ',');
+    toHexString(resp_buf, log_buf, n, 1000, ',');
     LOGD("UART_Resp_buffer: [%s](%d)", log_buf, n);
 
     /* Deserialize the frame to structure */

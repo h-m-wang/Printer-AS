@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.388"
+#define VERSION_CODE                            "1.0.389"
 // 1.0.378
 //   readDeviceID函数内，执行一次重启一次Level设备
 // 1.0.379
@@ -52,7 +52,8 @@ extern "C"
 // 1.0.388
 //   (1) initComponent函数中，对于adjustLocalInkValue函数的调用，原来传递的参数错误，没有起到调整的作用
 //   (2) 为adjustLocalInkValue函数和getMaxVolume函数添加log
-
+// 1.0.389
+//   追加两个为Bagink专用的API，Java_com_Smartcard_init_level_direct 和 Java_com_Smartcard_readLevelDirect
 
 #define SC_SUCCESS                              0
 #define SC_INIT_HOST_CARD_NOT_PRESENT           100
@@ -166,6 +167,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_shutdown(JNIEnv *env, jclass arg) {
     return SC_SUCCESS;
 }
 
+// imgtype==1 : M5, M7, M9 系列; 否则为非M5, M7, M9系列。GPIO的管脚使用不同
 JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint imgtype) {
     LOGI("Checking smart card existence....\n");
 
@@ -175,7 +177,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint im
     LIB_HP_SMART_CARD_init();
 
     gMImgType = imgtype;
-    LOGE(">>> Image Type: %d.", gMImgType);
+    LOGE(">>> （M9,M7,M5) Image Type? : %d.", gMImgType);
 
     if (HP_SMART_CARD_OK != LIB_HP_SMART_CARD_device_present(HP_SMART_CARD_DEVICE_HOST)) {
         LOGE(">>> LIB_HP_SMART_CARD_device_present(HP_SMART_CARD_DEVICE_HOST): NOT PRESENT.  ");
@@ -214,6 +216,29 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init(JNIEnv *env, jclass arg) {
 }
 
 extern char *inkFamilyGetFiledName(uint8_t id);
+
+// H.M.Wang 2022-11-1 Add this API for Bagink Use
+JNIEXPORT jint JNICALL Java_com_Smartcard_init_level_direct(JNIEnv *env, jclass arg ) {
+    LOGI("Initializing level direct. for BAGINK use.\n");
+
+    uint16_t config;
+
+    if(LEVEL_I2C_OK != readConfig(&config)) {
+        pthread_mutex_unlock(&mutex);
+        return SC_LEVEL_CENSOR_ACCESS_FAILED;
+    }
+    LOGD(">>> Read config for [BAGINK]: 0x%04X", config);
+
+    config &= CONFIG_ACTIVE_MODE_ENABLE;                // Set to Active mode
+    if(LEVEL_I2C_OK != writeConfig(&config)) {
+        pthread_mutex_unlock(&mutex);
+        return SC_LEVEL_CENSOR_ACCESS_FAILED;
+    }
+    LOGD(">>> Write config for [BAGINK]: 0x%04X", config);
+
+    return SC_SUCCESS;
+}
+// End of H.M.Wang 2022-11-1 Add this API for Bagink Use
 
 JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jint card ) {
     LOGI("Initializing smart card component...%d\n", card);
@@ -913,6 +938,44 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeOIB(JNIEnv *env, jclass arg, jint
     return ret;
 }
 
+// H.M.Wang 2022-11-1 Add this API for Bagink Use
+JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg) {
+    LOGD(">>> Read Level Direct for [BAGINK]");
+
+    pthread_mutex_lock(&mutex);
+
+    uint32_t chData;
+
+    if(LEVEL_I2C_OK != readChannelData0(&chData)) {
+        chData = 0;
+    }
+
+/*    if(chData == 0x0FFFFFFF) {
+        uint16_t config;
+        if(LEVEL_I2C_OK == readConfig(&config)) {
+            config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
+            writeConfig(&config);
+
+            int temp = 0;
+            for(int i=0; i<1000; i++){
+                temp++;
+            }
+
+            config &= CONFIG_ACTIVE_MODE_ENABLE;                // Set to Active mode
+            writeConfig(&config);
+
+            LOGD(">>> Level Restart!");
+        }
+    }
+*/
+    LOGD(">>> Level for [BAGINK] data read: 0x%08X", chData);
+
+    pthread_mutex_unlock(&mutex);
+
+    return chData;
+}
+// End of H.M.Wang 2022-11-1 Add this API for Bagink Use
+
 /**
  * 读取Level值
  */
@@ -1102,22 +1165,24 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, 
  */
 static JNINativeMethod gMethods[] = {
         {"exist",					"(I)I",	                    (void *)Java_com_Smartcard_exist},
-        {"init",					"()I",	                    (void *)Java_com_Smartcard_init},
+        {"init",					    "()I",	                    (void *)Java_com_Smartcard_init},
         {"initComponent",			"(I)I",	                    (void *)Java_com_Smartcard_init_comp},
-        {"writeCheckSum",	        "(II)I",					(void *)Java_com_Smartcard_writeCheckSum},
-        {"checkSum",	            "(II)I",					(void *)Java_com_Smartcard_checkSum},
-        {"checkConsistency",	    "(II)I",					(void *)Java_com_Smartcard_checkConsistency},
-        {"getMaxVolume",	        "(I)I",						(void *)Java_com_Smartcard_getMaxVolume},
-        {"readConsistency",	        "(I)Ljava/lang/String;",	(void *)Java_com_Smartcard_readConsistency},
-        {"checkOIB",		        "(I)I",						(void *)Java_com_Smartcard_checkOIB},
+        {"initLevelDirect",			"()I",	                    (void *)Java_com_Smartcard_init_level_direct},
+        {"writeCheckSum",	        "(II)I",    					(void *)Java_com_Smartcard_writeCheckSum},
+        {"checkSum",	                "(II)I",	    				(void *)Java_com_Smartcard_checkSum},
+        {"checkConsistency",	        "(II)I",					    (void *)Java_com_Smartcard_checkConsistency},
+        {"getMaxVolume",	            "(I)I",						(void *)Java_com_Smartcard_getMaxVolume},
+        {"readConsistency",	        "(I)Ljava/lang/String;",	    (void *)Java_com_Smartcard_readConsistency},
+        {"checkOIB",		            "(I)I",						(void *)Java_com_Smartcard_checkOIB},
         {"getLocalInk",		        "(I)I",						(void *)Java_com_Smartcard_getLocalInk},
         {"downLocal",		        "(I)I",						(void *)Java_com_Smartcard_downLocal},
-        {"writeOIB",		        "(I)I",						(void *)Java_com_Smartcard_writeOIB},
+        {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
+        {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
         {"testLevel",		        "(I)I",						(void *)Java_com_Smartcard_testLevel},
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
-        {"readDeviceID",	        "(I)I",						(void *)Java_com_Smartcard_readDeviceID},
-        {"shutdown",				"()I",	                    (void *)Java_com_Smartcard_shutdown},
+        {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},
+        {"shutdown",				    "()I",	                    (void *)Java_com_Smartcard_shutdown},
 };
 
 /**

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +38,7 @@ import android.widget.TextView;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.ConfigPath;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.hardware.ExtGpio;
@@ -612,6 +614,19 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
             			dismissProgressDialog();
 						break;
 					}
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+// 该处，当发现Configs.QUICK_GROUP_PREFIX为开头的文件名时，提示用户将保存为“快速分组”
+					if(mObjName.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+						AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+						AlertDialog prompAlert = builder.setTitle(R.string.strNotice).setMessage(R.string.strQuickGroupPrompt).setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+									}
+								}).create();
+						prompAlert.show();
+					}
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
             		// mMsgTask = new MessageTask(mContext, mObjName);
             		mMsgTask.setName(mObjName);
             		mMsgTask.createTaskFolderIfNeed();

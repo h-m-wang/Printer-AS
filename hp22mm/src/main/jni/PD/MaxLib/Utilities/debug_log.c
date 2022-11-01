@@ -140,22 +140,17 @@ char* get_log_level_description(int32_t level)
 	return log_level_struct[level-1].description;
 }
 */
-#define BUFF_SIZE 256
-char    buf[BUFF_SIZE];
-
-char *getLogTag(const char* file, int line) {
-    memset(buf, 0x00, BUFF_SIZE);
-    snprintf(buf, BUFF_SIZE, "%s:%0s(%d): ", LOG_TAG, file, line);
-    return buf;
-}
-
-int toHexString(const uint8_t *src, char *dst, int len, char div) {
+int toHexString(const uint8_t *src, char *dst, int src_len, int dst_len, char div) {
     if(!src) return -1;
     if(!dst) return -1;
 
-    char s[16];
+    int len = src_len;
+    char s[6];
+
+    if(src_len * 5 > dst_len) len = (dst_len - 4) / 5;
+    memset(dst, 0x00, dst_len);
     for(int i=0; i<len; i++) {
-        memset(s, 0x00, 16);
+        memset(s, 0x00, 6);
         if(i == 0) {
             sprintf(s, "0x%02X", src[i]);
         } else {
@@ -163,7 +158,10 @@ int toHexString(const uint8_t *src, char *dst, int len, char div) {
         }
         strcat(dst, s);
     }
+    if(len < src_len) {
+        strcat(dst, ",...");
+    }
 
-    return len;
+    return strlen(dst);
 }
 

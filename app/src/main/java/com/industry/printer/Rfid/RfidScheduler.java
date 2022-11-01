@@ -2,11 +2,18 @@ package com.industry.printer.Rfid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import com.industry.printer.ControlTabActivity;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDManager;
+import com.industry.printer.hardware.SmartCard;
+import com.industry.printer.hardware.SmartCardManager;
 
 import android.content.Context;
 import android.os.SystemClock;
@@ -27,12 +34,121 @@ public class RfidScheduler implements IInkScheduler {
 	private Thread mAfter;
 	private boolean running=false;
 	private RFIDManager mManager;
-	
+// H.M.Wang 2022-10-28 BAGINK专用的墨位管理表
+	private static boolean mBaginkImg = false;
+
+	private int mLevelIndexs[] = {
+		ExtGpio.RFID_CARD1,
+		ExtGpio.RFID_CARD2,
+		ExtGpio.RFID_CARD3,
+		ExtGpio.RFID_CARD4,
+	};
+	private final static int READ_LEVEL_TIMES           = 1;        // 每次读取LEVEL值时尝试的最大次数，然后从成功的次数当中获取平均值，作为本次的读取值。如设置10次，则从下层读取10次，如成功5次，则使用成功的5次获取平均值作为本次读取的最终值
+	private final static int PROC_LEVEL_NUMS            = 10;       // 对读取数据进行处理的最小次数，当达到这个数字的时候，处理是否加墨的处理
+	private final static int READ_LEVEL_INTERVAL        = 10;		// 10ms
+	private final static int ADD_INK_TRY_LIMITS         = 10;       // 加墨的尝试次数
+
+	private final int ADD_INK_THRESHOLD = 13800000;
+
+	private ArrayList<Integer>[] mRecentLevels;
+	private int[] mInkAddedTimes;
+
+	ExecutorService mCachedThreadPool = null;
+
+	private void readLevelValue(final int cardIdx) {
+		Debug.d(TAG, "---> enter readLevelValue(" + cardIdx + ")");
+
+		mCachedThreadPool.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(cardIdx >= mLevelIndexs.length) return;
+				synchronized (RfidScheduler.this) {
+					Debug.d(TAG, "---> launch readLevelValue process(" + cardIdx + ")");
+					try {
+						long readLevels = 0L;
+						int readCount = 0;
+
+						// Read Level READ_LEVEL_TIMES times
+						for(int i=0; i<READ_LEVEL_TIMES; i++) {
+							synchronized (RfidScheduler.this) {
+								int level = SmartCard.readLevelDirect();
+								if ((level & 0xF0000000) == 0x00000000) {
+									Debug.d(TAG, "Read Level " + (readCount + 1) + " times = " + level);
+									readLevels += level;
+									readCount++;
+								} else {
+									Debug.e(TAG, "Read Level Error: " + Integer.toHexString(level));
+									ExtGpio.playClick();
+								}
+							}
+							try{Thread.sleep(READ_LEVEL_INTERVAL);}catch(Exception e){};
+						}
+
+						int avgLevel = (readCount == 0 ? 0 : (int)(readLevels / readCount));
+						Debug.d(TAG, "Read Level = " + avgLevel);
+
+						if(avgLevel >= 12000000 && avgLevel <= 16000000) {
+							mRecentLevels[cardIdx].add(avgLevel);
+							if(mRecentLevels[cardIdx].size() > PROC_LEVEL_NUMS) {
+								mRecentLevels[cardIdx].remove(0);
+							}
+						}
+
+						// Calculate average level if the count of read data bigger than PROC_LEVEL_NUMS
+						avgLevel = ADD_INK_THRESHOLD;
+						if(mRecentLevels[cardIdx].size() >= PROC_LEVEL_NUMS) {
+							long totalLevel = 0;
+							for(int i=0; i<PROC_LEVEL_NUMS; i++) {
+								totalLevel += mRecentLevels[cardIdx].get(i);
+							}
+							avgLevel = (int)(totalLevel / PROC_LEVEL_NUMS);
+						}
+						Debug.d(TAG, "Average Level = " + avgLevel);
+
+						// Launch add ink if the level less than ADD_INK_THRESHOLD.
+						if(avgLevel < ADD_INK_THRESHOLD) {
+							// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
+							if(mInkAddedTimes[cardIdx] >= ADD_INK_TRY_LIMITS) {
+								ExtGpio.playClick();
+								Thread.sleep(50);
+								ExtGpio.playClick();
+								Thread.sleep(50);
+								ExtGpio.playClick();
+							} else {
+								ExtGpio.setValve(cardIdx, 1);
+
+								try{Thread.sleep(100);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
+									ExtGpio.setValve(cardIdx, 0);
+								};
+
+/*								long startTiem = System.currentTimeMillis();
+								while(true) {
+									try{Thread.sleep(100);}catch(Exception e){};
+									if(System.currentTimeMillis() - startTiem >= 11500) break;
+								}
+*/
+								mInkAddedTimes[cardIdx]++;
+							}
+						} else {
+							mInkAddedTimes[cardIdx] = 0;
+						}
+					} catch(Exception e) {
+						Debug.e(TAG, e.getMessage());
+					}
+					Debug.d(TAG, "---> quit readLevelValue process " + cardIdx + ")");
+				}
+			}
+		});
+
+	}
+// End of H.M.Wang 2022-10-28 BAGINK专用的墨位管理表
+
 	public static RfidScheduler getInstance(Context ctx) {
 		if (mInstance == null) {
 			mInstance = new RfidScheduler(ctx);
 		}
 		return mInstance;
+
 	}
 	
 	public RfidScheduler(Context ctx) {
@@ -54,6 +170,24 @@ public class RfidScheduler implements IInkScheduler {
 		// mManager.switchRfid(mCurrent);
 		initTasks(heads);
 		load();
+// H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
+		mBaginkImg = PlatformInfo.getImgUniqueCode().equals("BAGINK");
+		if(mBaginkImg) {
+			Debug.d(TAG, "Initiate BAGINK variables.");
+			mRecentLevels = new ArrayList[mLevelIndexs.length];
+			mInkAddedTimes = new int[mLevelIndexs.length];
+
+			for(int i=0; i<mLevelIndexs.length; i++) {
+				ExtGpio.rfidSwitch(mLevelIndexs[i]);
+//				try {Thread.sleep(200);} catch (Exception e) {}
+				SmartCard.initLevelDirect();
+				mRecentLevels[i] = new ArrayList<Integer>();
+				mInkAddedTimes[i] = 0;
+			}
+
+			mCachedThreadPool = Executors.newCachedThreadPool();
+		}
+// End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
 	}
 
 	private void initTasks(int heads) {
@@ -88,7 +222,7 @@ public class RfidScheduler implements IInkScheduler {
 		/*切換鎖之後需要等待1s才能進行讀寫操作*/
 		mSwitchTimeStemp = SystemClock.elapsedRealtime();
 	}
-	
+
 	/**
 	 * Rfid調度函數
 	 * 	打印間隔0~100ms（每秒鐘打印 > 20次），爲高速打印，每個打印間隔只執行1步操作
@@ -114,7 +248,12 @@ public class RfidScheduler implements IInkScheduler {
 			return;
 		}
 		for (int i = 0; i < DataTransferThread.getInterval(); i++) {
-			task.execute(); 
+			task.execute();
+// H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
+			if(mBaginkImg) {
+				readLevelValue(mCurrent);
+			}
+// End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
 			try {
 				Thread.sleep(30);
 			} catch (Exception e) {
@@ -123,7 +262,6 @@ public class RfidScheduler implements IInkScheduler {
 			if(task.getStat() >= RfidTask.STATE_SYNCED) {
 				break;
 			}
-			
 		}
 		if (task.getStat() >= RfidTask.STATE_SYNCED) {
 			loadNext();

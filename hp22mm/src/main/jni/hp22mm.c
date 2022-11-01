@@ -10,6 +10,12 @@
 
 
 #include <stdio.h>
+
+#include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "hp22mm.h"
 #include "common.h"
 
@@ -18,16 +24,50 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.1"
+#define VERSION_CODE                            "1.0.001.IDS_PD_INIT_ONLY"
 
 /***********************************************************
  *  Customization
  *
  *  Settings for basic customization.
  ***********************************************************/
+#define I2C_DEVICE "/dev/i2c-1"
+
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
+    LOGI("Initializing IDS....\n");
+
+    IDSResult_t ids_r;
+    IdsSysInfo_t ids_sys_info;
+
+    ids_r = ids_lib_init();
+    if (ids_check("ids_lib_init", ids_r)) return -1;
+    ids_r = ids_init(IDS_INSTANCE);
+    if (ids_check("ids_init", ids_r)) return -1;
+    ids_r = ids_info(IDS_INSTANCE, &ids_sys_info);
+    if (ids_check("ids_info", ids_r)) return -1;
+    LOGD("IDS FW = %d.%d\n", ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev);
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
+    LOGI("Initializing PD....\n");
+
+    PDResult_t pd_r;
+    PDSystemStatus pd_system_status;
+
+    pd_r = pd_lib_init();
+    if (pd_check("pd_lib_init", pd_r)) return -1;
+    pd_r = pd_init(PD_INSTANCE);
+    if (pd_check("pd_init", pd_r)) return -1;
+    pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
+    if (pd_check("pd_get_system_status", pd_r)) return -1;
+
+    return 0;
+}
 
 JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
-    LOGI("Initializing hp22mm smart card library....%s\n", VERSION_CODE);
+    LOGI("Initializing hp22mm library....%s, PEN_IDX=%d\n", VERSION_CODE, PEN_IDX);
 
     IDSResult_t ids_r;
     PDResult_t pd_r;
@@ -35,12 +75,44 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     int i;
 
     // Initialize system
+    int I2C_File = -1;
+    I2C_File = open(I2C_DEVICE, O_RDWR);
+    if (I2C_File < 0) {
+        LOGE("Open %s failed!\n", I2C_DEVICE);
+        return -1;          // failure
+    }
+    LOGI("Open %s succeded!\n", I2C_DEVICE);
+
     if (InitSystem()) return (-1);
 
+    // Update PD MCU
+//    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/PD_FW.s19", true);
+//    if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) return (-1);
+//    return 0;
+
+    // Update FPGA FLASH
+//    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/FPGA_FW.s19", true);
+//    if (pd_check("pd_fpga_fw_reflash", pd_r)) return (-1);
+//    return 0;
+
+    // Update IDS MCU
+//    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/sdcard/system/IDS_FW.s19", true);
+//    if (ids_check("ids_micro_fw_reflash", ids_r)) return (-1);
+//    return 0;
+
     // Set platform info, date, and insertion count
+
     SetInfo();
     ids_r = ids_set_stall_insert_count(IDS_INSTANCE, SUPPLY_IDX, IDS_STALL_INSERT);
     if (ids_check("ids_set_stall_insert_count", ids_r)) return (-1);
+
+    FpgaRecord_t fpgaRecord[100];
+    size_t rsize = 0;
+    pd_r = pd_get_fpga_log(PD_INSTANCE, fpgaRecord, 100, &rsize);
+    if (pd_check("pd_get_fpga_log", pd_r)) return (-1);
+    for(int i=0; i<rsize; i++) {
+        LOGD("FPGA LOG[%d]: %d_%d_%d_%d_%d_%d\n", i, fpgaRecord[i].timeStamp, fpgaRecord[i].b1, fpgaRecord[i].b2, fpgaRecord[i].b3, fpgaRecord[i].reply, fpgaRecord[i].result);
+    }
 
     // Check Supply
     SupplyStatus_t supply_status;
@@ -51,7 +123,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     ids_r = ids_get_supply_status(IDS_INSTANCE, SUPPLY_IDX, &supply_status);
     if (ids_check("ids_get_supply_status", ids_r)) return (-1);
     if (supply_status.state != SUPPLY_SC_VALID) {
-        LOGE("Supply state not valid: %d\n", (int)supply_status.state);
+        LOGE("Supply state not valid: %d[0x%02x]\n", (int)supply_status.state, supply_status.status_bits);
         return (-1);
     }
     consumed = (float)supply_status.consumed_volume / 10.0;
@@ -69,12 +141,16 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     PDSmartCardInfo_t pd_sc_info;
     uint8_t pd_sc_result;
 
-    pd_r = pd_get_print_head_status(PD_INSTANCE, PEN_IDX, &print_head_status);
-    if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
-    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
-        LOGE("Print head state not valid: %d\n", (int)print_head_status.print_head_state);
-        return (-1);
+    int ret = 1;
+    while(ret) {
+        pd_r = pd_get_print_head_status(PD_INSTANCE, PEN_IDX, &print_head_status);
+        if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
+        if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
+            LOGE("Print head state not valid: %d, %d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+//            return (-1);
+        } else {ret=0;}
     }
+
     pd_r = pd_sc_get_info(PD_INSTANCE, PEN_IDX, &pd_sc_info, &pd_sc_result);
     if (pd_check("pd_sc_get_info", pd_r)) exit(-1);
     if (pd_sc_result != 0) {
@@ -89,7 +165,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
               id_string, ph_state_description(print_head_status.print_head_state), ph_error_description(print_head_status.print_head_error));
 
     // @@@ Pair Pen (both slots) with Supply @@@
-
+/*
     // delete pairing and reset sequence
     if (DeletePairing()) {
         LOGE("DeletePairing failed!\n");
@@ -107,6 +183,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
         LOGE("DoOverrides failed!\n");
         return (-1);
     }
+*/
     return 0;
 }
 
@@ -353,13 +430,15 @@ int main()
  */
 static JNINativeMethod gMethods[] = {
         {"init",					"()I",	                    (void *)Java_com_hp22mm_init},
+        {"init_ids",				"()I",	                    (void *)Java_com_hp22mm_init_ids},
+        {"init_pd",				"()I",	                    (void *)Java_com_hp22mm_init_pd},
 };
 
 /**
  * 注册HP22MM操作的JNI方法
  */
-int register_com_smartcard(JNIEnv* env) {
-    const char* kClassPathName = "com/industry/printer/hardware/SmartCard";
+int register_hp22mm(JNIEnv* env) {
+    const char* kClassPathName = "com/industry/printer/hardware/Hp22mm";
     jclass clazz = (*env)->FindClass(env, kClassPathName);
     if(clazz == NULL) {
         return JNI_FALSE;
@@ -380,7 +459,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
         goto fail;
     }
 
-    if (register_com_smartcard(env) < 0) {
+    if (register_hp22mm(env) < 0) {
         goto fail;
     }
 

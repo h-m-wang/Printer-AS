@@ -23,18 +23,13 @@ char *getLogTag(const char* file, int line);
 
 #define LOG_TAG "hp22mm"
 
-//#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, getLogTag(__FILE__, __LINE__), __VA_ARGS__)
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
-//#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, getLogTag(__FILE__, __LINE__), __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-//#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, getLogTag(__FILE__, __LINE__), __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-//#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, getLogTag(__FILE__, __LINE__), __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
-//#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, getLogTag(__FILE__, __LINE__), __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-int toHexString(const uint8_t *src, char *dst, int len, char div);
+int toHexString(const uint8_t *src, char *dst, int src_len, int dst_len, char div);
 
 /**
  * @brief Debug masks to filter the debug messages.

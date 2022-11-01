@@ -109,6 +109,10 @@ public class PlatformInfo {
 		return mProduct;
 	}
 
+	public static boolean isMImgType() {
+		return (getImgUniqueCode().startsWith("M9") || getImgUniqueCode().startsWith("M7") || getImgUniqueCode().startsWith("M5"));
+	}
+
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 	public static String getImgUniqueCode() {
 		try {

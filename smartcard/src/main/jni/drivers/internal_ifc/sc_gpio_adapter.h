@@ -27,8 +27,8 @@ extern "C" {
 
 typedef enum
 {
-    M_IMG_FALSE = 0,
-    M_IMG_TRUE  = 1,
+    M_IMG_FALSE = 0,            // 非M5, M7, M9 系列
+    M_IMG_TRUE  = 1,            // M5, M7, M9 系列
 } M_IMG_TYPE;
 
 extern M_IMG_TYPE gMImgType;

@@ -9,6 +9,7 @@ import com.industry.printer.Utils.KZFileObserver;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.NativeGraphicJni;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
@@ -112,6 +113,7 @@ public class PrinterApplication extends Application {
 					NativeGraphicJni.loadLibrary();
 					if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
 					SerialPort.loadLibrary();
+					Hp22mm.loadLibrary();
 
                 } catch (Exception e) {
 					Debug.e(TAG, "--->e: " + e.getMessage());

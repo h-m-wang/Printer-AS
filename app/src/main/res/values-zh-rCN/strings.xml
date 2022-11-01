@@ -594,4 +594,9 @@
 	<string name="tips_import">导入数据</string>
 
 	<string name="printDpiNotMatchError">打印分辨率不匹配，请重新保存信息后，再次尝试打印</string>
+<!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+	<string name="strNotice">提示</string>
+	<string name="strQuickGroupPrompt">将保存为快速分组</string>
+<!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+
 </resources>

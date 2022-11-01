@@ -54,6 +54,11 @@ public class Configs {
 	public static final int USER_MSG_COUNT = USER_MSG_COUNT_NOLIMIT;
 // End of H.M.Wang 2021-8-11 追加信息浏览数量锁的标识
 
+// H.M.Wang 2022-10-25 增加快速分组的文件名头
+	public static final String QUICK_GROUP_PREFIX = "GROUP#";
+// End of H.M.Wang 2022-10-25 增加快速分组的文件名头
+	public static final String GROUP_PREFIX = "G-";
+
 	/**vol
 	 * 开关配置：大字机的特殊版本，buffer宽度x8
 	 */

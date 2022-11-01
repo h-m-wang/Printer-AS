@@ -479,4 +479,8 @@
     <string name="strBarsource">Fontes</string>
 	<string name="object_weekofyear">Semana</string>
 	<string name="object_weekday">WeekDay</string>
+<!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+	<string name="strNotice">Notice</string>
+	<string name="strQuickGroupPrompt">The message will be saved as Quick Group</string>
+<!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
 </resources>

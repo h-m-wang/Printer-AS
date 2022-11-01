@@ -135,7 +135,7 @@ public class TLKFileParser  extends TlkFile{
                      /** The first object must be MessageObject, create a default one otherwise */
                      if (objlist.size() == 0 && !(pObj instanceof MessageObject) ) {
                     	MessageObject msg = new MessageObject(context, 0);
-                    	int type = SystemConfigFile.getInstance(context).getParam(30);
+                    	int type = SystemConfigFile.getInstance(context).getParam(SystemConfigFile.INDEX_HEAD_TYPE);
          				msg.setType(type);
          				//((MessageObject) obj).setDotCount(Integer.parseInt(attr[13]));
          				// mDots = Integer.parseInt(attr[13]);
@@ -218,11 +218,10 @@ public class TLKFileParser  extends TlkFile{
 			{
 				obj = new MessageObject(mContext, 0);
 			/*参数8表示打印头类型*/
-				int type = Integer.parseInt(attr[8]);
 // H.M.Wang 2020-7-27 修改打印头的获取方式，不依据信息中的打印头信息获取，而是依据系统参数设置获取
+//				int type = Integer.parseInt(attr[8]);
 //				((MessageObject) obj).setType(PrinterNozzle.getByType(type).mIndex);
-				SystemConfigFile conf = SystemConfigFile.getInstance(mContext);
-				((MessageObject) obj).setType(conf.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
+				((MessageObject) obj).setType(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_HEAD_TYPE));
 // End of H.M.Wang 2020-7-27 修改打印头的获取方式，不依据信息中的打印头信息获取，而是依据系统参数设置获取
 				int resolution = Integer.parseInt(attr[9]);
 				((MessageObject) obj).setPrintDpi(resolution);
@@ -239,7 +238,7 @@ public class TLKFileParser  extends TlkFile{
 				((MessageObject) obj).setDotCountPer(mDots);
 // H.M.Wang 2020-7-27 修改打印头的获取方式，不依据信息中的打印头信息获取，而是依据系统参数设置获取
 //				PrinterNozzle nozzle = PrinterNozzle.getByType(type);
-				PrinterNozzle nozzle = conf.getPNozzle();
+				PrinterNozzle nozzle = SystemConfigFile.getInstance(mContext).getPNozzle();
 // End of H.M.Wang 2020-7-27 修改打印头的获取方式，不依据信息中的打印头信息获取，而是依据系统参数设置获取
 				setDotsPerClm(nozzle);
 			} else if (BaseObject.OBJECT_TYPE_BARCODE.equals(attr[1])

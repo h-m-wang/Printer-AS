@@ -91,19 +91,10 @@ int file_read_line(void *file_handle, char *buf, size_t buf_size) {
     }
 //    MAX_ASSERT(buf_size > 0);
 
-    ssize_t read = -1;
-    size_t len = 0;
-    char *line = NULL;
-    
-// 临时取消2022-9-3    read = fgets(&line, &len, (FILE*)file_handle);
-    if((read > 0) && (buf_size >= read)) {
-        
-        strncpy(buf, line, buf_size);   /* copy to caller supplied bufer */
-        buf[buf_size-1] = '\0';         /* Force a NULL terminated string */
-        free(line);                     /* Free the buffer allocated by getline() */
+    if( NULL != fgets(buf, buf_size, (FILE*)file_handle)) {
+//        LOGE("(%d)-%s", strlen(read), read);
         return strlen(buf);
     } else {
-        if(line) free(line);            /* Free the buffer allocated by getline() */
         return -1;
     }
 }

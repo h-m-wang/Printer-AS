@@ -10,10 +10,9 @@
 extern "C" {
 #endif
 
-/*
- * 初始化HP智能卡设备和HOST卡
- */
 JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
 }

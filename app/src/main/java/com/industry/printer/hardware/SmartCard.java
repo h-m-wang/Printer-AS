@@ -11,6 +11,13 @@ public class SmartCard {
 		System.loadLibrary("smartcard");
     }
 
+    public final static int CARD_TYPE_PEN1                  = 11;
+    public final static int CARD_TYPE_PEN2                  = 12;
+    public final static int CARD_TYPE_BULK1                 = 13;               // 真实墨袋
+//    public final static int CARD_TYPE_BULKX                 = 14;             // 墨盒代替墨袋
+    public final static int CARD_TYPE_LEVEL1                = 21;
+    public final static int CARD_TYPE_LEVEL2                = 22;
+
     public final static int SC_FAILED                       = -1;
     public final static int SC_SUCCESS                      = 0;
     public final static int SC_INIT_HOST_CARD_NOT_PRESENT   = 100;
@@ -38,6 +45,10 @@ public class SmartCard {
 
     static public native int initComponent(int card);
 
+// H.M.Wang 2022-11-1 Add this API for Bagink Use
+    static public native int initLevelDirect();
+// End of H.M.Wang 2022-11-1 Add this API for Bagink Use
+
     static public native int writeCheckSum(int card, int clientUniqueCode);
 
     static public native int checkSum(int card, int clientUniqueCode);
@@ -57,6 +68,10 @@ public class SmartCard {
     static public native int writeOIB(int card);
 
     static public native int readLevel(int card);
+
+// H.M.Wang 2022-11-1 Add this API for Bagink Use
+    static public native int readLevelDirect();
+// End of H.M.Wang 2022-11-1 Add this API for Bagink Use
 
     static public native int testLevel(int card);
 

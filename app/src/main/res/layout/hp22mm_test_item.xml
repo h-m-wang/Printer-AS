@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    android:orientation="vertical"  >
+
+    <TextView
+        android:id="@+id/hp22mm_test_cmd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:textColor="@color/white"
+        android:background="@color/button_background" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#44000000" />
+    <TextView
+        android:id="@+id/hp22mm_test_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:gravity="left"
+        android:text="Result"
+        android:textSize="24sp"
+        android:textColor="@color/white"
+        android:background="@color/button_background" />
+
+</LinearLayout>

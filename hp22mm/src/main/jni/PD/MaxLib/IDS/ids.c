@@ -31,7 +31,6 @@ Made in U.S.A.
 static IDSHandle_t _ids_handle[NUM_BLUR_INSTANCES];      /* Array of IDS handle structure */
 static bool _is_lib_initialized = false;
 
-
 /*
  * This function should be called to initialize the IDS
  * library before any other functions can be invoked.
@@ -77,7 +76,7 @@ IDSResult_t ids_lib_shutdown() {
 IDSResult_t ids_init(int32_t instance) {
     LOGI("Enter %s(instance=%d)", __FUNCTION__, instance);
 
-    if(_is_lib_initialized == false) {
+    if (_is_lib_initialized == false) {
         LOGE("Not initialized!");
         return IDS_ERROR;
     }
@@ -92,7 +91,7 @@ IDSResult_t ids_init(int32_t instance) {
     /* TODO: Check if we are talking to IDS bulli device */
     ServiceResult_t sr = service_device_identification(instance);
     if(sr != SERVICE_OK) return IDS_ERROR;
-    
+
     _ids_handle[instance-1].is_initialized = true;
 
     LOGI("%s done", __FUNCTION__);

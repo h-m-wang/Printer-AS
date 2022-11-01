@@ -16,10 +16,10 @@ public class ExtGpio {
 	
 	private static final int GPIO_PLAY = 0x01;
 	private static final int GPIO_PLAY_ERR = 0x02;
-	private static final int GPIO_RFID_CARD1 = 0x03;		// PG5-9: 011(3.5), 000(7)
-	private static final int GPIO_RFID_CARD2 = 0x04;		// PG5-9: 100(3.5), 100(7)
-	private static final int GPIO_RFID_CARD3 = 0x05;		// PG5-9: 101(3.5), 010(7)
-	private static final int GPIO_RFID_CARD4 = 0x06;		// PG5-9: 110(3.5), 110(7)
+	private static final int GPIO_RFID_CARD1 = 0x03;		// PG5-9: 011(3.5#), 000(7#)
+	private static final int GPIO_RFID_CARD2 = 0x04;		// PG5-9: 100(3.5#), 100(7#)
+	private static final int GPIO_RFID_CARD3 = 0x05;		// PG5-9: 101(3.5#), 010(7#)
+	private static final int GPIO_RFID_CARD4 = 0x06;		// PG5-9: 110(3.5#), 110(7#)
 	private static final int GPIO_RFID_CARD5 = 0x07;		// 在驱动中执行与GPIO_RFID_CARD4相同操作
 	private static final int GPIO_RFID_CARD6 = 0x08;		// 在驱动中执行与GPIO_RFID_CARD4相同操作
 	private static final int GPIO_RFID_CARD7 = 0x09;		// 在驱动中执行与GPIO_RFID_CARD4相同操作
@@ -36,6 +36,12 @@ public class ExtGpio {
 // H.M.Wang 2022-2-14 追加在计数器到达end的时候，写OUT4两秒的操作
 	private static final int GPIO_SET_OUT4_2S = 0x0F;
 // End of H.M.Wang 2022-2-14 追加在计数器到达end的时候，写OUT4两秒的操作
+// H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
+	private static final int GPIO_SET_VALVE1 = 0x11;
+	private static final int GPIO_SET_VALVE2 = 0x12;
+	private static final int GPIO_SET_VALVE3 = 0x13;
+	private static final int GPIO_SET_VALVE4 = 0x14;
+// End of H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
 
 	public static final int FPGA_STATE_OUTPUT = 0x00;
 	public static final int FPGA_STATE_SETTING = 0x04;
@@ -169,4 +175,10 @@ public class ExtGpio {
 		FpgaGpioOperation.ioctl(fd, GPIO_SET_OUT4_2S, 1);
 	}
 // End of H.M.Wang 2022-2-14 追加在计数器到达end的时候，写OUT4两秒的操作
+// H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
+	public static void setValve(int index, int arg) {
+		int fd = open();
+		FpgaGpioOperation.ioctl(fd, GPIO_SET_VALVE1 + index, arg);
+	}
+// End of H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
 }
