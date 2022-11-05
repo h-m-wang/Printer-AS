@@ -29,8 +29,10 @@ import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
 import java.util.Timer;
@@ -54,6 +56,9 @@ public class GpioTestPopWindow {
 // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private final int TEST_PHASE_HP22MM = 6;
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
+// H.M.Wang 2022-11-02 增加Bagink的测试
+    private final int TEST_PHASE_BAGINK = 7;
+// End of H.M.Wang 2022-11-02 增加Bagink的测试
 
     private int mCurrentTestPhase = TEST_PHASE_NONE;
 
@@ -73,23 +78,23 @@ public class GpioTestPopWindow {
         "pd_set_platform_info",
         "ids_set_date",
         "pd_set_date",
-        "ids_set_stall_insert_count(1)",
-        "ids_get_supply_status(1)",
-        "ids_get_supply_id(1)",
-        "pd_get_print_head_status(0)",
-        "pd_get_print_head_status(1)",
-        "pd_sc_get_info(0)",
-        "pd_sc_get_info(1)",
+        "ids_set_stall_insert_count[1]",
+        "ids_get_supply_status[1]",
+        "ids_get_supply_id[1]",
+        "pd_get_print_head_status[0]",
+        "pd_get_print_head_status[1]",
+        "pd_sc_get_info[0]",
+        "pd_sc_get_info[1]",
         "DeletePairing",
         "DoPairing(1,0)",
         "DoPairing(1,1)",
         "DoOverrides(1,0)",
         "DoOverrides(1,1)",
-        "Update PD MCU",
-        "Update FPGA FLASH",
-        "Update IDS MCU"
+        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
+        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
+        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
     };
-    private String[] HP22MM_TEST_RESULT = new String[HP22MM_TEST_ITEMS.length];
+    private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
     private final static int HP22MM_TEST_INIT_IDS                       = 0;
     private final static int HP22MM_TEST_INIT_PD                        = 1;
     private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 2;
@@ -131,6 +136,9 @@ public class GpioTestPopWindow {
 // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private ListView mHp22mmTestLV = null;
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
+// H.M.Wang 2022-11-02 增加Bagink的测试
+    private LinearLayout mBaginkTestArea = null;
+// End of H.M.Wang 2022-11-02 增加Bagink的测试
 
     private LinearLayout mPinsTestArea = null;
     private LinearLayout mOutPinLayout = null;
@@ -148,6 +156,7 @@ public class GpioTestPopWindow {
     private final int MSG_TEST_IN_PIN = 106;
     private final int MSG_SHOW_TEST_RESULT = 107;
     private final int MSG_SHOW_BAG_CONFIRM_DLG = 108;
+    private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -222,9 +231,33 @@ public class GpioTestPopWindow {
                             .create();
                     dlg.show();
                     break;
+                case MSG_SHOW_22MM_TEST_RESULT:
+                    View view = (View)msg.obj;
+                    dispHp22mmTestItem(view);
+                    view.invalidate();
+                    break;
             }
         }
     };
+
+    private void dispHp22mmTestItem(View view) {
+        int position = ((Integer)view.getTag());
+        TextView cmd = (TextView) view.findViewById(R.id.hp22mm_test_cmd);
+        cmd.setText(HP22MM_TEST_ITEMS[position]);
+        View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
+        pb.setVisibility(View.GONE);
+        TextView result = (TextView) view.findViewById(R.id.hp22mm_test_result);
+        result.setText(mHp22mmTestResult[position]);
+        if(null == mHp22mmTestResult[position] || mHp22mmTestResult[position].isEmpty()) {
+            result.setVisibility(View.GONE);
+        } else if(mHp22mmTestResult[position].startsWith("Success")) {
+            result.setTextColor(Color.GREEN);
+            result.setVisibility(View.VISIBLE);
+        } else {
+            result.setTextColor(Color.RED);
+            result.setVisibility(View.VISIBLE);
+        }
+    }
 
     private View.OnClickListener mOutPinBtnClickListener = new View.OnClickListener(){
         @Override
@@ -287,6 +320,11 @@ public class GpioTestPopWindow {
                 mHp22mmTestLV.setVisibility(View.GONE);
                 break;
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
+// H.M.Wang 2022-11-02 增加Bagink的测试
+            case TEST_PHASE_BAGINK:
+                mBaginkTestArea.setVisibility(View.GONE);
+                break;
+// End of H.M.Wang 2022-11-02 增加Bagink的测试
         }
 
         mCurrentTestPhase = testPhase;
@@ -422,7 +460,181 @@ public class GpioTestPopWindow {
                 mHp22mmTestLV.setVisibility(View.VISIBLE);
                 break;
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
+// H.M.Wang 2022-11-02 增加Bagink的测试
+            case TEST_PHASE_BAGINK:
+                mTestTitle.setText("Bagink Test");
+                mBaginkTestArea.setVisibility(View.VISIBLE);
+                break;
+// End of H.M.Wang 2022-11-02 增加Bagink的测试
         }
+    }
+
+    private void doHp22mmTest(final View view, final int index) {
+        View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
+        pb.setVisibility(View.VISIBLE);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    switch (index) {
+                        case HP22MM_TEST_INIT_IDS:
+                            if (0 == Hp22mm.init_ids()) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_sys_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_INIT_PD:
+                            if (0 == Hp22mm.init_pd()) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_sys_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_PF_INFO:
+                            if (0 == Hp22mm.ids_set_platform_info()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SET_PF_INFO:
+                            if (0 == Hp22mm.pd_set_platform_info()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_DATE:
+                            if (0 == Hp22mm.ids_set_date()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SET_DATE:
+                            if (0 == Hp22mm.pd_set_date()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT:
+                            if (0 == Hp22mm.ids_set_stall_insert_count()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_GET_SUPPLY_STATUS:
+                            if (0 == Hp22mm.ids_get_supply_status()) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_status_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_GET_SUPPLY_ID:
+                            if (0 == Hp22mm.ids_get_supply_id()) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_id_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS:
+                            if (0 == Hp22mm.pd_get_print_head_status(0)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS:
+                            if (0 == Hp22mm.pd_get_print_head_status(1)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SC_GET_INFO0:
+                            if (0 == Hp22mm.pd_sc_get_info(0)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed - (Result = " + Hp22mm.pd_sc_get_result() + ")";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SC_GET_INFO1:
+                            if (0 == Hp22mm.pd_sc_get_info(1)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed - (Result = " + Hp22mm.pd_sc_get_result() + ")";
+                            }
+                            break;
+                        case HP22MM_TEST_DELETE_PAIRING:
+                            if (0 == Hp22mm.DeletePairing()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_DO_PAIRING10:
+                            if (0 == Hp22mm.DoPairing(0)) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_DO_PAIRING11:
+                            if (0 == Hp22mm.DoPairing(1)) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_DO_OVERRIDES10:
+                            if (0 == Hp22mm.DoOverrides(0)) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_DO_OVERRIDES11:
+                            if (0 == Hp22mm.DoOverrides(1)) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_PD_MCU:
+                            if (0 == Hp22mm.UpdatePDFW()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_FPGA_FLASH:
+                            if (0 == Hp22mm.UpdateFPGAFlash()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_IDS_MCU:
+                            if (0 == Hp22mm.UpdateIDSFW()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                    }
+                    Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
+                    msg.obj = view;
+                    mHandler.sendMessage(msg);
+                } catch(UnsatisfiedLinkError e) {
+                    Debug.e(TAG, e.getMessage());
+                } catch(Exception e) {
+                    Debug.e(TAG, e.getMessage());
+                }
+            }
+        }).start();
     }
 
     public void show(View v) {
@@ -507,19 +719,8 @@ public class GpioTestPopWindow {
                     convertView = ((LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.hp22mm_test_item, null);
                 }
 
-                TextView cmd = (TextView) convertView.findViewById(R.id.hp22mm_test_cmd);
-                cmd.setText(HP22MM_TEST_ITEMS[position]);
-                TextView result = (TextView) convertView.findViewById(R.id.hp22mm_test_result);
-                result.setText(HP22MM_TEST_RESULT[position]);
-                if(HP22MM_TEST_RESULT[position].isEmpty()) {
-                    result.setVisibility(View.GONE);
-                } else if(HP22MM_TEST_RESULT[position].startsWith("Success")) {
-                    result.setTextColor(Color.GREEN);
-                    result.setVisibility(View.VISIBLE);
-                } else {
-                    result.setTextColor(Color.RED);
-                    result.setVisibility(View.VISIBLE);
-                }
+                convertView.setTag(position);
+                dispHp22mmTestItem(convertView);
 
                 return convertView;
             }
@@ -527,7 +728,7 @@ public class GpioTestPopWindow {
         mHp22mmTestLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Debug.d(TAG, "onItemClick " + i) ;
+                doHp22mmTest(view, i);
             }
         });
         TextView testHp22mm = (TextView)popupView.findViewById(R.id.btn_hp22mm);
@@ -592,25 +793,100 @@ public class GpioTestPopWindow {
 
         resetOutPins();
         resetInPins();
-/*
-        mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(new TimerTask() {
+
+// H.M.Wang 2022-11-02 增加Bagink的测试
+        mBaginkTestArea = (LinearLayout) popupView.findViewById(R.id.bagink_test_area);
+
+        TextView level1 = (TextView)popupView.findViewById(R.id.bagink_level1);
+        level1.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                resetOutPins();
-                resetInPins();
-
-                toggleOutPin(mCurrentOutPin);
-
-                updateOutPins();
-
-                updateInPins();
-
-                mCurrentOutPin++;
-                mCurrentOutPin %= 8;
+            public void onClick(View view) {
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);
+                SmartCard.initLevelDirect();
+				try {Thread.sleep(100);} catch (Exception e) {}
+                int level = SmartCard.readLevelDirect();
+                ((TextView)view).setText(String.valueOf(level));
             }
-        }, 1000L, 1000L);
-*/
+        });
+        TextView level2 = (TextView)popupView.findViewById(R.id.bagink_level2);
+        level2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD4);
+                SmartCard.initLevelDirect();
+                try {Thread.sleep(100);} catch (Exception e) {}
+                int level = SmartCard.readLevelDirect();
+                ((TextView)view).setText(String.valueOf(level));
+            }
+        });
+        TextView level3 = (TextView)popupView.findViewById(R.id.bagink_level3);
+        level3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD2);
+                SmartCard.initLevelDirect();
+                try {Thread.sleep(100);} catch (Exception e) {}
+                int level = SmartCard.readLevelDirect();
+                ((TextView)view).setText(String.valueOf(level));
+            }
+        });
+        TextView level4 = (TextView)popupView.findViewById(R.id.bagink_level4);
+        level4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD3);
+                SmartCard.initLevelDirect();
+                try {Thread.sleep(100);} catch (Exception e) {}
+                int level = SmartCard.readLevelDirect();
+                ((TextView)view).setText(String.valueOf(level));
+            }
+        });
+        TextView Valve1 = (TextView)popupView.findViewById(R.id.bagink_valve1);
+        Valve1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.setValve(0, 1);
+                try {Thread.sleep(10);} catch (Exception e) {}
+                ExtGpio.setValve(0, 0);
+            }
+        });
+        TextView Valve2 = (TextView)popupView.findViewById(R.id.bagink_valve2);
+        Valve2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.setValve(1, 1);
+                try {Thread.sleep(10);} catch (Exception e) {}
+                ExtGpio.setValve(1, 0);
+            }
+        });
+        TextView Valve3 = (TextView)popupView.findViewById(R.id.bagink_valve3);
+        Valve3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.setValve(2, 1);
+                try {Thread.sleep(10);} catch (Exception e) {}
+                ExtGpio.setValve(2, 0);
+            }
+        });
+        TextView Valve4 = (TextView)popupView.findViewById(R.id.bagink_valve4);
+        Valve4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExtGpio.setValve(3, 1);
+                try {Thread.sleep(10);} catch (Exception e) {}
+                ExtGpio.setValve(3, 0);
+            }
+        });
+
+        TextView testBagink = (TextView)popupView.findViewById(R.id.btn_bagink);
+        testBagink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTestPhase(TEST_PHASE_BAGINK);
+            }
+        });
+// End of H.M.Wang 2022-11-02 增加Bagink的测试
+
     }
 
     private void resetOutPins() {

@@ -38,6 +38,11 @@ public class InkManagerFactory {
               return new SmartCardManager(ctx);
 //            return new RFIDManager(ctx);
         } else {
+// H.M.Wang 2022-11-5 追加一个根据hp22mm的img返回Manager的判断
+            if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+                return new SmartCardManager(ctx);       // 测试HP22MM，目的时避免访问/dev/ttyS3
+// End of H.M.Wang 2022-11-5 追加一个根据hp22mm的img返回Manager的判断
+            }
 // H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机
             try {
 // H.M.Wang 2022-1-20 根据SmartCard是否连接来判断走SC还是RFID

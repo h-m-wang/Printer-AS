@@ -39,7 +39,7 @@ static const uint32_t   RESP_HEADER_START_INDEX = 4;
  * Initialize the frame structure.
  */
 FrameResult_t frame_init(Frame_t *frame, uint8_t service) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -60,7 +60,7 @@ FrameResult_t frame_init(Frame_t *frame, uint8_t service) {
     /* Initialize the data to zero */
     memset(frame->data, 0, MAX_FRAME_DATA_SIZE);
 
-    LOGI("%s success!", __FUNCTION__);
+//    LOGI("%s success!", __FUNCTION__);
 
     return FRAME_OK;
 }
@@ -72,7 +72,7 @@ FrameResult_t frame_init(Frame_t *frame, uint8_t service) {
 FrameResult_t frame_serialize(Frame_t *frame, uint8_t *buf, 
                                         uint16_t buf_size,
                                         uint16_t *data_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -103,7 +103,7 @@ FrameResult_t frame_serialize(Frame_t *frame, uint8_t *buf,
     
     *data_size = MAX_FRAME_HEADER_SIZE + CRC_SIZE + frame->data_size;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;    
 }                                        
@@ -112,7 +112,7 @@ FrameResult_t frame_serialize(Frame_t *frame, uint8_t *buf,
  * Load the response frame with the header
  */                                        
 FrameResult_t frame_response_init(Frame_t *frame, uint8_t *buf, uint32_t buf_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -139,7 +139,7 @@ FrameResult_t frame_response_init(Frame_t *frame, uint8_t *buf, uint32_t buf_siz
     /* Initialize the data to zero */
     memset(frame->data, 0, MAX_FRAME_DATA_SIZE);
 
-    LOGI("%s success!", __FUNCTION__);
+//    LOGI("%s success!", __FUNCTION__);
 
     return FRAME_OK;
 }
@@ -148,7 +148,7 @@ FrameResult_t frame_response_init(Frame_t *frame, uint8_t *buf, uint32_t buf_siz
  * Returns the number of bytes of variable data payload
  */
 FrameResult_t frame_response_get_data_size(Frame_t *frame, uint32_t *data_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -165,7 +165,7 @@ FrameResult_t frame_response_get_data_size(Frame_t *frame, uint32_t *data_size) 
 
     *data_size = frame->data_size;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
@@ -175,7 +175,7 @@ FrameResult_t frame_response_get_data_size(Frame_t *frame, uint32_t *data_size) 
  * Deserialize the recieved bytes to Frame structure.
  */                                        
 FrameResult_t frame_response_init_data(Frame_t *frame, uint8_t *buf, uint16_t buf_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -211,7 +211,7 @@ FrameResult_t frame_response_init_data(Frame_t *frame, uint8_t *buf, uint16_t bu
     }
 #endif
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
@@ -220,7 +220,7 @@ FrameResult_t frame_response_init_data(Frame_t *frame, uint8_t *buf, uint16_t bu
  * Helper functions to encode the serivce specific fields to command frame
  */
 FrameResult_t frame_encode8(Frame_t *frame, uint8_t data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -229,13 +229,13 @@ FrameResult_t frame_encode8(Frame_t *frame, uint8_t data) {
     
     frame->data[frame->data_size++] = data;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_encode16(Frame_t *frame, uint16_t data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -245,13 +245,13 @@ FrameResult_t frame_encode16(Frame_t *frame, uint16_t data) {
     frame->data[frame->data_size++] = (data & 0xFF);
     frame->data[frame->data_size++] = (data >>   8) & 0xFF;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_encode32(Frame_t *frame, uint32_t data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -263,13 +263,13 @@ FrameResult_t frame_encode32(Frame_t *frame, uint32_t data) {
     frame->data[frame->data_size++] = (data >>  16) & 0xFF;
     frame->data[frame->data_size++] = (data >>  24) & 0xFF;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_encode_bytes(Frame_t *frame, uint8_t * data, uint16_t data_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -283,7 +283,7 @@ FrameResult_t frame_encode_bytes(Frame_t *frame, uint8_t * data, uint16_t data_s
     memcpy((void *)&frame->data[frame->data_size], data, data_size);
     frame->data_size += data_size;
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
@@ -292,7 +292,7 @@ FrameResult_t frame_encode_bytes(Frame_t *frame, uint8_t * data, uint16_t data_s
  * Helper functions to decode field from response frame
  */
 FrameResult_t frame_decode8(Frame_t *frame, uint8_t *data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -310,13 +310,13 @@ FrameResult_t frame_decode8(Frame_t *frame, uint8_t *data) {
         return FRAME_ERROR;
     }
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_decode16(Frame_t *frame, uint16_t *data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -335,13 +335,13 @@ FrameResult_t frame_decode16(Frame_t *frame, uint16_t *data) {
         return FRAME_ERROR;
     }
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_decode32(Frame_t *frame, uint32_t *data) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -362,13 +362,13 @@ FrameResult_t frame_decode32(Frame_t *frame, uint32_t *data) {
         return FRAME_ERROR;
     }
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }
 
 FrameResult_t frame_decode_bytes(Frame_t *frame, uint8_t *data, uint16_t data_size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(frame == NULL) {
         LOGE("Frame pointer null!");
@@ -387,7 +387,7 @@ FrameResult_t frame_decode_bytes(Frame_t *frame, uint8_t *data, uint16_t data_si
         return FRAME_ERROR;
     }
 
-    LOGI("%s done!", __FUNCTION__);
+//    LOGI("%s done!", __FUNCTION__);
 
     return FRAME_OK;
 }

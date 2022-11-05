@@ -171,7 +171,7 @@ public class RfidScheduler implements IInkScheduler {
 		initTasks(heads);
 		load();
 // H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
-		mBaginkImg = PlatformInfo.getImgUniqueCode().equals("BAGINK");
+		mBaginkImg = PlatformInfo.getImgUniqueCode().startsWith("BAGINK");
 		if(mBaginkImg) {
 			Debug.d(TAG, "Initiate BAGINK variables.");
 			mRecentLevels = new ArrayList[mLevelIndexs.length];

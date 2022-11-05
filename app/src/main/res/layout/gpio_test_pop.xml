@@ -92,6 +92,21 @@
             android:textColor="@color/black"
             android:gravity="center" />
 <!-- End of H.M.Wang 2022-10-14 增加Hp22mm库的测试 -->
+<!-- H.M.Wang 2022-11-02 增加Bagink的测试 -->
+        <TextView
+            android:id="@+id/btn_bagink"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="30sp"
+            android:background="@color/button_background"
+            android:text="Bagink"
+            android:textColor="@color/black"
+            android:gravity="center" />
+<!-- End of H.M.Wang 2022-11-02 增加Bagink的测试 -->
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/title_area"
@@ -198,5 +213,133 @@
             android:dividerHeight="10dp"
             />
 <!-- End of H.M.Wang 2022-10-15 增加Hp22mm库的测试 -->
+<!-- H.M.Wang 2022-11-02 增加Bagink的测试 -->
+        <LinearLayout
+            android:id="@+id/bagink_test_area"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:orientation="horizontal" >
+            <LinearLayout
+                android:id="@+id/bagink_level_area"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/bagink_level1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Level1"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_level2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Level2"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_level3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Level3"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_level4"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Level4"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/bagink_valve_area"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/bagink_valve1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Valve1"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_valve2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Valve2"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_valve3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Valve3"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_valve4"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:text="Valve4"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+<!-- End of H.M.Wang 2022-11-02 增加Bagink的测试 -->
     </FrameLayout>
 </RelativeLayout>

@@ -72,6 +72,7 @@ import com.industry.printer.Utils.ZipUtil;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -285,6 +286,21 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				} catch (Exception e) {
 				}
 				ExtGpio.playClick();
+/*
+				Debug.d(TAG, "------------- 0");
+				ExtGpio.writeGpioTestPin('E', 7, 0);
+				try{
+					Thread.sleep(20000);
+				} catch (Exception e) {
+				}
+				Debug.d(TAG, "------------- 1");
+				ExtGpio.writeGpioTestPin('E', 7, 1);
+				try{
+					Thread.sleep(100);
+				} catch (Exception e) {
+				}
+				Hp22mm.init();
+*/
 			}
 		}.start();
 

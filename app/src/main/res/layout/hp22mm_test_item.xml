@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="10dp"
+    android:background="@color/button_background"
     android:orientation="vertical"  >
 
     <TextView
@@ -13,12 +14,18 @@
         android:paddingBottom="5dp"
         android:gravity="center"
         android:textSize="30sp"
-        android:textColor="@color/white"
-        android:background="@color/button_background" />
+        android:textColor="@color/white" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#44000000" />
+    <ProgressBar
+        android:id="@+id/hp22mm_test_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:visibility="gone"
+        android:background="@color/transparent"
+        style="@android:style/Widget.Holo.ProgressBar.Large" />
     <TextView
         android:id="@+id/hp22mm_test_result"
         android:layout_width="match_parent"
@@ -27,7 +34,6 @@
         android:gravity="left"
         android:text="Result"
         android:textSize="24sp"
-        android:textColor="@color/white"
-        android:background="@color/button_background" />
+        android:textColor="@color/white" />
 
 </LinearLayout>

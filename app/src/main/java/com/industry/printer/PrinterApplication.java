@@ -64,7 +64,7 @@ public class PrinterApplication extends Application {
 
                     AssetManager assetManager = sInstance.getAssets();
 
-// H.M.Wang 2020-12-26 追加硬件库赋值功能
+// H.M.Wang 2020-12-26 追加硬件库复制功能
                     // 复制硬件处理库
                     Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_HARDWARE_SO);
                     os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_HARDWARE_SO);
@@ -73,7 +73,7 @@ public class PrinterApplication extends Application {
                     InputStream is = assetManager.open(Configs.UPGRADE_HARDWARE_SO);
 
                     FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_HARDWARE_SO, is);
-// End of H.M.Wang 2020-12-26 追加硬件库赋值功能
+// End of H.M.Wang 2020-12-26 追加硬件库复制功能
 
                     // 复制图片处理库
 					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_NATIVEGRAPHIC_SO);

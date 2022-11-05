@@ -31,8 +31,8 @@
  ***********************************************************/
 
 // Pen and Supply to use (only one pen and one supply are used in example code)
-#define PEN_IDX 1
-#define SUPPLY_IDX 1
+#define PEN_IDX 1           // 当前这个硬件，选0和选1都一样。当然硬件完善以后，应该0和1有区别
+#define SUPPLY_IDX 1        // 当前这个硬件只支持1，不能使用0。当然硬件完善以后，应该0和1有区别
 
 // Instance values match dev kit defaults
 #define PD_INSTANCE     1

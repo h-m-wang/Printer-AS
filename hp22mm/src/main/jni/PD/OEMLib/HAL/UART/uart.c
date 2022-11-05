@@ -91,7 +91,7 @@ static Lock_t       shared_lock;
  * any other UART functions can be invoked.
  */
 UartResult_t uart_lib_init() {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(true == is_lib_initialized) return UART_OK;
 
@@ -107,13 +107,13 @@ UartResult_t uart_lib_init() {
 
     is_lib_initialized = true;
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return UART_OK;
 }
 
 UartResult_t uart_lib_shutdown() {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(false == is_lib_initialized) return UART_OK;
 
@@ -124,7 +124,7 @@ UartResult_t uart_lib_shutdown() {
 
     mutex_destroy(&shared_lock);
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return UART_OK;
 }
@@ -223,7 +223,7 @@ int set_options(int fd, int databits, int stopbits, int parity)
 }
 
 UartResult_t uart_init(int32_t instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
         LOGE("Invalid Instance!");
@@ -248,8 +248,8 @@ UartResult_t uart_init(int32_t instance) {
         perror(msg);
         return UART_ERROR_NO_DEVICE;
     }
-    LOGI("Opened serial port [%s] as [%d]", UART_DEVICE_NAME, handle->fs);
-    LOGI("Opened IDS/PD switcher [%s] as [%d]", UART_SWITCH_DEVICE_NAME, handle->switch_fd);
+//    LOGI("Opened serial port [%s] as [%d]", UART_DEVICE_NAME, handle->fs);
+//    LOGI("Opened IDS/PD switcher [%s] as [%d]", UART_SWITCH_DEVICE_NAME, handle->switch_fd);
 
     /* Configure UART
        The flags are defined in termios.h -
@@ -282,7 +282,7 @@ UartResult_t uart_init(int32_t instance) {
 */
     is_uart_initialized = true;
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return UART_OK;
 }
@@ -292,7 +292,7 @@ UartResult_t uart_init(int32_t instance) {
  * cleanup the data structures.
  */
 UartResult_t uart_shutdown(int32_t instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
         LOGE("Invalid Instance!");
@@ -315,7 +315,7 @@ UartResult_t uart_shutdown(int32_t instance) {
     close(handle->fs);
     handle->fs = -1;
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return UART_OK;
 }
@@ -328,7 +328,7 @@ static int makeGpioValue(int group, int index, int value) {
 UartResult_t uart_select_mux(int32_t instance) {
 //    if(instance == 2)   digitalWrite (UART_MUX_SEL_PIN, HIGH); /* Select IDS */
 //    else                digitalWrite (UART_MUX_SEL_PIN, LOW);  /* Select PD  */
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance == 2)   ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 1)); /* Select IDS */
     else                ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 0));  /* Select PD  */
@@ -343,7 +343,7 @@ UartResult_t uart_select_mux(int32_t instance) {
  * size - Size of the data to be transmited in bytes
  */
 UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
         LOGE("Invalid Instance!");
@@ -385,7 +385,7 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
         /* send the data */
         transmitted = write(handle->fs, data, size);
         if(transmitted != size) {
-            LOGE("Bytes transmitted = %d\n", transmitted);
+//            LOGE("Bytes transmitted = %d\n", transmitted);
             return UART_ERROR;
         }
     } else {
@@ -399,7 +399,7 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
 //            LOGD("residual size = %d \n", residual_size);
 
             transmitted = write(handle->fs, data, SPLIT_SIZE);
-            LOGD("Bytes transmitted = %d\n", transmitted);
+//            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
 //                LOGE("Bytes transmitted = %d\n", transmitted);
@@ -415,7 +415,7 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
             //  dcpy = data + SPLIT_SIZE;
             splitsize = (size_t)residual_size;//(resisize - splitsize) ;
             transmitted = write(handle->fs, data, splitsize);
-            LOGD("Bytes transmitted = %d\n", transmitted);
+//            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
 //                LOGE("Bytes transmitted = %d\n", transmitted);
@@ -434,7 +434,7 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
     /****************************************************************/
 //    LOGD("Bytes transmitted = %d\n", transmitted);
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return UART_OK;
 }
@@ -456,7 +456,7 @@ UartResult_t uart_recv( int32_t         instance,
                         size_t          buf_size,
                         size_t          *recvd_size,
                         int32_t         timeout_ms) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
         LOGE("Invalid Instance!");
@@ -525,10 +525,10 @@ UartResult_t uart_recv( int32_t         instance,
             }
 
             *recvd_size += recieved;
-            LOGD("total no of bytes read = %d\n", *recvd_size);
+//            LOGD("total no of bytes read = %d\n", *recvd_size);
 
             if(*recvd_size >= buf_size) {
-                LOGI("%s done", __FUNCTION__);
+//                LOGI("%s done", __FUNCTION__);
                 return UART_OK;
             }
         } else { /* = 0 */

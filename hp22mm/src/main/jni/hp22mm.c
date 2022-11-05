@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.001.IDS_PD_INIT_ONLY"
+#define VERSION_CODE                            "1.0.001"
 
 /***********************************************************
  *  Customization
@@ -33,11 +33,12 @@ extern "C"
  ***********************************************************/
 #define I2C_DEVICE "/dev/i2c-1"
 
+static IdsSysInfo_t ids_sys_info;
+
 JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
     LOGI("Initializing IDS....\n");
 
     IDSResult_t ids_r;
-    IdsSysInfo_t ids_sys_info;
 
     ids_r = ids_lib_init();
     if (ids_check("ids_lib_init", ids_r)) return -1;
@@ -50,11 +51,20 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
     return 0;
 }
 
+JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp, "IDS FW = %d.%d", ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+static PDSystemStatus pd_system_status;
+
 JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
     LOGI("Initializing PD....\n");
 
     PDResult_t pd_r;
-    PDSystemStatus pd_system_status;
 
     pd_r = pd_lib_init();
     if (pd_check("pd_lib_init", pd_r)) return -1;
@@ -63,8 +73,303 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
 
+    LOGD("uC FW REV. = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
+    LOGD("Bootloader REV = %d.%d\n", pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor);
+    LOGD("FPGA REV = %d.%d\n", pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor);
+    LOGD("BLUR(PD PCA) REV = %d\n", pd_system_status.blur_board_rev);
+    LOGD("BOARD0 REV = %d\n", pd_system_status.driver_board0_rev);
+    LOGD("BOARD1 REV = %d\n", pd_system_status.driver_board1_rev);
+    LOGD("BOARD ID = %d\n", pd_system_status.board_id);
+    LOGD("BOARD STATUS = %d\n", pd_system_status.pd_status);
+
     return 0;
 }
+
+JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,
+            "uC FW REV. = %d.%d\nBootloader REV = %d.%d\nFPGA REV = %d.%d\nBLUR(PD PCA) REV = %d\nBOARD0 REV = %d\nBOARD1 REV = %d\nBOARD ID = %d\nBOARD STATUS = %d",
+            pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor,
+            pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor,
+            pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor,
+            pd_system_status.blur_board_rev,
+            pd_system_status.driver_board0_rev,
+            pd_system_status.driver_board1_rev,
+            pd_system_status.board_id,
+            pd_system_status.pd_status);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jint JNICALL Java_com_ids_set_platform_info(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+    PlatformInfo_t platform_info;
+
+    strncpy(platform_info.model, PLATFORM_MODEL, sizeof(platform_info.model));
+    platform_info.mfg_year = PLATFORM_YEAR;
+    platform_info.mfg_woy = PLATFORM_WOY;
+    platform_info.mfg_country = PLATFORM_COUNTRY;
+    platform_info.mfg_rev_major = PLATFORM_REV_MAJOR;
+    platform_info.mfg_rev_minor = PLATFORM_REV_MINOR;
+    platform_info.orientation = PLATFORM_ORIENTATION;      // used by PD only
+
+    ids_r = ids_set_platform_info(IDS_INSTANCE, &platform_info);
+    if (ids_check("ids_set_platform_info", ids_r)) return -1;
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_pd_set_platform_info(JNIEnv *env, jclass arg) {
+    PDResult_t pd_r;
+    PlatformInfo_t platform_info;
+
+    strncpy(platform_info.model, PLATFORM_MODEL, sizeof(platform_info.model));
+    platform_info.mfg_year = PLATFORM_YEAR;
+    platform_info.mfg_woy = PLATFORM_WOY;
+    platform_info.mfg_country = PLATFORM_COUNTRY;
+    platform_info.mfg_rev_major = PLATFORM_REV_MAJOR;
+    platform_info.mfg_rev_minor = PLATFORM_REV_MINOR;
+    platform_info.orientation = PLATFORM_ORIENTATION;      // used by PD only
+
+    pd_r = pd_set_platform_info(PD_INSTANCE, &platform_info);
+    if (pd_check("pd_set_platform_info", pd_r)) return -1;
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_ids_set_date(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+    struct tm* tdetail = get_time();
+
+    ids_r = ids_set_date(IDS_INSTANCE, (1900 + tdetail->tm_year), tdetail->tm_mon, tdetail->tm_mday);
+    if (ids_check("ids_set_date", ids_r)) return -1;
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_pd_set_date(JNIEnv *env, jclass arg) {
+    PDResult_t pd_r;
+    struct tm* tdetail = get_time();
+
+    pd_r = pd_set_date(PD_INSTANCE, (1900 + tdetail->tm_year), tdetail->tm_mon, tdetail->tm_mday);
+    if (pd_check("pd_set_date", pd_r)) return -1;
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_ids_set_stall_insert_count(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+
+    ids_r = ids_set_stall_insert_count(IDS_INSTANCE, SUPPLY_IDX, IDS_STALL_INSERT);
+    if (ids_check("ids_set_stall_insert_count", ids_r)) return (-1);
+
+    return 0;
+}
+
+static SupplyStatus_t supply_status;
+
+JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+
+    ids_r = ids_get_supply_status(IDS_INSTANCE, SUPPLY_IDX, &supply_status);
+    if (ids_check("ids_get_supply_status", ids_r)) return (-1);
+    if (supply_status.state != SUPPLY_SC_VALID) {
+        LOGE("Supply state not valid: %d[0x%02x]\n", (int)supply_status.state, supply_status.status_bits);
+        return (-1);
+    }
+
+    LOGD("supply_status.state = %d\n", supply_status.state);
+    LOGD("supply_status.status_bits = %d\n", supply_status.status_bits);
+    LOGD("supply_status.consumed_volume(10ths of ml) = %d\n", supply_status.consumed_volume);
+
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,
+            "state = %d\nstatus_bits = %d\nconsumed_volume(10ths of ml) = %d",
+            supply_status.state, supply_status.status_bits, supply_status.consumed_volume);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+static SupplyID_t supply_id;
+
+JNIEXPORT jint JNICALL Java_com_ids_get_supply_id(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+
+    ids_r = ids_get_supply_id(IDS_INSTANCE, SUPPLY_IDX, &supply_id);
+    if (ids_check("ids_get_supply_id", ids_r)) return (-1);
+
+    LOGD("supply_id.mfg_site = %d\n", supply_id.mfg_site);
+    LOGD("supply_id.mfg_line = %d\n", supply_id.mfg_line);
+    LOGD("supply_id.mfg_year = %d\n", supply_id.mfg_year);
+    LOGD("supply_id.mfg_woy = %d\n", supply_id.mfg_woy);
+    LOGD("supply_id.mfg_dow = %d\n", supply_id.mfg_dow);
+    LOGD("supply_id.mfg_hour = %d\n", supply_id.mfg_hour);
+    LOGD("supply_id.mfg_min = %d\n", supply_id.mfg_min);
+    LOGD("supply_id.mfg_sec = %d\n", supply_id.mfg_sec);
+    LOGD("supply_id.mfg_pos = %d\n", supply_id.mfg_pos);
+
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_ids_get_supply_id_info(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,
+            "mfg_site = %d\nmfg_line = %d\nmfg_year = %d\nmfg_woy = %d\nmfg_dow = %d\nmfg_hour = %d\nmfg_min = %d\nmfg_sec = %d\nmfg_pos = %d",
+            supply_id.mfg_site, supply_id.mfg_line, supply_id.mfg_year, supply_id.mfg_woy, supply_id.mfg_dow, supply_id.mfg_hour, supply_id.mfg_min, supply_id.mfg_sec, supply_id.mfg_pos);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+static PrintHeadStatus print_head_status;
+
+JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg, jint penIndex) {
+    PDResult_t pd_r;
+
+    pd_r = pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status);
+    if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
+    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
+        LOGE("Print head state not valid: %d, %d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+        return (-1);
+    }
+
+    LOGD("print_head_status.print_head_state = %d\n", print_head_status.print_head_state);
+    LOGD("print_head_status.print_head_error = %d\n", print_head_status.print_head_error);
+    LOGD("print_head_status.energy_calibrated = %d\n", print_head_status.energy_calibrated);
+    LOGD("print_head_status.temp_calibrated = %d\n", print_head_status.temp_calibrated);
+    LOGD("print_head_status.slot_a_purge_completed = %d\n", print_head_status.slot_a_purge_completed);
+    LOGD("print_head_status.slot_b_purge_completed = %d\n", print_head_status.slot_b_purge_completed);
+    LOGD("print_head_status.overdrive_warning = %d\n", print_head_status.overdrive_warning);
+    LOGD("print_head_status.overtemp_warning = %d\n", print_head_status.overtemp_warning);
+    LOGD("print_head_status.supplyexpired_warning = %d\n", print_head_status.supplyexpired_warning);
+
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,
+            "print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d",
+            print_head_status.print_head_state,
+            print_head_status.print_head_error,
+            print_head_status.energy_calibrated,
+            print_head_status.temp_calibrated,
+            print_head_status.slot_a_purge_completed,
+            print_head_status.slot_b_purge_completed,
+            print_head_status.overdrive_warning,
+            print_head_status.overtemp_warning,
+            print_head_status.supplyexpired_warning);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+static PDSmartCardInfo_t pd_sc_info;
+static uint8_t pd_sc_result;
+
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
+    PDResult_t pd_r;
+
+    pd_r = pd_sc_get_info(PD_INSTANCE, penIndex, &pd_sc_info, &pd_sc_result);
+    if (pd_check("pd_sc_get_info", pd_r)) exit(-1);
+    if (pd_sc_result != 0) {
+        LOGE("pd_sc_get_info() failed, status = %d\n", (int)pd_sc_result);
+        return (-1);
+    }
+
+    LOGD("pd_sc_result = %d\n", pd_sc_result);
+    LOGD("pd_sc_info.ctrdg_fill_site_id = %d\n", pd_sc_info.ctrdg_fill_site_id);
+    LOGD("pd_sc_info.ctrdg_fill_line = %d\n", pd_sc_info.ctrdg_fill_line);
+    LOGD("pd_sc_info.ctrdg_fill_year = %d\n", pd_sc_info.ctrdg_fill_year);
+    LOGD("pd_sc_info.ctrdg_fill_woy = %d\n", pd_sc_info.ctrdg_fill_woy);
+    LOGD("pd_sc_info.ctrdg_fill_dow = %d\n", pd_sc_info.ctrdg_fill_dow);
+    LOGD("pd_sc_info.ctrdg_fill_hour = %d\n", pd_sc_info.ctrdg_fill_hour);
+    LOGD("pd_sc_info.ctrdg_fill_min = %d\n", pd_sc_info.ctrdg_fill_min);
+    LOGD("pd_sc_info.ctrdg_fill_sec = %d\n", pd_sc_info.ctrdg_fill_sec);
+    LOGD("pd_sc_info.ctrdg_fill_procpos = %d\n", pd_sc_info.ctrdg_fill_procpos);
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_result(JNIEnv *env, jclass arg) {
+    return pd_sc_result;
+}
+
+JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_msg(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,
+            "ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d",
+            pd_sc_info.ctrdg_fill_site_id,
+            pd_sc_info.ctrdg_fill_line,
+            pd_sc_info.ctrdg_fill_year,
+            pd_sc_info.ctrdg_fill_woy,
+            pd_sc_info.ctrdg_fill_dow,
+            pd_sc_info.ctrdg_fill_hour,
+            pd_sc_info.ctrdg_fill_min,
+            pd_sc_info.ctrdg_fill_sec,
+            pd_sc_info.ctrdg_fill_procpos);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg) {
+    if (DeletePairing()) {
+        LOGE("DeletePairing failed!\n");
+        return (-1);
+    }
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penIdx) {
+    if (DoPairing(SUPPLY_IDX, penIdx)) {
+        LOGE("DoPairing failed!\n");
+        return (-1);
+    };
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx) {
+    if (DoOverrides(SUPPLY_IDX, PEN_IDX)) {
+        LOGE("DoOverrides failed!\n");
+        return (-1);
+    }
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
+    PDResult_t pd_r;
+
+    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/PD_FW.s19", true);
+    if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) return (-1);
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
+    PDResult_t pd_r;
+
+    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/FPGA.s19", true);
+    if (pd_check("pd_fpga_fw_reflash", pd_r)) return (-1);
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
+    IDSResult_t ids_r;
+
+    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/sdcard/system/IDS_FW.s19", true);
+    if (ids_check("ids_micro_fw_reflash", ids_r)) return (-1);
+
+    return 0;
+}
+
 
 JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     LOGI("Initializing hp22mm library....%s, PEN_IDX=%d\n", VERSION_CODE, PEN_IDX);
@@ -86,17 +391,17 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     if (InitSystem()) return (-1);
 
     // Update PD MCU
-//    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/PD_FW.s19", true);
+//    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/PD_FW_4_19.s19", true);
 //    if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) return (-1);
 //    return 0;
 
     // Update FPGA FLASH
-//    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/FPGA_FW.s19", true);
+//    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/FPGA_3_12.s19", true);
 //    if (pd_check("pd_fpga_fw_reflash", pd_r)) return (-1);
 //    return 0;
 
     // Update IDS MCU
-//    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/sdcard/system/IDS_FW.s19", true);
+//    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/sdcard/system/IDS_FW_4_14.s19", true);
 //    if (ids_check("ids_micro_fw_reflash", ids_r)) return (-1);
 //    return 0;
 
@@ -105,7 +410,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     SetInfo();
     ids_r = ids_set_stall_insert_count(IDS_INSTANCE, SUPPLY_IDX, IDS_STALL_INSERT);
     if (ids_check("ids_set_stall_insert_count", ids_r)) return (-1);
-
+/*
     FpgaRecord_t fpgaRecord[100];
     size_t rsize = 0;
     pd_r = pd_get_fpga_log(PD_INSTANCE, fpgaRecord, 100, &rsize);
@@ -113,12 +418,12 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     for(int i=0; i<rsize; i++) {
         LOGD("FPGA LOG[%d]: %d_%d_%d_%d_%d_%d\n", i, fpgaRecord[i].timeStamp, fpgaRecord[i].b1, fpgaRecord[i].b2, fpgaRecord[i].b3, fpgaRecord[i].reply, fpgaRecord[i].result);
     }
-
+*/
+    char id_string[BUFFER_SIZE];
     // Check Supply
     SupplyStatus_t supply_status;
     float consumed;
     SupplyID_t supply_id;
-    char id_string[BUFFER_SIZE];
 
     ids_r = ids_get_supply_status(IDS_INSTANCE, SUPPLY_IDX, &supply_status);
     if (ids_check("ids_get_supply_status", ids_r)) return (-1);
@@ -429,9 +734,31 @@ int main()
  * HP22MM操作jni接口
  */
 static JNINativeMethod gMethods[] = {
-        {"init",					"()I",	                    (void *)Java_com_hp22mm_init},
-        {"init_ids",				"()I",	                    (void *)Java_com_hp22mm_init_ids},
-        {"init_pd",				"()I",	                    (void *)Java_com_hp22mm_init_pd},
+        {"init",					        "()I",	                    (void *)Java_com_hp22mm_init},
+        {"init_ids",				        "()I",	                    (void *)Java_com_hp22mm_init_ids},
+        {"ids_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_ids_get_sys_info},
+        {"init_pd",				        "()I",	                    (void *)Java_com_hp22mm_init_pd},
+        {"pd_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_pd_get_sys_info},
+        {"ids_set_platform_info",        "()I",	                    (void *)Java_com_ids_set_platform_info},
+        {"pd_set_platform_info",	        "()I",	                    (void *)Java_com_pd_set_platform_info},
+        {"ids_set_date",                 "()I",	                    (void *)Java_com_ids_set_date},
+        {"pd_set_date",	                "()I",	                    (void *)Java_com_pd_set_date},
+        {"ids_set_stall_insert_count",	"()I",	                    (void *)Java_com_ids_set_stall_insert_count},
+        {"ids_get_supply_status",		"()I",	                    (void *)Java_com_ids_get_supply_status},
+        {"ids_get_supply_status_info",	"()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
+        {"ids_get_supply_id",		    "()I",	                    (void *)Java_com_ids_get_supply_id},
+        {"ids_get_supply_id_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
+        {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
+        {"pd_get_print_head_status_info","()Ljava/lang/String;",	    (void *)Java_com_pd_get_print_head_status_info},
+        {"pd_sc_get_info",		        "(I)I",	                    (void *)Java_com_pd_sc_get_info},
+        {"pd_sc_get_result",		        "()I",	                    (void *)Java_com_pd_sc_get_result},
+        {"pd_sc_get_info_msg",           "()Ljava/lang/String;",	    (void *)Java_com_pd_sc_get_info_msg},
+        {"DeletePairing",		        "()I",	                    (void *)Java_com_DeletePairing},
+        {"DoPairing",		            "(I)I",	                    (void *)Java_com_DoPairing},
+        {"DoOverrides",		            "(I)I",	                    (void *)Java_com_DoOverrides},
+        {"UpdatePDFW",		            "()I",	                    (void *)Java_com_UpdatePDFW},
+        {"UpdateFPGAFlash",		        "()I",	                    (void *)Java_com_UpdateFPGAFlash},
+        {"UpdateIDSFW",		            "()I",	                    (void *)Java_com_UpdateIDSFW},
 };
 
 /**
