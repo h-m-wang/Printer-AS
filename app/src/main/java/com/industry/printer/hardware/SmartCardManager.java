@@ -180,13 +180,13 @@ public class SmartCardManager implements IInkDevice {
             mCards = new _device_status[] {
                     new _device_status(SmartCard.CARD_TYPE_PEN1, SmartCard.CARD_TYPE_LEVEL1, MAX_PEN_INK_VOLUME),
                     new _device_status(SmartCard.CARD_TYPE_PEN2, SmartCard.CARD_TYPE_LEVEL2, MAX_PEN_INK_VOLUME),
-                    new _device_status(SmartCard.CARD_TYPE_BULK1, 0, MAX_BAG_INK_VOLUME)
+                    new _device_status(SmartCard.CARD_TYPE_BULK, 0, MAX_BAG_INK_VOLUME)
             };
         } else {
             mPenNum = 1;
             mCards = new _device_status[] {
                     new _device_status(SmartCard.CARD_TYPE_PEN1, SmartCard.CARD_TYPE_LEVEL1, MAX_PEN_INK_VOLUME),
-                    new _device_status(SmartCard.CARD_TYPE_BULK1, 0, MAX_BAG_INK_VOLUME)
+                    new _device_status(SmartCard.CARD_TYPE_BULK, 0, MAX_BAG_INK_VOLUME)
             };
         }
         mCurPenIdx = 0;
@@ -468,7 +468,7 @@ public class SmartCardManager implements IInkDevice {
             @Override
             public void run() {
                 mIDTestRunning = true;
-                int cardType[] = new int[] {SmartCard.CARD_TYPE_PEN1, SmartCard.CARD_TYPE_PEN2, SmartCard.CARD_TYPE_BULK1};
+                int cardType[] = new int[] {SmartCard.CARD_TYPE_PEN1, SmartCard.CARD_TYPE_PEN2, SmartCard.CARD_TYPE_BULK};
                 int success[] = new int[3];
                 if(SmartCard.init() == SmartCard.SC_SUCCESS) {
                     mIDTestCancel = false;
@@ -582,9 +582,9 @@ public class SmartCardManager implements IInkDevice {
             @Override
             public void run() {
                 if(SmartCard.init() == SmartCard.SC_SUCCESS) {
-                    if(SmartCard.SC_SUCCESS == SmartCard.initComponent(SmartCard.CARD_TYPE_BULK1)) {
-                        int max = SmartCard.getMaxVolume(SmartCard.CARD_TYPE_BULK1);
-                        int ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK1);
+                    if(SmartCard.SC_SUCCESS == SmartCard.initComponent(SmartCard.CARD_TYPE_BULK)) {
+                        int max = SmartCard.getMaxVolume(SmartCard.CARD_TYPE_BULK);
+                        int ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK);
                         l.onResult("Current: " + (max-ink) + "\n" + "Max: " + max);
                         mBagReductionRunning = true;
                     }
@@ -607,15 +607,15 @@ public class SmartCardManager implements IInkDevice {
             @Override
             public void run() {
                 int max, ink;
-                max = SmartCard.getMaxVolume(SmartCard.CARD_TYPE_BULK1);
-                ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK1);
+                max = SmartCard.getMaxVolume(SmartCard.CARD_TYPE_BULK);
+                ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK);
                 int r0 = 100 * (max - ink - 1) / max;
                 int r1 = r0;
                 while(r0 == r1 && r0 > 90) {
                     mBagWriting = true;
-                    SmartCard.downLocal(SmartCard.CARD_TYPE_BULK1);
+                    SmartCard.downLocal(SmartCard.CARD_TYPE_BULK);
                     mBagWriting = false;
-                    ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK1);
+                    ink = SmartCard.getLocalInk(SmartCard.CARD_TYPE_BULK);
                     r1 = 100 * (max - ink -1) / max;
                 };
 
@@ -695,7 +695,7 @@ public class SmartCardManager implements IInkDevice {
         }
     }
 
-    private void addInkOn(int cardIdx) {
+    public void addInkOn(int cardIdx) {
         Debug.d(TAG, "---> enter addInkOn(" + cardIdx + ")");
 
         if(mCards[cardIdx].mCardType == SmartCard.CARD_TYPE_PEN1) {
@@ -706,7 +706,7 @@ public class SmartCardManager implements IInkDevice {
         }
     }
 
-    private void addInkOff(int cardIdx) {
+    public void addInkOff(int cardIdx) {
         Debug.d(TAG, "---> enter addInkOff(" + cardIdx + ")");
 
         ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);

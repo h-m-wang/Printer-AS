@@ -35,6 +35,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Rfid.IInkScheduler;
 import com.industry.printer.Rfid.InkSchedulerFactory;
+import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Serial.Scaner2Protocol;
 import com.industry.printer.Serial.SerialHandler;
@@ -110,6 +111,10 @@ public class DataTransferThread {
 
 	private InkLevelListener mInkListener = null;
 
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+	private AlertDialog mRecvedLevelPromptDlg = null;
+// End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+
 	public static DataTransferThread getInstance(Context ctx) {
 		if(mInstance == null) {
 			synchronized (DataTransferThread.class) {
@@ -125,6 +130,15 @@ public class DataTransferThread {
 	public DataTransferThread(Context ctx) {
 		mContext = ctx;
 		mPurgeLock = new ReentrantLock();
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		mRecvedLevelPromptDlg = builder.setTitle("读取LEVEL值").setMessage("").setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mRecvedLevelPromptDlg.hide();
+			}
+		}).create();
+// End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 	}
 	
 	/**
@@ -1483,7 +1497,10 @@ private void setSerialProtocol9DTs(final String data) {
 	
 	
 	public static final int MESSAGE_DATA_UPDATE = 1;
-	
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+	public static final int MESSAGE_SHOW_LEVEL = 101;
+// End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+
 	public Handler mHandler = new Handler(){
 		
 		@Override
@@ -1492,6 +1509,16 @@ private void setSerialProtocol9DTs(final String data) {
 				case MESSAGE_DATA_UPDATE:
 					mNeedUpdate = true;
 					break;
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+				case MESSAGE_SHOW_LEVEL:
+					if (null != mRecvedLevelPromptDlg) {
+						mRecvedLevelPromptDlg.setTitle("Levels");
+						mRecvedLevelPromptDlg.setMessage((String)msg.obj);
+						mRecvedLevelPromptDlg.show();
+						mRecvedLevelPromptDlg.show();
+					}
+					break;
+// End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 			}
 		}
 	};
@@ -1534,10 +1561,14 @@ private void setSerialProtocol9DTs(final String data) {
 
 		int headIndex = configFile.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 		int heads = PrinterNozzle.getInstance(headIndex).mHeads;
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof RfidScheduler)) {
+			((RfidScheduler) mScheduler).setCallbackHandler(mHandler);
+		}
+// End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 		/**如果是4合2的打印头，需要修改为4头*/
 		mScheduler.init(heads * configFile.getHeadFactor());
 //		heads = configFile.getParam(SystemConfigFile.INDEX_SPECIFY_HEADS) > 0 ? configFile.getParam(42) : heads;
-
 	}
 
 

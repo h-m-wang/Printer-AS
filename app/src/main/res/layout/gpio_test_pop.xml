@@ -77,6 +77,21 @@
             android:textColor="@color/black"
             android:gravity="center" />
 <!-- End of H.M.Wang 2022-7-20 增加Bag减1的操作内容 -->
+<!-- H.M.Wang 2022-11-9 增加连供的阀开关测试 -->
+        <TextView
+            android:id="@+id/btn_sc_valve"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="30sp"
+            android:background="@color/button_background"
+            android:text="SC Valve"
+            android:textColor="@color/black"
+            android:gravity="center" />
+<!-- End of H.M.Wang 2022-11-9 增加连供的阀开关测试 -->
 <!-- H.M.Wang 2022-10-14 增加Hp22mm库的测试 -->
         <TextView
             android:id="@+id/btn_hp22mm"
@@ -200,6 +215,50 @@
                 android:orientation="vertical" >
             </LinearLayout>
         </LinearLayout>
+<!-- H.M.Wang 2022-11-9 增加连供的阀开关测试 -->
+        <LinearLayout
+            android:id="@+id/sc_valve_test_area"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="40dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/sc_valve1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/gray"
+                android:padding="10dp"
+                android:gravity="center"
+                android:text="Valve1"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                />
+            <TextView
+                android:id="@+id/sc_valve2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/gray"
+                android:padding="10dp"
+                android:gravity="center"
+                android:text="Valve2"
+                android:textColor="@color/white"
+                android:textSize="30dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:gravity="center"
+                android:text="Disconnect pen before test valve!"
+                android:textColor="@color/red"
+                android:textSize="30dp"
+                />
+        </LinearLayout>
+<!-- End of H.M.Wang 2022-11-9 增加连供的阀开关测试 -->
 <!-- H.M.Wang 2022-10-15 增加Hp22mm库的测试 -->
         <ListView
             android:id="@+id/lv_hp22mm_test"

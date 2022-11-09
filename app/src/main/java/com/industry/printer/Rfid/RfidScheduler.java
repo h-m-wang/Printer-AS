@@ -16,6 +16,8 @@ import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 
 public class RfidScheduler implements IInkScheduler {
@@ -36,6 +38,7 @@ public class RfidScheduler implements IInkScheduler {
 	private RFIDManager mManager;
 // H.M.Wang 2022-10-28 BAGINK专用的墨位管理表
 	private static boolean mBaginkImg = false;
+	public Handler mCallbackHandler = null;
 
 	private int mLevelIndexs[] = {
 		ExtGpio.RFID_CARD1,
@@ -48,7 +51,8 @@ public class RfidScheduler implements IInkScheduler {
 	private final static int READ_LEVEL_INTERVAL        = 10;		// 10ms
 	private final static int ADD_INK_TRY_LIMITS         = 10;       // 加墨的尝试次数
 
-	private final int ADD_INK_THRESHOLD = 13800000;
+	private int ADD_INK_THRESHOLD = 13800000;
+	private int mPrintCount = 10;
 
 	private ArrayList<Integer>[] mRecentLevels;
 	private int[] mInkAddedTimes;
@@ -141,6 +145,10 @@ public class RfidScheduler implements IInkScheduler {
 		});
 
 	}
+
+	public void setCallbackHandler(Handler callback) {
+		mCallbackHandler = callback;
+	}
 // End of H.M.Wang 2022-10-28 BAGINK专用的墨位管理表
 
 	public static RfidScheduler getInstance(Context ctx) {
@@ -185,6 +193,25 @@ public class RfidScheduler implements IInkScheduler {
 				mInkAddedTimes[i] = 0;
 			}
 
+
+			if(mManager.getFeature(0,5) < 300) {
+				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, "Valve threshold too low").sendToTarget();
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try{
+							ExtGpio.playClick();
+							Thread.sleep(50);
+							ExtGpio.playClick();
+							Thread.sleep(50);
+							ExtGpio.playClick();
+						} catch (Exception e) {
+							Debug.e(TAG, e.getMessage());
+						}
+					}
+				}).start();
+			}
+			ADD_INK_THRESHOLD = mManager.getFeature(0,5) * 100000;
 			mCachedThreadPool = Executors.newCachedThreadPool();
 		}
 // End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
@@ -249,11 +276,6 @@ public class RfidScheduler implements IInkScheduler {
 		}
 		for (int i = 0; i < DataTransferThread.getInterval(); i++) {
 			task.execute();
-// H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
-			if(mBaginkImg) {
-				readLevelValue(mCurrent);
-			}
-// End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
 			try {
 				Thread.sleep(30);
 			} catch (Exception e) {
@@ -263,6 +285,30 @@ public class RfidScheduler implements IInkScheduler {
 				break;
 			}
 		}
+// H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
+		if(mBaginkImg) {
+			readLevelValue(mCurrent);
+			if (mPrintCount == 0) {
+				mPrintCount = 10;
+				StringBuilder sb = new StringBuilder();
+				sb.append("Thres: " + mManager.getFeature(0,5) + "\n");
+				for (int i = 0; i < mLevelIndexs.length; i++) {
+					sb.append("Level" + (i+1) + ": ");
+					if(mRecentLevels[i].size() > 0) {
+						for(int j=0; j<mRecentLevels[i].size(); j++) {
+							if(j > 0) sb.append(",");
+							sb.append(mRecentLevels[i].get(j) / 100000);
+						}
+					} else {
+						sb.append("n/a");
+					}
+					sb.append("\n");
+				}
+				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, sb.toString()).sendToTarget();
+			}
+			mPrintCount--;
+		}
+// End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
 		if (task.getStat() >= RfidTask.STATE_SYNCED) {
 			loadNext();
 		}

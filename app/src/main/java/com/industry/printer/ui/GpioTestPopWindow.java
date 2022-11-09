@@ -46,19 +46,22 @@ public class GpioTestPopWindow {
     public static final String TAG = GpioTestPopWindow.class.getSimpleName();
 
     private final int TEST_PHASE_NONE = 0;
-    private final int TEST_PHASE_PINS = 1;
-    private final int TEST_PHASE_ID = 2;
-    private final int TEST_PHASE_SC = 3;
-    private final int TEST_PHASE_LEVEL = 4;
+    private final int TEST_PHASE_PINS = 1;              // 测试8个In和8个Out管脚的状态
+    private final int TEST_PHASE_ID = 2;                // 读取Level的设备ID100次实验
+    private final int TEST_PHASE_SC = 3;                // 对Pen1，Pen2和Bulk进行初始化100次实验
+    private final int TEST_PHASE_LEVEL = 4;             // 读取100次Level1和Level2的值的测试，每读4次，关闭一次Level，第5次读后，再开启
 // H.M.Wang 2022-7-20 增加Bag减1的操作内容
-    private final int TEST_PHASE_REDUCE_BAG = 5;
+    private final int TEST_PHASE_REDUCE_BAG = 5;        // 墨袋减锁实验，每点击一次DO，检索一次
 // End of H.M.Wang 2022-7-20 增加Bag减1的操作内容
 // H.M.Wang 2022-10-15 增加Hp22mm库的测试
-    private final int TEST_PHASE_HP22MM = 6;
+    private final int TEST_PHASE_HP22MM = 6;            // hp22mm相关测试
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 // H.M.Wang 2022-11-02 增加Bagink的测试
-    private final int TEST_PHASE_BAGINK = 7;
+    private final int TEST_PHASE_BAGINK = 7;            // BagInk相关测试，4个Level值的读取，和4个阀的开关
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
+// H.M.Wang 2022-11-9 增加连供的开关阀测试
+    private final int TEST_PHASE_SC_VALVE = 8;          // 连供的阀开关测试
+// End of H.M.Wang 2022-11-9 增加连供的开关阀测试
 
     private int mCurrentTestPhase = TEST_PHASE_NONE;
 
@@ -139,6 +142,9 @@ public class GpioTestPopWindow {
 // H.M.Wang 2022-11-02 增加Bagink的测试
     private LinearLayout mBaginkTestArea = null;
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
+// H.M.Wang 2022-11-9 增加连供的开关阀测试
+    private LinearLayout mSCValveTestArea = null;
+// End of H.M.Wang 2022-11-9 增加连供的开关阀测试
 
     private LinearLayout mPinsTestArea = null;
     private LinearLayout mOutPinLayout = null;
@@ -325,6 +331,11 @@ public class GpioTestPopWindow {
                 mBaginkTestArea.setVisibility(View.GONE);
                 break;
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
+// H.M.Wang 2022-11-9 增加连供的开关阀测试
+            case TEST_PHASE_SC_VALVE:
+                mSCValveTestArea.setVisibility(View.GONE);
+                break;
+// End of H.M.Wang 2022-11-9 增加连供的开关阀测试
         }
 
         mCurrentTestPhase = testPhase;
@@ -466,6 +477,12 @@ public class GpioTestPopWindow {
                 mBaginkTestArea.setVisibility(View.VISIBLE);
                 break;
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
+// H.M.Wang 2022-11-9 增加连供的开关阀测试
+            case TEST_PHASE_SC_VALVE:
+                mTestTitle.setText("SC Valve Test");
+                mSCValveTestArea.setVisibility(View.VISIBLE);
+                break;
+// End of H.M.Wang 2022-11-9 增加连供的开关阀测试
         }
     }
 
@@ -793,6 +810,41 @@ public class GpioTestPopWindow {
 
         resetOutPins();
         resetInPins();
+
+// H.M.Wang 2022-11-9 增加连供的开关阀测试
+        mSCValveTestArea = (LinearLayout) popupView.findViewById(R.id.sc_valve_test_area);
+        TextView scValveTest = (TextView)popupView.findViewById(R.id.btn_sc_valve);
+        scValveTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setTestPhase(TEST_PHASE_SC_VALVE);
+            }
+        });
+        TextView scValve1 = (TextView)popupView.findViewById(R.id.sc_valve1);
+        scValve1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final IInkDevice scm = InkManagerFactory.inkManager(mContext);
+                if(scm instanceof SmartCardManager) {
+                    ((SmartCardManager)scm).addInkOn(0);
+                    try {Thread.sleep(100);} catch (Exception e) {}
+                    ((SmartCardManager)scm).addInkOff(0);
+                }
+            }
+        });
+        TextView scValve2 = (TextView)popupView.findViewById(R.id.sc_valve2);
+        scValve2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final IInkDevice scm = InkManagerFactory.inkManager(mContext);
+                if(scm instanceof SmartCardManager) {
+                    ((SmartCardManager)scm).addInkOn(1);
+                    try {Thread.sleep(100);} catch (Exception e) {}
+                    ((SmartCardManager)scm).addInkOff(1);
+                }
+            }
+        });
+// End of H.M.Wang 2022-11-9 增加连供的开关阀测试
 
 // H.M.Wang 2022-11-02 增加Bagink的测试
         mBaginkTestArea = (LinearLayout) popupView.findViewById(R.id.bagink_test_area);

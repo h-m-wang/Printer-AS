@@ -620,7 +620,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		}
 		/* 濡傛灉瑷疆鍙冩暩32鐖瞣n锛岃▓鏁稿櫒閲嶇疆 */
-		if (mSysconfig.getParam(31) == 1) {
+		if (mSysconfig.getParam(SystemConfigFile.INDEX_COUNTER_RESET) == 1) {
 			mCounter = 0;
 		}
 		/***PG1 PG2杈撳嚭鐘舵�佷负 0x11锛屾竻闆舵ā寮�**/
@@ -1019,7 +1019,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		return null;
 	}
 	public void onConfigureChanged() {
-		mMsgFile.setText(opendTlks());
+//	2022-11-08 H.M.Wang	mMsgFile.setText(opendTlks());
+		mMsgFile.setText(mObjPath);
 		int heads = 1;
 		tvMsg.setText(R.string.str_msg_name);
 		mTvStart.setText(R.string.str_btn_print);
@@ -2895,7 +2896,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 
 // 2020-7-21 在未开始打印前，网络清洗命令不响应问题解决，追加一个类变量
-	DataTransferThread thread = DataTransferThread.getInstance(mContext);
+	DataTransferThread mTempThread;
 // End of 2020-7-21 在未开始打印前，网络清洗命令不响应问题解决，追加一个类变量
 
 	//Soect_____________________________________________________________________________________________________________________________
@@ -3190,8 +3191,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 											 this.sendmsg(Constants.pcOk(msg));
 										 } else {
 // 2020-7-21 在未开始打印前，网络清洗命令不响应问题解决
-											 thread = DataTransferThread.getInstance(mContext);
-											 thread.purge(mContext);
+											 mTempThread = DataTransferThread.getInstance(mContext);
+											 mTempThread.purge(mContext);
 											 this.sendmsg(Constants.pcOk(msg));
 // End of 2020-7-21 在未开始打印前，网络清洗命令不响应问题解决
 //											sendmsg(Constants.pcErr(msg));

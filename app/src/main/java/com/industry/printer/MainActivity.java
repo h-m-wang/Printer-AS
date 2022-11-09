@@ -250,7 +250,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		registerBroadcast();
 		
 		//FpgaGpioOperation.updateSettings(this.getApplicationContext());
-		
+
 		initView();
 		Configs.initConfigs(mContext);
 		String sDev = DeviceInfosr(mContext);
