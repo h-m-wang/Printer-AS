@@ -5,6 +5,8 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -248,7 +250,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		
 		/** system config does not load from USB, so no need to listen the usb attachment state*/
 		registerBroadcast();
-		
 		//FpgaGpioOperation.updateSettings(this.getApplicationContext());
 
 		initView();

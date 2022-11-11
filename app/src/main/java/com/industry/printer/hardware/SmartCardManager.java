@@ -169,7 +169,7 @@ public class SmartCardManager implements IInkDevice {
 
     public SmartCardManager(Context context) {
         Debug.d(TAG, "APK VERSION_CODE: " + BuildConfig.VERSION_CODE);
-        Debug.d(TAG, "---> enter SmartCardManager() - CARD_TYPE_BULK1(Full)");
+//        Debug.d(TAG, "---> enter SmartCardManager() - CARD_TYPE_BULK1(Full)");
         mContext = context;
 
         mCachedThreadPool = Executors.newCachedThreadPool();
@@ -752,7 +752,10 @@ public class SmartCardManager implements IInkDevice {
                     }).start();
 // H.M.Wang 2020-11-13 当墨量<5%时，如果3次加墨失败则写OIB，本人认为这个操作不太好
 // H.M.Wang 2020-11-27 修改<5%的数值BUG，getLocalInkPercentage函数返回的是0-100的值，不是0-1的值
-                    if(mCards[mCurBagIdx].mInkLevel / mCards[mCurBagIdx].mMaxVolume < 0.05f) {
+// H.M.Wang 2022-11-10 修改为考虑浮点数的bug
+//                    if(mCards[mCurBagIdx].mInkLevel / mCards[mCurBagIdx].mMaxVolume < 0.05f) {
+                    if(1.0f* mCards[mCurBagIdx].mInkLevel / mCards[mCurBagIdx].mMaxVolume < 0.05f) {
+// End of H.M.Wang 2022-11-10 修改为考虑浮点数的bug
                         synchronized (SmartCardManager.this) {
                             SmartCard.writeOIB(mCards[mCurBagIdx].mCardType);
                         }

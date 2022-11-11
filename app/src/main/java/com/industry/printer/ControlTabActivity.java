@@ -3936,6 +3936,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-4-15 追加群组打印时，显示每个正在打印的message的1.bmp
         }
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
+
+// H.M.Wang 2022-11-10 追加一个打印时错误回调，用于报告错误，可以根据需要决定是否停止打印
+		public void onError(boolean cancel) {
+			if(cancel) {
+				mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+			}
+		}
+// End of H.M.Wang 2022-11-10 追加一个打印时错误回调，用于报告错误，可以根据需要决定是否停止打印
+
 	static char[] sRemoteBin;
 	//Socket________________________________________________________________________________________________________________________________
 	

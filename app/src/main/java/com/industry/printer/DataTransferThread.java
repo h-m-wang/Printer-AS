@@ -1499,6 +1499,7 @@ private void setSerialProtocol9DTs(final String data) {
 	public static final int MESSAGE_DATA_UPDATE = 1;
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 	public static final int MESSAGE_SHOW_LEVEL = 101;
+	public static final int MESSAGE_LEVEL_ERROR = 102;
 // End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 
 	public Handler mHandler = new Handler(){
@@ -1510,6 +1511,8 @@ private void setSerialProtocol9DTs(final String data) {
 					mNeedUpdate = true;
 					break;
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+				case MESSAGE_LEVEL_ERROR:
+					mCallback.onError(true);
 				case MESSAGE_SHOW_LEVEL:
 					if (null != mRecvedLevelPromptDlg) {
 						mRecvedLevelPromptDlg.setTitle("Levels");
@@ -1869,6 +1872,10 @@ private void setSerialProtocol9DTs(final String data) {
 		void onPrinted(int index);
 
         void onPrint(int index);
+
+// H.M.Wang 2022-11-10 追加一个中止回调，主要是在RfidScheduler类中如果初始化Bagink的Level时出现Feature6的值不合法，则中止打印的执行。当然，也可以用于其他的中止打印的操作
+		void onError(boolean cancel);
+// End of H.M.Wang 2022-11-10 追加一个中止回调，主要是在RfidScheduler类中如果初始化Bagink的Level时出现Feature6的值不合法，则中止打印的执行
 	}
 	
 	public static final int CODE_BARFILE_END = 1;

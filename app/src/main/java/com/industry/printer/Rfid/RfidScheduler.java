@@ -1,11 +1,12 @@
 package com.industry.printer.Rfid;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.industry.printer.ControlTabActivity;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -13,11 +14,9 @@ import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
-import com.industry.printer.hardware.SmartCardManager;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 
 public class RfidScheduler implements IInkScheduler {
@@ -56,8 +55,10 @@ public class RfidScheduler implements IInkScheduler {
 
 	private ArrayList<Integer>[] mRecentLevels;
 	private int[] mInkAddedTimes;
+	private long[] mInkAddedTime;
 
 	ExecutorService mCachedThreadPool = null;
+	private int mTimesOverflow = 0;
 
 	private void readLevelValue(final int cardIdx) {
 		Debug.d(TAG, "---> enter readLevelValue(" + cardIdx + ")");
@@ -91,21 +92,35 @@ public class RfidScheduler implements IInkScheduler {
 						int avgLevel = (readCount == 0 ? 0 : (int)(readLevels / readCount));
 						Debug.d(TAG, "Read Level = " + avgLevel);
 
-						if(avgLevel >= 12000000 && avgLevel <= 16000000) {
+						if(avgLevel < 33000000 || avgLevel > 36000000) {
+							mTimesOverflow++;
+						}
+						if(mTimesOverflow > 3) {
+							ExtGpio.playClick();
+						}
+
+//						if(avgLevel >= 33000000 && avgLevel <= 36000000) {
 							mRecentLevels[cardIdx].add(avgLevel);
 							if(mRecentLevels[cardIdx].size() > PROC_LEVEL_NUMS) {
 								mRecentLevels[cardIdx].remove(0);
 							}
-						}
+//						}
 
 						// Calculate average level if the count of read data bigger than PROC_LEVEL_NUMS
+						Debug.d(TAG, "ADD_INK_THRESHOLD = " + ADD_INK_THRESHOLD);
+						Debug.d(TAG, "mRecentLevels[" + cardIdx + "].size() = " + mRecentLevels[cardIdx].size());
 						avgLevel = ADD_INK_THRESHOLD;
 						if(mRecentLevels[cardIdx].size() >= PROC_LEVEL_NUMS) {
 							long totalLevel = 0;
+							int count = 0;
 							for(int i=0; i<PROC_LEVEL_NUMS; i++) {
-								totalLevel += mRecentLevels[cardIdx].get(i);
+								if(avgLevel >= 33000000 && avgLevel <= 36000000) {
+									totalLevel += mRecentLevels[cardIdx].get(i);
+									count++;
+								}
 							}
-							avgLevel = (int)(totalLevel / PROC_LEVEL_NUMS);
+							if(count > 0) avgLevel = (int)(totalLevel / count);
+							Debug.d(TAG, "totalLevel = " + totalLevel + "; count = " + count + "; avgLevel = " + avgLevel);
 						}
 						Debug.d(TAG, "Average Level = " + avgLevel);
 
@@ -119,6 +134,7 @@ public class RfidScheduler implements IInkScheduler {
 								Thread.sleep(50);
 								ExtGpio.playClick();
 							} else {
+								Debug.d(TAG, "Add Ink");
 								ExtGpio.setValve(cardIdx, 1);
 
 								try{Thread.sleep(100);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
@@ -132,6 +148,7 @@ public class RfidScheduler implements IInkScheduler {
 								}
 */
 								mInkAddedTimes[cardIdx]++;
+								mInkAddedTime[cardIdx] = System.currentTimeMillis();
 							}
 						} else {
 							mInkAddedTimes[cardIdx] = 0;
@@ -184,6 +201,7 @@ public class RfidScheduler implements IInkScheduler {
 			Debug.d(TAG, "Initiate BAGINK variables.");
 			mRecentLevels = new ArrayList[mLevelIndexs.length];
 			mInkAddedTimes = new int[mLevelIndexs.length];
+			mInkAddedTime = new long[mLevelIndexs.length];
 
 			for(int i=0; i<mLevelIndexs.length; i++) {
 				ExtGpio.rfidSwitch(mLevelIndexs[i]);
@@ -191,11 +209,12 @@ public class RfidScheduler implements IInkScheduler {
 				SmartCard.initLevelDirect();
 				mRecentLevels[i] = new ArrayList<Integer>();
 				mInkAddedTimes[i] = 0;
+				mInkAddedTime[i] = 0;
 			}
 
-
-			if(mManager.getFeature(0,5) < 300) {
-				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, "Valve threshold too low").sendToTarget();
+			ADD_INK_THRESHOLD = (mManager.getFeature(0,6) + 256) * 100000;
+			if(ADD_INK_THRESHOLD < 33000000 || ADD_INK_THRESHOLD > 36000000) {
+				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low").sendToTarget();
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -211,7 +230,6 @@ public class RfidScheduler implements IInkScheduler {
 					}
 				}).start();
 			}
-			ADD_INK_THRESHOLD = mManager.getFeature(0,5) * 100000;
 			mCachedThreadPool = Executors.newCachedThreadPool();
 		}
 // End of H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
@@ -291,7 +309,7 @@ public class RfidScheduler implements IInkScheduler {
 			if (mPrintCount == 0) {
 				mPrintCount = 10;
 				StringBuilder sb = new StringBuilder();
-				sb.append("Thres: " + mManager.getFeature(0,5) + "\n");
+				sb.append("Thres: " + (mManager.getFeature(0,6) + 256) + "\n");
 				for (int i = 0; i < mLevelIndexs.length; i++) {
 					sb.append("Level" + (i+1) + ": ");
 					if(mRecentLevels[i].size() > 0) {
@@ -303,7 +321,12 @@ public class RfidScheduler implements IInkScheduler {
 						sb.append("n/a");
 					}
 					sb.append("\n");
+					if(mInkAddedTime[i] > 0) {
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+						sb.append("    Fuel: " + sdf.format(new Date(System.currentTimeMillis())) + "\n");
+					}
 				}
+				Debug.d(TAG, "Show Level: " + sb.toString());
 				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, sb.toString()).sendToTarget();
 			}
 			mPrintCount--;
