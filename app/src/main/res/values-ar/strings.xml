@@ -1,0 +1,625 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- En 20170322 -->
+
+    <string name="app_version">الاصدار:</string>
+    <string name="system_time">الوقت:</string>
+    <string name="app_name">طباعة</string>
+    <string name="action_settings">ضبط</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="ControlTab">التحكم</string>
+	<string name="manualCtrlTab">رجل السيطرة</string>
+	<string name="Edit">اضافة</string>
+	<string name="Settings">اعدادات</string>
+	<string name="str_btn_start">بداية</string>
+	<string name="str_btn_stop">ايقاف</string>
+	<string name="str_btn_clean">تنظيف</string>
+	<string name="str_btn_open">فتح</string>
+	<string name="str_remain_ink">حبر</string>
+	<string name="str_remain_ptimes">الاجمالى</string>
+	<string name="str_btn_new">جديد</string>
+	<string name="str_btn_save">حفظ</string>
+	<string name="str_btn_saveprint">حفظ وطباعة</string>
+	<string name="str_btn_cancel">الغاء</string>
+	<string name="str_ip_add">Ip عنوان</string>
+	<string name="str_device_number">اداة:</string>
+	<string name="str_dialog_surecancel">تحذير:</string>
+	<string name="str_device_but_sure">تأكيد</string
+	<string name="str_ip_ed">والمحاولة مرة اخرى IPيرجى وضع</string>
+	<string name="str_print_documents"></string>
+	<string name="str_port">منفذ</string>
+	<string name="str_information">هل تريد تنفيذ الامر?</string>
+	<string name="str_btn_saveas">حفظ باسم</string>
+	<string name="str_btn_prerecord">أعلى</string>
+	<string name="str_btn_nextrecord">أسفل</string>
+	<string name="str_btn_send">أرسال</string>
+	<string name="str_btn_set">ضبط</string>
+	<string name="str_btn_get">نص</string>
+	<string name="str_btn_print">اطبع</string>
+	<string name="str_btn_finish">انهاء</string>
+	<string name="str_btn_header1">مدخل1</string>
+	<string name="str_btn_header2">مدخل2</string>
+	<string name="str_btn_header3">مدخل3</string>
+	<string name="str_btn_header4">مدخل4</string>
+	<string name="strDate">تاريخ</string>
+	<string name="strInklevel">متبقى </string>
+	<string name="strPhotocellState">خلية ضوئية</string>
+	<string name="strEncoderState">نقل حركة</string>
+	<string name="strPrintstate">طباعة：</string>
+	<string name="strPrinting">طباعه</string>
+	<string name="strPrintok">جاهز</string>
+	<string name="strOn">تشغيل</string>
+	<string name="strOff">ايقاف</string>
+	<string name="strwaitting">الطباعة......</string>
+	<string name="str_csvfile">Csv</string>
+	<string name="str_tlkfile">Tlk</string>
+	<string name="str_binfile">افتح</string>
+	<string name="str_openfile">فتح ملف...</string>
+	<string name="str_mvforward">اتجاه امامى</string>
+	<string name="str_mvbackward">اتجاة خلفى</string>
+	<string name="str_preview">معاينة</string>
+
+	<string name="str_del">حذف</string>
+	<string name="str_multi_select">مجموعة</string>
+	<string name="str_btn_shift">وردية</string>
+	<string name="str_btn_second">ثانية</string>
+
+	<string name="str_btn_upgrade">تحديث</string>
+	<string name="str_btn_setDate">ضبط التاريخ</string>
+	<string name="str_btn_setTime">ضبط الوقت</string>
+	<string name="str_btn_image">شعار</string>
+	<string name="str_net_device_ink">حبر</string>
+	<string name="str_goto">اذهب الى</string>
+	<!-- object info table -->
+	<string name="strWidth">عرض</string>
+	<string name="strHigh">حجم</string>
+	<string name="strRotation">تدوير</string>
+	<string name="strHightype">تدريج</string>
+	<string name="strReverse">معكوس</string>
+	<string name="strXcor">افقى</string>
+	<string name="strYcor">رأسى</string>
+	<string name="strCnt">محتوى</string>
+	<string name="strDefault">0</string>
+	<string name="txtDefault">نص</string>
+	<string name="strDragable">سحب</string>
+	<string name="strShow">يعرض</string>
+	<string name="strFontsize">حجم الخط</string>
+	<string name="strFont">الخط</string>
+	<string name="strLinewidth">عرض الخط</string>
+	<string name="strBits">عدد</string>
+	<string name="strImage">صورة</string>
+	<string name="strDirect">اتجاه</string>
+	<string name="strShift1">وردية1</string>
+	<string name="strShift2">وردية2</string>
+	<string name="strShift3">وردية3</string>
+	<string name="strShift4">وردية4</string>
+	<string name="strShift5">وردية5</string>
+	<string name="strInfoname">العنصر</string>
+	<string name="strHeadType">نوع القلم</string>
+	<string name="strHeadResolution">HD</string>
+	<string name="strUpgradeConfirm">تريد التحديث ؟</string>
+	<string name="strUpgradeNoApk">لا يوجد ملف تحديث!!!</string>
+	<string name="strSaving">حفظ, برجاء الانتظار...</string>
+	<string name="strLoading">جار التحميل,برجاء الانتظار...</string>
+	<string name="strCopying">نسخ, برجاء الانتظار...</string>
+	<string name="strDeleting">حذف, برجاء الانتظار...</string>
+	<string name="strInsertSerial">برجاء توصيل الجهاز...</string>
+	<string name="strReinsertSerial">خطأ, برجاء اعادة توصيل الجهاز</string>
+	<string name="str_net_error">خطأ فى الاتصال الشبكى</string>
+
+
+	<string-array name="strFontFile">
+		<item>WelldrawH000</item>
+	</string-array>
+
+
+	<string name="strCode">نوع الكود</string>
+	<string name="strAI">AI</string>
+	<string name="strBarsource">البيانات</string>
+	<string name="strLinetype">نوع الخط</string>
+	<string name="str_ok">نعم</string>
+	<string name="strNativeBtn">الغاء</string>
+	<string name="strRtFmt">اعادة تهيأة</string>
+	<string name="strOffset">ازاحة</string>
+	<string name="strOffsetType">كتابة</string>
+	<string name="strMinUpdate">15 دقيقة للتحديث</string>
+
+	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+	<string name="strFrame">إطار</string>
+	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+
+	<!-- object list -->
+	<string name="objectListName">عرض قائمة</string>
+	<string name="objectInfoName">اظهار النص</string>
+	<string name="object_Msg">نص </string>
+	<string name="object_text">نص</string>
+	<string name="object_realtime">تاريخ</string>
+	<string name="object_counter">عداد</string>
+	<string name="object_bar">الباركود</string>
+	<string name="object_pic">الرسم</string>
+	<string name="object_julian">Julian</string>
+	<string name="object_line">خط</string>
+	<string name="object_rect">مستقيم</string>
+	<string name="object_ellipse">بيضاوى</string>
+	<string name="object_shift">وردية</string>
+	<string name="object_second">ثانيا</string>
+	<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+	<string name="object_hypertext">النص الفائق</string>
+	<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+	<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_hypertext_hint1"><u>@Y</u>:سنة <u>@M</u>:شهر <u>@D</u>:تاريخ</string>
+	<string name="object_hypertext_hint2"><u>@H</u>:ساعة <u>@N</u>:دقيقة <u>@S</u>:ثانية</string>
+	<string name="object_hypertext_hint3"><u>@T</u>:وردية <u>@A</u>:يوم <u>@W</u>:رقم الاسبوع.</string>
+	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:عدادات</string>
+	<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_weekofyear">الاسبوع فى الاسنة</string>
+	<string name="object_monthtext">شهر النص</string>
+	<string name="object_dayofweektext">اليوم فى الاسبوع</string>
+	<string name="object_weekday">يوم الاسبوع</string>
+	<string name="object_charHour">ساعة الفا</string>
+	<string name="object_msg_name">موضوعات</string>
+	<string name="object_qr">كود QR</string>
+	<string name="object_dynamic_qr">ديناميكي QR</string>
+	<string name="str_under_purging">تطهير, من فضلك حاول لاحقا.</string>
+	<string name="str_under_printing">الرجاء إيقاف الطباعة ثم المحاولة مرة أخرى.</string>
+
+
+	<!-- Settings frame -->
+	<string name="strParam0">00.محجوز</string>
+	<string name="strPrSpeedname">01.سرعة</string>
+	<string name="strDelay_key">مفتاح_التاخير</string>
+	<string name="strDelayname">02.التاخير</string>
+	<string name="strDelay_summary">ضبط التأخير</string>
+	<string name="strParam3">03.محجوز</string>
+	<string name="strTrigger_key">مفتاح_تكرار</string>
+	<string name="strTriggername">04.تكرار</string>
+	<string name="strTrigger_summary">وضع التكرار</string>
+	<string name="strDirection_key">مفتاح_تكرار</string>
+	<string name="strSyncname">05.انكودر</string>
+	<string name="strDirectionname">05.مزامنة</string>
+	<string name="strBold">06.عريض</string>
+	<string name="strFixlen">07.طول</string>
+	<string name="strFixtime">08.وقت الإصلاح</string>
+	<string name="strHeadTemp">09.درجة حرارة الرأس</string>
+	<string name="strResvTemp">10.صندوق درجة الحرارة</string>
+	<string name="strfontwidth">11.عرض الخط</string>
+	<string name="strDotname">12.حجم النقاط</string>
+	<string name="strDirection_summary">اختر الاتجاه</string>
+	<string name="strEncoder_key">انكودر</string>
+	<string name="strEncodername">03.انكودر</string>
+	<string name="strEncoder_summary">ضبط وضع الانكودر</string>
+	<string name="strHoriRes_key">ساعات_مفتاح</string>
+	<string name="strHoriResname">04.Hori</string>
+	<string name="strHoriRes_summary">ضبط Hori Res</string>
+	<string name="strVertRes_key">vertres_key</string>
+	<string name="strVertResname">05.Vert</string>
+	<string name="strVertRes_summary">Setting Vert Res</string>
+	<string name="strTimeunit">ms</string>
+	<string name="strResunit">dpi</string>
+	<string name="strLenunit">0.1mmm</string>
+	<string name="strTempunit">C</string>
+	<string name="strPrSpeedUnit">HZ</string>
+	<string name="strResvname8">08.محجوز</string>
+	<string name="strResvname9">09.محجوز</string>
+	<string name="strResvname10">10.محجوز</string>
+	<string name="strResvname11">11.محجوز</string>
+	<string name="strResvname12">12.محجوز</string>
+	<string name="strResvname13">13.محجوز</string>
+	<string name="strResvname14">14.محجوز</string>
+	<string name="strResvname15">15.محجوز</string>
+	<string name="strResvname16">16.محجوز</string>
+	<string name="strResvname17">17.محجوز</string>
+	<string name="strResvname18">18.محجوز</string>
+	<string name="strResvname19">19.محجوز</string>
+	<string name="strResvname20">20.محجوز</string>
+	<string name="strResvname21">21.محجوز</string>
+	<string name="strResvname22">22.محجوز</string>
+	<string name="strResvname23">23.محجوز</string>
+	<string name="strResvname24">24.محجوز</string>
+	<string name="strResvname25">25.محجوز</string>
+	<string name="strResvname26">26.محجوز</string>
+	<string name="strResvname27">27.محجوز</string>
+	<string name="strResvname28">28.محجوز</string>
+	<string name="strResvname29">29.محجوز</string>
+	<string name="strResvname30">30.محجوز</string>
+	<string name="strResvname31">31.محجوز</string>
+	<string name="strResvname32">32.محجوز</string>
+	<string name="strResvname33">33.محجوز</string>
+	<string name="strResvname34">34.محجوز</string>
+	<string name="strResvname35">35.محجوز</string>
+	<string name="strResvname36">36.محجوز</string>
+	<string name="strResvname37">37.محجوز</string>
+	<string name="strResvname38">38.One for all</string>
+	<string name="strResvname39">39.محجوز</string>
+	<string name="strResvname40">40.محجوز</string>
+	<string name="strResvname41">41.محجوز</string>
+	<string name="strResvname42">42.محجوز</string>
+	<string name="strResvname43">43.أقلام</string>
+	<string name="strResvname44">44.محجوز</string>
+	<string name="strResvname45">45.محجوز</string>
+	<string name="strResvname46">46.محجوز</string>
+	<string name="strResvname47">47.محجوز</string>
+	<string name="strResvname48">48.محجوز</string>
+	<string name="strResvname49">49.محجوز</string>
+	<string name="strResvname50">50.محجوز</string>
+	<string name="strResvname51">51.محجوز</string>
+	<string name="strResvname52">52.محجوز</string>
+	<string name="strResvname53">53.محجوز</string>
+	<string name="strResvname54">54.محجوز</string>
+	<string name="strResvname55">55.محجوز</string>
+	<string name="strResvname56">56.محجوز</string>
+	<string name="strResvname57">57.محجوز</string>
+	<string name="strResvname58">58.محجوز</string>
+	<string name="strResvname59">59.محجوز</string>
+	<string name="strResvname60">60.محجوز</string>
+	<string name="strResvname61">61.محجوز</string>
+	<string name="strResvname62">62.محجوز</string>
+	<string name="strResvname63">63.محجوز</string>
+	<string name="strResvname64">64.نوع Fdb</string>
+	<string name="strBtnSave">Ok</string>
+	<string name="str_fileicon_des">رمز الملف</string>
+	<string name="str_file_save">موافق</string>
+	<string name="str_file_cancel">الغاء</string>
+	<string name="str_setting_upgrade">تحديث</string>
+	<string name="str_setting_clean">نظيف</string>
+
+	<string name="str_month">شهر</string>
+	<string name="str_year">سنة</string>
+	<string name="str_date">تاريخ</string>
+	<string name="str_hour">ساعة</string>
+	<string name="str_minute">دقيقة</string>
+	<string name="str_format">24-Format</string>
+	<string name="str_format_24">نعم</string>
+	<string name="str_format_12">لا</string>
+	<string name="cor_unit">نقطة</string>
+	<string name="font_unit">مللى</string>
+	<string name="dot_unit">النقاط</string>
+
+	<string name="str_trans">الى اليمين</string>
+
+	<string name="str_column_index">فهرس</string>
+	<string name="str_column_pic1">صورة1</string>
+	<string name="str_column_pic2">صورة2</string>
+	<string name="str_column_pic3">صورة3</string>
+	<string name="str_column_pic4">صورة4</string>
+	<string name="str_column_text1">نص1</string>
+	<string name="str_column_text2">نص2</string>
+	<string name="str_column_text3">نص3</string>
+	<string name="str_column_text4">نص4</string>
+	<string name="str_column_text5">نص5</string>
+	<string name="str_column_text6">نص6</string>
+	<string name="str_column_text7">نص7</string>
+	<string name="str_column_text8">نص8</string>
+	<string name="str_column_text9">نص9</string>
+	<string name="str_column_text10">نص10</string>
+	<string name="str_column_text11">نص11</string>
+	<string name="str_column_text12">نص12</string>
+	<string name="str_column_text13">نص13</string>
+	<string name="str_column_text14">نص14</string>
+	<string name="str_column_text15">نص15</string>
+	<string name="str_column_text16">نص16</string>
+	<string name="str_notlkfile">الرجاء تحديد ملف TLK</string>
+	<string name="str_tlk_already_exist">Tlk موجود بالفعل!!!</string>
+	<string name="str_createfile_failure">خلق خطأ</string>
+	<string name="str_no_print_target">يرجى اختيار الهدف</string>
+
+	<string name="str_radioLocal">محلى</string>
+	<string name="str_radioUsb">USB</string>
+	<string name="str_radioUsb1">USB1</string>
+	<string name="str_radioUsb2">USB2</string>
+	<string name="str_radioSdcard">SDCard</string>
+
+	<string name="str_title_infodialog">معلومات الكائن</string>
+	<string name="str_fileopt_del">DEL</string>
+	<string name="str_fileopt_cancel">الغاء</string>
+	<string name="str_search">بحث</string>
+
+	<!-- 树莓派3 打印界面相关 -->
+	<string name="str_msg_name">MSG:</string>
+	<!--
+    <string name="str_state_inklevel">حبر:  %1$d%%</string>
+    -->
+	<string name="str_state_inklevel">حبر:</string>
+	<string name="str_invalid_ink">--</string>
+	<string name="str_state_battery">الطاقة:%1$d</string>
+	<string name="str_hint_preview">معاينة الرسالة</string>
+	<string name="str_print_count">تسجيل: </string>
+	<string name="str_print_count_default">0</string>
+	<string name="str_print_printing">مهمة الطباعة قيد التشغيل بالفعل ، لا يتم إنشاء مهمة جديدة</string>
+	<string name="str_print_startok">بدء مهمة الطباعة بنجاح...</string>
+	<string name="str_print_stopok">إيقاف مهمة الطباعة بنجاح...</string>
+	<string name="str_toast_no_bin">لم يتم العثور على ملف  !!!</string>
+	<string name="str_toast_emptycontent">الرسالة التي اخترتها فارغة!!!</string>
+	<string name="str_toast_no_message">الرسالة التي اخترتها فارغة!!!</string>
+	<string name="str_toast_no_ink">مستوى الحبر قليل!!!</string>
+	<!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+	<string name="str_toast_ink_error">خطأ بالحبر!!!</string>
+	<!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+	<string name="str_rfid_initfail_notify">RFID فشل فى تهيئة！</string>
+	<string name="str_page_forward"> 《 </string>
+	<string name="str_page_backward"> 》 </string>
+	<string name="str_message_no_content">لايمكن المعاينة</string>
+	<string name="str_state_printing">طباعة</string>
+	<string name="str_state_stopped">جاهز</string>
+
+	<!-- 树莓派3 设置界面相关 -->
+
+	<string name="str_textview_param1">01. السرعه</string>
+	<string name="str_textview_param2">02. الاتجاه</string>
+	<string name="str_textview_param3">03. جودة الطباعة</string>
+	<string name="str_textview_param4">04. تأخير</string>
+	<string name="str_textview_param5">05. خلية ضوئية</string>
+	<string name="str_textview_param6">06. انكودر</string>
+	<string name="str_textview_param7">07. تكرار الطباعة</string>
+	<string name="str_textview_param8">08. اختيار نوزل</string>
+	<string name="str_textview_param9">09. قطر العجلة </string>
+	<string name="str_textview_param10">10. انكودرPPR</string>
+	<string name="str_textview_param11">11.Pen1 ازاحة</string>
+	<string name="str_textview_param12">12.Pen2 ازاحة</string>
+	<string name="str_textview_param13">13.Pen1 معكوسة</string>
+	<string name="str_textview_param14">14.Pen2 معكوسة</string>
+	<string name="str_textview_param15">15.Pen1 مقلوب</string>
+	<string name="str_textview_param16">16.Pen2 مقلوب</string>
+	<string name="str_textview_param17">17.تأخير التاريخ</string>
+
+	<!--	<string name="str_textview_param18">18.محجوز</string>-->
+	<string name="str_textview_param18">18.Clear Zero</string>
+
+	<string name="str_textview_param19">19.Pen3 ازاحة</string>
+	<string name="str_textview_param20">20.Pen4 ازاحة</string>
+	<string name="str_textview_param21">21.Pen3 معكوسة</string>
+	<string name="str_textview_param22">22.Pen4 معكوسة/string>
+	<string name="str_textview_param23">23.Pen3 مقلوب</string>
+	<string name="str_textview_param24">24.Pen4 مقلوب</string>
+	<string name="str_textview_param25">25.جهد تلقائى</string>
+	<string name="str_textview_param26">26.ضبط الجهد</string>
+	<string name="str_textview_param27">27.نبض تلقائي</string>
+	<string name="str_textview_param28">28.ضبط النبض</string>
+	<string name="str_textview_param29">29.حافظ على رطوبتها </string>
+	<string name="str_textview_param30">30.Pho فلتر</string>
+	<string name="str_textview_param31">31.يكتب</string>
+	<string name="str_textview_param32">32.إعادة تعيين Cnt</string>
+	<string name="str_textview_param33">33.حجم النقاط</string>
+	<string name="str_textview_param34">34.PWML</string>
+	<string name="str_textview_param35">35.STR</string>
+	<string name="str_textview_param36">36.زاوية ميل</string>
+	<string name="str_textview_param37">37.PWMH</string>
+	<string name="str_textview_param38">38.واحدة للكل</string>
+	<!-- H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+	<!--	<string name="str_textview_param39">39.محجوز</string> -->
+	<string name="str_textview_param39">39.مصدر البيانات</string>
+	<!-- End of H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+	<string name="str_textview_param40">40.صوت انذار</string>
+	<!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+	<!--	<string name="str_textview_param41">41.Com طباعة</string> -->
+	<string name="str_textview_param41">41.محجوز</string>
+	<!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+	<string name="str_textview_param42">42.تشغيل طباعة</string>
+	<string name="str_textview_param43">43.Pens</string>
+	<string name="str_textview_param44">"44.سطوع "</string>
+	<string name="str_textview_param45">45.عداد0</string>
+	<string name="str_textview_param46">46.عداد1</string>
+	<string name="str_textview_param47">47.عداد2</string>
+	<string name="str_textview_param48">48.عداد3</string>
+	<string name="str_textview_param49">49.عداد4</string>
+	<string name="str_textview_param50">50.عداد5</string>
+	<string name="str_textview_param51">51.عداد6</string>
+	<string name="str_textview_param52">52.عداد7</string>
+	<string name="str_textview_param53">53.عداد8</string>
+<!--	<string name="str_textview_param54">54.عداد9</string>-->
+	<string name="str_textview_param54">54.JFRL</string>
+	<string name="str_textview_param55">55.محجوز</string>
+	<string name="str_textview_param56">56.FIFO</string>
+<!--	<string name="str_textview_param57">57.محجوز</string>-->
+	<string name="str_textview_param57">57.HD</string>
+	<string name="str_textview_param58">58.طباعة (بدون جملة)</string>
+	<string name="str_textview_param59">59.Bulk</string>
+	<string name="str_textview_param60">60.Log</string>
+	<string name="str_textview_param61">61.عمود ثنائي</string>
+	<string name="str_textview_param62">62.حجم الهدف</string>
+	<string name="str_textview_param63">63.SC مستوى</string>
+	<string name="str_textview_param64">64.Fdb نوع</string>
+	<string name="str_textview_param65">65.محجوز</string>
+	<string name="str_btn_settings_sync">موافق</string>
+
+
+	<string name="str_time_unit_0_1v">0.1V</string>
+	<string name="str_length_unit_mm">mm</string>
+	<string name="str_length_unit_6_1mm">1/6mm</string>
+	<string name="str_time_unit_mm">ms</string>
+	<string name="str_time_unit_ms">ms</string>
+	<string name="str_time_unit_mm_s">mm/s</string>
+	<string name="str_time_unit_0_1us">0.1us</string>
+	<string name="str_time_unit_us">us</string>
+	<string name="str_time_unit_100us">100us</string>
+	<string name="str_setting_time">الساعة</string>
+	<string name="str_system_setting">الاعدادات</string>
+	<string name="str_upgrade_progress">ترقية النظام....</string>
+	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
+	<string name="str_toast_ink_unvalid">المستوى الخارجي لنقطة الحبر ، مضبوط على الإعداد الافتراضي ： 800</string>
+	<string name="str_toast_photoelectricity_delay">تم ضبط مستوى التأخير الكهروضوئي العالي على الافتراضي: 100</string>
+	<string name="str_toast_photoelectricity_antishake">تم ضبط مستوى مقاومة الاهتزاز الكهروضوئي على الافتراضي: 20</string>
+	<string name="str_toast_timingprint">Timing print out level, set to default:1000</string>
+
+	<!-- 树莓派3 编辑界面相关 -->
+	<string name="str_edit_btn_insert">إدراج</string>
+	<string name="str_edit_btn_temp1">درجة حرارة1</string>
+	<string name="str_edit_btn_temp2">درجة حرارة2</string>
+	<string name="str_edit_btn_temp3">درجة حرارة3</string>
+	<string name="str_edit_btn_temp4">درجة حرارة4</string>
+	<string name="str_edit_btn_temp5">درجة حرارة5</string>
+
+	<string name="str_edit_line1">1st خط:</string>
+	<string name="str_edit_line2">2nd خط:</string>
+	<string name="str_edit_line3">3rd خط:</string>
+	<string name="str_edit_line4">4th خط:</string>
+
+	<string name="str_notice_save">الرجاء إدخال اسم الرسالة:</string>
+	<string name="str_notice_no_objects">لا يوجد عنوان للحفظ!</string>
+	<string name="str_file_title">رسالة：</string>
+	<string name="str_file_hint">اسم الملف</string>
+	<string name="str_page_prev">الصفحة لأعلى</string>
+	<string name="str_page_next">الصفحة لاسفل</string>
+	<string name="str_filename_no">جديد</string>
+	<string name="str_btn_back">خلف</string>
+	<string name="str_btn_up">أعلى</string>
+	<string name="str_btn_detail">ضبط</string>
+	<string name="cursor">المؤشر</string>
+	<!-- 树莓派3  -->
+	<string name="str_dialog_msgnote">请选择信息行数：</string>
+
+
+	<string name="str_no_upgrade">بالفعل الاصدار الاخير الان</string>
+
+	<string name="str_cnt_min">بداية</string>
+	<string name="str_cnt_max">نهاية</string>
+	<string name="str_cnt_index">CID</string>
+	<string name="str_cnt_steplen">Step-Len</string>
+	<string name="str_cnt_repeat">تكرار</string>
+	<string name="str_loading">تحميل...</string>
+
+	<string name="str_toast_no_qrfile">لا يوجد QR.txt أو QR.csv</string>
+	<string name="str_barcode_end">انتهى ملف الباركود</string>
+	<string name="str_recover_print">استعادة آخر طباعة</string>
+
+	<string name="str_net_devname">أداة</string>
+	<string name="str_net_ipaddr">عنوان IP</string>
+	<string name="str_net_stat">الحالة</string>
+	<string name="all_print">كل طباعة</string>
+	<string name="all_purge">كل تطهير</string>
+	<string name="all_stop">كل توقف</string>
+	<string name="str_F1">F1</string>
+	<string name="str_F2">اداه فحص</string>
+	<string name="str_net_back">للخلف</string>
+	<string name="str_net_query">استعلام</string>
+	<string name="str_net_device">أداة:</string>
+
+	<string name="str_net_device_times">اوقات:</string>
+	<string name="str_net_one">1</string>
+	<string name="str_net_hundred">100</string>
+	<string name="str_net_thousand">1000</string>
+	<string name="str_net_connect">اتصال</string>
+	<string name="str_net_tips">Hint</string>
+	<string name="str_net_textview">مشاهدة النص</string>
+	<string name="str_net_ipdefault">192.168.1.101</string>
+
+
+	<string name="str_tip_nothing">~ لا توجد صورة !!!</string>
+	<string name="str_no_permission">تم رفض الإذن للوصول إلى الملفات</string>
+
+	<string name="str_message_tips">الرسالة٪ s موجودة بالفعل ، قم بالكتابة فوقها?</string>
+
+	<string name="str_flush_tips">سيتم الكتابة فوق الإعدادات ، قم بالتأكيد?</string>
+
+	<string name="str_build_tlk_start">بدء بناء tlk... </string>
+	<string name="str_prepared">TLK تحليل ناجح!!!</string>
+	<string name="str_prepare_fail">TLK تحليل فاشل!!!</string>
+	<string name="str_build_tlk_ok">بناء ناجح TLK</string>
+	<string name="str_build_tlk_fail">بناء فاشل TLK</string>
+
+	<string name="str_tlk_opening">تحليل TLK...</string>
+	<string name="str_print_thread_create_err">فشل إنشاء موضوع الطباعة...</string>
+	<string name="str_tlk_not_found">1.TLK غير موجود</string>
+
+	<string name="password_title">الرجاء إدخال كلمة المرور</string>
+
+	<!-- Toast -->
+	<string name="toast_save_success">حفظ ناجح</string>
+	<string name="toast_plug_usb">الرجاء توصيل جهاز USB</string>
+	<string name="toast_passwd_error">فشل التحقق من كلمة المرور!!!</string>
+	<string name="toast_content_empty">يجب ألا يكون المحتوى فارغًا</string>
+	<string name="toast_ai_empty">AI لايجب ان يكون فارغا</string>
+	<string name="toast_rfid_changed">تم تغيير RFID</string>
+
+	<string name="tips_import_message">استيراد رسائل</string>
+	<string name="tips_import_resource">استيراد المصادر</string>
+	<string name="tips_import_sysconf">استيراد إعدادات النظام</string>
+	<string name="tips_import_font">استيراد مكتبة الخطوط</string>
+
+	<string name="tips_export_message">تصدير رسائل</string>
+	<string name="tips_export_sysconf">تصدير إعدادات النظام</string>
+	<string name="tips_export_resource">تصدير الموارد</string>
+
+
+	<string name="message_confirm_printnext">متأكد من تغيير الرسالة?</string>
+	<string name="str_net_number">رقم</string>
+	<string name="str_net_counts">العد</string>
+	<string name="str_net_int">حبر</string>
+	<string name="str_net_commands">أمر</string>
+
+	<!-- Labels on soft keys -->
+	<string name="label_go_key">ا</string>
+	<string name="label_next_key">التالي</string>
+	<string name="label_send_key">إرسال</string>
+	<string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|&quot;</string>
+
+	<!-- Labels for print info -->
+	<string name="str_max_print_count">الحد الأقصى لعدد الطباعة: </string>
+	<string name="str_actual_print_count">عدد الطباعة الفعلي: </string>
+	<string name="cat1_print_count">عدد الخرطوشة pen1: </string>
+	<string name="cat2_print_count">عدد الخرطوشة pen2: </string>
+    <string name="title_activity_print_info">نشاط معلومات الطباعة</string>
+
+	<string name="str_cnt_cid_title">CID</string>
+	<string name="str_cnt_reset">اعادة تعيين</string>
+	<string name="str_cnt_edit">تعديل</string>
+
+	<!-- object info table -->
+	<string name="contentView">حروف</string>
+	<string name="contentEdit">الابجدية</string>
+
+	<string name="invalid_message">رسالة غير صالحة</string>
+	<string name="invalid_code">كود غير صالح</string>
+	<string name="invalid_protocol">بروتوكول غير صالح</string>
+	<string name="decoding">حل الرمز...</string>
+
+<!--	<string name="strRecvedRemote">接收到远程数据</string>-->
+	<!-- H.M.Wang 2020-6-10 追加نص متغير控件 -->
+	<string name="object_dynamictext">نص متغير</string>
+	<string name="object_dtindex">فهرس</string>
+	<!-- End of H.M.Wang 2020-6-10 追加نص متغير控件 -->
+
+	<string name="strRecvedRemote">وردت من بعيد</string>
+	<string name="str_rfid_warning">Rfids are refreshing...</string>
+
+	<string name="str_btn_rfid_refresh">تحديث الخرطوشة</string>
+	<string name="str_btn_sc_level_show">SC مستوى/string>
+	<string name="str_btn_sc_legality_show">SC Legality</string>
+	<string name="str_btn_sc_status">SC حالة</string>
+	<string name="printDpiNotMatchError">دقة الطباعة غير متطابقة يرجى تعديل الرسالة والمحاولة مرة اخرى.</string>
+
+	<!-- H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+	<string name="strCounterEditTitle">تعديل قيمة العداد</string>
+	<string name="strCounterIndex">عداد%1$d:</string>
+	<string name="strCounterClear">واضح</string>
+	<!-- End of H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+
+	<string name="strGroup">مجموعة</string>
+	<string name="str_clear">واضح</string>
+
+	<string name="strLevel1">مستوى 1</string>
+	<string name="strLevel2">مستوى 2</string>
+	<string name="strSystemSetting">اندرويد</string>
+	<string name="strSettings">قائمة المعاملات</string>
+	<string name="strInkMenu">قائمة الحبر</string>
+
+	<string name="str_popup_buk_ink_check">تحقق من الحبر داخل الخرطوشة</string>
+	<string name="str_popup_buk_ink_check_level1">من المحتمل أن يكون مستوى الخزان B منخفضًا ، وإذا أمكن إيقاف تشغيل وحدة التحكم ، وإزالة خرطوشة الخزان سعة 400 مل ، وتحقق مما إذا كانت فارغة أم لا
+استبدله إذا لزم الأمر</string>
+	<string name="str_popup_buk_ink_check_level2">مستوى B-tank فارغ ، إذا أمكن إيقاف تشغيل وحدة التحكم ، قم بإزالة خرطوشة الخزان سعة 400 مل لاستبدالها.
+سيتم تعطيل وضع الطباعة في غضون بضع دقائق</string>
+	<string name="str_popup_buk_ink_check_level3">مستوى B-tank فارغ ، تم تعطيل الطباعة. يرجى إيقاف تشغيل وحدة التحكم وإزالة خرطوشة الخزان سعة 400 مل لاستبدالها.</string>
+
+	<string name="str_load_default_setting">تحميل من الافتراضى</string>
+	<string name="str_save_default_setting">حفظ كا افتراضى</string>
+	<string name="str_settings_load_confirm_message">هل تريد تحميل المعاملات الافتراضية الفعلية ؟</string>
+	<string name="str_settings_save_confirm_message">هل تريد حفظ المعاملات الفعلية كمعلمات افتراضية؟</string>
+
+	<string name="str_ink_low_alert_message">الخرطوشة\'s المتاح 0%,يرجى استبداله والتأكيد بالضغط على على الايقونة بالاسفل</string>
+
+	<string name="str_reset_level_confirm_message">هل تؤكد إعادة تعيين قيمة %P</string>
+
+	<string name="str_print_cnt_reset">اعادة تهيئة عداد الطابعات</string>
+	<string name="str_sc_ink_reset">اعادة تهيئة %</string>
+</resources>
