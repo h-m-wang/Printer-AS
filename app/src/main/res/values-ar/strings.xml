@@ -25,7 +25,7 @@
 	<string name="str_ip_add">Ip عنوان</string>
 	<string name="str_device_number">اداة:</string>
 	<string name="str_dialog_surecancel">تحذير:</string>
-	<string name="str_device_but_sure">تأكيد</string
+	<string name="str_device_but_sure">تأكيد</string>
 	<string name="str_ip_ed">والمحاولة مرة اخرى IPيرجى وضع</string>
 	<string name="str_print_documents"></string>
 	<string name="str_port">منفذ</string>
@@ -74,7 +74,7 @@
 	<!-- object info table -->
 	<string name="strWidth">عرض</string>
 	<string name="strHigh">حجم</string>
-	<string name="strRotation">تدوير</string>
+<!--	<string name="strRotation">تدوير</string>-->
 	<string name="strHightype">تدريج</string>
 	<string name="strReverse">معكوس</string>
 	<string name="strXcor">افقى</string>
@@ -103,28 +103,28 @@
 	<string name="strSaving">حفظ, برجاء الانتظار...</string>
 	<string name="strLoading">جار التحميل,برجاء الانتظار...</string>
 	<string name="strCopying">نسخ, برجاء الانتظار...</string>
-	<string name="strDeleting">حذف, برجاء الانتظار...</string>
+<!--	<string name="strDeleting">حذف, برجاء الانتظار...</string>-->
 	<string name="strInsertSerial">برجاء توصيل الجهاز...</string>
 	<string name="strReinsertSerial">خطأ, برجاء اعادة توصيل الجهاز</string>
 	<string name="str_net_error">خطأ فى الاتصال الشبكى</string>
 
-
+<!--
 	<string-array name="strFontFile">
 		<item>WelldrawH000</item>
 	</string-array>
-
+-->
 
 	<string name="strCode">نوع الكود</string>
-	<string name="strAI">AI</string>
+<!--	<string name="strAI">AI</string>-->
 	<string name="strBarsource">البيانات</string>
 	<string name="strLinetype">نوع الخط</string>
 	<string name="str_ok">نعم</string>
 	<string name="strNativeBtn">الغاء</string>
 	<string name="strRtFmt">اعادة تهيأة</string>
 	<string name="strOffset">ازاحة</string>
-	<string name="strOffsetType">كتابة</string>
+<!--	<string name="strOffsetType">كتابة</string>
 	<string name="strMinUpdate">15 دقيقة للتحديث</string>
-
+-->
 	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
 	<string name="strFrame">إطار</string>
 	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
@@ -154,8 +154,8 @@
 	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:عدادات</string>
 	<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
 	<string name="object_weekofyear">الاسبوع فى الاسنة</string>
-	<string name="object_monthtext">شهر النص</string>
-	<string name="object_dayofweektext">اليوم فى الاسبوع</string>
+<!--	<string name="object_monthtext">شهر النص</string>
+	<string name="object_dayofweektext">اليوم فى الاسبوع</string>-->
 	<string name="object_weekday">يوم الاسبوع</string>
 	<string name="object_charHour">ساعة الفا</string>
 	<string name="object_msg_name">موضوعات</string>
@@ -369,7 +369,7 @@
 	<string name="str_textview_param19">19.Pen3 ازاحة</string>
 	<string name="str_textview_param20">20.Pen4 ازاحة</string>
 	<string name="str_textview_param21">21.Pen3 معكوسة</string>
-	<string name="str_textview_param22">22.Pen4 معكوسة/string>
+	<string name="str_textview_param22">22.Pen4 معكوسة</string>
 	<string name="str_textview_param23">23.Pen3 مقلوب</string>
 	<string name="str_textview_param24">24.Pen4 مقلوب</string>
 	<string name="str_textview_param25">25.جهد تلقائى</string>
@@ -393,7 +393,7 @@
 	<string name="str_textview_param40">40.صوت انذار</string>
 	<!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
 	<!--	<string name="str_textview_param41">41.Com طباعة</string> -->
-	<string name="str_textview_param41">41.محجوز</string>
+<!--	<string name="str_textview_param41">41.محجوز</string>-->
 	<!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
 	<string name="str_textview_param42">42.تشغيل طباعة</string>
 	<string name="str_textview_param43">43.Pens</string>
@@ -476,7 +476,7 @@
 	<string name="str_cnt_max">نهاية</string>
 	<string name="str_cnt_index">CID</string>
 	<string name="str_cnt_steplen">Step-Len</string>
-	<string name="str_cnt_repeat">تكرار</string>
+<!--	<string name="str_cnt_repeat">تكرار</string>-->
 	<string name="str_loading">تحميل...</string>
 
 	<string name="str_toast_no_qrfile">لا يوجد QR.txt أو QR.csv</string>
@@ -529,7 +529,7 @@
 	<string name="toast_plug_usb">الرجاء توصيل جهاز USB</string>
 	<string name="toast_passwd_error">فشل التحقق من كلمة المرور!!!</string>
 	<string name="toast_content_empty">يجب ألا يكون المحتوى فارغًا</string>
-	<string name="toast_ai_empty">AI لايجب ان يكون فارغا</string>
+<!--	<string name="toast_ai_empty">AI لايجب ان يكون فارغا</string>-->
 	<string name="toast_rfid_changed">تم تغيير RFID</string>
 
 	<string name="tips_import_message">استيراد رسائل</string>
@@ -549,12 +549,13 @@
 	<string name="str_net_commands">أمر</string>
 
 	<!-- Labels on soft keys -->
-	<string name="label_go_key">ا</string>
+<!--	<string name="label_go_key">ا</string>
 	<string name="label_next_key">التالي</string>
 	<string name="label_send_key">إرسال</string>
 	<string name="word_separators">\u0020.,;:!?\n()[]*&amp;@{}/&lt;&gt;_+=|&quot;</string>
-
+-->
 	<!-- Labels for print info -->
+<!--
 	<string name="str_max_print_count">الحد الأقصى لعدد الطباعة: </string>
 	<string name="str_actual_print_count">عدد الطباعة الفعلي: </string>
 	<string name="cat1_print_count">عدد الخرطوشة pen1: </string>
@@ -564,11 +565,11 @@
 	<string name="str_cnt_cid_title">CID</string>
 	<string name="str_cnt_reset">اعادة تعيين</string>
 	<string name="str_cnt_edit">تعديل</string>
-
+-->
 	<!-- object info table -->
-	<string name="contentView">حروف</string>
+<!--	<string name="contentView">حروف</string>
 	<string name="contentEdit">الابجدية</string>
-
+-->
 	<string name="invalid_message">رسالة غير صالحة</string>
 	<string name="invalid_code">كود غير صالح</string>
 	<string name="invalid_protocol">بروتوكول غير صالح</string>
@@ -581,12 +582,12 @@
 	<!-- End of H.M.Wang 2020-6-10 追加نص متغير控件 -->
 
 	<string name="strRecvedRemote">وردت من بعيد</string>
-	<string name="str_rfid_warning">Rfids are refreshing...</string>
+<!--	<string name="str_rfid_warning">Rfids are refreshing...</string>
 
 	<string name="str_btn_rfid_refresh">تحديث الخرطوشة</string>
 	<string name="str_btn_sc_level_show">SC مستوى/string>
 	<string name="str_btn_sc_legality_show">SC Legality</string>
-	<string name="str_btn_sc_status">SC حالة</string>
+	<string name="str_btn_sc_status">SC حالة</string>-->
 	<string name="printDpiNotMatchError">دقة الطباعة غير متطابقة يرجى تعديل الرسالة والمحاولة مرة اخرى.</string>
 
 	<!-- H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
@@ -596,7 +597,7 @@
 	<!-- End of H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
 
 	<string name="strGroup">مجموعة</string>
-	<string name="str_clear">واضح</string>
+<!--	<string name="str_clear">واضح</string>
 
 	<string name="strLevel1">مستوى 1</string>
 	<string name="strLevel2">مستوى 2</string>
@@ -622,4 +623,5 @@
 
 	<string name="str_print_cnt_reset">اعادة تهيئة عداد الطابعات</string>
 	<string name="str_sc_ink_reset">اعادة تهيئة %</string>
+-->
 </resources>
