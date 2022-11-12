@@ -50,7 +50,9 @@ public class RfidScheduler implements IInkScheduler {
 	private final static int READ_LEVEL_INTERVAL        = 10;		// 10ms
 	private final static int ADD_INK_TRY_LIMITS         = 10;       // 加墨的尝试次数
 
-	private int ADD_INK_THRESHOLD = 13800000;
+	private int VALID_INK_MIN = 33000000;
+	private int VALID_INK_MAX = 37000000;
+	private int ADD_INK_THRESHOLD = 34700000;
 	private int mPrintCount = 10;
 
 	private ArrayList<Integer>[] mRecentLevels;
@@ -92,14 +94,14 @@ public class RfidScheduler implements IInkScheduler {
 						int avgLevel = (readCount == 0 ? 0 : (int)(readLevels / readCount));
 						Debug.d(TAG, "Read Level = " + avgLevel);
 
-						if(avgLevel < 33000000 || avgLevel > 36000000) {
+						if(avgLevel < VALID_INK_MIN || avgLevel > VALID_INK_MAX) {
 							mTimesOverflow++;
 						}
 						if(mTimesOverflow > 3) {
 							ExtGpio.playClick();
 						}
 
-//						if(avgLevel >= 33000000 && avgLevel <= 36000000) {
+//						if(avgLevel >= VALID_INK_MIN && avgLevel <= VALID_INK_MAX) {
 							mRecentLevels[cardIdx].add(avgLevel);
 							if(mRecentLevels[cardIdx].size() > PROC_LEVEL_NUMS) {
 								mRecentLevels[cardIdx].remove(0);
@@ -114,12 +116,12 @@ public class RfidScheduler implements IInkScheduler {
 							long totalLevel = 0;
 							int count = 0;
 							for(int i=0; i<PROC_LEVEL_NUMS; i++) {
-								if(avgLevel >= 33000000 && avgLevel <= 36000000) {
+								if(avgLevel >= VALID_INK_MIN && avgLevel <= VALID_INK_MAX) {
 									totalLevel += mRecentLevels[cardIdx].get(i);
 									count++;
 								}
 							}
-							if(count > 0) avgLevel = (int)(totalLevel / count);
+							if(count == PROC_LEVEL_NUMS) avgLevel = (int)(totalLevel / count);
 							Debug.d(TAG, "totalLevel = " + totalLevel + "; count = " + count + "; avgLevel = " + avgLevel);
 						}
 						Debug.d(TAG, "Average Level = " + avgLevel);
@@ -213,7 +215,7 @@ public class RfidScheduler implements IInkScheduler {
 			}
 
 			ADD_INK_THRESHOLD = (mManager.getFeature(0,6) + 256) * 100000;
-			if(ADD_INK_THRESHOLD < 33000000 || ADD_INK_THRESHOLD > 36000000) {
+			if(ADD_INK_THRESHOLD < VALID_INK_MIN || ADD_INK_THRESHOLD > VALID_INK_MAX) {
 				mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low").sendToTarget();
 				new Thread(new Runnable() {
 					@Override

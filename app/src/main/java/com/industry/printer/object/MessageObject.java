@@ -38,7 +38,7 @@ public class MessageObject extends BaseObject {
 
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 	public static final String[] mDot_32_Size = {
-		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "32"
+		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32"
 	};
 
     // H.M.Wang 追加下列3行
@@ -489,6 +489,10 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_32_Size[9])) {
 				h = 12.7f * 21 / 32;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+// 2022-11-12 增加24字高
+			} else if (size.equalsIgnoreCase(mDot_32_Size[10])) {
+				h = 12.7f * 24 / 32;
+// End of 2022-11-12 增加24字高
 			} else {
 				h = 12.7f * 32 / 32;
 			}
@@ -698,8 +702,12 @@ public class MessageObject extends BaseObject {
 
 				return mDot_32_Size[9];
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else {
+// 2022-11-12 增加24字高
+			} else if (size <= 152f * 24 / 32 + 1) {
 				return mDot_32_Size[10];
+// End of 2022-11-12 增加24字高
+			} else {
+				return mDot_32_Size[11];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			}
 

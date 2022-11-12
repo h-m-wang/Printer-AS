@@ -922,6 +922,10 @@ public class BaseObject{
 			} else if (MessageObject.mDot_32_Size[9].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 21 / 32;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+// 2022-11-12 增加24字高
+			} else if (MessageObject.mDot_32_Size[10].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 24 / 32;
+// End of 2022-11-12 增加24字高
 			} else {
 				mHeight = 152f * 32 / 32;
 			}
