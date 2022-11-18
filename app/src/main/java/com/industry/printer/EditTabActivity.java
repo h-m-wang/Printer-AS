@@ -29,16 +29,10 @@ import com.industry.printer.widget.SpanableStringFormator;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Spannable;
 import android.text.SpannableString;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -58,13 +52,12 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 public class EditTabActivity extends Fragment implements OnClickListener, OnLongClickListener, IOnItemClickListener, OnTouchListener {
 	public static final String TAG="EditTabActivity";
 	
 	public Context mContext;
-	public EditScrollView mObjView;
+//	public EditScrollView mObjView;
 	public HorizontalScrollView mHScroll;
 	
 	public String mObjName;

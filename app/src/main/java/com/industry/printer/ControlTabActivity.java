@@ -216,9 +216,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView mTVStopped;
 	public TextView mPhotocellState;
 	public TextView mEncoderState;
-// H.M.Wang 2022-11-5 当imag为M579或者基于M9的BAGINK，22MM时，不显示电池状态信息
-	public RelativeLayout mPower;
-// End of H.M.Wang 2022-11-5 当imag为M579或者基于M9的BAGINK，22MM时，不显示电池状态信息
+//	public RelativeLayout mPower;
 	public TextView mPowerV;
 	private ImageView mPowerStat;
 	public TextView mTime;
@@ -593,17 +591,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mInkLevel2 = (TextView) getView().findViewById(R.id.ink_value2);
 
 		mPowerStat = (ImageView) getView().findViewById(R.id.power_value);
-// H.M.Wang 2022-11-5 当imag为M579或者基于M9的BAGINK，22MM时，不显示电池状态信息
-		mPower = (RelativeLayout) getView().findViewById(R.id.power);
+// H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
 		String imgUC = PlatformInfo.getImgUniqueCode();
-		if(PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM")) {
-			mPower.setVisibility(View.INVISIBLE);
+		if(PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS")) {
+			mPowerStat.setVisibility(View.INVISIBLE);
 		}
-// End of H.M.Wang 2022-11-5 当imag为M579或者基于M9的BAGINK，22MM时，不显示电池状态信息
+// End of H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
+//		mPower = (RelativeLayout) getView().findViewById(R.id.power);
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
 		mTime = (TextView) getView().findViewById(R.id.time);
-		
-		
+
 		refreshPower();
 		//  鍔犺浇鎵撳嵃璁℃暟
 		PrinterDBHelper db = PrinterDBHelper.getInstance(mContext);

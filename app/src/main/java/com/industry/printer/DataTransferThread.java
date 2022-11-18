@@ -1813,11 +1813,13 @@ private void setSerialProtocol9DTs(final String data) {
 		}
 // End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型
 
+// H.M.Wang 2022-11-16 取消这个点数的调整，因为DataTask在生成打印缓冲区的时候已经重复生成过了，这里在计算会导致重复计算，以致于将10扩大到100
 // H.M.Wang 2021-7-26 追加重复打印时的打印点数计数值的计算
-		if( config.getParam(SystemConfigFile.INDEX_PRINT_TIMES) > 1 && config.getParam(SystemConfigFile.INDEX_PRINT_TIMES) < 21 ) {
-			mPrintDots[head] *= config.getParam(SystemConfigFile.INDEX_PRINT_TIMES);
-		}
+//		if( config.getParam(SystemConfigFile.INDEX_PRINT_TIMES) > 1 && config.getParam(SystemConfigFile.INDEX_PRINT_TIMES) < 21 ) {
+//			mPrintDots[head] *= config.getParam(SystemConfigFile.INDEX_PRINT_TIMES);
+//		}
 // End of H.M.Wang 2021-7-26 追加重复打印时的打印点数计数值的计算
+// End of H.M.Wang 2022-11-16 取消这个点数的调整，因为DataTask在生成打印缓冲区的时候已经重复生成过了，这里在计算会导致重复计算，以致于将10扩大到100
 
 		Debug.d(TAG, "--->dotCount[" + head + "]: " + mPrintDots[head] + "  bold=" + bold + "  dotrate=" + rate);
 

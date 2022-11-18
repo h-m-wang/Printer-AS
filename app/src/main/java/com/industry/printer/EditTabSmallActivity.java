@@ -81,7 +81,7 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 	public static final String TAG="EditTabSmallActivity";
 	
 	public Context mContext;
-	public EditScrollView mObjView;
+//	public EditScrollView mObjView;
 	public MessageDisplayManager mMsgManager;
 	private RelativeLayout mRelatively;
 	

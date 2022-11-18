@@ -270,20 +270,23 @@ public class BaseObject{
 		mPaint.setColor(Color.BLACK);
 		mBitmap = draw();
 	}
-	
+
+	@Deprecated
 	protected void drawSelected() {
 		// mPaint.setColor(Color.RED);
 		// Debug.d(TAG, "--->drawSelected");
 		mPaint.setColor(Color.BLACK);	
 		mBitmapSelected = draw();
 	}
-	
+
+	@Deprecated
 	public void setReverse(boolean reverse) {
 		Debug.e(TAG, "--->setReverse: " + reverse + "  fail because we close this function at 20190619");
 		return;
 //		mReverse = reverse;
 	}
-	
+
+	@Deprecated
 	public boolean getReverse() {
 		return mReverse;
 	}
@@ -383,15 +386,17 @@ public class BaseObject{
 		}
 // End of H.M.Wang 2020-9-2 暂时恢复大字机时不调整宽度的设置，因为32点生成32高的计数器时，宽度计算不正确
 		bitmap = Bitmap.createBitmap(width , Math.round(mHeight), Configs.BITMAP_CONFIG);
-		Debug.e(TAG,"===--->getBitmap width=" + mWidth + ", mHeight=" + mHeight);
+		Debug.e(TAG,"createBitmap width=" + width + ", height=" + Math.round(mHeight));
 		mCan = new Canvas(bitmap);
 		FontMetrics fm = mPaint.getFontMetrics();
-		Debug.e(TAG, "--->asent: " + fm.ascent + ",  bottom: " + fm.bottom + ", descent: " + fm.descent + ", top: " + fm.top);
+//		Debug.e(TAG, "--->asent: " + fm.ascent + ",  bottom: " + fm.bottom + ", descent: " + fm.descent + ", top: " + fm.top);
         // float tY = (y - getFontHeight(p))/2+getFontLeading(p);
 		mCan.drawText(mContent, 0, mHeight-fm.descent, mPaint);
 //		if (mHeight <= 4 * MessageObject.PIXELS_PER_MM) {
 //			setWidth(width * 1.25f);
 //		}
+
+		Debug.e(TAG,"createScaledBitmap to width=" + Math.round(mWidth) + ", height=" + Math.round(mHeight));
 		return Bitmap.createScaledBitmap(bitmap, Math.round(mWidth), Math.round(mHeight), false);
 	}
 	
@@ -423,7 +428,7 @@ public class BaseObject{
 			
 		}
 		int width = Math.round(paint.measureText(content));
-		Debug.d(TAG, "--->bmp: " + width);
+//		Debug.d(TAG, "--->bmp: " + width);
 //		StringBuffer buffer = new StringBuffer();
 //		for (int i = 0 ; i < 10; i++) {
 //			buffer.append("a");
@@ -435,7 +440,7 @@ public class BaseObject{
 //		paint.getTextBounds(getContent(), 0, getContent().length(), rect);
 //		int w = getTextWidth(paint, getContent());
 		bitmap = Bitmap.createBitmap(width , ctH, Configs.BITMAP_CONFIG);
-		Debug.d(TAG, "--->bmp: " + bitmap.getWidth() +  "  " + bitmap.getHeight() );
+		Debug.e(TAG,"createBitmap width=" + width + ", height=" + ctH);
 		Canvas canvas = new Canvas(bitmap);
 		FontMetrics fm = paint.getFontMetrics();
 		int adjust = Math.round(fm.descent);
@@ -444,7 +449,7 @@ public class BaseObject{
 //		}
 		canvas.drawText(content, 0, ctH-adjust, paint);
 		PrinterNozzle head = mTask.getNozzle();
-		Debug.d(TAG, "--->content: " + content + "  descent=" + fm.descent + "  ascent= " + fm.ascent + " botom= " + fm.bottom + " top = " + fm.top + " leading = " + fm.leading);
+//		Debug.d(TAG, "--->content: " + content + "  descent=" + fm.descent + "  ascent= " + fm.ascent + " botom= " + fm.bottom + " top = " + fm.top + " leading = " + fm.leading);
 
 		// H.M.Wang 修改下列两行
 //		if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT) {
@@ -475,6 +480,7 @@ public class BaseObject{
 			return bitmap;
 		}
 
+		Debug.e(TAG,"createScaledBitmap width=" + ctW + ", height=" + ctH);
 		return Bitmap.createScaledBitmap(bitmap, ctW, ctH, true);
 	}
 
@@ -1062,8 +1068,6 @@ public class BaseObject{
 			} else {
 				dispString = "16x12";
 			}
-		} else {
-			dispString = dispString;
 		}
 		return dispString;
 	}
