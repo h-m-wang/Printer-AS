@@ -219,9 +219,7 @@
         <!-- End of H.M.Wang 2020-8-11 将墨量和减锁信息移植这里显示 -->
     </RelativeLayout>
 
-
-
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/ctrl_stateview"
         android:layout_width="fill_parent"
         android:layout_height="58dp"
@@ -229,8 +227,7 @@
         android:layout_marginBottom="5dp"
         android:layout_marginTop="10dp">
 
-        <RelativeLayout
-            android:id="@+id/ink"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             >
@@ -246,7 +243,6 @@
                 android:id="@+id/ink_value"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_toRightOf="@id/tv_inkValue"
                 android:text="@string/str_invalid_ink"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
@@ -255,19 +251,18 @@
                 android:id="@+id/ink_value2"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_toRightOf="@id/ink_value"
                 android:text="@string/str_invalid_ink"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
                 android:visibility="gone"
                 />
-        </RelativeLayout>
+        </LinearLayout>
+
         <RelativeLayout
-            android:id="@+id/power"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_toRightOf="@id/ink"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             >
             <ImageView
                 android:id="@+id/power_value"
@@ -297,17 +292,18 @@
                 />
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/power"
-            android:layout_marginLeft="20dp"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
             >
 
             <ImageButton
                 android:id="@+id/ctrl_btn_up"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:src="@drawable/ctrl_up"
@@ -317,24 +313,23 @@
                 android:id="@+id/ctrl_btn_down"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
-                android:layout_toRightOf="@id/ctrl_btn_up"
                 android:src="@drawable/ctrl_down"
                 android:background="@drawable/bg_small_button"
-                android:layout_marginLeft="20dp"/>
-        </RelativeLayout>
+                />
+        </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
             >
             <TextView
                 android:id="@+id/tv_printState"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_alignParentRight="true"
                 android:text="@string/str_state_printing"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
@@ -345,14 +340,13 @@
                 android:id="@+id/tv_stopState"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_alignParentRight="true"
                 android:text="@string/str_state_stopped"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
                 android:background="@color/red"
                 />
-        </RelativeLayout>
-    </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
 
 
     <HorizontalScrollView

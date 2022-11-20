@@ -2,8 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-	android:divider="@drawable/divider"
-	android:showDividers="middle"
     android:orientation="horizontal" >
 	    
 	    <RelativeLayout
@@ -21,6 +19,7 @@
 			    android:id="@+id/btn_detail_tv"
 			    android:layout_width="match_parent"
 			    android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 			    android:gravity="center"
 		        android:textSize="@dimen/editButtonsTextsize"
 		        android:textColor="#000000"
@@ -44,6 +43,7 @@
 			    android:id="@+id/btn_list_tv"
 			    android:layout_width="match_parent"
 			    android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 			    android:gravity="center"
 		        android:textSize="@dimen/editButtonsTextsize"
 		        android:textColor="#000000"
@@ -67,6 +67,7 @@
 			    android:id="@+id/btn_insert_tv"
 			    android:layout_width="match_parent"
 			    android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 			    android:gravity="center"
 		        android:textSize="@dimen/editButtonsTextsize"
 		        android:textColor="@color/black"
@@ -85,6 +86,7 @@
 	        <ImageView 
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 		        android:src="@drawable/high"
 				android:background="@drawable/bg_mid_button"
 			    />
@@ -99,6 +101,7 @@
 	        <ImageView 
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 		        android:src="@drawable/low"
 				android:background="@drawable/bg_mid_button"
 			    />
@@ -113,6 +116,7 @@
 	        <ImageView 
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 		        android:src="@drawable/left"
 				android:background="@drawable/bg_mid_button"
 			    />
@@ -127,6 +131,7 @@
 	        <ImageView 
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 		        android:src="@drawable/down"
 				android:background="@drawable/bg_mid_button"
 			    />
@@ -142,6 +147,7 @@
 	        <ImageView 
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
+				android:layout_marginLeft="1dp"
 		        android:src="@drawable/right"
 				android:background="@drawable/bg_mid_button"
 			    />

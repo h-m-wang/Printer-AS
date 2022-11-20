@@ -111,7 +111,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 //	public Custom2TabActivity   mCustomTab2;
 	public RelativeLayout 		mCustomExtra;
 
-	public RelativeLayout mCtrlExtra;
+	public LinearLayout mCtrlExtra;
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 //	public TextView mCtrlTitle;
 //	public TextView mCountdown;
@@ -119,7 +119,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public TextView mEditTitle;
 	public RelativeLayout mSettings;
 	public TextView mSettingTitle;
-	public RelativeLayout mEditExtra;
+	public LinearLayout mEditExtra;
 	public TextView mDelete;
 	public TextView mVersion;
 	private TextView mVerTitle;
@@ -831,13 +831,13 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 //	}
 	
 	private void initView() {
-		mCtrlExtra = (RelativeLayout) findViewById(R.id.ctrl_extra);
+		mCtrlExtra = (LinearLayout) findViewById(R.id.ctrl_extra);
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 //		mCtrlTitle = (TextView) findViewById(R.id.ctrl_counter_view);
 //		mCountdown = (TextView) findViewById(R.id.count_down);
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 		mEditTitle = (TextView) findViewById(R.id.edit_message_view);
-		mEditExtra = (RelativeLayout) findViewById(R.id.edit_extra);
+		mEditExtra = (LinearLayout) findViewById(R.id.edit_extra);
 		mDelete = (TextView) findViewById(R.id.delete);
 		mDelete.setOnClickListener(this);
 		

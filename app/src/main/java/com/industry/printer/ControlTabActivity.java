@@ -1135,9 +1135,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2022-5-9 增加img的版本号的输出，同时输出apk的版本号
 		String level = "";
 		if(mInkManager instanceof RFIDManager) {
-			level = String.valueOf(mRfid + 1) + "-" + (String.format("%.1f", ink) + "%");
+// H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
+//			level = String.valueOf(mRfid + 1) + "-" + (String.format("%.1f", ink) + "%");
+			level = (mRfid + 1) + "-" + (int)ink + "." + ((int)(ink*10))%10 + "%";
+// End of H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
 		} else {
-			level = (mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : (String.format("%.1f", ink) + "%")));
+// H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
+//			level = (mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : (String.format("%.1f", ink) + "%")));
+			level = (mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
+// End of H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
 		}
 
 		if (!mInkManager.isValid(mRfid)) {
