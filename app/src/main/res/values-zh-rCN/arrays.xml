@@ -342,7 +342,7 @@
         <item>6</item>
     </string-array>
 
-    <!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
     <string-array name="input_proc_item_entries">
         <item>协议-1</item>
         <item>协议-2</item>
@@ -350,5 +350,12 @@
         <item>协议-4</item>
         <item>协议-5</item>
     </string-array>
-    <!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!-- H.M.Wang 2022-11-30 追加一个ENC DIR -->
+    <string-array name="enc_dir_item_entries">
+        <item>None</item>
+        <item>Left</item>
+        <item>Right</item>
+    </string-array>
+<!-- End of H.M.Wang 2022-11-30 追加一个ENC DIR -->
 </resources>

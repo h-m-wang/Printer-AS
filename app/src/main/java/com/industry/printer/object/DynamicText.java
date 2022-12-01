@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
@@ -15,6 +16,15 @@ import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.hardware.FpgaGpioOperation;
 
+/* H.M.Wang 2022-11-25 修改mContent的管理方法
+    当前的策略是保存最新的内容（可能是编辑页面返回的内容（也许是连续的#，也许是有DT的桶取来的内容），也可能是DT桶取来的内容），总而言之，内容是固定的。
+    这样，在生成编辑页面的图片或者打印图片的时候，总是生成一样的图片。但是，如果内容的后部分是空格（位数大于实际输入的内容的个数），那么，编辑页面后面
+    就看不出还有内容，操作人员容易将后续的变量与改DT重叠；但是如果后面简单的加#，虽然可以避免编辑页面的误操作，但是打印出来的话，会出来多余的#，不美观。
+    因此，做如下修改：
+    1. 这里保存的内容（mContent)均保存足位的#，setContent函数会给父类函数传递这个足位#的字符串，所有通过getContent获取内容的函数均会得到该结果
+    2. 在生成打印图片的函数里（getPrintBitmap），忽略掉内部的mContent，而是从桶中获取相应的内容，如果这个内容不为空，则后面添加空格后作为打印内容使用；
+       如果桶中无内容，则去掉添加的空格后为空，这时使用内部内容的足位#字符串作为打印内容
+ */
 public class DynamicText extends BaseObject {
     private static final String TAG = DynamicText.class.getSimpleName();
 
@@ -25,7 +35,7 @@ public class DynamicText extends BaseObject {
         super(ctx, OBJECT_TYPE_DYN_TEXT, x);
         mBits = 5;
         mDtIndex = 0;
-        mContent = "";
+        mContent = "#####";
     }
 
     public DynamicText(Context context, BaseObject parent, float x) {
@@ -65,14 +75,7 @@ public class DynamicText extends BaseObject {
 
     @Override
     public void setContent(String cnt) {
-        String setString = getValidString(cnt);
-        if(mContent.equals(setString)) return;
-        super.setContent(setString);
-        Debug.d(TAG, "setContent: [" + setString + "] -> [" + mContent + "] at (index)=" + mIndex + ";(DTindex)=" + mDtIndex);
-//        在measureText之前，必须setTypeface和setTextSize，否则可能不准确，由于原来代码当中，在draw函数里面重新测量宽度，这里如果设置宽度，由于如果上述两个设置内容有变，或者设置不全，会带来不良结果。因此这里取消设置，
-//        mPaint.setTextSize(getfeed());
-//        setWidth(mPaint.measureText(getMeatureString()));
-//        adjustWidth();
+        super.setContent(getDefaultContent());
     }
 
     public void adjustWidth() {
@@ -83,14 +86,10 @@ public class DynamicText extends BaseObject {
         setWidth(mPaint.measureText(getMeatureString()));
     }
 
-    @Override
-    public String getContent() {
-        return (mContent.isEmpty() ? getDefaultContent() : getValidString(mContent));
-    }
-
     public void setBits(int n) {
         Debug.d(TAG, "setBits: [" + n + "]");
         mBits = n;
+        setContent(getDefaultContent());
     }
 
     public int getBits()
@@ -174,7 +173,12 @@ public class DynamicText extends BaseObject {
 //        float ratio = mRatio * scaledH / scaledW;
 //        int drawWidth = Math.round(paint.measureText(getContent()) * ratio);
 
-        int charWidth = (int)(paint.measureText(getContent()));
+        String cnt = getValidString(SystemConfigFile.getInstance().getDTBuffer(mDtIndex));
+        if(cnt.trim().isEmpty()) {
+            cnt = getContent();
+        }
+
+        int charWidth = (int)(paint.measureText(cnt));
         int drawWidth = (int)(mWidth / scaledW);
 //        Debug.d(TAG,"drawWidth = " + drawWidth + ", charWidth = " + charWidth);
 
@@ -205,34 +209,11 @@ public class DynamicText extends BaseObject {
 
         // 按调整了大小的高度进行正常图片绘制
         Bitmap drawBmp = Bitmap.createBitmap(drawWidth, dstHeight, Configs.BITMAP_CONFIG);
-        Debug.d(TAG,"Draw [" + mContent + "] with [" + drawWidth + ", " + drawHeight + "]");
+        Debug.d(TAG,"Draw [" + cnt + "] with [" + drawWidth + ", " + drawHeight + "]");
         Canvas drawCanvas = new Canvas(drawBmp);
         drawCanvas.drawColor(Color.WHITE);
-        drawCanvas.drawText(mContent, 0, drawY + drawHeight - fm.descent, paint);
+        drawCanvas.drawText(cnt, 0, drawY + drawHeight - fm.descent, paint);
 
-/*
-        // 对横向比例手动调整（手动调整大小）和横向缩放比例（如HP头需要缩放到原来的一半）进行调整
-        int resizeWidth = Math.round(drawWidth / scaledW * mRatio);
-        Bitmap resizeBmp = Bitmap.createScaledBitmap(drawBmp, resizeWidth, drawHeight, false);
-
-        if(resizeBmp != drawBmp) {
-            drawBmp.recycle();
-        }
-*/
-/*
-        // 重新会知道目标画布上，主要是为了解决绘制的图片仅占画布高度的一部分，如16点生成的图片要放在32点的画布上
-        Bitmap retBmp = drawBmp;
-        if(drawHeight != dstHeight) {
-            Debug.d(TAG,"Redraw to bitmap of width = " + drawWidth + ", height = " + dstHeight);
-            retBmp = Bitmap.createBitmap(drawWidth, dstHeight, Configs.BITMAP_CONFIG);
-            Canvas retCanvas = new Canvas(retBmp);
-            retCanvas.drawColor(Color.WHITE);
-            retCanvas.drawBitmap(drawBmp, 0, 0, paint);
-            drawBmp.recycle();
-        }
-
-        return retBmp;
-*/
         return drawBmp;
     }
 

@@ -408,11 +408,11 @@ public class TLKFileParser  extends TlkFile{
 				obj.setHeight(StringUtil.parseInt(attr[5])/(2*mProportion)-StringUtil.parseInt(attr[3])/(2*mProportion));
 
 				if((obj instanceof CounterObject)||
-						obj instanceof DynamicText ||
-						obj instanceof JulianDayObject ||
-						obj instanceof ShiftObject ||
-						obj instanceof WeekOfYearObject ||
-						obj instanceof WeekDayObject)
+					obj instanceof DynamicText ||
+					obj instanceof JulianDayObject ||
+					obj instanceof ShiftObject ||
+					obj instanceof WeekOfYearObject ||
+					obj instanceof WeekDayObject)
 				{
 					obj.setX(StringUtil.parseInt(attr[2])/mProportion);
 					obj.setWidth(StringUtil.parseInt(attr[4])/mProportion-StringUtil.parseInt(attr[2])/mProportion);

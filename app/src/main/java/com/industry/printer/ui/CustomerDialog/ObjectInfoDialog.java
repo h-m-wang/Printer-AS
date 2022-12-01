@@ -582,7 +582,6 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // H.M.Wang 2020-2-19 追加HyperText控件
 						} else if (mObject instanceof HyperTextObject) {
 							((HyperTextObject) mObject).setContent(mContent.getText().toString());
-//							((HyperTextObject) mObject).setContent("A@YB@MC@DD@HE@mF@sG@SH@wI@WJ@2K@3CL@4CCM@5CCC --- @ --- A@YB@MC@DD@HE@mF@sG@SH@wI@WJ@2K@3CL@4CCM@5CCC");
 							((HyperTextObject) mObject).setCounterIndex(mCntIndex.getText().toString());
 							((HyperTextObject) mObject).setCounterStart(mCounterStart.getText().toString());
 							((HyperTextObject) mObject).setCounterEnd(mCounterEnd.getText().toString());

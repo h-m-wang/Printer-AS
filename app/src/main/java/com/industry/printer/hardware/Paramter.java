@@ -213,6 +213,29 @@ public class Paramter {
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 		mFPGAParam[23] = param[SystemConfigFile.INDEX_NOZZLE_WARMING] == 0 ? (mFPGAParam[23] & 0xFFFD) : (mFPGAParam[23] | 0x0002);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
+// H.M.Wang 2022-11-30 取消2022-11-26对S24[Bit2设置的修改，改为使用S24[3:2]设置ENCDir方向，00:None; 10:Left; 11:Right
+// H.M.Wang 2022-11-26 追加S24[Bit2]的设置，0:Left; 1:Right
+//		mFPGAParam[23] = param[1] == 0 ? (mFPGAParam[23] & 0xFFFB) : (mFPGAParam[23] | 0x0004);
+		if(param[67] == 0x01) {    // Left
+			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x0008;
+		} else if(param[67] == 0x02) {    // Right
+			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x000C;
+		} else {
+			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3);
+		}
+// End of H.M.Wang 2022-11-26 追加S24[Bit2]的设置，0:Left; 1:Right
+// End of H.M.Wang 2022-11-30 取消2022-11-26对S24[Bit2设置的修改，改为使用S24[3:2]设置ENCDir方向，00:None; 10:Left; 11:Right
+
+// H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)。S24[15:8] = C67 * 1/2
+// H.M.Wang 2022-11-30 ENC_FILGER(ENC滤波)修改为：S24[15:8] = （1204.77 - C67) / 4.77。但如果C67=[0-9]，则S24为0
+//		mFPGAParam[23] = ((param[SystemConfigFile.INDEX_ENC_FILTER] / 2) << 8) | (mFPGAParam[23] & 0x00FF);
+		if(param[SystemConfigFile.INDEX_ENC_FILTER] >= 0 && param[SystemConfigFile.INDEX_ENC_FILTER] <= 9) {
+			mFPGAParam[23] = (mFPGAParam[23] & 0x00FF);
+		} else {
+			mFPGAParam[23] = ((int)((1204.77f - param[SystemConfigFile.INDEX_ENC_FILTER]) / 4.77f) << 8) | (mFPGAParam[23] & 0x00FF);
+		}
+// End of H.M.Wang 2022-11-30 ENC_FILGER(ENC滤波)修改为：S24[15:8] = （1204.77 - C67) / 4.77。但如果C67=[0-9]，则S24为0
+// End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)。S24[15:8] = C67 * 1/2
 	}
 	
 	public int getFPGAParam(int index) {

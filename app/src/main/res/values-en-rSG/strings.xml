@@ -421,8 +421,15 @@
 	<string name="str_textview_param63">63.SC مستوى</string>
 	<string name="str_textview_param64">64.Fdb نوع</string>
 	<string name="str_textview_param65">65.محجوز</string>
-	<string name="str_btn_settings_sync">موافق</string>
+	<string name="str_textview_param66">66.ADJ2</string>
+<!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+	<string name="str_textview_param67">67.ENC Filter</string>
+<!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+<!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
+	<string name="str_textview_param68">68.ENC Dir</string>
+<!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 
+	<string name="str_btn_settings_sync">موافق</string>
 
 	<string name="str_time_unit_0_1v">0.1V</string>
 	<string name="str_length_unit_mm">mm</string>
@@ -597,6 +604,10 @@
 	<!-- End of H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
 
 	<string name="strGroup">مجموعة</string>
+<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+	<string name="strImportUG"><u>Import UG</u></string>
+<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+
 <!--	<string name="str_clear">واضح</string>
 
 	<string name="strLevel1">مستوى 1</string>

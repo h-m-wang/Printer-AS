@@ -171,11 +171,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
 
 	// public EditText mMsgPreview;
-	public TextView mMsgPreview;
-	public ImageView mMsgPreImg;
-	public Button 	mBtnview;
-	public RelativeLayout	mForward;
-	public RelativeLayout 	mBackward;
+//	public TextView mMsgPreview;
+//	public ImageView mMsgPreImg;
+//	public Button 	mBtnview;
+//	public RelativeLayout	mForward;
+//	public RelativeLayout 	mBackward;
 	
 	public TextView mRecords;
 	
@@ -249,6 +249,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	 * current tlk path opened
 	 */
 	public String mObjPath=null;
+// H.M.Wang 2022-11-29 追加一个UserGroup的子信息名称管理队列和当前子信息位置的变量
+	private ArrayList<String> mUGSubObjs = null;
+	private int mUGSubIndex = 0;
+// End of H.M.Wang 2022-11-29 追加一个UserGroup的子信息名称管理队列和当前子信息位置的变量
 
 // H.M.Wang 2021-3-2 修改初值为0
 //    private int mRfid = 100;
@@ -574,6 +578,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
 						List<String> paths = MessageTask.parseGroup(mObjPath);
 						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(paths.get(mDTransThread.index())));
+// H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
+					} else if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {   // quick group messages
+						List<String> paths = MessageTask.parseQuickGroup(mObjPath);
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + paths.get(mDTransThread.index())));
+// End of H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
+// H.M.Wang 2022-11-29 增加UG的预览图显示功能
+					} else if (mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubObjs.size() > 0) {   // user group messages
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + mUGSubObjs.get(mDTransThread.index())));
+// End of H.M.Wang 2022-11-29 增加UG的预览图显示功能
 					} else {
 						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
 					}
@@ -1040,8 +1053,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	
 	private void setupViews() {
 		if (PlatformInfo.PRODUCT_FRIENDLY_4412.equalsIgnoreCase(PlatformInfo.getProduct())) {
-			mForward.setVisibility(View.GONE);
-			mBackward.setVisibility(View.GONE);
+//			mForward.setVisibility(View.GONE);
+//			mBackward.setVisibility(View.GONE);
 		}
 	}
 
@@ -1323,9 +1336,25 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 	}
 
+// H.M.Wang 2022-11-29 初始化UG的信息
+	public void initUGParams(String message) {
+		mUGSubObjs = MessageTask.parseUserGroup(message);
+		mUGSubIndex = MessageTask.getUGIndex(message);
+		Debug.d(TAG, "mUGSubObjs.size() = " + mUGSubObjs.size() + "; mUGSubIndex = " + mUGSubIndex);
+	}
+// End of H.M.Wang 2022-11-29 初始化UG的信息
 
 	private boolean messageNew = false;
+
 	private void setMessage(String message) {
+// H.M.Wang 2022-11-29 追加设置新的信息路径的处理。在浏览信息时，从前不同的信息mObjPath肯定是不同的，但是UserGroup的情况下，mObjPath会保持不变，只是会调整内部群组的序号，这样就需要考虑这种情况
+		if(message.startsWith(Configs.USER_GROUP_PREFIX)) {
+			if(!message.equals(mObjPath)) {
+				initUGParams(message);
+			}
+		}
+// End of H.M.Wang 2022-11-29 追加设置新的信息路径的处理。在浏览信息时，从前不同的信息mObjPath肯定是不同的，但是UserGroup的情况下，mObjPath会保持不变，只是会调整内部群组的序号，这样就需要考虑这种情况
+
 		mObjPath = message;
 		messageNew = true;
 	}
@@ -1345,8 +1374,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						BinFromBitmap.recyleBitmap(mPreBitmap);
 					}
 					Debug.d(TAG, "--->mObjPath: " + mObjPath);
-					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
-					Debug.d(TAG, "--->mPreBitmap: " + mPreBitmap);
+
+// H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
+//					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					if(mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubIndex >=0 && mUGSubIndex < mUGSubObjs.size()) {
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + File.separator + mUGSubObjs.get(mUGSubIndex)));
+					} else {
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					}
+// End of H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
 
 					dispPreview(mPreBitmap);
 					mMsgFile.setText(mObjPath);
@@ -1370,7 +1406,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 					if(Configs.USER_MODE == Configs.USER_MODE_2) {
-						if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {
+// H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
+//						if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {
+						if (mObjPath.startsWith(Configs.GROUP_PREFIX) || mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+// H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
 							mEditArea.setVisibility(View.GONE);
 						} else {
 							mEditTask = new MessageTask(mContext, mObjPath);
@@ -1418,6 +1457,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						public void run() {
 							mMsgTask.clear();
 							/**鑾峰彇鎵撳嵃缂╃暐鍥撅紝鐢ㄤ簬棰勮灞曠幇**/
+// H.M.Wang 2022-11-29 增加UG的内部群组的追加功能
+							if (mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubObjs.size() > 0) {
+								for (String path : mUGSubObjs) {
+									MessageTask task = new MessageTask(mContext, mObjPath + "/" + path);
+									mMsgTask.add(task);
+								}
+							} else
+// End of H.M.Wang 2022-11-29 增加UG的内部群组的追加功能
 // H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
 							if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
 								List<String> paths = MessageTask.parseQuickGroup(mObjPath);
@@ -1482,7 +1529,19 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						break;
 					}
 					mDTransThread.resetTask(mMsgTask);
-					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+
+// H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
+//					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					if(mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubIndex >=0 && mUGSubIndex < mUGSubObjs.size()) {
+// H.M.Wang 2022-11-29 当信息类型为UG的时候，开始打印时，从当前的子信息开始打印，而不是一概从头开始打印
+						mDTransThread.setIndex(mUGSubIndex);
+// End of H.M.Wang 2022-11-29 当信息类型为UG的时候，开始打印时，从当前的子信息开始打印，而不是一概从头开始打印
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + File.separator + mUGSubObjs.get(mUGSubIndex)));
+					} else {
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					}
+// End of H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
+
 					dispPreview(mPreBitmap);
 //					refreshCount();
 					mMsgFile.setText(mObjPath);
@@ -1498,9 +1557,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 					//鏂规1锛氫粠bin鏂囦欢鐢熸垚buffer
 					initDTThread();
+
 					Debug.d(TAG, "--->init thread ok");
-					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
-					// mPreBitmap = mDTransThread.mDataTask.get(0).getPreview();
+
+// H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
+//					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					if(mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubIndex >=0 && mUGSubIndex < mUGSubObjs.size()) {
+// H.M.Wang 2022-11-29 当信息类型为UG的时候，开始打印时，从当前的子信息开始打印，而不是一概从头开始打印
+						mDTransThread.setIndex(mUGSubIndex);
+// End of H.M.Wang 2022-11-29 当信息类型为UG的时候，开始打印时，从当前的子信息开始打印，而不是一概从头开始打印
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + File.separator + mUGSubObjs.get(mUGSubIndex)));
+					} else {
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
+					}
+// End of H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
+
 // H.M.Wang 2020-6-23 打开注释，显示预览图
 					dispPreview(mPreBitmap);
 // End of H.M.Wang 2020-6-23 打开注释，显示预览图
@@ -2666,10 +2737,36 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	private void loadMessage(boolean forward) {
 		String msg = null;
+
 		if (forward) {
-			msg = loadNextMsg();
+// H.M.Wang 2022-11-29 追加UG类型的信息，在点击上下按键时的内部浏览行为，按下键，从当前的子信息开始向下浏览，到最后一个后退出该信息，进入下一个信息
+//			msg = loadNextMsg();
+			if(mObjPath.startsWith(Configs.USER_GROUP_PREFIX)) {
+				mUGSubIndex++;
+				if(mUGSubIndex < mUGSubObjs.size()) {
+					msg = mObjPath;
+				} else {
+					msg = loadNextMsg();
+				}
+			} else {
+				msg = loadNextMsg();
+			}
+// End of H.M.Wang 2022-11-29 追加UG类型的信息，在点击上下按键时的内部浏览行为，按下键，从当前的子信息开始向下浏览，到最后一个后退出该信息，进入下一个信息
 		} else {
-			msg = loadNPrevMsg();
+// H.M.Wang 2022-11-29 追加UG类型的信息，在点击上下按键时的内部浏览行为，按上键，从当前的子信息开始向上浏览，到第一个后退出该信息，进入下一个信息
+//			msg = loadPrevMsg();
+			if(mObjPath.startsWith(Configs.USER_GROUP_PREFIX)) {
+				mUGSubIndex--;
+				if(mUGSubIndex >= 0) {
+					msg = mObjPath;
+				} else {
+					mUGSubIndex = -1;
+					msg = loadPrevMsg();
+				}
+			} else {
+				msg = loadNextMsg();
+			}
+// End of H.M.Wang 2022-11-29 追加UG类型的信息，在点击上下按键时的内部浏览行为，按上键，从当前的子信息开始向上浏览，到第一个后退出该信息，进入下一个信息
 		}
 
 		Message message = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
@@ -2691,8 +2788,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			public int compare(String s, String t1) {
 				try {
 					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
-						String g1 = s.substring(6);
-						String g2 = s.substring(6);
+						String g1 = s.substring(Configs.GROUP_PREFIX.length());
+						String g2 = s.substring(Configs.GROUP_PREFIX.length());
 						int gi1 = Integer.parseInt(g1);
 						int gi2 = Integer.parseInt(g2);
 						if (gi1 > gi2) {
@@ -2736,7 +2833,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		return null;
 	}
 
-	private String loadNPrevMsg() {
+	private String loadPrevMsg() {
 		File msgDir = new File(Configs.TLK_PATH_FLASH);
 		String[] tlks = msgDir.list();
 		Arrays.sort(tlks, new Comparator<String>() {
@@ -2745,8 +2842,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 				try {
 					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
-						String g1 = s.substring(6);
-						String g2 = s.substring(6);
+						String g1 = s.substring(Configs.GROUP_PREFIX.length());
+						String g2 = s.substring(Configs.GROUP_PREFIX.length());
 						int gi1 = Integer.parseInt(g1);
 						int gi2 = Integer.parseInt(g2);
 						if (gi1 > gi2) {
@@ -3918,6 +4015,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				public void run() {
 					mGroupIndex.setText("No. " + (index + 1));
 					mGroupIndex.setVisibility(View.VISIBLE);
+// H.M.Wang 2022-11-29 追加UG当下发了打印任务以后，更新内部索引，并且保存该索引，更改预览图
+					if (mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && mUGSubObjs.size() > 0) {
+						mUGSubIndex = index;
+						MessageTask.saveUGIndex(mObjPath, index);
+						mGroupIndex.setText(mUGSubObjs.get(index));
+						mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath + "/" + mUGSubObjs.get(index)));
+						dispPreview(mPreBitmap);
+					} else
+// End of H.M.Wang 2022-11-29 追加UG当下发了打印任务以后，更新内部索引，并且保存该索引，更改预览图
 // H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
 					if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
 						List<String> paths = MessageTask.parseQuickGroup(mObjPath);

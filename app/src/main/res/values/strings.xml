@@ -155,7 +155,10 @@
 	<string name="object_hypertext_hint2"><u>@H</u>:Hour <u>@N</u>:Minute <u>@S</u>:Second</string>
 	<string name="object_hypertext_hint3"><u>@T</u>:Shift <u>@A</u>:Day <u>@W</u>:Week No.</string>
 	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:Counters</string>
-<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+<!-- H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
+	<string name="object_hypertext_hint5"><u>@UG</u>:User Group</string>
+<!-- End of H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
+<!-- End of H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
 	<string name="object_weekofyear">WeekOfYear</string>
 	<string name="object_weekday">WeekDay</string>
 	<string name="object_charHour">AlphaHour</string>
@@ -466,8 +469,13 @@
 <!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
 	<string name="str_textview_param65">65.Slant2</string>
 	<string name="str_textview_param66">66.ADJ2</string>
-	<string name="str_textview_param67">67.Reserved</string>
-	<string name="str_textview_param68">68.Reserved</string>
+<!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+	<string name="str_textview_param67">67.ENC Filter</string>
+<!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+<!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
+<!--	<string name="str_textview_param68">68.Reserved</string>-->
+	<string name="str_textview_param68">68.ENC Dir</string>
+<!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 	<string name="str_textview_param69">69.Reserved</string>
 	<string name="str_textview_param70">70.Reserved</string>
 	<string name="str_textview_param71">71.Reserved</string>
@@ -508,6 +516,7 @@
 	<string name="str_time_unit_0_1us">0.1us</string>
 	<string name="str_time_unit_us">us</string>
 	<string name="str_time_unit_100us">100us</string>
+	<string name="str_unit_ps">p/s</string>
 	<string name="str_setting_time">Clock</string>
 	<string name="str_system_setting">Settings</string>
 	<string name="str_upgrade_progress">system upgrading....</string>
@@ -634,4 +643,7 @@
 	<string name="strNotice">Notice</string>
 	<string name="strQuickGroupPrompt">The message will be saved as Quick Group</string>
 <!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+	<string name="strImportUG"><u>Import UG</u></string>
+<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 </resources>

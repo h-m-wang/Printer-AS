@@ -374,8 +374,13 @@
 <!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
 	<string name="str_textview_param65">65.Slant2</string>
 	<string name="str_textview_param66">66.ADJ2</string>
-	<string name="str_textview_param67">67.Reservado</string>
-	<string name="str_textview_param68">68.Reservado</string>
+<!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+	<string name="str_textview_param67">67.ENC Filter</string>
+<!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+<!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
+<!--	<string name="str_textview_param68">68.Reservado</string>-->
+	<string name="str_textview_param68">68.ENC Dir</string>
+<!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 	<string name="str_textview_param69">69.Reservado</string>
 	<string name="str_textview_param70">70.Reservado</string>
 	<string name="str_textview_param71">71.Reservado</string>
@@ -483,4 +488,7 @@
 	<string name="strNotice">Notice</string>
 	<string name="strQuickGroupPrompt">The message will be saved as Quick Group</string>
 <!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+	<string name="strImportUG"><u>Import UG</u></string>
+<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 </resources>

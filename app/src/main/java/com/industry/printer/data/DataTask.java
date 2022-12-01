@@ -1089,7 +1089,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					var = info.getVarBuffer(substr, false, false);
 					//BinCreater.saveBin("/mnt/usbhost1/v" + o.getIndex() + ".bin", var, info.mBytesPerHFeed*8);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					BinInfo.overlap(mPrintBuffer, var, (int) (rtSub.getX() / div), info.getCharsFeed() * stat.getScale());
+					BinInfo.overlap(mPrintBuffer, var, (int) ((rtSub.getX()+o.getX()) / div), info.getCharsFeed() * stat.getScale());
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 ///./...					Debug.d(TAG, "--->real x=" + rtSub.getX() / div);
 //					BinCreater.saveBin("/sdcard/" + o.getIndex() + substr + ".bin", var, info.getCharsFeed() * stat.getScale() * 16);
@@ -1139,9 +1139,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2020-2-24 超文本班次打印崩溃问题解决
 					//BinCreater.saveBin("/mnt/usbhost1/v" + o.getIndex() + ".bin", var, info.mBytesPerHFeed*8);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					BinInfo.overlap(mPrintBuffer, var, (int) (htObj.getX() / div), info.getCharsFeed() * stat.getScale());
+					BinInfo.overlap(mPrintBuffer, var, (int) ((htObj.getX()+o.getX()) / div), info.getCharsFeed() * stat.getScale());
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					Debug.d(TAG, "--->real x=" + htObj.getX() / div);
+					Debug.d(TAG, "--->content = " + substr + "; real x=" + (htObj.getX()+o.getX()) / div);
 //					BinCreater.saveBin("/sdcard/" + o.getIndex() + substr + ".bin", var, info.getCharsFeed() * stat.getScale() * 16);
 				}
 // End of H.M.Wang 2020-2-17 追加HyperText控件

@@ -447,6 +447,7 @@ public class BaseObject{
 //		if (adjust < 4 && ctH > 32) {
 //			adjust = 4;
 //		}
+		Debug.e(TAG,"drawText: " + content);
 		canvas.drawText(content, 0, ctH-adjust, paint);
 		PrinterNozzle head = mTask.getNozzle();
 //		Debug.d(TAG, "--->content: " + content + "  descent=" + fm.descent + "  ascent= " + fm.ascent + " botom= " + fm.bottom + " top = " + fm.top + " leading = " + fm.leading);

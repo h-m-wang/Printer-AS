@@ -1,6 +1,13 @@
 package com.industry.printer;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,6 +21,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import rx.Observable;
@@ -75,6 +83,9 @@ import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.object.BaseObject;
+import com.industry.printer.object.HyperTextObject;
+import com.industry.printer.object.MessageObject;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -1363,6 +1374,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			public void onFlush() {
 				confirmDialog();
 			}
+// H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
+			@Override
+			public void onImportUG() { importUG(); }
+// End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
 		});
 		mImportDialog.show();
 	}
@@ -1385,7 +1400,107 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		});
 		dialog.show();
 	}
-	
+
+// H.M.Wang 2022-11-27 追加一个用户群组(User Group)，实现群组信息从U盘导入
+	private void importUG() {
+		final ArrayList<String> usbs = ConfigPath.getMountedUsb();
+		if (usbs.size() <= 0) {
+			ToastUtil.show(mContext, R.string.toast_plug_usb);
+			return;
+		}
+
+		final File ugFile = new File(usbs.get(0) + File.separator + "UG.txt");
+		if(!ugFile.exists()) {
+			ToastUtil.show(mContext, "UG.txt file not found");
+			return;
+		}
+
+		if(!mControlTab.mObjPath.startsWith(Configs.USER_GROUP_PREFIX)) {
+			ToastUtil.show(mContext, "Please select message with prefix 'UG-' first");
+			return;
+		}
+
+		mProgressDialog = LoadingDialog.show(this, R.string.strCopying);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					MessageTask.cleanUGFolder(mControlTab.mObjPath);
+
+					InputStream instream = new FileInputStream(ugFile);
+					if (instream != null) {
+						InputStreamReader inputreader = new InputStreamReader(instream, "UTF-8");
+						BufferedReader buffreader = new BufferedReader(inputreader);
+						String line;
+						ArrayList<String> subMsgs = new ArrayList<String>();
+						final Semaphore semaphore = new Semaphore(1);
+
+						while (true) {
+							while(true) {
+								try { semaphore.acquire(); break;} catch(InterruptedException e){};
+							}
+//							Debug.d(TAG, "Semaphore got");
+							line = buffreader.readLine();
+
+							if(line == null) {
+								MessageTask.saveUGTLK(mControlTab.mObjPath, subMsgs);
+								MessageTask.saveUGIndex(mControlTab.mObjPath, -1);
+								mControlTab.initUGParams(mControlTab.mObjPath);
+								break;
+							}
+
+							Debug.d(TAG, "UG.txt: " + line);
+							String parts[] = line.split(",");
+							if(parts.length != 2) {
+								mCopy.post(new Runnable() {
+									@Override
+									public void run() {
+										ToastUtil.show(mContext, "Invalid UG line");
+									}
+								});
+								Debug.e(TAG, "Invalid line [" + line + "]");
+//								Debug.d(TAG, "Semaphore release");
+								semaphore.release();
+								continue;
+							}
+
+							MessageTask msgTask = new MessageTask(mContext, mControlTab.mObjPath);
+							msgTask.replaceUGTag(parts[1]);
+							msgTask.setName(mControlTab.mObjPath + "/" + parts[0]);
+							msgTask.createTaskFolderIfNeed();
+							msgTask.save(new MessageTask.SaveProgressListener() {
+								@Override
+								public void onSaved() {
+//									Debug.d(TAG, "Semaphore release");
+									semaphore.release();
+								}
+							});
+
+							subMsgs.add(parts[0]);
+						}
+					}
+				} catch(Exception e) {
+					Debug.e(TAG, e.getMessage());
+					mCopy.post(new Runnable() {
+						@Override
+						public void run() {
+							ToastUtil.show(mContext, R.string.str_build_tlk_fail);
+						}
+					});
+				} finally {
+					mCopy.post(new Runnable() {
+						@Override
+						public void run() {
+							mProgressDialog.dismiss();
+						}
+					});
+				}
+			}
+		}).start();
+	}
+// End of H.M.Wang 2022-11-27 追加一个用户群组(User Group)，实现群组信息从U盘导入
+
 	/**
 	 * import from USB to flash
 	 */

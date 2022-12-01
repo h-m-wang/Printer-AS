@@ -94,6 +94,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mInputProc;
 // End of H.M.Wang 2021-9-24 追加输入设置参数
 
+// H.M.Wang 2022-11-30 追加ENCDir方向选项
+	private PopWindowAdapter mEncDir;
+// End of H.M.Wang 2022-11-30 追加ENCDir方向选项
+
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 	private PopWindowAdapter mNozzleWarm;
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
@@ -377,6 +381,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mInputProc = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2021-9-24 追加输入设置参数
 
+// H.M.Wang 2022-11-30 追加ENCDir方向选项
+		mEncDir = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2022-11-30 追加ENCDir方向选项
+
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 		mNozzleWarm = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
@@ -606,8 +614,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2022-10-18 参数扩容32项目
 		mSettingItems[64] = new ItemOneLine(65, R.string.str_textview_param65, 0);
 		mSettingItems[65] = new ItemOneLine(66, R.string.str_textview_param66, 0);
-		mSettingItems[66] = new ItemOneLine(67, R.string.str_textview_param67, 0);
-		mSettingItems[67] = new ItemOneLine(68, R.string.str_textview_param68, 0);
+		mSettingItems[66] = new ItemOneLine(67, R.string.str_textview_param67, R.string.str_unit_ps);
+// H.M.Wang 2022-11-30 追加ENCDir方向选项
+		mSettingItems[67] = new ItemOneLine(68, R.string.str_textview_param68, R.array.enc_dir_item_entries, 0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2022-11-30 追加ENCDir方向选项
 		mSettingItems[68] = new ItemOneLine(69, R.string.str_textview_param69, 0);
 		mSettingItems[69] = new ItemOneLine(70, R.string.str_textview_param70, 0);
 		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, 0);
@@ -762,6 +772,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mInputProc.addItem(items[i]);
 		}
 // End of H.M.Wang 2021-9-24 追加输入设置参数
+
+// H.M.Wang 2022-11-30 追加ENCDir方向选项
+		items = mContext.getResources().getStringArray(R.array.enc_dir_item_entries);
+		for (int i = 0; i < items.length; i++) {
+			mEncDir.addItem(items[i]);
+		}
+// End of H.M.Wang 2022-11-30 追加ENCDir方向选项
 	}
 
 	private String getEntry(int id,int index) {
@@ -894,6 +911,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 61) { //參數62
 			mSpiner.setAdapter(mNozzleWarm);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
+// H.M.Wang 2022-11-30 追加ENCDir方向选项
+		} else if (position == 67) { //參數68
+			mSpiner.setAdapter(mEncDir);
+// End of H.M.Wang 2022-11-30 追加ENCDir方向选项
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

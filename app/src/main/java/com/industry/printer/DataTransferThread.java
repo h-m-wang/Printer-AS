@@ -202,6 +202,10 @@ public class DataTransferThread {
 		}
 	}
 
+	public synchronized void setIndex(int index) {
+		mIndex = index;
+	}
+
 	public synchronized int index() {
 		return mIndex;
 	}
@@ -2080,7 +2084,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of 2020-6-30 网络快速打印的第一次数据生成标识设真
 
 			//逻辑要求，必须先发数据
-			Debug.d(TAG, "--->print run");
+			Debug.d(TAG, "--->print run from No." + index());
 
 // H.M.Wang 2021-3-3 从QR.txt文件当中读取的变量信息的功能从DataTask类转移至此
 			setContentsFromQRFile();

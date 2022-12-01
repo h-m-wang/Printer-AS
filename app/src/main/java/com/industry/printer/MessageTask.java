@@ -1,12 +1,21 @@
 package com.industry.printer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -83,6 +92,7 @@ public class MessageTask {
 	public interface SaveProgressListener {
 		public void onSaved();
 	};
+
 	private SaveProgressListener mSaveProgressListener;
 
 	public MessageTask(Context context) {
@@ -150,7 +160,6 @@ public class MessageTask {
 		}
 		// check 1.bin
 
-		
 		TLKFileParser parser = new TLKFileParser(context, mName);
 		try {
 			parser.parse(context, this, mObjects);
@@ -366,18 +375,20 @@ public class MessageTask {
 		int h = msgObj.mPNozzle.getHeight();
 		
 		for (BaseObject object : mObjects) {
-			if((object instanceof CounterObject) || (object instanceof RealtimeObject) ||
-					(object instanceof JulianDayObject) || (object instanceof ShiftObject)
+			if((object instanceof CounterObject) ||
+				(object instanceof RealtimeObject) ||
+				(object instanceof JulianDayObject) ||
+				(object instanceof ShiftObject) ||
 // H.M.Wang 2020-2-16 追加HyperText控件
-					|| (object instanceof HyperTextObject)
+				(object instanceof HyperTextObject) ||
 // End of H.M.Wang 2020-2-16 追加HyperText控件
 // H.M.Wang 2020-6-10 追加DynamicText控件
 // H.M.Wang 2021-5-25 取消DynamicText控件生成vbin
-//					|| (object instanceof DynamicText)
+//				(object instanceof DynamicText) ||
 // End of H.M.Wang 2021-5-25 取消DynamicText控件生成vbin
 // End of H.M.Wang 2020-6-10 追加DynamicText控件
-					|| (object instanceof WeekOfYearObject)
-					|| (object instanceof WeekDayObject))
+				(object instanceof WeekOfYearObject) ||
+				(object instanceof WeekDayObject))
 			{
 				if(PlatformInfo.isBufferFromDotMatrix()==1) {
 					object.generateVarbinFromMatrix(ConfigPath.getTlkDir(mName));
@@ -667,14 +678,14 @@ public class MessageTask {
 			
 			if((o instanceof CounterObject)
 // H.M.Wang 2020-6-10 追加DynamicText控件
-					|| (o instanceof DynamicText)
+				|| (o instanceof DynamicText)
 // End of H.M.Wang 2020-6-10 追加DynamicText控件
-					|| (o instanceof JulianDayObject)
-					|| (o instanceof BarcodeObject && o.getSource())
-					|| (o instanceof ShiftObject)
-					|| (o instanceof LetterHourObject)
-					|| (o instanceof WeekOfYearObject)
-					|| (o instanceof WeekDayObject))
+				|| (o instanceof JulianDayObject)
+				|| (o instanceof BarcodeObject && o.getSource())
+				|| (o instanceof ShiftObject)
+				|| (o instanceof LetterHourObject)
+				|| (o instanceof WeekOfYearObject)
+				|| (o instanceof WeekDayObject))
 			{
 				// o.drawVarBitmap();
 			}
@@ -691,7 +702,9 @@ public class MessageTask {
 //				BinFromBitmap.recyleBitmap(t);
 // H.M.Wang 2020-2-16 追加HyperText控件
 			} else if(o instanceof HyperTextObject) {
+				Debug.d(TAG, "HypertextObject.content = " + o.getContent());
 				Bitmap t = ((HyperTextObject) o).getBgBitmap(mContext, scaleW, scaleH);
+				Debug.d(TAG, "Draw HypertextObject.fixed.bitmap[" + t.getWidth() + ", " + t.getHeight() + "] at [" + (o.getX() * scaleW) + "," + Math.round(o.getY() * scaleH) + "]");
 				can.drawBitmap(t, Math.round((o.getX() * scaleW)), Math.round(o.getY() * scaleH), p);
 				t.recycle();
 // End of H.M.Wang 2020-2-16 追加HyperText控件
@@ -1004,7 +1017,7 @@ public class MessageTask {
 		}
 
 		Bitmap bmp = Bitmap.createBitmap(width , Configs.gDots, Configs.BITMAP_PRE_CONFIG);
-		Debug.d(TAG, "drawAllBmp width="+width+", height="+Configs.gDots);
+		Debug.d(TAG, "drawPreviewBmp width="+width+", height="+Configs.gDots);
 		Canvas can = new Canvas(bmp);
 		can.drawColor(Color.WHITE);
 
@@ -1225,7 +1238,118 @@ public class MessageTask {
 		return 4f/getHeads();
 	}
 
-// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+// H.M.Wang 2022-11-27 追加一个用户群组(User Group)，实现群组信息从U盘导入
+	public static ArrayList<String> parseUserGroup(String ugFolder) {
+		ArrayList<String> gl = new ArrayList<String>();
+
+		File file = new File(ConfigPath.getTlkDir(ugFolder) + File.separator + "UG.TLK");
+		if (!file.exists()) {
+			return gl;
+		}
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String content = reader.readLine();
+			String[] group = content.split("\\^");
+			if (group == null) {
+				return gl;
+			}
+			for (int i = 0; i < group.length; i++) {
+				File f = new File(ConfigPath.getTlkDir(ugFolder + File.separator + group[i]));
+				if (!f.exists()) {
+					continue;
+				}
+				gl.add(group[i]);
+			}
+			return gl;
+		} catch (Exception e) {
+			Debug.e(TAG, e.getMessage());
+		}
+		return gl;
+	}
+
+	public static void saveUGTLK(String ugFolder, ArrayList<String> subMsgs) {
+		StringBuilder sb = new StringBuilder();
+
+		for(String msg : subMsgs) {
+			sb.append(msg).append("^");
+		}
+		sb.delete(sb.length()-1, sb.length());
+
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(ConfigPath.getTlkDir(ugFolder) + File.separator + "UG.TLK"));
+			writer.write(sb.toString());
+			writer.flush();
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try {if(null != writer) writer.close();} catch(IOException e) {}
+		}
+	}
+
+	public static int getUGIndex(String ugFolder) {
+		File file = new File(ConfigPath.getTlkDir(ugFolder) + File.separator + "last_message.txt");
+		if (!file.exists()) {
+			return -1;
+		}
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String content = reader.readLine();
+			return Integer.valueOf(content);
+		} catch (Exception e) {
+			Debug.e(TAG, e.getMessage());
+		}
+		return -1;
+	}
+
+	public static void saveUGIndex(String ugFolder, int index) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(ConfigPath.getTlkDir(ugFolder) + File.separator + "last_message.txt"));
+			writer.write(String.valueOf(index));
+			writer.flush();
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try {if(null != writer) writer.close();} catch(IOException e) {}
+		}
+	}
+
+	public static void cleanUGFolder(String ugFolder) {
+		File file = new File(ConfigPath.getTlkDir(ugFolder));
+		File[] files = file.listFiles();
+		for(File f : files) {
+			if(f.isDirectory()) {
+				f.delete();
+			}
+			if(f.getName().equals("TG.TLK")) {
+				f.delete();
+			}
+			if(f.getName().equals("last_message.txt")) {
+				f.delete();
+			}
+		}
+	}
+
+	public void replaceUGTag(String ugStr) {
+		float lastEnd = 0;
+
+		for(BaseObject baseObject : mObjects) {
+			if(baseObject instanceof MessageObject) continue;
+			baseObject.setX(lastEnd);
+			if(baseObject instanceof HyperTextObject) {
+				if(baseObject.getContent().indexOf("@UG") >= 0) {
+					String hyperContent = baseObject.getContent().replace("@UG", ugStr);
+//										Debug.d(TAG, "HyperText: " + hyperContent);
+					baseObject.setContent(hyperContent);
+				}
+			}
+			lastEnd = baseObject.getXEnd();
+		}
+	}
+// End of H.M.Wang 2022-11-27 追加一个用户群组(User Group)，实现群组信息从U盘导入
+
+// H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存该信息的目录当中，并且所有的子信息组成一个群组，该群组的信息也保存到该信息的目录当中
 	private void saveQuickGroup() {
 		StringBuilder sb = new StringBuilder();
 		int objIndex = 1;
@@ -1255,7 +1379,7 @@ public class MessageTask {
 		if(!cnt.isEmpty())
 			saveGroup(mName + "/" + Configs.GROUP_PREFIX + "1", cnt);
 	}
-// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
+// End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存该信息的目录当中，并且所有的子信息组成一个群组，该群组的信息也保存到该信息的目录当中
 
 	public class SaveTask extends AsyncTask<Void, Void, Void>{
 
@@ -1400,7 +1524,7 @@ public class MessageTask {
 			}
 			return gl;
 		} catch (Exception e) {
-
+			Debug.e(TAG, e.getMessage());
 		}
 		return null;
 	}
@@ -1429,7 +1553,7 @@ public class MessageTask {
 			}
 			return gl;
 		} catch (Exception e) {
-
+			Debug.e(TAG, e.getMessage());
 		}
 		return null;
 	}

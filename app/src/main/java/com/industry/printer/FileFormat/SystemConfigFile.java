@@ -199,6 +199,9 @@ public class SystemConfigFile{
 	public static final int INDEX_SLANT2 = 64;
 	public static final int INDEX_ADJ2 = 65;
 // End of H.M.Wang 2022-10-18 追加两个参数，Slant2和ADJ2。Slant2用于定义64SLANT喷头的第二头倾斜斜率，ADJ2用于定义64SLANT喷头的第二头间隔列数
+// H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)
+	public static final int INDEX_ENC_FILTER = 66;
+// End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -727,6 +730,9 @@ public class SystemConfigFile{
 					mParam[65] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_67)) {
 					mParam[66] = Integer.parseInt(t.getValue());
+// H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)
+					mParam[66] = checkParam(67, mParam[66]);
+// End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_68)) {
 					mParam[67] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_69)) {

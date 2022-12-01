@@ -44,7 +44,18 @@
 		android:id="@+id/cancel"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
-
+<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+		<TextView
+			android:id="@+id/btn_import_ug"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_marginTop="10dp"
+			android:padding="10dp"
+			android:textColor="@color/blue"
+			android:text="@string/strImportUG"
+			android:textSize="40sp"/>
+<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 		<Button
 			android:id="@+id/btn_cancel"
 			android:layout_width="wrap_content"

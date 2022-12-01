@@ -22,6 +22,9 @@ public class RealtimeSecond extends BaseObject {
     public RealtimeSecond(Context context, float x) {
         super( context, BaseObject.OBJECT_TYPE_RT_SECOND, x);
         mFormat = "SS";
+        Time t = new Time();
+        t.set(System.currentTimeMillis());
+        setContent(BaseObject.intToFormatString(t.second, 2));
         // TODO Auto-generated constructor stub
     }
 

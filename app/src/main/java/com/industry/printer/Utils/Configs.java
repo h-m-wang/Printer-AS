@@ -54,10 +54,55 @@ public class Configs {
 	public static final int USER_MSG_COUNT = USER_MSG_COUNT_NOLIMIT;
 // End of H.M.Wang 2021-8-11 追加信息浏览数量锁的标识
 
-// H.M.Wang 2022-10-25 增加快速分组的文件名头
+// H.M.Wang 2022-10-25 增加快速分组的文件名头，该类型信息中的每个超文本作为一个独立的信息保存在该信息的目录当中，并且所有的子信息组成一个群组，该群组的信息也保存到该信息的目录当中
 	public static final String QUICK_GROUP_PREFIX = "GROUP#";
 // End of H.M.Wang 2022-10-25 增加快速分组的文件名头
 	public static final String GROUP_PREFIX = "G-";
+// H.M.Wang 2022-11-27 追加一个用户群组的文件头类型。
+	public static final String USER_GROUP_PREFIX = "UG-";
+// 该文件类型的特点是：
+/*
+UserGroup 使用方法说明
+
+	1. UserGroup信息的编辑
+	   在编辑页面，通过添加超文本的方法编辑信息。如在HyperText的内容编辑框内嵌入
+	   This is @UG.
+	   那么@UG就代表User Group当中使用的用户通过U盘提供的字符串
+
+	   * 一个信息当中，有且仅有一个@UG，如果出现多余的@UG，其打印内容与第一个@UG完全相同
+
+	2. UserGroup信息的保存
+	   当用户点击保存或者别名保存的时候，文件名必须以
+	   "UG-"
+	   为开始，后面附加上用于区别不同文件的名称。
+
+	3. UserGroup信息的选择
+	   可以通过选择信息对话窗选择相应的信息，或者点击上下滚动键选择UserGroup。当UserGroup信息被选择之后，点按下滚按钮选择改UserGroup文件所包含的所有子信息，然后通过点按上下滚动键选择具体的子信息。
+
+	4. 替换信息格式
+	   替换信息文件名固定为：UG.txt
+	   保存在U盘的根目录下。
+	   格式(示例)：
+		  1,AAAAAAAA
+		  2,BBBBBBBBB
+		  3,CCCCCCCC
+		  其中，1,2,3代表行号，对应于后续生成的子信息的文件名；AA.., BB.., 代表信息的具体内容
+
+	5. 替换信息的导入流程
+	   根据下列步骤导入：
+	   5-1 使用选择信息对话窗或者上下滚动键，选择一个UG信息文件；
+	   5-2 点击屏幕右上角的传输按钮（所有箭头图标），在提示信息中选择 "UG->Printer"，启动导入
+	   5-3 启动导入后，会显示信息框提示“User Group strings importing, please wait”提示窗，并且显示转轮等待图标
+			 （此时后台将UG.txt中包含的所有条目，每行作为一个子信息导入到当前的UserGroup信息，并且相应生成子信息，按序号保存）
+	   5-4 导入完成后，会提示“Importing done"提示，完成导入
+
+	6. UserGroup信息的打印
+	   通过第3条说明的方法选择一个UserGroup信息后，点击打印按钮，从上次结束位置开始打印子信息。如上次停止在第n-1条信息，则从第n条开始打印。新信息从首条子信息开始打印
+
+	7. 选择子信息开始打印
+	   通过第3条说明的方法选择一个UserGroup信息后，点击下滚按钮选择欲打印的子信息序号后，点按开始打印按钮，则从该子信息开始打印
+*/
+// End of H.M.Wang 2022-11-27 追加一个用户群组的文件头类型。
 
 	/**vol
 	 * 开关配置：大字机的特殊版本，buffer宽度x8
