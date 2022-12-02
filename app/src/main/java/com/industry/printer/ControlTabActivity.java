@@ -177,7 +177,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	public RelativeLayout	mForward;
 //	public RelativeLayout 	mBackward;
 	
-	public TextView mRecords;
+//	public TextView mRecords;
 	
 	public LinkedList<Map<String, String>>	mMessageMap;
 	public PreviewAdapter mMessageAdapter;
@@ -186,7 +186,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	public PreviewScrollView mPreview;
 	public ArrayList<BaseObject> mObjList;
 	
-	public static int mFd;
+//	public static int mFd;
 	
 	BroadcastReceiver mReceiver;
 	public Handler mCallback;
