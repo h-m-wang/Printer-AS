@@ -585,7 +585,7 @@ public class RFIDDevice implements RfidCallback{
 		}
 		
 		Debug.d(TAG, "--->readBlock sector:" + sector + ", block:" +block);
-		byte blk = (byte) (sector*4 + block); 
+		byte blk = (byte) (sector*4 + block);
 		byte[] b = {0x00, blk, key[0], key[1], key[2], key[3], key[4], key[5]};
 		RFIDData data = new RFIDData(RFID_CMD_READ_VERIFY, b);
 		RFIDAsyncTask.execute(mFd, data, this);

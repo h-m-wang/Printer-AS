@@ -886,7 +886,7 @@ public class SmartCardManager implements IInkDevice {
 
     @Override
     public boolean isValid(final int cardIdx) {
-        Debug.d(TAG, "---> enter isValid(" + cardIdx + ")" + " - mInitialized=" + mCards[cardIdx].mInitialized + "; mValid=" + mCards[cardIdx].mValid + "; mOIB=" + mCards[cardIdx].mOIB);
+        Debug.d(TAG, "---> enter isValid(" + cardIdx + ")");
         boolean ret = false;
 
         if(cardIdx < mPenNum + mBagNum) {
@@ -1015,5 +1015,9 @@ public class SmartCardManager implements IInkDevice {
     public void defaultInkForIgnoreRfid() {
         Debug.d(TAG, "---> enter defaultInkForIgnoreRfid()");
         // No need to implement. In RFID, this function set ink level of every devices to 185.
+    }
+
+    public int getInkCount() {
+        return mCards.length;
     }
 }

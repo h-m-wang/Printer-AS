@@ -448,6 +448,14 @@ public class FpgaGpioOperation {
 //                Debug.d(TAG, "data[17] = " + Integer.toHexString(data[17]));
             }
 // End of H.M.Wang 2021-11-18 追加根据双列打印对参数的修改
+// H.M.Wang 2022-12-5 25.4 的喷头， 不管双列偏移设了什么， S18[4]=0
+            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR ) {
+                data[17] &= 0xFFEF;
+            }
+// End of H.M.Wang 2022-12-5 25.4 的喷头， 不管双列偏移设了什么， S18[4]=0
         }
 
         if (type == SETTING_TYPE_PURGE1) {
@@ -569,7 +577,17 @@ public class FpgaGpioOperation {
 // H.M.Wang 2021-11-17 修改参数61为双列位移设项
 //        data[25] = (char) config.getParam(31 - 1);
 // H.M.Wang 2021-12-9 这个参数是int型的，不能只取一个字节
-        data[25] = (char) config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS);
+// H.M.Wang 2022-12-4 双列仅对12.7系列的打印头有效，1英寸系列及大字机不需要双列设置
+//        data[25] = (char) config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS);
+        if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_12_7 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_25_4 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_38_1 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_50_8) {
+            data[25] = (char) config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS);
+        } else {
+            data[25] = 0;
+        }
+// End of H.M.Wang 2022-12-4 双列仅对12.7系列的打印头有效，1英寸系列及大字机不需要双列设置
 // End of H.M.Wang 2021-12-9 这个参数是int型的，不能只取一个字节
 // End of H.M.Wang 2021-11-17 修改参数61为双列位移设项
         //雙列偏移量

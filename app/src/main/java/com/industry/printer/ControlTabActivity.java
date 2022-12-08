@@ -1119,7 +1119,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 // M.M.Wang 2020-11-16 增加墨盒墨量显示
 		if(mInkManager instanceof SmartCardManager) {
-			heads = mSysconfig.getPNozzle().mHeads + 1;
+			heads = ((SmartCardManager)mInkManager).getInkCount();
 		}
 // End of M.M.Wang 2020-11-16 增加墨盒墨量显示
 
@@ -1155,7 +1155,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		} else {
 // H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
 //			level = (mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : (String.format("%.1f", ink) + "%")));
-			level = (mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
+			level = (mRfid == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (mRfid + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "-" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
 // End of H.M.Wang 2022-11-20 修改字符串生成方法，在阿拉伯文版本当中，String.format会产生乱码
 		}
 
@@ -1165,7 +1165,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
             if(mInkManager instanceof RFIDManager) {
                 mInkLevel.setText(String.valueOf(mRfid + 1) + "--");
             } else {
-                mInkLevel.setText((mRfid == mSysconfig.getPNozzle().mHeads ? "B" : "P" + (mRfid + 1)) + "--");
+                mInkLevel.setText((mRfid == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (mRfid + 1)) + "--");
             }
 // End of H.M.Wang 2022-1-22 修改错误信息，在Smartcard的时候避免显示1--这样的错误，而是B，P开头的错误信息，与正常信息保持一致
 

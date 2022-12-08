@@ -115,7 +115,9 @@ public class PrinterApplication extends Application {
 					SerialPort.loadLibrary();
 					Hp22mm.loadLibrary();
 
-                } catch (Exception e) {
+				} catch (ExceptionInInitializerError e) {
+					Debug.e(TAG, "--->e: " + e.getMessage());
+				} catch (Exception e) {
 					Debug.e(TAG, "--->e: " + e.getMessage());
 				}
 			}
