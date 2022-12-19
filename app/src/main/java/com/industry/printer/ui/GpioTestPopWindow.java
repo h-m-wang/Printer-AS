@@ -673,6 +673,7 @@ public class GpioTestPopWindow {
             public void onClick(View v) {
 //                mTimer.cancel();
 //                mTimer = null;
+                mHandler.sendEmptyMessage(MSG_TERMINATE_TEST);
                 mSerialWritting = false;
                 mPopupWindow.dismiss();
             }
@@ -854,6 +855,7 @@ public class GpioTestPopWindow {
             @Override
             public void onClick(View view) {
                 ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);
+                try {Thread.sleep(50);} catch (Exception e) {}
                 SmartCard.initLevelDirect();
 				try {Thread.sleep(100);} catch (Exception e) {}
                 int level = SmartCard.readLevelDirect();
@@ -864,7 +866,8 @@ public class GpioTestPopWindow {
         level2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD4);
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD3);
+                try {Thread.sleep(50);} catch (Exception e) {}
                 SmartCard.initLevelDirect();
                 try {Thread.sleep(100);} catch (Exception e) {}
                 int level = SmartCard.readLevelDirect();
@@ -875,7 +878,8 @@ public class GpioTestPopWindow {
         level3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD2);
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD4);
+                try {Thread.sleep(50);} catch (Exception e) {}
                 SmartCard.initLevelDirect();
                 try {Thread.sleep(100);} catch (Exception e) {}
                 int level = SmartCard.readLevelDirect();
@@ -886,7 +890,8 @@ public class GpioTestPopWindow {
         level4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD3);
+                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD2);
+                try {Thread.sleep(50);} catch (Exception e) {}
                 SmartCard.initLevelDirect();
                 try {Thread.sleep(100);} catch (Exception e) {}
                 int level = SmartCard.readLevelDirect();

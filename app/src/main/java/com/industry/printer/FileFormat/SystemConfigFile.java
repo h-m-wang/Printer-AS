@@ -296,6 +296,10 @@ public class SystemConfigFile{
 // H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
 	public static final int DATA_SOURCE_AUTO_DATA = 24;      	// 该数据源的意图是，使得动态条码使用变量本身保存的信息作为生成条码的依据，而不使用桶里的内容，也不影响桶里的内容，此时，本信息的内容主要为超文本
 // End of H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
+// H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+// 例如：1E 01 01 00 00 01 01 00 00 01 01 00 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00。1E代表30个点，01代表点，00代表空格
+	public static final int DATA_SOURCE_DOT_MARKER = 25;
+// End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。

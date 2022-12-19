@@ -1507,7 +1507,7 @@ private void setSerialProtocol9DTs(final String data) {
 // End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 
 	public Handler mHandler = new Handler(){
-		
+
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {

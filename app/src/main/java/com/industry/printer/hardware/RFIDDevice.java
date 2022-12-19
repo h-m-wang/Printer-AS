@@ -518,7 +518,6 @@ public class RFIDDevice implements RfidCallback{
 		RFIDAsyncTask.execute(mFd, data, this);
 		// writeCmd(data, true);
 		return true;
-		
 	}
 	
 	/**

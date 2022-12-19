@@ -856,7 +856,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if(mInPinState == newState) return;
 					Debug.d(TAG, "oldState = " + mInPinState + "; newState = " + newState);
 
-					final DataTransferThread thread = DataTransferThread.getInstance(mContext);
+// H.M.Wang 2022-12-15 修改在线程当中生成DataTransferThread类的实例的话，会造成初始化是Handler生命部分异常，因为Handler不能在线程中生成
+//					final DataTransferThread thread = DataTransferThread.getInstance(mContext);
+// H.M.Wang 2022-12-15 修改在线程当中生成DataTransferThread类的实例的话，会造成初始化是Handler生命部分异常，因为Handler不能在线程中生成
 
                     //     协议２：　
                     //            0x01：是打印开始停止
@@ -868,7 +870,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
                             mBtnStart.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(thread.isPurging) {
+// H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
+                                	if(null == mDTransThread) {
+										if((newState & 0x01) == 0x01) {		// 新值为1，标识按键按下
+											mBtnStart.performClick();
+										}
+									} else
+// End of H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
+                                    if(mDTransThread.isPurging) {
                                         ToastUtil.show(mContext, R.string.str_under_purging);
 //												return;
                                     } else {
@@ -876,7 +885,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
                                             if(!mBtnStart.isClickable()) {
 //									ToastUtil.show(mContext, "Not executable");
 //												return;
-                                            } else if(thread.isRunning()) {
+                                            } else if(mDTransThread.isRunning()) {
 //									ToastUtil.show(mContext, "Already in printing");
 //												return;
                                             } else {
@@ -890,7 +899,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //									ToastUtil.show(mContext, "Not executable");
 //												return;
                                             }
-                                            if(!thread.isRunning()) {
+                                            if(!mDTransThread.isRunning()) {
 //									ToastUtil.show(mContext, "Not in printing");
 //												return;
                                             }
@@ -968,14 +977,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							RTCDevice.getInstance(mContext).writeAll(counters);
 
 // H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-							if(thread.isRunning()) {
+							if (mDTransThread != null && mDTransThread.isRunning()) {
 								if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
 									FpgaGpioOperation.clear();
 								}
 							}
 // End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
 
-							List<DataTask> tasks = thread.getData();
+							List<DataTask> tasks = null;
+							if (mDTransThread != null) {
+								tasks = mDTransThread.getData();
+							}
 							if(null != tasks) {
 								for(DataTask task : tasks) {
 									ArrayList<BaseObject> objList = task.getObjList();
@@ -985,12 +997,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 										}
 									}
 								}
-								if(thread.isRunning()) {
-									DataTask task = thread.getCurData();
+								if(mDTransThread.isRunning()) {
+									DataTask task = mDTransThread.getCurData();
 									ArrayList<BaseObject> objList = task.getObjList();
 									for (BaseObject obj : objList) {
 										if (obj instanceof CounterObject) {
-											thread.mNeedUpdate = true;
+											mDTransThread.mNeedUpdate = true;
 										}
 									}
 								}
