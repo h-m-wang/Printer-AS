@@ -67,6 +67,7 @@
     <string name="strHigh">Yükseklik</string>
     <string name="strHightype">Stepwise</string>
     <string name="strReverse">Inversion</string>
+    <string name="strRevert">Revert</string>
     <string name="strXcor">X-Cor</string>
     <string name="strYcor">Y-Cor</string>
     <string name="strCnt">İçerik</string>

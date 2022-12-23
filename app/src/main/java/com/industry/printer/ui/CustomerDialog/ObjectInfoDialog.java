@@ -107,6 +107,9 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 //	private EditText mHeight_O;
 	private CheckBox mHeightType;
 	public CheckBox mShow;
+// H.M.Wang 2022-12-20 追加反白设置
+	public CheckBox mRevert;
+// End of H.M.Wang 2022-12-20 追加反白设置
 	public EditText mLineWidth;
 	public TextView mPicture; // 圖片路徑
 	public EditText mOffset;
@@ -383,6 +386,9 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 				mITF14Frame = (CheckBox) findViewById(id.checkFrame);
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 			    mShow = (CheckBox) findViewById(R.id.check_Num_show);
+// H.M.Wang 2022-12-20 追加反白设置
+				mRevert = (CheckBox) findViewById(id.check_revert);
+// End of H.M.Wang 2022-12-20 追加反白设置
 		    	//mContent.setEnabled(false);
 			    mTextsize = (EditText) findViewById(R.id.et_text_size);
 // H.M.Wang 2022-4-22 允许动态条码编辑初始内容
@@ -544,6 +550,9 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 
 							((BarcodeObject) mObject).setShow(mShow.isChecked());
+// H.M.Wang 2022-12-20 追加反白设置
+							((BarcodeObject) mObject).setRevert(mRevert.isChecked());
+// End of H.M.Wang 2022-12-20 追加反白设置
 							((BarcodeObject) mObject).setTextsize(Integer.parseInt(mTextsize.getText().toString()));
 						}
 						else if(mObject instanceof RectObject)
@@ -835,6 +844,9 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 					}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 					mShow.setChecked(((BarcodeObject) mObject).getShow());
+// H.M.Wang 2022-12-20 追加反白设置
+					mRevert.setChecked(((BarcodeObject) mObject).getRevert());
+// End of H.M.Wang 2022-12-20 追加反白设置
 					mTextsize.setText(String.valueOf(((BarcodeObject) mObject).getTextsize()));
 				}
 				else if(mObject instanceof ShiftObject)

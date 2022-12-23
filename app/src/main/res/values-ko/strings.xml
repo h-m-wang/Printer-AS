@@ -73,6 +73,7 @@
 	<string name="strHigh">글자</string>
 	<string name="strHightype">위치</string>	
 	<string name="strReverse">반대로</string>
+	<string name="strRevert">Revert</string>
 	<string name="strXcor">가로위치</string>
 	<string name="strYcor">세로위치</string>
 	<string name="strCnt">내용</string>

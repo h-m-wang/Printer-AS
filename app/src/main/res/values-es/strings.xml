@@ -525,6 +525,7 @@
 	<string name="str_net_device_times">Times:</string>
 	<string name="str_btn_saveprint">SavePrint</string>
 	<string name="strReverse">Инверсия</string>
+	<string name="strRevert">Revert</string>
 	<string name="strFontsize">Fuente</string>
 	<string name="strHeadResolution">HD</string>
 	<string name="strCopying">Copiando ...</string>

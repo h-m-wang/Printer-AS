@@ -45,8 +45,10 @@ import com.industry.printer.Serial.SerialProtocol8;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.data.BinCreater;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.NativeGraphicJni;
 import com.industry.printer.hardware.BarcodeScanParser;
@@ -1217,6 +1219,78 @@ private void setSerialProtocol9DTs(final String data) {
 
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
 
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+    private int mDotMarkerDotCount = 0;
+	private static byte[] mDotMarkerRecvBuffer = null;
+
+    public static void setDotMarkerRecvBuffer(byte[] data) {
+		mDotMarkerRecvBuffer = data;
+		Debug.d(TAG, "DotMarkerRecvData = [" + ByteArrayUtils.toHexString(mDotMarkerRecvBuffer) + "]");
+	}
+
+    private char[] getDotMarkerPrintBuffer(boolean save) {
+		char[] dotMarkerPrintBuffer;
+		int dotMarkerDotCount;
+
+		if (null == mDotMarkerRecvBuffer) {
+			mDotMarkerDotCount = 15*32*200;		// 按缺省30列中的一半为有填充数据计算；每列32个点，大字节点数乘200
+			dotMarkerPrintBuffer = new char[2];
+		} else {
+			int length = (mDotMarkerRecvBuffer[0] & 0x0ff);
+			dotMarkerDotCount = 0;
+
+			char[] whiteCol = new char[] {0x0000, 0x0000};
+			char[] blackCol = new char[] {0xFFFF, 0xFFFF};
+			char slantCharsPerCol = 32;
+
+			dotMarkerPrintBuffer = new char[length * 2 * slantCharsPerCol];        // 每列4个字节，length列, 倾斜相当于每隔32列插入一列真值列，其余为空
+			for (int i = 0; i < mDotMarkerRecvBuffer.length - 1; i++) {
+				int desCol = 0;
+
+				// 当打印方向和打印头1的镜像有一个设为反方向的话，按反方向设置，如果都没设置或者都设了反，则按正向设置
+				if((SystemConfigFile.getInstance().getParam(1) ^ SystemConfigFile.getInstance().getParam(12)) == 1) {
+					desCol = (mDotMarkerRecvBuffer.length - 2 - i) * slantCharsPerCol;
+				} else {
+					desCol = i * slantCharsPerCol;
+				}
+
+				for(int j=0; j<slantCharsPerCol; j++) {
+					if(j == 0 && mDotMarkerRecvBuffer[i + 1] != 0x00) {
+						System.arraycopy(blackCol, 0, dotMarkerPrintBuffer, (desCol + j) * 2, blackCol.length);
+						dotMarkerDotCount += 32 * 200;
+					} else {
+						System.arraycopy(whiteCol, 0, dotMarkerPrintBuffer, (desCol + j) * 2, whiteCol.length);
+					}
+				}
+			}
+			mDotMarkerDotCount = dotMarkerDotCount;
+			if(save) {
+				FileUtil.deleteFolder("/mnt/sdcard/print.bin");
+				BinCreater.saveBin("/mnt/sdcard/print.bin", dotMarkerPrintBuffer, 4 * 8);
+			}
+		}
+
+		Debug.d(TAG, "dotMarkerPrintBuffer length=" + dotMarkerPrintBuffer.length);
+		return dotMarkerPrintBuffer;
+	}
+
+	public void showDotMarkerData(final byte[] data) {
+		Debug.d(TAG, "String from Remote = [" + ByteArrayUtils.toHexString(data) + "]");
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (null != mRemoteRecvedPromptDlg) {
+					mRemoteRecvedPromptDlg.show();
+					mRemoteRecvedPromptDlg.setMessage(ByteArrayUtils.toHexString(data));
+				}
+			}
+		});
+
+		mNeedUpdate = true;
+	}
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+
 //	private AlertDialog mRemoteRecvedPromptDlg = null;
 	private RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
 
@@ -1340,6 +1414,11 @@ private void setSerialProtocol9DTs(final String data) {
 					setCH341DataToDt(data);
 					serialHandler.sendCommandProcessResult(SerialProtocol.ERROR_SUCESS, 1, 0, 0, data);
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+					showDotMarkerData(data);
+					serialHandler.sendCommandProcessResult(SerialProtocol.ERROR_SUCESS, 1, 0, 0, data);
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 				}
 			}
 		});
@@ -1705,7 +1784,10 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
 // Kevin.Zhao 2019-11-12 1带多用12，13，14表示1带2，1带3，1带4....
 //		int dotCount = getDotCount(mDataTask.get(index), config.getMainHeads(head));
-		head = config.getMainHeads(head);
+// H.M.Wang 2022-12-20 这个遍历8个头的算法似乎有问题，求的是头head的threshold，但是这个头可能是依附于其他头的，这个靠getMainHeads取得就可以了，没有必要遍历所有头
+// 原来的调用getDotCount(mDataTask.get(j), i)，获取的是当前头的数据，而非主头的数据，这些附属头的数据，当然，当前头的数据，由于生成的时候已经填入了（1对多在BinInfo的extend函数，其他的实在DataTask的getPrintBuffer函数的后部
+// 因此，获取当前头的数据也可以得到正确的数值。在PrintTask.run函数中，显示各个头的点数的时候，也调整了从主头读取数据，所以运行的时候也不会出错，只是这里的处理逻辑有点不对
+/*		head = config.getMainHeads(head);
 		for(int i=0; i<8; i++) {
 			mPrintDots[i] = 0;
 			for(int j=0; j<mDataTask.size(); j++) {
@@ -1713,6 +1795,20 @@ private void setSerialProtocol9DTs(final String data) {
 				Debug.d(TAG, "--->dotCount[" + i + "]: " + mPrintDots[i] + "  task=" + j);
 			}
 		}
+*/
+		mPrintDots[head] = 0;
+		for(int j=0; j<mDataTask.size(); j++) {
+
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+			if (config.getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+				mPrintDots[head] += mDotMarkerDotCount;
+			} else {
+				mPrintDots[head] += getDotCount(mDataTask.get(j), config.getMainHeads(head));
+			}
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+			Debug.d(TAG, "--->dotCount[" + head + "]: " + mPrintDots[head] + "  task=" + j);
+		}
+// End of H.M.Wang 2022-12-20 这个遍历8个头的算法似乎有问题，求的是头head的threshold，但是这个头可能是依附于其他头的，这个靠getMainHeads取得就可以了，没有必要遍历所有头
 
 		Debug.d(TAG, "--->dotCount[" + head + "]: " + mPrintDots[head] + "  bold=" + bold);
 
@@ -2095,7 +2191,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
             }
 // End of H.M.Wang 2021-9-17 追加扫描协议1-FIFO
 
-			mPrintBuffer = mDataTask.get(index()).getPrintBuffer(true);
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+				mPrintBuffer = getDotMarkerPrintBuffer(true);
+			} else {
+				mPrintBuffer = mDataTask.get(index()).getPrintBuffer(true);
+			}
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 			if (isLanPrint()) {
 				setLanBuffer(mContext, index(), mPrintBuffer);
 			} else {
@@ -2268,6 +2370,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					reportEmpty = true;
 				} else {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
+// H.M.Wang 2022-12-22 接收到FPGA请求数据的信号(empty)后，向PC发送打印成功的反馈
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+						final SerialHandler serialHandler = SerialHandler.getInstance(mContext);
+						serialHandler.sendCommandProcessResult(0, 0, 0, 0, "OK-02-" + ByteArrayUtils.toHexString(mDotMarkerRecvBuffer) + "\n");
+					}
+// End of H.M.Wang 2022-12-22 接收到FPGA请求数据的信号(empty)后，向PC发送打印成功的反馈
+
 					reportEmpty = false;
 // 2020-7-3 在网络快速打印状态下，如果没有接收到新的数据，即使触发也不生成新的打印缓冲区下发
 					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
@@ -2340,7 +2449,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							} else {
 // H.M.Wang 2020-5-19 QR文件打印最后一行后无反应问题。应该先生成打印缓冲区，而不是先判断是否到了终点。顺序不对
 								Debug.i(TAG, "mIndex: " + index());
-								mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+								if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+									mPrintBuffer = getDotMarkerPrintBuffer(false);
+								} else {
+									mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
+								}
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 //							Debug.i(TAG, "mIndex: " + index());
 //							mPrintBuffer = mDataTask.get(index()).getPrintBuffer();
 // End of H.M.Wang 2020-5-19 QR文件打印最后一行后无反应问题。应该先生成打印缓冲区，而不是先判断是否到了终点。顺序不对
@@ -2436,7 +2551,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						if (isLanPrint()) {
 							mPrintBuffer = getLanBuffer(index());
 						} else {
-							mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
+// H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+							if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+								mPrintBuffer = getDotMarkerPrintBuffer(false);
+							} else {
+								mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
+							}
+// End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 						}
 // End of H.M.Wang 2019-12-29 在重新生成打印缓冲区的时候，考虑网络打印的因素
 						Debug.d(TAG, "===>mPrintBuffer size=" + mPrintBuffer.length);

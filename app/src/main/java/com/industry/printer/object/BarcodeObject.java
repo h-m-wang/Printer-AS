@@ -100,6 +100,9 @@ public class BarcodeObject extends BaseObject {
 	public String mFormat;
 	public int mCode;
 	public boolean mShow;
+// H.M.Wang 2022-12-20 追加反白设置
+	public boolean mRevert;
+// End of H.M.Wang 2022-12-20 追加反白设置
 	public int mTextSize;
 
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
@@ -120,6 +123,9 @@ public class BarcodeObject extends BaseObject {
 		super(context, BaseObject.OBJECT_TYPE_BARCODE, x);
 		// TODO Auto-generated constructor stub
 		mShow = true;
+// H.M.Wang 2022-12-20 追加反白设置
+		mRevert = false;
+// End of H.M.Wang 2022-12-20 追加反白设置
 		mCode = 3;
 		mTextSize = 20;
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
@@ -220,14 +226,21 @@ public class BarcodeObject extends BaseObject {
 	}
 // End. ----
 
-	public void setShow(boolean show)
-	{
+	public void setShow(boolean show) {
 		mShow = show;
 	}
-	public boolean getShow()
-	{
+	public boolean getShow() {
 		return mShow;
 	}
+
+// H.M.Wang 2022-12-20 追加反白设置
+	public void setRevert(boolean revert) {
+		mRevert = revert;
+	}
+	public boolean getRevert() {
+		return mRevert;
+	}
+// End of H.M.Wang 2022-12-20 追加反白设置
 
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 	public void setWithFrame(boolean withFrame)
@@ -518,9 +531,15 @@ public class BarcodeObject extends BaseObject {
 				{
 					if (matrix.get(x, y)) 
 					{
-						pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
+// H.M.Wang 2022-12-20 追加反白设置
+//						pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
+						pixels[y * width + x] = mRevert ? 0xffffffff : 0xff000000;
+// End of H.M.Wang 2022-12-20 追加反白设置
 					} else {
-						pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
+// H.M.Wang 2022-12-20 追加反白设置
+//						pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
+						pixels[y * width + x] = mRevert ? 0xff000000 : 0xffffffff;
+// End of H.M.Wang 2022-12-20 追加反白设置
 					}
 				}
 			}
@@ -559,9 +578,15 @@ public class BarcodeObject extends BaseObject {
 			{
 				if (matrix.get(x, y))
 				{
-					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
+// H.M.Wang 2022-12-20 追加反白设置
+//					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
+					pixels[y * width + x] = mRevert ? 0xffffffff : 0xff000000;
+// End of H.M.Wang 2022-12-20 追加反白设置
 				} else {
-					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
+// H.M.Wang 2022-12-20 追加反白设置
+//					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
+					pixels[y * width + x] = mRevert ? 0xff000000 : 0xffffffff;
+// End of H.M.Wang 2022-12-20 追加反白设置
 				}
 			}
 		}
@@ -1304,31 +1329,34 @@ public class BarcodeObject extends BaseObject {
 		StringBuilder builder = new StringBuilder(mId);							// Tag 1    对象编号
 		if (BaseObject.OBJECT_TYPE_QR.equalsIgnoreCase(mId)) {
 			builder.append("^")
-				.append(BaseObject.floatToFormatString(getX()*2*prop, 5))
+				.append(BaseObject.floatToFormatString(getX()*2*prop, 5))		// Tag 2
 				.append("^")
-				.append(BaseObject.floatToFormatString(getY()*2*prop, 5))
+				.append(BaseObject.floatToFormatString(getY()*2*prop, 5))		// Tag 3
 				.append("^")
-				.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))
+				.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4
 				.append("^")
-				.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))
+				.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5
 				.append("^")
-				.append(BaseObject.intToFormatString(0, 1))
+				.append(BaseObject.intToFormatString(0, 1))		// Tag 6
 				.append("^")
-				.append(BaseObject.boolToFormatString(mDragable, 3))
+				.append(BaseObject.boolToFormatString(mDragable, 3))		// Tag 7
 				.append("^")
-				.append("000^")
-				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")
-				.append("^000^")
-				.append(BaseObject.boolToFormatString(mReverse, 3))
+				.append("000^")												// Tag 8
+				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")		// Tag 9
+				.append("^000^")											// Tag 10
+				.append(BaseObject.boolToFormatString(mReverse, 3))		// Tag 11
 				.append("^")
-				.append("000")
+				.append("000")												// Tag 12
 				.append("^")
-				.append(BaseObject.boolToFormatString(mSource, 8))
+				.append(BaseObject.boolToFormatString(mSource, 8))		// Tag 13
 				.append("^")
-				.append("00000000^00000000^00000000^00000000^00000000^00000000^00000000^")
+// H.M.Wang 2022-12-20 追加反白设置
+				.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
+// End of H.M.Wang 2022-12-20 追加反白设置
+				.append("^00000000^00000000^00000000^00000000^00000000^00000000^")		// Tag 15-20
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 //				.append(mContent);
-				.append(mOrgContent);
+				.append(mOrgContent);										// Tag 21
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 		} else {
 			builder.append("^")
@@ -1361,7 +1389,10 @@ public class BarcodeObject extends BaseObject {
 			.append("^")
 			.append(BaseObject.boolToFormatString(mSource, 8))					// Tag 13   什么源？
 			.append("^")
-			.append("00000000^00000000^00000000^0000^0000^")					// Tag 14-18
+// H.M.Wang 2022-12-20 追加反白设置
+			.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
+// End of H.M.Wang 2022-12-20 追加反白设置
+			.append("^00000000^00000000^0000^0000^")					// Tag 15-18
 			.append(mFont)														// Tag 19   字体
 //			.append("^000^")													// Tag 20
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置

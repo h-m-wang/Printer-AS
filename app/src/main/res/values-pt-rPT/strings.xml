@@ -487,6 +487,7 @@
 	<string name="str_remain_ptimes">Total</string>
 	<string name="str_multi_select">Group</string>
 	<string name="strReverse">Inversão</string>
+	<string name="strRevert">Revert</string>
 	<string name="strFontsize">Font</string>
 	<string name="strHeadResolution">HD</string>
 	<string name="strCopying">"Copiando ... "</string>

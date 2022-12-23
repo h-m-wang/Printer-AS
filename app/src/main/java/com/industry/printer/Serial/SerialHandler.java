@@ -173,6 +173,11 @@ public class SerialHandler {
             SerialProtocol11 p = new SerialProtocol11(mSerialPort, mContext);
             p.handleCommand(mNormalCmdListeners, mPrintCmdListeners, bab);
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
+// H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+        } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+            SerialDotMarker p = new SerialDotMarker(mSerialPort, mContext);
+            p.handleCommand(mNormalCmdListeners, mPrintCmdListeners, bab);
+//  End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
         }
     }
 
@@ -229,6 +234,11 @@ public class SerialHandler {
             SerialProtocol9 p = new SerialProtocol9(mSerialPort, mContext);
             p.sendCommandProcessResult(cmd, ack, devStatus, cmdStatus, message);
 // End of H.M.Wang 2021-9-24 追加串口协议9
+// H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+        } else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
+            SerialDotMarker p = new SerialDotMarker(mSerialPort, mContext);
+            p.sendCommandProcessResult(cmd, ack, devStatus, cmdStatus, message);
+//  End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
         }
     }
 
@@ -242,7 +252,6 @@ public class SerialHandler {
         }
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
     }
-
 
     public SerialPort getSerialPort() {
         return mSerialPort;

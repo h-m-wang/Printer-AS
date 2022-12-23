@@ -521,6 +521,7 @@
     <string name="str_net_device_times">Times:</string>
     <string name="str_btn_saveprint">SavePrint</string>
     <string name="strReverse">Inversione</string>
+    <string name="strRevert">Revert</string>
     <string name="str_net_error">"Errore di configurazione di rete "</string>
 <!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
     <string name="strNotice">Notice</string>

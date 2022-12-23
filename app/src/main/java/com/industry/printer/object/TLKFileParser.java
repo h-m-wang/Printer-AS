@@ -262,6 +262,9 @@ public class TLKFileParser  extends TlkFile{
 				}
 				int isShow = Integer.parseInt(attr[11]);
 				((BarcodeObject) obj).setShow(isShow == 0 ? false : true);
+// H.M.Wang 2022-12-20 追加反白设置
+				((BarcodeObject) obj).setRevert(Integer.parseInt(attr[14]) == 0 ? false : true);
+// End of H.M.Wang 2022-12-20 追加反白设置
 				int source = Integer.parseInt(attr[13]);
 				Debug.d(TAG, "--->source = " + source);
 				obj.setSource(source == 1);

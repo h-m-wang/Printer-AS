@@ -59,6 +59,7 @@
 	<!-- object info table -->
 	<string name="strWidth">幅</string>
 	<string name="strHigh">高さ</string>
+	<string name="strRevert">Revert</string>
 	<string name="strXcor">X-位置</string>
 	<string name="strYcor">Y-位置</string>
 	<string name="strCnt">内容</string>

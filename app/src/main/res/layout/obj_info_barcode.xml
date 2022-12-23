@@ -56,6 +56,7 @@
 <!-- H.M.Wang 2020-2-25 追加ITF_14边框有无的设置 -->
 			<CheckBox android:id="@+id/checkFrame"
 				android:layout_alignLeft="@id/spinCode"
+				android:layout_marginTop="10dp"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@id/spinCode"
@@ -80,6 +81,7 @@
 
 			<CheckBox android:id="@+id/check_Num_show"
 	            android:layout_alignLeft="@id/spinCode"
+				android:layout_marginTop="10dp"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:layout_below="@id/checkFrame"
@@ -97,15 +99,37 @@
 	            android:text="@string/strShow"
 	            android:textColor="#000000"/>
 
-	        <EditText
+<!-- H.M.Wang 2022-12-20 追加反白设置 -->
+			<CheckBox android:id="@+id/check_revert"
+				android:layout_alignLeft="@id/spinCode"
+				android:layout_marginTop="10dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/check_Num_show"
+				android:paddingLeft="15dp"
+				android:paddingRight="15dp"
+				style="@style/CheckboxTheme"
+				android:checked="false"/>
+
+			<TextView android:id="@+id/caption_check_revert"
+				android:layout_alignLeft="@id/viewCode"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignBaseline="@id/check_revert"
+				android:textSize="30sp"
+				android:text="@string/strRevert"
+				android:textColor="#000000"/>
+<!-- End of H.M.Wang 2022-12-20 追加反白设置 -->
+
+			<EditText
 	            android:id="@+id/et_text_size"
 	            android:layout_alignLeft="@id/spinCode"
 	            android:layout_width="@dimen/settingsItemLength"
 	            android:layout_height="wrap_content"
 	            android:inputType="number"
 	            android:textSize="30sp"
-	            android:layout_below="@id/check_Num_show"
-				android:layout_marginTop="20dp"
+	            android:layout_below="@id/check_revert"
+				android:layout_marginTop="10dp"
 	            />
 
 	        <TextView android:id="@+id/view_text_size"

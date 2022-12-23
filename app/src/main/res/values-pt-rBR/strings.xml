@@ -477,6 +477,7 @@
 	<string name="str_device_but_sure">Sim</string>
 	<string name="str_information">"Determinar a execução? "</string>
 	<string name="strReverse">Inversão</string>
+	<string name="strRevert">Revert</string>
 	<string name="strFontsize">Font</string>
 	<string name="strHeadResolution">HD</string>
 	<string name="strCopying">"Copiando ... "</string>

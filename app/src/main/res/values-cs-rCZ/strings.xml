@@ -500,6 +500,7 @@
 	<string name="str_net_device_ink">Inkoust</string>
 	<string name="strHightype">Stride</string>
 	<string name="strReverse">Zvrátit</string>
+	<string name="strRevert">Revert</string>
 	<string name="strFontsize">Velikost písma</string>
 	<string name="strCopying">Kopírování, prosím, počkejte</string>
 	<string name="str_net_error">Chyba síťové komunikace</string>

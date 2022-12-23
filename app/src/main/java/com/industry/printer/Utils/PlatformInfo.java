@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
+import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.SmartCard;
 
 
@@ -126,7 +127,7 @@ public class PlatformInfo {
 				ret = "OLD-" + verInc;
 			} else {
 //				ret = buildID.substring(0,2) + "xx" + verInc.substring(1);
-				ret = buildID + verInc;
+				ret = buildID + verInc + getFPGAVersion();
 			}
 			Debug.d(TAG, "===>Img Unique Code: " + ret);
 			return ret;
@@ -137,6 +138,40 @@ public class PlatformInfo {
 	}
 // End of H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 
+// H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
+	public static String getFPGAVersion() {
+		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
+
+		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
+
+		if(fpgaVersion == 0) return "";
+
+		int bit31 = ((fpgaVersion & 0x80000000) == 0x80000000 ? 1 : 0);
+
+		fpgaVersion = ((fpgaVersion << 1) | bit31);
+
+		int bank = (int)((fpgaVersion & 0x00007FFF) >> 9);
+		int code = (int)(fpgaVersion & 0x000001FF);
+
+		String codeStr = "000" + code;
+		codeStr = codeStr.substring(codeStr.length()-3, codeStr.length());
+
+		String bankStr = "";
+		if(bank >= 0 && bank <= 9) {
+			bankStr = String.format("%c", 0x30 + bank);
+		} else if(bank >= 10 && bank <= 35) {
+			bankStr = String.format("%c", 'A' + bank-10);
+		} else if(bank >= 36 && bank <= 61) {
+			bankStr = String.format("%c", 'a' + bank-36);
+		} else if(bank == 62) {
+			bankStr = "#";
+		} else if(bank == 63) {
+			bankStr = "*";
+		}
+
+		return (bankStr + codeStr);
+	}
+// End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 	/**
 	 * read system property
 	 * @return

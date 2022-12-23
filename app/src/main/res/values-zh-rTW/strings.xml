@@ -73,6 +73,7 @@
 	<string name="strHigh">字號</string>
 	<string name="strHightype">位置</string>	
 	<string name="strReverse">反相</string>
+	<string name="strRevert">反白</string>
 	<string name="strXcor">橫向位置</string>
 	<string name="strYcor">縱向位置</string>
 	<string name="strCnt">內容</string>

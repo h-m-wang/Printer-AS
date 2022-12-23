@@ -1058,7 +1058,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					// mSettingTitle.setVisibility(View.VISIBLE);
 					// mVersion.setVisibility(View.VISIBLE);
 //					mHander.sendEmptyMessage(REFRESH_TIME_DISPLAY);
-					
+					mSettingTitle.setText(PlatformInfo.getImgUniqueCode());
 				} else {
 					fts.hide(mSettingsTab);
 					mSettings.setVisibility(View.GONE);

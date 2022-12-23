@@ -6,6 +6,7 @@ package com.industry.printer.Utils;
 
 public class ByteArrayUtils {
     public static String toHexString(byte[] buf) {
+        if (buf == null) return "";
         return toHexString(buf, 0, buf.length);
     }
 
