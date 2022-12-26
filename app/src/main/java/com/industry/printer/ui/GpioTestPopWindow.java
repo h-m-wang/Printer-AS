@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
+import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
@@ -35,6 +36,7 @@ import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -187,6 +189,7 @@ public class GpioTestPopWindow {
                 case MSG_TERMINATE_TEST:
                     mHandler.removeMessages(MSG_TEST_IN_PIN);
                     mSerialWritting = false;
+                    mBaginkTestRunning = false;
                     break;
                 case MSG_SHOW_TEST_RESULT:
                     mTestResult.setTextColor(msg.arg1);
@@ -328,6 +331,7 @@ public class GpioTestPopWindow {
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 // H.M.Wang 2022-11-02 增加Bagink的测试
             case TEST_PHASE_BAGINK:
+                mBaginkTestRunning = false;
                 mBaginkTestArea.setVisibility(View.GONE);
                 break;
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
@@ -474,6 +478,7 @@ public class GpioTestPopWindow {
 // H.M.Wang 2022-11-02 增加Bagink的测试
             case TEST_PHASE_BAGINK:
                 mTestTitle.setText("Bagink Test");
+                mBaginkTestRunning = true;
                 mBaginkTestArea.setVisibility(View.VISIBLE);
                 break;
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
@@ -674,7 +679,7 @@ public class GpioTestPopWindow {
 //                mTimer.cancel();
 //                mTimer = null;
                 mHandler.sendEmptyMessage(MSG_TERMINATE_TEST);
-                mSerialWritting = false;
+//                mSerialWritting = false;
                 mPopupWindow.dismiss();
             }
         });
@@ -849,91 +854,12 @@ public class GpioTestPopWindow {
 
 // H.M.Wang 2022-11-02 增加Bagink的测试
         mBaginkTestArea = (LinearLayout) popupView.findViewById(R.id.bagink_test_area);
-
-        TextView level1 = (TextView)popupView.findViewById(R.id.bagink_level1);
-        level1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);
-                try {Thread.sleep(50);} catch (Exception e) {}
-                SmartCard.initLevelDirect();
-				try {Thread.sleep(100);} catch (Exception e) {}
-                int level = SmartCard.readLevelDirect();
-                ((TextView)view).setText(String.valueOf(level));
-            }
-        });
-        TextView level2 = (TextView)popupView.findViewById(R.id.bagink_level2);
-        level2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD3);
-                try {Thread.sleep(50);} catch (Exception e) {}
-                SmartCard.initLevelDirect();
-                try {Thread.sleep(100);} catch (Exception e) {}
-                int level = SmartCard.readLevelDirect();
-                ((TextView)view).setText(String.valueOf(level));
-            }
-        });
-        TextView level3 = (TextView)popupView.findViewById(R.id.bagink_level3);
-        level3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD4);
-                try {Thread.sleep(50);} catch (Exception e) {}
-                SmartCard.initLevelDirect();
-                try {Thread.sleep(100);} catch (Exception e) {}
-                int level = SmartCard.readLevelDirect();
-                ((TextView)view).setText(String.valueOf(level));
-            }
-        });
-        TextView level4 = (TextView)popupView.findViewById(R.id.bagink_level4);
-        level4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.rfidSwitch(ExtGpio.RFID_CARD2);
-                try {Thread.sleep(50);} catch (Exception e) {}
-                SmartCard.initLevelDirect();
-                try {Thread.sleep(100);} catch (Exception e) {}
-                int level = SmartCard.readLevelDirect();
-                ((TextView)view).setText(String.valueOf(level));
-            }
-        });
-        TextView Valve1 = (TextView)popupView.findViewById(R.id.bagink_valve1);
-        Valve1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.setValve(0, 1);
-                try {Thread.sleep(10);} catch (Exception e) {}
-                ExtGpio.setValve(0, 0);
-            }
-        });
-        TextView Valve2 = (TextView)popupView.findViewById(R.id.bagink_valve2);
-        Valve2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.setValve(1, 1);
-                try {Thread.sleep(10);} catch (Exception e) {}
-                ExtGpio.setValve(1, 0);
-            }
-        });
-        TextView Valve3 = (TextView)popupView.findViewById(R.id.bagink_valve3);
-        Valve3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.setValve(2, 1);
-                try {Thread.sleep(10);} catch (Exception e) {}
-                ExtGpio.setValve(2, 0);
-            }
-        });
-        TextView Valve4 = (TextView)popupView.findViewById(R.id.bagink_valve4);
-        Valve4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExtGpio.setValve(3, 1);
-                try {Thread.sleep(10);} catch (Exception e) {}
-                ExtGpio.setValve(3, 0);
-            }
-        });
+        mBaginkTest = new BaginkTest[] {
+            new BaginkTest(popupView, 0),
+            new BaginkTest(popupView, 1),
+            new BaginkTest(popupView, 2),
+            new BaginkTest(popupView, 3)
+        };
 
         TextView testBagink = (TextView)popupView.findViewById(R.id.btn_bagink);
         testBagink.setOnClickListener(new View.OnClickListener() {
@@ -943,8 +869,122 @@ public class GpioTestPopWindow {
             }
         });
 // End of H.M.Wang 2022-11-02 增加Bagink的测试
-
     }
+
+// H.M.Wang 2022-12-24 将读BaginkLevel的功能独立为一个函数，并且加入线程互斥，还有增加HX24LC的读写功能
+    private final int mBaginkLevelResIDs[] = new int[] {R.id.bagink_level1, R.id.bagink_level2, R.id.bagink_level3, R.id.bagink_level4};
+    private final int mBaginkHX24LCResIDs[] = new int[] {R.id.bagink_hx24lc1, R.id.bagink_hx24lc2, R.id.bagink_hx24lc3, R.id.bagink_hx24lc4};
+    private final int mBaginkValveResIDs[] = new int[] {R.id.bagink_valve1, R.id.bagink_valve2, R.id.bagink_valve3, R.id.bagink_valve4};
+    private BaginkTest mBaginkTest[];
+    private boolean mBaginkTestRunning;
+
+    private class BaginkTest {
+        private boolean mPause;
+        private TextView mBaginkLevelTV;
+        private TextView mBaginkHX24LCTV;
+        private TextView mBaginkValveTV;
+        private ArrayList<Integer> mLevels;
+        private ArrayList<Integer> mHX24LCValues;
+
+        public BaginkTest(View parent, final int index) {
+            mPause = true;
+
+            mLevels = new ArrayList<Integer>();
+            mHX24LCValues = new ArrayList<Integer>();
+
+            mBaginkLevelTV = (TextView)parent.findViewById(mBaginkLevelResIDs[index]);
+            mBaginkLevelTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mPause && mBaginkTestRunning) {
+                        mBaginkLevelTV.setBackgroundColor(Color.parseColor("#008800"));
+                        mPause = false;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                while(!mPause && mBaginkTestRunning) {
+                                    synchronized (GpioTestPopWindow.this) {
+                                        Debug.d(TAG, "Enter Bagink Level Test " + index);
+                                        ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
+                                        try {Thread.sleep(50);} catch (Exception e) {}
+                                        SmartCard.initLevelDirect();
+                                        try {Thread.sleep(100);} catch (Exception e) {}
+                                        int level = SmartCard.readLevelDirect();
+                                        mLevels.add(level);
+                                        if(mLevels.size() > 3) {
+                                            mLevels.remove(0);
+                                        }
+                                        int hx24lc = SmartCard.readHX24LC();
+                                        mHX24LCValues.add(hx24lc);
+                                        if(mHX24LCValues.size() > 3) {
+                                            mHX24LCValues.remove(0);
+                                        }
+                                        showTestMessage();
+                                        Debug.d(TAG, "Quit Bagink Level Test " + index);
+                                    }
+                                    try {Thread.sleep(3000);} catch (Exception e) {}
+                                }
+                            }
+                        }).start();
+                    } else {
+                        mBaginkLevelTV.setBackgroundColor(Color.parseColor("#8E8E8E"));
+                        mPause = true;
+                    }
+                }
+            });
+            mBaginkLevelTV.setBackgroundColor(Color.parseColor("#8E8E8E"));
+
+            mBaginkHX24LCTV = (TextView)parent.findViewById(mBaginkHX24LCResIDs[index]);
+            mBaginkHX24LCTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    synchronized (GpioTestPopWindow.this) {
+                        Debug.d(TAG, "Enter Bagink HX24LC Set. " + index);
+                        ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
+                        try {Thread.sleep(50);} catch (Exception e) {}
+                        SmartCard.writeHX24LC(20);
+                        Debug.d(TAG, "Quit Bagink HX24LC Set. " + index);
+                    }
+                }
+            });
+
+            mBaginkValveTV = (TextView)parent.findViewById(mBaginkValveResIDs[index]);
+            mBaginkValveTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    synchronized (GpioTestPopWindow.this) {
+                        Debug.d(TAG, "Enter Bagink Set Valve. " + index);
+                        ExtGpio.setValve(index, 1);
+                        try {Thread.sleep(10);} catch (Exception e) {}
+                        ExtGpio.setValve(index, 0);
+                        Debug.d(TAG, "Quit Bagink Set Valve. " + index);
+                    }
+                }
+            });
+        }
+
+        private void showTestMessage() {
+            mBaginkLevelTV.post(new Runnable() {
+                @Override
+                public void run() {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("LV: ");
+                    for(int i=0; i<mLevels.size(); i++) {
+                        if(i == 0) sb.append(mLevels.get(i)); else sb.append(", ").append(mLevels.get(i));
+                    }
+                    sb.append("\n");
+                    sb.append("HX: ");
+                    for(int i=0; i<mHX24LCValues.size(); i++) {
+                        if(i == 0) sb.append(mHX24LCValues.get(i)); else sb.append(", ").append(mHX24LCValues.get(i));
+                    }
+                    mBaginkLevelTV.setText(sb.toString());
+                    mBaginkLevelTV.setTextSize(24);
+                }
+            });
+        }
+    }
+
+// End of H.M.Wang 2022-12-24 将读BaginkLevel的功能独立为一个函数，并且加入线程互斥，还有增加HX24LC的读写功能
 
     private void resetOutPins() {
         for (int i = 0; i < mOutPins.length; i++) {

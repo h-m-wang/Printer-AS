@@ -11,6 +11,7 @@
 #include <drivers/internal_ifc/sc_gpio_driver.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <drivers/internal_ifc/sc_i2c_driver.h>
 
 #include "hp_host_smart_card.h"
 #include "drivers/internal_ifc/hp_smart_card_gpio_ifc.h"
@@ -24,36 +25,40 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.389"
-// 1.0.378
-//   readDeviceID函数内，执行一次重启一次Level设备
-// 1.0.379
-//   (1) 取消1.0.378修改内容
-//   (2) 追加testLevel函数，在读取Level值之前关闭Level5毫秒后，重新打开，然后读Level值
-// 1.0.380
-//   (1) 进入睡眠状态后等待100ms
-//   (2) 增加设置几个参数, Set Full Current Mode, RP Override Enable, Disable Automatic Amplitude Correction, Set High Current Drive
-// 1.0.381
-//   (1) 测试状态时，进入睡眠50ms，开机后50ms后读数
-// 1.0.382
-//   (1) 测试状态时，50ms改为硬性的循环语句 改为循环100万次
-// 1.0.383
-//   (1) readLevel得到的是FF的时候，重启Level，并且在apk里面beep声音提示
-//   (2) testLevel得到的是FF的时候，也重启Level
-// 1.0.384
-//   (1) 重复起振的判断逻辑由0xFFFFFFFF改为0x0FFFFFFF
-//              if((chData & 0x0FFFFFFF) == 0x0FFFFFFF) {
-// 1.0.385
-//   (1) 重复起振的方法从睡眠-等一会儿-苏醒，改为重启设备-等一会儿-苏醒
-// 1.0.386
-//   (1) 暂时取消重新起振的尝试操作，改为每读5次关闭一次，再关闭的状态读，下一次读再打开
-// 1.0.387
-//   (1) 在shutdown函数中，增加排斥锁的使用，在获取锁后才shutdown
+#define VERSION_CODE                            "1.0.390"
+// 1.0.390
+//   追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
+//      {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
+//      {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},
+// 1.0.389
+//   追加两个为Bagink专用的API，Java_com_Smartcard_init_level_direct 和 Java_com_Smartcard_readLevelDirect
 // 1.0.388
 //   (1) initComponent函数中，对于adjustLocalInkValue函数的调用，原来传递的参数错误，没有起到调整的作用
 //   (2) 为adjustLocalInkValue函数和getMaxVolume函数添加log
-// 1.0.389
-//   追加两个为Bagink专用的API，Java_com_Smartcard_init_level_direct 和 Java_com_Smartcard_readLevelDirect
+// 1.0.387
+//   (1) 在shutdown函数中，增加排斥锁的使用，在获取锁后才shutdown
+// 1.0.386
+//   (1) 暂时取消重新起振的尝试操作，改为每读5次关闭一次，再关闭的状态读，下一次读再打开
+// 1.0.385
+//   (1) 重复起振的方法从睡眠-等一会儿-苏醒，改为重启设备-等一会儿-苏醒
+// 1.0.384
+//   (1) 重复起振的判断逻辑由0xFFFFFFFF改为0x0FFFFFFF
+//              if((chData & 0x0FFFFFFF) == 0x0FFFFFFF) {
+// 1.0.383
+//   (1) readLevel得到的是FF的时候，重启Level，并且在apk里面beep声音提示
+//   (2) testLevel得到的是FF的时候，也重启Level
+// 1.0.382
+//   (1) 测试状态时，50ms改为硬性的循环语句 改为循环100万次
+// 1.0.381
+//   (1) 测试状态时，进入睡眠50ms，开机后50ms后读数
+// 1.0.380
+//   (1) 进入睡眠状态后等待100ms
+//   (2) 增加设置几个参数, Set Full Current Mode, RP Override Enable, Disable Automatic Amplitude Correction, Set High Current Drive
+// 1.0.379
+//   (1) 取消1.0.378修改内容
+//   (2) 追加testLevel函数，在读取Level值之前关闭Level5毫秒后，重新打开，然后读Level值
+// 1.0.378
+//   readDeviceID函数内，执行一次重启一次Level设备
 
 #define SC_SUCCESS                              0
 #define SC_INIT_HOST_CARD_NOT_PRESENT           100
@@ -938,6 +943,45 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeOIB(JNIEnv *env, jclass arg, jint
     return ret;
 }
 
+// H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
+#define HX24LC_I2C_ADDRESS      0x50
+
+JNIEXPORT jint JNICALL Java_com_Smartcard_readHX24LC(JNIEnv *env, jclass arg) {
+    LOGD(">>> Read HX24LC(I2C=0x50,addr=0) Direct for [BAGINK]");
+
+    int read_length;
+    uint8_t data = 0;
+
+    read_length = SC_I2C_DRIVER_read(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+
+    if(read_length < 0) {
+        LOGE("Read data error!");
+        return LEVEL_I2C_FAILED;
+    }
+
+    return data;
+}
+
+JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, jint value) {
+    LOGD(">>> Write value=%d into HX24LC(I2C=0x50,addr=0) Direct for [BAGINK]", value);
+
+    int write_length;
+    uint8_t data[2];
+
+    data[0] = 0;
+    data[1] = value & 0x0FF;
+
+    write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 2);
+
+    if(write_length < 0) {
+        LOGE("Write data error!");
+        return LEVEL_I2C_FAILED;
+    }
+
+    return write_length;
+}
+// End of H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
+
 // H.M.Wang 2022-11-1 Add this API for Bagink Use
 JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg) {
     LOGD(">>> Read Level Direct for [BAGINK]");
@@ -1179,6 +1223,8 @@ static JNINativeMethod gMethods[] = {
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
         {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
+        {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
+        {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},
         {"testLevel",		        "(I)I",						(void *)Java_com_Smartcard_testLevel},
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
         {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},

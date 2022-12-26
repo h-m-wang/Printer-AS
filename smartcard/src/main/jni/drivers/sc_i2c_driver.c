@@ -185,7 +185,7 @@ int SC_I2C_DRIVER_write(int group_id, int device_address, uint8_t reg, uint8_t *
         命令格式为："<数据数量>,<起始寄存器地址>"
         如："3,0xf80"，极为从寄存器0xf80开始的连续读取三个寄存器的数据
     @参数
-        reg: I2C设备内需要写入数据的其实寄存器号
+        reg: I2C设备内需要写入数据的起始寄存器号
         data: 写入的数据，格式必须为没有空格的有逗号分开的16进制数据
     @返回值
         >=0: 成功

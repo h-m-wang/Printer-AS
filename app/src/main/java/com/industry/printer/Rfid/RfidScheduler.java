@@ -40,7 +40,7 @@ public class RfidScheduler implements IInkScheduler {
 	private static boolean mBaginkImg = false;
 	public Handler mCallbackHandler = null;
 
-	private static final int LEVELS[] = {
+	public static final int LEVELS[] = {
 		ExtGpio.RFID_CARD1,
 		ExtGpio.RFID_CARD3,
 		ExtGpio.RFID_CARD4,

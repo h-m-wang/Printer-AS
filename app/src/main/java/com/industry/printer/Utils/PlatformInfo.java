@@ -129,7 +129,7 @@ public class PlatformInfo {
 //				ret = buildID.substring(0,2) + "xx" + verInc.substring(1);
 				ret = buildID + verInc + getFPGAVersion();
 			}
-			Debug.d(TAG, "===>Img Unique Code: " + ret);
+//			Debug.d(TAG, "===>Img Unique Code: " + ret);
 			return ret;
 		} catch (Exception e) {
 			Debug.d(TAG, "Exception: " + e.getMessage());
@@ -142,7 +142,7 @@ public class PlatformInfo {
 	public static String getFPGAVersion() {
 		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
 
-		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
+//		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
 
 		if(fpgaVersion == 0) return "";
 

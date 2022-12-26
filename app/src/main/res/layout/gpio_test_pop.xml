@@ -283,7 +283,7 @@
                 android:id="@+id/bagink_level_area"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical" >
                 <TextView
                     android:id="@+id/bagink_level1"
@@ -292,7 +292,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Level1"
                     android:textColor="@color/white"
@@ -305,7 +304,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Level2"
                     android:textColor="@color/white"
@@ -318,7 +316,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Level3"
                     android:textColor="@color/white"
@@ -331,13 +328,69 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Level4"
                     android:textColor="@color/white"
                     android:textSize="30dp"
                     />
             </LinearLayout>
+<!-- 2022-12-24 追加HX24LC的设置界面 -->
+            <LinearLayout
+                android:id="@+id/bagink_hx24lc_area"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/bagink_hx24lc1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:gravity="center"
+                    android:text="Set 1"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_hx24lc2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:gravity="center"
+                    android:text="Set 1"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_hx24lc3"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:gravity="center"
+                    android:text="Set 3"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+                <TextView
+                    android:id="@+id/bagink_hx24lc4"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:background="@color/gray"
+                    android:gravity="center"
+                    android:text="Set 4"
+                    android:textColor="@color/white"
+                    android:textSize="30dp"
+                    />
+            </LinearLayout>
+<!-- End of 2022-12-24 追加HX24LC的设置界面 -->
             <LinearLayout
                 android:id="@+id/bagink_valve_area"
                 android:layout_width="0dp"
@@ -351,7 +404,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Valve1"
                     android:textColor="@color/white"
@@ -364,7 +416,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Valve2"
                     android:textColor="@color/white"
@@ -377,7 +428,6 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Valve3"
                     android:textColor="@color/white"
@@ -390,14 +440,12 @@
                     android:layout_weight="1"
                     android:layout_margin="10dp"
                     android:background="@color/gray"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:text="Valve4"
                     android:textColor="@color/white"
                     android:textSize="30dp"
                     />
             </LinearLayout>
-
         </LinearLayout>
 <!-- End of H.M.Wang 2022-11-02 增加Bagink的测试 -->
     </FrameLayout>

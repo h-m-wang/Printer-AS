@@ -70,6 +70,11 @@ public class SmartCard {
 
     static public native int readLevel(int card);
 
+// H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
+    static public native int readHX24LC();
+    static public native int writeHX24LC(int value);
+// End of H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
+
 // H.M.Wang 2022-11-1 Add this API for Bagink Use
     static public native int readLevelDirect();
 // End of H.M.Wang 2022-11-1 Add this API for Bagink Use
