@@ -2,13 +2,6 @@ package com.industry.printer.hardware;
 
 import java.io.ByteArrayInputStream;
 
-import org.apache.http.util.ByteArrayBuffer;
-
-import android.R.integer;
-import android.R.string;
-import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.industry.printer.Usb.CRC16;
 import com.industry.printer.Utils.Debug;
 

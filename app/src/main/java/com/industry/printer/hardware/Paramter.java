@@ -216,7 +216,7 @@ public class Paramter {
 // H.M.Wang 2022-11-30 取消2022-11-26对S24[Bit2设置的修改，改为使用S24[3:2]设置ENCDir方向，00:None; 10:Left; 11:Right
 // H.M.Wang 2022-11-26 追加S24[Bit2]的设置，0:Left; 1:Right
 //		mFPGAParam[23] = param[1] == 0 ? (mFPGAParam[23] & 0xFFFB) : (mFPGAParam[23] | 0x0004);
-		if(param[67] == 0x01) {    // Left
+		if(param[SystemConfigFile.INDEX_ENC_DIR] == 0x01) {    // Left
 			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x0008;
 		} else if(param[67] == 0x02) {    // Right
 			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x000C;

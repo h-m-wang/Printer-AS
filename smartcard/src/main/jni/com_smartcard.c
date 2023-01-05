@@ -25,7 +25,18 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.390"
+#define VERSION_CODE                            "1.0.392"
+
+// 1.0.392
+//    (1) 增加Java_com_Smartcard_readHX24LC中，读取数据SC_I2C_DRIVER_read之前，写入WORD地址
+//          SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+//    (2) Java_com_Smartcard_writeHX24LC中写入函数的参数错误修正
+//    误: write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 2);
+//    正: write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, data, 2);
+
+// 1.0.391
+//    (1) Java_com_Smartcard_readHX24LC增加一个读数的log输出
+//    (2) Java_com_Smartcard_readHX24LC及Java_com_Smartcard_writeHX24LC函数中，硬件操作加mutex保护
 // 1.0.390
 //   追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
 //      {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
@@ -950,14 +961,18 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readHX24LC(JNIEnv *env, jclass arg) {
     LOGD(">>> Read HX24LC(I2C=0x50,addr=0) Direct for [BAGINK]");
 
     int read_length;
-    uint8_t data = 0;
+    uint8_t data;
 
+    pthread_mutex_lock(&mutex);
     read_length = SC_I2C_DRIVER_read(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+    pthread_mutex_unlock(&mutex);
 
     if(read_length < 0) {
         LOGE("Read data error!");
         return LEVEL_I2C_FAILED;
     }
+
+    LOGD(">>> HX24LC for [BAGINK] data read: 0x%08X", data);
 
     return data;
 }
@@ -966,12 +981,11 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, j
     LOGD(">>> Write value=%d into HX24LC(I2C=0x50,addr=0) Direct for [BAGINK]", value);
 
     int write_length;
-    uint8_t data[2];
+    uint8_t data = (value & 0x0FF);
 
-    data[0] = 0;
-    data[1] = value & 0x0FF;
-
-    write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 2);
+    pthread_mutex_lock(&mutex);
+    write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+    pthread_mutex_unlock(&mutex);
 
     if(write_length < 0) {
         LOGE("Write data error!");

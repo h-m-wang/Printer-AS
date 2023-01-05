@@ -839,6 +839,7 @@ public class MessageObject extends BaseObject {
 		7R		16@R		152f * 16 / 32
 		19		19x13		152f * 19 / 32
 		21		21x14		152f * 21 / 32
+				24			152f * 24 / 32
 				32			152f * 32 / 32
 
 64DOT

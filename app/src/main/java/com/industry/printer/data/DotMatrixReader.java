@@ -1,25 +1,16 @@
 package com.industry.printer.data;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 import org.apache.http.util.ByteArrayBuffer;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import com.google.zxing.common.BitArray;
-import com.google.zxing.common.BitMatrix;
 import com.industry.printer.Utils.ConfigPath;
-import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 
 public class DotMatrixReader {

@@ -5,21 +5,14 @@ import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 import org.apache.http.util.ByteArrayBuffer;
 
-import android.R.integer;
-import android.R.menu;
 import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
-import com.industry.printer.PHeader.PrinterNozzle;
-import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;

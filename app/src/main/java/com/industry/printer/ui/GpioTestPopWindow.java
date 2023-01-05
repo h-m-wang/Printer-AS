@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -36,6 +38,7 @@ import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -877,6 +880,7 @@ public class GpioTestPopWindow {
     private final int mBaginkValveResIDs[] = new int[] {R.id.bagink_valve1, R.id.bagink_valve2, R.id.bagink_valve3, R.id.bagink_valve4};
     private BaginkTest mBaginkTest[];
     private boolean mBaginkTestRunning;
+    private int mButtonClickCount;
 
     private class BaginkTest {
         private boolean mPause;
@@ -902,28 +906,33 @@ public class GpioTestPopWindow {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                Debug.d(TAG, "Enter Bagink Level[" + index + "] Test ");
+                                synchronized (GpioTestPopWindow.this) {
+                                    ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
+                                    try {Thread.sleep(50);} catch (Exception e) {}
+                                    SmartCard.initLevelDirect();
+                                }
                                 while(!mPause && mBaginkTestRunning) {
                                     synchronized (GpioTestPopWindow.this) {
-                                        Debug.d(TAG, "Enter Bagink Level Test " + index);
                                         ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
                                         try {Thread.sleep(50);} catch (Exception e) {}
-                                        SmartCard.initLevelDirect();
-                                        try {Thread.sleep(100);} catch (Exception e) {}
                                         int level = SmartCard.readLevelDirect();
+                                        Debug.d(TAG, "Level[" + index + "] = " + level);
                                         mLevels.add(level);
                                         if(mLevels.size() > 3) {
                                             mLevels.remove(0);
                                         }
                                         int hx24lc = SmartCard.readHX24LC();
+                                        Debug.d(TAG, "HX24LC[" + index + "] = " + hx24lc);
                                         mHX24LCValues.add(hx24lc);
                                         if(mHX24LCValues.size() > 3) {
                                             mHX24LCValues.remove(0);
                                         }
                                         showTestMessage();
-                                        Debug.d(TAG, "Quit Bagink Level Test " + index);
                                     }
                                     try {Thread.sleep(3000);} catch (Exception e) {}
                                 }
+                                Debug.d(TAG, "Quit Bagink Level[" + index + "] Test ");
                             }
                         }).start();
                     } else {
@@ -938,13 +947,76 @@ public class GpioTestPopWindow {
             mBaginkHX24LCTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    synchronized (GpioTestPopWindow.this) {
-                        Debug.d(TAG, "Enter Bagink HX24LC Set. " + index);
-                        ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
-                        try {Thread.sleep(50);} catch (Exception e) {}
-                        SmartCard.writeHX24LC(20);
-                        Debug.d(TAG, "Quit Bagink HX24LC Set. " + index);
-                    }
+                    final EditText editText = new EditText(mContext);
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                    editText.setLines(1);
+                    mButtonClickCount = 0;
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    AlertDialog ad = builder.setTitle("Enter HX24LC Value").setView(editText).setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Field field = null;
+                            try{
+                                field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
+                                field.setAccessible(true);
+                                field.set(dialog, false);       // 按键不返回
+                            } catch(NoSuchFieldException e) {
+                            } catch(IllegalAccessException e) {
+                            }
+
+                            mButtonClickCount++;
+                            if(mButtonClickCount != 3) return;
+                            mButtonClickCount = 0;
+
+                            synchronized (GpioTestPopWindow.this) {
+                                Debug.d(TAG, "Enter Bagink HX24LC[" + index + "] Set. ");
+                                ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
+                                try {Thread.sleep(50);} catch (Exception e) {}
+                                try {
+                                    int value = Integer.valueOf(editText.getText().toString());
+                                    if(value >= 0 && value <= 255) {
+                                        Debug.d(TAG, "Set Bagink HX24LC[" + index + " to " + value);
+                                        SmartCard.writeHX24LC(Integer.valueOf(editText.getText().toString()));
+                                    } else {
+                                        ToastUtil.show(mContext, "Value should be in [0,255]");
+//                                        editText.setText("Value should be in [0,255]");
+//                                        editText.setTextColor(Color.RED);
+                                        return;
+                                    }
+                                    field.set(dialog, true);        // 按键返回
+                                } catch (NumberFormatException e) {
+                                    Debug.e(TAG, e.getMessage());
+                                    ToastUtil.show(mContext, e.getMessage());
+//                                    editText.setText(e.getMessage());
+//                                    editText.setTextColor(Color.RED);
+                                    return;
+                                } catch(IllegalAccessException e) {
+                                }
+                                Debug.d(TAG, "Quit Bagink HX24LC[" + index + "] Set. ");
+                            }
+                        }
+                    }).setNegativeButton(R.string.str_btn_cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            Field field = null;
+                            try{
+                                field = dialog.getClass().getSuperclass().getDeclaredField("mShowing");
+                                field.setAccessible(true);
+                                field.set(dialog, true);        // 按键返回
+                            } catch(NoSuchFieldException e) {
+                            } catch(IllegalAccessException e) {
+                            }
+                        }
+                    }).setNeutralButton("Write", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int i) {
+                            if(mButtonClickCount > 0) {
+                                mButtonClickCount++;
+                            }
+                        }
+                    } ).create();
+                    ad.show();
                 }
             });
 
@@ -953,11 +1025,11 @@ public class GpioTestPopWindow {
                 @Override
                 public void onClick(View view) {
                     synchronized (GpioTestPopWindow.this) {
-                        Debug.d(TAG, "Enter Bagink Set Valve. " + index);
+                        Debug.d(TAG, "Enter Bagink[" + index + "] Set Valve. ");
                         ExtGpio.setValve(index, 1);
                         try {Thread.sleep(10);} catch (Exception e) {}
                         ExtGpio.setValve(index, 0);
-                        Debug.d(TAG, "Quit Bagink Set Valve. " + index);
+                        Debug.d(TAG, "Quit Bagink[" + index + "' Set Valve. ");
                     }
                 }
             });

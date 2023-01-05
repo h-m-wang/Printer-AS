@@ -64,6 +64,7 @@ public class RfidScheduler implements IInkScheduler {
 		public int mLevelIndex;
 		public ArrayList<Integer> mRecentLevels;
 		public ArrayList<Integer> mValidLevels;
+		public int mHX24LCValue;
 		public int mInkAddedTimes;
 		public long mInkAddedTime;
 		public int mLevelLowCount;
@@ -81,6 +82,7 @@ public class RfidScheduler implements IInkScheduler {
 			ExtGpio.rfidSwitch(idx);
 			try {Thread.sleep(100);} catch (Exception e) {}
 			SmartCard.initLevelDirect();
+			mHX24LCValue = SmartCard.readHX24LC();
 		}
 	}
 
@@ -119,7 +121,7 @@ public class RfidScheduler implements IInkScheduler {
 //				ExtGpio.rfidSwitch(mCurrent);
 				if ((level & 0xF0000000) == 0x00000000) {
 //					Debug.d(TAG, "Read Level[" + cardIdx + "](" + (readCount + 1) + " times) = " + level);
-					readLevels += level;
+					readLevels += (level  -  mBaginkLevels[cardIdx].mHX24LCValue * 100000);
 					readCount++;
 				} else {
 					Debug.e(TAG, "Read Level[" + cardIdx + "]" + Integer.toHexString(level));
@@ -205,6 +207,8 @@ public class RfidScheduler implements IInkScheduler {
 					try{Thread.sleep(100);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
 						ExtGpio.setValve(cardIdx, 0);
 					};
+
+					mBaginkLevels[cardIdx].mValidLevels.clear();
 
 					mBaginkLevels[cardIdx].mInkAddedTimes++;
 					mBaginkLevels[cardIdx].mInkAddedTime = System.currentTimeMillis();
@@ -373,7 +377,7 @@ public class RfidScheduler implements IInkScheduler {
 								StringBuilder sb = new StringBuilder();
 								sb.append("Thres: " + (mManager.getFeature(0,6) + 256) + "\n");
 								for (int i = 0; i < mBaginkLevels.length; i++) {
-									sb.append("Level" + (i+1) + ": ");
+									sb.append("Level" + (i+1) + "[" + mBaginkLevels[i].mHX24LCValue + "]: ");
 									if(mBaginkLevels[i].mRecentLevels.size() > 0) {
 										for(int j=0; j<mBaginkLevels[i].mRecentLevels.size(); j++) {
 											if(j > 0) sb.append(",");

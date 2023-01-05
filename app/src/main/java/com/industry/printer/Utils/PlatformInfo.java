@@ -139,10 +139,25 @@ public class PlatformInfo {
 // End of H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 
 // H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
+// 算法(2进制描述)
+// 	(1) 从FPGA收到
+//		 A000 0000 1111 1111 CDEF FHIJ KLMN OPQR
+//	(2)	移位
+//		 0000 0001 1111 111C DEFF HIJK LMNO PQRA
+//  (3) bank = DEFF HIJ
+//      code = K LMNO PQRA
+//	4b009000
+//  0100 1011 0000 0000 1001 0000 0000 0000
+//  1001 0110 0000 0001 0010 0000 0000 0000 (G000)
+
+//	d0000b00
+//  1101 0000 0000 0000 0000 1011 0000 0000
+//  1010 0000 0000 0000 0001 0110 0000 0001 (B001)
+
 	public static String getFPGAVersion() {
 		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
 
-//		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
+		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
 
 		if(fpgaVersion == 0) return "";
 

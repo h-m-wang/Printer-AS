@@ -39,7 +39,10 @@ public class CounterObject extends BaseObject {
 	// 计数器初始值对应设置里10个计数器值的编号
 	private int mCounterIndex;
 	//public int mCurVal;
-
+// H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step。其功能是决定计数器在打印过程中何时进行调整，n=0或n=1为每次打印均调整，n>1时为打印n次后调整
+	private int mSubStepValue;
+	private int mSubStepCount;
+// End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step。
 	public CounterObject(Context context, float x) {
 		super(context, BaseObject.OBJECT_TYPE_CNT, x);
 		mBits = 5;
@@ -51,6 +54,10 @@ public class CounterObject extends BaseObject {
 		mStepLen=1;
 		mCounterIndex = 0;
 		mContent = "00000";
+// H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
+		mSubStepValue = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SUB_STEP);
+		mSubStepCount = mSubStepValue;
+// End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 	}
 
 	public CounterObject(Context context, BaseObject parent, float x) {
@@ -192,6 +199,11 @@ public class CounterObject extends BaseObject {
 	}
 
 	public void goNext() {
+// H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
+		mSubStepCount--;
+		if(mSubStepCount > 0) return;
+		mSubStepCount = mSubStepValue;
+// End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 		int value = (mDirection == Direction.INCREASE ? mValue + mStepLen : mValue - mStepLen);
 // H.M.Wang 2022-2-14 追加在计数器到达end的时候，写OUT4两秒的操作
 		if(mDirection == Direction.INCREASE ? value > mEnd : value < mEnd) {

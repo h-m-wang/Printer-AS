@@ -400,7 +400,10 @@
 <!--	<string name="str_textview_param68">68.Réservé</string>-->
 	<string name="str_textview_param68">68.ENC Dir</string>
 <!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
-	<string name="str_textview_param69">69.Réservé</string>
+<!-- H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
+<!--	<string name="str_textview_param69">69.Réservé</string>-->
+	<string name="str_textview_param69">69.Sub Step</string>
+<!-- End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
 	<string name="str_textview_param70">70.Réservé</string>
 	<string name="str_textview_param71">71.Réservé</string>
 	<string name="str_textview_param72">72.Réservé</string>
