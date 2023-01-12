@@ -102,6 +102,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mNozzleWarm;
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
 
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+	private PopWindowAdapter mFastPrint;
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
 
@@ -389,6 +393,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mNozzleWarm = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
 
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+		mFastPrint = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -619,7 +627,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mSettingItems[67] = new ItemOneLine(68, R.string.str_textview_param68, R.array.enc_dir_item_entries, 0, ItemType.TYPE_SWITCH);
 // End of H.M.Wang 2022-11-30 追加ENCDir方向选项
 		mSettingItems[68] = new ItemOneLine(69, R.string.str_textview_param69, 0);
-		mSettingItems[69] = new ItemOneLine(70, R.string.str_textview_param70, 0);
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+		mSettingItems[69] = new ItemOneLine(70, R.string.str_textview_param70, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, 0);
 		mSettingItems[71] = new ItemOneLine(72, R.string.str_textview_param72, 0);
 		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, 0);
@@ -749,6 +759,11 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mNozzleWarm.addItem(items[i]);
 		}
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+		for (int i = 0; i < items.length; i++) {
+			mFastPrint.addItem(items[i]);
+		}
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 
 		// H.M.Wang 2019-12-19 追加对参数39的修改为数据源选择的参数，该设置适配器停用
 //		for (int i = 0; i < items.length; i++) {
@@ -915,6 +930,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 67) { //參數68
 			mSpiner.setAdapter(mEncDir);
 // End of H.M.Wang 2022-11-30 追加ENCDir方向选项
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+		} else if (position == 69) { //參數68
+			mSpiner.setAdapter(mFastPrint);
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

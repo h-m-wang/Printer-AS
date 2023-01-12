@@ -208,6 +208,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step。其功能是决定计数器在打印过程中何时进行调整，n=0或n=1为每次打印均调整，n>1时为打印n次后调整
 	public static final int INDEX_SUB_STEP = 68;
 // End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+	public static final int INDEX_FAST_PRINT = 69;
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用

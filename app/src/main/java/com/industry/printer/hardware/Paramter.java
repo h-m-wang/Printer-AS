@@ -225,6 +225,13 @@ public class Paramter {
 		}
 // End of H.M.Wang 2022-11-26 追加S24[Bit2]的设置，0:Left; 1:Right
 // End of H.M.Wang 2022-11-30 取消2022-11-26对S24[Bit2设置的修改，改为使用S24[3:2]设置ENCDir方向，00:None; 10:Left; 11:Right
+// H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+		if(param[SystemConfigFile.INDEX_FAST_PRINT] == 0x01) {    // FAST PRINT
+			mFPGAParam[23] = (mFPGAParam[23] & 0xFFEF) | 0x0010;
+		} else {
+			mFPGAParam[23] = (mFPGAParam[23] & 0xFFEF);
+		}
+// End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 
 // H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波)。S24[15:8] = C67 * 1/2
 // H.M.Wang 2022-11-30 ENC_FILGER(ENC滤波)修改为：S24[15:8] = （1204.77 - C67) / 4.77。但如果C67=[0-9]，则S24为0

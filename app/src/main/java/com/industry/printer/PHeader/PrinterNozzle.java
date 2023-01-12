@@ -185,8 +185,6 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-5-27 追加32x2头类型
             case NozzleType.NOZZLE_TYPE_32X2:
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-                // H.M.Wang 追加下列一行
-            case NozzleType.NOZZLE_TYPE_64_DOT:
 // H.M.Wang 2020-8-26 追加64SN打印头
             case NozzleType.NOZZLE_TYPE_64SN:
 // End of H.M.Wang 2020-8-26 追加64SN打印头
@@ -200,6 +198,14 @@ public enum PrinterNozzle {
                 buffer8Enable = true;
                 factorScale = 1;
                 break;
+// H.M.Wang 2023-1-6 取消64DOT头的旋转
+            // H.M.Wang 追加下列一行
+            case NozzleType.NOZZLE_TYPE_64_DOT:
+                editZoomable = false;
+                buffer8Enable = false;
+                factorScale = 1;
+                break;
+// End of H.M.Wang 2023-1-6 取消64DOT头的旋转
             default:
                 factorScale = 2;
                 editZoomable = true;

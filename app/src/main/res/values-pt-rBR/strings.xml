@@ -385,7 +385,10 @@
 <!--	<string name="str_textview_param69">69.Reservado</string>-->
 	<string name="str_textview_param69">69.Sub Step</string>
 <!-- End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
-	<string name="str_textview_param70">70.Reservado</string>
+<!-- H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
+<!--	<string name="str_textview_param70">70.Reservado</string>-->
+	<string name="str_textview_param70">70.Fast Print</string>
+<!-- End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
 	<string name="str_textview_param71">71.Reservado</string>
 	<string name="str_textview_param72">72.Reservado</string>
 	<string name="str_textview_param73">73.Reservado</string>

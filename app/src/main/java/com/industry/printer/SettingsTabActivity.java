@@ -405,6 +405,8 @@ public static final String TAG="SettingsTabActivity";
 // H.M.Wang 2020-4-25 设置按确认， 所有参数都生效，  下发一次fpga
 						DataTransferThread dt = DataTransferThread.getInstance(mContext);
 						if(null != dt && dt.isRunning()) {
+// H.M.Wang 2023-1-7 取消打印时下发参数
+/*
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 							Debug.d(TAG, "Time1 = " + dt.Time1 + "; Time2 = " + dt.Time2 + "; Now = " + System.currentTimeMillis() + "; DataRatio = " + dt.DataRatio);
 							int a = (int)(dt.Time2 - dt.Time1);
@@ -426,6 +428,8 @@ public static final String TAG="SettingsTabActivity";
 								mHandler.sendEmptyMessage(MSG_DELAYED_FPGA_SETTING);
 							}
 // End of 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
+*/
+// End of H.M.Wang 2023-1-7 取消打印时下发参数
 						} else {
 							FpgaGpioOperation.updateSettings(mContext, null, FpgaGpioOperation.SETTING_TYPE_NORMAL);
 						}
