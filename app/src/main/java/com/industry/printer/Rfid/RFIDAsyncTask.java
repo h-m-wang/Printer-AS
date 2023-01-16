@@ -55,7 +55,9 @@ public class RFIDAsyncTask implements Runnable {
 // H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 		try {
 			for(int i=0; i<3; i++) {
-				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
+// H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
+//				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
+				int writed = RFIDDevice.write(mFd, mCmd.mTransData, mCmd.mTransData.length);
 				for(int j=0; j<5; j++) {
 					readin = RFIDDevice.read(mFd, 64);
 					if(null != readin) break;

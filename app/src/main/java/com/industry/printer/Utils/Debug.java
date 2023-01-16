@@ -80,9 +80,9 @@ public class Debug {
 		}
 		String log = "";
 		for (int i = 0; i < value.length; i++) {
-			log += "0x"+Integer.toHexString(value[i]&0x0ff)+" " ;
+			log += String.format("%02X ", value[i]&0x0ff);
 		}
-		Debug.e(TAG, getLineNumber()+ "  " + tag + " [ " + log + " ]");
+		Debug.e(TAG, getLineNumber()+ "  " + tag + "[" + log.trim() + "]");
 	}
 	
 	private static String getLineNumber() {

@@ -59,7 +59,9 @@ static JNINativeMethod gGPIOMethods[] = {
  */
 static JNINativeMethod gRFIDMethods[] = {
 	{"open",		"(Ljava/lang/String;)I",	(void *)Java_com_industry_printer_RFID_open},
-	{"write",		"(I[SI)I",					(void *)Java_com_industry_printer_RFID_write},
+// H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
+//	{"write",		"(I[SI)I",					(void *)Java_com_industry_printer_RFID_write},
+	{"write",		"(I[BI)I",					(void *)Java_com_industry_printer_RFID_write},
 	{"read",		"(II)[B",					(void *)Java_com_industry_printer_RFID_read},
 	{"close",		"(I)I",						(void *)Java_com_industry_printer_RFID_close},
 	{"setBaudrate",	"(II)I",					(void *)Java_com_industry_printer_RFID_setBaudrate},

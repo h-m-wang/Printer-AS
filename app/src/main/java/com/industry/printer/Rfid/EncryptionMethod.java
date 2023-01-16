@@ -86,7 +86,7 @@ public class EncryptionMethod {
 	 * 暂时将墨水值放在byte0（高）和byte1（低）
 	 */
 	public int decryptInkLevel(byte[] level) {
-		if (level == null || level.length < 3) {
+		if (level == null || level.length < 5) {
 			return 0;
 		}
 		if (false) {
@@ -105,7 +105,28 @@ public class EncryptionMethod {
 		return (int) ((level[1] & 0x0ff) + (level[2] & 0x0ff)* 256 + (level[3] & 0x0ff)* Math.pow(256, 2) + (level[4] & 0x0ff)* Math.pow(256, 3));
 		
 	}
-	
+
+	public int N_decryptInkLevel(byte[] level) {
+		if (level == null || level.length < 4) {
+			return 0;
+		}
+		if (false) {
+			byte checkSum = (byte) (level[1] + level[2] + level[3] + level[4]);
+			if (checkSum != level[0]) {
+				return 0;
+			}
+			byte l=0;
+			l = level[3];
+			level[3] = (byte) (~level[1] & 0x0ff);
+			level[1] = (byte) (~l & 0x0ff);
+			l = level[2];
+			level[2] = (byte) (~level[4] & 0x0ff);
+			level[4] = (byte) (~l & 0x0ff);
+		}
+		return (int) ((level[0] & 0x0ff) + (level[1] & 0x0ff)* 256 + (level[2] & 0x0ff)* Math.pow(256, 2) + (level[3] & 0x0ff)* Math.pow(256, 3));
+
+	}
+
 	/**
 	 * 墨水量的加密算法:
 	 * 		1, 按位取反
@@ -161,7 +182,15 @@ public class EncryptionMethod {
 		return (int) ((level[1] & 0x0ff) + (level[2] & 0x0ff)* 256 + (level[3] & 0x0ff)* Math.pow(256, 2) + (level[4] & 0x0ff)* Math.pow(256, 3) + (level[5] & 0x0ff)* Math.pow(256, 4));
 		
 	}
-	
-	
+
+	public int N_decryptInkMAX(byte[] level) {
+		if (level == null || level.length < 5) {
+			return 0;
+		}
+
+		return (int) ((level[0] & 0x0ff) + (level[1] & 0x0ff)* 256 + (level[2] & 0x0ff)* Math.pow(256, 2) + (level[3] & 0x0ff)* Math.pow(256, 3) + (level[4] & 0x0ff)* Math.pow(256, 4));
+
+	}
+
 	
 }

@@ -167,12 +167,16 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_open
  * Method:    write
  * Signature: (Ljava/lang/String;)I
  */
+// H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_write
-  (JNIEnv *env, jclass arg, jint fd, jshortArray buf, jint len)
+//  (JNIEnv *env, jclass arg, jint fd, jshortArray buf, jint len)
+  (JNIEnv *env, jclass arg, jint fd, jbyteArray buf, jint len)
 {
 	int i,ret;
 	char tempBuff[256];
-	jshort *buf_utf = (*env)->GetShortArrayElements(env, buf, NULL);
+	jbyte *buf_utf = (*env)->GetByteArrayElements(env, buf, NULL);
+
+//	ALOGD("RFID-WRITE: [%02X %02X %02X %02X %02X %02X]", buf_utf[0], buf_utf[1], buf_utf[2], buf_utf[3], buf_utf[4], buf_utf[5]);
 
 	if(fd <= 0)
 		return 0;

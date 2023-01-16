@@ -618,9 +618,9 @@ public class HyperTextObject extends BaseObject {
                     paint.setColor(Color.BLUE);
                     c.drawText(mSubObjsTag.get(o) , 0, mHeight-fm.descent, paint);
 
-                    can.drawBitmap(Bitmap.createScaledBitmap(b, Math.round(o.getWidth()), Math.round(mHeight), false), o.getX(), 0, paint);
+                    can.drawBitmap(Bitmap.createScaledBitmap(b, Math.round(o.getWidth()), Math.round(mHeight), false), o.getX() - getX(), 0, paint);
                 } else {
-                    can.drawBitmap(o.getpreviewbmp(), o.getX(), 0, paint);
+                    can.drawBitmap(o.getpreviewbmp(), o.getX() - getX(), 0, paint);
                 }
             } catch(Exception e) {
                 e.printStackTrace();

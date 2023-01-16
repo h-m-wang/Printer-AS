@@ -45,7 +45,8 @@ public class RFIDDevice implements RfidCallback{
 	//RFID操作 native接口
 	public static native int open(String dev);
 	public static native int close(int fd);
-	public static native int write(int fd, short[] buf, int len);
+//	public static native int write(int fd, short[] buf, int len);
+	public static native int write(int fd, byte[] buf, int len);
 	public static native byte[] read(int fd, int len);
 	public static native int setBaudrate(int fd, int rate);
 	
@@ -251,7 +252,7 @@ public class RFIDDevice implements RfidCallback{
 	 */
 	public boolean connect() {
 		Debug.d(TAG, "--->RFID connect: " + PlatformInfo.getRfidDevice());
-		mFd = open(PlatformInfo.getRfidDevice());
+//		mFd = open(PlatformInfo.getRfidDevice());
 		RFIDData data = new RFIDData(RFID_CMD_CONNECT, RFID_DATA_CONNECT);
 		byte[] readin = writeCmd(data);
 		return isCorrect(readin);
@@ -609,8 +610,10 @@ public class RFIDDevice implements RfidCallback{
 		Debug.print(RFID_DATA_SEND, data.mTransData);
 		
 		byte[] readin = null;
-		int writed = write(mFd, data.transferData(), data.getLength());
-		
+// H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
+//		int writed = write(mFd, data.transferData(), data.getLength());
+		int writed = write(mFd, data.mTransData, data.mTransData.length);
+
 		try {
 			Thread.sleep(500);
 		}catch (Exception e) {
@@ -1123,8 +1126,7 @@ public class RFIDDevice implements RfidCallback{
 		}
 		return true;
 	}
-	
-	
+
 	private int openDevice() {
 		if (mFd <= 0) {
 			mFd = open(PlatformInfo.getRfidDevice());

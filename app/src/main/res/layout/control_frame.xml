@@ -12,7 +12,7 @@
         android:id="@+id/ctrl_btn_layout"
         android:layout_width="fill_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         >
         <!--
@@ -222,10 +222,9 @@
     <LinearLayout
         android:id="@+id/ctrl_stateview"
         android:layout_width="fill_parent"
-        android:layout_height="58dp"
+        android:layout_height="78dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="10dp">
+        android:layout_marginBottom="5dp" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -264,38 +263,37 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             >
-            <ImageView
-                android:id="@+id/power_value"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:src="@drawable/battery0"
-                />
 
-            <TextView
-                android:id="@+id/powerV"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_toRightOf="@+id/power_value"
                 android:layout_marginLeft="10dp"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                />
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/powerV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textSize="32sp"
+                    android:textColor="#000000"
+                    />
 
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/powerV"
-                android:layout_below="@id/powerV"
-                android:textSize="18sp"
-                android:textColor="#000000"
-                />
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:textSize="32sp"
+                    android:textColor="#000000"
+                    />
+            </LinearLayout>
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
             >
 
             <ImageButton
@@ -324,12 +322,15 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="center_vertical"
             >
             <TextView
                 android:id="@+id/tv_printState"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
                 android:text="@string/str_state_printing"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
@@ -339,13 +340,21 @@
             <TextView
                 android:id="@+id/tv_stopState"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
                 android:text="@string/str_state_stopped"
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
                 android:background="@color/red"
                 />
         </LinearLayout>
+        <ImageView
+            android:id="@+id/power_value"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/battery0"
+            />
     </LinearLayout>
 
 
@@ -357,7 +366,7 @@
         android:layout_below="@id/ctrl_msgname"
         android:layout_above="@id/ctrl_stateview"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:background="#ffffff"
         >
         <LinearLayout

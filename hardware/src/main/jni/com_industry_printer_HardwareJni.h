@@ -138,8 +138,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_RFID_read
  * Method:    write
  * Signature: (Ljava/lang/String;)I
  */
+// H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_write
-  (JNIEnv *env, jclass arg, jint fd, jshortArray buf, jint len);
+//	(JNIEnv *env, jclass arg, jint fd, jshortArray buf, jint len);
+  (JNIEnv *env, jclass arg, jint fd, jbyteArray buf, jint len);
 
 /*
  * Class:     com_industry_printer_RFID
