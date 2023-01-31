@@ -1715,9 +1715,23 @@ private void setSerialProtocol9DTs(final String data) {
 		// H.M.Wang 2019-10-10 注释掉添加初值的部分，如果初值为0，则表示该处置还没有初始化，待后续计算后添加
 //		for (int i = 0; i < mcountdown.length; i++) {
 //			mcountdown[i] = getInkThreshold(i);
-			//Debug.d(TAG, "--->initCount countdown[" + i + "] = " + mcountdown[i]);
+//			//Debug.d(TAG, "--->initCount countdown[" + i + "] = " + mcountdown[i]);
 //		}
 	}
+
+// 2023-1-18 追加这个函数，目的是在第一次生成打印缓冲区后，重新计算阈值和计数器
+	private void recalCount() {
+		if (mcountdown == null) {
+			mcountdown = new int[8];
+		}
+
+		for (int i = 0; i < mcountdown.length; i++) {
+			mcountdown[i] = getInkThreshold(i);
+			//Debug.d(TAG, "--->initCount countdown[" + i + "] = " + mcountdown[i]);
+		}
+	}
+// End of 2023-1-18 追加这个函数，目的是在第一次生成打印缓冲区后，重新计算阈值和计数器
+
 	/**
 	 * 倒计数，当计数倒零时表示墨水量需要减1，同时倒计数回归
 	 * @return true 墨水量需要减1； false 墨水量不变
@@ -1757,6 +1771,12 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
 	private int[] mThresHolds = new int[8];
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
+
+// H.M.Wang 2023-1-17 追加这个函数，用来避免每次显示剩余次数时都要重新计算阈值（以前调用的是getInkThreshold，所以会实际计算
+	public int getKeptInkThreshold(int head) {
+		return mThresHolds[head];
+	}
+// End of H.M.Wang 2023-1-17 追加这个函数，用来避免每次显示剩余次数时都要重新计算阈值（以前调用的是getInkThreshold，所以会实际计算
 	/**
 	 * 通过dot count计算RFID减1的阀值
 	 * @param head 喷头索引
@@ -2235,6 +2255,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 				Debug.d(TAG, "GetPrintDots Done Time: " + System.currentTimeMillis());
 */
 // End of H.M.Wang 2020-10-23 计算点数移到DataTask的getPrintBuffer函数内
+
+// 2023-1-18 第一次生成打印缓冲区后，重新计算阈值和内部计数器，
+				recalCount();
+// End of 2023-1-18 第一次生成打印缓冲区后，重新计算阈值和内部计数器，
 
 				final StringBuilder sb = new StringBuilder();
 				sb.append("Dots per Head: [");

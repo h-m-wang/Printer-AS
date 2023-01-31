@@ -45,6 +45,8 @@ public class N_RFIDDevice {
     public static final int INK_LEVEL_MAX = 100000;
     public static final int INK_LEVEL_MIN = 0;
 
+    private int mIndex = 0;
+
     // 当前墨水量
     private int mCurInkLevel;
     private boolean mInkLevelModified;
@@ -52,14 +54,17 @@ public class N_RFIDDevice {
     private boolean mValid;
     private byte[] mFeature;
     private N_RFIDModule mRFIDModule;
+    private int mWriteRetryCount;
 
-    public N_RFIDDevice() {
+    public N_RFIDDevice(int index) {
         mCurInkLevel = 0;
         mInkLevelModified = false;
         mInkMax = 0;
         mFeature = null;
         mValid = false;
         mRFIDModule = null;
+        mWriteRetryCount = 0;
+        mIndex = index;
     }
 
     public boolean init() {
@@ -67,9 +72,9 @@ public class N_RFIDDevice {
 
         mValid = false;
 
-        if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
-            mRFIDModule = new N_RFIDModule_M104BPCS_KX1207();
-        }
+//        if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
+//            mRFIDModule = new N_RFIDModule_M104BPCS_KX1207();
+//        }
 
         if(null == mRFIDModule) {
             N_RFIDModuleChecker checker = new N_RFIDModuleChecker();
@@ -105,7 +110,7 @@ public class N_RFIDDevice {
 
         mValid = checkFeatureCode();
 
-        return ret;
+        return mValid;
     }
 
     public float getLocalInk() {
@@ -128,15 +133,21 @@ public class N_RFIDDevice {
         } else if (mCurInkLevel <= 0) {
             mCurInkLevel = 0;
         }
-        Debug.d(TAG, "Ink value down to " + mCurInkLevel);
+        Debug.d(TAG, "Ink[" + mIndex + "] down to [" + mCurInkLevel + "]");
 
         mInkLevelModified = true;
     }
 
     public void writeInkLevel() {
         if(mValid && mInkLevelModified && null != mRFIDModule) {
-            Debug.d(TAG, "Write back Ink level to RFID");
-            mInkLevelModified = !mRFIDModule.writeInkLevel(mCurInkLevel);
+            Debug.d(TAG, "Write ink[" + mIndex + "](" + mCurInkLevel +")");
+            if(!mRFIDModule.writeInkLevel(mCurInkLevel)) {
+                mWriteRetryCount++;
+                if(mWriteRetryCount > 10) mValid = false;
+            } else {
+                mWriteRetryCount = 0;
+                mInkLevelModified = false;
+            }
         }
     }
 
@@ -155,7 +166,7 @@ public class N_RFIDDevice {
                 return -1;
             }
         }
-        Debug.d(TAG, "Check UID OK.");
+        Debug.d(TAG, "Check UID[" + mIndex + "] OK.");
         return 1;
     }
 
@@ -180,5 +191,9 @@ public class N_RFIDDevice {
 
     public boolean isValid() {
         return mValid;
+    }
+
+    public boolean inkModified() {
+        return mInkLevelModified;
     }
 }

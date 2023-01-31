@@ -3,20 +3,16 @@ package com.industry.printer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -29,21 +25,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
-import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Socket_Server.Network;
@@ -56,11 +48,9 @@ import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 
 import com.industry.printer.Utils.FileUtil;
-import com.industry.printer.Utils.KZFileObserver;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.Utils.PrinterDBHelper;
-import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.data.DataTask;
@@ -72,7 +62,6 @@ import com.industry.printer.hardware.LRADCBattery;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.RTCDevice;
-import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 import com.industry.printer.hardware.UsbSerial;
 import com.industry.printer.interceptor.ExtendInterceptor;
@@ -107,24 +96,19 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -135,7 +119,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	public static final String TAG="ControlTabActivity";
@@ -209,9 +192,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	
 	public int mIndex;
 	public TextView mPrintStatus;
-	public TextView mtvInk;
-	public TextView mInkLevel;
-	public TextView mInkLevel2;
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+//	public TextView mtvInk;
+//	public TextView mInkLevel;
+//	public TextView mInkLevel2;
+	private TextView[] mInkValues;
+	private LinearLayout mInkValuesGroup1;
+	private LinearLayout mInkValuesGroup2;
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	public TextView mTVPrinting;
 	public TextView mTVStopped;
 	public TextView mPhotocellState;
@@ -234,7 +222,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 	public TextView mCtrlTitle;
-	public TextView mCountdown;
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+//	public TextView mCountdown;
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 
 	public SystemConfigFile mSysconfig;
@@ -256,7 +246,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2021-3-2 修改初值为0
 //    private int mRfid = 100;
-    private int mRfid = 0;
+//    private int mRfid = 0;
 // End of H.M.Wang 2021-3-2 修改初值为0
 	/**
 	 * MESSAGE_OPEN_TLKFILE
@@ -554,7 +544,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 		mCtrlTitle = (TextView) getView().findViewById(R.id.ctrl_counter_view);
-		mCountdown = (TextView) getView().findViewById(R.id.count_down);
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+//		mCountdown = (TextView) getView().findViewById(R.id.count_down);
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 
 		switchState(STATE_STOPPED);
@@ -599,9 +591,52 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		// mMsgPreImg = (ImageView) getView().findViewById(R.id.message_prev_img);
 		//
 //		mPrintState = (TextView) findViewById(R.id.tvprintState);
-		mtvInk = (TextView) getView().findViewById(R.id.tv_inkValue);
-		mInkLevel = (TextView) getView().findViewById(R.id.ink_value);
-		mInkLevel2 = (TextView) getView().findViewById(R.id.ink_value2);
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+//		mtvInk = (TextView) getView().findViewById(R.id.tv_inkValue);
+//		mInkLevel = (TextView) getView().findViewById(R.id.ink_value);
+//		mInkLevel2 = (TextView) getView().findViewById(R.id.ink_value2);
+		mInkValuesGroup1 = (LinearLayout) getView().findViewById(R.id.ink_value_group1);
+		mInkValuesGroup2 = (LinearLayout) getView().findViewById(R.id.ink_value_group2);
+
+		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
+
+		if(PlatformInfo.getImgUniqueCode().startsWith("M5")) {
+			mInkValues = new TextView[] {	// 先上下后左右
+					(TextView) getView().findViewById(R.id.ink_value1),
+					(TextView) getView().findViewById(R.id.ink_value2),
+					(TextView) getView().findViewById(R.id.ink_value3),
+					(TextView) getView().findViewById(R.id.ink_value4),
+					(TextView) getView().findViewById(R.id.ink_value5),
+					(TextView) getView().findViewById(R.id.ink_value6),
+			};
+			if(heads < 4) {
+				mInkValuesGroup2.setVisibility(View.GONE);
+			}
+			if(heads == 2) {
+				mInkValues[0].setTextSize(mInkValues[0].getTextSize() * 1.2f);
+				mInkValues[1].setTextSize(mInkValues[1].getTextSize() * 1.2f);
+			}
+			if(heads <= 2 ) {
+				mInkValuesGroup2.setVisibility(View.GONE);
+			}
+		} else {
+			mInkValues = new TextView[] {	// 先左右，后上下
+					(TextView) getView().findViewById(R.id.ink_value1),
+					(TextView) getView().findViewById(R.id.ink_value4),
+					(TextView) getView().findViewById(R.id.ink_value2),
+					(TextView) getView().findViewById(R.id.ink_value5),
+					(TextView) getView().findViewById(R.id.ink_value3),
+					(TextView) getView().findViewById(R.id.ink_value6)
+			};
+			if(heads <= 1 ) {
+				mInkValuesGroup2.setVisibility(View.GONE);
+			}
+		}
+
+		for(int i=heads; i<6; i++) {
+			mInkValues[i].setVisibility(View.GONE);
+		}
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 
 		mPowerStat = (ImageView) getView().findViewById(R.id.power_value);
 // H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
@@ -1051,7 +1086,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mTvClean.setText(R.string.str_btn_clean);
 		mTVPrinting.setText(R.string.str_state_printing);
 		mTVStopped.setText(R.string.str_state_stopped);
-		mtvInk.setText(R.string.str_state_inklevel);
+//		mtvInk.setText(R.string.str_state_inklevel);
 
 		heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 
@@ -1125,8 +1160,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mSysconfig.init();
 		loadMessage();
 	}
+
+// H.M.Wang 2023-1-18 增加一个时间戳，用来判定显示墨水信息得时间间隔，时间间隔太短得话显示也没有意义，只是占用资源
+	private long inkDispInterval = 0;
+// End of H.M.Wang 2023-1-18 增加一个时间戳，用来判定显示墨水信息得时间间隔，时间间隔太短得话显示也没有意义，只是占用资源
+
 	private void switchRfid() {
-		mRfid += 1;
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+/*		mRfid += 1;
 
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 // M.M.Wang 2020-11-16 增加墨盒墨量显示
@@ -1140,11 +1181,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 //		Debug.d(TAG, "--->switchRfid to: " + mRfid);
 		Debug.d(TAG, "--- refreshInk ---");
+*/
 		refreshInk();
 		// refreshCount();
 		mHandler.sendEmptyMessageDelayed(MESSAGE_SWITCH_RFID, 3000);
 	}
-	
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+
 	boolean mInkLow = false;
 	boolean mInkZero = false;
 
@@ -1153,6 +1196,98 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+// H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+	private void refreshInk() {
+		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
+
+		inkDispInterval = System.currentTimeMillis();
+
+		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
+
+		for(int i=0; i<heads; i++) {
+			float ink = mInkManager.getLocalInkPercentage(i);
+			float count = mInkManager.getLocalInk(i) - 1;
+
+			String down = "";
+			if (mDTransThread != null) {
+				Debug.d(TAG, "--->refreshCount: " + i + "-" + count + " [" + mDTransThread.getKeptInkThreshold(i) + "-" + mDTransThread.getCount(i) + "]");
+				down = "" + (int)(count * mDTransThread.getKeptInkThreshold(i) + mDTransThread.getCount(i));
+			}
+
+			String level = "";
+			if(mInkManager instanceof SmartCardManager) {
+				level = (i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
+			} else {
+				level = "P" + (i + 1) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
+			}
+
+			level = level + (down.isEmpty() || down.equals("0") ? "" : "-" + down);
+
+			Debug.d(TAG,  "Pen" + (i+1) + "[" + level + "]");
+
+			if (!mInkManager.isValid(i)) {
+				mInkValues[i].setBackgroundColor(Color.RED);
+				if(mInkManager instanceof SmartCardManager) {
+					level = (i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-INVALID";
+				} else {
+					level = "P" + (i + 1) + "-INVALID";
+				}
+				mInkValues[i].setText(level);
+
+//				if(mInkManager instanceof SmartCardManager) {
+//					mInkValues[i].setText((i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "--");
+//				} else {
+//					mInkValues[i].setText(String.valueOf(i + 1) + "--");
+//				}
+				mBtnStart.setClickable(false);
+				mTvStart.setTextColor(Color.GRAY);
+
+				mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+			} else if (mInkManager instanceof SmartCardManager && ink >= 5.0f ||
+					mInkManager instanceof RFIDManager && ink >= 1.0f){
+				mInkValues[i].setBackgroundColor(mContext.getResources().getColor(R.color.transparent));
+				mInkValues[i].setText(level);
+			} else if (ink > 0.0f){
+				mInkValues[i].setBackgroundColor(Color.YELLOW);
+				mInkValues[i].setText(level);
+			} else {
+				mInkValues[i].setBackgroundColor(Color.RED);
+				mInkValues[i].setText(level);
+				if (mDTransThread != null && mDTransThread.isRunning()) {
+					mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+				}
+			}
+
+			if((mInkManager instanceof SmartCardManager && ink < 5.0f ||
+					mInkManager instanceof RFIDManager && ink < 1.0f) &&
+					ink > 0f && mInkLow == false) {
+				mInkLow = true;
+				mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
+			} else if (ink <= 0f && mInkZero == false) {
+				mInkZero = true;
+				mHandler.removeMessages(MESSAGE_RFID_LOW);
+				if (!Configs.READING) {
+					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 200);
+				}
+			} else {
+				mFlagAlarming = false;
+			}
+		}
+		refreshVoltage();
+		refreshPulse();
+	}
+
+	private void refreshCount() {
+		mCtrlTitle.setText(String.valueOf(mCounter));
+// H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
+		if(SystemClock.uptimeMillis() > 50000 && System.currentTimeMillis() - inkDispInterval > 100) {
+// End of H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
+//Debug.d(TAG, "SystemClock.uptimeMillis() = " + SystemClock.uptimeMillis());
+			refreshInk();
+		}
+	}
+
+/*
 	private void refreshInk() {
 		float ink = mInkManager.getLocalInkPercentage(mRfid);
 // H.M.Wang 2022-5-9 增加img的版本号的输出，同时输出apk的版本号
@@ -1239,7 +1374,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		refreshVoltage();
 		refreshPulse();
 	}
-	
+
 	private void refreshCount() {
 		float count = 0;
 		// String cFormat = getResources().getString(R.string.str_print_count);
@@ -1247,20 +1382,23 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 		count = mInkManager.getLocalInk(mRfid) - 1;
 		if (mDTransThread != null) {
-			Debug.d(TAG, "--->count: " + count);
-			count = count * mDTransThread.getInkThreshold(0) + mDTransThread.getCount(0);
+//			Debug.d(TAG, "--->count: " + count);
+			Debug.d(TAG, "--->refreshCount: " + mRfid + "-" + count + " [" + mDTransThread.getKeptInkThreshold(mRfid) + "-" + mDTransThread.getCount(mRfid) + "]");
+			count = count * mDTransThread.getKeptInkThreshold(mRfid) + mDTransThread.getCount(mRfid);
+//			Debug.d(TAG, "--->refreshCount: " + mRfid + "-" + count + " [" + mDTransThread.getKeptInkThreshold(mRfid) + "-" + mDTransThread.getCount(mRfid) + "]");
 		}
 		if (count < 0) {
 			count = 0;
 		}
-		Debug.d(TAG, "--->refreshCount: " + count);
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 //		((MainActivity) getActivity()).setCtrlExtra(mCounter, (int) count);
 		mCtrlTitle.setText(String.valueOf(mCounter));
 		mCountdown.setText(String.valueOf((int)count));
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 	}
-	
+*/
+// End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+
 	private void setDevNo(String dev) {
 		((MainActivity) getActivity()).setDevNo(dev);
 	}
@@ -1316,12 +1454,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				auto = true;
 			}
 		}
-		
 		if (auto) {
 			int vol = mInkManager.getFeature(0, 4);
-			mPowerV.setText(String.valueOf(vol));
+// H.M.Wang 2023-1-17 调整电压的显示单位
+//			mPowerV.setText(String.valueOf(vol));
+			mPowerV.setText(String.valueOf(vol/10) + "." + String.valueOf(vol%10) + " V");
+// End of H.M.Wang 2023-1-17 调整电压的显示单位
 		} else {
-			mPowerV.setText(String.valueOf(mSysconfig.getParam(25)));
+// H.M.Wang 2023-1-17 调整电压的显示单位
+//			mPowerV.setText(String.valueOf(mSysconfig.getParam(25)));
+			mPowerV.setText(String.valueOf(mSysconfig.getParam(25)/10) + "." + String.valueOf(mSysconfig.getParam(25)%10) + "V");
+// End of H.M.Wang 2023-1-17 调整电压的显示单位
 		}
 	}
 
@@ -1341,10 +1484,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 		if (auto) {
 			int pulse = mInkManager.getFeature(0, 5);
-//			Debug.d(TAG, "--->pulse: " + pulse);
-			mTime.setText(String.valueOf(pulse));
+// H.M.Wang 2023-1-17 调整脉宽的显示单位
+//			mTime.setText(String.valueOf(pulse));
+			mTime.setText(String.valueOf(pulse/10) + "." + String.valueOf(pulse%10) + " μs");
+// End of H.M.Wang 2023-1-17 调整脉宽的显示单位
 		} else {
-			mTime.setText(String.valueOf(mSysconfig.getParam(27)));
+// H.M.Wang 2023-1-17 调整脉宽的显示单位
+//			mTime.setText(String.valueOf(mSysconfig.getParam(27)));
+			mTime.setText(String.valueOf(mSysconfig.getParam(27)/10) + "." + String.valueOf(mSysconfig.getParam(27)%10) + "uS");
+// End of H.M.Wang 2023-1-17 调整脉宽的显示单位
 		}
 	}
 
@@ -1947,8 +2095,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				case SmartCardManager.MSG_SMARTCARD_INIT_FAILED:
 					Debug.e(TAG, "Smartcard Initialization Failed! [" + msg.arg1 + "]");
 // H.M.Wang 2020-5-18 初始化失败时显示错误码
-					mInkLevel.setBackgroundColor(Color.RED);
-					mInkLevel.setText("" + msg.arg1);
+// H.M.Wang 2023-1-17 这个显示应该在refreshInk的地方被重新执行，所以可以省略
+//					mInkLevel.setBackgroundColor(Color.RED);
+//					mInkLevel.setText("" + msg.arg1);
+// End of H.M.Wang 2023-1-17 这个显示应该在refreshInk的地方被重新执行，所以可以省略
 // End of H.M.Wang 2020-5-18 初始化失败时显示错误码
 //					ToastUtil.show(mContext, "Smartcard Initialization Failed.");
 					mHandler.sendEmptyMessage(MESSAGE_RFID_ZERO);

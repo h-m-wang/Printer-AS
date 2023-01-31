@@ -525,7 +525,7 @@ public class BarcodeObject extends BaseObject {
 			int height = matrix.getHeight();
 			Debug.d("BarcodeObject", "mWidth="+ w +", width="+width + "   height=" + height);
 			int[] pixels = new int[width * height];
-			for (int y = 0; y < height; y++) 
+			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++) 
 				{

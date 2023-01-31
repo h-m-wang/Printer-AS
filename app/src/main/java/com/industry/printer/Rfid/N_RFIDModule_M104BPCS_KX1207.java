@@ -4,7 +4,7 @@ import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
 
 public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
-    private static final String TAG = N_RFIDModule_M104DPCS.class.getSimpleName();
+    private static final String TAG = N_RFIDModule_M104BPCS_KX1207.class.getSimpleName();
 
     // 寻卡
     // [报文] 02 00 00 04 20 04 28 03
@@ -222,6 +222,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             return false;
         }
 
+        if(!verifyKey()) return false;
+
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
         byte[] writeData = new byte[data.length+1];
@@ -405,36 +407,12 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         if(!mInitialized) return false;
         mInitialized = checkKeyMark();
         if(!mInitialized) return false;
-//		mMaxInkLevel = readMaxInkLevel();
+		mMaxInkLevel = readMaxInkLevel();
+        readInkLevel();
 
         return mInitialized;
     }
-    /*
-        protected boolean writeMaxInkLevel4MakeCard(int max) {
-            Debug.d(TAG, "  ==> 开始写入墨水最大值");
 
-            if(mKeyExist) {
-                Debug.e(TAG, "  ==> 此卡已经完成了制卡，不能再次制卡");
-                return false;
-            }
-
-            byte[] maxbytes = new byte[BYTES_PER_PAGE];
-
-            maxbytes[0] = (byte)(max & 0x0ff);
-            maxbytes[1] = (byte)((max >> 8) & 0x0ff);
-            maxbytes[2] = (byte)((max >> 16) & 0x0ff);
-            maxbytes[3] = (byte)((max >> 24) & 0x0ff);
-
-            if(writePage(PAGE_MAX_LEVEL, maxbytes)) {
-                Debug.d(TAG, "  ==> 写入墨水最大值成功");
-                return true;
-            }
-
-            Debug.e(TAG, "  ==> 写入墨水最大值失败");
-
-            return false;
-        }
-    */
     @Override
     public boolean writeMaxInkLevel(int max) {
         Debug.d(TAG, "  ==> 开始写入墨水最大值");
@@ -473,6 +451,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                 max = max * 256 + (data[i] & 0x0ff);
             }
 
+            max = 1000;
+
             mStep = 1.0f * max / ILG_MAX_BIT_COUNT;
             Debug.d(TAG, "  ==> mStep = [" + mStep + "]");
             if(mStep < 1.0f) mStep = 1.0f;
@@ -491,8 +471,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     public boolean writeInkLevel(int inkLevel) {
         Debug.d(TAG, "  ==> 开始写入墨水值");
 
-        if(!verifyKey()) return false;
-
         if(mMaxInkLevel <= 0) {
             mMaxInkLevel = readMaxInkLevel();
             if(mMaxInkLevel <= 0) {
@@ -509,15 +487,17 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         byte byteCnt = (byte)(inkLevel % (BYTES_PER_PAGE * 8) / 8);
         byte bitCnt = (byte)(inkLevel % 8);
 
-        Debug.d("", "InkLevel = " + inkLevel);
-        Debug.d(TAG, "新的blockCnt=" + blockCnt + "; pageCnt=" + pageCnt + "; byteCnt=" + byteCnt + "; bitCnt=" + bitCnt);
+        Debug.d(TAG, "InkLevel = " + inkLevel);
+        Debug.d(TAG, "[新的] blockCnt=" + blockCnt + "; pageCnt=" + pageCnt + "; byteCnt=" + byteCnt + "; bitCnt=" + bitCnt);
 
         if(blockCnt != mBlockCnt) {
+            writeBlockCnt(blockCnt);
+/*
             byte[] readBytes = readPage(PAGE_QUICK_JUMP);
             if(null != readBytes) {			// 如果有设备，肯定会在超时(3秒)之前返回数值，否则，超时返回空
                 short blockBitmap = 0x00;
-                byte tmpBlockCnt = blockCnt;
-                for(; tmpBlockCnt > 0; tmpBlockCnt--) {
+//                byte tmpBlockCnt = blockCnt;
+                for(byte tmpBlockCnt = blockCnt; tmpBlockCnt > 0; tmpBlockCnt--) {
                     blockBitmap <<= 1;
                     blockBitmap |= 0x01;
                 }
@@ -534,26 +514,28 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                 }
                 Debug.d(TAG, "  ==> 写入块索引成功");
             }
+*/
         } else {
             Debug.d(TAG, "  ==> 块索引没有变化，不需写入块索引");
         }
 
         if(pageCnt != mPageCnt) {
-            byte writeInPage = (byte)(PAGE_ILG_START + mBlockCnt * PAGES_PER_BLOCK + mPageCnt);
-            if(writeInPage < PAGE_ILG_START || writeInPage > PAGE_ILG_END) {
-                Debug.e(TAG, "  ==> 页码超出范围");
-                return false;
-            }
+            for(byte writeInPage = (byte)(PAGE_ILG_START + mBlockCnt * PAGES_PER_BLOCK + mPageCnt); writeInPage < (byte)(PAGE_ILG_START + blockCnt * PAGES_PER_BLOCK + pageCnt); writeInPage++) {
+                if(writeInPage < PAGE_ILG_START || writeInPage > PAGE_ILG_END) {
+                    Debug.e(TAG, "  ==> 页码超出范围");
+                    return false;
+                }
 
-            byte[] sendData = new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
+                byte[] sendData = new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
 
-            if(!writePage(writeInPage, sendData)) {
-                Debug.e(TAG, "  ==> 写入墨水刻度值失败");
-                return false;
+                if(!writePage(writeInPage, sendData)) {
+                    Debug.e(TAG, "  ==> 写入封存前页值失败");
+                    return false;
+                }
             }
-            Debug.d(TAG, "  ==> 写入墨水刻度值成功");
+            Debug.d(TAG, "  ==> 写入封存前页值成功");
         } else {
-            Debug.d(TAG, "  ==> 墨水刻度值没有变化，不需写入");
+            Debug.d(TAG, "  ==> 页码没有变化，不需写入");
         }
 
         if(byteCnt != mByteCnt || bitCnt != mBitsCnt) {
@@ -594,14 +576,39 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         mByteCnt = byteCnt;
         mBitsCnt = bitCnt;
 
-        Debug.d(TAG, "  ==> 写入墨水值成功");
+//        Debug.d(TAG, "  ==> 写入墨水值成功");
 
         return true;
     }
 
-    private byte readBlockCnt() {
-        if(null == mRFIDSerialPort) return -1;
+    private boolean writeBlockCnt(byte blockCnt) {
+        Debug.d(TAG, "  ==> 开始写块索引");
 
+        byte[] readBytes = readPage(PAGE_QUICK_JUMP);
+        if(null != readBytes) {			// 如果有设备，肯定会在超时(3秒)之前返回数值，否则，超时返回空
+            short blockBitmap = 0x00;
+            for(byte tmpBlockCnt = blockCnt; tmpBlockCnt > 0; tmpBlockCnt--) {
+                blockBitmap <<= 1;
+                blockBitmap |= 0x01;
+            }
+
+            byte[] sendData = new byte[BYTES_PER_PAGE];
+            sendData[0] = (byte)(blockBitmap & 0x0FF);
+            sendData[1] = (byte)((blockBitmap >> 8) & 0x0FF);
+            sendData[2] = readBytes[2];
+            sendData[3] = readBytes[3];
+
+            if(writePage(PAGE_QUICK_JUMP, sendData)) {
+                Debug.d(TAG, "  ==> 写块索引成功");
+                return true;
+            }
+        }
+
+        Debug.e(TAG, "  ==> 写块索引失败");
+        return false;
+    }
+
+    private byte readBlockCnt() {
         Debug.d(TAG, "  ==> 开始读取块索引");
 
         byte[] readBytes = readPage(PAGE_QUICK_JUMP);
@@ -616,7 +623,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         }
 
         Debug.e(TAG, "  ==> 读取块索引失败");
-
         return -1;
     }
 
@@ -648,8 +654,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                         }
                     }
 
-                    byte bitmap = pagesBitmap[pageCnt*PAGES_PER_BLOCK+byteCnt];
-                    for(;(bitmap & 0x01) == 0x01;bitmap >>= 1) {
+                    for(byte bitmap = pagesBitmap[pageCnt*PAGES_PER_BLOCK+byteCnt]; (bitmap & 0x01) == 0x01; bitmap >>= 1) {
                         bitCnt++;
                     }
 

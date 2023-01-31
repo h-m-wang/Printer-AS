@@ -118,7 +118,7 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
             return false;
         }
 
-        Debug.d(TAG, "  ==> 开始写入块[" + String.format("0x%02X", block) + "]的值[" + ByteArrayUtils.toHexString(data) + "], 使用密钥：" + type);
+        Debug.d(TAG, "  ==> 开始写入块[" + String.format("0x%02X", block) + "]的值[" + ByteArrayUtils.toHexString(data) + "], 使用密钥：" + (type == DATA_KEY_A ? "A" : "B"));
 
         byte[] key;
         if(type == DATA_KEY_A) {
@@ -156,7 +156,7 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
     }
 
     private byte[] readBlock(byte type, byte block) {
-        Debug.d(TAG, "  ==> 开始读块[" + String.format("0x%02X", block) + "], 使用密钥：" + type);
+        Debug.d(TAG, "  ==> 开始读块[" + String.format("0x%02X", block) + "], 使用密钥：" + (type == DATA_KEY_A ? "A" : "B"));
 
         byte[] key;
         if(type == DATA_KEY_A) {

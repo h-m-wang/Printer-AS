@@ -56,9 +56,9 @@ public class InkManagerFactory {
             }
 // End of H.M.Wang 2022-5-9 Exception e修改为UnsatisfiedLinkError e，并且打印log输出，否则catch不到
 // End of H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机
-            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
-                return new N_RFIDManager(ctx);
-            }
+//            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
+// 暂时为了push取消，待所有动作确认后修改回来                return new N_RFIDManager(ctx);
+//            }
             return new RFIDManager(ctx);
         }
     }
