@@ -1203,8 +1203,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		inkDispInterval = System.currentTimeMillis();
 
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
-		if(mInkManager instanceof SmartCardManager) {
+		if(mInkManager instanceof SmartCardManager) {		// 当初始化这些显示控件的时候，还没有初始化SmartCardManager，因此还无法获得正确的heads，因此在这里再根据实际SC的头数调节控件的显示属性
 			heads = ((SmartCardManager)mInkManager).getInkCount();
+			if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
 			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
 		}
 
