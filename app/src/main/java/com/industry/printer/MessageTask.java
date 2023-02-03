@@ -1389,6 +1389,10 @@ public class MessageTask {
 		}
 		@Override
 		protected Void doInBackground(Void... params) {
+// H.M.Wang 2023-2-2 先删除该文件夹中所有的文件
+			FileUtil.deleteFolder(ConfigPath.getTlkDir(mName));
+			new File(ConfigPath.getTlkDir(mName)).mkdir();
+// End of H.M.Wang 2023-2-2 先删除该文件夹中所有的文件
 			resetIndexs();
 			//保存1.TLK文件
 			// saveTlk(mContext);

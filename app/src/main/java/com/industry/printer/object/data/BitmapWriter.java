@@ -101,6 +101,7 @@ public class BitmapWriter {
         if (path == null) {
             path = Configs.USB_ROOT_PATH;
         }
+
         File f = new File(path, picName);
         //File f = new File("/storage/external_storage/sda1", picName);
         if(f.exists())
@@ -112,7 +113,7 @@ public class BitmapWriter {
             bmp.compress(CompressFormat.PNG, 90, out);
             out.flush();
             out.close();
-            Debug.d(TAG, "PNG save ok");
+            Debug.d(TAG, "PNG[" + path + "/" + picName + "] save ok");
         }catch(Exception e)
         {
             Debug.d(TAG, "save failed: "+e.getMessage());

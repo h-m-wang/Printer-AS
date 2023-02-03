@@ -1203,6 +1203,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		inkDispInterval = System.currentTimeMillis();
 
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
+		if(mInkManager instanceof SmartCardManager) {
+			heads = ((SmartCardManager)mInkManager).getInkCount();
+			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
+		}
 
 		for(int i=0; i<heads; i++) {
 			float ink = mInkManager.getLocalInkPercentage(i);
@@ -1224,6 +1228,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			level = level + (down.isEmpty() || down.equals("0") ? "" : "-" + down);
 
 			Debug.d(TAG,  "Pen" + (i+1) + "[" + level + "]");
+
+			mInkValues[i].setVisibility(View.VISIBLE);
 
 			if (!mInkManager.isValid(i)) {
 				mInkValues[i].setBackgroundColor(Color.RED);

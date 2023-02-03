@@ -519,7 +519,12 @@ public class BarcodeObject extends BaseObject {
 	private Bitmap drawQR(String content, int w, int h) {
 		try {
 			Debug.d(TAG, "Content: " + content);
-			BitMatrix matrix = encode(content, w, h, null);
+			HashMap<EncodeHintType, Object> hints = null;
+			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
+				hints = new HashMap<EncodeHintType, Object>();
+				hints.put(EncodeHintType.QR_VERSION, 3);		// 强制生成一个29x29的QR码，但是如果要生成的QR码大于29x29，那么这个设置可能失效或者错误
+			}
+			BitMatrix matrix = encode(content, w, h, hints);
 			int tl[] = matrix.getTopLeftOnBit();
 			int width = matrix.getWidth();
 			int height = matrix.getHeight();
@@ -549,7 +554,10 @@ public class BarcodeObject extends BaseObject {
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
 			// H.M.Wang 修改返回值一行
-			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
+			return bitmap;
+//			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //			return bitmap;
 		} catch (Exception e) {
@@ -596,7 +604,10 @@ public class BarcodeObject extends BaseObject {
 		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
 		// H.M.Wang 修改返回值一行
-		return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
+		return bitmap;
+//		return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //		return bitmap;
 	}
@@ -929,7 +940,7 @@ public class BarcodeObject extends BaseObject {
 
         int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;
         int topPadding = (outputHeight - (inputHeight * multiple)) / 2;
-
+/*
         if(leftPadding >= 0 ) {
             outputWidth = outputWidth - 2 * leftPadding ;
             leftPadding = 0;
@@ -938,7 +949,7 @@ public class BarcodeObject extends BaseObject {
             outputHeight = outputHeight - 2 * topPadding;
             topPadding = 0;
         }
-
+*/
         BitMatrix output = new BitMatrix(outputWidth, outputHeight);
 
         for (int inputY = 0, outputY = topPadding; inputY < inputHeight; inputY++, outputY += multiple) {
@@ -951,7 +962,11 @@ public class BarcodeObject extends BaseObject {
         }
         return output;
     }
-	
+
+// H.M.Wang 2023-2-1 修改条码生成打印缓冲区的算法，原来的算法的步骤是(1) ZXING生成BitMatrix(21x21) -> 放大到变量的大小(一般152x152） -> 反白处理(152x152) -> (动态二维码）改蓝色处理(152x152) -> 变换为打印尺寸(如，32x32）
+// 由于经过放大再缩小，即使都是按整数比例放大缩小，仍然会产生变形，导致生成的二维码无法识别(为32点打印头生成123456的二维码即无法识别），这是一个需要解决的问题。
+// 另外，由于中间处理步骤太多，导致耗时严重，自身耗时以外，也会增加被线程调度或者内存清理所裹挟而大幅增加处理时间，这个是第二个要解决的问题
+/*
 	public Bitmap getPrintBitmap(int totalW, int totalH, int w, int h, int y) {
 //		BitMatrix matrix=null;
 //		Debug.d(TAG, "--->getPrintBitmap : totalW = " + totalW + "  w = " + w);
@@ -987,14 +1002,10 @@ public class BarcodeObject extends BaseObject {
 		
 //		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 		Debug.d(TAG, "--->mFormat: " + mFormat);
+
 		Bitmap bitmap = null;
 // H.M.Wang 2020-7-31 动态条码以及超文本内容的条码均需要重新画图，不仅限于二维码
-/*		if ("QR".equalsIgnoreCase(mFormat)) {
-			bitmap = drawQR(mContent, w, w);
-		} else {
-			bitmap = drawDataMatrix(mContent, w, w);
-		}
-*/
+
 		isNeedRedraw = true;
 		bitmap = getScaledBitmap(mContext);
 // End of H.M.Wang 2020-7-31 动态条码以及超文本内容的条码均需要重新画图，不仅限于二维码
@@ -1003,7 +1014,35 @@ public class BarcodeObject extends BaseObject {
 		return bg;
 
 	}
-	
+*/
+	public Bitmap getPrintBitmap(int totalW, int totalH, int w, int h, int y) {
+		Bitmap bg = Bitmap.createBitmap(totalW, totalH, Configs.BITMAP_CONFIG);
+		Canvas canvas = new Canvas(bg);
+
+		Bitmap bitmap = null;
+
+		String cnt = mHTContent.getExpandedContent();
+		mContent = cnt;
+
+		check();
+
+		if (!is2D()) {
+			bitmap = draw(mContent, w, h);
+		} else {
+			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+				bitmap = drawDataMatrix(mContent, w, h);
+			} else {
+				bitmap = drawQR(mContent, w, h);
+			}
+		}
+
+		canvas.drawColor(Color.WHITE);
+		canvas.drawBitmap(bitmap, 0, y, mPaint);
+
+		return bg;
+	}
+// End of H.M.Wang 2023-2-1 修改条码生成打印缓冲区的算法，
+
 	public int[] getDotcount() {
 		Bitmap bmp = getScaledBitmap(mContext);
 		BinFileMaker maker = new BinFileMaker(mContext);

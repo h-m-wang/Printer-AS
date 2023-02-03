@@ -9,11 +9,13 @@ import android.graphics.BitmapFactory;
 import com.industry.printer.ImageConverter;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.data.BinCreater;
 import com.industry.printer.data.BinFromBitmap;
+import com.industry.printer.object.data.BitmapWriter;
 
 public class GraphicObject  extends BaseObject{
 
@@ -131,15 +133,19 @@ public class GraphicObject  extends BaseObject{
 	 * for graphic object: copy picture files to message-own directory
 	 */
 	public void afterSave() {
-		if (mImage == null) {
-			return;
-		}
+// H.M.Wang 2023-2-2 将bmp文件的保存，从复制过来改为写进去
+//		if (mImage == null) {
+//			return;
+//		}
 		// String srcPath = Configs.CONFIG_PATH_FLASH + Configs.PICTURE_SUB_PATH + "/" + mContent;
-		String dstPath = Configs.TLK_PATH_FLASH  + "/" + mTask.getName() + "/" + mContent;
-		if (mImage.equalsIgnoreCase(dstPath)) {
-			return;
-		}
-		FileUtil.copyFile(mImage, dstPath);
+//		String dstPath = Configs.TLK_PATH_FLASH  + "/" + mTask.getName() + "/" + mContent;
+//		if (mImage.equalsIgnoreCase(dstPath)) {
+//			return;
+//		}
+
+//		FileUtil.copyFile(mImage, dstPath);
+		BitmapWriter.saveBitmap(mBitmap, Configs.TLK_PATH_FLASH  + "/" + mTask.getName(), mContent);
+// End of H.M.Wang 2023-2-2 将bmp文件的保存，从复制过来改为写进去
 	}
 	
 	@Override

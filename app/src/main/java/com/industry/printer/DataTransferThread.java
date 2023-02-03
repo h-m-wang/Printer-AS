@@ -516,12 +516,19 @@ public class DataTransferThread {
 			ArrayList<BaseObject> objList = dataTask.getObjList();
 			for(BaseObject baseObject: objList) {
 				if(baseObject instanceof DynamicText) {
-						Debug.d(TAG, "DynamicText[" + baseObject.getIndex() + "](DT Index: " + ((DynamicText) baseObject).getDtIndex() + "): " + recvStrs[((DynamicText) baseObject).getDtIndex()]);
-						baseObject.setContent(recvStrs[((DynamicText) baseObject).getDtIndex()]);
+					int strIndex = ((DynamicText) baseObject).getDtIndex();
+						Debug.d(TAG, "DynamicText[" + baseObject.getIndex() + "](DT Index: " + strIndex + "): " + recvStrs[strIndex]);
+// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+						SystemConfigFile.getInstance().setDTBuffer(strIndex, recvStrs[strIndex]);
+// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+						baseObject.setContent(recvStrs[strIndex]);
 						needUpdate = true;
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
 						Debug.d(TAG, "Dynamic QRCode: " + recvStrs[10]);
+// H.M.Wang 2022-6-15 追加条码内容的保存桶
+						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
+// End of H.M.Wang 2022-6-15 追加条码内容的保存桶
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 						needUpdate = true;
 					}
