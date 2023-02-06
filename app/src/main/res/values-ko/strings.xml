@@ -430,11 +430,17 @@
     <string name="str_textview_param61">61.보류</string> -->
 	<string name="str_textview_param61">61.Nozzle Offset</string>
 <!-- End of H.M.Wang 2021-11-19 修改双列支持的名称 -->
+
+<!-- H.M.Wang 2023-2-4 修改参数62及63的名称 -->
 <!-- H.M.Wang 2022-8-25 追加喷嘴加热参数项
-    <string name="str_textview_param62">62.보류</string> -->
-	<string name="str_textview_param62">62.Warming</string>
+    <string name="str_textview_param62">62.보류</string>
+    <string name="str_textview_param62">62.Warming</string> -->
+	<string name="str_textview_param62">62.Warm limit</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
-	<string name="str_textview_param63">63.보류</string>
+<!--	<string name="str_textview_param63">63.보류</string>-->
+	<string name="str_textview_param63">63.Warming</string>
+<!-- End of H.M.Wang 2023-2-4 修改参数62及63的名称 -->
+
 	<string name="str_textview_param64">64.User APK</string>
 <!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
 	<string name="str_textview_param65">65.Slant2</string>
@@ -490,6 +496,9 @@
 	<string name="str_time_unit_us">마이크로초</string>
 	<string name="str_time_unit_0_1us">0.1us</string>
 	<string name="str_time_unit_100us">100마이크로초</string>
+<!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_time_unit_min">min</string>
+<!-- End of H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
 	<string name="str_setting_time">시간설치</string>
 	<string name="str_system_setting">시스템설치</string>
 	<string name="str_upgrade_progress">시스템 업그레이드중....</string>

@@ -613,11 +613,16 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // End of H.M.Wang 2022-5-30 增加编码器变倍
 		mSettingItems[59] = new ItemOneLine(60, R.string.str_textview_param60, 0);
 		mSettingItems[60] = new ItemOneLine(61, R.string.str_textview_param61, 0);
+
+// H.M.Wang 2023-2-4 修改参数C62 加热限制/Warm limit 及 参数C63 温度/Warming
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 //		mSettingItems[61] = new ItemOneLine(62, R.string.str_textview_param62, 0);
-		mSettingItems[61] = new ItemOneLine(62, R.string.str_textview_param62, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
+//		mSettingItems[61] = new ItemOneLine(62, R.string.str_textview_param62, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
+		mSettingItems[61] = new ItemOneLine(62, R.string.str_textview_param62, R.string.str_time_unit_min);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
-		mSettingItems[62] = new ItemOneLine(63, R.string.str_textview_param63, 0);
+//		mSettingItems[62] = new ItemOneLine(63, R.string.str_textview_param63, 0);
+		mSettingItems[62] = new ItemOneLine(63, R.string.str_textview_param63, R.string.str_temperature);
+// End of H.M.Wang 2023-2-4 修改参数C62 加热限制/Warm limit 及 参数C63 温度/Warming
 		mSettingItems[63] = new ItemOneLine(64, R.string.str_textview_param64, 0);
 // H.M.Wang 2022-10-18 参数扩容32项目
 		mSettingItems[64] = new ItemOneLine(65, R.string.str_textview_param65, 0);

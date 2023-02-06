@@ -186,11 +186,14 @@ public class SystemConfigFile{
 	public static final int INDEX_DUAL_COLUMNS = 60;
 // End of H.M.Wang 2021-11-18 追击双列打印头索引
 
+// H.M.Wang 2023-2-4 修改参数C62和参数C63
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
-	public static final int INDEX_NOZZLE_WARMING = 61;
+//	public static final int INDEX_NOZZLE_WARMING = 61;
+	public static final int INDEX_WARM_LIMIT = 61;
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
-
-	public static final int INDEX_PARAM_63 = 62;
+//	public static final int INDEX_PARAM_63 = 62;
+	public static final int INDEX_WARMING = 62;
+// End of H.M.Wang 2023-2-4 修改参数C62和参数C63
 
 // H.M.Wang 2022-9-1 追加一个客户apk启动的参数，该参数为1时，启动客户的apk，为0时不启动
 	public static final int INDEX_USER_APK_START = 63;
@@ -226,7 +229,7 @@ public class SystemConfigFile{
 // H.M.Wang 2020-9-30 追加网络心跳数据源
 	public static final int DATA_SOURCE_LAN_HEART 	= 6;		// 接收网络心跳信号，2s内未接到报警
 // End of H.M.Wang 2020-9-30 追加网络心跳数据源
-	public static final int DATA_SOURCE_SCANER1 	= 7;		// 数据源使用串口协议5。接收33位字符串，第2位与第33位必须一致，截取7组数据，添加到DT0-DT6，DT7通过DT6从QR.txt当中检索得到(作为扫码枪的替代输入源)
+	public static final int DATA_SOURCE_SCANER1 	= 7;		// 数据源使用串口协议5。接收33位字符串，第2位与第33位必须一致，截取7组数据，添加到DT0-DT6，DT7通过DT6从PP.txt当中检索得到(作为扫码枪的替代输入源)
 // H.M.Wang 2021-9-16 追加扫描协议1-FIFO
 	public static final int DATA_SOURCE_SCANER1_FIFO= 8;		// 与扫描协议1一致，只是接收到扫描数据后，不直接使用其重新生成打印缓冲区，而是保存在一个FIFO的尾部，FIFO深度暂定为6，
 																// 每次打印完成后，重新生成打印缓冲区时，从FIFO头部取数使用，

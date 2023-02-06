@@ -210,9 +210,15 @@ public class Paramter {
 	    mFPGAParam[21] = param[33];
 	    mFPGAParam[22] = param[SystemConfigFile.INDEX_DOT_SIZE];
 	    mFPGAParam[23] = param[39] == 0 ? (mFPGAParam[23] & 0xFFFE) : (mFPGAParam[23] | 0x0001);
+
+// H.M.Wang 2023-2-4 修改参数C62和参数C63
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
-		mFPGAParam[23] = param[SystemConfigFile.INDEX_NOZZLE_WARMING] == 0 ? (mFPGAParam[23] & 0xFFFD) : (mFPGAParam[23] | 0x0002);
+//		mFPGAParam[23] = param[SystemConfigFile.INDEX_NOZZLE_WARMING] == 0 ? (mFPGAParam[23] & 0xFFFD) : (mFPGAParam[23] | 0x0002);
+		mFPGAParam[10] = (param[SystemConfigFile.INDEX_WARM_LIMIT] & 0x07);
+		mFPGAParam[10] += (((param[SystemConfigFile.INDEX_WARMING]/2) << 3) & 0x0F8);
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
+// End of H.M.Wang 2023-2-4 修改参数C62和参数C63
+
 // H.M.Wang 2022-11-30 取消2022-11-26对S24[Bit2设置的修改，改为使用S24[3:2]设置ENCDir方向，00:None; 10:Left; 11:Right
 // H.M.Wang 2022-11-26 追加S24[Bit2]的设置，0:Left; 1:Right
 //		mFPGAParam[23] = param[1] == 0 ? (mFPGAParam[23] & 0xFFFB) : (mFPGAParam[23] | 0x0004);

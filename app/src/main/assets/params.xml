@@ -234,6 +234,22 @@
 		<default>0</default>
 	</param>
 <!--	End of H.M.Wang 2021-9-24 追加输入设置参数 -->
+<!-- H.M.Wang 2023-2-4 追加C62 加热限制/Warm limit -->
+	<param>
+		<id>62</id>
+		<min>0</min>
+		<max>7</max>
+		<default>0</default>
+	</param>
+<!-- End of H.M.Wang 2023-2-4 追加C62加热限制/Warm limit -->
+<!-- H.M.Wang 2023-2-4 追加C63 温度/Warming -->
+	<param>
+		<id>63</id>
+		<min>0</min>
+		<max>40</max>
+		<default>0</default>
+	</param>
+<!-- End of H.M.Wang 2023-2-4 追加C63 温度/Warming  -->
 <!--	H.M.Wang 2022-11-24 追加参数67设置范围 -->
 	<param>
 		<id>67</id>

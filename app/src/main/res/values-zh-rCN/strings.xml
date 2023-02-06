@@ -436,11 +436,17 @@
     <string name="str_textview_param61">61.保留</string> -->
 	<string name="str_textview_param61">61.双列偏移</string>
 <!-- End of H.M.Wang 2021-11-19 修改双列支持的名称 -->
+
+<!-- H.M.Wang 2023-2-4 修改参数62及63的名称 -->
 <!-- H.M.Wang 2022-8-25 追加喷嘴加热参数项
-    <string name="str_textview_param62">62.保留</string> -->
-	<string name="str_textview_param62">62.喷嘴加热</string>
+    <string name="str_textview_param62">62.保留</string>
+    <string name="str_textview_param62">62.Warming</string> -->
+	<string name="str_textview_param62">62.加热限制</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
-	<string name="str_textview_param63">63.保留</string>
+<!--	<string name="str_textview_param63">63.保留</string>-->
+	<string name="str_textview_param63">63.温度</string>
+<!-- End of H.M.Wang 2023-2-4 修改参数62及63的名称 -->
+
 <!-- H.M.Wang 2022-9-1 追加客户APK启动参数
         <string name="str_textview_param64">64.保留</string>-->
 	<string name="str_textview_param64">64.客户APK</string>
@@ -499,6 +505,9 @@
         <string name="str_time_unit_us">微秒</string>
         <string name="str_time_unit_0_1us">0.1us</string>
         <string name="str_time_unit_100us">100微秒</string>
+<!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_time_unit_min">分钟</string>
+<!-- End of H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
 	<string name="str_unit_ps">脉冲/秒</string>
         <string name="str_setting_time">时间设置</string>
         <string name="str_system_setting">系统设置</string>

@@ -766,7 +766,7 @@ public class FpgaGpioOperation {
 public static int getFPGAVersion() {
     int fd = open();
     if (fd > 0) {
-        Debug.d(TAG, "FPGA_CMD_MIRROR");
+//        Debug.d(TAG, "FPGA_CMD_GETVERSION");
         return ioctl(fd, FPGA_CMD_GETVERSION, 0);
     }
     return 0;

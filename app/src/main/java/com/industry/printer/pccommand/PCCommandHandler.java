@@ -225,16 +225,18 @@ public class PCCommandHandler {
                 bundle.putString(Constants.PC_CMD, msg);
                 message.setData(bundle);
                 mControlTabActivity.mHandler.sendMessage(message);
+            } else {
+                sendmsg(Constants.pcErr(msg));
             }
-
         } else if (PCCommand.CMD_CLEAN.equalsIgnoreCase(cmd.command) ||
                    PCCommand.CMD_CLEAN_S.equalsIgnoreCase(cmd.command)) {
             DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
             if(!aDTThread.isPurging) {
                 aDTThread.purge(mContext);
                 sendmsg(Constants.pcOk(msg));
+            } else {
+                sendmsg(Constants.pcErr(msg));
             }
-
         } else if (PCCommand.CMD_SEND_FILE.equalsIgnoreCase(cmd.command) ||
                    PCCommand.CMD_SEND_FILE_S.equalsIgnoreCase(cmd.command)) {
             sendmsg(WriteFiles(msg));

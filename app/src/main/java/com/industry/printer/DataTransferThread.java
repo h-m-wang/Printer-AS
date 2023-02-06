@@ -518,17 +518,21 @@ public class DataTransferThread {
 				if(baseObject instanceof DynamicText) {
 					int strIndex = ((DynamicText) baseObject).getDtIndex();
 						Debug.d(TAG, "DynamicText[" + baseObject.getIndex() + "](DT Index: " + strIndex + "): " + recvStrs[strIndex]);
-// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
-						SystemConfigFile.getInstance().setDTBuffer(strIndex, recvStrs[strIndex]);
-// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+// H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
+//// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+//						SystemConfigFile.getInstance().setDTBuffer(strIndex, recvStrs[strIndex]);
+//// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+// End of H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
 						baseObject.setContent(recvStrs[strIndex]);
 						needUpdate = true;
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
 						Debug.d(TAG, "Dynamic QRCode: " + recvStrs[10]);
-// H.M.Wang 2022-6-15 追加条码内容的保存桶
-						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
-// End of H.M.Wang 2022-6-15 追加条码内容的保存桶
+// H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
+//// H.M.Wang 2022-6-15 追加条码内容的保存桶
+//						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
+//// End of H.M.Wang 2022-6-15 追加条码内容的保存桶
+// End of H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 						needUpdate = true;
 					}
@@ -725,7 +729,9 @@ public class DataTransferThread {
 		} catch(NumberFormatException e) {
 			Debug.e(TAG, e.getMessage());
 		}
-		dt34 += SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_PARAM_63);
+// H.M.Wang 2023-2-4 取消参数C63作为基数使用，另作他用
+//		dt34 += SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_PARAM_63);
+// End of H.M.Wang 2023-2-4 取消参数C63作为基数使用，另作他用
 		dts[3] = String.valueOf(dt34/10);
 		dts[4] = String.valueOf(dt34%10);
 
@@ -1043,7 +1049,7 @@ private void setSerialProtocol9DTs(final String data) {
 		setFifoDataToDt();
 	}
 
-	private synchronized void setAndClearFifoDataToDt() {
+	private synchronized void setFifoDataToDtRemove() {
         mDataSetAlready = false;
         if(!mIsAtBeginning && null != mScan1FifoMsgList && mScan1FifoMsgList.size() > 0)
             mScan1FifoMsgList.remove(0);
@@ -2470,7 +2476,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 // H.M.Wang 2021-9-17 追加扫描协议1-FIFO
                             if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER1_FIFO) {
-                                setAndClearFifoDataToDt();
+								setFifoDataToDtRemove();
                             }
 // End of H.M.Wang 2021-9-17 追加扫描协议1-FIFO
 
