@@ -154,6 +154,7 @@
 				android:textSize="@dimen/objinfoTextsize"
 				android:textColor="#000000"
 				android:background="#ffffff"
+				android:visibility="gone"
 				/>
 
 			<TextView android:id="@+id/capErrorCorrectionLevel"
@@ -164,6 +165,7 @@
 				android:textSize="30sp"
 				android:text="@string/strErrorCorrectionLevel"
 				android:textColor="#000000"
+				android:visibility="gone"
 				/>
 <!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
 

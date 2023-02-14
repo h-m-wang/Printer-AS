@@ -538,8 +538,8 @@ public class BarcodeObject extends BaseObject {
 		try {
 			Debug.d(TAG, "Content: " + content);
 			HashMap<EncodeHintType, Object> hints = null;
+			hints = new HashMap<EncodeHintType, Object>();
 			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
-				hints = new HashMap<EncodeHintType, Object>();
 				hints.put(EncodeHintType.QR_VERSION, 3);		// 强制生成一个29x29的QR码，但是如果要生成的QR码大于29x29，那么这个设置可能失效或者错误
 			}
 

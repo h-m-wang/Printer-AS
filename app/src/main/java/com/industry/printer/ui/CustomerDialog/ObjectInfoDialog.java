@@ -1038,7 +1038,7 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 		 mECLs = mContext.getResources().getStringArray(R.array.error_correction_level);
-		 for (String format : barFormats) {
+		 for (String format : mECLs) {
 			 mECLAdapter.addItem(format);
 		 }
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
@@ -1109,9 +1109,10 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 			mSpiner.showAsDropUp(v);
 			break;
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
-		case id.spinErroCorrectionLevel:
+		case R.id.spinErroCorrectionLevel:
 			mSpiner.setAdapter(mECLAdapter);
 			mSpiner.showAsDropUp(v);
+			break;
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 		/*
 		case R.id.spinDirect:
