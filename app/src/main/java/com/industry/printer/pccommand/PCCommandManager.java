@@ -25,7 +25,7 @@ public class PCCommandManager {
     private Context mContext = null;
     private ControlTabActivity mControlTabActivity = null;
 
-    private Handler myHandler=null;//rec infor prpcess handle
+    private Handler mHandler = null;//rec infor prpcess handle
 
     private ServerThread mServerThread = null;
     private ClientSocket mClientSocket = null;
@@ -44,7 +44,7 @@ public class PCCommandManager {
         mControlTabActivity = act;
         mContext = ctx;
 
-        myHandler = new Handler(){
+        mHandler = new Handler(){
             public void handleMessage(Message msg) {
                 if(null != mSocketHandler)mSocketHandler.handleReCreateResult(msg);
                 if(null != mSerialHandler)mSerialHandler.handleReCreateResult(msg);
@@ -115,7 +115,7 @@ public class PCCommandManager {
                     }
 
                     mClientSocket = new ClientSocket(client, mContext);
-                    mSocketHandler = new PCCommandHandler(mContext, mClientSocket.getStreamTransport(), mControlTabActivity, myHandler);
+                    mSocketHandler = new PCCommandHandler(mContext, mClientSocket.getStreamTransport(), mControlTabActivity, mHandler);
                     mSocketHandler.work();
                 }catch ( IOException e) {
                     Debug.e(TAG, e.getMessage());
@@ -124,7 +124,7 @@ public class PCCommandManager {
         }
     }
 
-    public void addSeriHandler(SerialPort serialPort) {
+    public void addSerialHandler(SerialPort serialPort) {
         if(null != mSerialHandler) {
             mSerialHandler.close();
         }
@@ -132,7 +132,7 @@ public class PCCommandManager {
             mSerialPort.closeStream();
         }
         mSerialPort = serialPort;
-        mSerialHandler = new PCCommandHandler(mContext, mSerialPort.getStreamTransport(), mControlTabActivity, myHandler);
+        mSerialHandler = new PCCommandHandler(mContext, mSerialPort.getStreamTransport(), mControlTabActivity, mHandler);
         mSerialHandler.work();
     }
 

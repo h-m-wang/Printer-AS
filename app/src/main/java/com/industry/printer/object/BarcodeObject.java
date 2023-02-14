@@ -109,6 +109,10 @@ public class BarcodeObject extends BaseObject {
 	private boolean mWithFrame;
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	private int mErrorCorrectionLevel;
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 	private HyperTextObject mHTContent = null;
 	private String mOrgContent = "";
@@ -131,6 +135,10 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 		mWithFrame = true;
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+		mErrorCorrectionLevel = 0;
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 		mHTContent = new HyperTextObject(context, x);
@@ -266,6 +274,16 @@ public class BarcodeObject extends BaseObject {
 	public int getTextsize() {
 		return mTextSize;
 	}
+
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	public void setErrorCorrectionLevel(int level) {
+		mErrorCorrectionLevel = level;
+	}
+
+	public int getErrorCorrectionLevel() {
+		return mErrorCorrectionLevel;
+	}
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 // H.M.Wang 2022-9-7 将根据字数重新计算宽度的操作独立出来，只有在编辑页面保存的时候才会调用，中途内容发生变化的时候，不修改宽度
 	public void calWidth() {
@@ -524,6 +542,28 @@ public class BarcodeObject extends BaseObject {
 				hints = new HashMap<EncodeHintType, Object>();
 				hints.put(EncodeHintType.QR_VERSION, 3);		// 强制生成一个29x29的QR码，但是如果要生成的QR码大于29x29，那么这个设置可能失效或者错误
 			}
+
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+			switch(mErrorCorrectionLevel) {
+			case 1:
+				Debug.d(TAG, "ECL: M");
+				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+				break;
+			case 2:
+				Debug.d(TAG, "ECL: Q");
+				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
+				break;
+			case 3:
+				Debug.d(TAG, "ECL: H");
+				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+				break;
+			default:
+				Debug.d(TAG, "ECL: L");
+				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+				break;
+			}
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+
 			BitMatrix matrix = encode(content, w, h, hints);
 			int tl[] = matrix.getTopLeftOnBit();
 			int width = matrix.getWidth();
@@ -560,7 +600,10 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //			return bitmap;
+		} catch (WriterException e) {
+			Debug.e(TAG, e.getMessage());
 		} catch (Exception e) {
+			Debug.e(TAG, e.getMessage());
 		}
 		return null;
 	}

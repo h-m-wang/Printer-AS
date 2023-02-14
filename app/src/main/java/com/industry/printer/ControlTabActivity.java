@@ -54,6 +54,7 @@ import com.industry.printer.Utils.PrinterDBHelper;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.data.DataTask;
+import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
@@ -422,8 +423,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		if(Configs.USER_MODE == Configs.USER_MODE_2) {
 			return inflater.inflate(R.layout.control2_frame, container, false);
 		}
+// H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(getActivity()).isTxtDT()) {
+			return inflater.inflate(R.layout.control3_frame, container, false);
+		}
+// End of H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 		return inflater.inflate(R.layout.control_frame, container, false);
 	}
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {	
 		super.onActivityCreated(savedInstanceState);
@@ -444,7 +451,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		filter.addAction(ACTION_BOOT_COMPLETE);
 		mReceiver = new SerialEventReceiver(); 
 		mContext.registerReceiver(mReceiver, filter);
-		
+
+// H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			TxtDT.getInstance(mContext).initView(getView());
+		}
+// End of H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+
 		mMsgFile = (TextView) getView().findViewById(R.id.opened_msg_name);
 		tvMsg = (TextView) getView().findViewById(R.id.tv_msg_name);
 
@@ -551,6 +564,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 		switchState(STATE_STOPPED);
 		mScrollView = (HorizontalScrollView) getView().findViewById(R.id.preview_scroll);
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			mScrollView.setVisibility(View.GONE);
+		}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 		mllPreview = (LinearLayout) getView().findViewById(R.id.ll_preview);
 // H.M.Wang 2021-7-26 追加实际打印内容预览图显示功能
 		mllPreview.setOnClickListener(new OnClickListener() {
@@ -2299,6 +2317,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // 如果把preview的高度设成match_parent，就会获得一个竖屏模式下获取的高度，从而变大
 
 	private void dispPreview(Bitmap bmp) {
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			TxtDT.getInstance(mContext).dispPreview();
+			return;
+		}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 // H.M.Wang 2021-6-1 修改预览页面显示方法。保修切割图片，延迟显示方法
 //		int x=0,y=0;
 //		int cutWidth = 0;
@@ -2385,8 +2409,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	 * a mistake will happen at the next continue printing
 	 * Deprecated: move to DataTransferThread to do this  
 	 */
-	@Deprecated
-/* H.M.Wang 2020-7-2 取消未使用函数
+/*	@Deprecated
+ H.M.Wang 2020-7-2 取消未使用函数
 	private void rollback() {
 		if (mMsgTask == null) {
 			return;

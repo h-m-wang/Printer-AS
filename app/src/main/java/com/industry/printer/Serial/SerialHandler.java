@@ -70,7 +70,7 @@ public class SerialHandler {
             mSerialPort.openStream(SERIAL_PORT);
             Debug.i(TAG, "Start PCCommand Receiver");
             PCCommandManager pcCmdManager = PCCommandManager.getInstance();
-            if(null != pcCmdManager)pcCmdManager.addSeriHandler(mSerialPort);
+            if(null != pcCmdManager)pcCmdManager.addSerialHandler(mSerialPort);
         } else {
 // H.M.Wang 2022-4-4 根据数据源的类型选择串口
             if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_11 ||

@@ -8,8 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 17
-        versionCode 31003          //next: 31004
-        versionName "230206-31003"
+        versionCode 31012          //next: 31013
+        versionName "230214-31012"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {

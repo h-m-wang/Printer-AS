@@ -114,6 +114,10 @@
 	<string name="strFrame">边框</string>
 <!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
 
+<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+	<string name="strErrorCorrectionLevel">纠错级别</string>
+<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+
 	<string name="strGroup">群组</string>
 
 	<!-- object list -->
@@ -626,5 +630,16 @@
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 	<string name="strImportUG"><u>导入用户群组</u></string>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+
+<!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strTxtDtFile">文件</string>
+	<string name="strTxtDtFileHint">点击选择文件</string>
+	<string name="strTxtDtLines">行数:</string>
+	<string name="strTxtDtFrom">起始</string>
+	<string name="strTxtDtTo">结束</string>
+	<string name="strTxtDtCur">当前</string>
+	<string name="strTxtDtRpt">重复</string>
+	<string name="strTxtDtCir">循环</string>
+<!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
 
 </resources>

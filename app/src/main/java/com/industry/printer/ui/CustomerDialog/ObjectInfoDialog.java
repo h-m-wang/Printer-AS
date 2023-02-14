@@ -103,6 +103,10 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 	public TextView mITF14FrameCaption;
 	public CheckBox mITF14Frame;
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	public TextView mCapECL;
+	public TextView mErrorCorrectionLevel;
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 //	private EditText mHeight_O;
 	private CheckBox mHeightType;
@@ -164,6 +168,10 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 	private PopWindowAdapter mDirAdapter;
 	private PopWindowAdapter mHeightAdapter;
 	private PopWindowAdapter mBarFormatAdapter;
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	private String[] mECLs;
+	private PopWindowAdapter mECLAdapter;
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 	public final static int MSG_SELECTED_FONT = 1;
 	public final static int MSG_SELECTED_SIZE = 2;
@@ -391,6 +399,12 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // End of H.M.Wang 2022-12-20 追加反白设置
 		    	//mContent.setEnabled(false);
 			    mTextsize = (EditText) findViewById(R.id.et_text_size);
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+				mCapECL = (TextView) findViewById(id.capErrorCorrectionLevel);
+				mErrorCorrectionLevel = (TextView) findViewById(id.spinErroCorrectionLevel);
+				mErrorCorrectionLevel.setOnClickListener(this);
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+
 // H.M.Wang 2022-4-22 允许动态条码编辑初始内容
 //			    if (mObject.mSource) {
 //					mContent.setEnabled(false);
@@ -554,6 +568,13 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 							((BarcodeObject) mObject).setRevert(mRevert.isChecked());
 // End of H.M.Wang 2022-12-20 追加反白设置
 							((BarcodeObject) mObject).setTextsize(Integer.parseInt(mTextsize.getText().toString()));
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+							for(int i=0; i<mECLs.length; i++) {
+								if(mECLs[i].equals(mErrorCorrectionLevel.getText().toString())) {
+									((BarcodeObject) mObject).setErrorCorrectionLevel(i);
+								}
+							}
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 						}
 						else if(mObject instanceof RectObject)
 						{
@@ -847,6 +868,9 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // H.M.Wang 2022-12-20 追加反白设置
 					mRevert.setChecked(((BarcodeObject) mObject).getRevert());
 // End of H.M.Wang 2022-12-20 追加反白设置
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+					mErrorCorrectionLevel.setText(mECLs[((BarcodeObject) mObject).getErrorCorrectionLevel()]);
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 					mTextsize.setText(String.valueOf(((BarcodeObject) mObject).getTextsize()));
 				}
 				else if(mObject instanceof ShiftObject)
@@ -962,7 +986,10 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 		// mDirAdapter = new PopWindowAdapter(mContext, null);
 		mHeightAdapter = new PopWindowAdapter(mContext, null);
 		mBarFormatAdapter = new PopWindowAdapter(mContext, null);
-		
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+		mECLAdapter = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+
 		// String[] heights = mContext.getResources().getStringArray(R.array.strarrayFontSize);
 		if (mObject != null) {
 			Debug.d(TAG, "--->initAdapter: " + mObject);
@@ -1008,6 +1035,14 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 		for (String format : barFormats) {
 			mBarFormatAdapter.addItem(format);
 		}
+
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+		 mECLs = mContext.getResources().getStringArray(R.array.error_correction_level);
+		 for (String format : barFormats) {
+			 mECLAdapter.addItem(format);
+		 }
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+
 		/*
 		String[] directions = mContext.getResources().getStringArray(R.array.strDirectArray);
 		for (String direction : directions) {
@@ -1073,6 +1108,11 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 			mSpiner.setAdapter(mBarFormatAdapter);
 			mSpiner.showAsDropUp(v);
 			break;
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+		case id.spinErroCorrectionLevel:
+			mSpiner.setAdapter(mECLAdapter);
+			mSpiner.showAsDropUp(v);
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 		/*
 		case R.id.spinDirect:
 			mSpiner.setAdapter(mDirAdapter);
@@ -1162,6 +1202,17 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 				mITF14Frame.setVisibility(View.GONE);
 			}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2023-2-14 追加QR码的纠错级别
+			if("QR".equals(view.getText())) {
+				mCapECL.setVisibility(View.VISIBLE);
+				mErrorCorrectionLevel.setVisibility(View.VISIBLE);
+			} else {
+				mCapECL.setVisibility(View.GONE);
+				mErrorCorrectionLevel.setVisibility(View.GONE);
+			}
+		} else if (view == mErrorCorrectionLevel) {
+			view.setText((String)mECLAdapter.getItem(index));
+// End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 		} else {
 			Debug.d(TAG, "--->unknow view");
 		}

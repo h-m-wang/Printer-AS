@@ -110,9 +110,13 @@
 	<string name="strRtFmt">時間格式</string>
 	<string name="strOffset">偏移</string>
 
-	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
 	<string name="strFrame">邊框</string>
-	<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+
+<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+	<string name="strErrorCorrectionLevel">糾錯級別</string>
+<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
 
 	<string name="strGroup">群組</string>
 
@@ -599,4 +603,14 @@
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 	<string name="strImportUG"><u>導入用戶群族</u></string>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+<!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strTxtDtFile">文件</string>
+	<string name="strTxtDtFileHint">點擊選擇文件</string>
+	<string name="strTxtDtLines">行數:</string>
+	<string name="strTxtDtFrom">起始</string>
+	<string name="strTxtDtTo">結束</string>
+	<string name="strTxtDtCur">當前</string>
+	<string name="strTxtDtRpt">重複</string>
+	<string name="strTxtDtCir">循環</string>
+<!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
 </resources>

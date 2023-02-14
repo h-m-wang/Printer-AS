@@ -102,6 +102,10 @@
 	<string name="strFrame">Frame</string>
 <!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
 
+<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+	<string name="strErrorCorrectionLevel">EC Level</string>
+<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+
 	<!-- object list -->
 	<string name="objectListName">Zobrazit seznam</string>
 	<string name="objectInfoName">Zobrazit TEXT</string>

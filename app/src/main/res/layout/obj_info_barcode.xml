@@ -141,10 +141,36 @@
 	            android:text="@string/strFontsize"
 	            android:textColor="#000000"/>
 
+<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+			<TextView
+				android:id="@+id/spinErroCorrectionLevel"
+				android:layout_width="@dimen/settingsItemLength"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="150dp"
+				android:layout_below="@id/et_text_size"
+				android:layout_marginTop="10dp"
+				android:gravity="center_vertical"
+				android:drawableRight="@drawable/spiner_down_btn"
+				android:textSize="@dimen/objinfoTextsize"
+				android:textColor="#000000"
+				android:background="#ffffff"
+				/>
+
+			<TextView android:id="@+id/capErrorCorrectionLevel"
+				android:layout_marginLeft="10dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignBaseline="@id/spinErroCorrectionLevel"
+				android:textSize="30sp"
+				android:text="@string/strErrorCorrectionLevel"
+				android:textColor="#000000"
+				/>
+<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/et_text_size"
+				android:layout_below="@id/spinErroCorrectionLevel"
 				android:background="#ff666666"
 				android:layout_margin="60dp"
 				android:orientation="vertical" >

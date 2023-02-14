@@ -24,6 +24,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@Deprecated
 public class FilesViewActivity extends Activity {
 	SimpleAdapter adapter;
 	Button btnSend;

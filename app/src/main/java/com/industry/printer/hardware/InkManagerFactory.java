@@ -59,7 +59,8 @@ public class InkManagerFactory {
 //            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
 // 暂时为了push取消，待所有动作确认后修改回来                return new N_RFIDManager(ctx);
 //            }
-            return new RFIDManager(ctx);
+            return new N_RFIDManager(ctx);
+//            return new RFIDManager(ctx);
         }
     }
 }

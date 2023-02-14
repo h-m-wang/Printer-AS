@@ -163,6 +163,7 @@ static HW_SMART_CARD_status_t _start_session(HW_SMART_CARD_device_t *device_p)
 
     /* check that we don't get failures that we are NOT expecting
      * in general */
+
     HP_ASSERT(status != HW_SMART_CARD_failed_e);
     HP_ASSERT(status != HW_SMART_CARD_proto_failure_e);
     HP_ASSERT(status != HW_SMART_CARD_not_auth_e);

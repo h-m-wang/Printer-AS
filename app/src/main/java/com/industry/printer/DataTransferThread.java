@@ -23,6 +23,7 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -51,6 +52,7 @@ import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinCreater;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.NativeGraphicJni;
+import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
@@ -1545,6 +1547,12 @@ private void setSerialProtocol9DTs(final String data) {
 		mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 只有在FIFO的size大于1，并且不是群组打印的时候，才启动该标识
 
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			TxtDT.getInstance(mContext).startPrint();
+		}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+
 		mPrinter = new PrintTask();
 		mPrinter.start();
 
@@ -1585,6 +1593,12 @@ private void setSerialProtocol9DTs(final String data) {
 			return;
 		}
 		mScheduler.doAfterPrint();
+
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			TxtDT.getInstance(mContext).stopPrint();
+		}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 	}
 	
 	public void setOnInkChangeListener(InkLevelListener listener) {
@@ -2407,6 +2421,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					reportEmpty = true;
 				} else {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
+
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+					if(TxtDT.getInstance(mContext).isTxtDT()) {
+						TxtDT.getInstance(mContext).gotoNext();
+					}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+
 // H.M.Wang 2022-12-22 接收到FPGA请求数据的信号(empty)后，向PC发送打印成功的反馈
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
 						final SerialHandler serialHandler = SerialHandler.getInstance(mContext);
