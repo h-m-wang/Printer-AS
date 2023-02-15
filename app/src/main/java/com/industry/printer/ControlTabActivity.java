@@ -420,7 +420,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);
-		if(Configs.USER_MODE == Configs.USER_MODE_2) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_2) {
 			return inflater.inflate(R.layout.control2_frame, container, false);
 		}
 // H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
@@ -495,7 +495,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mBtnOpenfile.setOnTouchListener(this);
 		mTvOpen = (TextView) getView().findViewById(R.id.tv_binfile);
 
-		if(Configs.USER_MODE == Configs.USER_MODE_2) {
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_2) {
 			mImportBtn = (TextView) getView().findViewById(R.id.tv_import);
 			mImportBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -1590,7 +1590,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						message.sendToTarget();
 					}
 
-					if(Configs.USER_MODE == Configs.USER_MODE_2) {
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_2) {
 // H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
 //						if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {
 						if (mObjPath.startsWith(Configs.GROUP_PREFIX) || mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {

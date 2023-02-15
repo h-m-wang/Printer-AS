@@ -107,7 +107,6 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 	public TextView mCapECL;
 	public TextView mErrorCorrectionLevel;
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
-
 //	private EditText mHeight_O;
 	private CheckBox mHeightType;
 	public CheckBox mShow;

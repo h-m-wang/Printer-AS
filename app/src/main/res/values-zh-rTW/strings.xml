@@ -55,6 +55,9 @@
 	<string name="str_tlkfile">打開Tlk文件</string>
 	<string name="str_binfile">打開Bin文件</string>
 	<string name="str_openfile">選擇文件</string>
+<!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
+	<string name="str_opentemplate">選擇模板</string>
+<!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_seldata">選擇數據</string>
 	<string name="str_mvforward">前移</string>
 	<string name="str_mvbackward">後移</string>
@@ -449,7 +452,9 @@
 <!--	<string name="str_textview_param70">70.保留</string>-->
 	<string name="str_textview_param70">70.快速打印</string>
 <!-- End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
-	<string name="str_textview_param71">71.保留</string>
+<!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+	<string name="str_textview_param71">71.快捷模式</string>
+<!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 	<string name="str_textview_param72">72.保留</string>
 	<string name="str_textview_param73">73.保留</string>
 	<string name="str_textview_param74">74.保留</string>

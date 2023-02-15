@@ -39,13 +39,17 @@ public class Configs {
 //	public static final boolean READING = true;			// 忽略RFID检查
 	public static final boolean READING = false;		// 检查RFID
 
+// H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
+/*
 // H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
 	public static final int USER_MODE_NONE 	= 0;		// 不显示用户特色页面
 	public static final int USER_MODE_1 	= 1;		// 显示用户1特色页面
 	public static final int USER_MODE_2 	= 2;		// 显示用户2特色页面
 
 	public static final int USER_MODE = USER_MODE_NONE;
+*/
 // End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
+// End of H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
 
 // H.M.Wang 2021-8-11 追加信息浏览数量锁的标识
 	public static final int USER_MSG_COUNT_NOLIMIT 	= 0;	// 不限制信息条数

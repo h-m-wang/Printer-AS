@@ -212,18 +212,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mRadioCustom = (RadioButton) findViewById(R.id.btn_custom);
 		mRadioCustom.setOnCheckedChangeListener(this);
 		mRadioCustom.setOnTouchListener(this);
-// H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
-		if(Configs.USER_MODE == Configs.USER_MODE_1) {
-			mRadioCustom.setVisibility(View.VISIBLE);
-			mRadioCustom.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					mRadioCtl.setChecked(false);
-					mRadioCustom.setChecked(true);
-				}
-			}, 500);
-		}
-// End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
 
 	    btn_Other = (RadioButton) findViewById(R.id.btn_Other);
 	   
@@ -273,7 +261,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if (sDev.indexOf("SoftwinerEvb") >= 0) {
 			btn_Other.setVisibility(View.GONE);
 		}
-		
+
 		 btn_Other.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -285,6 +273,19 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					
 				}
 			});
+
+// H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
+			mRadioCustom.setVisibility(View.VISIBLE);
+			mRadioCustom.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					mRadioCtl.setChecked(false);
+					mRadioCustom.setChecked(true);
+				}
+			}, 500);
+		}
+// End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
 
         BarcodeScanParser.setContext(this);
 
@@ -881,7 +882,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mEditSmallTab = new EditTabSmallActivity();
 		mEditFullTab = new EditMultiTabActivity();
 		mSettingsTab = new SettingsTabActivity();
-		if(Configs.USER_MODE == Configs.USER_MODE_1) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			mCustomTab1 = new Custom1TabActivity();
 		}
 /*
@@ -949,7 +950,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			transaction.add(R.id.tab_content, mEditTab);
 		}
 		transaction.add(R.id.tab_content, mSettingsTab);
-		if(Configs.USER_MODE == Configs.USER_MODE_1) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			transaction.add(R.id.tab_content, mCustomTab1);
 		}
 /*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
@@ -968,7 +969,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			transaction.hide(mEditTab);
 		}
 		transaction.hide(mSettingsTab);
-		if(Configs.USER_MODE == Configs.USER_MODE_1) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			transaction.hide(mCustomTab1);
 		}
 /*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
@@ -1072,7 +1073,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 				if (arg1 == true) {
 					Debug.d(TAG, "--->show CustomTab");
-					if(Configs.USER_MODE == Configs.USER_MODE_1) {
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						mCustomTab1.setObjPath(mControlTab.mObjPath);
 						mCustomTab1.setCtrlHandler(mControlTab.mHandler);
 						mCustomTab1.refreshView();
@@ -1088,7 +1089,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					mCustomExtra.setVisibility(View.VISIBLE);
 					Debug.d(TAG, "--->show CustomExtra visible");
 				} else {
-					if(Configs.USER_MODE == Configs.USER_MODE_1) {
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						fts.hide(mCustomTab1);
 					}
 /*					if(Configs.USER_MODE == Configs.USER_MODE_2) {
@@ -1218,7 +1219,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		fts.remove(mSettingsTab);
 		fts.remove(mEditSmallTab);
 		fts.remove(mEditFullTab);
-		if(Configs.USER_MODE == Configs.USER_MODE_1) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			fts.remove(mCustomTab1);
 		}
 /*		if(Configs.USER_MODE == Configs.USER_MODE_2) {

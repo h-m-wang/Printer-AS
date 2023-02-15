@@ -374,4 +374,12 @@
         <item>H (30%)</item>
     </string-array>
 <!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+<!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+    <string-array name="user_mode">
+        <item>None</item>
+        <item>Mode1</item>
+        <item>Mode2</item>
+        <item>Mode3</item>
+    </string-array>
+<!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 </resources>

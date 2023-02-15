@@ -68,7 +68,7 @@ public class TxtDT {
 
     public boolean isTxtDT() {
         SystemConfigFile config = SystemConfigFile.getInstance(mContext);
-        return (config.getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DISABLED);
+        return (config.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_3);
     }
 
     public static TxtDT getInstance(Context ctx) {
@@ -352,7 +352,7 @@ public class TxtDT {
         mPreviewTV.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mPreviewTV.setTextSize(mPreviewTV.getHeight()/3);
+                mPreviewTV.setTextSize(mPreviewTV.getHeight()/2);
                 if(null == mTxtDataList || mCurLine < 1 || mCurLine > mTxtDataList.size()) return;
                 mPreviewTV.setText(mTxtDataList.get(mCurLine-1));
             }

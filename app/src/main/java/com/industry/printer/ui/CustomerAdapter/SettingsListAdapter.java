@@ -105,6 +105,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 	private PopWindowAdapter mFastPrint;
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+// H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+	private PopWindowAdapter mUserMode;
+// End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
@@ -397,6 +400,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mFastPrint = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 
+// H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+		mUserMode = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -635,7 +642,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 		mSettingItems[69] = new ItemOneLine(70, R.string.str_textview_param70, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
-		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, 0);
+// H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, R.array.user_mode, 0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 		mSettingItems[71] = new ItemOneLine(72, R.string.str_textview_param72, 0);
 		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, 0);
 		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, 0);
@@ -769,6 +778,12 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mFastPrint.addItem(items[i]);
 		}
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+// H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+		items = mContext.getResources().getStringArray(R.array.user_mode);
+		for (int i = 0; i < items.length; i++) {
+			mUserMode.addItem(items[i]);
+		}
+// End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 
 		// H.M.Wang 2019-12-19 追加对参数39的修改为数据源选择的参数，该设置适配器停用
 //		for (int i = 0; i < items.length; i++) {
@@ -939,6 +954,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 69) { //參數68
 			mSpiner.setAdapter(mFastPrint);
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+// H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+		} else if (position == 70) { //參數68
+			mSpiner.setAdapter(mUserMode);
+// End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

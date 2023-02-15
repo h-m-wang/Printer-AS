@@ -42,6 +42,9 @@
 	<string name="str_tlkfile">Tlk</string>
 	<string name="str_binfile">開く</string>
 	<string name="str_openfile">オープン...</string>
+<!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
+	<string name="str_opentemplate">Temp...</string>
+<!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_mvforward">前へ</string>
 	<string name="str_mvbackward">後へ</string>
 	<string name="str_preview">プレビュー</string>
@@ -414,7 +417,9 @@
 <!--	<string name="str_textview_param70">70.Reserved</string>-->
 	<string name="str_textview_param70">70.Fast Print</string>
 <!-- End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
-	<string name="str_textview_param71">71.Reserved</string>
+<!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+	<string name="str_textview_param71">71.Easy mode</string>
+<!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 	<string name="str_textview_param72">72.Reserved</string>
 	<string name="str_textview_param73">73.Reserved</string>
 	<string name="str_textview_param74">74.Reserved</string>
@@ -503,4 +508,14 @@
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 	<string name="strImportUG"><u>Import UG</u></string>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+<!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strTxtDtFile">File</string>
+	<string name="strTxtDtFileHint">Click to select a file</string>
+	<string name="strTxtDtLines">Lines:</string>
+	<string name="strTxtDtFrom">From</string>
+	<string name="strTxtDtTo">To</string>
+	<string name="strTxtDtCur">Cur</string>
+	<string name="strTxtDtRpt">Rpt</string>
+	<string name="strTxtDtCir">Cir</string>
+<!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
 </resources>

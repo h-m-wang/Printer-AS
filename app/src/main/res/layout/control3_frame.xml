@@ -199,7 +199,7 @@
             android:textSize="@dimen/ctrlButtonsTextsize"
             android:textColor="#000000"
             />
-
+<!--
         <TextView
             android:id="@+id/opened_msg_name"
             android:layout_width="wrap_content"
@@ -208,6 +208,7 @@
             android:textSize="@dimen/ctrlButtonsTextsize"
             android:textColor="#000000"
             />
+-->
         <!-- H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的任务的序号 -->
         <TextView
             android:id="@+id/group_index"
@@ -249,7 +250,7 @@
         </LinearLayout>
 
         <!-- H.M.Wang 2020-8-11 将墨量和减锁信息移植这里显示 -->
-        <LinearLayout
+<!--        <LinearLayout
             android:id="@+id/area_counter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -270,7 +271,7 @@
                 android:gravity="center_vertical"
                 android:textColor="#000000"
                 android:textSize="25sp" />
-        </LinearLayout>
+        </LinearLayout>-->
         <!-- End of H.M.Wang 2020-8-11 将墨量和减锁信息移植这里显示 -->
     </RelativeLayout>
 
@@ -351,13 +352,36 @@
                 />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/area_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical" >
+            <TextView
+                android:id="@+id/cnt_cnter_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:textColor="#000000"
+                android:textSize="25sp"
+                android:text="@string/str_remain_ptimes" />
+            <TextView
+                android:id="@+id/ctrl_counter_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:textColor="#000000"
+                android:textSize="25sp" />
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:layout_margin="5dp"
+            android:visibility="gone"
             android:layout_gravity="center_vertical"
             >
-
             <ImageButton
                 android:id="@+id/ctrl_btn_up"
                 android:layout_width="wrap_content"
@@ -513,7 +537,18 @@
                 android:textSize="@dimen/ctrlButtonsTextsize"
                 android:textColor="#000000"
                 android:background="@drawable/bg_big_button"
-                android:text="@string/str_openfile"
+                android:text="@string/str_opentemplate"
+                />
+            <TextView
+                android:id="@+id/opened_msg_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="25sp"
+                android:textColor="#000000"
                 />
         </RelativeLayout>
     </LinearLayout>
