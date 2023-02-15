@@ -53,8 +53,8 @@ public class InkSchedulerFactory {
 //            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
 // 暂时为了push取消，待所有动作确认后修改回来                 return new N_RfidScheduler(ctx);
 //            }
-            return new N_RfidScheduler(ctx);
-//            return new RfidScheduler(ctx);
+//            return new N_RfidScheduler(ctx);
+            return new RfidScheduler(ctx);
         }
     }
 }

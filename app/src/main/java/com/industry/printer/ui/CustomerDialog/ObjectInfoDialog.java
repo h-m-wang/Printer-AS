@@ -870,6 +870,13 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // End of H.M.Wang 2022-12-20 追加反白设置
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 					mErrorCorrectionLevel.setText(mECLs[((BarcodeObject) mObject).getErrorCorrectionLevel()]);
+					if("QR".equals(((BarcodeObject) mObject).getCode())) {
+						mCapECL.setVisibility(View.VISIBLE);
+						mErrorCorrectionLevel.setVisibility(View.VISIBLE);
+					} else {
+						mCapECL.setVisibility(View.GONE);
+						mErrorCorrectionLevel.setVisibility(View.GONE);
+					}
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 					mTextsize.setText(String.valueOf(((BarcodeObject) mObject).getTextsize()));
 				}

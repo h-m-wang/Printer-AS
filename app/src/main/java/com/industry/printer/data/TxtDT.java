@@ -417,6 +417,6 @@ public class TxtDT {
 
         Debug.d(TAG, "Content Line[" + mCurLine + "] = [" + mTxtDataList.get(mCurLine - 1) + "]");
 
-        SystemConfigFile.getInstance().setDTBuffer(0, mTxtDataList.get(mCurLine - 1));
+        SystemConfigFile.getInstance().setRemoteSeparated(mTxtDataList.get(mCurLine - 1));
     }
 }
