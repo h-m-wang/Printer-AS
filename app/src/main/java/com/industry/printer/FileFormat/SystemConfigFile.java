@@ -408,6 +408,20 @@ public class SystemConfigFile{
 	public static final int INDEX_WIDTH_RATIO = 58;
 // End of H.M.Wang 2022-5-30 编码器变倍，  希望启用一个参数，  Width Ratio /宽度调节（w）。
 
+// H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
+	private boolean mDirty = false;
+
+	public void writePrefs() {
+		if(mDirty) {
+			for(int i=0; i<mDTBuffer.length; i++) {
+				writeDTPrefs(i, mDTBuffer[i]);
+			}
+			writeBarcodePrefs(mBarCodeBuffer);
+			mDirty = false;
+		}
+	}
+// End of H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
+
 // H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 	private String[] mDTBuffer = new String[] {
 		"#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####"
@@ -421,7 +435,10 @@ public class SystemConfigFile{
 	public void setDTBuffer(int index, String dtStr) {
 		if(index < 0 || index > 9) return;
 		mDTBuffer[index] = dtStr;
-		writeDTPrefs(index, dtStr);
+// H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
+		mDirty = true;
+//		writeDTPrefs(index, dtStr);
+// End of H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
 	}
 // End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 
@@ -482,7 +499,10 @@ public class SystemConfigFile{
 
 	public void setBarcodeBuffer(String bcStr) {
 		mBarCodeBuffer = bcStr;
-		writeBarcodePrefs(bcStr);
+// H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
+		mDirty = true;
+//		writeBarcodePrefs(bcStr);
+// End of H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
 	}
 	private void readBarcodePrefs() {
 		try {

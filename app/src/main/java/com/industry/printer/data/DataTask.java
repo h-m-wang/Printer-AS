@@ -935,7 +935,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				continue;
 // H.M.Wang 2020-5-22 串口数据启用DynamicText，取消代用CounterObject
             } else if(o instanceof DynamicText) {
-				Debug.d(TAG, "--->object index=" + o.getIndex() + "headType = " + headType);
+				Debug.d(TAG, "--->object index=" + o.getIndex() + "; headType = " + headType);
 
 // H.M.Wang 2021-3-3 由于从QR.txt文件当中读取的变量信息要对群组有效，在这里会导致每个任务都会读取一行，所以需要移植DataTransferThread类处理
 /*

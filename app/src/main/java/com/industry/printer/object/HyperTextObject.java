@@ -304,7 +304,7 @@ public class HyperTextObject extends BaseObject {
         float width = 0f;
 
         for (BaseObject o : mSubObjs) {
-            o.meature();
+//            o.meature();
             o.setX(width);
             o.setWidth(o.getWidth() * mRatio);
 //            o.setWidth(o.getWidth());

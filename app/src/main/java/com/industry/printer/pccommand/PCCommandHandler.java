@@ -294,14 +294,14 @@ public class PCCommandHandler {
 
         } else if (PCCommand.CMD_DEL_FILE.equalsIgnoreCase(cmd.command) ||
                    PCCommand.CMD_DEL_FILE_S.equalsIgnoreCase(cmd.command)) {
-            if (deleteFile(msg.substring(msg.indexOf("/"), msg.lastIndexOf("/")))) {
+            if (deleteFile(cmd.content)) {
                 sendmsg(Constants.pcOk(msg));
             } else {
                 sendmsg(Constants.pcErr(msg));
             }
         } else if (PCCommand.CMD_DEL_DIR.equalsIgnoreCase(cmd.command) ||
                    PCCommand.CMD_DEL_DIR_S.equalsIgnoreCase(cmd.command)) {
-            if (deleteDirectory(msg)) {
+            if (deleteDirectory(cmd.content)) {
                 sendmsg(Constants.pcOk(msg));
             } else {
                 sendmsg(Constants.pcErr(msg));
@@ -638,6 +638,8 @@ public class PCCommandHandler {
     }
 
     private boolean deleteFile(String filePath) {
+        Debug.d(TAG, "--->filePath: " + filePath);
+
         File file = new File(filePath);
         if(file.exists()) {
             if(file.isFile()){
@@ -652,10 +654,8 @@ public class PCCommandHandler {
     private boolean deleteDirectory(String filePath) {
         boolean flag = false;
 
-        Debug.d(TAG, "--->filePath: " + filePath);
-
         //如果filePath不以文件分隔符结尾，自动添加文件分隔符
-        filePath = filePath.substring(filePath.indexOf("/"), filePath.lastIndexOf("/"));
+//        filePath = filePath.substring(filePath.indexOf("/"), filePath.lastIndexOf("/"));
         if (!filePath.endsWith(File.separator)) {
             filePath = filePath + File.separator;
         }

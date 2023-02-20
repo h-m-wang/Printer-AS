@@ -47,7 +47,7 @@ public class StreamTransport {
         try {
             mFileOutputStream.write(buffer, offset, count);
             mFileOutputStream.flush();
-            Debug.d(TAG, "Send Data :[" + ByteArrayUtils.toHexString(buffer, offset, count) + "](" + count + " bytes)");
+//            Debug.d(TAG, "Send Data :[" + ByteArrayUtils.toHexString(buffer, offset, count) + "](" + count + " bytes)");
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }
@@ -103,7 +103,7 @@ public class StreamTransport {
                 if(ret == -1) break;
                 recv += ret;
             }
-            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
+//            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }

@@ -582,7 +582,7 @@ public class DataTransferThread {
 // H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 						SystemConfigFile.getInstance().setDTBuffer(((DynamicText) baseObject).getDtIndex(), recvStrs[strIndex]);
 // End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
-						baseObject.setContent(recvStrs[strIndex]);
+//						baseObject.setContent(recvStrs[strIndex]);
 						strIndex++;
 						needUpdate = true;
 					}
@@ -592,7 +592,7 @@ public class DataTransferThread {
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
 						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶
-						((BarcodeObject)baseObject).setContent(recvStrs[10]);
+//						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 						needUpdate = true;
 					}
 // End. -----

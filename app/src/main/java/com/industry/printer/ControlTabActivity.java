@@ -440,6 +440,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mObjList = new ArrayList<BaseObject>();
 		mContext = this.getActivity();
 		mSysconfig = SystemConfigFile.getInstance(mContext);
+		mDTransThread = DataTransferThread.getInstance(mContext);
 // H.M.Wang 2022-5-24 如果apk自带Feature与内部保存的不一致，可能是用户自己推送的apk，则禁止打印
         if(!mSysconfig.getFeatureCode().equals(mSysconfig.getPackageFeatureCode())) {
             ToastUtil.show(mContext, R.string.str_no_permission);
@@ -887,6 +888,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						}
 					}
 				}
+// H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
+				mSysconfig.writePrefs();
+// End of H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
 			}
 		}, 0L, 2000L);
 
@@ -2450,10 +2454,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			return;
 		}
 		if (mDTransThread == null) {
-			Debug.d(TAG, "--->Print thread ready");
 			mDTransThread = DataTransferThread.getInstance(mContext);
-			mDTransThread.setCallback(this);
 		}
+
+		mDTransThread.setCallback(this);
 		Debug.d(TAG, "--->init");
 
 		// 鍒濆鍖朾uffer
@@ -2468,7 +2472,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		for(MessageTask msgTask: mMsgTask) {
 			if(msgTask.getMsgObject().getPrintDpi() != Configs.GetDpiVersion()) {
 				ToastUtil.show(mContext, R.string.printDpiNotMatchError);
-				mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+//				mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
 				return;
 			}
 		}

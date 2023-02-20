@@ -31,6 +31,11 @@ public class BinFromBitmap extends BinCreater {
 			mDots[i] = 0;
 		}
 	}
+
+// H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_)而额外消耗时间
+	private static int[] pixels = new int[152 * 152];
+// End of H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_)而额外消耗时间
+
 	/**
 	 * 这个函数没有对bmp原图进行高度缩放，所以，得到的buffer列高与原图高度一致
 	 * 如果要处理列高比较大（如110点的列高）的原图最好对源bmp进行缩放，然后做点阵提取操作
@@ -91,7 +96,11 @@ public class BinFromBitmap extends BinCreater {
 //		Debug.d(TAG, "SaveTime: - Start 二值化(JNI) : " + System.currentTimeMillis());
 
 		// H.M.Wang 增加9行 25.4xn情况下断档和实现JNI的二值化
-		int[] pixels = new int[mWidth * mHeight];
+//		int[] pixels = new int[mWidth * mHeight];
+// H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_FOR_ALLOC)而额外消耗时间
+		if(mWidth * mHeight > pixels.length) pixels = new int[mWidth * mHeight];
+// End of H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_FOR_ALLOC)而额外消耗时间
+
 		bmp.getPixels(pixels, 0, mWidth, 0, 0, mWidth, mHeight);
 
 		if(needShift) {

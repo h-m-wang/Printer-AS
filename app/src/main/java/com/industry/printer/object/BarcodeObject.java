@@ -536,7 +536,7 @@ public class BarcodeObject extends BaseObject {
 	
 	private Bitmap drawQR(String content, int w, int h) {
 		try {
-			Debug.d(TAG, "Content: " + content);
+			Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h);
 			HashMap<EncodeHintType, Object> hints = null;
 			hints = new HashMap<EncodeHintType, Object>();
 			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
