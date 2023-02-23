@@ -62,9 +62,9 @@ public class RfidScheduler implements IInkScheduler {
 
 	private class BaginkLevel {
 		public int mLevelIndex;
-		public ArrayList<Integer> mRecentLevels;
-		public ArrayList<Integer> mValidLevels;
-		public int mHX24LCValue;
+		public ArrayList<Integer> mRecentLevels;			// 读取数据清单，读到的数据即收录
+		public ArrayList<Integer> mValidLevels;				// 有效数据清单，独到的数据至于在最大值与最小值之间时才收录
+		public int mHX24LCValue;							// 调整值，保存在HX24LC中的调整值，100000的单位数
 		public int mInkAddedTimes;
 		public long mInkAddedTime;
 		public int mLevelLowCount;

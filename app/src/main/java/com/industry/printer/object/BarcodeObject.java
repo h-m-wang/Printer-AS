@@ -537,8 +537,7 @@ public class BarcodeObject extends BaseObject {
 	private Bitmap drawQR(String content, int w, int h) {
 		try {
 			Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h);
-			HashMap<EncodeHintType, Object> hints = null;
-			hints = new HashMap<EncodeHintType, Object>();
+			HashMap<EncodeHintType, Object> hints = new HashMap<EncodeHintType, Object>();
 			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
 				hints.put(EncodeHintType.QR_VERSION, 3);		// 强制生成一个29x29的QR码，但是如果要生成的QR码大于29x29，那么这个设置可能失效或者错误
 			}
@@ -714,6 +713,7 @@ public class BarcodeObject extends BaseObject {
 
 				paint.setStyle(Paint.Style.FILL);
 
+				// 清空文字区背景
 				can.drawRect(left + modWidth * 3, top + h - textH - 5, left + modWidth * 31, top + h, paint);
 				can.drawRect(left + modWidth * 36, top + h - textH - 5, left + modWidth * 64, top + h, paint);
 
@@ -726,10 +726,13 @@ public class BarcodeObject extends BaseObject {
 				paint.setColor(Color.BLACK);
 				paint.setTextAlign(Paint.Align.CENTER);
 
-				for(int i=0; i<4; i++) {
-					can.drawText(content.substring(i, i+1), left + modWidth * 3 + (i+0.5f)* numDispWid, h-3, paint);
-					can.drawText(content.substring(i+4, i+5), left + modWidth * 36 + (i+0.5f) * numDispWid, h-3, paint);
-				}
+				// 写入文字区
+				can.drawText(content.substring(0, 4), left + modWidth * 17, h-3, paint);
+				can.drawText(content.substring(4, 8), left + modWidth * 50, h-3, paint);
+//				for(int i=0; i<4; i++) {
+//					can.drawText(content.substring(i, i+1), left + modWidth * 3 + (i+0.5f)* numDispWid, h-3, paint);
+//					can.drawText(content.substring(i+4, i+5), left + modWidth * 36 + (i+0.5f) * numDispWid, h-3, paint);
+//				}
 			}
 
 			return Bitmap.createScaledBitmap(bitmap, w, h, false);
@@ -786,6 +789,7 @@ public class BarcodeObject extends BaseObject {
 
 				paint.setStyle(Paint.Style.FILL);
 
+				// 清空文字区背景
 				can.drawRect(left + modWidth * 3, top + h - textH - 5, left + modWidth * 45, top + h, paint);
 				can.drawRect(left + modWidth * 50, top + h - textH - 5, left + modWidth * 92, top + h, paint);
 
@@ -798,11 +802,14 @@ public class BarcodeObject extends BaseObject {
 				paint.setColor(Color.BLACK);
 				paint.setTextAlign(Paint.Align.CENTER);
 // H.M.Wang 2021-10-6 修改显示编码内容，追加导入码的显示
+				// 写入文字区
 				can.drawText(content.substring(0, 1), left / 2, h-3, paint);
-				for(int i=0; i<6; i++) {
-					can.drawText(content.substring(i+1, i+2), left + modWidth * 3 + (i+0.5f)* numDispWid, h-3, paint);
-					can.drawText(content.substring(i+7, i+8), left + modWidth * 50 + (i+0.5f) * numDispWid, h-3, paint);
-				}
+				can.drawText(content.substring(1, 7), left + modWidth * 24, h-3, paint);
+				can.drawText(content.substring(7, 13), left + modWidth * 71, h-3, paint);
+//				for(int i=0; i<6; i++) {
+//					can.drawText(content.substring(i+1, i+2), left + modWidth * 3 + (i+0.5f)* numDispWid, h-3, paint);
+//					can.drawText(content.substring(i+7, i+8), left + modWidth * 50 + (i+0.5f) * numDispWid, h-3, paint);
+//				}
 // End of H.M.Wang 2021-10-6 修改显示编码内容，追加导入码的显示
 			}
 

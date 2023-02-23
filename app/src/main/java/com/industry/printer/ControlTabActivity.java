@@ -2024,7 +2024,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 					FpgaGpioOperation.uninit();
 
-					sendToRemote(Constants.pcOk( msg.getData().getString(Constants.PC_CMD)));
+					sendToRemote(Constants.pcOk(msg.getData().getString(Constants.PC_CMD)));
 					/*鎵撳嵃浠诲姟鍋滄鍚庡厑璁稿垏鎹㈡墦鍗板璞�*/
 					switchState(STATE_STOPPED);
 					
