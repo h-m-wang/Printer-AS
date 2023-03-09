@@ -667,7 +667,6 @@ typedef struct
     uint8_t        driver_board1_rev;  /**< Printhead stall-2 PCA revision  */
     PDError        pd_status;          /**< PD error code  */
     uint16_t       board_id;           /**< Board ID */
-    
 }PDSystemStatus;
 
 /**

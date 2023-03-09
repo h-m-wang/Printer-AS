@@ -88,7 +88,7 @@ public class PlatformInfo {
 	 * 其他设备都是通过BMP提取
 	 * @return
 	 */
-	public static final int isBufferFromDotMatrix() {	
+	public static final int isBufferFromDotMatrix() {
 		
 		return DotMatrixType;
 	}

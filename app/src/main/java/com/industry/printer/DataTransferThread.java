@@ -2376,7 +2376,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			int lastPrintedCount = 0;
 
 			while(mRunning == true) {
-// H.M.Wang 2021-12-30 当正在打印的时候，如果开始清晰，则暂停打印进程
+// H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
                 if(isPurging) {
                     try {
                         Thread.sleep(10);
@@ -2385,7 +2385,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
                     }
                     continue;
                 }
-// End of H.M.Wang 2021-12-30 当正在打印的时候，如果开始清晰，则暂停打印进程
+// End of H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
 // H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 // H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
 				lastPrintedCount = FpgaGpioOperation.getPrintedCount();

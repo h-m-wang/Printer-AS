@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.001"
+#define VERSION_CODE                            "1.0.005"
 
 /***********************************************************
  *  Customization
@@ -46,7 +46,13 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
     if (ids_check("ids_init", ids_r)) return -1;
     ids_r = ids_info(IDS_INSTANCE, &ids_sys_info);
     if (ids_check("ids_info", ids_r)) return -1;
-    LOGD("IDS FW = %d.%d\n", ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev);
+    LOGD("FW Rev = %d.%d\nFPGA Rev = %d.%d\nBoard Rev bd1 = %d, bd0 = %d, bd = %d\nStatus = %d\nBootloader = %d.%d\nBoard ID = %d",
+            ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev,
+            ids_sys_info.fpga_major_rev, ids_sys_info.fpga_minor_rev,
+            ids_sys_info.board_rev_bd1, ids_sys_info.board_rev_bd0, ids_sys_info.board_rev_bd,
+            ids_sys_info.status,
+            ids_sys_info.bootload_major, ids_sys_info.bootload_minor,
+            ids_sys_info.board_id);
 
     return 0;
 }
@@ -54,7 +60,14 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
-    sprintf(strTemp, "IDS FW = %d.%d", ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev);
+    sprintf(strTemp, "Hp22mm Lib REV. = %s\nFW Rev = %d.%d\nFPGA Rev = %d.%d\nBoard Rev bd1 = %d, bd0 = %d, bd = %d\nStatus = %d\nBootloader = %d.%d\nBoard ID = %d",
+            VERSION_CODE,
+            ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev,
+            ids_sys_info.fpga_major_rev, ids_sys_info.fpga_minor_rev,
+            ids_sys_info.board_rev_bd1, ids_sys_info.board_rev_bd0, ids_sys_info.board_rev_bd,
+            ids_sys_info.status,
+            ids_sys_info.bootload_major, ids_sys_info.bootload_minor,
+            ids_sys_info.board_id);
 
     return (*env)->NewStringUTF(env, strTemp);
 }
@@ -73,14 +86,14 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
 
-    LOGD("uC FW REV. = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
-    LOGD("Bootloader REV = %d.%d\n", pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor);
-    LOGD("FPGA REV = %d.%d\n", pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor);
-    LOGD("BLUR(PD PCA) REV = %d\n", pd_system_status.blur_board_rev);
-    LOGD("BOARD0 REV = %d\n", pd_system_status.driver_board0_rev);
-    LOGD("BOARD1 REV = %d\n", pd_system_status.driver_board1_rev);
-    LOGD("BOARD ID = %d\n", pd_system_status.board_id);
-    LOGD("BOARD STATUS = %d\n", pd_system_status.pd_status);
+    LOGD("FW Rev = %d.%d\nBootloader Rev = %d.%d\nFPGA Rev = %d.%d\nBlur board Rev = %d\nDriver Board0 = %d, Board1 = %d\nStatus = %d\nBoard ID = %d",
+         pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor,
+         pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor,
+         pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor,
+         pd_system_status.blur_board_rev,
+         pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
+         pd_system_status.pd_status,
+         pd_system_status.board_id);
 
     return 0;
 }
@@ -89,15 +102,15 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
     sprintf(strTemp,
-            "uC FW REV. = %d.%d\nBootloader REV = %d.%d\nFPGA REV = %d.%d\nBLUR(PD PCA) REV = %d\nBOARD0 REV = %d\nBOARD1 REV = %d\nBOARD ID = %d\nBOARD STATUS = %d",
+            "Hp22mm Lib REV. = %s\nFW Rev = %d.%d\nBootloader Rev = %d.%d\nFPGA Rev = %d.%d\nBlur board Rev = %d\nDriver Board0 = %d, Board1 = %d\nStatus = %d\nBoard ID = %d",
+            VERSION_CODE,
             pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor,
             pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor,
             pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor,
             pd_system_status.blur_board_rev,
-            pd_system_status.driver_board0_rev,
-            pd_system_status.driver_board1_rev,
-            pd_system_status.board_id,
-            pd_system_status.pd_status);
+            pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
+            pd_system_status.pd_status,
+            pd_system_status.board_id);
 
     return (*env)->NewStringUTF(env, strTemp);
 }
@@ -179,9 +192,8 @@ JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
         return (-1);
     }
 
-    LOGD("supply_status.state = %d\n", supply_status.state);
-    LOGD("supply_status.status_bits = %d\n", supply_status.status_bits);
-    LOGD("supply_status.consumed_volume(10ths of ml) = %d\n", supply_status.consumed_volume);
+    LOGD("supply_status.state = %d\n.status_bits = %d\n.consumed_volume(10ths of ml) = %d\n",
+            supply_status.state, supply_status.status_bits, supply_status.consumed_volume);
 
     return 0;
 }
@@ -204,15 +216,8 @@ JNIEXPORT jint JNICALL Java_com_ids_get_supply_id(JNIEnv *env, jclass arg) {
     ids_r = ids_get_supply_id(IDS_INSTANCE, SUPPLY_IDX, &supply_id);
     if (ids_check("ids_get_supply_id", ids_r)) return (-1);
 
-    LOGD("supply_id.mfg_site = %d\n", supply_id.mfg_site);
-    LOGD("supply_id.mfg_line = %d\n", supply_id.mfg_line);
-    LOGD("supply_id.mfg_year = %d\n", supply_id.mfg_year);
-    LOGD("supply_id.mfg_woy = %d\n", supply_id.mfg_woy);
-    LOGD("supply_id.mfg_dow = %d\n", supply_id.mfg_dow);
-    LOGD("supply_id.mfg_hour = %d\n", supply_id.mfg_hour);
-    LOGD("supply_id.mfg_min = %d\n", supply_id.mfg_min);
-    LOGD("supply_id.mfg_sec = %d\n", supply_id.mfg_sec);
-    LOGD("supply_id.mfg_pos = %d\n", supply_id.mfg_pos);
+    LOGD("supply_id.mfg_site = %d\nmfg_line = %d\nmfg_year = %d\nmfg_woy = %d\nmfg_dow = %d\nmfg_hour = %d\nmfg_min = %d\nmfg_sec = %d\nmfg_pos = %d",
+         supply_id.mfg_site, supply_id.mfg_line, supply_id.mfg_year, supply_id.mfg_woy, supply_id.mfg_dow, supply_id.mfg_hour, supply_id.mfg_min, supply_id.mfg_sec, supply_id.mfg_pos);
 
     return 0;
 }
@@ -239,15 +244,16 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
         return (-1);
     }
 
-    LOGD("print_head_status.print_head_state = %d\n", print_head_status.print_head_state);
-    LOGD("print_head_status.print_head_error = %d\n", print_head_status.print_head_error);
-    LOGD("print_head_status.energy_calibrated = %d\n", print_head_status.energy_calibrated);
-    LOGD("print_head_status.temp_calibrated = %d\n", print_head_status.temp_calibrated);
-    LOGD("print_head_status.slot_a_purge_completed = %d\n", print_head_status.slot_a_purge_completed);
-    LOGD("print_head_status.slot_b_purge_completed = %d\n", print_head_status.slot_b_purge_completed);
-    LOGD("print_head_status.overdrive_warning = %d\n", print_head_status.overdrive_warning);
-    LOGD("print_head_status.overtemp_warning = %d\n", print_head_status.overtemp_warning);
-    LOGD("print_head_status.supplyexpired_warning = %d\n", print_head_status.supplyexpired_warning);
+    LOGD("print_head_status.print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d",
+         print_head_status.print_head_state,
+         print_head_status.print_head_error,
+         print_head_status.energy_calibrated,
+         print_head_status.temp_calibrated,
+         print_head_status.slot_a_purge_completed,
+         print_head_status.slot_b_purge_completed,
+         print_head_status.overdrive_warning,
+         print_head_status.overtemp_warning,
+         print_head_status.supplyexpired_warning);
 
     return 0;
 }
@@ -271,41 +277,38 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
 }
 
 static PDSmartCardInfo_t pd_sc_info;
-static uint8_t pd_sc_result;
 
 JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
     PDResult_t pd_r;
+    uint8_t pd_sc_result;
 
     pd_r = pd_sc_get_info(PD_INSTANCE, penIndex, &pd_sc_info, &pd_sc_result);
-    if (pd_check("pd_sc_get_info", pd_r)) exit(-1);
+    if (pd_check("pd_sc_get_info", pd_r)) return (-1);
     if (pd_sc_result != 0) {
         LOGE("pd_sc_get_info() failed, status = %d\n", (int)pd_sc_result);
         return (-1);
     }
 
-    LOGD("pd_sc_result = %d\n", pd_sc_result);
-    LOGD("pd_sc_info.ctrdg_fill_site_id = %d\n", pd_sc_info.ctrdg_fill_site_id);
-    LOGD("pd_sc_info.ctrdg_fill_line = %d\n", pd_sc_info.ctrdg_fill_line);
-    LOGD("pd_sc_info.ctrdg_fill_year = %d\n", pd_sc_info.ctrdg_fill_year);
-    LOGD("pd_sc_info.ctrdg_fill_woy = %d\n", pd_sc_info.ctrdg_fill_woy);
-    LOGD("pd_sc_info.ctrdg_fill_dow = %d\n", pd_sc_info.ctrdg_fill_dow);
-    LOGD("pd_sc_info.ctrdg_fill_hour = %d\n", pd_sc_info.ctrdg_fill_hour);
-    LOGD("pd_sc_info.ctrdg_fill_min = %d\n", pd_sc_info.ctrdg_fill_min);
-    LOGD("pd_sc_info.ctrdg_fill_sec = %d\n", pd_sc_info.ctrdg_fill_sec);
-    LOGD("pd_sc_info.ctrdg_fill_procpos = %d\n", pd_sc_info.ctrdg_fill_procpos);
+    LOGD("pd_sc_result = %d\npd_sc_info.ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d\n ...(more)",
+         pd_sc_result,
+         pd_sc_info.ctrdg_fill_site_id,
+         pd_sc_info.ctrdg_fill_line,
+         pd_sc_info.ctrdg_fill_year,
+         pd_sc_info.ctrdg_fill_woy,
+         pd_sc_info.ctrdg_fill_dow,
+         pd_sc_info.ctrdg_fill_hour,
+         pd_sc_info.ctrdg_fill_min,
+         pd_sc_info.ctrdg_fill_sec,
+         pd_sc_info.ctrdg_fill_procpos);
 
     return 0;
-}
-
-JNIEXPORT jint JNICALL Java_com_pd_sc_get_result(JNIEnv *env, jclass arg) {
-    return pd_sc_result;
 }
 
 JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_msg(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
     sprintf(strTemp,
-            "ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d",
+            "ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d\n ... (more)",
             pd_sc_info.ctrdg_fill_site_id,
             pd_sc_info.ctrdg_fill_line,
             pd_sc_info.ctrdg_fill_year,
@@ -336,7 +339,7 @@ JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penIdx) 
 }
 
 JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx) {
-    if (DoOverrides(SUPPLY_IDX, PEN_IDX)) {
+    if (DoOverrides(SUPPLY_IDX, penIdx)) {
         LOGE("DoOverrides failed!\n");
         return (-1);
     }
@@ -457,7 +460,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     }
 
     pd_r = pd_sc_get_info(PD_INSTANCE, PEN_IDX, &pd_sc_info, &pd_sc_result);
-    if (pd_check("pd_sc_get_info", pd_r)) exit(-1);
+    if (pd_check("pd_sc_get_info", pd_r)) return (-1);
     if (pd_sc_result != 0) {
         LOGE("pd_sc_get_info() failed, status = %d\n", (int)pd_sc_result);
         return (-1);
@@ -751,7 +754,6 @@ static JNINativeMethod gMethods[] = {
         {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
         {"pd_get_print_head_status_info","()Ljava/lang/String;",	    (void *)Java_com_pd_get_print_head_status_info},
         {"pd_sc_get_info",		        "(I)I",	                    (void *)Java_com_pd_sc_get_info},
-        {"pd_sc_get_result",		        "()I",	                    (void *)Java_com_pd_sc_get_result},
         {"pd_sc_get_info_msg",           "()Ljava/lang/String;",	    (void *)Java_com_pd_sc_get_info_msg},
         {"DeletePairing",		        "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		            "(I)I",	                    (void *)Java_com_DoPairing},

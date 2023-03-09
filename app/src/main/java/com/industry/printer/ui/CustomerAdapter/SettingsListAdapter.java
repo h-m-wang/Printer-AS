@@ -25,6 +25,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -435,6 +437,11 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		return arg0;
 	}
 
+// H.M.Wang 2023-2-27 追加TextView的右侧箭头记忆功能，因为如果是对话窗种类的内容的时候，会将右侧的箭头设为空，然后就不再有这个剪头了，导致后续即使是SWITCH类型的需要箭头也不再显示了
+	private Drawable mLeftDrawable;
+	private Drawable mRightDrawable;
+// End of H.M.Wang 2023-2-27 追加TextView的右侧箭头记忆功能，因为如果是对话窗种类的内容的时候，会将右侧的箭头设为空，然后就不再有这个剪头了，导致后续即使是SWITCH类型的需要箭头也不再显示了
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		
@@ -449,12 +456,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			//Left 
 			mHolder.mTitleL = (TextView) convertView.findViewById(R.id.setting_title_left);
 			mHolder.mValueLTv = (TextView) convertView.findViewById(R.id.setting_value_left_tv);
+			mLeftDrawable =mHolder.mValueLTv.getCompoundDrawables()[2];
 			mHolder.mValueLEt = (EditText) convertView.findViewById(R.id.setting_value_left_et);
 			mHolder.mUnitL = (TextView) convertView.findViewById(R.id.setting_unit_left);
-			
 			//Right
 			mHolder.mTitleR = (TextView) convertView.findViewById(R.id.setting_title_right);
 			mHolder.mValueRTv = (TextView) convertView.findViewById(R.id.setting_value_right_tv);
+			mRightDrawable =mHolder.mValueRTv.getCompoundDrawables()[2];
 			mHolder.mValueREt = (EditText) convertView.findViewById(R.id.setting_value_right_et);
 			mHolder.mUnitR = (TextView) convertView.findViewById(R.id.setting_unit_right);
 
@@ -496,6 +504,8 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2020-4-24 追加计数器编辑类型，但是取消右侧的小箭头
 			if(mSettingItems[2*position].mType == ItemType.TYPE_DIALOG) {
 				mHolder.mValueLTv.setCompoundDrawables(null, null, null, null);
+			} else {
+				mHolder.mValueLTv.setCompoundDrawables(null, null, mLeftDrawable, null);
 			}
 // End of H.M.Wang 2020-4-24 追加计数器编辑类型，但是取消右侧的小箭头
 		} else {
@@ -513,6 +523,8 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2020-4-24 追加计数器编辑类型，但是取消右侧的小箭头
 			if(mSettingItems[2*position + 1].mType == ItemType.TYPE_DIALOG) {
 				mHolder.mValueRTv.setCompoundDrawables(null, null, null, null);
+			} else {
+				mHolder.mValueRTv.setCompoundDrawables(null, null, mRightDrawable, null);
 			}
 // End of H.M.Wang 2020-4-24 追加计数器编辑类型，但是取消右侧的小箭头
 		} else {

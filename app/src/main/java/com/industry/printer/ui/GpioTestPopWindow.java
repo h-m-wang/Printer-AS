@@ -506,14 +506,14 @@ public class GpioTestPopWindow {
                             if (0 == Hp22mm.init_ids()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_sys_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_sys_info();
                             }
                             break;
                         case HP22MM_TEST_INIT_PD:
                             if (0 == Hp22mm.init_pd()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_sys_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_sys_info();
                             }
                             break;
                         case HP22MM_TEST_IDS_SET_PF_INFO:
@@ -555,42 +555,42 @@ public class GpioTestPopWindow {
                             if (0 == Hp22mm.ids_get_supply_status()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_status_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_status_info();
                             }
                             break;
                         case HP22MM_TEST_IDS_GET_SUPPLY_ID:
                             if (0 == Hp22mm.ids_get_supply_id()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_id_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_id_info();
                             }
                             break;
                         case HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS:
                             if (0 == Hp22mm.pd_get_print_head_status(0)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
                         case HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS:
                             if (0 == Hp22mm.pd_get_print_head_status(1)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
                         case HP22MM_TEST_PD_SC_GET_INFO0:
                             if (0 == Hp22mm.pd_sc_get_info(0)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
                             } else {
-                                mHp22mmTestResult[index] = "Failed - (Result = " + Hp22mm.pd_sc_get_result() + ")";
+                                mHp22mmTestResult[index] = "Failed";
                             }
                             break;
                         case HP22MM_TEST_PD_SC_GET_INFO1:
                             if (0 == Hp22mm.pd_sc_get_info(1)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
                             } else {
-                                mHp22mmTestResult[index] = "Failed - (Result = " + Hp22mm.pd_sc_get_result() + ")";
+                                mHp22mmTestResult[index] = "Failed";
                             }
                             break;
                         case HP22MM_TEST_DELETE_PAIRING:

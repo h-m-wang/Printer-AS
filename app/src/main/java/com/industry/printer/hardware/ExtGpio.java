@@ -65,6 +65,10 @@ public class ExtGpio {
 
 	public static int mFd = 0;
 
+// H.M.Wang 2023-2-24 追加一个同步锁，用来排除N_RfidScheduler当中访问Bagink的墨袋与N_RFIDManager当中读写墨袋时可能出现的冲突，导致当前Rfid被切换了还不知道
+	public static Object RFID_ACCESS_LOCK = new Object();
+// End of H.M.Wang 2023-2-24 追加一个同步锁，用来排除N_RfidScheduler当中访问Bagink的墨袋与N_RFIDManager当中读写墨袋时可能出现的冲突，导致当前Rfid被切换了还不知道
+
 // H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
 	public static void setFpgaState(int state) {
 		int fd = open();

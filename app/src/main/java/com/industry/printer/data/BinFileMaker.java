@@ -32,7 +32,7 @@ public class BinFileMaker {
 	}
 	
 	// H.M.Wang 追加一个是否移位的参数
-	public int[]  extract(Bitmap bmp, int heads, boolean needShift) {
+	public int[] extract(Bitmap bmp, int heads, boolean needShift) {
 		if (mBinCreater == null) {
 			init();
 		}

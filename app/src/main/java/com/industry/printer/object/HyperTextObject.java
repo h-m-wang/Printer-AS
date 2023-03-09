@@ -638,7 +638,6 @@ public class HyperTextObject extends BaseObject {
                 continue;
             }
             object.generateVarbinFromMatrix(f);
-
         }
     }
 

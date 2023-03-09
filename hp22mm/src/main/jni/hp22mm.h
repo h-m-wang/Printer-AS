@@ -27,7 +27,6 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_supply_id_info(JNIEnv *env, jclass ar
 JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex);
-JNIEXPORT jint JNICALL Java_com_pd_sc_get_result(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_msg(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penIdx);

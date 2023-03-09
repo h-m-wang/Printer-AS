@@ -477,7 +477,6 @@ public class RealtimeObject extends BaseObject {
 				continue;
 			}
 			object.generateVarbinFromMatrix(f);
-			
 		}
 	}
 	

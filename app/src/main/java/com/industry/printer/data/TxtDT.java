@@ -204,7 +204,9 @@ public class TxtDT {
                     mCountET.setTextColor(Color.BLACK);
                     if(value >= 1) {
                         mCountET.setTextColor(Color.BLACK);
-                        mRepeatCnt = value;
+// H.M.Wang 2023-3-9 如果在这里获得值，开始打印前设置为4，开始打印后，会随着打印的进行，将实时数值修改到这个框中，导致1，2，3，4会逐个出现，如果某个值被执行到这一步，就会将mRepeatCnt修改掉，而导致错误动作，因此取消，改到开始开始打印时获取
+//                        mRepeatCnt = value;
+// End of H.M.Wang 2023-3-9 如果在这里获得值，开始打印前设置为4，开始打印后，会随着打印的进行，将实时数值修改到这个框中，导致1，2，3，4会逐个出现，如果某个值被执行到这一步，就会将mRepeatCnt修改掉，而导致错误动作
                     } else {
                         mCountET.setTextColor(Color.RED);
                     }
@@ -369,6 +371,13 @@ public class TxtDT {
         mEndLineET.setEnabled(false);
         mCurLineET.setEnabled(false);
         mCountET.setEnabled(false);
+// H.M.Wang 2023-3-9 获取重复次数的操作移到这里，避免打印进程中，显示进度数字会影响到整体的重复次数
+        try {
+            mRepeatCnt = Integer.valueOf(mCountET.getText().toString());
+        } catch(NumberFormatException e) {
+            mRepeatCnt = 1;
+        }
+// End of H.M.Wang 2023-3-9 获取重复次数的操作移到这里，避免打印进程中，显示进度数字会影响到整体的重复次数
         mCircleIV.setEnabled(false);
     }
 

@@ -71,10 +71,15 @@ public class N_RfidScheduler implements IInkScheduler {
             mLevelLowCount = 0;
             mLevelHighCount = 0;
 
-            ExtGpio.rfidSwitch(idx);
-            try {Thread.sleep(100);} catch (Exception e) {}
-            SmartCard.initLevelDirect();
-            mHX24LCValue = SmartCard.readHX24LC();
+            synchronized (ExtGpio.RFID_ACCESS_LOCK) {
+                ExtGpio.rfidSwitch(idx);
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+                }
+                SmartCard.initLevelDirect();
+                mHX24LCValue = SmartCard.readHX24LC();
+            }
         }
     }
 
@@ -107,19 +112,21 @@ public class N_RfidScheduler implements IInkScheduler {
 
             // Read Level READ_LEVEL_TIMES times
             for(int i=0; i<READ_LEVEL_TIMES; i++) {
-                ExtGpio.rfidSwitch(mBaginkLevels[cardIdx].mLevelIndex);
-                try{Thread.sleep(100);}catch(Exception e){};
-                int level = SmartCard.readLevelDirect();
+                synchronized (ExtGpio.RFID_ACCESS_LOCK) {
+                    ExtGpio.rfidSwitch(mBaginkLevels[cardIdx].mLevelIndex);
+                    try{Thread.sleep(100);}catch(Exception e){};
+                    int level = SmartCard.readLevelDirect();
 //				ExtGpio.rfidSwitch(mCurrent);
-                if ((level & 0xF0000000) == 0x00000000) {
+                    if ((level & 0xF0000000) == 0x00000000) {
 //					Debug.d(TAG, "Read Level[" + cardIdx + "](" + (readCount + 1) + " times) = " + level);
-                    readLevels += (level  -  mBaginkLevels[cardIdx].mHX24LCValue * 100000);
-                    readCount++;
-                } else {
-                    Debug.e(TAG, "Read Level[" + cardIdx + "]" + Integer.toHexString(level));
-                    ExtGpio.playClick();
+                        readLevels += (level  -  mBaginkLevels[cardIdx].mHX24LCValue * 100000);
+                        readCount++;
+                    } else {
+                        Debug.e(TAG, "Read Level[" + cardIdx + "]" + Integer.toHexString(level));
+                        ExtGpio.playClick();
+                    }
+                    try{Thread.sleep(READ_LEVEL_INTERVAL);}catch(Exception e){};
                 }
-                try{Thread.sleep(READ_LEVEL_INTERVAL);}catch(Exception e){};
             }
             mLevelReading = false;
 

@@ -239,6 +239,8 @@ UserGroup 使用方法说明
 
 	public static final String UPGRADE_HARDWARE_SO = "libHardware_jni.so";
 
+	public static final String UPGRADE_HP22MM_SO = "libhp22mm.so";
+
 	/**
 	 * SYSTEM_CONFIG_FILE
 	 */

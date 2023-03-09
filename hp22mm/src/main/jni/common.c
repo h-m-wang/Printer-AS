@@ -165,9 +165,10 @@ char *time_string() {
 int InitSystem() {
     IDSResult_t ids_r;
     PDResult_t pd_r;
-    IdsSysInfo_t ids_sys_info;
 
     LOGI("v%s\n", VERSION);
+
+    IdsSysInfo_t ids_sys_info;
 
     ids_r = ids_lib_init();
     if (ids_check("ids_lib_init", ids_r)) return -1;

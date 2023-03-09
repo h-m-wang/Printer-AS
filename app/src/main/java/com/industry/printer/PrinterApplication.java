@@ -108,6 +108,16 @@ public class PrinterApplication extends Application {
 
                     is.close();
 
+					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_HP22MM_SO);
+					os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_HP22MM_SO);
+					sleep(100);
+
+					is = assetManager.open(Configs.UPGRADE_HP22MM_SO);
+
+					FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_HP22MM_SO, is);
+
+					is.close();
+
                     os.writeBytes("exit\n");
 
 					NativeGraphicJni.loadLibrary();

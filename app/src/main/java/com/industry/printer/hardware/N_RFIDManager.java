@@ -85,10 +85,10 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                             Debug.d(TAG, "Init RFID[" + i + "]");
                             N_RFIDDevice device = mRfidDevices.get(i);
                             if(!device.isValid()) {
-                                if(mCurrent != i) {
+                                synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                                     switchRfid(i);
+                                    init_success = (device.init() && init_success);
                                 }
-                                init_success = (device.init() && init_success);
                             }
                         }
 
@@ -103,10 +103,10 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                                             N_RFIDDevice device = mRfidDevices.get(i);
                                             if(device.isValid()) {
                                                 if(device.inkModified()) {
-                                                    if(mCurrent != i) {
+                                                    synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                                                         switchRfid(i);
+                                                        device.writeInkLevel();
                                                     }
-                                                    device.writeInkLevel();
                                                 }
 //                            Debug.d(TAG, "RFID[" + i + "] absent? " + device.checkCardAbsence());
                                             } else {
@@ -137,19 +137,19 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
             public void run() {
                 synchronized (N_RFIDManager.this) {
                     for(int i=0; i<mRfidDevices.size(); i++) {
-                        if(mCurrent != i) {
+                        synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                             switchRfid(i);
-                        }
+                            Debug.d(TAG, "Checking UID of RFID[" + i + "]");
+                            N_RFIDDevice device = mRfidDevices.get(i);
+                            int ret = device.checkUID();
 
-                        Debug.d(TAG, "Checking UID of RFID[" + i + "]");
-                        N_RFIDDevice device = mRfidDevices.get(i);
-                        int ret = device.checkUID();
-                        if(ret == 0) {
-                            mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL);
-                            return;
-                        } else if(ret == -1) {
-                            mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL_INK_CHANGED);
-                            return;
+                            if(ret == 0) {
+                                mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL);
+                                return;
+                            } else if(ret == -1) {
+                                mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL_INK_CHANGED);
+                                return;
+                            }
                         }
                     }
                     mCallback.sendEmptyMessage(MSG_RFID_CHECK_SUCCESS);
