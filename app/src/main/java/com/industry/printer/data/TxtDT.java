@@ -204,9 +204,9 @@ public class TxtDT {
                     mCountET.setTextColor(Color.BLACK);
                     if(value >= 1) {
                         mCountET.setTextColor(Color.BLACK);
-// H.M.Wang 2023-3-9 如果在这里获得值，开始打印前设置为4，开始打印后，会随着打印的进行，将实时数值修改到这个框中，导致1，2，3，4会逐个出现，如果某个值被执行到这一步，就会将mRepeatCnt修改掉，而导致错误动作，因此取消，改到开始开始打印时获取
-//                        mRepeatCnt = value;
-// End of H.M.Wang 2023-3-9 如果在这里获得值，开始打印前设置为4，开始打印后，会随着打印的进行，将实时数值修改到这个框中，导致1，2，3，4会逐个出现，如果某个值被执行到这一步，就会将mRepeatCnt修改掉，而导致错误动作
+// H.M.Wang 2023-3-9 由于在打印过程当中，使用该控件显示具体的重复次数进度，因此这个中间值不应该用来修改总的重复次数设置
+                        if(mCountET.isEnabled()) mRepeatCnt = value;
+// End of H.M.Wang 2023-3-9 由于在打印过程当中，使用该控件显示具体的重复次数进度，因此这个中间值不应该用来修改总的重复次数设置
                     } else {
                         mCountET.setTextColor(Color.RED);
                     }
@@ -340,7 +340,8 @@ public class TxtDT {
             mFileName = file.getName();
             mStartLine = 1;
             mEndLine = mTotalLines;
-            mCurLine = 1;
+            mCurLine = mStartLine;
+            mPrintRptCnt = 0;
             dispPreview();
         } catch(FileNotFoundException e) {
             Debug.e(TAG, e.getMessage());
@@ -371,13 +372,6 @@ public class TxtDT {
         mEndLineET.setEnabled(false);
         mCurLineET.setEnabled(false);
         mCountET.setEnabled(false);
-// H.M.Wang 2023-3-9 获取重复次数的操作移到这里，避免打印进程中，显示进度数字会影响到整体的重复次数
-        try {
-            mRepeatCnt = Integer.valueOf(mCountET.getText().toString());
-        } catch(NumberFormatException e) {
-            mRepeatCnt = 1;
-        }
-// End of H.M.Wang 2023-3-9 获取重复次数的操作移到这里，避免打印进程中，显示进度数字会影响到整体的重复次数
         mCircleIV.setEnabled(false);
     }
 
@@ -394,7 +388,7 @@ public class TxtDT {
 
     public boolean gotoNext() {
         mPrintRptCnt++;
-        Debug.d(TAG, "Count = [" + mPrintRptCnt + "]");
+        Debug.d(TAG, "Count = [" + mPrintRptCnt + "/" + mRepeatCnt + "]");
         final String cnt = mPrintRptCnt + ".";
         mCountET.postDelayed(new Runnable() {
             @Override
@@ -405,14 +399,13 @@ public class TxtDT {
 
         if(mPrintRptCnt >= mRepeatCnt) {
             mPrintRptCnt = 0;
-            if(mCurLine + 1 > mEndLine) {
+            mCurLine++;
+            if(mCurLine > mEndLine) {
                 if(!mCircle) {
                     return false;
                 } else {
                     mCurLine = mStartLine;
                 }
-            } else {
-                mCurLine++;
             }
             dispPreview();
             setData();
