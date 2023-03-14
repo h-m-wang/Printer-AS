@@ -657,7 +657,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 		mSettingItems[70] = new ItemOneLine(71, R.string.str_textview_param71, R.array.user_mode, 0, ItemType.TYPE_SWITCH);
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+// H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 		mSettingItems[71] = new ItemOneLine(72, R.string.str_textview_param72, 0);
+// End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, 0);
 		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, 0);
 		mSettingItems[74] = new ItemOneLine(75, R.string.str_textview_param75, 0);

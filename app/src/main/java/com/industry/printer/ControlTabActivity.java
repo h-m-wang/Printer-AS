@@ -54,6 +54,7 @@ import com.industry.printer.Utils.PrinterDBHelper;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.data.DataTask;
+import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
@@ -406,7 +407,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private int mInPinState = 0;
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 		//Socket___________________________________________________________________________________________
-	
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+	private PC_FIFO mPC_FIFO = null;
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
 	public ControlTabActivity() {
 		//mMsgTitle = (ExtendMessageTitleFragment)fragment;
 		mCounter = 0;
@@ -1075,6 +1080,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 // End of H.M.Wang 2022-3-21 根据工作中心对输入管脚协议的重新定义，大幅度修改相应的处理方法
 		// End ---------------------------------
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+		mPC_FIFO = PC_FIFO.getInstance(mContext);
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 	}
 
 	@Override
@@ -4168,6 +4177,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 
 	    public void onComplete(int index) {
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+			if(mPC_FIFO.PCFIFOEnabled()) {
+				mPC_FIFO.onCompleted();
+				return;
+			}
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
 			Debug.d(TAG, "--->onComplete: mCounter:" + mCounter+"; ink:"+mInkManager.getLocalInk(0)+"; path:"+mObjPath+"\n");
 			PrintWriter pout = null;
 			// H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
@@ -4186,6 +4202,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	         }  
 		}
 		public void onPrinted(int index) {
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+			if(mPC_FIFO.PCFIFOEnabled()) {
+				mPC_FIFO.onPrinted();
+				return;
+			}
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
 			// H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
 // H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|" + mPCCmdId + "|0D0A");

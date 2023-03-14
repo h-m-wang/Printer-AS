@@ -94,9 +94,10 @@ public class CounterEditDialog extends Dialog implements android.view.View.OnCli
                             dt.mCounterReset = true;
 // End of H.M.Wang 2020-7-9 追加计数器重置标识
                         }
+                    } else {
+                        SystemConfigFile.getInstance().setParamBroadcast(mIndex + SystemConfigFile.INDEX_COUNT_1, value);
+                        RTCDevice.getInstance(mContext).write(value, mIndex);
                     }
-                    SystemConfigFile.getInstance().setParamBroadcast(mIndex + SystemConfigFile.INDEX_COUNT_1, value);
-                    RTCDevice.getInstance(mContext).write(value, mIndex);
                     dismiss();
                 } catch (Exception e) {
                     ToastUtil.show(mContext, e.getMessage());

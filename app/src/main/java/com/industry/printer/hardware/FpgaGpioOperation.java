@@ -48,6 +48,10 @@ public class FpgaGpioOperation {
     public static final int FPGA_CMD_GETVERSION = 0x0D;
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 
+// H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+    public static final int FPGA_CMD_CLEAR_FIFO = 0x0E;
+// End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -763,14 +767,24 @@ public class FpgaGpioOperation {
 // End of H.M.Wang 2022-3-21 修改为设置是否反向生成打印缓冲区
 
 // H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
-public static int getFPGAVersion() {
-    int fd = open();
-    if (fd > 0) {
+    public static int getFPGAVersion() {
+        int fd = open();
+        if (fd > 0) {
 //        Debug.d(TAG, "FPGA_CMD_GETVERSION");
-        return ioctl(fd, FPGA_CMD_GETVERSION, 0);
+            return ioctl(fd, FPGA_CMD_GETVERSION, 0);
+        }
+        return 0;
     }
-    return 0;
-}
-
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
+
+// H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+    public static int clearFIFO() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "FPGA_CMD_CLEAR_FIFO");
+            return ioctl(fd, FPGA_CMD_CLEAR_FIFO, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
 }

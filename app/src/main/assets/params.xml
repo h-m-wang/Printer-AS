@@ -258,5 +258,13 @@
 		<default>0</default>
 	</param>
 <!--	End of H.M.Wang 2022-11-24 追加参数67设置范围 -->
+<!-- H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小，取值范围0-20 -->
+	<param>
+		<id>72</id>
+		<min>0</min>
+		<max>20</max>
+		<default>0</default>
+	</param>
+<!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小，取值范围0-20 -->
 
 </Params>

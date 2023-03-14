@@ -221,6 +221,9 @@ public class SystemConfigFile{
 	public static final int USER_MODE_2 	= 2;		// 显示用户2特色页面
 	public static final int USER_MODE_3 	= 3;		// 显示用户2特色页面
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+// H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
+	public static final int INDEX_PC_FIFO = 71;
+// End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用

@@ -23,6 +23,7 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.DataTask;
+import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
@@ -160,6 +161,19 @@ public class PCCommandHandler {
 // H.M.Wang 2020-6-28 追加专门为网络快速打印设置
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
 // End of H.M.Wang 2020-6-28 追加专门为网络快速打印设置
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+                PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+                if(pc_FIFO.PCFIFOEnabled()) {
+                    if(pc_FIFO.appendToFIFO(cmd.content)) {
+                        sendmsg(Constants.pcOk(msg));
+                    } else {
+                        sendmsg(Constants.pcErr(msg));
+                    }
+                    return;
+                }
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
                 DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
                 if(aDTThread.isRunning()) {
                     aDTThread.setRemoteTextSeparated(cmd.content);
@@ -188,6 +202,19 @@ public class PCCommandHandler {
 // H.M.Wang 2020-6-28 追加专门为网络快速打印设置
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
 // End of H.M.Wang 2020-6-28 追加专门为网络快速打印设置
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+                PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+                if(pc_FIFO.PCFIFOEnabled()) {
+                    if(pc_FIFO.appendToFIFO(cmd.content)) {
+                        sendmsg(Constants.pcOk(msg));
+                    } else {
+                        sendmsg(Constants.pcErr(msg));
+                    }
+                    return;
+                }
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
                 DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
                 if(aDTThread.isRunning()) {
                     aDTThread.setRemote1TextSeparated(cmd.content);
@@ -476,7 +503,13 @@ public class PCCommandHandler {
             FpgaGpioOperation.softPho();
             sendmsg(Constants.pcOk(msg));
 // End of H.M.Wang 2021-2-4 追加软启动打印命令
-
+// H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+        } else if(PCCommand.CMD_CLEAR_FIFO.equalsIgnoreCase(cmd.command)) {
+            PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+            pc_FIFO.clearBuffer();
+            FpgaGpioOperation.clearFIFO();
+            sendmsg(Constants.pcOk(msg));
+// End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
         } else {
             sendmsg(Constants.pcErr(msg));
         }

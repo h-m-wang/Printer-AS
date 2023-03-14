@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.PackageListReader;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -52,6 +53,7 @@ import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinCreater;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.NativeGraphicJni;
+import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.FpgaGpioOperation;
@@ -2188,7 +2190,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	public long Time1 = 0;
 	public long Time2 = 0;
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-	public int  DataRatio = 0;
+// H.M.Wang 2023-1-7 取消打印时下发参数，因此该变量已经没有意义(2023-3-10追记)
+//	public int  DataRatio = 0;
+// End of H.M.Wang 2023-1-7 取消打印时下发参数，因此该变量已经没有意义(2023-3-10追记)
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 // End of 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 
@@ -2237,6 +2241,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 				setFifoDataToDtAtBeginning();
             }
 // End of H.M.Wang 2021-9-17 追加扫描协议1-FIFO
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+			PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+			if(pc_FIFO.PCFIFOEnabled()) {
+				pc_FIFO.useString();
+			}
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
 // H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
@@ -2337,7 +2348,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					Debug.e(TAG, "--->write data");
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-					DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//					DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 				}
 // End of 2020-6-30 网络快速打印的第一次数据生成后不下发
@@ -2349,11 +2360,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 //                    mCallback.onComplete(index());
 				}
 // H.M.Wang 2020-7-6 原来放在前面这个判断里面是给群组用的，不是群组不会起作用，移到这里
-                if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2023-3-10 似乎无论是什么数据源，这里下发数据以后，就应该向网络回送一个已下发回复
+//                if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
                     if(null != mCallback) {
                         mCallback.onComplete(index());
                     }
-                }
+//                }
+// End of H.M.Wang 2023-3-10 似乎无论是什么数据源，这里下发数据以后，就应该向网络回送一个已下发回复
 // End of H.M.Wang 2020-7-6 原来放在前面这个判断里面是给群组用的，不是群组不会起作用，移到这里
 // End of H.M.Wang 2020-6-28 追加向网络发送打印数据缓冲区准备完成消息
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
@@ -2386,14 +2399,21 @@ private void setCounterPrintedNext(DataTask task, int count) {
                     continue;
                 }
 // End of H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
+
 // H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 // H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
-				lastPrintedCount = FpgaGpioOperation.getPrintedCount();
-				if(lastPrintedCount != mPrintedCount) {
-					if(mUsingFIFO) {
+				if(mUsingFIFO) {
+					lastPrintedCount = FpgaGpioOperation.getPrintedCount();
+					if(lastPrintedCount != mPrintedCount) {
+						Debug.d(TAG, "lastPrintedCount = " + lastPrintedCount + "; mPrintedCount = " + mPrintedCount);
 						setCounterPrintedNext(mDataTask.get(index()), lastPrintedCount - mPrintedCount);
 						for(int i=0; i<lastPrintedCount - mPrintedCount; i++) {
-							afterDataSent();
+// H.M.Wang 2023-3-10 在群组打印的时候，把打印完成的回送也移到这里，这样就不会丢掉连续的次数了，并且，这时似乎没有必要做下发数据后的后续操作
+//							afterDataSent();
+							if (mCallback != null) {
+								mCallback.onPrinted(index());
+							}
+// End of H.M.Wang 2023-3-10 在群组打印的时候，把打印完成的回送也移到这里，这样就不会丢掉连续的次数了，并且，这时似乎没有必要做下发数据后的后续操作
 						}
 					}
 					mPrintedCount = lastPrintedCount;
@@ -2444,11 +2464,16 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						mDataUpdatedForFastLan = false;
 					}
 // End of 2020-7-3 在网络快速打印状态下，如果没有接收到新的数据，即使触发也不生成新的打印缓冲区下发
+
 					Time1 = Time2;
 					Time2 = System.currentTimeMillis();
-					if (mCallback != null) {
-						mCallback.onPrinted(index());
+// H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
+					if(!mUsingFIFO) {
+						if (mCallback != null) {
+							mCallback.onPrinted(index());
+						}
 					}
+// End of H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
 					mInterval = SystemClock.currentThreadTimeMillis() - last;
 					mHandler.removeMessages(MESSAGE_DATA_UPDATE);
 // H.M.Wang 2021-4-20 移到下面具体处理的next函数调用之前，如果放在这里，会导致SCAN3或者网络快速打印的第一次操作之前对计数器频繁调整
@@ -2460,6 +2485,16 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-12-17 以前没有参数，遍历打印群组，会出现打印一个任务，所有相关计数器都被更新的问题，追加参数，仅对当前任务进行修改
 // End of H.M.Wang 2020-7-2 调整计数器增量策略
 // End of H.M.Wang 2021-4-20 移到下面具体处理的next函数调用之前，如果放在这里，会导致SCAN3或者网络快速打印的第一次操作之前对计数器频繁调整
+
+// H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+					if(pc_FIFO.PCFIFOEnabled()) {
+						if(pc_FIFO.PCFIFOAvailable()) {
+							pc_FIFO.useString();
+						} else {
+							continue;
+						}
+					}
+// End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
 					synchronized (DataTransferThread.class) {
 ////////////////////////////////////////////////////////
@@ -2527,9 +2562,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2021-4-20 该函数的调用移到这里，或者SCAN3协议的时候可能需要发送时被错误清除
 // H.M.Wang 2021-3-8 在实施了打印后调用
 // H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
-							if(!mUsingFIFO) {
+// H.M.Wang 2023-3-10 每次下发数据后，均做下发数据后的处理，而不必区分是否为FIFO功能
+//							if(!mUsingFIFO) {
 								afterDataSent();
-							}
+//							}
+// End of H.M.Wang 2023-3-10 每次下发数据后，均做下发数据后的处理，而不必区分是否为FIFO功能
 // End of H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 // End of H.M.Wang 2021-3-8 在实施了打印后调用
 						} else {
@@ -2542,9 +2579,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 								dataSent = false;	// 更改打印指针后，立即设置为false，以避免没下发数据，频繁来empty导致不必要指针调整（这个在新的img里面不会发生，因此这一句仅为保险设置，实际不设也行）
 // H.M.Wang 2021-3-8 在实施了打印后调用
 // H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
-								if(!mUsingFIFO) {
+// H.M.Wang 2023-3-10 每次下发数据后，均做下发数据后的处理，而不必区分是否为FIFO功能
+//								if(!mUsingFIFO) {
 									afterDataSent();
-								}
+//								}
 // End of H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 // End of H.M.Wang 2021-3-8 在实施了打印后调用
 								if(index() > 0 && index() < mDataTask.size()) {
@@ -2562,7 +2600,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2021-3-8 这一部分的时候修正，应该在实施了打印以后再进行，反在这里的话，如果是扫描3，并且还没有下发数据，这里就会被频繁执行，导致计数频繁增加，提出来作为函数，然后在实施了打印后调用
 /*
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 
 // H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
@@ -2642,7 +2680,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						}
 // End of H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 						mHandler.sendEmptyMessageDelayed(MESSAGE_DATA_UPDATE, MESSAGE_EXCEED_TIMEOUT);
 						mNeedUpdate = false;
@@ -2661,7 +2699,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
 // End of H.M.Wang 2021-4-20 取消判断，因为此时底层正在申请数据，所以返回肯定是1，这个下发可能会被跳过
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4
 						mNeedUpdate = false;
 						mFirstForLanFast = false;
@@ -2684,7 +2722,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						}
 // End of H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 						mNeedUpdate = false;
 						mCounterReset = false;
@@ -2719,7 +2757,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 		private void afterDataSent() {
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-			DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
+//			DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 
 // H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号

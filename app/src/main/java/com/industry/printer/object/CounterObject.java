@@ -183,6 +183,11 @@ public class CounterObject extends BaseObject {
 		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mValue);
 		RTCDevice.getInstance(mContext).write(mValue, mCounterIndex);
 
+// H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
+//   当前出现的错误是：如：本次任务共打印十次01，十次02，五次03，此时修改计数器当前值为1，设备会继续打印上一组03的计数细分的剩余数量，打印五次01，再接着打印十次02
+		mSubStepCount = mSubStepValue;
+// End of H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
+
 		Debug.d(TAG, "Set value: " + mValue);
 
 		super.setContent(BaseObject.intToFormatString(mValue, mBits));
@@ -217,6 +222,10 @@ public class CounterObject extends BaseObject {
 	}
 
 	public void goPrintedNext() {
+// H.M.Wang 2023-3-14 当使用步长细分功能时（即一个计数值会打印多次），这里记忆的是实际打印的次数，需要修改为计数器的实际值。否则，会出现下列奇怪现象：
+//   如：本次任务共打印十次01，十次02，五次03，此时停止打印，系统中计数器0的数值会变成25，再次启动打印后，会从25开始打印五次，再接着打印26
+		if(mSubStepCount != mSubStepValue) return;
+// H.M.Wang 2023-3-14 当使用步长细分功能时（即一个计数值会打印多次），这里记忆的是实际打印的次数，需要修改为计数器的实际值。
 		int value = (mDirection == Direction.INCREASE ? mPrintedValue + mStepLen : mPrintedValue - mStepLen);
 		mPrintedValue = (mDirection == Direction.INCREASE ? (value > mEnd ? mStart : value) : (value < mEnd ? mStart : value));
 
