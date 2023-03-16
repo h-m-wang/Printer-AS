@@ -890,6 +890,9 @@ public class DataTransferThread {
 					if(baseObject instanceof DynamicText) {
 						int dtIndex = ((DynamicText)baseObject).getDtIndex();
 						if(dtIndex == mDtIndex) {
+// H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
+							SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), data);
+// End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							baseObject.setContent(data);
 							needUpdate = true;
 						}
@@ -962,10 +965,16 @@ public class DataTransferThread {
 					baseObject.setContent(sb.substring(sb.length() - ((DynamicText) baseObject).getBits()));
 					needUpdate = true;
 				} else if(dtIndex == 3) {
+// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+					SystemConfigFile.getInstance().setDTBuffer(dtIndex, "" + proCode % 10);
+// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 					baseObject.setContent("" + proCode % 10);
 					needUpdate = true;
 				} else if(dtIndex == 1) {
 // End of H.M.Wang 2021-4-11 追加4字节品种代码
+// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+					SystemConfigFile.getInstance().setDTBuffer(dtIndex, "" + writeValue % 10);
+// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 					baseObject.setContent("" + writeValue % 10);
 					needUpdate = true;
 				} else if(dtIndex == 0) {
@@ -1224,6 +1233,9 @@ private void setSerialProtocol9DTs(final String data) {
 					if(baseObject instanceof DynamicText) {
 						int dtIndex = ((DynamicText)baseObject).getDtIndex();
 						if(dtIndex == 0) {
+// H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
+							SystemConfigFile.getInstance().setDTBuffer(dtIndex, resString);
+// End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							baseObject.setContent(resString);
 						}
 						needUpdate = true;
@@ -2148,22 +2160,31 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE) {
 							if(strIndex < recvStrs.length) {
 								Debug.d(TAG, "DynamicText[" + strIndex + "]: " + recvStrs[strIndex]);
-								baseObject.setContent(recvStrs[strIndex++]);
+// H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
+								SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), recvStrs[strIndex++]);
+//								baseObject.setContent(recvStrs[strIndex++]);
+// End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							}
 						}
 
 						if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2) {
 							int dtIndex = ((DynamicText)baseObject).getDtIndex();
 							if(dtIndex >= 0 && dtIndex < recvStrs.length) {
-								baseObject.setContent(recvStrs[dtIndex]);
-							} else {
-								baseObject.setContent("");
+// H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
+								SystemConfigFile.getInstance().setDTBuffer(dtIndex, recvStrs[dtIndex]);
+//								baseObject.setContent(recvStrs[dtIndex]);
+//							} else {
+//								baseObject.setContent("");
 							}
+// End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 						}
 					} else if(baseObject instanceof BarcodeObject) {
 						if(recvStrs.length >= 11) {
 							Debug.d(TAG, "BarcodeObject: " + recvStrs[10]);
-							((BarcodeObject)baseObject).setContent(recvStrs[10]);
+// H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
+							SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
+//							((BarcodeObject)baseObject).setContent(recvStrs[10]);
+// End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 						}
 					}
 				}
