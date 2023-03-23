@@ -383,14 +383,14 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     int i;
 
     // Initialize system
-    int I2C_File = -1;
+/*    int I2C_File = -1;
     I2C_File = open(I2C_DEVICE, O_RDWR);
     if (I2C_File < 0) {
         LOGE("Open %s failed!\n", I2C_DEVICE);
         return -1;          // failure
     }
     LOGI("Open %s succeded!\n", I2C_DEVICE);
-
+*/
     if (InitSystem()) return (-1);
 
     // Update PD MCU
@@ -449,14 +449,11 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     PDSmartCardInfo_t pd_sc_info;
     uint8_t pd_sc_result;
 
-    int ret = 1;
-    while(ret) {
-        pd_r = pd_get_print_head_status(PD_INSTANCE, PEN_IDX, &print_head_status);
-        if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
-        if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
-            LOGE("Print head state not valid: %d, %d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
-//            return (-1);
-        } else {ret=0;}
+    pd_r = pd_get_print_head_status(PD_INSTANCE, PEN_IDX, &print_head_status);
+    if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
+    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
+        LOGE("Print head state not valid: %d, %d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+        return (-1);
     }
 
     pd_r = pd_sc_get_info(PD_INSTANCE, PEN_IDX, &pd_sc_info, &pd_sc_result);
@@ -473,7 +470,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
               id_string, ph_state_description(print_head_status.print_head_state), ph_error_description(print_head_status.print_head_error));
 
     // @@@ Pair Pen (both slots) with Supply @@@
-/*
+
     // delete pairing and reset sequence
     if (DeletePairing()) {
         LOGE("DeletePairing failed!\n");
@@ -491,7 +488,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
         LOGE("DoOverrides failed!\n");
         return (-1);
     }
-*/
+
     return 0;
 }
 

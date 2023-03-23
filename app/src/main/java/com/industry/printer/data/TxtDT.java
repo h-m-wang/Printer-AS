@@ -176,7 +176,12 @@ public class TxtDT {
                     int value = Integer.valueOf(editable.toString());
                     if(value >= mStartLine && value <= mEndLine) {
                         mCurLineET.setTextColor(Color.BLACK);
-                        mCurLine = value;
+// H.M.Wang 2023-3-23 由于在打印过程当中，使用该控件显示具体的进度，因此这个中间值不应该用来修改当前的值
+                        if(mCurLineET.isEnabled()) {
+                            mCurLine = value;
+                            dispPreview();
+                        }
+// End of H.M.Wang 2023-3-23 由于在打印过程当中，使用该控件显示具体的进度，因此这个中间值不应该用来修改当前的值
                     } else {
                         mCurLineET.setTextColor(Color.RED);
                     }
@@ -352,20 +357,35 @@ public class TxtDT {
     }
 
     public void dispPreview() {
-        mPreviewTV.postDelayed(new Runnable() {
+        mPreviewTV.post(new Runnable() {
             @Override
             public void run() {
                 mPreviewTV.setTextSize(mPreviewTV.getHeight()/2);
                 if(null == mTxtDataList || mCurLine < 1 || mCurLine > mTxtDataList.size()) return;
                 mPreviewTV.setText(mTxtDataList.get(mCurLine-1));
             }
-        }, 10);
+        });
+    }
+
+    public void dispCurLine() {
+        mCountET.post(new Runnable() {
+            @Override
+            public void run() {
+                mCurLineET.setText(String.valueOf(mCurLine));
+            }
+        });
+    }
+
+    public void dispCount() {
+        mCountET.post(new Runnable() {
+            @Override
+            public void run() {
+                mCountET.setText(String.valueOf(mPrintRptCnt+1));
+            }
+        });
     }
 
     public void startPrint() {
-        dispPreview();
-        setData();
-
         mFileNameTV.setEnabled(false);
         mTotalNumTV.setEnabled(false);
         mStartLineET.setEnabled(false);
@@ -373,6 +393,11 @@ public class TxtDT {
         mCurLineET.setEnabled(false);
         mCountET.setEnabled(false);
         mCircleIV.setEnabled(false);
+
+        setData();
+        dispPreview();
+        dispCurLine();
+        dispCount();
     }
 
     public void stopPrint() {
@@ -386,16 +411,9 @@ public class TxtDT {
         mCountET.setText("" + mRepeatCnt);
     }
 
-    public boolean gotoNext() {
+    public boolean goNext() {
         mPrintRptCnt++;
         Debug.d(TAG, "Count = [" + mPrintRptCnt + "/" + mRepeatCnt + "]");
-        final String cnt = mPrintRptCnt + ".";
-        mCountET.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mCountET.setText(cnt);
-            }
-        }, 10);
 
         if(mPrintRptCnt >= mRepeatCnt) {
             mPrintRptCnt = 0;
@@ -407,10 +425,12 @@ public class TxtDT {
                     mCurLine = mStartLine;
                 }
             }
-            dispPreview();
             setData();
+            dispCurLine();
+            dispPreview();
         }
 
+        dispCount();
         return true;
     }
 

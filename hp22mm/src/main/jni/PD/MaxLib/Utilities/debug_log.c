@@ -140,15 +140,17 @@ char* get_log_level_description(int32_t level)
 	return log_level_struct[level-1].description;
 }
 */
-int toHexString(const uint8_t *src, char *dst, int src_len, int dst_len, char div) {
+#define BUF_MAX 1024
+
+char dst[BUF_MAX];
+
+char *toHexString(const uint8_t *src, int src_len, char div) {
     if(!src) return -1;
-    if(!dst) return -1;
 
     int len = src_len;
     char s[6];
 
-    if(src_len * 5 > dst_len) len = (dst_len - 4) / 5;
-    memset(dst, 0x00, dst_len);
+    memset(dst, 0x00, BUF_MAX);
     for(int i=0; i<len; i++) {
         memset(s, 0x00, 6);
         if(i == 0) {
@@ -156,10 +158,7 @@ int toHexString(const uint8_t *src, char *dst, int src_len, int dst_len, char di
         } else {
             sprintf(s, "%c0x%02X", div, src[i]);
         }
-        strcat(dst, s);
-    }
-    if(len < src_len) {
-        strcat(dst, ",...");
+        if(strlen(dst) + strlen(s) < BUF_MAX) strcat(dst, s);
     }
 
     return strlen(dst);

@@ -2465,7 +2465,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 					if(TxtDT.getInstance(mContext).isTxtDT()) {
-						TxtDT.getInstance(mContext).gotoNext();
+						TxtDT.getInstance(mContext).goNext();
 					}
 // End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 

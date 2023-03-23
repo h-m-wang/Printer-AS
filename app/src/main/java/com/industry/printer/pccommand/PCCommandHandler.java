@@ -284,6 +284,10 @@ public class PCCommandHandler {
             DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
             sb.append("|" + (aDTThread.isRunning() ? "T" : "F") + "|");
 // H.M.Wang 2020-6-29 打印任务还没有启动时，DataTransferThread.getInstance(mContext)会自动生成instance，导致错误，应避免使用
+// H.M.Wang 2023-3-13 增加一个PC_FIFO空位数的字段
+            PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+            sb.append(pc_FIFO.getPCFIFOAvailableSize() + "|");
+// End of H.M.Wang 2023-3-13 增加一个PC_FIFO空位数的字段
             sb.append(msg);
             sendmsg(Constants.pcOk(sb.toString()));
 // End of H.M.Wang 2020-4-22 修改读取Counter命令返回格式

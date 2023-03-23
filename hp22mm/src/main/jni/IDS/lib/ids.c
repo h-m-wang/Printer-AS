@@ -28,19 +28,15 @@
 
 #include "ids.h"
 
-
+#include "debug_log.h"
 
 // Customization for hardware
 #define I2C_DEVICE "/dev/i2c-1"
 #define MUX_ADDR 0xEE
 
-
-
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@ Routines starting with "IDS_" are considered PUBLIC routines
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
 
 // #####################################################################
 // # Defines, Constants, and Globals
@@ -62,9 +58,6 @@
 // mutex used to lock hardware access
 static pthread_mutex_t IDSMutex;
 
-
-
-
 // #####################################################################
 // # Prototypes 
 // #####################################################################
@@ -75,40 +68,40 @@ int BlinkInit(void);
 int MonitorInit(void);
 int RTCInit(void);
 
-
-
-
 // #####################################################################
 // # Local utilities
 // #####################################################################
 
-void InitRecursiveMutex(pthread_mutex_t *pMutex)
-{
+void InitRecursiveMutex(pthread_mutex_t *pMutex) {
+	LOGI("Enter %s", __FUNCTION__);
+
     // NOTE: can be locked multiple times (recursive), but locks/unlocks must match for the thread
 	pthread_mutexattr_t MutexAttr;
 	pthread_mutexattr_init(&MutexAttr);
     pthread_mutexattr_settype(&MutexAttr, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(pMutex, &MutexAttr);
     pthread_mutexattr_destroy(&MutexAttr);
+
+	LOGI("%s done", __FUNCTION__);
 }
-
-
 
 // @@@ Deselect both IDS from the MUX
 // @@@ NOTE: only IDS 0 and 1 are supported
-void DeSelectBothIDS(void)
-{
+void DeSelectBothIDS(void) {
+	LOGI("Enter %s", __FUNCTION__);
+
 	// NOTE: calls to WriteByte must NOT specify IDS, or will recurse
 	IDS_I2C_WriteByte(CURRENT_IDS, MUX_ADDR, 0);
 	usleep(1000);	// 1ms
+
+	LOGI("%s done", __FUNCTION__);
 }
-
-
 
 // @@@ Select an IDS from the MUX
 // @@@ NOTE: only IDS 0 and 1 are supported
-void SelectIDS(int IDS)
-{
+void SelectIDS(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
+
 	if (IDS < 0 || IDS > 1)
 	{
 		DeSelectBothIDS();
@@ -117,10 +110,9 @@ void SelectIDS(int IDS)
 	// NOTE: calls to WriteByte must NOT specify IDS, or will recurse
 	IDS_I2C_WriteByte(CURRENT_IDS, MUX_ADDR, (uint8_t)(0x01 << IDS));
 	usleep(1000);	// 1ms
+
+	LOGI("%s done", __FUNCTION__);
 }
-
-
-
 
 // #####################################################################
 // # Callbacks
@@ -128,22 +120,19 @@ void SelectIDS(int IDS)
 
 void (*_ids_callback_func)(int ids, int level, const char *message) = NULL;
 
-void ids_callback(int ids, int level, const char *message)
-{
+void ids_callback(int ids, int level, const char *message) {
     if (NULL != _ids_callback_func)
 		(*_ids_callback_func)(ids, level, message);
 }
-
-
-
 
 // #####################################################################
 // # IDS General
 // #####################################################################
 
 // @@@ Initialize the IDS system including Smart Card library
-int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message))
-{	
+int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message)) {
+	LOGI("Enter %s", __FUNCTION__);
+
 	// @@@ Set callbacks @@@
 	_ids_callback_func = ids_callback_func;
 
@@ -153,91 +142,86 @@ int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message))
     InitRecursiveMutex(&IDSMutex);
    
     // Init the I2C device access
-    if (I2CInit() < 0)
-	{
-		fprintf(stderr, "IDS_Init cannot init I2C"); 
+    if (I2CInit() < 0) {
+		LOGE("IDS_Init cannot init I2C");
 		return -1;
 	}
 	
 	// Init IDS GPIO / Blink
-	if (GPIOInit(0) < 0)
-	{
-		fprintf(stderr, "IDS_Init: cannot init GPIO on IDS0"); 
+	if (GPIOInit(0) < 0) {
+		LOGE("IDS_Init: cannot init GPIO on IDS0");
 		return -1;
 	}
-	if (GPIOInit(1) < 0)
-	{
-		fprintf(stderr, "IDS_Init: cannot init GPIO on IDS1"); 
+
+	if (GPIOInit(1) < 0) {
+		LOGE("IDS_Init: cannot init GPIO on IDS1");
 		return -1;
 	}
-	if (BlinkInit() < 0)
-	{
-		fprintf(stderr, "IDS_Init cannot init blink thread"); 
+
+	if (BlinkInit() < 0) {
+		LOGE("IDS_Init cannot init blink thread");
 		return -1;
 	}
 		
 	// Init IDS RTC (only IDS 0)
-	if (RTCInit() < 0)
-	{
-		fprintf(stderr, "IDS_Init: cannot init RTC"); 
+	if (RTCInit() < 0) {
+		LOGE("IDS_Init: cannot init RTC");
 		return -1;
 	}
 		
    	// @@@ Start background monitoring thread @@@
 
-	if (MonitorInit() < 0)
-	{
-		fprintf(stderr, "IDS_Init cannot init monitor thread"); 
+	if (MonitorInit() < 0) {
+		LOGE("IDS_Init cannot init monitor thread");
 		return -1;
 	}
+
+	LOGI("%s done", __FUNCTION__);
 
 	return 0;
 }
 
-
-
 // @@@ Shut down the IDS system including Smart Card library
-void IDS_Shutdown(void)
-{
+void IDS_Shutdown(void) {
+	LOGI("Enter %s", __FUNCTION__);
+
+	// All threads should quit before return from this routine. by H.M.Wang 2023-3-22
+	// ------------------------------------------------------------------------------
+
 	IDS_LED_AllOff();
+
+	LOGI("%s done", __FUNCTION__);
 }
-
-
 
 // @@@ Lock access (mutex) to hardware AND select an IDS
-void IDS_LockAccessAndSelectIDS(int IDS)
-{
+void IDS_LockAccessAndSelectIDS(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
+
 	IDS_LockAccess();
 	SelectIDS(IDS);
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-
-
 // @@@ Lock access (mutex) to hardware
-void IDS_LockAccess(void)
-{
+void IDS_LockAccess(void) {
 	pthread_mutex_lock(&IDSMutex);
 }
 
-
-
 // @@@ UNlock access (mutex) to hardware AFTER deselecting both IDS
-void IDS_UnlockAccessAndDeSelectBothIDS(void)
-{
+void IDS_UnlockAccessAndDeSelectBothIDS(void) {
+	LOGI("Enter %s", __FUNCTION__);
+
 	DeSelectBothIDS();
 	IDS_UnlockAccess();
+
+	LOGI("%s done", __FUNCTION__);
 }
-
-
 
 // @@@ UNlock access (mutex) to hardware
-void IDS_UnlockAccess(void)
-{
+void IDS_UnlockAccess(void) {
 	pthread_mutex_unlock(&IDSMutex);
 }
-
-
-
 
 // #####################################################################
 // # I2C
@@ -246,52 +230,52 @@ void IDS_UnlockAccess(void)
 static bool I2C_Initialized = false;
 static int I2C_File = -1;
 
-
-
 // @@@ Init (open) the I2C device
-int I2CInit(void)
-{
+int I2CInit(void) {
+	LOGI("Enter %s", __FUNCTION__);
+
     // if already initialized, don't do it again
     if (I2C_Initialized)
         return 0;
 
     // open the device
     I2C_File = open(I2C_DEVICE, O_RDWR);
-    if (I2C_File < 0)
-    {
-		fprintf(stderr, "I2CInit: open errno: %d\n", errno);
+    if (I2C_File < 0) {
+		LOGE("I2CInit: open errno: %d\n", errno);
         return -1;          // failure
     }
      
     // Initialized
     I2C_Initialized = true;
+
+	LOGI("%s done", __FUNCTION__);
+
     return 0;
 }
 
-
-
 // @@@ Set I2C address for next read/write
 // @@@ NOTE: this is the "full" address (lowest bit will used for read/write)
-uint8_t SetI2CAddress(uint8_t I2CAddress)
-{
+uint8_t SetI2CAddress(uint8_t I2CAddress) {
+	LOGI("Enter %s, I2CAddress=0x%02x", __FUNCTION__, I2CAddress);
+
     int ret;
 
     // set I2C address
     ret = ioctl(I2C_File, I2C_SLAVE, (uint8_t)(I2CAddress >> 1));
-    if (ret < 0) 
-    {
-		fprintf(stderr, "SetI2CAddress: ioctl errno: %d\n", errno);
+    if (ret < 0) {
+		LOGE("SetI2CAddress: ioctl errno: %d\n", errno);
 		return -1;
 	}
-	
+
+	LOGI("%s done", __FUNCTION__);
+
 	return 0;
 }
 
-
-
 // @@@ Raw read from I2C device
-int IDS_I2C_RawRead(int IDS, const uint8_t I2CAddress, uint8_t *Data, size_t Length)
-{
+int IDS_I2C_RawRead(int IDS, const uint8_t I2CAddress, uint8_t *Data, size_t Length) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Length=%d", __FUNCTION__, IDS, I2CAddress, Length);
+
     int ret = 0;
     
     // if IDS specified, LOCK/UNLOCK
@@ -302,37 +286,40 @@ int IDS_I2C_RawRead(int IDS, const uint8_t I2CAddress, uint8_t *Data, size_t Len
 		ret = -1;
     	
 	// read data
-	if (ret >= 0)
-	{
+	if (ret >= 0) {
 		ret = read(I2C_File, (void *)(Data), Length);
-		//if (ret < 0) fprintf(stderr, "IDS_I2C_RawRead: read errno: %d\n", errno);
+		if (ret < 0) LOGE("Read errno: %d\n", errno);
+		else LOGD("Read: [%s]", toHexString(Data, ret, ','));
 	}
     
     // UNLOCK
    	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();
 
+	LOGI("%s done", __FUNCTION__);
+
     return (ret < 0 ? -1 : 0);		// return 0 or -1
 }
 
-
-
 // @@@ Read a single byte from I2C device (no command/register)
 // @@@ NOTE: error not returned
-uint8_t IDS_I2C_ReadByte(int IDS, const uint8_t I2CAddress)
-{
+uint8_t IDS_I2C_ReadByte(int IDS, const uint8_t I2CAddress) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x", __FUNCTION__, IDS, I2CAddress);
+
 	int ret;
 	uint8_t byte = 0;
 	ret = IDS_I2C_RawRead(IDS, I2CAddress, &byte, 1);
 	if (ret < 0) ids_callback(IDS, LEVEL_ERR, "IDS_I2C_RawRead returned an error");
+
+	LOGI("%s done", __FUNCTION__);
+
 	return byte;
 }
 
-
-
 // @@@ Read a single byte from I2C device AFTER writing the register command
 // @@@ NOTE: error not returned
-uint8_t IDS_I2C_ReadByteFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register)
-{
+uint8_t IDS_I2C_ReadByteFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	int ret;
 	uint8_t byte = 0;
 	
@@ -340,23 +327,23 @@ uint8_t IDS_I2C_ReadByteFromRegister(int IDS, const uint8_t I2CAddress, const ui
 	
 	ret = IDS_I2C_RawWrite(CURRENT_IDS, I2CAddress, &Register, 1);
 	if (ret < 0) ids_callback(IDS, LEVEL_ERR, "IDS_I2C_RawWrite returned an error");
-	if (ret >= 0)
-	{
+	if (ret >= 0) {
 		ret = IDS_I2C_RawRead(CURRENT_IDS, I2CAddress, &byte, 1);
 		if (ret < 0) ids_callback(IDS, LEVEL_ERR, "IDS_I2C_RawRead returned an error");
 	}
 		
 	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
-	
+
+	LOGI("%s done", __FUNCTION__);
+
 	return byte;
 }
 
-
-
 // @@@ Read a word (2 bytes) from I2C device AFTER writing the register command
 // @@@ NOTE: error not returned
-uint16_t IDS_I2C_ReadWordFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register)
-{
+uint16_t IDS_I2C_ReadWordFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	int ret;
 	uint8_t buff[2];
 	
@@ -364,22 +351,22 @@ uint16_t IDS_I2C_ReadWordFromRegister(int IDS, const uint8_t I2CAddress, const u
 	
 	ret = IDS_I2C_RawWrite(CURRENT_IDS, I2CAddress, &Register, 1);
 	if (ret < 0) ids_callback(IDS, LEVEL_ERR, "IDS_I2C_RawWrite returned an error");
-	if (ret >= 0)
-	{
+	if (ret >= 0) {
 		ret = IDS_I2C_RawRead(CURRENT_IDS, I2CAddress, buff, 2);
 		if (ret < 0) ids_callback(IDS, LEVEL_ERR, "IDS_I2C_RawRead returned an error");
 	}
 		
 	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
-	
+
+	LOGI("%s done", __FUNCTION__);
+
 	return ((uint16_t)buff[1] << 8 | (uint16_t)buff[0]);
 }
 
-
-
 // @@@ Read two bytes from I2C device AFTER writing the register command
-int IDS_I2C_ReadTwoBytesFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, uint8_t *TwoBytes)
-{
+int IDS_I2C_ReadTwoBytesFromRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, uint8_t *TwoBytes) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	int ret;
 	
 	if (IDS >= 0) IDS_LockAccessAndSelectIDS(IDS);		// if IDS specified, LOCK/UNLOCK multiple commands
@@ -390,14 +377,15 @@ int IDS_I2C_ReadTwoBytesFromRegister(int IDS, const uint8_t I2CAddress, const ui
 		
    	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
 
+	LOGI("%s done", __FUNCTION__);
+
     return (ret < 0 ? -1 : 0);							// return 0 or -1
 }
 
-
-
 // @@@ Raw write to I2C device
-int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, const size_t Length)
-{
+int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, const size_t Length) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Data=[%s]", __FUNCTION__, IDS, I2CAddress, toHexString(Data, Length, ','));
+
     int ret = 0;
     
     // if IDS specified, LOCK/UNLOCK
@@ -408,8 +396,7 @@ int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, con
 		ret = -1;
     	
 	// write data
-	if (ret >= 0)
-	{
+	if (ret >= 0) {
 		ret = write(I2C_File, (const void *)Data, Length);
 		if (ret < 0) fprintf(stderr, "IDS_I2C_RawWrite: write errno: %d\n", errno);
 	}
@@ -417,44 +404,42 @@ int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, con
     // UNLOCK
    	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();
 
+	LOGI("%s done", __FUNCTION__);
+
     return (ret < 0 ? -1 : 0);		// return 0 or -1
 }
 
-
-
 // @@@ Write a single byte to I2C device (no command/register)
-int IDS_I2C_WriteByte(int IDS, const uint8_t I2CAddress, const uint8_t Byte)
-{
+int IDS_I2C_WriteByte(int IDS, const uint8_t I2CAddress, const uint8_t Byte) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x", __FUNCTION__, IDS, I2CAddress);
+
 	return IDS_I2C_RawWrite(IDS, I2CAddress, &Byte, 1);
 }
 
-
-
 // @@@ Write two bytes to I2C device (no command/register)
-int IDS_I2C_WriteTwoBytes(int IDS, const uint8_t I2CAddress, const uint8_t FirstByte, const uint8_t SecondByte)
-{
+int IDS_I2C_WriteTwoBytes(int IDS, const uint8_t I2CAddress, const uint8_t FirstByte, const uint8_t SecondByte) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x", __FUNCTION__, IDS, I2CAddress);
+
 	uint8_t buff[2];
 	buff[0] = FirstByte;
 	buff[1] = SecondByte;
 	return IDS_I2C_RawWrite(IDS, I2CAddress, buff, 2);
 }
 
-
-
 // @@@ Write a single byte to a register in I2C device
-int IDS_I2C_WriteByteToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte)
-{
+int IDS_I2C_WriteByteToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	uint8_t buff[2];
 	buff[0] = Register;
 	buff[1] = Byte;
 	return IDS_I2C_RawWrite(IDS, I2CAddress, buff, 2);
 }
 
-
-
 // @@@ Write a word (2 bytes) to a register in I2C device
-int IDS_I2C_WriteWordToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint16_t Word)
-{
+int IDS_I2C_WriteWordToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint16_t Word) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	uint8_t buff[3];
 	buff[0] = Register;
 	buff[1] = (uint8_t)(Word & 0xFF);
@@ -462,20 +447,16 @@ int IDS_I2C_WriteWordToRegister(int IDS, const uint8_t I2CAddress, const uint8_t
 	return IDS_I2C_RawWrite(IDS, I2CAddress, buff, 3);
 }
 
-
-
 // @@@ Write two bytes to a register in I2C device
-int IDS_I2C_WriteTwoBytesToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte1, const uint8_t Byte2)
-{
+int IDS_I2C_WriteTwoBytesToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte1, const uint8_t Byte2) {
+	LOGI("Enter %s, IDS=%d, I2CAddress=0x%02x, Register=0x%02x", __FUNCTION__, IDS, I2CAddress, Register);
+
 	uint8_t buff[3];
 	buff[0] = Register;
 	buff[1] = Byte1;
 	buff[2] = Byte2;
 	return IDS_I2C_RawWrite(IDS, I2CAddress, buff, 3);
 }
-
-
-
 
 // #####################################################################
 // # GPIO
@@ -498,58 +479,53 @@ static pthread_t BlinkThread;
 static int BlinkMask[2];
 static bool BlinkOn = false; 
 
+int GPIOInit(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
 
-
-int GPIOInit(int IDS)
-{
-	int ret = 0;	
+	int ret = 0;
 	IDS_LockAccessAndSelectIDS(IDS);		// LOCK/UNLOCK multiple commands
 	
 	ret = IDS_I2C_WriteTwoBytesToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_CONFIG, GPIO_CONFIG_PORT0, GPIO_CONFIG_PORT1);
 	if (ret == 0) ret = IDS_I2C_WriteWordToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_OUTPUT, 0x0000);
 	
 	IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
+
+	LOGI("%s done", __FUNCTION__);
+
 	return ret;
 }
 
-
-
 // @@@ Read a GPIO device
-uint16_t ReadGPIO(int IDS)
-{
+uint16_t ReadGPIO(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
+
 	return IDS_I2C_ReadWordFromRegister(IDS, GPIO_I2C_ADDRESS, GPIO_CMD_INPUT);
 }
 
-
-
 // @@@ Read a GPIO device OUTPUT
-uint16_t ReadGPIOOutput(int IDS)
-{
+uint16_t ReadGPIOOutput(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
+
 	return IDS_I2C_ReadWordFromRegister(IDS, GPIO_I2C_ADDRESS, GPIO_CMD_OUTPUT);
 }
 
-
-
 // @@@ Read a SINGLE bit from GPIO (returned as 0 or 1)
-uint8_t IDS_GPIO_ReadBit(int IDS, IDS_GPIO_Desc GPIOBit)
-{
+uint8_t IDS_GPIO_ReadBit(int IDS, IDS_GPIO_Desc GPIOBit) {
+	LOGI("Enter %s, IDS=%d, IDS_GPIO_Desc=0x%02x", __FUNCTION__, IDS, GPIOBit);
+
 	uint16_t bits = ReadGPIO(IDS);
 	return (uint8_t)((bits & (IDS_GPIO_DescToBitMask(GPIOBit))) == 0 ? 0 : 1);
 }
 
-
-
 // @@@ Extract the bit mask from GPIO descriptor
-uint16_t IDS_GPIO_DescToBitMask(IDS_GPIO_Desc GPIODesc)
-{
+uint16_t IDS_GPIO_DescToBitMask(IDS_GPIO_Desc GPIODesc) {
 	return (uint16_t)(GPIODesc & 0x00FFFF);
 }
 
-
-
 // @@@ Set a bit OR bits (in same port)
-void IDS_GPIO_SetBits(int IDS, IDS_GPIO_Desc GPIODesc)
-{
+void IDS_GPIO_SetBits(int IDS, IDS_GPIO_Desc GPIODesc) {
+	LOGI("Enter %s, IDS=%d, IDS_GPIO_Desc=0x%02x", __FUNCTION__, IDS, GPIODesc);
+
 	int ret;
 	
 	if (IDS >= 0) IDS_LockAccessAndSelectIDS(IDS);		// if IDS specified, LOCK/UNLOCK multiple commands
@@ -560,13 +536,14 @@ void IDS_GPIO_SetBits(int IDS, IDS_GPIO_Desc GPIODesc)
 	ret = IDS_I2C_WriteWordToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_OUTPUT, bits);
 	
 	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-
-
 // @@@ Clear a bit OR bits (in same port)
-void IDS_GPIO_ClearBits(int IDS, IDS_GPIO_Desc GPIODesc)
-{
+void IDS_GPIO_ClearBits(int IDS, IDS_GPIO_Desc GPIODesc) {
+	LOGI("Enter %s, IDS=%d, IDS_GPIO_Desc=0x%02x", __FUNCTION__, IDS, GPIODesc);
+
 	int ret;
 	
 	if (IDS >= 0) IDS_LockAccessAndSelectIDS(IDS);		// if IDS specified, LOCK/UNLOCK multiple commands
@@ -577,13 +554,14 @@ void IDS_GPIO_ClearBits(int IDS, IDS_GPIO_Desc GPIODesc)
 	ret = IDS_I2C_WriteWordToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_OUTPUT, bits);
 	
 	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-
-
 // @@@ Get Bit Descriptor by name
-int IDS_GPIO_GetBitDesc(char *Name)
-{
+int IDS_GPIO_GetBitDesc(char *Name) {
+	LOGI("Enter %s, Name=%s", __FUNCTION__,  Name);
+
 	// General GPIO
 	if (strncmp(Name, "I_BROKEN_BAG", 99) == 0)
 		return GPIO_I_BROKEN_BAG;		
@@ -615,22 +593,23 @@ int IDS_GPIO_GetBitDesc(char *Name)
 		return COMBO_AIR_PUMP_ALL;
 	else if (strncmp(Name, "COMBO_INK_AIR_PUMP_ALL", 99) == 0)
 		return COMBO_INK_AIR_PUMP_ALL;
+
 	return 0;
 }
 
-
-
 // @@@ Return 0/1 if IDS cartridge is present
-int IDS_GPIO_Present(int IDS)
-{
-	return (IDS_GPIO_ReadBit(IDS, GPIO_I_SUPPLY_PRSNT_L) == 0 ? 1 : 0);		// (invert)
+int IDS_GPIO_Present(int IDS) {
+	int present = (IDS_GPIO_ReadBit(IDS, GPIO_I_SUPPLY_PRSNT_L) == 0 ? 1 : 0);
+
+	LOGD("IDS=%d, %s=%d", IDS, __FUNCTION__, present);
+
+	return present;		// (invert)
 }
 
-
-
 // @@@ Get all bits (intput AND output) for IDS
-uint16_t IDS_GPIO_GetAllBits(int IDS)
-{
+uint16_t IDS_GPIO_GetAllBits(int IDS) {
+	LOGI("Enter %s, IDS=%d", __FUNCTION__, IDS);
+
 	uint16_t mask = IDS_GPIO_DescToBitMask(COMBO_ALL_GEN_BITS);
 	
 	if (IDS >= 0) IDS_LockAccessAndSelectIDS(IDS);		// if IDS specified, LOCK/UNLOCK multiple commands
@@ -640,53 +619,64 @@ uint16_t IDS_GPIO_GetAllBits(int IDS)
 	bits &= mask;
 	
 	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
-	
+
+	LOGI("%s done. bits=0x%02x", __FUNCTION__, bits);
+
 	return bits;
 }
 
+int LED_Desc(int LED) {
+	LOGI("Enter %s, LED=%d", __FUNCTION__, LED);
 
-
-int LED_Desc(int LED)
-{
 	if (LED < 0 || LED > 2) return -1;
 	return (GPIO_O_LED_R << LED);
 }
 
-void IDS_LED_On(int IDS, int LED)
-{
+void IDS_LED_On(int IDS, int LED) {
+	LOGI("Enter %s, LED=%d", __FUNCTION__, LED);
+
 	int desc = LED_Desc(LED);
 	if (desc < 0) return;
 	BlinkMask[IDS] &= ~(desc);
 	IDS_GPIO_SetBits(IDS, desc);
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-void IDS_LED_Off(int IDS, int LED)
-{
+void IDS_LED_Off(int IDS, int LED) {
+	LOGI("Enter %s, LED=%d", __FUNCTION__, LED);
+
 	int desc = LED_Desc(LED);
 	if (desc < 0) return;
 	BlinkMask[IDS] &= ~(desc);
 	IDS_GPIO_ClearBits(IDS, desc);
+
+	LOGI("%s done", __FUNCTION__);
 }
-extern void IDS_LED_AllOff(void)
-{
+
+extern void IDS_LED_AllOff(void) {
+	LOGI("Enter %s", __FUNCTION__);
+
 	int ids,led;
 	for (ids=0; ids<2; ids++)
 		for (led=0; led<3; led++)
 			IDS_LED_Off(ids, led);
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-void IDS_LED_Blink(int IDS, int LED)
-{
+void IDS_LED_Blink(int IDS, int LED) {
+	LOGI("Enter %s, IDS=%d, LED=%d", __FUNCTION__, IDS, LED);
+
 	int desc = LED_Desc(LED);
 	if (desc < 0) return;
 	BlinkMask[IDS] |= desc;
+
+	LOGI("%s done", __FUNCTION__);
 }
 
-
-
 // @@@ background thread that blinks LEDs
-void *_blink_thread(void *arg)
-{
+void *_blink_thread(void *arg) {
 	int IDS;
 
 	while (1)
@@ -711,17 +701,20 @@ void *_blink_thread(void *arg)
 	}
 }
 
-int BlinkInit(void)
-{
+int BlinkInit(void) {
+    LOGI("Enter %s", __FUNCTION__);
+
 	// start blink thread
 	int ret = pthread_create(&BlinkThread, NULL, _blink_thread, NULL);
+
+    LOGI("%s done", __FUNCTION__);
+
 	return (ret != 0 ? -1 : 0);		// return 0 or -1
 }
 
+void ResetMCU(void) {
+    LOGI("Enter %s", __FUNCTION__);
 
-
-void ResetMCU(void)
-{
 	// reset the MCU; note that this line is only connected for IDS 0
 	IDS_LockAccessAndSelectIDS(0);		// LOCK/UNLOCK multiple commands
 	
@@ -732,10 +725,9 @@ void ResetMCU(void)
 	IDS_I2C_WriteTwoBytesToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_CONFIG, GPIO_CONFIG_PORT0, GPIO_CONFIG_PORT1);
 	
 	IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK	
+
+    LOGI("%s done", __FUNCTION__);
 }
-
-
-
 
 // #####################################################################
 // # ADC/DAC (includes PILS/Pressure Monitoring)
@@ -775,8 +767,6 @@ float LastAvgPILS[2] = {0.0, 0.0};		// last read of moving-averaged PILS voltage
 float LastPressure[2] = {0.0, 0.0};		// last read of Pressure (psi)
 
 pthread_t MonitorThread;
-
-
 
 // @@@ Convert 8-bit unsigned into 2 bytes, shifted left 4 bits
 void DACSplitAndShift8Bit(uint8_t Value, uint8_t *MSB, uint8_t *LSB)

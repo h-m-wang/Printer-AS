@@ -29,7 +29,7 @@ char *getLogTag(const char* file, int line);
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-int toHexString(const uint8_t *src, char *dst, int src_len, int dst_len, char div);
+char *toHexString(const uint8_t *src, int src_len, char div);
 
 /**
  * @brief Debug masks to filter the debug messages.

@@ -15,7 +15,6 @@ public class PC_FIFO {
 
     private static PC_FIFO mInstance = null;
     private Context mContext = null;
-    private Timer mTimer;
 
     private int mPCFIFOSize;                            // PCFIFO数据区的大小
     private ArrayList<String> mPCFIFOBuffer;            // 从PC接收到的数据保存区
@@ -40,27 +39,26 @@ public class PC_FIFO {
 
     private PC_FIFO(Context ctx) {
         mContext = ctx;
-        mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                synchronized (mPCFIFOLock) {
-                    if(mPCFIFOBuffer.size() < mPCFIFOSize) {
-                        sendDataRequest();
-                    }
-                }
-            }
-        }, 1000L, 3000L);
 
-        mPCFIFOSize = 10;
+        SystemConfigFile config = SystemConfigFile.getInstance(mContext);
+        mPCFIFOSize = config.getParam(SystemConfigFile.INDEX_PC_FIFO);
+//        mPCFIFOSize = 10;
         mPCFIFOBuffer = new ArrayList<String>();
         mDeliveredBuffer = new ArrayList<String>();
         mPCFIFOLock = new Object();
         mDelBufLock = new Object();
     }
 
+    public int getPCFIFOAvailableSize() {
+        if(PCFIFOEnabled())
+            return mPCFIFOSize - mPCFIFOBuffer.size();
+        else return 0;
+    }
+
     public boolean PCFIFOAvailable() {
 //        Debug.d(TAG, "PCFIFOAvailable: " + (mPCFIFOBuffer.size() > 0));
+        if(mPCFIFOBuffer.size() <= 0) sendNoDataError();
+
         return mPCFIFOBuffer.size() > 0;
     }
 
@@ -72,9 +70,6 @@ public class PC_FIFO {
                 ret = true;
             }
             Debug.d(TAG, "appendToFIFO: (" + mPCFIFOBuffer.size() + "-" + ret + ")[" + str + "]");
-            if(mPCFIFOBuffer.size() < mPCFIFOSize) {
-                sendDataRequest();
-            }
         }
         return ret;
     }
@@ -85,9 +80,8 @@ public class PC_FIFO {
             if(mPCFIFOBuffer.size() > 0) {
                 SystemConfigFile.getInstance().setRemoteSeparated(mPCFIFOBuffer.get(0));
                 mPCFIFOBuffer.remove(0);
-            }
-            if(mPCFIFOBuffer.size() < mPCFIFOSize) {
-                sendDataRequest();
+            } else {
+                sendNoDataError();
             }
         }
         synchronized (mDelBufLock) {
@@ -117,7 +111,7 @@ public class PC_FIFO {
         }
     }
 
-    private void sendDataRequest() {
+    private void sendNoDataError() {
         PCCommandManager manager = PCCommandManager.getInstance();
         manager.sendMessage("000B|0000|1000|0|0000|0|0002|0000|0D0A");
     }
