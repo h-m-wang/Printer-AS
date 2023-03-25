@@ -76,6 +76,8 @@ extern void IDS_MonitorOn(int IDS);
 extern float IDS_LastAvgPILS(int IDS);
 extern float IDS_LastPressure(int IDS);
 
+extern float ADCGetPressurePSI(int IDS);
+
 extern uint8_t IDS_GPIO_ReadBit(int IDS, IDS_GPIO_Desc GPIOBit);
 extern void IDS_GPIO_SetBits(int IDS, IDS_GPIO_Desc GPIODesc);
 extern void IDS_GPIO_ClearBits(int IDS, IDS_GPIO_Desc GPIODesc);

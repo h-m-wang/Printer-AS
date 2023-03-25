@@ -18,13 +18,14 @@
 
 #include "hp22mm.h"
 #include "common.h"
+#include "ids.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.005"
+#define VERSION_CODE                            "1.0.011"
 
 /***********************************************************
  *  Customization
@@ -32,6 +33,19 @@ extern "C"
  *  Settings for basic customization.
  ***********************************************************/
 #define I2C_DEVICE "/dev/i2c-1"
+
+void IDSCallback(int ids, int level, const char *message) {
+    switch (level) {
+        case 1:
+            LOGE(">>> IDS %d WARNING: %s\n", ids, message);
+            break;
+        case 2:
+            LOGE(">>> IDS %d ERROR: %s\n", ids, message);
+            break;
+        default:
+            LOGE(">>> IDS %d: %s\n", ids, message);
+    }
+}
 
 static IdsSysInfo_t ids_sys_info;
 
@@ -53,6 +67,11 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
             ids_sys_info.status,
             ids_sys_info.bootload_major, ids_sys_info.bootload_minor,
             ids_sys_info.board_id);
+
+    if (IDS_Init(IDSCallback)) {
+        LOGE("IDS_Init failed\n");
+        return -1;
+    }
 
     return 0;
 }
@@ -346,6 +365,26 @@ JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx
     return 0;
 }
 
+void CmdDepressurize();
+int CmdPressurize();
+
+JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg) {
+    return CmdPressurize();
+}
+
+JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg) {
+    char strTemp[256];
+
+    sprintf(strTemp,"Press Value = %f", ADCGetPressurePSI(SUPPLY_IDX));
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg) {
+    CmdDepressurize();
+    return 0;
+}
+
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
@@ -373,6 +412,79 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
     return 0;
 }
 
+#define SUPPLY_PRESSURE 6.0
+#define PRESSURIZE_SEC 60
+
+#define LED_R 0
+#define LED_Y 1
+#define LED_G 2
+#define LED_OFF 0
+#define LED_ON 1
+#define LED_BLINK 2
+static bool IsPressurized = false;
+
+int _CmdPressurize(float set_pressure) {
+    float pressure;
+
+    if (set_pressure > 0.0)
+        pressure = set_pressure;
+    else
+        pressure = SUPPLY_PRESSURE;
+    IDS_MonitorPressure(SUPPLY_IDX);
+    IDS_DAC_SetSetpointPSI(SUPPLY_IDX, pressure);        // set pressure target
+    IDS_GPIO_ClearBits(SUPPLY_IDX, COMBO_INK_BOTH);      // ink Off
+    IDS_GPIO_SetBits(SUPPLY_IDX, COMBO_AIR_PUMP_ALL);    // pump enabled; air valve On/Hold
+    IDS_LED_On(SUPPLY_IDX, LED_Y);
+    LOGD("Pressurizing Supply %d to %.1f psi...\n", SUPPLY_IDX, pressure);
+
+    sleep(1);       // delay
+
+    IDS_GPIO_ClearBits(SUPPLY_IDX, GPIO_O_AIR_VALVE_ON); // turn Off air valve (leave Hold)
+
+    LOGD("Waiting on pumps...\n");
+    int limit_sec = PRESSURIZE_SEC;
+    bool pressurized;
+    do {
+        sleep(1);   // delay 1 sec
+
+        pressurized = true;
+        if (IDS_GPIO_ReadBit(SUPPLY_IDX, GPIO_I_AIR_PRESS_LOW)) pressurized = false;
+
+        // check for timeout
+        if (--limit_sec <= 0) {
+            LOGE("ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
+            CmdDepressurize();
+            return -1;
+        }
+    } while (!pressurized);
+
+    LOGD("Opening ink valves...\n");
+
+    IDS_GPIO_SetBits(SUPPLY_IDX, COMBO_INK_BOTH);        // ink valve On/Hold
+
+    sleep(1);
+
+    IDS_GPIO_ClearBits(SUPPLY_IDX, GPIO_O_INK_VALVE_ON); // turn Off ink valve (leave Hold)
+//    IDS_MonitorPILS(SUPPLY_IDX);
+
+    IsPressurized = true;
+
+    return 0;
+}
+
+int CmdPressurize() {
+    return _CmdPressurize(-1);
+}
+
+void CmdDepressurize() {
+    IsPressurized = false;
+
+    IDS_GPIO_ClearBits(SUPPLY_IDX, COMBO_INK_AIR_PUMP_ALL);     // pump disabled; ink/air valves closed
+    IDS_MonitorOff(SUPPLY_IDX);
+    IDS_LED_Off(SUPPLY_IDX, LED_Y);
+
+    LOGD("Depressurizing...\n");
+}
 
 JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     LOGI("Initializing hp22mm library....%s, PEN_IDX=%d\n", VERSION_CODE, PEN_IDX);
@@ -737,27 +849,30 @@ static JNINativeMethod gMethods[] = {
         {"init",					        "()I",	                    (void *)Java_com_hp22mm_init},
         {"init_ids",				        "()I",	                    (void *)Java_com_hp22mm_init_ids},
         {"ids_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_ids_get_sys_info},
-        {"init_pd",				        "()I",	                    (void *)Java_com_hp22mm_init_pd},
-        {"pd_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_pd_get_sys_info},
-        {"ids_set_platform_info",        "()I",	                    (void *)Java_com_ids_set_platform_info},
+        {"init_pd",				            "()I",	                    (void *)Java_com_hp22mm_init_pd},
+        {"pd_get_sys_info",	                "()Ljava/lang/String;",	    (void *)Java_com_pd_get_sys_info},
+        {"ids_set_platform_info",           "()I",	                    (void *)Java_com_ids_set_platform_info},
         {"pd_set_platform_info",	        "()I",	                    (void *)Java_com_pd_set_platform_info},
-        {"ids_set_date",                 "()I",	                    (void *)Java_com_ids_set_date},
-        {"pd_set_date",	                "()I",	                    (void *)Java_com_pd_set_date},
-        {"ids_set_stall_insert_count",	"()I",	                    (void *)Java_com_ids_set_stall_insert_count},
-        {"ids_get_supply_status",		"()I",	                    (void *)Java_com_ids_get_supply_status},
-        {"ids_get_supply_status_info",	"()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
-        {"ids_get_supply_id",		    "()I",	                    (void *)Java_com_ids_get_supply_id},
-        {"ids_get_supply_id_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
+        {"ids_set_date",                    "()I",	                    (void *)Java_com_ids_set_date},
+        {"pd_set_date",	                    "()I",	                    (void *)Java_com_pd_set_date},
+        {"ids_set_stall_insert_count",	    "()I",	                    (void *)Java_com_ids_set_stall_insert_count},
+        {"ids_get_supply_status",		    "()I",	                    (void *)Java_com_ids_get_supply_status},
+        {"ids_get_supply_status_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
+        {"ids_get_supply_id",		        "()I",	                    (void *)Java_com_ids_get_supply_id},
+        {"ids_get_supply_id_info",	        "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
         {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
-        {"pd_get_print_head_status_info","()Ljava/lang/String;",	    (void *)Java_com_pd_get_print_head_status_info},
-        {"pd_sc_get_info",		        "(I)I",	                    (void *)Java_com_pd_sc_get_info},
-        {"pd_sc_get_info_msg",           "()Ljava/lang/String;",	    (void *)Java_com_pd_sc_get_info_msg},
-        {"DeletePairing",		        "()I",	                    (void *)Java_com_DeletePairing},
-        {"DoPairing",		            "(I)I",	                    (void *)Java_com_DoPairing},
-        {"DoOverrides",		            "(I)I",	                    (void *)Java_com_DoOverrides},
-        {"UpdatePDFW",		            "()I",	                    (void *)Java_com_UpdatePDFW},
-        {"UpdateFPGAFlash",		        "()I",	                    (void *)Java_com_UpdateFPGAFlash},
-        {"UpdateIDSFW",		            "()I",	                    (void *)Java_com_UpdateIDSFW},
+        {"pd_get_print_head_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_get_print_head_status_info},
+        {"pd_sc_get_info",		            "(I)I",	                    (void *)Java_com_pd_sc_get_info},
+        {"pd_sc_get_info_msg",              "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_msg},
+        {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
+        {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
+        {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},
+        {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
+        {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
+        {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
+        {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
+        {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
+        {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
 };
 
 /**

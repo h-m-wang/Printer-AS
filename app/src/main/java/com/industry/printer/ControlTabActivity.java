@@ -2970,7 +2970,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					msg = loadPrevMsg();
 				}
 			} else {
-				msg = loadNextMsg();
+// H.M.Wang 2023-3-25 修改简单的函数调用错误
+//				msg = loadNextMsg();
+				msg = loadPrevMsg();
+// End of H.M.Wang 2023-3-25 修改简单的函数调用错误
 			}
 // End of H.M.Wang 2022-11-29 追加UG类型的信息，在点击上下按键时的内部浏览行为，按上键，从当前的子信息开始向上浏览，到第一个后退出该信息，进入下一个信息
 		}

@@ -161,6 +161,6 @@ char *toHexString(const uint8_t *src, int src_len, char div) {
         if(strlen(dst) + strlen(s) < BUF_MAX) strcat(dst, s);
     }
 
-    return strlen(dst);
+    return dst;
 }
 

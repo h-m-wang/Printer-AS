@@ -57,16 +57,8 @@ ServiceResult_t _payload_command(int32_t instance, int32_t service, int32_t para
     LOGI("Enter %s", __FUNCTION__);
 
 //    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
-    if(NULL == in) {
-        LOGE("in NULL!");
-        return SERVICE_ERROR;
-    }
     if(NULL == status) {
         LOGE("status NULL!");
-        return SERVICE_ERROR;
-    }
-    if(NULL == status2) {
-        LOGE("status2 NULL!");
         return SERVICE_ERROR;
     }
     if(NULL == out) {

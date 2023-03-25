@@ -98,11 +98,14 @@ public class GpioTestPopWindow {
         "DoPairing(1,1)",
         "DoOverrides(1,0)",
         "DoOverrides(1,1)",
-        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
-        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
-        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
+        "Pressurize(1)",
+        "Depressurize(1)",
+//        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
+//        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
+//        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
     };
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
+
     private final static int HP22MM_TEST_INIT_IDS                       = 0;
     private final static int HP22MM_TEST_INIT_PD                        = 1;
     private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 2;
@@ -121,9 +124,11 @@ public class GpioTestPopWindow {
     private final static int HP22MM_TEST_DO_PAIRING11                   = 15;
     private final static int HP22MM_TEST_DO_OVERRIDES10                 = 16;
     private final static int HP22MM_TEST_DO_OVERRIDES11                 = 17;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 18;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 19;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 20;
+    private final static int HP22MM_TEST_PRESSURIZE                     = 18;
+    private final static int HP22MM_TEST_DEPRESSURIZE                   = 19;
+//    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
+//    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
+//    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -628,7 +633,22 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-                        case HP22MM_TEST_UPDATE_PD_MCU:
+                        case HP22MM_TEST_PRESSURIZE:
+                            if (0 == Hp22mm.Pressurize()) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.getPressurizedValue();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_DEPRESSURIZE:
+                            if (0 == Hp22mm.Depressurize()) {
+                                Thread.sleep(1000);
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.getPressurizedValue();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+/*                        case HP22MM_TEST_UPDATE_PD_MCU:
                             if (0 == Hp22mm.UpdatePDFW()) {
                                 mHp22mmTestResult[index] = "Success";
                             } else {
@@ -649,6 +669,7 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
+*/
                     }
                     Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;
