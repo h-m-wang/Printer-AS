@@ -331,13 +331,15 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 				int lenSrc1 = src[i].length();
 				int lenSrc2 = src[indexs.get(j)].length();
 
-				if(lenSrc1 < lenSrc2) {
-					end = j;
-					j = (start + end) / 2;
-				} else if(lenSrc1 > lenSrc2) {
-					start = j;
-					j = (start + end) / 2;
-				} else {
+// H.M.Wang 2023-3-27 取消先排序长度，后按ASCII的排序方法，直接按ASCII排序
+//				if(lenSrc1 < lenSrc2) {
+//					end = j;
+//					j = (start + end) / 2;
+//				} else if(lenSrc1 > lenSrc2) {
+//					start = j;
+//					j = (start + end) / 2;
+//				} else {
+// End of H.M.Wang 2023-3-27 取消先排序长度，后按ASCII的排序方法，直接按ASCII排序
 					int et = src[i].compareTo(src[indexs.get(j)]);
 					if (et == 0) {
 						indexs.add(j, i);
@@ -349,7 +351,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 						start = j;
 						j = (start + end) / 2;
 					}
-				}
+//				}
 				if (start + 1 == end) {
 					indexs.add(end, i);
 					break;

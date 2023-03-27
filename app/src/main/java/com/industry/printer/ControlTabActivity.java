@@ -2996,7 +2996,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			@Override
 			public int compare(String s, String t1) {
 				try {
-					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
+// H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
+/*					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
 						String g1 = s.substring(Configs.GROUP_PREFIX.length());
 						String g2 = s.substring(Configs.GROUP_PREFIX.length());
 						int gi1 = Integer.parseInt(g1);
@@ -3023,6 +3024,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							return 0;
 						}
 					}
+ */
+//					if(s.length() < t1.length()) {
+//						return -1;
+//					} else if(s.length() > t1.length()) {
+//						return 1;
+//					} else {
+						return s.compareTo(t1);
+//					}
+// End of H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
 				} catch (Exception e) {
 					return 0;
 				}
@@ -3050,7 +3060,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			public int compare(String s, String t1) {
 
 				try {
-					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
+// H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
+/*					if (s.startsWith(Configs.GROUP_PREFIX) && t1.startsWith(Configs.GROUP_PREFIX)) {
 						String g1 = s.substring(Configs.GROUP_PREFIX.length());
 						String g2 = s.substring(Configs.GROUP_PREFIX.length());
 						int gi1 = Integer.parseInt(g1);
@@ -3077,6 +3088,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							return 0;
 						}
 					}
+*/
+//					if(s.length() < t1.length()) {
+//						return -1;
+//					} else if(s.length() > t1.length()) {
+//						return 1;
+//					} else {
+						return s.compareTo(t1);
+//					}
+// End of H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
 				} catch (Exception e) {
 					return 0;
 				}
