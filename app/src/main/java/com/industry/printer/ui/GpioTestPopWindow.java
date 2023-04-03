@@ -82,17 +82,12 @@ public class GpioTestPopWindow {
     private String[] HP22MM_TEST_ITEMS = new String[] {
         "Init IDS",
         "Init PD",
-        "ids_set_platform_info",
-        "pd_set_platform_info",
-        "ids_set_date",
-        "pd_set_date",
-        "ids_set_stall_insert_count[1]",
         "ids_get_supply_status[1]",
-        "ids_get_supply_id[1]",
+//        "ids_get_supply_id[1]",
         "pd_get_print_head_status[0]",
         "pd_get_print_head_status[1]",
-        "pd_sc_get_info[0]",
-        "pd_sc_get_info[1]",
+//        "pd_sc_get_info[0]",
+//        "pd_sc_get_info[1]",
         "DeletePairing",
         "DoPairing(1,0)",
         "DoPairing(1,1)",
@@ -100,6 +95,11 @@ public class GpioTestPopWindow {
         "DoOverrides(1,1)",
         "Pressurize(1)",
         "Depressurize(1)",
+        "ids_set_platform_info",
+        "pd_set_platform_info",
+        "ids_set_date",
+        "pd_set_date",
+        "ids_set_stall_insert_count[1]",
 //        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
 //        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
 //        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
@@ -108,24 +108,24 @@ public class GpioTestPopWindow {
 
     private final static int HP22MM_TEST_INIT_IDS                       = 0;
     private final static int HP22MM_TEST_INIT_PD                        = 1;
-    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 2;
-    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 3;
-    private final static int HP22MM_TEST_IDS_SET_DATE                   = 4;
-    private final static int HP22MM_TEST_PD_SET_DATE                    = 5;
-    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 6;
-    private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 7;
-    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
-    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS      = 9;
-    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS      = 10;
-    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 11;
-    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 12;
-    private final static int HP22MM_TEST_DELETE_PAIRING                 = 13;
-    private final static int HP22MM_TEST_DO_PAIRING10                   = 14;
-    private final static int HP22MM_TEST_DO_PAIRING11                   = 15;
-    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 16;
-    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 17;
-    private final static int HP22MM_TEST_PRESSURIZE                     = 18;
-    private final static int HP22MM_TEST_DEPRESSURIZE                   = 19;
+    private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 2;
+//    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS      = 3;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS      = 4;
+//    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 5;
+//    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 6;
+    private final static int HP22MM_TEST_DELETE_PAIRING                 = 5;
+    private final static int HP22MM_TEST_DO_PAIRING10                   = 6;
+    private final static int HP22MM_TEST_DO_PAIRING11                   = 7;
+    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 8;
+    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 9;
+    private final static int HP22MM_TEST_PRESSURIZE                     = 10;
+    private final static int HP22MM_TEST_DEPRESSURIZE                   = 11;
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 12;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 13;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 14;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 15;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 16;
 //    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
 //    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
 //    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
@@ -521,41 +521,6 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_sys_info();
                             }
                             break;
-                        case HP22MM_TEST_IDS_SET_PF_INFO:
-                            if (0 == Hp22mm.ids_set_platform_info()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_PD_SET_PF_INFO:
-                            if (0 == Hp22mm.pd_set_platform_info()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_IDS_SET_DATE:
-                            if (0 == Hp22mm.ids_set_date()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_PD_SET_DATE:
-                            if (0 == Hp22mm.pd_set_date()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT:
-                            if (0 == Hp22mm.ids_set_stall_insert_count()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
                         case HP22MM_TEST_IDS_GET_SUPPLY_STATUS:
                             if (0 == Hp22mm.ids_get_supply_status()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_status_info();
@@ -563,13 +528,13 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_status_info();
                             }
                             break;
-                        case HP22MM_TEST_IDS_GET_SUPPLY_ID:
-                            if (0 == Hp22mm.ids_get_supply_id()) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_id_info();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_id_info();
-                            }
-                            break;
+//                        case HP22MM_TEST_IDS_GET_SUPPLY_ID:
+//                            if (0 == Hp22mm.ids_get_supply_id()) {
+//                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_supply_id_info();
+//                            } else {
+//                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_id_info();
+//                            }
+//                            break;
                         case HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS:
                             if (0 == Hp22mm.pd_get_print_head_status(0)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
@@ -584,20 +549,20 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
-                        case HP22MM_TEST_PD_SC_GET_INFO0:
-                            if (0 == Hp22mm.pd_sc_get_info(0)) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_PD_SC_GET_INFO1:
-                            if (0 == Hp22mm.pd_sc_get_info(1)) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
+//                        case HP22MM_TEST_PD_SC_GET_INFO0:
+//                            if (0 == Hp22mm.pd_sc_get_info(0)) {
+//                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
+//                            } else {
+//                                mHp22mmTestResult[index] = "Failed";
+//                            }
+//                            break;
+//                        case HP22MM_TEST_PD_SC_GET_INFO1:
+//                            if (0 == Hp22mm.pd_sc_get_info(1)) {
+//                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
+//                            } else {
+//                                mHp22mmTestResult[index] = "Failed";
+//                            }
+//                            break;
                         case HP22MM_TEST_DELETE_PAIRING:
                             if (0 == Hp22mm.DeletePairing()) {
                                 mHp22mmTestResult[index] = "Success";
@@ -644,6 +609,41 @@ public class GpioTestPopWindow {
                             if (0 == Hp22mm.Depressurize()) {
                                 Thread.sleep(1000);
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.getPressurizedValue();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_PF_INFO:
+                            if (0 == Hp22mm.ids_set_platform_info()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SET_PF_INFO:
+                            if (0 == Hp22mm.pd_set_platform_info()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_DATE:
+                            if (0 == Hp22mm.ids_set_date()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SET_DATE:
+                            if (0 == Hp22mm.pd_set_date()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT:
+                            if (0 == Hp22mm.ids_set_stall_insert_count()) {
+                                mHp22mmTestResult[index] = "Success";
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
@@ -910,6 +910,35 @@ public class GpioTestPopWindow {
         private TextView mBaginkValveTV;
         private ArrayList<Integer> mLevels;
         private ArrayList<Integer> mHX24LCValues;
+// H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+//        连续统计五分钟以内，超高位， 超过高墨位阈值20的， 占到1%，   红字提示1，  停加墨， 但不停打印
+//        高位为超过阈值10-20，  5%的比例， 认为高， 停加墨， 不听打印。  普通色 提示3
+//        数据离散性， 估计超过正负十， 即为异常数据，  占30%， 即为异常， 该停加墨， 屏幕红字提示2， 但不停止打印
+        private class Level_Record {
+            public long RecordedTime;
+            public int  Level;
+
+            public Level_Record(long rt, int level) {
+                RecordedTime = rt;
+                Level = level;
+            }
+        };
+        private ArrayList<Level_Record> mLevelRecords = new ArrayList<Level_Record>();
+        private int mCountGt580 = 0;
+        private int mCountGt570_580 = 0;
+        private int mCountGap = 0;
+        private int mCountError = 0;
+
+        private LinearLayout mAdditionalTest;
+        private LinearLayout mLine1;
+        private LinearLayout mLine2;
+        private LinearLayout mLine3;
+        private LinearLayout mLine4;
+        private TextView mLine1Text;
+        private TextView mLine2Text;
+        private TextView mLine3Text;
+        private TextView mLine4Text;
+// End of H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
 
         public BaginkTest(View parent, final int index) {
             mPause = true;
@@ -917,12 +946,31 @@ public class GpioTestPopWindow {
             mLevels = new ArrayList<Integer>();
             mHX24LCValues = new ArrayList<Integer>();
 
+// H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+            mAdditionalTest = (LinearLayout)parent.findViewById(R.id.additional_test);
+            mAdditionalTest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mAdditionalTest.setVisibility(View.GONE);
+                }
+            });
+            mLine1 = (LinearLayout)parent.findViewById(R.id.line1);
+            mLine2 = (LinearLayout)parent.findViewById(R.id.line2);
+            mLine3 = (LinearLayout)parent.findViewById(R.id.line3);
+            mLine4 = (LinearLayout)parent.findViewById(R.id.line4);
+            mLine1Text = (TextView)parent.findViewById(R.id.line1_text);
+            mLine2Text = (TextView)parent.findViewById(R.id.line2_text);
+            mLine3Text = (TextView)parent.findViewById(R.id.line3_text);
+            mLine4Text = (TextView)parent.findViewById(R.id.line4_text);
+// End of H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+
             mBaginkLevelTV = (TextView)parent.findViewById(mBaginkLevelResIDs[index]);
             mBaginkLevelTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if(mPause && mBaginkTestRunning) {
                         mBaginkLevelTV.setBackgroundColor(Color.parseColor("#008800"));
+                        mAdditionalTest.setVisibility(View.VISIBLE);
                         mPause = false;
                         new Thread(new Runnable() {
                             @Override
@@ -933,6 +981,13 @@ public class GpioTestPopWindow {
                                     try {Thread.sleep(50);} catch (Exception e) {}
                                     SmartCard.initLevelDirect();
                                 }
+// H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+                                mCountGt580 = 0;
+                                mCountGt570_580 = 0;
+                                mCountGap = 0;
+                                mCountError = 0;
+                                int last_level = -1;
+// End of H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
                                 while(!mPause && mBaginkTestRunning) {
                                     synchronized (GpioTestPopWindow.this) {
                                         ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
@@ -943,6 +998,62 @@ public class GpioTestPopWindow {
                                         if(mLevels.size() > 3) {
                                             mLevels.remove(0);
                                         }
+// H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+                                        long rt = System.currentTimeMillis();
+                                        while(mLevelRecords.size() > 0) {
+                                            Level_Record lr = mLevelRecords.get(0);
+                                            if(rt - lr.RecordedTime > 5 * 60 * 1000) {
+                                                if (lr.Level == 0x0FFFFFFF) {
+                                                    mCountError--;
+                                                } else {
+                                                    if (lr.Level > 58000000) {
+                                                        mCountGt580--;
+                                                    } else if (lr.Level > 57000000) {
+                                                        mCountGt570_580--;
+                                                    }
+                                                    if(last_level != -1) {
+                                                        if(Math.abs(lr.Level - last_level) > 1000000) {
+                                                            mCountGap--;
+                                                        }
+                                                    }
+                                                }
+                                                last_level = lr.Level;
+                                                mLevelRecords.remove(0);
+                                            } else {
+                                                break;
+                                            }
+                                        }
+
+                                        if (level == 0x0FFFFFFF) {
+                                            mCountError++;
+                                        } else {
+                                            if (level > 58000000) {
+                                                mCountGt580++;
+                                            } else if (level > 57000000) {
+                                                mCountGt570_580++;
+                                            }
+                                            if(mLevelRecords.size() > 0) {
+                                                if(Math.abs(level - mLevelRecords.get(mLevelRecords.size()-1).Level) > 1000000) {
+                                                    mCountGap++;
+                                                }
+                                            }
+                                        }
+                                        mLevelRecords.add(new Level_Record(rt, level));
+
+                                        mAdditionalTest.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                mLine1Text.setText("" + mCountGt580 + "/" + mLevelRecords.size() + "(" + (1.0f * Math.round(1.0f * mCountGt580 / mLevelRecords.size() * 1000) / 10) + "%)");
+                                                if(1.0f * mCountGt580 / mLevelRecords.size() > 0.01f) mLine1Text.setTextColor(Color.RED); else mLine1Text.setTextColor(Color.WHITE);
+                                                mLine2Text.setText("" + mCountGt570_580 + "/" + mLevelRecords.size() + "(" + (1.0f * Math.round(1.0f * mCountGt570_580 / mLevelRecords.size() * 1000) / 10) + "%)");
+                                                if(1.0f * mCountGt570_580 / mLevelRecords.size() > 0.05f) mLine2Text.setTextColor(Color.BLUE); else mLine1Text.setTextColor(Color.WHITE);
+                                                mLine3Text.setText("" + mCountGap + "/" + mLevelRecords.size() + "(" + (1.0f * Math.round(1.0f * mCountGap / mLevelRecords.size() * 1000) / 10) + "%)");
+                                                if(1.0f * mCountGap / mLevelRecords.size() > 0.3f) mLine3Text.setTextColor(Color.RED); else mLine1Text.setTextColor(Color.WHITE);
+                                                mLine4Text.setText("" + mCountError + "/" + mLevelRecords.size() + "(" + (1.0f * Math.round(1.0f * mCountError / mLevelRecords.size() * 1000) / 10) + "%)");
+                                            }
+                                        });
+// End of H.M.Wang 2023-3-31 临时增加异常值管理，暂时只是看看是否能够捕捉住异常并按策略显示出来
+
                                         int hx24lc = SmartCard.readHX24LC();
                                         Debug.d(TAG, "HX24LC[" + index + "] = " + hx24lc);
                                         mHX24LCValues.add(hx24lc);
@@ -958,6 +1069,7 @@ public class GpioTestPopWindow {
                         }).start();
                     } else {
                         mBaginkLevelTV.setBackgroundColor(Color.parseColor("#8E8E8E"));
+                        mAdditionalTest.setVisibility(View.GONE);
                         mPause = true;
                     }
                 }

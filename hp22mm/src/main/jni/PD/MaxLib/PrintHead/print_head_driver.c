@@ -621,7 +621,7 @@ PDResult_t pd_get_print_head_status(int32_t instance, uint8_t ph_id , PrintHeadS
         return PD_ERROR;
     }
 
-    print_head_status->print_head_state = (phstatus & 0xFF);
+    print_head_status->print_head_state = (phstatus & 0x0FF);
     print_head_status->print_head_error = pherrorstate;
     print_head_status->energy_calibrated = ((phstatus >> 8) & 0x01) ? 1 : 0;
     print_head_status->temp_calibrated  = ((phstatus >> 8) & 0x02) ? 1 : 0;
@@ -631,7 +631,7 @@ PDResult_t pd_get_print_head_status(int32_t instance, uint8_t ph_id , PrintHeadS
     print_head_status->overtemp_warning         = ((phstatus >> 16) & 0x02) ? 1 : 0;
     print_head_status->supplyexpired_warning    = ((phstatus >> 16) & 0x04) ? 1 : 0;
 
-    LOGD("pd_get_print_head_status() : PH STATE: %d, PH ERROR: %d. E cal = %d\n", phstatus, pherrorstate, print_head_status->energy_calibrated);
+    LOGD("pd_get_print_head_status() : print_head_state = %d, print_head_error = %d. energy_calibrated = %d\n", print_head_status->print_head_state, print_head_status->print_head_error, print_head_status->energy_calibrated);
 
     LOGI("%s done", __FUNCTION__);
 

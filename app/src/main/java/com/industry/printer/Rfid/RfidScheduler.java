@@ -14,6 +14,7 @@ import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
+import com.industry.printer.ui.GpioTestPopWindow;
 
 import android.content.Context;
 import android.os.Handler;
@@ -60,6 +61,18 @@ public class RfidScheduler implements IInkScheduler {
 //	private int mShowMsgCD = 10;		// 显示Level信息的倒数计数器，计数器减到0时显示信息，以避免过于频繁的显示信息
 	private boolean mLevelReading = false;
 
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+	private class Level_Record {
+		public long RecordedTime;
+		public int  Level;
+
+		public Level_Record(long rt, int level) {
+			RecordedTime = rt;
+			Level = level;
+		}
+	};
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+
 	private class BaginkLevel {
 		public int mLevelIndex;
 		public ArrayList<Integer> mRecentLevels;			// 读取数据清单，读到的数据即收录
@@ -69,6 +82,14 @@ public class RfidScheduler implements IInkScheduler {
 		public long mInkAddedTime;
 		public int mLevelLowCount;
 		public int mLevelHighCount;
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+		private ArrayList<Level_Record> mLevelRecords;
+		private int mLastLevel;
+		private int mCountGt560;
+		private int mCountGap;
+		private int mCountError;
+		private boolean mEnableAddInk;
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 
 		public BaginkLevel(int idx) {
 			mLevelIndex = idx;
@@ -79,6 +100,15 @@ public class RfidScheduler implements IInkScheduler {
 			mLevelLowCount = 0;
 			mLevelHighCount = 0;
 
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+			mLevelRecords = new ArrayList<Level_Record>();
+			mLastLevel = -1;
+			mCountGt560 = 0;
+			mCountGap = 0;
+			mCountError = 0;
+			mEnableAddInk = false;
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+
 			ExtGpio.rfidSwitch(idx);
 			try {Thread.sleep(100);} catch (Exception e) {}
 			SmartCard.initLevelDirect();
@@ -88,13 +118,7 @@ public class RfidScheduler implements IInkScheduler {
 
 	private BaginkLevel mBaginkLevels[] = null;
 
-//	private ArrayList<Integer>[] mRecentLevels;
-//	private int[] mInkAddedTimes;
-//	private long[] mInkAddedTime;
-
 	ExecutorService mCachedThreadPool = null;
-//	private int mLevelLowCount = 0;
-//	private int mLevelHighCount = 0;
 
 	private void readLevelValue(final int cardIdx) {
 		Debug.d(TAG, "---> enter readLevelValue(" + cardIdx + ")");
@@ -118,7 +142,6 @@ public class RfidScheduler implements IInkScheduler {
 				ExtGpio.rfidSwitch(mBaginkLevels[cardIdx].mLevelIndex);
 				try{Thread.sleep(100);}catch(Exception e){};
 				int level = SmartCard.readLevelDirect();
-//				ExtGpio.rfidSwitch(mCurrent);
 				if ((level & 0xF0000000) == 0x00000000) {
 //					Debug.d(TAG, "Read Level[" + cardIdx + "](" + (readCount + 1) + " times) = " + level);
 					readLevels += (level  -  mBaginkLevels[cardIdx].mHX24LCValue * 100000);
@@ -175,6 +198,61 @@ public class RfidScheduler implements IInkScheduler {
 				}
 			}
 
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+			long rt = System.currentTimeMillis();
+
+			while(mBaginkLevels[cardIdx].mLevelRecords.size() > 0) {
+			    Level_Record lr = mBaginkLevels[cardIdx].mLevelRecords.get(0);
+				if(rt - lr.RecordedTime > 5 * 60 * 1000) {
+					if (lr.Level == 0x0FFFFFFF) {
+						mBaginkLevels[cardIdx].mCountError--;
+					} else {
+						if (lr.Level > 56000000) {
+							mBaginkLevels[cardIdx].mCountGt560--;
+						}
+						if(mBaginkLevels[cardIdx].mLastLevel != -1) {
+							if(Math.abs(lr.Level - mBaginkLevels[cardIdx].mLastLevel) > 5000000) {
+								mBaginkLevels[cardIdx].mCountGap--;
+							}
+						}
+					}
+					mBaginkLevels[cardIdx].mLastLevel = lr.Level;
+					mBaginkLevels[cardIdx].mLevelRecords.remove(0);
+				} else {
+					break;
+				}
+			}
+
+			if (avgLevel == 0x0FFFFFFF) {
+				mBaginkLevels[cardIdx].mCountError++;
+			} else {
+				if (avgLevel > 56000000) {
+					mBaginkLevels[cardIdx].mCountGt560++;
+				}
+				if (mBaginkLevels[cardIdx].mLevelRecords.size() > 0) {
+					if (Math.abs(avgLevel - mBaginkLevels[cardIdx].mLevelRecords.get(mBaginkLevels[cardIdx].mLevelRecords.size()-1).Level) > 5000000) {
+						mBaginkLevels[cardIdx].mCountGap++;
+					}
+				}
+			}
+			mBaginkLevels[cardIdx].mLevelRecords.add(new Level_Record(rt, avgLevel));
+			Debug.d(TAG, "mCountGt560[" + cardIdx + "] = " + mBaginkLevels[cardIdx].mCountGt560);
+			Debug.d(TAG, "mCountGap[" + cardIdx + "] = " + mBaginkLevels[cardIdx].mCountGap);
+			Debug.d(TAG, "mCountError[" + cardIdx + "] = " + mBaginkLevels[cardIdx].mCountError);
+			Debug.d(TAG, "mLevelRecords.size[" + cardIdx + "] = " + mBaginkLevels[cardIdx].mLevelRecords.size());
+
+			mBaginkLevels[cardIdx].mEnableAddInk = true;
+			if(mBaginkLevels[cardIdx].mCountGt560 / mBaginkLevels[cardIdx].mLevelRecords.size() > 0.05f) {
+				mBaginkLevels[cardIdx].mEnableAddInk = false;
+			}
+			if(mBaginkLevels[cardIdx].mCountGap / mBaginkLevels[cardIdx].mLevelRecords.size() > 0.3f) {
+				mBaginkLevels[cardIdx].mEnableAddInk = false;
+			}
+			if(!mBaginkLevels[cardIdx].mEnableAddInk) {
+				ExtGpio.playClick();
+			}
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+
 			// Calculate average level if the count of read data bigger than PROC_LEVEL_NUMS
 			Debug.d(TAG, "mValidLevels[" + cardIdx + "].size() = " + mBaginkLevels[cardIdx].mValidLevels.size());
 			avgLevel = VALID_INK_MAX;
@@ -191,7 +269,10 @@ public class RfidScheduler implements IInkScheduler {
 			Debug.d(TAG, "Average Level = " + avgLevel);
 
 			// Launch add ink if the level less than ADD_INK_THRESHOLD.
-			if(avgLevel <= ADD_INK_THRESHOLD) {
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+//			if(avgLevel <= ADD_INK_THRESHOLD) {
+			if(avgLevel <= ADD_INK_THRESHOLD && mBaginkLevels[cardIdx].mEnableAddInk) {
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 				// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
 				if(mBaginkLevels[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
 					ExtGpio.playClick();
@@ -391,6 +472,16 @@ public class RfidScheduler implements IInkScheduler {
 										SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 										sb.append("    Fuel: " + sdf.format(new Date(mBaginkLevels[i].mInkAddedTime)) + "\n");
 									}
+// H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+									if(!mBaginkLevels[i].mEnableAddInk) {
+										sb.append("> 560 :  " + mBaginkLevels[i].mCountGt560 + "/" + mBaginkLevels[i].mLevelRecords.size() +
+														"(" + (1.0f * Math.round(1.0f * mBaginkLevels[i].mCountGt560 / mBaginkLevels[i].mLevelRecords.size() * 1000) / 10) + "%)\n" +
+														"> Gap :  " + mBaginkLevels[i].mCountGap + "/" + mBaginkLevels[i].mLevelRecords.size() +
+														"(" + (1.0f * Math.round(1.0f * mBaginkLevels[i].mCountGap / mBaginkLevels[i].mLevelRecords.size() * 1000) / 10) + "%)\n" +
+														"> Err :  " + mBaginkLevels[i].mCountError + "/" + mBaginkLevels[i].mLevelRecords.size() +
+														"(" + (1.0f * Math.round(1.0f * mBaginkLevels[i].mCountError / mBaginkLevels[i].mLevelRecords.size() * 1000) / 10) + "%)\n");
+									}
+// End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 								}
 								Debug.d(TAG, "Show Level: " + sb.toString());
 								mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, sb.toString()).sendToTarget();

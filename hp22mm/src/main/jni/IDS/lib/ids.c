@@ -73,7 +73,7 @@ int RTCInit(void);
 // #####################################################################
 
 void InitRecursiveMutex(pthread_mutex_t *pMutex) {
-	LOGI("Enter %s", __FUNCTION__);
+//	LOGI("Enter %s", __FUNCTION__);
 
     // NOTE: can be locked multiple times (recursive), but locks/unlocks must match for the thread
 	pthread_mutexattr_t MutexAttr;
@@ -82,7 +82,7 @@ void InitRecursiveMutex(pthread_mutex_t *pMutex) {
     pthread_mutex_init(pMutex, &MutexAttr);
     pthread_mutexattr_destroy(&MutexAttr);
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 }
 
 // @@@ Deselect both IDS from the MUX
@@ -94,7 +94,7 @@ void DeSelectBothIDS(void) {
 	IDS_I2C_WriteByte(CURRENT_IDS, MUX_ADDR, 0);
 	usleep(1000);	// 1ms
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 }
 
 // @@@ Select an IDS from the MUX
@@ -102,8 +102,7 @@ void DeSelectBothIDS(void) {
 void SelectIDS(int IDS) {
 	LOGI("Enter %s. IDS=%d", __FUNCTION__, IDS);
 
-	if (IDS < 0 || IDS > 1)
-	{
+	if (IDS < 0 || IDS > 1)	{
 		DeSelectBothIDS();
 		return;
 	}
@@ -111,7 +110,7 @@ void SelectIDS(int IDS) {
 	IDS_I2C_WriteByte(CURRENT_IDS, MUX_ADDR, (uint8_t)(0x01 << IDS));
 	usleep(1000);	// 1ms
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 }
 
 // #####################################################################
@@ -194,12 +193,12 @@ void IDS_Shutdown(void) {
 
 // @@@ Lock access (mutex) to hardware AND select an IDS
 void IDS_LockAccessAndSelectIDS(int IDS) {
-	LOGI("Enter %s. IDS=%d", __FUNCTION__, IDS);
+//	LOGI("Enter %s. IDS=%d", __FUNCTION__, IDS);
 
 	IDS_LockAccess();
 	SelectIDS(IDS);
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 }
 
 // @@@ Lock access (mutex) to hardware
@@ -209,12 +208,12 @@ void IDS_LockAccess(void) {
 
 // @@@ UNlock access (mutex) to hardware AFTER deselecting both IDS
 void IDS_UnlockAccessAndDeSelectBothIDS(void) {
-	LOGI("Enter %s", __FUNCTION__);
+//	LOGI("Enter %s", __FUNCTION__);
 
 	DeSelectBothIDS();
 	IDS_UnlockAccess();
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 }
 
 // @@@ UNlock access (mutex) to hardware
@@ -254,7 +253,7 @@ int I2CInit(void) {
 // @@@ Set I2C address for next read/write
 // @@@ NOTE: this is the "full" address (lowest bit will used for read/write)
 uint8_t SetI2CAddress(uint8_t I2CAddress) {
-	LOGI("Enter %s. I2CAddress=0x%02X", __FUNCTION__, I2CAddress);
+//	LOGI("Enter %s. I2CAddress=0x%02X", __FUNCTION__, I2CAddress);
 
     int ret;
 
@@ -265,7 +264,7 @@ uint8_t SetI2CAddress(uint8_t I2CAddress) {
 		return -1;
 	}
 
-	LOGI("%s done", __FUNCTION__);
+//	LOGI("%s done", __FUNCTION__);
 	return 0;
 }
 
@@ -402,14 +401,14 @@ int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, con
 
 // @@@ Write a single byte to I2C device (no command/register)
 int IDS_I2C_WriteByte(int IDS, const uint8_t I2CAddress, const uint8_t Byte) {
-	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X", __FUNCTION__, IDS, I2CAddress);
+	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Byte=0x%02X", __FUNCTION__, IDS, I2CAddress, Byte);
 
 	return IDS_I2C_RawWrite(IDS, I2CAddress, &Byte, 1);
 }
 
 // @@@ Write two bytes to I2C device (no command/register)
 int IDS_I2C_WriteTwoBytes(int IDS, const uint8_t I2CAddress, const uint8_t FirstByte, const uint8_t SecondByte) {
-	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X", __FUNCTION__, IDS, I2CAddress);
+	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Byte1=0x%02X, Byte2=0x%02X", __FUNCTION__, IDS, I2CAddress, FirstByte, SecondByte);
 
 	uint8_t buff[2];
 	buff[0] = FirstByte;
@@ -419,7 +418,7 @@ int IDS_I2C_WriteTwoBytes(int IDS, const uint8_t I2CAddress, const uint8_t First
 
 // @@@ Write a single byte to a register in I2C device
 int IDS_I2C_WriteByteToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte) {
-	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X", __FUNCTION__, IDS, I2CAddress, Register);
+	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X, Byte=0x%02X", __FUNCTION__, IDS, I2CAddress, Register, Byte);
 
 	uint8_t buff[2];
 	buff[0] = Register;
@@ -429,7 +428,7 @@ int IDS_I2C_WriteByteToRegister(int IDS, const uint8_t I2CAddress, const uint8_t
 
 // @@@ Write a word (2 bytes) to a register in I2C device
 int IDS_I2C_WriteWordToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint16_t Word) {
-	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X", __FUNCTION__, IDS, I2CAddress, Register);
+	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X, Word=0x%04X", __FUNCTION__, IDS, I2CAddress, Register, Word);
 
 	uint8_t buff[3];
 	buff[0] = Register;
@@ -440,7 +439,7 @@ int IDS_I2C_WriteWordToRegister(int IDS, const uint8_t I2CAddress, const uint8_t
 
 // @@@ Write two bytes to a register in I2C device
 int IDS_I2C_WriteTwoBytesToRegister(int IDS, const uint8_t I2CAddress, const uint8_t Register, const uint8_t Byte1, const uint8_t Byte2) {
-	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X", __FUNCTION__, IDS, I2CAddress, Register);
+	LOGI("Enter %s. IDS=%d, I2CAddress=0x%02X, Register=0x%02X, Byte1=0x%02X, Byte2=0x%02X", __FUNCTION__, IDS, I2CAddress, Register, Byte1, Byte2);
 
 	uint8_t buff[3];
 	buff[0] = Register;
@@ -989,16 +988,14 @@ void *_monitor_thread(void *arg)
 				
 				// check pressure count if needed
 				pressure_count[IDS]++;
-				if (pressure_count[IDS] >= (int)(READ_PER_SEC * PRESSURE_SEC_PER_READ))
-				{
+				if (pressure_count[IDS] >= (int)(READ_PER_SEC * PRESSURE_SEC_PER_READ)) {
 					pressure_count[IDS] = 0;
 					// config for SINGLE pressure value read
 					ConfigADCForOnePressure(IDS);
 					WaitForNotBusy(IDS);
 					// trigger pressure read
 					TriggerADCForOnePressure(IDS);
-					if (WaitForNotBusy(IDS))	// if ready...
-					{
+					if (WaitForNotBusy(IDS)) {	// if ready...
 						fval = ADCGetPressurePSI(IDS);
 						LastPressure[IDS] = fval;
 					}

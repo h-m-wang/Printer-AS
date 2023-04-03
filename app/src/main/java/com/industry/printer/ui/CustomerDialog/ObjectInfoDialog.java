@@ -221,10 +221,16 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[8])) {
 					mFont.setText("19");
-					mFont.setClickable(false);
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//					mFont.setClickable(false);
+					mFont.setClickable(true);
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[9])) {
 					mFont.setText("21");
-					mFont.setClickable(false);
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//					mFont.setClickable(false);
+					mFont.setClickable(true);
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 				} else {
 					mFont.setClickable(true);

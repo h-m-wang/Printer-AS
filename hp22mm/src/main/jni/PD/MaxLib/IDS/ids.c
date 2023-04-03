@@ -77,7 +77,7 @@ IDSResult_t ids_init(int32_t instance) {
     LOGI("Enter %s(instance=%d)", __FUNCTION__, instance);
 
     if (_is_lib_initialized == false) {
-        LOGE("Not initialized!");
+        LOGE("IDS lib not initialized!");
         return IDS_ERROR;
     }
 //    MAX_ASSERT(instance > 0);
@@ -106,7 +106,7 @@ IDSResult_t ids_shutdown(int32_t instance) {
     LOGI("Enter %s(instance=%d)", __FUNCTION__, instance);
 
     if(_is_lib_initialized == false) {
-        LOGE("Not initialized!");
+        LOGE("IDS lib not initialized!");
         return IDS_ERROR;
     }
 //    MAX_ASSERT(instance > 0);

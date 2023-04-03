@@ -200,19 +200,50 @@ JNIEXPORT jint JNICALL Java_com_ids_set_stall_insert_count(JNIEnv *env, jclass a
 }
 
 static SupplyStatus_t supply_status;
+static SupplyInfo_t supply_info;
+static SupplyID_t supply_id;
+static char SN[30] = "";
 
-JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
+char *GetSupplyID() {
     IDSResult_t ids_r;
 
-    ids_r = ids_get_supply_status(IDS_INSTANCE, SUPPLY_IDX, &supply_status);
-    if (ids_check("ids_get_supply_status", ids_r)) return (-1);
+    // create SN string (storing in global)
+    SN[0] = '\0';
+    snprintf(SN, sizeof(SN), "%d_%d_%04d_%02d_%d_%02d_%02d_%02d_%d",
+             (int)supply_id.mfg_site,
+             (int)supply_id.mfg_line,
+             (int)supply_id.mfg_year,
+             (int)supply_id.mfg_woy,
+             (int)supply_id.mfg_dow,
+             (int)supply_id.mfg_hour,
+             (int)supply_id.mfg_min,
+             (int)supply_id.mfg_sec,
+             (int)supply_id.mfg_pos);
+    return SN;
+}
+
+JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
+    if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, SUPPLY_IDX, &supply_status))) return (-1);
     if (supply_status.state != SUPPLY_SC_VALID) {
         LOGE("Supply state not valid: %d[0x%02x]\n", (int)supply_status.state, supply_status.status_bits);
         return (-1);
     }
 
-    LOGD("supply_status.state = %d\n.status_bits = %d\n.consumed_volume(10ths of ml) = %d\n",
-            supply_status.state, supply_status.status_bits, supply_status.consumed_volume);
+    if (supply_status.state == SUPPLY_SC_VALID) {
+        if (ids_check("ids_get_supply_info", ids_get_supply_info(IDS_INSTANCE, SUPPLY_IDX, &supply_info))) return (-1);
+        if (ids_check("ids_get_supply_id", ids_get_supply_id(IDS_INSTANCE, SUPPLY_IDX, &supply_id))) return (-1);
+
+        LOGD("ID = %s\n", GetSupplyID());
+        LOGD("State = %d\n", supply_status.state);
+        LOGD("Out of Ink = %s\n", (supply_status.status_bits & STATUS_OOI ? "True" : "False"));
+        LOGD("Altered = %s\n", (supply_status.status_bits & STATUS_ALTERED ? "True" : "False"));
+        LOGD("Expired = %s\n", (supply_status.status_bits & STATUS_EXPIRED ? "True" : "False"));
+        LOGD("Faulty = %s\n", (supply_status.status_bits & STATUS_FAULTY ? "True" : "False"));
+        LOGD("Consumed vol = %.1f\n", supply_status.consumed_volume/10.0);
+        LOGD("Usable vol = %.1f\n", supply_info.usable_vol/10.0);
+        LOGD("Sensor gain = %.1f\n", supply_info.sensor_gain / 100.0);
+        LOGD("Ink density = %.1f", supply_info.ink_density / 1000.0);
+    }
 
     return 0;
 }
@@ -220,13 +251,22 @@ JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
 JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
-    sprintf(strTemp,
-            "state = %d\nstatus_bits = %d\nconsumed_volume(10ths of ml) = %d",
-            supply_status.state, supply_status.status_bits, supply_status.consumed_volume);
+    sprintf(strTemp,"ID = %s\nState = %d\nOut of Ink = %s\nAltered = %s\nExpired = %s\nFaulty = %s\nConsumed vol = %.1f\nUsable vol = %.1f\nSensor gain = %.1f\nInk density = %.1f",
+            GetSupplyID(),
+            supply_status.state,
+            (supply_status.status_bits & STATUS_OOI ? "True" : "False"),
+            (supply_status.status_bits & STATUS_ALTERED ? "True" : "False"),
+            (supply_status.status_bits & STATUS_EXPIRED ? "True" : "False"),
+            (supply_status.status_bits & STATUS_FAULTY ? "True" : "False"),
+            supply_status.consumed_volume/10.0,
+            supply_info.usable_vol/10.0,
+            supply_info.sensor_gain / 100.0,
+            supply_info.ink_density / 1000.0);
 
     return (*env)->NewStringUTF(env, strTemp);
 }
 
+/*
 static SupplyID_t supply_id;
 
 JNIEXPORT jint JNICALL Java_com_ids_get_supply_id(JNIEnv *env, jclass arg) {
@@ -250,16 +290,38 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_supply_id_info(JNIEnv *env, jclass ar
 
     return (*env)->NewStringUTF(env, strTemp);
 }
-
+*/
 static PrintHeadStatus print_head_status;
+static PDSmartCardInfo_t pd_sc_info;
+static PDSmartCardStatus pd_sc_status;
 
 JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg, jint penIndex) {
     PDResult_t pd_r;
 
-    pd_r = pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status);
-    if (pd_check("pd_get_print_head_status", pd_r)) return (-1);
+    if (pd_check("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status))) return (-1);
     if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
-        LOGE("Print head state not valid: %d, %d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+        LOGE("Print head state not valid. print_head_state=%d, print_head_error=%d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+        return (-1);
+    }
+
+    if (print_head_status.print_head_state >= PH_STATE_NOT_PRESENT) {
+        LOGE("Print head state[%d]\n", print_head_status.print_head_state);
+        return (-1);
+    }
+
+    if (print_head_status.print_head_error != PH_NO_ERROR) {
+        LOGE("Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
+        return (-1);
+    }
+
+    uint8_t pd_sc_result;
+    if (pd_check("pd_sc_get_info", pd_sc_get_info(PD_INSTANCE, PEN_IDX, &pd_sc_info, &pd_sc_result)) || pd_sc_result != 0) {
+        LOGE("pd_sc_get_info error\n");
+        return (-1);
+    }
+
+    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, PEN_IDX, &pd_sc_status, &pd_sc_result)) || pd_sc_result != 0) {
+        LOGE("pd_sc_get_status error\n");
         return (-1);
     }
 
@@ -274,14 +336,23 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
          print_head_status.overtemp_warning,
          print_head_status.supplyexpired_warning);
 
+    LOGD("ID = %d_%d_%d_%d_%d_%d_%d_%d_%d\n",
+             pd_sc_info.ctrdg_fill_site_id, pd_sc_info.ctrdg_fill_line, pd_sc_info.ctrdg_fill_year,
+             pd_sc_info.ctrdg_fill_woy, pd_sc_info.ctrdg_fill_dow, pd_sc_info.ctrdg_fill_hour,
+             pd_sc_info.ctrdg_fill_min, pd_sc_info.ctrdg_fill_sec, pd_sc_info.ctrdg_fill_procpos);
+
+    LOGD("Slot A = %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"));
+    LOGD("Slot B = %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"));
+    LOGD("Faulty = %s\n", (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
+
     return 0;
 }
 
 JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jclass arg) {
-    char strTemp[256];
+    char strTemp[1024];
 
     sprintf(strTemp,
-            "print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d",
+            "print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d\nID = %d_%d_%d_%d_%d_%d_%d_%d_%d\nSlot A = %s\nSlot B = %s\nFaulty = %s",
             print_head_status.print_head_state,
             print_head_status.print_head_error,
             print_head_status.energy_calibrated,
@@ -290,11 +361,24 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
             print_head_status.slot_b_purge_completed,
             print_head_status.overdrive_warning,
             print_head_status.overtemp_warning,
-            print_head_status.supplyexpired_warning);
+            print_head_status.supplyexpired_warning,
+            pd_sc_info.ctrdg_fill_site_id,
+            pd_sc_info.ctrdg_fill_line,
+            pd_sc_info.ctrdg_fill_year,
+            pd_sc_info.ctrdg_fill_woy,
+            pd_sc_info.ctrdg_fill_dow,
+            pd_sc_info.ctrdg_fill_hour,
+            pd_sc_info.ctrdg_fill_min,
+            pd_sc_info.ctrdg_fill_sec,
+            pd_sc_info.ctrdg_fill_procpos,
+            (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"),
+            (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"),
+            (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
 
     return (*env)->NewStringUTF(env, strTemp);
 }
 
+/*
 static PDSmartCardInfo_t pd_sc_info;
 
 JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
@@ -340,7 +424,7 @@ JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_msg(JNIEnv *env, jclass arg) {
 
     return (*env)->NewStringUTF(env, strTemp);
 }
-
+*/
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg) {
     if (DeletePairing()) {
         LOGE("DeletePairing failed!\n");
@@ -430,6 +514,7 @@ int _CmdPressurize(float set_pressure) {
         pressure = set_pressure;
     else
         pressure = SUPPLY_PRESSURE;
+
     IDS_MonitorPressure(SUPPLY_IDX);
     IDS_DAC_SetSetpointPSI(SUPPLY_IDX, pressure);        // set pressure target
     IDS_GPIO_ClearBits(SUPPLY_IDX, COMBO_INK_BOTH);      // ink Off
@@ -494,15 +579,6 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg) {
     uint32_t ui32;
     int i;
 
-    // Initialize system
-/*    int I2C_File = -1;
-    I2C_File = open(I2C_DEVICE, O_RDWR);
-    if (I2C_File < 0) {
-        LOGE("Open %s failed!\n", I2C_DEVICE);
-        return -1;          // failure
-    }
-    LOGI("Open %s succeded!\n", I2C_DEVICE);
-*/
     if (InitSystem()) return (-1);
 
     // Update PD MCU
@@ -858,12 +934,12 @@ static JNINativeMethod gMethods[] = {
         {"ids_set_stall_insert_count",	    "()I",	                    (void *)Java_com_ids_set_stall_insert_count},
         {"ids_get_supply_status",		    "()I",	                    (void *)Java_com_ids_get_supply_status},
         {"ids_get_supply_status_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
-        {"ids_get_supply_id",		        "()I",	                    (void *)Java_com_ids_get_supply_id},
-        {"ids_get_supply_id_info",	        "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
+//        {"ids_get_supply_id",		        "()I",	                    (void *)Java_com_ids_get_supply_id},
+//        {"ids_get_supply_id_info",	        "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
         {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
         {"pd_get_print_head_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_get_print_head_status_info},
-        {"pd_sc_get_info",		            "(I)I",	                    (void *)Java_com_pd_sc_get_info},
-        {"pd_sc_get_info_msg",              "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_msg},
+//        {"pd_sc_get_info",		            "(I)I",	                    (void *)Java_com_pd_sc_get_info},
+//        {"pd_sc_get_info_msg",              "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_msg},
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},

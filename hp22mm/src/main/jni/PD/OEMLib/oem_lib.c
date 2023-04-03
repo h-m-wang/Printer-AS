@@ -17,7 +17,7 @@ static Lock_t   _shared_lock;
 static bool     _is_lib_initialized = false;
 
 void oem_lib_init() {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     /* If the library is already initialize, just return */
     if (true == _is_lib_initialized) return;
@@ -34,11 +34,11 @@ void oem_lib_init() {
 
     _is_lib_initialized = true;
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 void oem_lib_shutdown() {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     /* If the library is already shutdown, just return */
     if (false == _is_lib_initialized) return;
@@ -51,11 +51,11 @@ void oem_lib_shutdown() {
     /* destroy the mutex */
     mutex_destroy(&_shared_lock);
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 void oem_init(int instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(_is_lib_initialized == false) {
         LOGE("Not initialized!");
@@ -65,11 +65,11 @@ void oem_init(int instance) {
     /* Initialize UART instance */
     if(UART_OK != uart_init(instance)) return;
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 void oem_shutdown(int instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(_is_lib_initialized == false) {
         LOGE("Not initialized!");
@@ -79,11 +79,11 @@ void oem_shutdown(int instance) {
     /* shutdown uart (will check to make sure uart is initialized) */
     if(UART_OK != uart_shutdown(instance)) return;
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 void oem_lock(int instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(_is_lib_initialized == false) {
         LOGE("Not initialized!");
@@ -92,11 +92,11 @@ void oem_lock(int instance) {
 
     mutex_lock(&_shared_lock);
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 void oem_unlock(int instance) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(_is_lib_initialized == false) {
         LOGE("Not initialized!");
@@ -105,7 +105,7 @@ void oem_unlock(int instance) {
 
     mutex_unlock(&_shared_lock);
 
-    LOGI("%s success", __FUNCTION__);
+//    LOGI("%s success", __FUNCTION__);
 }
 
 

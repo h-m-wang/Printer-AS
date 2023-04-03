@@ -1522,9 +1522,15 @@ public class BaseObject{
 // End of H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if(mHeight <= 152f * 19 / 32 + 1){			// 90.25
-				font = "19";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "19";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 			} else if(mHeight <= 152f * 21 / 32 + 1){			// 99.75
-				font = "21";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "21";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else {
 				font = mFont;
@@ -1563,9 +1569,15 @@ public class BaseObject{
 // End of H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if(mHeight <= 152f * 19 / 64 + 1){			// 45.125
-				font = "19";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "19";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 			} else if(mHeight <= 152f * 21 / 64 + 1){			// 49.875
-				font = "21";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "21";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else {
 				font = mFont;
@@ -1592,9 +1604,15 @@ public class BaseObject{
 					font = "7";
 				}
 			} else if(mHeight <= 152f * 19 / 96 + 1){
-				font = "19";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "19";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 			} else if(mHeight <= 152f * 21 / 96 + 1){
-				font = "21";
+// H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
+//				font = "21";
+				font = mFont;
+// End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 			} else {
 				font = mFont;
 			}

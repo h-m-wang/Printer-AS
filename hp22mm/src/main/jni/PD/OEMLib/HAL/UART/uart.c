@@ -141,29 +141,26 @@ UartResult_t uart_unlock() {
     return UART_OK;
 }
 
-int set_options(int fd, int databits, int stopbits, int parity)
-{
+int set_options(int fd, int databits, int stopbits, int parity) {
     struct termios opt;
     if(fd <= 0)
         return 0;
-    if(tcgetattr(fd, &opt) != 0)
-    {
-        LOGD("SetupSerial 1\n");
+    if(tcgetattr(fd, &opt) != 0) {
+//        LOGE("SetupSerial 1\n");
         return -1;
     }
     opt.c_cflag &= ~CSIZE;
     opt.c_lflag &= ~(ICANON|ECHO|ECHOE|ISIG);
     opt.c_oflag &= ~OPOST;
 
-    switch(databits)
-    {
+    switch(databits) {
         case 7: opt.c_cflag |= CS7; break;
         case 8: opt.c_cflag |= CS8; break;
-        default: fprintf(stderr, "Unsupported data size\n");
+        default: LOGE("Unsupported data size\n");
             return -1;
     }
-    switch(parity)
-    {
+
+    switch(parity) {
         case 'n':
         case 'N': opt.c_cflag &= ~PARENB;
             opt.c_iflag &= ~INPCK;
@@ -181,17 +178,17 @@ int set_options(int fd, int databits, int stopbits, int parity)
         case 'S': opt.c_cflag &= ~PARENB;
             opt.c_cflag &= ~CSTOPB;
             break;
-        default: fprintf(stderr, "Unsupported parity\n");
+        default: LOGE("Unsupported parity\n");
             return -1;
 
     }
-    switch(stopbits)
-    {
+
+    switch(stopbits) {
         case 1: opt.c_cflag &= ~CSTOPB;
             break;
         case 2: opt.c_cflag |= CSTOPB;
             break;
-        default: fprintf(stderr,"Unsupported stop bits\n");
+        default: LOGE("Unsupported stop bits\n");
             return -1;
     }
 
@@ -214,9 +211,8 @@ int set_options(int fd, int databits, int stopbits, int parity)
     cfmakeraw(&opt);
 
     tcflush(fd, TCIOFLUSH);
-    if (tcsetattr(fd,TCSANOW,&opt) != 0)
-    {
-        LOGD("SetupSerial 3\n");
+    if (tcsetattr(fd,TCSANOW,&opt) != 0) {
+//        LOGD("SetupSerial 3\n");
         return -1;
     }
     return 0;
@@ -555,7 +551,7 @@ UartResult_t uart_recv( int32_t         instance,
 UartResult_t uart_recv_callback(int32_t instance, uint8_t *data,
                                 size_t size, int32_t timeout,
                                 UartCallbackFunc *func) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
         LOGE("Invalid Instance!");
@@ -569,7 +565,7 @@ UartResult_t uart_recv_callback(int32_t instance, uint8_t *data,
 //    if(instance > NUM_BLUR_INSTANCES) return UART_ERROR;
 //    if(uart_handle.fs == -1) return UART_ERROR;
 
-    LOGE("UART_ERROR_NOT_IMPLEMENTED!");
+//    LOGE("UART_ERROR_NOT_IMPLEMENTED!");
     return UART_ERROR_NOT_IMPLEMENTED;
 }
 

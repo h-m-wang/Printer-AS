@@ -571,7 +571,7 @@ ServiceResult_t service_power_on(int32_t instance, Headinfo_t *info, uint8_t ph_
     
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_power_on(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -618,7 +618,7 @@ ServiceResult_t service_power_off(int32_t instance, Headinfo_t *info, uint8_t ph
     
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_power_off(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -646,7 +646,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
                                 uint32_t            rsp_buf_size,
                                 uint32_t            *rsp_size
                                 ) {
-    LOGI("Enter %s", __FUNCTION__);
+//    LOGI("Enter %s", __FUNCTION__);
 
     if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
 		LOGE("Invalid Instance!");
@@ -684,7 +684,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
         return SERVICE_ERROR;
     }
     
-    LOGD("About to read the response header\n");
+//    LOGD("About to read the response header\n");
     
     /* Read the response header */
     uint8_t resp_buf[MAX_FRAME_SIZE];
@@ -695,8 +695,6 @@ ServiceResult_t service_execute(Frame_t             *frame,
         return SERVICE_ERROR;
     }
     
-    LOGD("service_execute(): Response : No. Bytes recvd = %d\n", recvd_size);
-
     LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, recvd_size, ','), recvd_size);
 
     fr = frame_response_init(frame, resp_buf, recvd_size);
@@ -712,15 +710,11 @@ ServiceResult_t service_execute(Frame_t             *frame,
         return SERVICE_ERROR;
     }
 
-    LOGD("service_execute(): Number of response data to read = %d\n", rsp_data_size);
-    
     /* Now read the variable data */
     size_t n=0;
     ur = uart_recv(instance, resp_buf+recvd_size, rsp_data_size+1, /* +1 for crc,(FW is not sending Line break now : +1 for line break)  */
                         &n, _get_response_timeout());
                         
-    LOGD("service_execute(): Response : No. Bytes recvd = %d\n", n);
-
     LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, n, ','), n);
 
     /* Deserialize the frame to structure */
@@ -742,7 +736,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     
 	uart_unlock();	// @@@ UN-LOCK UART @@@
 
-    LOGI("%s done", __FUNCTION__);
+//    LOGI("%s done", __FUNCTION__);
 
     return SERVICE_OK;
 }
@@ -1194,7 +1188,7 @@ ServiceResult_t service_head_count(int32_t instance, Headinfo_t *info, Response_
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_head_count(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1242,7 +1236,7 @@ ServiceResult_t service_head_status(int32_t instance, Headinfo_t *info, uint8_t 
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_head_status(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1270,7 +1264,7 @@ ServiceResult_t service_get_system_info(int32_t instance, Response_t * response)
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_system_info(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1312,7 +1306,7 @@ ServiceResult_t service_set_fpenergylevel(int32_t instance, Headinfo_t *info, ui
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_set_fpenergylevel(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1354,7 +1348,7 @@ ServiceResult_t service_get_fpenergylevel(int32_t instance, Headinfo_t *info, ui
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_fpenergylevel(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1396,7 +1390,7 @@ ServiceResult_t service_get_fpenergylevels(int32_t instance, Headinfo_t *info, u
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_fpenergylevels(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1443,7 +1437,7 @@ ServiceResult_t service_read_oem_field(int32_t instance, Headinfo_t *info, uint8
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_read_oem_field(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1490,7 +1484,7 @@ ServiceResult_t service_write_oem_field(int32_t instance, Headinfo_t *info, uint
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_write_oem_field(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1548,7 +1542,7 @@ ServiceResult_t service_calibrate_pulsewidth(int32_t instance, Headinfo_t *info,
     
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_calibrate_pulsewidth(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1596,7 +1590,7 @@ ServiceResult_t service_get_used_ink_weight_unsecured(int32_t instance, Headinfo
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_used_ink_weight_unsecured(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1642,10 +1636,10 @@ ServiceResult_t service_get_actual_temp(int32_t instance, Headinfo_t *info, uint
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_actual_temp(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     } else {
-        LOGI("service_get_actual_temp(): successfully executed. \n");
+        LOGI("%s(): successfully executed. \n", __FUNCTION__);
     }
 
     LOGI("%s done", __FUNCTION__);
@@ -1688,7 +1682,7 @@ ServiceResult_t service_set_temperature_override(int32_t instance, Headinfo_t *i
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_set_temperature_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1732,7 +1726,7 @@ ServiceResult_t service_get_temperature_override(int32_t instance, Headinfo_t *i
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_temperature_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1776,7 +1770,7 @@ ServiceResult_t service_set_voltage_override(int32_t instance, Headinfo_t *info,
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_set_voltage_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1820,7 +1814,7 @@ ServiceResult_t service_get_voltage_override(int32_t instance, Headinfo_t *info,
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_voltage_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1870,7 +1864,7 @@ ServiceResult_t service_set_over_energy_override(int32_t instance, Headinfo_t *i
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_set_over_energy_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1920,7 +1914,7 @@ ServiceResult_t service_get_over_energy_override(int32_t instance, Headinfo_t *i
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_over_energy_override(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -1968,7 +1962,7 @@ ServiceResult_t service_get_ph_configuration(int32_t instance, Headinfo_t *info,
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_ph_configuration(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2016,7 +2010,7 @@ ServiceResult_t service_get_column_spacing(int32_t instance, Headinfo_t *info, u
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_column_spacing(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2062,7 +2056,7 @@ ServiceResult_t service_get_field(int32_t instance, Headinfo_t *info, uint8_t ph
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_field_data(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2112,7 +2106,7 @@ ServiceResult_t service_set_field(int32_t instance, Headinfo_t *info, uint8_t ph
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_set_field(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2201,7 +2195,7 @@ ServiceResult_t service_lock_oem_partition(int32_t instance, Headinfo_t *info, u
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_lock_oem_partition(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2255,7 +2249,7 @@ ServiceResult_t service_start_purging(int32_t instance, Headinfo_t *info, uint8_
     _set_response_timeout(old_timeout);
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_start_purging(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
@@ -2297,7 +2291,7 @@ ServiceResult_t service_get_state_info(int32_t instance, Headinfo_t *info, uint8
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("service_get_state_info(): Cannot be executed \n");
+        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
         return SERVICE_ERROR;
     }
 
