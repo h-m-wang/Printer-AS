@@ -300,7 +300,7 @@ public class BaseObject{
 	protected Bitmap draw() {
 		Bitmap bitmap;
 		mPaint.setTextSize(getfeed());
-		mPaint.setAntiAlias(true); //去除锯齿  
+		mPaint.setAntiAlias(true); //去除锯齿
 		mPaint.setFilterBitmap(true); //对位图进行滤波处理
 		/*try {
 			AssetFileDescriptor fd = mContext.getAssets().openFd("fonts/"+mFont);
@@ -1156,7 +1156,7 @@ public class BaseObject{
 
 	public void setContent(String content)
 	{
-///./...		Debug.d(TAG, "setContent: [" + content + "]");
+		Debug.d(TAG, "mContent: [" + mContent + "] setContent: [" + content + "]");
 
 		if(mContent!=null && mContent.equals(content))
 			return;
