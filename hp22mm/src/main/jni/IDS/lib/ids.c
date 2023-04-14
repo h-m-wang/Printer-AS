@@ -7,7 +7,7 @@
    © Copyright 2017-2018 HP Development Company, L.P.
    Made in U.S.A.
  */
- 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>

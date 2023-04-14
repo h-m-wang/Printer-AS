@@ -11,10 +11,13 @@
 
 #include <stdio.h>
 
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <unistd.h>
+//#include <linux/i2c.h>
+//#include <linux/i2c-dev.h>
+//#include <unistd.h>
 #include <fcntl.h>
+#include <linux/spi/spidev.h>
+#include <sys/stat.h>
+#include <pthread.h>
 
 #include "hp22mm.h"
 #include "common.h"
@@ -25,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.011"
+#define VERSION_CODE                            "1.0.014"
 
 /***********************************************************
  *  Customization
@@ -45,6 +48,317 @@ void IDSCallback(int ids, int level, const char *message) {
         default:
             LOGE(">>> IDS %d: %s\n", ids, message);
     }
+}
+
+#define SPI_DEV_NAME "/dev/spidev0.0"
+#define SPI_BITS 8
+#define SPI_SPEED 8000000
+int spidev = -1;
+
+#define IMAGE_FILE "/system/lib/image.bin"
+uint image_cols = 0;
+#define IMAGE_ROWS 1056
+#define IMAGE_ADDR 0x0000
+
+#define CLOCK_HZ 90000000
+// Encoder frequency (Hz)
+#define ENCODER_FREQ_HZ 20000
+// TOF period (decimal seconds)
+#define TOF_PERIOD_SEC 1.0
+// Image TOF - distance in encoder tics
+#define IMAGE_TOF 1000
+
+#define PRINT_COMPLETE_CHECK_USEC 50000
+
+static bool IsPressurized = false;
+void CmdDepressurize();
+int CmdPressurize();
+
+int PDGInit() {
+    spidev = open(SPI_DEV_NAME, O_RDWR);
+    if (spidev < 0) {
+        LOGE("ERROR: cannot open %s (%d)\n", SPI_DEV_NAME, errno);
+        return -1;
+    }
+
+    unsigned char mode = SPI_MODE_0;
+    if (ioctl(spidev, SPI_IOC_WR_MODE, &mode) < 0 ||
+        ioctl(spidev, SPI_IOC_RD_MODE, &mode) < 0) {
+        LOGE("ERROR: ioctl WR/RD mode failed for %s (%d)\n", SPI_DEV_NAME, errno);
+        return -1;
+    }
+    unsigned int speed = SPI_SPEED;
+    if (ioctl(spidev, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0 ||
+        ioctl(spidev, SPI_IOC_RD_MAX_SPEED_HZ, &speed) < 0) {
+        LOGE("ERROR: ioctl WR/RD max speed failed for %s (%d)\n", SPI_DEV_NAME, errno);
+        return -1;
+    }
+    unsigned char bits = SPI_BITS;
+    if (ioctl(spidev, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0 ||
+        ioctl(spidev, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0) {
+        LOGE("ERROR: ioctl WR/RD bits per word failed for %s (%d)\n", SPI_DEV_NAME, errno);
+        return -1;
+    }
+
+    LOGI("PDGInit succeeded\n");
+    return 0;
+}
+
+int SPIMessage(unsigned char *message, int length) {
+    struct spi_ioc_transfer transfer[length];
+
+    // fill in transfer array for each byte (non-default, non-zero)
+    for (int i=0; i<length; i++) {
+        memset(&(transfer[i]), 0, sizeof(transfer[i]));
+        transfer[i].tx_buf  = (unsigned long)(message+i);
+        transfer[i].rx_buf  = (unsigned long)(message+i);
+        transfer[i].len = sizeof(*(message+i));
+    }
+    // execute message
+    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
+        LOGE("ERROR: ioctl message failed for %s (%d)\n", SPI_DEV_NAME, errno);
+        return -1;
+    }
+
+    return 0;
+}
+
+#define REG_MSG_LEN 7
+
+int PDGRead(unsigned char reg, uint32_t *four_bytes) {
+    unsigned char bytes[REG_MSG_LEN];
+
+    // Read sequence
+    bytes[0] = 3;   // Read
+    bytes[1] = reg;
+    for (int i=2; i<REG_MSG_LEN; i++) bytes[i] = 0;
+    // execute read
+    if (SPIMessage(bytes, REG_MSG_LEN) < 0) return -1;
+    // unpack bytes
+    *four_bytes = (bytes[2] << 24) + (bytes[3] << 16) + (bytes[4] << 8) + bytes[5];
+
+    return 0;
+}
+
+int PDGWrite(unsigned char reg, uint32_t four_bytes) {
+    unsigned char bytes[REG_MSG_LEN];
+    uint32_t read_bytes;
+
+    // Write sequence (data is MSB first)
+    bytes[0] = 4;   // Write
+    bytes[1] = reg;
+    bytes[2] = (four_bytes >> 24) & 0xff;
+    bytes[3] = (four_bytes >> 16) & 0xff;
+    bytes[4] = (four_bytes >> 8) & 0xff;
+    bytes[5] = (four_bytes) & 0xff;
+    bytes[6] = 0;
+    // execute write
+    if (SPIMessage(bytes, REG_MSG_LEN) < 0) return -1;
+
+    // read and compare after write
+    // NOTE: reg 28 cannot be read
+    if (reg == 28) return 0;
+    if (PDGRead(reg, &read_bytes) < 0 ||
+        read_bytes != four_bytes)
+        return -1;
+
+    return 0;
+}
+
+void PDGWaitBuffer(uint32_t wait_for) {
+    uint32_t ui;
+
+    while (true) {
+        if (PDGRead(2, &ui) < 0 ||
+            (ui == wait_for))
+            break;
+        LOGI("Waiting for %u, ret = %u\n", wait_for, ui);
+
+        usleep(500000);     // 0.5 sec
+    }
+}
+
+int PDGWriteImage() {
+    // get image file size
+    struct stat st;
+    if (stat(IMAGE_FILE, &st) != 0) {
+        LOGE("ERROR: cannot process %s\n", IMAGE_FILE);
+        return -1;
+    }
+    image_cols = (st.st_size * 8 / IMAGE_ROWS);
+
+    // open binary image
+    FILE *file = fopen(IMAGE_FILE, "rb");
+    if (file == NULL) return -1;
+
+    // SLOT IMAGES - rows and increment are fixed
+    // write image DDR using data Mask; Cols determines size
+    unsigned int addr = IMAGE_ADDR;
+    int write_bytes = IMAGE_ROWS / 8;       // column write size in bytes
+    int write_words = write_bytes / 4;
+    int buffer_size = write_bytes + 3;
+    unsigned char buffer[buffer_size];
+    unsigned char buffer2[8];
+
+    for (int col=0; col < image_cols; col++) {
+        // read from image file and write to PDG
+        buffer[0] = 5;
+        buffer[1] = write_words;
+        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
+            LOGE("ERROR: reading %s\n", IMAGE_FILE);
+            return -1;
+        }
+        buffer[write_bytes+2] = 0;
+        if (SPIMessage(buffer, buffer_size) < 0) return -1;
+        PDGWaitBuffer(write_words);
+
+        // Generic command (write)
+        buffer2[0] = 7;
+        buffer2[1] = (write_words - 1);
+        buffer2[2] = 0;
+        buffer2[3] = (addr >> 24) & 0xff;
+        buffer2[4] = (addr >> 16) & 0xff;
+        buffer2[5] = (addr >> 8) & 0xff;
+        buffer2[6] = addr & 0xff;
+        buffer2[7] = 0;
+        if (SPIMessage(buffer2, 8) < 0) return -1;
+        PDGWaitBuffer(0);
+
+        addr += write_bytes;
+    }
+
+    LOGI("%d total image bytes (%d rows x %d cols) written to DDR\n", addr, IMAGE_ROWS, image_cols);
+    return 0;
+}
+
+int PDGPrintSetup() {
+    // SLOT IMAGES
+    // row size and increment are fixed
+    if (PDGWrite(4, IMAGE_ROWS/32) < 0 || // R04 = words/col
+        PDGWrite(5, IMAGE_ROWS/8) < 0 ||   // R5 = byte memory advance (1 column)
+        PDGWrite(6, image_cols) < 0)       // R6 = columns (all cols using same image)
+        return -1;
+    // Image address for each slot - all slots using same image
+    int reg = 7 + (PEN_IDX * 4);
+    for (int col=0; col<4; col++) {
+        if (PDGWrite(reg+col, 0x0000) < 0) return -1; // image address is 0
+    }
+
+    // calculate encoder and TOF values
+    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
+    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
+
+    // use all 4 columns of selected pen
+    int col_mask = 0xf;
+    if (PEN_IDX == 1) col_mask <<= 4;
+
+    if (PDGWrite(15, encoder) < 0 ||    // R15 internal encoder period (divider of clock freq)
+        PDGWrite(16, tof_freq) < 0 ||   // R16 internal TOF frequency (Hz)
+        PDGWrite(17, 0) < 0 ||          // R17 0 = internal encoder
+        PDGWrite(18, 2) < 0 ||          // R18 external encoder divider (2=600 DPI)
+        PDGWrite(19, 0) < 0 ||          // R19 0 = internal TOF
+        PDGWrite(20, IMAGE_TOF) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
+        PDGWrite(21, IMAGE_TOF) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
+        PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
+        PDGWrite(23, 4) < 0 ||          // R23 column-to-column spacing (rows)
+        PDGWrite(24, 52) < 0 ||         // R24 slot-to-slot spacing (rows)
+        PDGWrite(25, 0) < 0 ||          // R25 0 - print disabled
+        PDGWrite(28, 0) < 0 ||          // R28 0 - not reset
+        PDGWrite(29, col_mask) < 0)     // R29 column enable bits
+        return -1;
+
+    return 0;
+}
+
+pthread_t PrintThread = (pthread_t)NULL;
+static bool CancelPrint = false;
+
+bool IsPrinting() {
+    return (PrintThread != (pthread_t)NULL);
+}
+
+void *_print_thread(void *arg) {
+    uint32_t ui;
+
+    while (true) {
+        // check for print done (or cancel/error)
+        if (PDGRead(25, &ui) < 0 ||     // (R25 print enable)
+            ui == 0 ||                  // print NOT enabled
+            CancelPrint)                // cancelled by user
+            break;
+
+        // delay before checking again
+        usleep(PRINT_COMPLETE_CHECK_USEC);
+    }
+    LOGI("<<< Printing Complete >>>\n");
+    if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
+        LOGE("ERROR: cannot disable print\n");
+    }
+    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, PEN_IDX), PEN_IDX);
+    PrintThread = (pthread_t)NULL;     // (done printing)
+    return (void*)NULL;
+}
+
+int PDGTriggerPrint(int external, int count) {
+    if (IsPrinting()) {
+        LOGE("ERROR: already printing\n");
+        return -1;
+    }
+
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, PEN_IDX), PEN_IDX)) {
+        LOGE("ERROR: pd_power_on()\n");
+        return -1;
+    }
+
+    CancelPrint = false;
+    if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
+        PDGWrite(19, external) < 0 ||    // R19 0=internal 1=external TOF
+        PDGWrite(26, 0) < 0 ||           // R26 init print count to 0
+        PDGWrite(27, count) < 0 ||       // R27 set print count limit
+        PDGWrite(25, 1) < 0) {            // R25 1 - enable print
+        LOGE("ERROR: triggering print\n");
+        return -1;
+    }
+
+    // start the print thread
+    printf("Triggering print from ");
+    printf(external ? "External sensors...\n" : "Internal sensors...\n");
+    if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
+        PrintThread = (pthread_t)NULL;
+        LOGE("ERROR: pthread_create() of PrintThread failed\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+void PDGCancelPrint() {
+    CancelPrint = true;
+}
+
+JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
+/*    if (!IsPressurized) {
+        if (CmdPressurize() != 0) {
+            LOGE("ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized\n");
+            return -1;
+        }
+    }
+*/
+    if(PDGWriteImage() != 0) {
+        LOGE("ERROR: PDGWriteImage failed\n");
+        return -1;
+    };
+
+    if(PDGPrintSetup() != 0) {
+        LOGE("ERROR: PDGPrintSetup failed\n");
+        return -1;
+    };
+
+    return PDGTriggerPrint(0, 3);
+}
+
+JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
+    PDGCancelPrint();
 }
 
 static IdsSysInfo_t ids_sys_info;
@@ -70,6 +384,11 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
 
     if (IDS_Init(IDSCallback)) {
         LOGE("IDS_Init failed\n");
+        return -1;
+    }
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
         return -1;
     }
 
@@ -266,31 +585,6 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclas
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-/*
-static SupplyID_t supply_id;
-
-JNIEXPORT jint JNICALL Java_com_ids_get_supply_id(JNIEnv *env, jclass arg) {
-    IDSResult_t ids_r;
-
-    ids_r = ids_get_supply_id(IDS_INSTANCE, SUPPLY_IDX, &supply_id);
-    if (ids_check("ids_get_supply_id", ids_r)) return (-1);
-
-    LOGD("supply_id.mfg_site = %d\nmfg_line = %d\nmfg_year = %d\nmfg_woy = %d\nmfg_dow = %d\nmfg_hour = %d\nmfg_min = %d\nmfg_sec = %d\nmfg_pos = %d",
-         supply_id.mfg_site, supply_id.mfg_line, supply_id.mfg_year, supply_id.mfg_woy, supply_id.mfg_dow, supply_id.mfg_hour, supply_id.mfg_min, supply_id.mfg_sec, supply_id.mfg_pos);
-
-    return 0;
-}
-
-JNIEXPORT jstring JNICALL Java_com_ids_get_supply_id_info(JNIEnv *env, jclass arg) {
-    char strTemp[256];
-
-    sprintf(strTemp,
-            "mfg_site = %d\nmfg_line = %d\nmfg_year = %d\nmfg_woy = %d\nmfg_dow = %d\nmfg_hour = %d\nmfg_min = %d\nmfg_sec = %d\nmfg_pos = %d",
-            supply_id.mfg_site, supply_id.mfg_line, supply_id.mfg_year, supply_id.mfg_woy, supply_id.mfg_dow, supply_id.mfg_hour, supply_id.mfg_min, supply_id.mfg_sec, supply_id.mfg_pos);
-
-    return (*env)->NewStringUTF(env, strTemp);
-}
-*/
 static PrintHeadStatus print_head_status;
 static PDSmartCardInfo_t pd_sc_info;
 static PDSmartCardStatus pd_sc_status;
@@ -378,53 +672,6 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-/*
-static PDSmartCardInfo_t pd_sc_info;
-
-JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
-    PDResult_t pd_r;
-    uint8_t pd_sc_result;
-
-    pd_r = pd_sc_get_info(PD_INSTANCE, penIndex, &pd_sc_info, &pd_sc_result);
-    if (pd_check("pd_sc_get_info", pd_r)) return (-1);
-    if (pd_sc_result != 0) {
-        LOGE("pd_sc_get_info() failed, status = %d\n", (int)pd_sc_result);
-        return (-1);
-    }
-
-    LOGD("pd_sc_result = %d\npd_sc_info.ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d\n ...(more)",
-         pd_sc_result,
-         pd_sc_info.ctrdg_fill_site_id,
-         pd_sc_info.ctrdg_fill_line,
-         pd_sc_info.ctrdg_fill_year,
-         pd_sc_info.ctrdg_fill_woy,
-         pd_sc_info.ctrdg_fill_dow,
-         pd_sc_info.ctrdg_fill_hour,
-         pd_sc_info.ctrdg_fill_min,
-         pd_sc_info.ctrdg_fill_sec,
-         pd_sc_info.ctrdg_fill_procpos);
-
-    return 0;
-}
-
-JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_msg(JNIEnv *env, jclass arg) {
-    char strTemp[256];
-
-    sprintf(strTemp,
-            "ctrdg_fill_site_id = %d\nctrdg_fill_line = %d\nctrdg_fill_year = %d\nctrdg_fill_woy = %d\nctrdg_fill_dow = %d\nctrdg_fill_hour = %d\nctrdg_fill_min = %d\nctrdg_fill_sec = %d\nctrdg_fill_procpos = %d\n ... (more)",
-            pd_sc_info.ctrdg_fill_site_id,
-            pd_sc_info.ctrdg_fill_line,
-            pd_sc_info.ctrdg_fill_year,
-            pd_sc_info.ctrdg_fill_woy,
-            pd_sc_info.ctrdg_fill_dow,
-            pd_sc_info.ctrdg_fill_hour,
-            pd_sc_info.ctrdg_fill_min,
-            pd_sc_info.ctrdg_fill_sec,
-            pd_sc_info.ctrdg_fill_procpos);
-
-    return (*env)->NewStringUTF(env, strTemp);
-}
-*/
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg) {
     if (DeletePairing()) {
         LOGE("DeletePairing failed!\n");
@@ -448,9 +695,6 @@ JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx
     }
     return 0;
 }
-
-void CmdDepressurize();
-int CmdPressurize();
 
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg) {
     return CmdPressurize();
@@ -505,7 +749,6 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
 #define LED_OFF 0
 #define LED_ON 1
 #define LED_BLINK 2
-static bool IsPressurized = false;
 
 int _CmdPressurize(float set_pressure) {
     float pressure;
@@ -934,12 +1177,8 @@ static JNINativeMethod gMethods[] = {
         {"ids_set_stall_insert_count",	    "()I",	                    (void *)Java_com_ids_set_stall_insert_count},
         {"ids_get_supply_status",		    "()I",	                    (void *)Java_com_ids_get_supply_status},
         {"ids_get_supply_status_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
-//        {"ids_get_supply_id",		        "()I",	                    (void *)Java_com_ids_get_supply_id},
-//        {"ids_get_supply_id_info",	        "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_id_info},
         {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
         {"pd_get_print_head_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_get_print_head_status_info},
-//        {"pd_sc_get_info",		            "(I)I",	                    (void *)Java_com_pd_sc_get_info},
-//        {"pd_sc_get_info_msg",              "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_msg},
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},
@@ -949,6 +1188,8 @@ static JNINativeMethod gMethods[] = {
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
+        {"startPrint",		            "()I",	                    (void *)Java_com_StartPrint},
+        {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
 };
 
 /**

@@ -87,7 +87,7 @@ public class N_RFIDModuleChecker {
         }
 
         // 02 00 00 04 20 10 02 26 03
-        // 最后尝试一下DPCS的寻卡，这一步也可以不做，直接确认气味DPCS模块
+        // 最后尝试一下DPCS的寻卡，这一步也可以不做，直接确认其为DPCS模块
         rfidData = transfer(RFID_CMD_AUTO_SEARCH, RFID_DATA_AUTOSEARCH_ALL);
         if(null == rfidData) {
             return RFID_MOD_UNKNOWN;

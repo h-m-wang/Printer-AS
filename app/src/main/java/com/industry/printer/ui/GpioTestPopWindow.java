@@ -103,7 +103,10 @@ public class GpioTestPopWindow {
 //        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
 //        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
 //        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
+        "Start Print",
+        "Stop Print",
     };
+
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
 
     private final static int HP22MM_TEST_INIT_IDS                       = 0;
@@ -129,6 +132,8 @@ public class GpioTestPopWindow {
 //    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
 //    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
 //    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
+    private final static int HP22MM_TEST_START_PRINT                    = 17;
+    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -670,6 +675,20 @@ public class GpioTestPopWindow {
                             }
                             break;
 */
+                        case HP22MM_TEST_START_PRINT:
+                            if (0 == Hp22mm.startPrint()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_STOP_PRINT:
+                            if (0 == Hp22mm.stopPrint()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
                     }
                     Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;

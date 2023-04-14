@@ -393,6 +393,7 @@ public class TxtDT {
         mCurLineET.setEnabled(false);
         mCountET.setEnabled(false);
         mCircleIV.setEnabled(false);
+        mPrintRptCnt = 0;
 
         setData();
         dispPreview();
