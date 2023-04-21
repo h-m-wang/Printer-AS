@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.014"
+#define VERSION_CODE                            "1.0.017"
 
 /***********************************************************
  *  Customization
@@ -107,6 +107,7 @@ int PDGInit() {
 int SPIMessage(unsigned char *message, int length) {
     struct spi_ioc_transfer transfer[length];
 
+    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     // fill in transfer array for each byte (non-default, non-zero)
     for (int i=0; i<length; i++) {
         memset(&(transfer[i]), 0, sizeof(transfer[i]));
@@ -120,6 +121,7 @@ int SPIMessage(unsigned char *message, int length) {
         return -1;
     }
 
+    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     return 0;
 }
 
@@ -245,8 +247,10 @@ int PDGPrintSetup() {
     }
 
     // calculate encoder and TOF values
-    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
-    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
+//    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
+//    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
+    int encoder = 1024;
+    int tof_freq = 1;
 
     // use all 4 columns of selected pen
     int col_mask = 0xf;
@@ -260,8 +264,8 @@ int PDGPrintSetup() {
         PDGWrite(20, IMAGE_TOF) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
         PDGWrite(21, IMAGE_TOF) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
         PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
-        PDGWrite(23, 4) < 0 ||          // R23 column-to-column spacing (rows)
-        PDGWrite(24, 52) < 0 ||         // R24 slot-to-slot spacing (rows)
+        PDGWrite(23, /*4*/200) < 0 ||          // R23 column-to-column spacing (rows)
+        PDGWrite(24, /*52*/200) < 0 ||         // R24 slot-to-slot spacing (rows)
         PDGWrite(25, 0) < 0 ||          // R25 0 - print disabled
         PDGWrite(28, 0) < 0 ||          // R28 0 - not reset
         PDGWrite(29, col_mask) < 0)     // R29 column enable bits
@@ -344,13 +348,18 @@ JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
         }
     }
 */
-    if(PDGWriteImage() != 0) {
-        LOGE("ERROR: PDGWriteImage failed\n");
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
         return -1;
-    };
+    }
 
     if(PDGPrintSetup() != 0) {
         LOGE("ERROR: PDGPrintSetup failed\n");
+        return -1;
+    };
+
+    if(PDGWriteImage() != 0) {
+        LOGE("ERROR: PDGWriteImage failed\n");
         return -1;
     };
 
@@ -360,6 +369,67 @@ JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
     PDGCancelPrint();
 }
+
+char *reg_name[] = {
+        "",
+        "",
+        "           Read FIFO",
+        "          Write FIFO",
+        "           Words/Col",
+        "       Advance Bytes",
+        "       Image Columns",
+        "     Start P0 S0 Odd",
+        "    Start P0 S0 Even",
+        "     Start P0 S1 Odd",
+        "    Start P0 S1 Even",
+        "     Start P1 S0 Odd",
+        "    Start P1 S0 Even",
+        "     Start P1 S1 Odd",
+        "    Start P1 S1 Even",
+        "        Encoder Freq",
+        "            TOF Freq",
+        "    External Encoder",
+        "     Encoder Divider",
+        "        External TOF",
+        "       P0 TOF Offset",
+        "       P1 TOF Offset",
+        "     Print Direction",
+        "       Column/Column",
+        "           Slot/Slot",
+        "        Enable Print",
+        "   Start Print Count",
+        "     End Print Count",
+        "               Reset",
+        "       Column Enable",
+        "Connect SPI to Flash",
+        "        PDG Revision",
+        "          Clock Freq",
+        "               Ready",
+        "   Action Bits P0 S0",
+        "   Action Bits P0 S1",
+        "   Action Bits P1 S0",
+        "   Action Bits P1 S1",
+};
+
+JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
+    uint32_t ui;
+    char strTemp[2048];
+    char str[128];
+
+    memset(strTemp, 0x00, 1024);
+    for (int reg=2; reg < (sizeof(reg_name)/sizeof(reg_name[0])); reg++) {
+        if (PDGRead(reg, &ui) < 0) {
+            return NULL;
+        } else {
+            sprintf(str,"%s(R%02d) = 0x%08X\n", reg_name[reg], reg, ui);
+            strcat(strTemp, str);
+        }
+    }
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+
 
 static IdsSysInfo_t ids_sys_info;
 
@@ -384,11 +454,6 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
 
     if (IDS_Init(IDSCallback)) {
         LOGE("IDS_Init failed\n");
-        return -1;
-    }
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
         return -1;
     }
 
@@ -1190,6 +1255,7 @@ static JNINativeMethod gMethods[] = {
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
         {"startPrint",		            "()I",	                    (void *)Java_com_StartPrint},
         {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
+        {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
 };
 
 /**

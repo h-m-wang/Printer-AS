@@ -27,14 +27,15 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penIdx);
 JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx);
-JNIEXPORT jint JNICALL Java_com_Pressurize();
-JNIEXPORT jstring JNICALL Java_com_getPressurizedValue();
-JNIEXPORT jint JNICALL Java_com_Depressurize();
+JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg);
+JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg);
+JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
 }

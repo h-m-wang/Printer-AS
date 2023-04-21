@@ -105,6 +105,7 @@ public class GpioTestPopWindow {
 //        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
         "Start Print",
         "Stop Print",
+        "Dump Registers",
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -134,6 +135,7 @@ public class GpioTestPopWindow {
 //    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
     private final static int HP22MM_TEST_START_PRINT                    = 17;
     private final static int HP22MM_TEST_STOP_PRINT                     = 18;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -689,6 +691,15 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
+                        case HP22MM_TEST_DUMP_REGISTERS:
+                            String str = Hp22mm.dumpRegisters();
+                            if (null != str) {
+                                mHp22mmTestResult[index] = "Success\n" + str;
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\nRegister read error";
+                            }
+                            break;
+
                     }
                     Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;

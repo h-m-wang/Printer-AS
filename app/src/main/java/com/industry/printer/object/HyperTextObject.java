@@ -254,6 +254,7 @@ public class HyperTextObject extends BaseObject {
                     if(procStart < foundPos) {
 //                        Debug.d(TAG, "Text: [" + cnt.substring(procStart, foundPos) + "]");
                         TextObject tObj = new TextObject(mContext, this, 0);
+                        tObj.setFont(mFont);
                         tObj.setContent(cnt.substring(procStart, foundPos));
                         mSubObjs.add(tObj);
                     }
@@ -267,6 +268,7 @@ public class HyperTextObject extends BaseObject {
                 if(procStart < cnt.length()) {
 //                    Debug.d(TAG, "Text: [" + cnt.substring(procStart) + "]");
                     TextObject tObj = new TextObject(mContext, this, 0);
+                    tObj.setFont(mFont);
                     tObj.setContent(cnt.substring(procStart));
                     mSubObjs.add(tObj);
                 }

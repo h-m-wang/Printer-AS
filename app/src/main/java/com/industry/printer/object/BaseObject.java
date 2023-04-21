@@ -79,31 +79,31 @@ public class BaseObject{
 	public float mYcor;
 	public float mXcor_end;
 	public float mYcor_end;
-	public boolean mDragable;
+	public boolean mDragable;	// H.M.Wang 2023-4-20 Not used
 	public int mLineWidth;
 	public boolean mIsSelected;
 	public String mContent;
 	public String mName;
-	public int mDotsPerClm;
+	public int mDotsPerClm;		// H.M.Wang 2023-4-20 Not used
 	/*内容来源 是否U盤*/
 	public boolean mSource;
 
 	public int mOffset;
 	public BaseObject mParent;
 
-	protected boolean mReverse;
+	protected boolean mReverse;	// H.M.Wang 2023-4-20 Not used
 	/* 
 	 * 是否需要重新绘制bitmap 
 	 * 需要重新绘制bitmap的几种情况：1、宽高变化；2、字体修改； 3，内容变化
 	 */
 	protected boolean isNeedRedraw;
 	protected Bitmap	mBitmap;
-	protected Bitmap	mBitmapSelected;
+	protected Bitmap	mBitmapSelected;    // H.M.Wang 2023-4-20 Not used
 	
-	public HashMap<String, byte[]> mVBuffer;
+	public HashMap<String, byte[]> mVBuffer;    // H.M.Wang 2023-4-20 Not used
 	public MessageTask mTask;
 
-	// H.M.Wang 从RealtimeObject移至此处，为的是是的TextObject也能用到
+	// H.M.Wang 从RealtimeObject移至此处，为的是使得TextObject也能用到
 	protected float mRatio = 1.0f;
 
 	//	public static final String DEFAULT_FONT = "0T+";//
@@ -1156,7 +1156,7 @@ public class BaseObject{
 
 	public void setContent(String content)
 	{
-		Debug.d(TAG, "mContent: [" + mContent + "] setContent: [" + content + "]");
+		Debug.d(TAG, "mContent: [" + mContent + "]; setContent: [" + content + "]");
 
 		if(mContent!=null && mContent.equals(content))
 			return;

@@ -40,4 +40,5 @@ public class Hp22mm {
     static public native int UpdateIDSFW();
     static public native int startPrint();
     static public native int stopPrint();
+    static public native String dumpRegisters();
 }
