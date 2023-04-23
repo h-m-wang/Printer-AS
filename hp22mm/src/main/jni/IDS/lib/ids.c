@@ -385,17 +385,17 @@ int IDS_I2C_RawWrite(int IDS, const uint8_t I2CAddress, const uint8_t *Data, con
     // set I2C address
     if (SetI2CAddress(I2CAddress) < 0)
 		ret = -1;
-    	
+
 	// write data
 	if (ret >= 0) {
 		ret = write(I2C_File, (const void *)Data, Length);
-		if (ret < 0) fprintf(stderr, "IDS_I2C_RawWrite: write errno: %d\n", errno);
+		if (ret < 0) LOGE("IDS_I2C_RawWrite: write errno: %s\n", strerror(errno));
 	}
     
     // UNLOCK
    	if (IDS >= 0) IDS_UnlockAccessAndDeSelectBothIDS();
 
-	LOGI("%s done", __FUNCTION__);
+	LOGI("%s done. ret = %d", __FUNCTION__, ret);
     return (ret < 0 ? -1 : 0);		// return 0 or -1
 }
 
@@ -480,7 +480,7 @@ int GPIOInit(int IDS) {
 	
 	IDS_UnlockAccessAndDeSelectBothIDS();	// UNLOCK
 
-	LOGI("%s done", __FUNCTION__);
+	LOGI("%s done. ret = %d", __FUNCTION__, ret);
 	return ret;
 }
 

@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.017"
+#define VERSION_CODE                            "1.0.022"
 
 /***********************************************************
  *  Customization
@@ -117,7 +117,7 @@ int SPIMessage(unsigned char *message, int length) {
     }
     // execute message
     if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
-        LOGE("ERROR: ioctl message failed for %s (%d)\n", SPI_DEV_NAME, errno);
+        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
         return -1;
     }
 
@@ -673,17 +673,6 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
         return (-1);
     }
 
-    uint8_t pd_sc_result;
-    if (pd_check("pd_sc_get_info", pd_sc_get_info(PD_INSTANCE, PEN_IDX, &pd_sc_info, &pd_sc_result)) || pd_sc_result != 0) {
-        LOGE("pd_sc_get_info error\n");
-        return (-1);
-    }
-
-    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, PEN_IDX, &pd_sc_status, &pd_sc_result)) || pd_sc_result != 0) {
-        LOGE("pd_sc_get_status error\n");
-        return (-1);
-    }
-
     LOGD("print_head_status.print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d",
          print_head_status.print_head_state,
          print_head_status.print_head_error,
@@ -695,15 +684,6 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
          print_head_status.overtemp_warning,
          print_head_status.supplyexpired_warning);
 
-    LOGD("ID = %d_%d_%d_%d_%d_%d_%d_%d_%d\n",
-             pd_sc_info.ctrdg_fill_site_id, pd_sc_info.ctrdg_fill_line, pd_sc_info.ctrdg_fill_year,
-             pd_sc_info.ctrdg_fill_woy, pd_sc_info.ctrdg_fill_dow, pd_sc_info.ctrdg_fill_hour,
-             pd_sc_info.ctrdg_fill_min, pd_sc_info.ctrdg_fill_sec, pd_sc_info.ctrdg_fill_procpos);
-
-    LOGD("Slot A = %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"));
-    LOGD("Slot B = %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"));
-    LOGD("Faulty = %s\n", (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
-
     return 0;
 }
 
@@ -711,7 +691,7 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
     char strTemp[1024];
 
     sprintf(strTemp,
-            "print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d\nID = %d_%d_%d_%d_%d_%d_%d_%d_%d\nSlot A = %s\nSlot B = %s\nFaulty = %s",
+            "print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d\n",
             print_head_status.print_head_state,
             print_head_status.print_head_error,
             print_head_status.energy_calibrated,
@@ -720,7 +700,61 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
             print_head_status.slot_b_purge_completed,
             print_head_status.overdrive_warning,
             print_head_status.overtemp_warning,
-            print_head_status.supplyexpired_warning,
+            print_head_status.supplyexpired_warning);
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg, jint penIndex) {
+    PDResult_t pd_r;
+
+    uint8_t pd_sc_result;
+    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &pd_sc_result)) || pd_sc_result != 0) {
+        LOGE("pd_sc_get_status error\n");
+        return (-1);
+    }
+
+    LOGD("Slot A = %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"));
+    LOGD("Slot B = %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"));
+    LOGD("Faulty = %s\n", (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
+
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_pd_sc_get_status_info(JNIEnv *env, jclass arg) {
+    char strTemp[1024];
+
+    sprintf(strTemp,
+            "Slot A = %s\nSlot B = %s\nFaulty = %s",
+            (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"),
+            (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"),
+            (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
+
+    return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
+    PDResult_t pd_r;
+
+    uint8_t pd_sc_result;
+    if (pd_check("pd_sc_get_info", pd_sc_get_info(PD_INSTANCE, penIndex, &pd_sc_info, &pd_sc_result)) || pd_sc_result != 0) {
+        LOGE("pd_sc_get_info error\n");
+        return (-1);
+    }
+
+    LOGD("ID = %d_%d_%d_%d_%d_%d_%d_%d_%d\n",
+         pd_sc_info.ctrdg_fill_site_id, pd_sc_info.ctrdg_fill_line, pd_sc_info.ctrdg_fill_year,
+         pd_sc_info.ctrdg_fill_woy, pd_sc_info.ctrdg_fill_dow, pd_sc_info.ctrdg_fill_hour,
+         pd_sc_info.ctrdg_fill_min, pd_sc_info.ctrdg_fill_sec, pd_sc_info.ctrdg_fill_procpos);
+
+    return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_pd_sc_get_info_info(JNIEnv *env, jclass arg) {
+    char strTemp[1024];
+
+    sprintf(strTemp,
+            "ID = %d_%d_%d_%d_%d_%d_%d_%d_%d",
             pd_sc_info.ctrdg_fill_site_id,
             pd_sc_info.ctrdg_fill_line,
             pd_sc_info.ctrdg_fill_year,
@@ -729,10 +763,7 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
             pd_sc_info.ctrdg_fill_hour,
             pd_sc_info.ctrdg_fill_min,
             pd_sc_info.ctrdg_fill_sec,
-            pd_sc_info.ctrdg_fill_procpos,
-            (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"),
-            (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"),
-            (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
+            pd_sc_info.ctrdg_fill_procpos);
 
     return (*env)->NewStringUTF(env, strTemp);
 }
@@ -1244,6 +1275,10 @@ static JNINativeMethod gMethods[] = {
         {"ids_get_supply_status_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
         {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
         {"pd_get_print_head_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_get_print_head_status_info},
+        {"pd_sc_get_status",		"(I)I",	                    (void *)Java_com_pd_sc_get_status},
+        {"pd_sc_get_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_status_info},
+        {"pd_sc_get_info",		"(I)I",	                    (void *)Java_com_pd_sc_get_info},
+        {"pd_sc_get_info_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_info},
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},

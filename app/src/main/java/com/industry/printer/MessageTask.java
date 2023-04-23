@@ -1363,6 +1363,7 @@ public class MessageTask {
 
 				HyperTextObject hypertext = new HyperTextObject(mContext, 0);
 				hypertext.setY(0);
+				hypertext.setFont(obj.getFont());
 				hypertext.setContent(obj.getContent());
 				msgTask.addObject(hypertext);
 

@@ -138,6 +138,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
                         addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((CounterObject)obj).setBits(5);
 //                        ((CounterObject)obj).setStart(mCounterStart);
 //                        ((CounterObject)obj).setEnd(mCounterEnd);
@@ -149,6 +150,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
                         addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((CounterObject)obj).setBits(4);
 //                        ((CounterObject)obj).setStart(mCounterStart);
 //                        ((CounterObject)obj).setEnd(mCounterEnd);
@@ -160,6 +162,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
                         addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((CounterObject)obj).setBits(3);
 //                        ((CounterObject)obj).setStart(mCounterStart);
 //                        ((CounterObject)obj).setEnd(mCounterEnd);
@@ -171,6 +174,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
                         addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((CounterObject)obj).setBits(2);
 //                        ((CounterObject)obj).setStart(mCounterStart);
 //                        ((CounterObject)obj).setEnd(mCounterEnd);
@@ -182,12 +186,14 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(WeekOfYearObject.class.getSimpleName())) {
                         addedMap.put(WeekOfYearObject.class.getSimpleName(), "");
                         obj = new WeekOfYearObject(mContext, this, 0);
+                        obj.setFont(mFont);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_WEEKDAY, foundPos)) {
                     tag = HYPER_TEXT_WEEKDAY;
                     if(!addedMap.containsKey(WeekDayObject.class.getSimpleName())) {
                         addedMap.put(WeekDayObject.class.getSimpleName(), "");
                         obj = new WeekDayObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((WeekDayObject)obj).setBits(2);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_SHIFT, foundPos)) {
@@ -195,6 +201,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(ShiftObject.class.getSimpleName())) {
                         addedMap.put(ShiftObject.class.getSimpleName(), "");
                         obj = new ShiftObject(mContext, this, 0);
+                        obj.setFont(mFont);
                         ((ShiftObject)obj).setBits(2);
                         ((ShiftObject)obj).setShift(0, String.valueOf(mShiftTimes[0]));
                         ((ShiftObject)obj).setShift(1, String.valueOf(mShiftTimes[1]));
@@ -210,24 +217,28 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(RealtimeSecond.class.getSimpleName())) {
                         addedMap.put(RealtimeSecond.class.getSimpleName(), "");
                         obj = new RealtimeSecond(mContext, this, 0);
+                        obj.setFont(mFont);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_MINUTE, foundPos)) {
                     tag = HYPER_TEXT_MINUTE;
                     if(!addedMap.containsKey(RealtimeMinute.class.getSimpleName())) {
                         addedMap.put(RealtimeMinute.class.getSimpleName(), "");
                         obj = new RealtimeMinute(mContext, this, 0);
+                        obj.setFont(mFont);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_HOUR, foundPos)) {
                     tag = HYPER_TEXT_HOUR;
                     if(!addedMap.containsKey(RealtimeHour.class.getSimpleName())) {
                         addedMap.put(RealtimeHour.class.getSimpleName(), "");
                         obj = new RealtimeHour(mContext, this, 0);
+                        obj.setFont(mFont);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_DATE, foundPos)) {
                     tag = HYPER_TEXT_DATE;
                     if(!addedMap.containsKey(RealtimeDate.class.getSimpleName())) {
                         addedMap.put(RealtimeDate.class.getSimpleName(), "");
                         obj = new RealtimeDate(mContext, this, 0);
+                        obj.setFont(mFont);
                         obj.setOffset(mOffset);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_MONTH, foundPos)) {
@@ -235,6 +246,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(RealtimeMonth.class.getSimpleName())) {
                         addedMap.put(RealtimeMonth.class.getSimpleName(), "");
                         obj = new RealtimeMonth(mContext, this, 0);
+                        obj.setFont(mFont);
                         obj.setOffset(mOffset);
                     }
                 } else if(testStr.startsWith(HYPER_TEXT_YEAR, foundPos)) {
@@ -242,6 +254,7 @@ public class HyperTextObject extends BaseObject {
                     if(!addedMap.containsKey(RealtimeYear.class.getSimpleName())) {
                         addedMap.put(RealtimeYear.class.getSimpleName(), "");
                         obj = new RealtimeYear(mContext, this, 0, false);
+                        obj.setFont(mFont);
                         obj.setOffset(mOffset);
                     }
                 } else {

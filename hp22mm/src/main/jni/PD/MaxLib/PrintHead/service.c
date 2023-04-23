@@ -2056,7 +2056,7 @@ ServiceResult_t service_get_field(int32_t instance, Headinfo_t *info, uint8_t ph
 
     /* check if error bit is set in the response header */
     if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
-        LOGE("%s(): Cannot be executed \n", __FUNCTION__);
+        LOGE("%s(): Cannot be executed(frame.ctrl=0x%02X) \n", __FUNCTION__, frame.ctrl);
         return SERVICE_ERROR;
     }
 

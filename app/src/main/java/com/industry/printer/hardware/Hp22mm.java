@@ -27,8 +27,10 @@ public class Hp22mm {
 //    static public native String ids_get_supply_id_info();
     static public native int pd_get_print_head_status(int penIdx);
     static public native String pd_get_print_head_status_info();
-//    static public native int pd_sc_get_info(int penIdx);
-//    static public native String pd_sc_get_info_msg();
+    static public native int pd_sc_get_status(int penIdx);
+    static public native String pd_sc_get_status_info();
+    static public native int pd_sc_get_info(int penIdx);
+    static public native String pd_sc_get_info_info();
     static public native int DeletePairing();
     static public native int DoPairing(int penIdx);
     static public native int DoOverrides(int penIdx);

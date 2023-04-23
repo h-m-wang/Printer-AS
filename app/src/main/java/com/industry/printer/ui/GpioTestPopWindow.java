@@ -86,8 +86,10 @@ public class GpioTestPopWindow {
 //        "ids_get_supply_id[1]",
         "pd_get_print_head_status[0]",
         "pd_get_print_head_status[1]",
-//        "pd_sc_get_info[0]",
-//        "pd_sc_get_info[1]",
+        "pd_sc_get_status[0]",
+        "pd_sc_get_status[1]",
+        "pd_sc_get_info[0]",
+        "pd_sc_get_info[1]",
         "DeletePairing",
         "DoPairing(1,0)",
         "DoPairing(1,1)",
@@ -113,29 +115,32 @@ public class GpioTestPopWindow {
     private final static int HP22MM_TEST_INIT_IDS                       = 0;
     private final static int HP22MM_TEST_INIT_PD                        = 1;
     private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 2;
+//    private final static int HP22MM_TEST_IDS_GET_SUPPLY_INFO              = 8;
 //    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
     private final static int HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS      = 3;
     private final static int HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS      = 4;
-//    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 5;
-//    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 6;
-    private final static int HP22MM_TEST_DELETE_PAIRING                 = 5;
-    private final static int HP22MM_TEST_DO_PAIRING10                   = 6;
-    private final static int HP22MM_TEST_DO_PAIRING11                   = 7;
-    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 8;
-    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 9;
-    private final static int HP22MM_TEST_PRESSURIZE                     = 10;
-    private final static int HP22MM_TEST_DEPRESSURIZE                   = 11;
-    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 12;
-    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 13;
-    private final static int HP22MM_TEST_IDS_SET_DATE                   = 14;
-    private final static int HP22MM_TEST_PD_SET_DATE                    = 15;
-    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 16;
+    private final static int HP22MM_TEST_PD_SC_GET_STATUS0              = 5;
+    private final static int HP22MM_TEST_PD_SC_GET_STATUS1              = 6;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 7;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 8;
+    private final static int HP22MM_TEST_DELETE_PAIRING                 = 9;
+    private final static int HP22MM_TEST_DO_PAIRING10                   = 10;
+    private final static int HP22MM_TEST_DO_PAIRING11                   = 11;
+    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 12;
+    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 13;
+    private final static int HP22MM_TEST_PRESSURIZE                     = 14;
+    private final static int HP22MM_TEST_DEPRESSURIZE                   = 15;
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 16;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 17;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 18;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 19;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 20;
 //    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
 //    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
 //    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
-    private final static int HP22MM_TEST_START_PRINT                    = 17;
-    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
-    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
+    private final static int HP22MM_TEST_START_PRINT                    = 21;
+    private final static int HP22MM_TEST_STOP_PRINT                     = 22;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 23;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -556,20 +561,34 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
-//                        case HP22MM_TEST_PD_SC_GET_INFO0:
-//                            if (0 == Hp22mm.pd_sc_get_info(0)) {
-//                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
-//                            } else {
-//                                mHp22mmTestResult[index] = "Failed";
-//                            }
-//                            break;
-//                        case HP22MM_TEST_PD_SC_GET_INFO1:
-//                            if (0 == Hp22mm.pd_sc_get_info(1)) {
-//                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_msg();
-//                            } else {
-//                                mHp22mmTestResult[index] = "Failed";
-//                            }
-//                            break;
+                        case HP22MM_TEST_PD_SC_GET_STATUS0:
+                            if (0 == Hp22mm.pd_sc_get_status(0)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_status_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SC_GET_STATUS1:
+                            if (0 == Hp22mm.pd_sc_get_status(1)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_status_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SC_GET_INFO0:
+                            if (0 == Hp22mm.pd_sc_get_info(0)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_PD_SC_GET_INFO1:
+                            if (0 == Hp22mm.pd_sc_get_info(1)) {
+                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_info();
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
                         case HP22MM_TEST_DELETE_PAIRING:
                             if (0 == Hp22mm.DeletePairing()) {
                                 mHp22mmTestResult[index] = "Success";
