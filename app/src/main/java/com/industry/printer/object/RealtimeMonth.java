@@ -21,7 +21,7 @@ public class RealtimeMonth extends BaseObject {
 
 	public static final String TAG="RealtimeMonth";
 	public String mFormat;
-	public int mOffset;
+//	public int mOffset;
 //	public BaseObject mParent;
 	
 	public RealtimeMonth(Context context, float x) {

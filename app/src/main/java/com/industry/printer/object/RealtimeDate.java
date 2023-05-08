@@ -21,7 +21,7 @@ public class RealtimeDate extends BaseObject {
 	private static final String TAG = RealtimeDate.class.getSimpleName();
 
 	public String mFormat;
-	public int mOffset;
+//	public int mOffset;
 //	public BaseObject mParent;
 	
 	public RealtimeDate(Context context, float x) {

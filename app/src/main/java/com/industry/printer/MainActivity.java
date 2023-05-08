@@ -293,12 +293,20 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		new Thread() {
 			@Override
 			public void run() {
+				Debug.d(TAG, "------------- 0");
+				ExtGpio.writeGpioTestPin('I', 4, 1);
+				try{
+					Thread.sleep(500);
+				} catch (Exception e) {
+				}
+
 				ExtGpio.playClick();
 				try{
 					Thread.sleep(500);
 				} catch (Exception e) {
 				}
 				ExtGpio.playClick();
+
 /*
 				Debug.d(TAG, "------------- 0");
 				ExtGpio.writeGpioTestPin('E', 7, 0);

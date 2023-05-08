@@ -102,12 +102,12 @@ public class GpioTestPopWindow {
         "ids_set_date",
         "pd_set_date",
         "ids_set_stall_insert_count[1]",
-//        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
-//        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
-//        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
         "Start Print",
         "Stop Print",
         "Dump Registers",
+        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
+        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
+        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -135,12 +135,12 @@ public class GpioTestPopWindow {
     private final static int HP22MM_TEST_IDS_SET_DATE                   = 18;
     private final static int HP22MM_TEST_PD_SET_DATE                    = 19;
     private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 20;
-//    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
-//    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
-//    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
     private final static int HP22MM_TEST_START_PRINT                    = 21;
     private final static int HP22MM_TEST_STOP_PRINT                     = 22;
     private final static int HP22MM_TEST_DUMP_REGISTERS                 = 23;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 24;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 25;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 26;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -518,6 +518,11 @@ public class GpioTestPopWindow {
             @Override
             public void run() {
                 try {
+                    mHp22mmTestResult[index] = "Processing ... ";
+                    Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
+                    msg.obj = view;
+                    mHandler.sendMessage(msg);
+
                     switch (index) {
                         case HP22MM_TEST_INIT_IDS:
                             if (0 == Hp22mm.init_ids()) {
@@ -674,28 +679,6 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-/*                        case HP22MM_TEST_UPDATE_PD_MCU:
-                            if (0 == Hp22mm.UpdatePDFW()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_UPDATE_FPGA_FLASH:
-                            if (0 == Hp22mm.UpdateFPGAFlash()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_UPDATE_IDS_MCU:
-                            if (0 == Hp22mm.UpdateIDSFW()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-*/
                         case HP22MM_TEST_START_PRINT:
                             if (0 == Hp22mm.startPrint()) {
                                 mHp22mmTestResult[index] = "Success";
@@ -718,9 +701,29 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\nRegister read error";
                             }
                             break;
-
+                        case HP22MM_TEST_UPDATE_PD_MCU:
+                            if (0 == Hp22mm.UpdatePDFW()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_FPGA_FLASH:
+                            if (0 == Hp22mm.UpdateFPGAFlash()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_IDS_MCU:
+                            if (0 == Hp22mm.UpdateIDSFW()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
                     }
-                    Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
+                    msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;
                     mHandler.sendMessage(msg);
                 } catch(UnsatisfiedLinkError e) {

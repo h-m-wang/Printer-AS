@@ -68,11 +68,11 @@ public class BaseObject{
 	
 	public String mId;
 	public int mIndex;
-	public String mTypeName;
+//	public String mTypeName;	// H.M.Wang 2023-4-20 Not used
 	public Paint mPaint;
 	public Canvas mCan;
 	public String mFont;
-	public float mSize;
+//	public float mSize;	// H.M.Wang 2023-4-20 Not used
 	public float mWidth;
 	public float mHeight;
 	public float mXcor;

@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.022"
+#define VERSION_CODE                            "1.0.026"
 
 /***********************************************************
  *  Customization
@@ -340,6 +340,67 @@ void PDGCancelPrint() {
     CancelPrint = true;
 }
 
+int SPISend(unsigned char *message, int length) {
+    struct spi_ioc_transfer transfer[length];
+
+    LOGD("SPIMessageSend.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    // fill in transfer array for each byte (non-default, non-zero)
+    for (int i=0; i<length; i++) {
+        memset(&(transfer[i]), 0, sizeof(transfer[i]));
+        transfer[i].tx_buf  = (unsigned long)(message+i);
+//        transfer[i].rx_buf  = (unsigned long)(message+i);
+        transfer[i].rx_buf  = NULL;
+        transfer[i].len = sizeof(*(message+i));
+    }
+    // execute message
+    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
+        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
+        return -1;
+    }
+    LOGD("SPIMessageSend.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    return 0;
+}
+
+int SPIRecv(unsigned char *message, int length) {
+    struct spi_ioc_transfer transfer[length];
+
+    LOGD("SPIMessageRecv.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    // fill in transfer array for each byte (non-default, non-zero)
+    for (int i=0; i<length; i++) {
+        memset(&(transfer[i]), 0, sizeof(transfer[i]));
+//        transfer[i].tx_buf  = (unsigned long)(message+i);
+        transfer[i].tx_buf  = NULL;
+        transfer[i].rx_buf  = (unsigned long)(message+i);
+        transfer[i].len = sizeof(*(message+i));
+    }
+    // execute message
+    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
+        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
+        return -1;
+    }
+
+    LOGD("SPIMessageRecv.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    return 0;
+}
+
+// 容量4MB闪存，8个扇区，每个扇区256页，每页256字节；整个芯片有2048页或者524288字节。
+/* command list */
+#define CMD_WRSR                    (0x01)  /* Write Status Register */
+#define CMD_PP                      (0x02)  /* Page Program */
+#define CMD_READ                    (0x03)  /* Read Data */
+#define CMD_WRDI                    (0x04)  /* Write Disable */
+#define CMD_RDSR1                   (0x05)  /* Read Status Register-1 */
+#define CMD_WREN                    (0x06)  /* Write Enable */
+#define CMD_FAST_READ               (0x0B)  /* Fast Read */
+#define CMD_ERASE_4K                (0x20)  /* Sector Erase:4K */
+#define CMD_RDSR2                   (0x35)  /* Read Status Register-2 */
+#define CMD_ERASE_32K               (0x52)  /* 32KB Block Erase */
+#define CMD_JEDEC_ID                (0x9F)  /* Read JEDEC ID */
+#define CMD_ERASE_full              (0xC7)  /* Chip Erase */
+#define CMD_ERASE_64K               (0xD8)  /* 64KB Block Erase */
+
+#define DUMMY                       (0xFF)
+
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
 /*    if (!IsPressurized) {
         if (CmdPressurize() != 0) {
@@ -352,7 +413,7 @@ JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
         LOGE("PDGInit failed\n");
         return -1;
     }
-
+/*
     if(PDGPrintSetup() != 0) {
         LOGE("ERROR: PDGPrintSetup failed\n");
         return -1;
@@ -364,10 +425,43 @@ JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
     };
 
     return PDGTriggerPrint(0, 3);
+*/
+/*
+    char msg[] = {0x07, 0x0F};
+    int ret = 0;
+    CancelPrint = false;
+    while(!CancelPrint) {
+        if (SPIMessage(msg, 2) < 0) {
+            CancelPrint = true;
+            ret = -1;
+        }
+        if(msg[0] != 0x07 || msg[1] != 0x0F) {
+            CancelPrint = true;
+            ret = -1;
+        }
+        usleep(1000*500);
+    }
+    return ret;
+*/
+    uint8_t send_buffer[4];
+    uint8_t recv_buffer[256];
+    uint32_t page_addr = 0;
+
+    send_buffer[0] = CMD_WREN;
+    SPISend(send_buffer, 1);        // 设置允许写
+
+    send_buffer[0] = CMD_READ;
+    send_buffer[1] = (page_addr >> 16);
+    send_buffer[2] = (page_addr >> 8);
+    send_buffer[3] = (page_addr);
+    SPISend(send_buffer, 4);        // 写入读命令及读取开始地址
+
+    SPIRecv(recv_buffer, 256);      // 读入256字节（一个块）的数据
 }
 
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
     PDGCancelPrint();
+    return 0;
 }
 
 char *reg_name[] = {
@@ -457,6 +551,37 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
         return -1;
     }
 
+    LOGD("Supply 1 Read/Write Test ________\n");
+
+    uint32_t ui32;
+    char sc_string[BUFFER_SIZE];
+
+    // read OEM RW field 1
+    ids_r = ids_read_oem_field(IDS_INSTANCE, 1, OEM_RW_1, &ui32);
+    ids_check("ids_read_oem_field", ids_r);
+    LOGD("Read OEM_RW_1 = %u\n", ui32);
+    // write OEM RW field 1
+    ids_r = ids_write_oem_field(IDS_INSTANCE, 1, OEM_RW_1, ++ui32);
+    ids_check("ids_write_oem_field", ids_r);
+    LOGD("Write OEM_RW_1 = %u\n", ui32);
+    // read OEM RW field 1
+    ids_r = ids_read_oem_field(IDS_INSTANCE, 1, OEM_RW_1, &ui32);
+    ids_check("ids_read_oem_field", ids_r);
+    LOGD("Read OEM_RW_1 after increment = %u\n", ui32);
+
+    // write Reorder string (12 characters)
+    snprintf(sc_string, BUFFER_SIZE, "Test IDS001 ");
+    printf("Writing STR_REORDER_PN = %s\n", sc_string);
+    ids_r = ids_write_oem_string(IDS_INSTANCE, 1, STR_REORDER_PN, strlen(sc_string), (uint8_t*)sc_string);
+    ids_check("ids_write_oem_string", ids_r);
+    LOGD("Write STR_REORDER_PN = %s\n", sc_string);
+
+    // read Reorder string
+    memset((void*)sc_string, 0, BUFFER_SIZE);
+    ids_r = ids_read_oem_string(IDS_INSTANCE, 1, STR_REORDER_PN, BUFFER_SIZE, (uint8_t*)sc_string);
+    ids_check("ids_read_oem_string", ids_r);
+    LOGD("Read STR_REORDER_PN = %s\n", sc_string);
+
     return 0;
 }
 
@@ -497,6 +622,44 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
          pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
          pd_system_status.pd_status,
          pd_system_status.board_id);
+
+    sleep(2);
+
+    // NON-SECURE ink use (for PILS algorithm)
+    LOGD("Ink Weight = %d\n", GetInkWeight(0));
+    GetAndProcessInkUse(0, 1);
+
+    LOGD("PD 0 Read/Write Test ________\n");
+
+    uint32_t ui32;
+    uint8_t sc_result;
+    // read OEM RW field 1
+    pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, &ui32, &sc_result);
+    pd_check("pd_sc_read_oem_field", pd_r);
+    LOGD("Read PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
+
+    // write OEM RW field 1
+    pd_r = pd_sc_write_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, ++ui32, &sc_result);
+    pd_check("pd_sc_write_oem_field", pd_r);
+    LOGD("Write PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
+
+    // read OEM RW field 1
+    pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, &ui32, &sc_result);
+    pd_check("pd_sc_read_oem_field", pd_r);
+    LOGD("Read PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
+
+
+    char sc_string[BUFFER_SIZE];
+    snprintf(sc_string, BUFFER_SIZE, "AAAA PD002  ");
+    // write Reorder string (12 characters)
+    LOGD("Write PD_SC_OEM_STR_REORDER_PN = %s\n", sc_string);
+    pd_r = pd_sc_write_oem_string_field(PD_INSTANCE, 0, PD_SC_OEM_STR_REORDER_PN, sc_string);
+    pd_check("pd_sc_write_oem_string_field", pd_r);
+    // read Reorder string (in  SC info)
+    memset((void*)sc_string, 0, BUFFER_SIZE);
+    pd_r = pd_sc_read_oem_string_field(PD_INSTANCE, 0, PD_SC_OEM_STR_REORDER_PN, sc_string, BUFFER_SIZE);
+    pd_check("pd_sc_read_oem_string_field", pd_r);
+    LOGD("Read PD_SC_OEM_STR_REORDER_PN = %s\n", sc_string);
 
     return 0;
 }
@@ -589,8 +752,6 @@ static SupplyID_t supply_id;
 static char SN[30] = "";
 
 char *GetSupplyID() {
-    IDSResult_t ids_r;
-
     // create SN string (storing in global)
     SN[0] = '\0';
     snprintf(SN, sizeof(SN), "%d_%d_%04d_%02d_%d_%02d_%02d_%02d_%d",
@@ -617,16 +778,43 @@ JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
         if (ids_check("ids_get_supply_info", ids_get_supply_info(IDS_INSTANCE, SUPPLY_IDX, &supply_info))) return (-1);
         if (ids_check("ids_get_supply_id", ids_get_supply_id(IDS_INSTANCE, SUPPLY_IDX, &supply_id))) return (-1);
 
-        LOGD("ID = %s\n", GetSupplyID());
-        LOGD("State = %d\n", supply_status.state);
-        LOGD("Out of Ink = %s\n", (supply_status.status_bits & STATUS_OOI ? "True" : "False"));
-        LOGD("Altered = %s\n", (supply_status.status_bits & STATUS_ALTERED ? "True" : "False"));
-        LOGD("Expired = %s\n", (supply_status.status_bits & STATUS_EXPIRED ? "True" : "False"));
-        LOGD("Faulty = %s\n", (supply_status.status_bits & STATUS_FAULTY ? "True" : "False"));
-        LOGD("Consumed vol = %.1f\n", supply_status.consumed_volume/10.0);
-        LOGD("Usable vol = %.1f\n", supply_info.usable_vol/10.0);
-        LOGD("Sensor gain = %.1f\n", supply_info.sensor_gain / 100.0);
-        LOGD("Ink density = %.1f", supply_info.ink_density / 1000.0);
+        LOGD("============= SupplyID =============\n");
+        LOGD("supply_id.mfg_site = 0x%02X\n", supply_id.mfg_site);                   /**< Dry cartridge manufacture site. */
+        LOGD("supply_id.mfg_line = 0x%02X\n", supply_id.mfg_line);                   /**< Dry cartridge manufacture line. */
+        LOGD("supply_id.mfg_year = 0x%04X\n", supply_id.mfg_year);                   /**< Dry cartridge manufacture year (e.g. 2018). */
+        LOGD("supply_id.mfg_woy = 0x%02X\n", supply_id.mfg_woy);                     /**< Dry cartridge manufacture week of year (1-52). */
+        LOGD("supply_id.mfg_dow = 0x%02X\n", supply_id.mfg_dow);                     /**< Dry cartridge manufacture day of week (0-6 = Sunday-Saturday). */
+        LOGD("supply_id.mfg_hour = 0x%02X\n", supply_id.mfg_hour);                   /**< Dry cartridge manufacture hour (0-23). */
+        LOGD("supply_id.mfg_min = 0x%02X\n", supply_id.mfg_min);                     /**< Dry cartridge manufacture minute (0-59). */
+        LOGD("supply_id.mfg_sec = 0x%02X\n", supply_id.mfg_sec);                     /**< Dry cartridge manufacture second (0-59). */
+        LOGD("supply_id.mfg_pos = 0x%02X\n", supply_id.mfg_pos);                     /**< Dry cartridge manufacture position. */
+
+        LOGD("============= SupplyStatus =============\n");
+        LOGD("supply_status.state = 0x%02X\n", supply_status.state);                 /**< Non-zero indicates Out of ink. */
+        LOGD("supply_status.status_bits = 0x%02X\n", supply_status.status_bits);     /**< Bits set to indicate various conditions */
+        LOGD("supply_status.consumed_volume = 0x%04X\n", supply_status.consumed_volume); /**< Consumed ink volume (10ths of ml). */
+
+        LOGD("============= SupplyInfo =============\n");
+        LOGD("supply_info.mfg_site = 0x%02X\n", supply_info.mfg_site);               /**< Ink fill site. */
+        LOGD("supply_info.mfg_line = 0x%02X\n", supply_info.mfg_line);               /**< Ink fill line. */
+        LOGD("supply_info.mfg_year = 0x%04X\n", supply_info.mfg_year);               /**< Ink fill year (e.g. 2018). */
+        LOGD("supply_info.mfg_woy = 0x%02X\n", supply_info.mfg_woy);                 /**< Ink fill week of year (1-52). */
+        LOGD("supply_info.mfg_dow = 0x%02X\n", supply_info.mfg_dow);                 /**< Ink fill day of week (0-6 = Sunday-Saturday). */
+        LOGD("supply_info.mfg_hour = 0x%02X\n", supply_info.mfg_hour);               /**< Ink fill hour (0-23). */
+        LOGD("supply_info.mfg_min = 0x%02X\n", supply_info.mfg_min);                 /**< Ink fill minute (0-59). */
+        LOGD("supply_info.mfg_sec = 0x%02X\n", supply_info.mfg_sec);                 /**< Ink fill second (0-59). */
+        LOGD("supply_info.mfg_pos = 0x%02X\n", supply_info.mfg_pos);                 /**< Ink fill position. */
+        LOGD("supply_info.sensor_gain = 0x%04X\n", supply_info.sensor_gain);         /**< PILS sensor gain (mV/PSI * 100). */
+        LOGD("supply_info.ink_density = 0x%04X\n", supply_info.ink_density);         /**< Ink density (g/ml * 1000). */
+        LOGD("supply_info.usable_vol = 0x%04X\n", supply_info.usable_vol);           /**< Usable ink volume (10ths of ml). */
+        LOGD("supply_info.insert_count = 0x%02X\n", supply_info.insert_count);       /**< Insertion count for this cartridge. */
+        LOGD("supply_info.ext_oem_id = 0x%02X\n", supply_info.ext_oem_id);           /**< Extended OEM ID. */
+        LOGD("supply_info.hp_oem_designate = 0x%02X\n", supply_info.hp_oem_designate);   /**< HP/OEM ink designator. */
+        LOGD("supply_info.formulator_id = 0x%02X\n", supply_info.formulator_id);     /**< Ink formulator ID. */
+        LOGD("supply_info.ink_vehicle = 0x%02X\n", supply_info.ink_vehicle);         /**< Ink vehicle. */
+        LOGD("supply_info.ink_family = 0x%02X\n", supply_info.ink_family);           /**< Ink family. */
+        LOGD("supply_info.ink_member = 0x%04X\n", supply_info.ink_member);           /**< Ink family member. */
+        LOGD("supply_info.ink_revision = 0x%02X\n", supply_info.ink_revision);       /**< Ink revision. */
     }
 
     return 0;
@@ -673,16 +861,16 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
         return (-1);
     }
 
-    LOGD("print_head_status.print_head_state = %d\nprint_head_error = %d\nenergy_calibrated = %d\ntemp_calibrated = %d\nslot_a_purge_completed = %d\nslot_b_purge_completed = %d\noverdrive_warning = %d\novertemp_warning = %d\nsupplyexpired_warning = %d",
-         print_head_status.print_head_state,
-         print_head_status.print_head_error,
-         print_head_status.energy_calibrated,
-         print_head_status.temp_calibrated,
-         print_head_status.slot_a_purge_completed,
-         print_head_status.slot_b_purge_completed,
-         print_head_status.overdrive_warning,
-         print_head_status.overtemp_warning,
-         print_head_status.supplyexpired_warning);
+    LOGD("============= PrintHeadStatus =============\n");
+    LOGD("print_head_state = 0x%02X\n", print_head_status.print_head_state);       /**< Printhead state */
+    LOGD("print_head_error = 0x%02X\n", print_head_status.print_head_error);       /**< Printhead error code */
+    LOGD("energy_calibrated = 0x%02X\n", print_head_status.energy_calibrated);     /**< Is the Printhead energy calibrated */
+    LOGD("temp_calibrated = 0x%02X\n", print_head_status.temp_calibrated);         /**< Is the Printhead temeprature calibrated */
+    LOGD("slot_a_purge_completed = 0x%02X\n", print_head_status.slot_a_purge_completed);         /**< Is purge completed for slot a */
+    LOGD("slot_b_purge_completed = 0x%02X\n", print_head_status.slot_b_purge_completed);         /**< Is purge completed for slot b */
+    LOGD("overdrive_warning = 0x%02X\n", print_head_status.overdrive_warning);     /**< Overdrive warning has occured after the last read of status */
+    LOGD("overtemp_warning = 0x%02X\n", print_head_status.overtemp_warning);       /**< Overtemp warning has occured after the last read of status */
+    LOGD("supplyexpired_warning = 0x%02X\n", print_head_status.supplyexpired_warning);           /**< Idsexpired warning has occured after the last read of status */
 
     return 0;
 }
@@ -714,9 +902,21 @@ JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg, jint p
         return (-1);
     }
 
-    LOGD("Slot A = %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"));
-    LOGD("Slot B = %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"));
-    LOGD("Faulty = %s\n", (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
+    LOGD("============= PDSmartCardStatus =============\n");
+    LOGD("out_of_ink : %s\n", (pd_sc_status.out_of_ink ? "out of ink" : "Not out of ink"));     /**< Out of ink. Used only in the case of single-use printheads. 0 = Not out of ink, 1 = out of ink */
+    LOGD("purge_complete_slot_a : %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge completed" : "Purge not completed")); /**< Shipping fluid Purge complete for slot A. 0 = Purge not complete, 1 = Purge completed */
+    LOGD("purge_complete_slot_b : %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge completed" : "Purge not completed")); /**< Shipping fluid Purge complete for slot B. 0 = Purge not complete, 1 = Purge completed */
+    LOGD("altered_ph_detected_slot_a : %s\n", (pd_sc_status.altered_ph_detected_slot_a ? "Altered printhead detected" : "Altered printhead not detected")); /**< Altered Printhead detected on slot A. 0 = Altered printhead not detected, 1 = Altered printhead detected */
+    LOGD("altered_ph_detected_slot_b : %s\n", (pd_sc_status.altered_ph_detected_slot_b ? "Altered printhead detected" : "Altered printhead not detected")); /**< Altered Printhead detected on slot A. 0 = Altered printhead not detected, 1 = Altered printhead detected */
+    LOGD("altered_supply_detected_slot_a : %s\n", (pd_sc_status.altered_supply_detected_slot_a ? "Altered supply detected" : "Altered supply not detected")); /**< Altered supply detected on slot A. 0 = Altered supply not detected, 1 = Altered supply detected */
+    LOGD("altered_supply_detected_slot_b : %s\n", (pd_sc_status.altered_supply_detected_slot_b ? "Altered supply detected" : "Altered supply not detected")); /**< Altered supply detected on slot A. 0 = Altered supply not detected, 1 = Altered supply detected */
+    LOGD("faulty_replace_immediately : %s\n", (pd_sc_status.faulty_replace_immediately ? "Faulty printhead replace immediately" : "OK"));     /**< Faulty printhead. 0 = OK, 1 = Faulty printhead replace immediately */
+    LOGD("pen_short_detected_slot_a : %s\n", (pd_sc_status.pen_short_detected_slot_a ? "Pen short detected" : "No short")); /**< Pen short short for slot A. 0 = No short, 1 = Pen short detected */
+    LOGD("pen_short_detected_slot_b : %s\n", (pd_sc_status.pen_short_detected_slot_b ? "Pen short detected" : "No short")); /**< Pen short short for slot B. 0 = No short, 1 = Pen short detected */
+    LOGD("expired_supply_slot_a : %s\n", (pd_sc_status.expired_supply_slot_a ? "Expired supply" : "Not expired supply")); /**< Expired supply for slot A. 0 = Not expired supply, 1 = Expired supply */
+    LOGD("expired_supply_slot_b : %s\n", (pd_sc_status.expired_supply_slot_b ? "Expired supply" : "Not expired supply")); /**< Expired supply for slot B. 0 = Not expired supply, 1 = Expired supply */
+    LOGD("crtdg_insertion_count = 0x%02X\n", pd_sc_status.crtdg_insertion_count);       /**< Cartridge insertion count */
+    LOGD("last_failure_code = 0x%02X\n", pd_sc_status.last_failure_code);       /**< Last failure code */
 
     return 0;
 }
@@ -742,10 +942,94 @@ JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint pen
         return (-1);
     }
 
-    LOGD("ID = %d_%d_%d_%d_%d_%d_%d_%d_%d\n",
-         pd_sc_info.ctrdg_fill_site_id, pd_sc_info.ctrdg_fill_line, pd_sc_info.ctrdg_fill_year,
-         pd_sc_info.ctrdg_fill_woy, pd_sc_info.ctrdg_fill_dow, pd_sc_info.ctrdg_fill_hour,
-         pd_sc_info.ctrdg_fill_min, pd_sc_info.ctrdg_fill_sec, pd_sc_info.ctrdg_fill_procpos);
+    LOGD("============= PDSmartCardInfo =============\n");
+    LOGD("max_usable_slot_volume = 0x%04X\n", pd_sc_info.max_usable_slot_volume);           /**< Usable volume per slot in ml */
+    LOGD("column_spacing_slota_ldw = 0x%02X\n", pd_sc_info.column_spacing_slota_ldw);       /**< column-to-column spacing in 1/2400th of an inch */
+    LOGD("column_spacing_slota_hdw = 0x%02X\n", pd_sc_info.column_spacing_slota_hdw);       /**< column-to-column spacing in 1/2400th of an inch */
+    LOGD("column_spacing_slotb_ldw = 0x%02X\n", pd_sc_info.column_spacing_slotb_ldw);       /**< column-to-column spacing in 1/2400th of an inch */
+    LOGD("column_spacing_slotb_hdw = 0x%02X\n", pd_sc_info.column_spacing_slotb_hdw);       /**< column-to-column spacing in 1/2400th of an inch */
+    LOGD("pen_serial_num1 = 0x%08X\n", pd_sc_info.pen_serial_num1);                         /**< Pen serial number 1 */
+    LOGD("pen_serial_num2 = 0x%08X\n", pd_sc_info.pen_serial_num2);                         /**< Pen serial number 2 */
+
+    LOGD("ctrdg_fill_site_id = 0x%02X\n", pd_sc_info.ctrdg_fill_site_id);                   /**< Cartridge Fill manufacturer location identifier. */
+    LOGD("ctrdg_fill_line = 0x%02X\n", pd_sc_info.ctrdg_fill_line);                         /**< Cartridge Fill manufacturer line identifier */
+    LOGD("ctrdg_fill_year = 0x%04X\n", pd_sc_info.ctrdg_fill_year);                         /**< Cartridge Fill year (e.g. 2018). */
+    LOGD("ctrdg_fill_woy = 0x%02X\n", pd_sc_info.ctrdg_fill_woy);                           /**< Cartridge Fill week of the year (1-52). */
+    LOGD("ctrdg_fill_dow = 0x%02X\n", pd_sc_info.ctrdg_fill_dow);                           /**< Cartridge Fill day of week (0-6 = Sunday-Saturday). */
+    LOGD("ctrdg_fill_hour = 0x%02X\n", pd_sc_info.ctrdg_fill_hour);                         /**< Cartridge Fill hour of day. */
+    LOGD("ctrdg_fill_min = 0x%02X\n", pd_sc_info.ctrdg_fill_min);                           /**< Cartridge Fill minute of hour. */
+    LOGD("ctrdg_fill_sec = 0x%02X\n", pd_sc_info.ctrdg_fill_sec);                           /**< Cartridge Fill second of minute. */
+    LOGD("ctrdg_fill_procpos = 0x%02X\n", pd_sc_info.ctrdg_fill_procpos);                   /**< Cartridge Fill tooling process position. */
+
+    LOGD("ink_formulator_id_slota = 0x%02X\n", pd_sc_info.ink_formulator_id_slota);         /**< Cartridge Fill tooling process position. */
+    LOGD("ink_vehicle_slota = 0x%02X\n", pd_sc_info.ink_vehicle_slota);                     /**< ink vehicle type. */
+    LOGD("ink_family_slota = 0x%04X\n", pd_sc_info.ink_family_slota);                       /**< Ink formulator ID. */
+    LOGD("ink_family_member_slota = 0x%04X\n", pd_sc_info.ink_family_member_slota);         /**< Ink family member. */
+    LOGD("ink_revision_slota = 0x%02X\n", pd_sc_info.ink_revision_slota);                   /**< Ink revision number. */
+
+    LOGD("ink_formulator_id_slotb = 0x%02X\n", pd_sc_info.ink_formulator_id_slotb);         /**< Cartridge Fill tooling process position. */
+    LOGD("ink_vehicle_slotb = 0x%02X\n", pd_sc_info.ink_vechicle_slotb);                     /**< ink vehicle type. */
+    LOGD("ink_family_slotb = 0x%04X\n", pd_sc_info.ink_family_slotb);                       /**< Ink formulator ID. */
+    LOGD("ink_family_member_slotb = 0x%04X\n", pd_sc_info.ink_family_member_slotb);         /**< Ink family member. */
+    LOGD("ink_revision_slotb = 0x%02X\n", pd_sc_info.ink_revision_slotb);                   /**< Ink revision number. */
+
+
+    LOGD("ink_drop_wt_slota_hi = 0x%02X\n", pd_sc_info.ink_drop_wt_slota_hi);               /**< Drop weight(ng) of High Drop Weight Nozzles in Slot A */
+    LOGD("ink_drop_wt_slota_lo = 0x%02X\n", pd_sc_info.ink_drop_wt_slota_lo);               /**< Drop weight(ng) of Low Drop Weight Nozzles in Slot A */
+    LOGD("ink_drop_wt_slotb_hi = 0x%02X\n", pd_sc_info.ink_drop_wt_slotb_hi);               /**< Drop weight(ng) of High Drop Weight Nozzles in Slot B */
+    LOGD("ink_drop_wt_slotb_lo = 0x%02X\n", pd_sc_info.ink_drop_wt_slotb_lo);               /**< Drop weight(ng) of Low Drop Weight Nozzles in Slot B */
+    LOGD("ink_density_slota = %f\n", pd_sc_info.ink_density_slota);                         /**< Ink density in g/ml */
+    LOGD("ink_density_slotb = %f\n", pd_sc_info.ink_density_slotb);                         /**< Ink density in g/ml */
+    LOGD("shelf_life_weeks = 0x%02X\n", pd_sc_info.shelf_life_weeks);                       /**< Shelf life of ink in weeks from the time of cartrdige fill */
+    LOGD("shelf_life_days = 0x%02X\n", pd_sc_info.shelf_life_days);                         /**< Shelf life of ink in days from the time of cartrdige fill */
+    LOGD("installed_life_weeks = 0x%02X\n", pd_sc_info.installed_life_weeks);               /**< Installed life of the cartridge in weeks from the time it was first installed in the printer */
+    LOGD("installed_life_days = 0x%02X\n", pd_sc_info.installed_life_days);                 /**< Installed life of the cartridge in days from the time it was first installed in the printer */
+    LOGD("vert_print_usable_ink_wt_slota = %f\n", pd_sc_info.vert_print_usable_ink_wt_slota); /**< Usable ink weight in grams when printing vertically (single-use) */
+    LOGD("horz_print_usable_ink_wt_slota = %f\n", pd_sc_info.horz_print_usable_ink_wt_slota); /**< Usable ink weight in grams when printing horizonally (single-use) */
+    LOGD("vert_print_usable_ink_wt_slotb = %f\n", pd_sc_info.vert_print_usable_ink_wt_slotb); /**< Usable ink weight in grams when printing vertically (single-use) */
+    LOGD("horz_print_usable_ink_wt_slotb = %f\n", pd_sc_info.horz_print_usable_ink_wt_slotb); /**< Usable ink weight in grams when printing horizonally (single-use) */
+
+    LOGD("operating_temp = 0x%02X\n", pd_sc_info.operating_temp);                             /**< Operating temperature */
+    LOGD("high_temp_warning = 0x%02X\n", pd_sc_info.high_temp_warning);                       /**< Warning temperature */
+    LOGD("max_firing_freq = 0x%02X\n", pd_sc_info.max_firing_freq);                           /**< Maximum firing frequency (KHz) */
+    LOGD("oe_override_percent_slota = 0x%02X\n", pd_sc_info.oe_override_percent_slota);       /**< Over energy percent */
+    LOGD("oe_override_percent_slotb = 0x%02X\n", pd_sc_info.oe_override_percent_slotb);       /**< Over energy percent */
+    LOGD("volt_offset_override_percent = 0x%02X\n", pd_sc_info.volt_offset_override_percent); /**< Voltage offset override percent */
+    LOGD("operating_temp_ovrride = 0x%02X\n", pd_sc_info.operating_temp_ovrride);             /**< Operating Temperature override */
+    LOGD("shf_present_slota = 0x%02X\n", pd_sc_info.shf_present_slota);                       /**< "1" if this printhead was shipped with shipping fluid */
+    LOGD("shf_present_slotb = 0x%02X\n", pd_sc_info.shf_present_slotb);                       /**< "1" if this printhead was shipped with shipping fluid */
+
+    LOGD("first_platform_mfg_year = 0x%04X\n", pd_sc_info.first_platform_mfg_year);           /**< Printer platform manufacture year (e.g. 2018) in which this cartrdige was first installed. */
+    LOGD("first_platform_mfg_woy = 0x%02X\n", pd_sc_info.first_platform_mfg_woy);             /**< Printer platform manufacture week of year (1-52) in which this cartrdige was first installed. */
+    LOGD("first_platform_mfg_country = 0x%02X\n", pd_sc_info.first_platform_mfg_country);     /**< Printer platform country of manufacture in which this cartrdige was first installed. */
+    LOGD("first_platform_fw_rev_major = 0x%02X\n", pd_sc_info.first_platform_fw_rev_major);   /**< Printer platform FW major revision into which this cartrdige was first installed */
+    LOGD("first_platform_fw_rev_minor = 0x%02X\n", pd_sc_info.first_platform_fw_rev_minor);   /**< Printer platform FW major revision into which this cartrdige was first installed */
+
+    /* Check the data type */
+    LOGD("first_install_ctrdg_count = 0x%02X\n", pd_sc_info.first_install_ctrdg_count);       /**< number of unique cartridges used on the print platform */
+    LOGD("ctrdg_first_install_year = 0x%04X\n", pd_sc_info.ctrdg_first_install_year);         /**< Year (e.g.2018) in which this cartridge was first installed in a printer platform */
+    LOGD("ctrdg_first_install_woy = 0x%02X\n", pd_sc_info.ctrdg_first_install_woy);           /**< Week of year (1-52) in which this cartridge was first installed in a printer platform */
+    LOGD("ctrdg_first_install_dow = 0x%02X\n", pd_sc_info.ctrdg_first_install_dow);           /**< Day of week (0-6 = Sunday-Saturday) this cartridge was first installed in a printer platform */
+    LOGD("ilg_resolution = 0x%02X\n", pd_sc_info.ilg_resolution);                             /**< Ink Level Gauge Resolution */
+
+    /* Check data type */
+    LOGD("ph_orientation = 0x%02X\n", pd_sc_info.ph_orientation);       /**< PH Orientation. 0=Vertical, 1=Horizontal */
+    LOGD("post_purged_ink_family_member_slota = 0x%04X\n", pd_sc_info.post_purged_ink_family_member_slota); /**< Post purged ink family member on slot a */
+    LOGD("post_purged_ink_family_member_slotb = 0x%04X\n", pd_sc_info.post_purged_ink_family_member_slotb); /**< Post purged ink family member on slot b */
+    LOGD("ext_oem_id = 0x%02X\n", pd_sc_info.ext_oem_id);       /**< Extended OEM ID */
+    LOGD("single_use = 0x%02X\n", pd_sc_info.single_use);       /**< 0=Single use, 1=Bulk use */
+    LOGD("hp_or_oem_ink_designator_slota = 0x%02X\n", pd_sc_info.hp_or_oem_ink_designator_slota);   /**< 0=OEM Ink, 1=HP Ink */
+    LOGD("hp_or_oem_ink_designator_slotb = 0x%02X\n", pd_sc_info.hp_or_oem_ink_designator_slotb);   /**< 0=OEM Ink, 1=HP Ink */
+    LOGD("regionalization_id = 0x%02X\n", pd_sc_info.regionalization_id);                     /**< Region where this cartridge will be accepted by the printer. */
+
+    LOGD("drop_weight_cfg_slota = 0x%02X\n", pd_sc_info.drop_weight_cfg_slota);               /**< 0=Single drop weight, 1=Dual drop weight */
+    LOGD("nozzle_density_cfg_slota = 0x%02X\n", pd_sc_info.nozzle_density_cfg_slota);         /**< Dots per inch. 0=2400, 1=1200, 2=600, 3=300 */
+    LOGD("drop_weight_cfg_slotb = 0x%02X\n", pd_sc_info.drop_weight_cfg_slotb);               /**< 0=Single drop weight, 1=Dual drop weight */
+    LOGD("nozzle_density_cfg_slotb = 0x%02X\n", pd_sc_info.nozzle_density_cfg_slotb);         /**< Dots per inch. 0=2400, 1=1200, 2=600, 3=300 */
+
+    LOGD("platform_id = [%s]\n", pd_sc_info.platform_id);                                     /**< 12-character Platform ID string */
+    LOGD("trademark_string = [%s]\n", pd_sc_info.trademark_string);                           /**< 5-character trademark string */
+    LOGD("ctrdg_reorder_part_num = [%s]\n", pd_sc_info.ctrdg_reorder_part_num);               /**< 12-character reorder part number string */
 
     return 0;
 }
@@ -812,8 +1096,13 @@ JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
-    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/PD_FW.s19", true);
-    if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) return (-1);
+    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost0/PD.s19", true);
+    if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
+        pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
+        if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
+            return (-1);
+        }
+    }
 
     return 0;
 }
@@ -821,8 +1110,13 @@ JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
-    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/sdcard/system/FPGA.s19", true);
-    if (pd_check("pd_fpga_fw_reflash", pd_r)) return (-1);
+    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost0/FPGA.s19", true);
+    if (pd_check("pd_fpga_fw_reflash", pd_r)) {
+        pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+        if (pd_check("pd_fpga_fw_reflash", pd_r)) {
+            return (-1);
+        }
+    }
 
     return 0;
 }
@@ -830,8 +1124,13 @@ JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
     IDSResult_t ids_r;
 
-    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/sdcard/system/IDS_FW.s19", true);
-    if (ids_check("ids_micro_fw_reflash", ids_r)) return (-1);
+    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost0/IDS.s19", true);
+    if (ids_check("ids_micro_fw_reflash", ids_r)) {
+        ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
+        if (ids_check("ids_micro_fw_reflash", ids_r)) {
+            return (-1);
+        }
+    }
 
     return 0;
 }
