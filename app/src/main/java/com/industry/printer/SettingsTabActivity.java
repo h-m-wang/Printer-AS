@@ -28,12 +28,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 //import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -435,6 +437,13 @@ public static final String TAG="SettingsTabActivity";
 						}
 // End of H.M.Wang 2020-4-25 设置按确认， 所有参数都生效，  下发一次fpga
 						ToastUtil.show(mContext, R.string.toast_save_success);
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+						if(mSysconfig.getParam(SystemConfigFile.INDEX_LCD_INVERSE) == 0) {
+							Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+						} else {
+							Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+						}
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 					}
 
 					@Override

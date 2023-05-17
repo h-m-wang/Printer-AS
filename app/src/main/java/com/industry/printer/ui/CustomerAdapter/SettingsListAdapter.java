@@ -111,6 +111,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mUserMode;
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+	private PopWindowAdapter mLCDInverse;
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
 
@@ -406,6 +410,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mUserMode = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+		mLCDInverse = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -660,7 +668,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 		mSettingItems[71] = new ItemOneLine(72, R.string.str_textview_param72, 0);
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
-		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, 0);
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, 0);
 		mSettingItems[74] = new ItemOneLine(75, R.string.str_textview_param75, 0);
 		mSettingItems[75] = new ItemOneLine(76, R.string.str_textview_param76, 0);
@@ -792,6 +802,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mFastPrint.addItem(items[i]);
 		}
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
+
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+		for (int i = 0; i < items.length; i++) {
+			mLCDInverse.addItem(items[i]);
+		}
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+
 // H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 		items = mContext.getResources().getStringArray(R.array.user_mode);
 		for (int i = 0; i < items.length; i++) {
@@ -972,6 +989,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 70) { //參數68
 			mSpiner.setAdapter(mUserMode);
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+		} else if (position == 72) { //參數72
+			mSpiner.setAdapter(mLCDInverse);
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

@@ -6,6 +6,8 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.N_RFIDManager;
+import com.industry.printer.hardware.RFIDDevice;
+import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
@@ -50,11 +52,17 @@ public class InkSchedulerFactory {
             }
 // End of H.M.Wang 2022-5-9 Exception e修改为UnsatisfiedLinkError e，并且打印log输出，否则catch不到
 // End of H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机
+
+// H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager
 //            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
 // 暂时为了push取消，待所有动作确认后修改回来                 return new N_RfidScheduler(ctx);
 //            }
-//            return new N_RfidScheduler(ctx);
-            return new RfidScheduler(ctx);
+            if(RFIDDevice.FEATURE_HIGH >= 101) {
+                return new N_RfidScheduler(ctx);
+            } else {
+                return new RfidScheduler(ctx);
+            }
+// End of H.M.Wang 2023-5-17 FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager
         }
     }
 }

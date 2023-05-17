@@ -224,6 +224,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
+// H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+	public static final int INDEX_LCD_INVERSE = 72;
+// End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用

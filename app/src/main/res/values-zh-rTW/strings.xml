@@ -455,8 +455,14 @@
 <!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 	<string name="str_textview_param71">71.快捷模式</string>
 <!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
-	<string name="str_textview_param72">72.保留</string>
-	<string name="str_textview_param73">73.保留</string>
+<!-- H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!--	<string name="str_textview_param72">72.保留</string> -->
+	<string name="str_textview_param72">72.PC FIFO</string>
+<!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!-- H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
+<!--	<string name="str_textview_param73">73.保留</string> -->
+	<string name="str_textview_param73">73.LCD Inverse</string>
+<!-- End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
 	<string name="str_textview_param74">74.保留</string>
 	<string name="str_textview_param75">75.保留</string>
 	<string name="str_textview_param76">76.保留</string>

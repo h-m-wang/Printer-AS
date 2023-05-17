@@ -38,8 +38,10 @@ public class N_RFIDDevice {
     public static final String TAG = N_RFIDDevice.class.getSimpleName();
 
     //  校驗特徵值
-    public static final int FEATURE_HIGH = 100;
-    public static final int FEATURE_LOW = 1;
+// H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager。暂时取消对本类当中FEATURE的参照
+//    public static final int FEATURE_HIGH = 100;
+//    public static final int FEATURE_LOW = 1;
+// End of H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager。暂时取消对本类当中FEATURE的参照
 
     // 墨水量上下限
     public static final int INK_LEVEL_MAX = 100000;
@@ -72,10 +74,11 @@ public class N_RFIDDevice {
 
         mValid = false;
 
+// H.M.Wang 2023-5-17 暂时取消自动判断模块种类，固定为1207。待以后对这里的RFID_MOD_M104DPCS和RFID_MOD_M104BPCS模块动作完成商业确认后，再恢复
 //        if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
 //            mRFIDModule = new N_RFIDModule_M104BPCS_KX1207();
 //        }
-
+/*
         if(null == mRFIDModule) {
             N_RFIDModuleChecker checker = new N_RFIDModuleChecker();
             switch(checker.check(PlatformInfo.getRfidDevice())) {
@@ -97,6 +100,9 @@ public class N_RFIDDevice {
                     break;
             }
         }
+*/
+        mRFIDModule = new N_RFIDModule_M104BPCS_KX1207();
+// End of H.M.Wang 2023-5-17 暂时取消自动判断模块种类，固定为1207。待以后对这里的RFID_MOD_M104DPCS和RFID_MOD_M104BPCS模块动作完成商业确认后，再恢复
 
         ret = mRFIDModule.open(PlatformInfo.getRfidDevice());
         if(!ret) return false;
@@ -182,8 +188,10 @@ public class N_RFIDDevice {
         if (mFeature== null || mFeature.length < 2) {
             return false;
         }
-        Debug.d(TAG, "--->FeatureCode: " + mFeature[0] + ", " +mFeature[1] + "; FEATURE_HIGH: " + FEATURE_HIGH + ", FEATURE_LOW: " + FEATURE_LOW);
-        if ((mFeature[0] ^ (byte)FEATURE_HIGH) == 0x00 && (mFeature[1] ^ (byte)FEATURE_LOW) == 0x00) {
+// H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager。因此这里参照RFIDDevice的FEATURE，暂时取消本类中的FEATURE的参照
+        Debug.d(TAG, "--->FeatureCode: " + mFeature[0] + ", " +mFeature[1] + "; FEATURE_HIGH: " + RFIDDevice.FEATURE_HIGH + ", FEATURE_LOW: " + RFIDDevice.FEATURE_LOW);
+        if ((mFeature[0] ^ (byte)RFIDDevice.FEATURE_HIGH) == 0x00 && (mFeature[1] ^ (byte)RFIDDevice.FEATURE_LOW) == 0x00) {
+// End of H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager。因此这里参照RFIDDevice的FEATURE，暂时取消本类中的FEATURE的参照
             return true;
         }
         return false;

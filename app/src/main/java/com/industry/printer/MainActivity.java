@@ -180,7 +180,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mContext = getApplicationContext();
 		mActivity = this;
 		mLanguage = getResources().getConfiguration().locale.getLanguage();
-		
+
 		IP_address.setText(getLocalIpAddress());
 		/*get write permission of ttyACM0*/
 		//SystemProperties.set("ctl.start","mptty");
@@ -293,13 +293,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		new Thread() {
 			@Override
 			public void run() {
-				Debug.d(TAG, "------------- 0");
-				ExtGpio.writeGpioTestPin('I', 4, 1);
-				try{
-					Thread.sleep(500);
-				} catch (Exception e) {
-				}
-
 				ExtGpio.playClick();
 				try{
 					Thread.sleep(500);
