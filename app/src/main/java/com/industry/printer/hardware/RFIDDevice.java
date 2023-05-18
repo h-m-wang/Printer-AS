@@ -31,6 +31,7 @@ import org.apache.http.util.ByteArrayBuffer;
 
 import android.os.SystemClock;
 
+import com.industry.printer.Rfid.N_RfidScheduler;
 import com.industry.printer.Utils.Debug;
 //import com.industry.printer.Utils.EncryptionMethod;
 import com.industry.printer.Utils.PlatformInfo;
@@ -1319,6 +1320,13 @@ public class RFIDDevice implements RfidCallback{
 //					Debug.d(TAG, "--->feature[" + i + "] = " + mFeature[i]);
 //				}
 					mValid = checkFeatureCode();
+
+// H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
+					if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mFeature[6] < 64 || mFeature[6] >= 164)) {
+						mValid = false;
+					}
+// End of H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
+
 					mState = STATE_RFID_FEATURE_READY;
 				} else if (mState == STATE_RFID_VALUE_READING) {
 					mCurInkLevel = parseLevel(data);

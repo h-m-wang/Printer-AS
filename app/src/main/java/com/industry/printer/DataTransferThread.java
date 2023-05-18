@@ -37,6 +37,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Rfid.IInkScheduler;
 import com.industry.printer.Rfid.InkSchedulerFactory;
+import com.industry.printer.Rfid.N_RfidScheduler;
 import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Serial.Scaner2Protocol;
@@ -1691,6 +1692,9 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof RfidScheduler)) {
 			((RfidScheduler) mScheduler).setCallbackHandler(mHandler);
+		}
+		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof N_RfidScheduler)) {
+			((N_RfidScheduler) mScheduler).setCallbackHandler(mHandler);
 		}
 // End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 		/**如果是4合2的打印头，需要修改为4头*/
