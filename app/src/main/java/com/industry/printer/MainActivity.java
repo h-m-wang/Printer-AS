@@ -300,6 +300,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				}
 				ExtGpio.playClick();
 
+				ExtGpio.writeGpioTestPin('I', 4, 1);
+				ExtGpio.writeGpioTestPin('I', 5, 0);
 /*
 				Debug.d(TAG, "------------- 0");
 				ExtGpio.writeGpioTestPin('E', 7, 0);

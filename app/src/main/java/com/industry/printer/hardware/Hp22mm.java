@@ -43,4 +43,8 @@ public class Hp22mm {
     static public native int startPrint();
     static public native int stopPrint();
     static public native String dumpRegisters();
+    static public native int Write1Column();
+    static public native int Write1KB();
+    static public native int Write10Columns();
+    static public native int WriteSPIFPGA();
 }

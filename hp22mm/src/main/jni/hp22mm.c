@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.026"
+#define VERSION_CODE                            "1.0.039"
 
 /***********************************************************
  *  Customization
@@ -75,6 +75,8 @@ void CmdDepressurize();
 int CmdPressurize();
 
 int PDGInit() {
+    if(spidev >=0 ) return 0;
+
     spidev = open(SPI_DEV_NAME, O_RDWR);
     if (spidev < 0) {
         LOGE("ERROR: cannot open %s (%d)\n", SPI_DEV_NAME, errno);
@@ -167,14 +169,29 @@ int PDGWrite(unsigned char reg, uint32_t four_bytes) {
     return 0;
 }
 
-void PDGWaitBuffer(uint32_t wait_for) {
+void PDGWaitWBuffer(uint32_t wait_for) {
+return;
     uint32_t ui;
 
     while (true) {
         if (PDGRead(2, &ui) < 0 ||
             (ui == wait_for))
             break;
-        LOGI("Waiting for %u, ret = %u\n", wait_for, ui);
+        LOGI("Waiting R2 for %u, ret = %u\n", wait_for, ui);
+
+        usleep(500000);     // 0.5 sec
+    }
+}
+
+void PDGWaitRBuffer(uint32_t wait_for) {
+return;
+    uint32_t ui;
+
+    while (true) {
+        if (PDGRead(3, &ui) < 0 ||
+            (ui == wait_for))
+            break;
+        LOGI("Waiting R3 for %u, ret = %u\n", wait_for, ui);
 
         usleep(500000);     // 0.5 sec
     }
@@ -182,17 +199,20 @@ void PDGWaitBuffer(uint32_t wait_for) {
 
 int PDGWriteImage() {
     // get image file size
+/* 暂时取消从文件获取数据
     struct stat st;
     if (stat(IMAGE_FILE, &st) != 0) {
         LOGE("ERROR: cannot process %s\n", IMAGE_FILE);
         return -1;
     }
     image_cols = (st.st_size * 8 / IMAGE_ROWS);
+*/
+    image_cols = 100;
 
     // open binary image
-    FILE *file = fopen(IMAGE_FILE, "rb");
+/*    FILE *file = fopen(IMAGE_FILE, "rb");
     if (file == NULL) return -1;
-
+*/
     // SLOT IMAGES - rows and increment are fixed
     // write image DDR using data Mask; Cols determines size
     unsigned int addr = IMAGE_ADDR;
@@ -206,13 +226,14 @@ int PDGWriteImage() {
         // read from image file and write to PDG
         buffer[0] = 5;
         buffer[1] = write_words;
-        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
+        memset((buffer+2), 0x5A, write_bytes);
+/*        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
             LOGE("ERROR: reading %s\n", IMAGE_FILE);
             return -1;
-        }
+        }*/
         buffer[write_bytes+2] = 0;
         if (SPIMessage(buffer, buffer_size) < 0) return -1;
-        PDGWaitBuffer(write_words);
+        PDGWaitWBuffer(write_words);
 
         // Generic command (write)
         buffer2[0] = 7;
@@ -224,7 +245,7 @@ int PDGWriteImage() {
         buffer2[6] = addr & 0xff;
         buffer2[7] = 0;
         if (SPIMessage(buffer2, 8) < 0) return -1;
-        PDGWaitBuffer(0);
+        PDGWaitWBuffer(0);
 
         addr += write_bytes;
     }
@@ -241,28 +262,32 @@ int PDGPrintSetup() {
         PDGWrite(6, image_cols) < 0)       // R6 = columns (all cols using same image)
         return -1;
     // Image address for each slot - all slots using same image
-    int reg = 7 + (PEN_IDX * 4);
-    for (int col=0; col<4; col++) {
-        if (PDGWrite(reg+col, 0x0000) < 0) return -1; // image address is 0
+//    int reg = 7 + (PEN_IDX * 4);
+    for (int i=0; i<2; i++) {
+        int reg = 7 + (i * 4);  // 7 + (PEN_IDX * 4)
+        for (int col=0; col<4; col++) {
+            if (PDGWrite(reg+col, 0x0000) < 0) return -1; // image address is 0
+        }
     }
 
     // calculate encoder and TOF values
 //    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
 //    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
-    int encoder = 1024;
-    int tof_freq = 1;
+    int encoder = 1500 * 100;            // 600Hz
+    int tof_freq = 45000000 * 4;         // 2秒一次
 
     // use all 4 columns of selected pen
-    int col_mask = 0xf;
-    if (PEN_IDX == 1) col_mask <<= 4;
+    int col_mask = 0x3; // 0xf
+//    int col_mask = 0xf;
+//    if (PEN_IDX == 1) col_mask <<= 4;
 
     if (PDGWrite(15, encoder) < 0 ||    // R15 internal encoder period (divider of clock freq)
         PDGWrite(16, tof_freq) < 0 ||   // R16 internal TOF frequency (Hz)
         PDGWrite(17, 0) < 0 ||          // R17 0 = internal encoder
         PDGWrite(18, 2) < 0 ||          // R18 external encoder divider (2=600 DPI)
         PDGWrite(19, 0) < 0 ||          // R19 0 = internal TOF
-        PDGWrite(20, IMAGE_TOF) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
-        PDGWrite(21, IMAGE_TOF) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
+        PDGWrite(20, 0/*IMAGE_TOF*/) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
+        PDGWrite(21, 0/*IMAGE_TOF*/) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
         PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
         PDGWrite(23, /*4*/200) < 0 ||          // R23 column-to-column spacing (rows)
         PDGWrite(24, /*52*/200) < 0 ||         // R24 slot-to-slot spacing (rows)
@@ -284,12 +309,21 @@ bool IsPrinting() {
 void *_print_thread(void *arg) {
     uint32_t ui;
 
+    int cnt = 0;
     while (true) {
         // check for print done (or cancel/error)
         if (PDGRead(25, &ui) < 0 ||     // (R25 print enable)
             ui == 0 ||                  // print NOT enabled
             CancelPrint)                // cancelled by user
             break;
+
+        // 通过log输出打印的次数
+        int cnt1 = 0;
+        PDGRead(26, &cnt1);
+        if(cnt != cnt1) {
+            cnt = cnt1;
+            LOGE("Print Count: %d\n", cnt);
+        }
 
         // delay before checking again
         usleep(PRINT_COMPLETE_CHECK_USEC);
@@ -298,7 +332,7 @@ void *_print_thread(void *arg) {
     if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
         LOGE("ERROR: cannot disable print\n");
     }
-    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, PEN_IDX), PEN_IDX);
+//    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
     PrintThread = (pthread_t)NULL;     // (done printing)
     return (void*)NULL;
 }
@@ -309,11 +343,11 @@ int PDGTriggerPrint(int external, int count) {
         return -1;
     }
 
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, PEN_IDX), PEN_IDX)) {
+/*    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
         LOGE("ERROR: pd_power_on()\n");
         return -1;
     }
-
+*/
     CancelPrint = false;
     if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
         PDGWrite(19, external) < 0 ||    // R19 0=internal 1=external TOF
@@ -343,7 +377,7 @@ void PDGCancelPrint() {
 int SPISend(unsigned char *message, int length) {
     struct spi_ioc_transfer transfer[length];
 
-    LOGD("SPIMessageSend.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    LOGD("SPISend.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     // fill in transfer array for each byte (non-default, non-zero)
     for (int i=0; i<length; i++) {
         memset(&(transfer[i]), 0, sizeof(transfer[i]));
@@ -357,14 +391,12 @@ int SPISend(unsigned char *message, int length) {
         LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
         return -1;
     }
-    LOGD("SPIMessageSend.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     return 0;
 }
 
 int SPIRecv(unsigned char *message, int length) {
     struct spi_ioc_transfer transfer[length];
 
-    LOGD("SPIMessageRecv.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     // fill in transfer array for each byte (non-default, non-zero)
     for (int i=0; i<length; i++) {
         memset(&(transfer[i]), 0, sizeof(transfer[i]));
@@ -379,84 +411,92 @@ int SPIRecv(unsigned char *message, int length) {
         return -1;
     }
 
-    LOGD("SPIMessageRecv.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    LOGD("SPIRecv.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     return 0;
 }
 
-// 容量4MB闪存，8个扇区，每个扇区256页，每页256字节；整个芯片有2048页或者524288字节。
+// 容量4MB闪存，8个扇区，每个扇区256页，每页256字节；整个芯片有2048页或者524288字节。写入可以以页为单位，擦除要以扇区为单位
 /* command list */
-#define CMD_WRSR                    (0x01)  /* Write Status Register */
-#define CMD_PP                      (0x02)  /* Page Program */
-#define CMD_READ                    (0x03)  /* Read Data */
-#define CMD_WRDI                    (0x04)  /* Write Disable */
-#define CMD_RDSR1                   (0x05)  /* Read Status Register-1 */
 #define CMD_WREN                    (0x06)  /* Write Enable */
+#define CMD_WRDI                    (0x04)  /* Write Disable */
+#define CMD_RDID                    (0x9F)  /* Read ID */
+#define CMD_RDSR                    (0x05)  /* Read Status Register */
+#define CMD_WRSR                    (0x01)  /* Write Status Register */
+#define CMD_READ                    (0x03)  /* Read Data Bytes */
 #define CMD_FAST_READ               (0x0B)  /* Fast Read */
-#define CMD_ERASE_4K                (0x20)  /* Sector Erase:4K */
-#define CMD_RDSR2                   (0x35)  /* Read Status Register-2 */
-#define CMD_ERASE_32K               (0x52)  /* 32KB Block Erase */
-#define CMD_JEDEC_ID                (0x9F)  /* Read JEDEC ID */
-#define CMD_ERASE_full              (0xC7)  /* Chip Erase */
-#define CMD_ERASE_64K               (0xD8)  /* 64KB Block Erase */
-
+#define CMD_PP                      (0x02)  /* Page Program */
+#define CMD_SE                      (0xD8)  /* Sector Erase */
+#define CMD_BE                      (0xC7)  /* Bulk Erase */
+#define CMD_DP                      (0xB9)  /* Deep Power-down */
+#define CMD_RES                     (0xAH)  /* Release from Deep Power-down */
 #define DUMMY                       (0xFF)
 
+#define SPIFPGA_FILE "/sdcard/spifpga.bin"
+JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg) {
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return -1;
+    }
+
+    FILE *file = fopen(SPIFPGA_FILE, "rb");
+    if (file == NULL) return -1;
+
+    uint8_t cmd_buffer[4];
+    uint8_t data_buffer[260];
+    uint32_t page_addr = 0;
+
+    cmd_buffer[0] = CMD_WREN;
+    SPISend(cmd_buffer, 1);        // 设置允许写
+
+    usleep(1000);           // Sleep 1ms 等待硬件回暖
+
+    cmd_buffer[0] = CMD_BE;
+    SPISend(cmd_buffer, 1);        // 擦除全盘
+
+    while(!feof(file)) {
+        memset(data_buffer, 0xFF, 260);
+        data_buffer[0] = CMD_PP;
+        data_buffer[1] = (uint8_t)(page_addr >> 16);
+        data_buffer[2] = (uint8_t)(page_addr >> 8);
+        data_buffer[3] = (uint8_t)(page_addr);
+
+        fread((data_buffer+4), 1, 256, file);
+
+        cmd_buffer[0] = CMD_WREN;
+        SPISend(cmd_buffer, 1);        // 设置允许写
+        usleep(1000);           // Sleep 1ms 等待硬件回暖
+        SPISend(data_buffer, 260);    // 写一页数据
+        usleep(1000);           // Sleep 1ms 等待硬件回暖
+
+        page_addr += 256;
+    }
+    fclose(file);
+}
+
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
-/*    if (!IsPressurized) {
+    if (!IsPressurized) {
         if (CmdPressurize() != 0) {
             LOGE("ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized\n");
             return -1;
         }
     }
-*/
+
     if (PDGInit()) {
         LOGE("PDGInit failed\n");
         return -1;
     }
-/*
-    if(PDGPrintSetup() != 0) {
-        LOGE("ERROR: PDGPrintSetup failed\n");
-        return -1;
-    };
 
     if(PDGWriteImage() != 0) {
         LOGE("ERROR: PDGWriteImage failed\n");
         return -1;
     };
 
-    return PDGTriggerPrint(0, 3);
-*/
-/*
-    char msg[] = {0x07, 0x0F};
-    int ret = 0;
-    CancelPrint = false;
-    while(!CancelPrint) {
-        if (SPIMessage(msg, 2) < 0) {
-            CancelPrint = true;
-            ret = -1;
-        }
-        if(msg[0] != 0x07 || msg[1] != 0x0F) {
-            CancelPrint = true;
-            ret = -1;
-        }
-        usleep(1000*500);
-    }
-    return ret;
-*/
-    uint8_t send_buffer[4];
-    uint8_t recv_buffer[256];
-    uint32_t page_addr = 0;
+    if(PDGPrintSetup() != 0) {
+        LOGE("ERROR: PDGPrintSetup failed\n");
+        return -1;
+    };
 
-    send_buffer[0] = CMD_WREN;
-    SPISend(send_buffer, 1);        // 设置允许写
-
-    send_buffer[0] = CMD_READ;
-    send_buffer[1] = (page_addr >> 16);
-    send_buffer[2] = (page_addr >> 8);
-    send_buffer[3] = (page_addr);
-    SPISend(send_buffer, 4);        // 写入读命令及读取开始地址
-
-    SPIRecv(recv_buffer, 256);      // 读入256字节（一个块）的数据
+    return PDGTriggerPrint(0, 100);
 }
 
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
@@ -467,48 +507,53 @@ JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
 char *reg_name[] = {
         "",
         "",
-        "           Read FIFO",
-        "          Write FIFO",
-        "           Words/Col",
-        "       Advance Bytes",
-        "       Image Columns",
-        "     Start P0 S0 Odd",
-        "    Start P0 S0 Even",
-        "     Start P0 S1 Odd",
-        "    Start P0 S1 Even",
-        "     Start P1 S0 Odd",
-        "    Start P1 S0 Even",
-        "     Start P1 S1 Odd",
-        "    Start P1 S1 Even",
-        "        Encoder Freq",
-        "            TOF Freq",
-        "    External Encoder",
-        "     Encoder Divider",
-        "        External TOF",
-        "       P0 TOF Offset",
-        "       P1 TOF Offset",
-        "     Print Direction",
-        "       Column/Column",
-        "           Slot/Slot",
-        "        Enable Print",
-        "   Start Print Count",
-        "     End Print Count",
-        "               Reset",
-        "       Column Enable",
-        "Connect SPI to Flash",
-        "        PDG Revision",
-        "          Clock Freq",
-        "               Ready",
-        "   Action Bits P0 S0",
-        "   Action Bits P0 S1",
-        "   Action Bits P1 S0",
-        "   Action Bits P1 S1",
+        "2-Write FIFO(RO)    ",
+        "3-Read FIFO(RO)     ",
+        "4-Words/Col         ",
+        "5-Advance Bytes     ",
+        "6-Image Columns     ",
+        "7-Start P0 S0 Odd   ",
+        "8-Start P0 S0 Even  ",
+        "9-Start P0 S1 Odd   ",
+        "10-Start P0 S1 Even ",
+        "11-Start P1 S0 Odd  ",
+        "12-Start P1 S0 Even ",
+        "13-Start P1 S1 Odd  ",
+        "14-Start P1 S1 Even ",
+        "15-Encoder Freq     ",
+        "16-TOF Freq         ",
+        "17-External Encoder ",
+        "18-Encoder Divider  ",
+        "19-External TOF     ",
+        "20-P0 TOF Offset    ",
+        "21-P1 TOF Offset    ",
+        "22-Print Direction  ",
+        "23-Column Spacing   ",
+        "24-Slot Spacing     ",
+        "25-Enable Print     ",
+        "26-Start Print Count",
+        "27-End Print Count  ",
+        "28-Reset(WR)        ",
+        "29-Column Enable    ",
+        "30-Flash Enable     ",
+        "31-PDG Revision(RO) ",
+        "32-Clock Freq(RO)   ",
+        "33-Ready            ",
+//        "   Action Bits P0 S0",
+//        "   Action Bits P0 S1",
+//        "   Action Bits P1 S0",
+//        "   Action Bits P1 S1",
 };
 
 JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
     uint32_t ui;
     char strTemp[2048];
     char str[128];
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return NULL;
+    }
 
     memset(strTemp, 0x00, 1024);
     for (int reg=2; reg < (sizeof(reg_name)/sizeof(reg_name[0])); reg++) {
@@ -523,6 +568,150 @@ JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
     return (*env)->NewStringUTF(env, strTemp);
 }
 
+JNIEXPORT jint JNICALL Java_com_Write1Column(JNIEnv *env, jclass arg) {
+    LOGI("Enter %s.", __FUNCTION__);
+
+    char sendData[132];
+
+    memset(sendData, 0x5A, 132);
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return -1;
+    }
+
+    unsigned char buffer[135];
+
+    buffer[0] = 5;
+    buffer[1] = 33;
+    memcpy((buffer+2), sendData, 132);
+    buffer[134] = 0;
+    if (SPIMessage(buffer, 135) < 0) return -1;
+
+    buffer[0] = 6;
+    buffer[1] = 33;
+    memset((buffer+2), 0x00, 132);
+    buffer[134] = 0;
+    if (SPIMessage(buffer, 135) < 0) return -1;
+
+    if(memcmp(sendData, buffer+2, 132) == 0) {
+        LOGI("Writting 1 column data succeeded.\n");
+        return 0;
+    } else {
+        LOGE("Writting 1 column data failed.\n");
+        return -1;
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_Write1KB(JNIEnv *env, jclass arg) {
+    LOGI("Enter %s.", __FUNCTION__);
+
+    char sendData[1024];
+
+    memset(sendData, 0x5A, 1024);
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return -1;
+    }
+
+    unsigned char buffer[1027];
+
+    buffer[0] = 5;
+    buffer[1] = 255;
+    memcpy((buffer+2), sendData, 1020);
+    buffer[1022] = 0;
+    if (SPIMessage(buffer, 1023) < 0) return -1;
+
+    buffer[0] = 6;
+    buffer[1] = 255;
+    memset((buffer+2), 0x00, 1020);
+    buffer[1022] = 0;
+    if (SPIMessage(buffer, 1023) < 0) return -1;
+
+    if(memcmp(sendData, buffer+2, 1020) == 0) {
+        LOGI("Writting 1KB data succeeded.\n");
+        return 0;
+    } else {
+        LOGE("Writting 1KB data failed.\n");
+        return -1;
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_Write10Columns(JNIEnv *env, jclass arg) {
+    LOGI("Enter %s.", __FUNCTION__);
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return -1;
+    }
+
+    unsigned int addr = 0x0000;
+    unsigned char buffer[135];
+    unsigned char buffer2[8];
+    unsigned char c = 0x11;
+
+    for (int col=0; col < 10; col++) {
+        buffer[0] = 5;          // To Write to FIFO
+        buffer[1] = 33;
+        memset((buffer+2), c, 132);
+        buffer[134] = 0;
+        if (SPIMessage(buffer, 135) < 0) return -1;
+        PDGWaitWBuffer(33);
+
+        // Generic command (write)
+        buffer2[0] = 7;
+        buffer2[1] = 32;
+        buffer2[2] = 0;         // FIFO -> DDR
+        buffer2[3] = (addr >> 24) & 0xff;
+        buffer2[4] = (addr >> 16) & 0xff;
+        buffer2[5] = (addr >> 8) & 0xff;
+        buffer2[6] = addr & 0xff;
+        buffer2[7] = 0;
+        if (SPIMessage(buffer2, 8) < 0) return -1;
+        PDGWaitWBuffer(0);
+
+        addr += 132;
+        c += 0x11;
+    }
+
+    addr = 0x0000;
+    c = 0x11;
+    char sendData[132];
+
+    for (int col=0; col < 10; col++) {
+        // Generic command (write)
+        buffer2[0] = 7;
+        buffer2[1] = 32;
+        buffer2[2] = 1;     // DDR -> FIFO
+        buffer2[3] = (addr >> 24) & 0xff;
+        buffer2[4] = (addr >> 16) & 0xff;
+        buffer2[5] = (addr >> 8) & 0xff;
+        buffer2[6] = addr & 0xff;
+        buffer2[7] = 0;
+        if (SPIMessage(buffer2, 8) < 0) return -1;
+        PDGWaitRBuffer(33);
+
+        buffer[0] = 6;      // To Read from FIFO
+        buffer[1] = 33;
+        memset((buffer+2), 0x00, 132);
+        buffer[134] = 0;
+        if (SPIMessage(buffer, 135) < 0) return -1;
+        PDGWaitRBuffer(0);
+
+        memset(sendData, c, 132);
+        if(memcmp(buffer+2, sendData, 132) != 0) {
+            LOGE("Writting 10 columns data failed.\n");
+            return -1;
+        }
+
+        addr += 132;
+        c += 0x11;
+    }
+
+    LOGI("Writting 10 columns data succeeded.\n");
+    return 0;
+}
 
 
 static IdsSysInfo_t ids_sys_info;
@@ -550,7 +739,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
         LOGE("IDS_Init failed\n");
         return -1;
     }
-
+/*
     LOGD("Supply 1 Read/Write Test ________\n");
 
     uint32_t ui32;
@@ -581,7 +770,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
     ids_r = ids_read_oem_string(IDS_INSTANCE, 1, STR_REORDER_PN, BUFFER_SIZE, (uint8_t*)sc_string);
     ids_check("ids_read_oem_string", ids_r);
     LOGD("Read STR_REORDER_PN = %s\n", sc_string);
-
+*/
     return 0;
 }
 
@@ -622,7 +811,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
          pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
          pd_system_status.pd_status,
          pd_system_status.board_id);
-
+/*
     sleep(2);
 
     // NON-SECURE ink use (for PILS algorithm)
@@ -660,7 +849,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
     pd_r = pd_sc_read_oem_string_field(PD_INSTANCE, 0, PD_SC_OEM_STR_REORDER_PN, sc_string, BUFFER_SIZE);
     pd_check("pd_sc_read_oem_string_field", pd_r);
     LOGD("Read PD_SC_OEM_STR_REORDER_PN = %s\n", sc_string);
-
+*/
     return 0;
 }
 
@@ -1590,6 +1779,11 @@ static JNINativeMethod gMethods[] = {
         {"startPrint",		            "()I",	                    (void *)Java_com_StartPrint},
         {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
+        {"Write1Column",		            "()I",	                    (void *)Java_com_Write1Column},
+        {"Write1KB",		            "()I",	                    (void *)Java_com_Write1KB},
+        {"Write10Columns",		            "()I",	                    (void *)Java_com_Write10Columns},
+        {"WriteSPIFPGA",		            "()I",	                    (void *)Java_com_WriteSPIFPGA},
+
 };
 
 /**

@@ -482,9 +482,15 @@ public class FpgaGpioOperation {
             data[14] = 500;
 // H.M.Wang 2022-3-4 data[4]设为200
 //            data[4] = 100;
-            data[4] = 200;
+// H.M.Wang 2023-5-29 data[4]设为200x3
+//            data[4] = 200;
+            data[4] = 600;
+// End of H.M.Wang 2023-5-29 data[4]设为200x3
 // End of H.M.Wang 2022-3-4 data[4]设为200
-            data[5] = 1500;
+// H.M.Wang 2023-5-29 data[5]设为1500x2
+//            data[5] = 1500;
+            data[5] = 3000;
+// End of H.M.Wang 2023-5-29 data[5]设为1500x2
 // H.M.Wang 2022-3-17 data[5]减半，追加data[7]减半
             data[5] /= 2;
             data[7] /= 2;

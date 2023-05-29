@@ -40,6 +40,10 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Write1Column(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Write1KB(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Write10Columns(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
 }

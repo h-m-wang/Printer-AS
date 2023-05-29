@@ -950,6 +950,9 @@ void *_monitor_thread(void *arg)
 		// sleep for PILS interval
 		usleep(1000000 / READ_PER_SEC);
 
+// H.M.Wang 2023-5-25 临时取消监控功能，只留一个空壳
+        continue;
+// End of H.M.Wang 2023-5-25 临时取消监控功能，只留一个空壳
 		// check each IDS separately
 		for (IDS = 0; IDS < 2; IDS++) {
 			// in LOCKED section check and change monitor modes

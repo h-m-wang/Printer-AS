@@ -32,6 +32,7 @@ import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
@@ -80,34 +81,40 @@ public class GpioTestPopWindow {
 
 // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private String[] HP22MM_TEST_ITEMS = new String[] {
-        "Init IDS",
-        "Init PD",
-        "ids_get_supply_status[1]",
+        "1 -- Init IDS",
+        "2 -- Init PD",
+        "3 -- ids_get_supply_status[1]",
 //        "ids_get_supply_id[1]",
-        "pd_get_print_head_status[0]",
-        "pd_get_print_head_status[1]",
-        "pd_sc_get_status[0]",
-        "pd_sc_get_status[1]",
-        "pd_sc_get_info[0]",
-        "pd_sc_get_info[1]",
-        "DeletePairing",
-        "DoPairing(1,0)",
-        "DoPairing(1,1)",
-        "DoOverrides(1,0)",
-        "DoOverrides(1,1)",
-        "Pressurize(1)",
-        "Depressurize(1)",
-        "ids_set_platform_info",
-        "pd_set_platform_info",
-        "ids_set_date",
-        "pd_set_date",
-        "ids_set_stall_insert_count[1]",
-        "Start Print",
-        "Stop Print",
-        "Dump Registers",
-        "Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
-        "Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
-        "Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]"
+        "4 -- pd_get_print_head_status[0]",
+        "5 -- pd_get_print_head_status[1]",
+        "6 -- pd_sc_get_status[0]",
+        "7 -- pd_sc_get_status[1]",
+        "8 -- pd_sc_get_info[0]",
+        "9 -- pd_sc_get_info[1]",
+        "10 -- DeletePairing",
+        "11 -- DoPairing(1,0)",
+        "12 -- DoPairing(1,1)",
+        "13 -- DoOverrides(1,0)",
+        "14 -- DoOverrides(1,1)",
+        "15 -- Pressurize(1)",
+        "16 -- Depressurize(1)",
+        "17 -- ids_set_platform_info",
+        "18 -- pd_set_platform_info",
+        "19 -- ids_set_date",
+        "20 -- pd_set_date",
+        "21 -- ids_set_stall_insert_count[1]",
+        "22 -- Start Print",
+        "23 -- Stop Print",
+        "24 -- Dump Registers",
+        "25 -- Write 1 Column",
+        "26 -- Write 1KB",
+        "27 -- Write 10 Columns",
+        "28 -- Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
+        "29 -- Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
+        "30 -- Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]",
+        "31 -- Toggle PI4",
+        "32 -- Toggle PI5",
+        "32 -- Write PDG FPGA"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -138,9 +145,15 @@ public class GpioTestPopWindow {
     private final static int HP22MM_TEST_START_PRINT                    = 21;
     private final static int HP22MM_TEST_STOP_PRINT                     = 22;
     private final static int HP22MM_TEST_DUMP_REGISTERS                 = 23;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 24;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 25;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 26;
+    private final static int HP22MM_TEST_WRITE_1_COLUMN                 = 24;
+    private final static int HP22MM_TEST_WRITE_1KB                      = 25;
+    private final static int HP22MM_TEST_WRITE_10_COLUMNS               = 26;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 27;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 28;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 29;
+    private final static int HP22MM_TOGGLE_PI4                          = 30;
+    private final static int HP22MM_TOGGLE_PI5                          = 31;
+    private final static int HP22MM_WRITE_SPIFPGA                       = 32;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -280,7 +293,7 @@ public class GpioTestPopWindow {
         if(null == mHp22mmTestResult[position] || mHp22mmTestResult[position].isEmpty()) {
             result.setVisibility(View.GONE);
         } else if(mHp22mmTestResult[position].startsWith("Success")) {
-            result.setTextColor(Color.GREEN);
+            result.setTextColor(Color.BLACK);
             result.setVisibility(View.VISIBLE);
         } else {
             result.setTextColor(Color.RED);
@@ -701,6 +714,27 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\nRegister read error";
                             }
                             break;
+                        case HP22MM_TEST_WRITE_1_COLUMN:
+                            if (0 == Hp22mm.Write1Column()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_WRITE_1KB:
+                            if (0 == Hp22mm.Write1KB()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_WRITE_10_COLUMNS:
+                            if (0 == Hp22mm.Write10Columns()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
                         case HP22MM_TEST_UPDATE_PD_MCU:
                             if (0 == Hp22mm.UpdatePDFW()) {
                                 mHp22mmTestResult[index] = "Success";
@@ -722,6 +756,26 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
+                        case HP22MM_TOGGLE_PI4:
+                            int valPI4 = ExtGpio.readGpioTestPin('I', 4);
+                            ExtGpio.writeGpioTestPin('I', 4, (valPI4 != 0 ? 0 : 1));
+                            int valPI4_1 = ExtGpio.readGpioTestPin('I', 4);
+                            mHp22mmTestResult[index] = "Success\n" + valPI4 + " -> " + valPI4_1;
+                            break;
+                        case HP22MM_TOGGLE_PI5:
+                            int valPI5 = ExtGpio.readGpioTestPin('I', 5);
+                            ExtGpio.writeGpioTestPin('I', 5, (valPI5 != 0 ? 0 : 1));
+                            int valPI5_1 = ExtGpio.readGpioTestPin('I', 5);
+                            mHp22mmTestResult[index] = "Success\n" + valPI5 + " -> " + valPI5_1;
+                            break;
+                        case HP22MM_WRITE_SPIFPGA:
+                            if (0 == Hp22mm.WriteSPIFPGA()) {
+                                mHp22mmTestResult[index] = "Success";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;
