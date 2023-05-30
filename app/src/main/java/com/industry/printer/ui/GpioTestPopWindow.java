@@ -114,7 +114,7 @@ public class GpioTestPopWindow {
         "30 -- Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]",
         "31 -- Toggle PI4",
         "32 -- Toggle PI5",
-        "32 -- Write PDG FPGA"
+        "32 -- Write SPI FPGA"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -769,11 +769,14 @@ public class GpioTestPopWindow {
                             mHp22mmTestResult[index] = "Success\n" + valPI5 + " -> " + valPI5_1;
                             break;
                         case HP22MM_WRITE_SPIFPGA:
+                            valPI4 = ExtGpio.readGpioTestPin('I', 4);
+                            ExtGpio.writeGpioTestPin('I', 4, 0);
                             if (0 == Hp22mm.WriteSPIFPGA()) {
                                 mHp22mmTestResult[index] = "Success";
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
+                            ExtGpio.writeGpioTestPin('I', 4, valPI4);
                             break;
 
                     }

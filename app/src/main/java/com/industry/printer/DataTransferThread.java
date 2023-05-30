@@ -585,7 +585,9 @@ public class DataTransferThread {
 // H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 						SystemConfigFile.getInstance().setDTBuffer(((DynamicText) baseObject).getDtIndex(), recvStrs[strIndex]);
 // End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
-//						baseObject.setContent(recvStrs[strIndex]);
+// H.M.Wang 2023-5-30 放开这个注释，否则新的DT可能不能及时反映到当前的变量中
+						baseObject.setContent(recvStrs[strIndex]);
+// End of H.M.Wang 2023-5-30 放开这个注释，否则新的DT可能不能及时反映到当前的变量中
 						strIndex++;
 						needUpdate = true;
 					}
@@ -595,7 +597,9 @@ public class DataTransferThread {
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
 						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶
-//						((BarcodeObject)baseObject).setContent(recvStrs[10]);
+// H.M.Wang 2023-5-30 放开这个注释，否则新的BC可能不能及时反映到当前的变量中
+						((BarcodeObject)baseObject).setContent(recvStrs[10]);
+// End of H.M.Wang 2023-5-30 放开这个注释，否则新的BC可能不能及时反映到当前的变量中
 						needUpdate = true;
 					}
 // End. -----

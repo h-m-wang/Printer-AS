@@ -28,11 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.039"
+#define VERSION_CODE                            "1.0.044"
 
 /***********************************************************
  *  Customization
- *
+ *f
  *  Settings for basic customization.
  ***********************************************************/
 #define I2C_DEVICE "/dev/i2c-1"
@@ -273,11 +273,11 @@ int PDGPrintSetup() {
     // calculate encoder and TOF values
 //    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
 //    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
-    int encoder = 1500 * 100;            // 600Hz
-    int tof_freq = 45000000 * 4;         // 2秒一次
+    int encoder = 1500;
+    int tof_freq = 45000000;
 
     // use all 4 columns of selected pen
-    int col_mask = 0x3; // 0xf
+    int col_mask = 0xf0; // 0xf
 //    int col_mask = 0xf;
 //    if (PEN_IDX == 1) col_mask <<= 4;
 
@@ -289,8 +289,8 @@ int PDGPrintSetup() {
         PDGWrite(20, 0/*IMAGE_TOF*/) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
         PDGWrite(21, 0/*IMAGE_TOF*/) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
         PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
-        PDGWrite(23, /*4*/200) < 0 ||          // R23 column-to-column spacing (rows)
-        PDGWrite(24, /*52*/200) < 0 ||         // R24 slot-to-slot spacing (rows)
+        PDGWrite(23, 4) < 0 ||          // R23 column-to-column spacing (rows)
+        PDGWrite(24, 52) < 0 ||         // R24 slot-to-slot spacing (rows)
         PDGWrite(25, 0) < 0 ||          // R25 0 - print disabled
         PDGWrite(28, 0) < 0 ||          // R28 0 - not reset
         PDGWrite(29, col_mask) < 0)     // R29 column enable bits
@@ -310,6 +310,8 @@ void *_print_thread(void *arg) {
     uint32_t ui;
 
     int cnt = 0;
+    int cnt1 = 0;
+    int cnt2 = 0;
     while (true) {
         // check for print done (or cancel/error)
         if (PDGRead(25, &ui) < 0 ||     // (R25 print enable)
@@ -318,12 +320,9 @@ void *_print_thread(void *arg) {
             break;
 
         // 通过log输出打印的次数
-        int cnt1 = 0;
         PDGRead(26, &cnt1);
-        if(cnt != cnt1) {
-            cnt = cnt1;
-            LOGE("Print Count: %d\n", cnt);
-        }
+
+        PDGRead(27, &cnt2);
 
         // delay before checking again
         usleep(PRINT_COMPLETE_CHECK_USEC);
@@ -470,6 +469,31 @@ JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg) {
 
         page_addr += 256;
     }
+
+    page_addr = 0;
+    cmd_buffer[0] = CMD_WRDI;
+    SPISend(cmd_buffer, 1);
+    usleep(1000);           // Sleep 1ms 等待硬件回暖
+    cmd_buffer[0] = CMD_READ;
+    data_buffer[1] = (uint8_t)(page_addr >> 16);
+    data_buffer[2] = (uint8_t)(page_addr >> 8);
+    data_buffer[3] = (uint8_t)(page_addr);
+    SPISend(cmd_buffer, 4);
+    memset(data_buffer, 0x00, 256);
+    SPIRecv(data_buffer, 256);
+
+    page_addr += 256;
+    cmd_buffer[0] = CMD_WRDI;
+    SPISend(cmd_buffer, 1);
+    usleep(1000);           // Sleep 1ms 等待硬件回暖
+    cmd_buffer[0] = CMD_READ;
+    data_buffer[1] = (uint8_t)(page_addr >> 16);
+    data_buffer[2] = (uint8_t)(page_addr >> 8);
+    data_buffer[3] = (uint8_t)(page_addr);
+    SPISend(cmd_buffer, 4);
+    memset(data_buffer, 0x00, 256);
+    SPIRecv(data_buffer, 256);
+
     fclose(file);
 }
 
