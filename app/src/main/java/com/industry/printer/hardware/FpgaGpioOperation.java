@@ -484,12 +484,20 @@ public class FpgaGpioOperation {
 //            data[4] = 100;
 // H.M.Wang 2023-5-29 data[4]设为200x3
 //            data[4] = 200;
-            data[4] = 600;
+// H.M.Wang 2023-5-31 data[4]在喷头为32SN和32DN的时候，不设为200x3，反倒设为200/4
+            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN) {
+                data[4] = 50;
+            } else {
+                data[4] = 600;
+            }
+// End of H.M.Wang 2023-5-31 data[4]在喷头为32SN和32DN的时候，不设为200x3，反倒设为200/4
 // End of H.M.Wang 2023-5-29 data[4]设为200x3
 // End of H.M.Wang 2022-3-4 data[4]设为200
 // H.M.Wang 2023-5-29 data[5]设为1500x2
-//            data[5] = 1500;
-            data[5] = 3000;
+// H.M.Wang 2023-5-31 取消data[5]设为1500x2， 恢复到原来的值
+            data[5] = 1500;
+// End of H.M.Wang 2023-5-31 取消data[5]设为1500x2， 恢复到原来的值
 // End of H.M.Wang 2023-5-29 data[5]设为1500x2
 // H.M.Wang 2022-3-17 data[5]减半，追加data[7]减半
             data[5] /= 2;

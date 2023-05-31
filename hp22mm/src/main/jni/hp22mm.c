@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.044"
+#define VERSION_CODE                            "1.0.046"
 
 /***********************************************************
  *  Customization
@@ -170,7 +170,7 @@ int PDGWrite(unsigned char reg, uint32_t four_bytes) {
 }
 
 void PDGWaitWBuffer(uint32_t wait_for) {
-return;
+    return;
     uint32_t ui;
 
     while (true) {
@@ -184,7 +184,7 @@ return;
 }
 
 void PDGWaitRBuffer(uint32_t wait_for) {
-return;
+    return;
     uint32_t ui;
 
     while (true) {
@@ -325,13 +325,13 @@ void *_print_thread(void *arg) {
         PDGRead(27, &cnt2);
 
         // delay before checking again
-        usleep(PRINT_COMPLETE_CHECK_USEC);
+        usleep(PRINT_COMPLETE_CHECK_USEC*500);
     }
     LOGI("<<< Printing Complete >>>\n");
     if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
         LOGE("ERROR: cannot disable print\n");
     }
-//    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
+    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
     PrintThread = (pthread_t)NULL;     // (done printing)
     return (void*)NULL;
 }
@@ -342,11 +342,11 @@ int PDGTriggerPrint(int external, int count) {
         return -1;
     }
 
-/*    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
         LOGE("ERROR: pd_power_on()\n");
         return -1;
     }
-*/
+
     CancelPrint = false;
     if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
         PDGWrite(19, external) < 0 ||    // R19 0=internal 1=external TOF
