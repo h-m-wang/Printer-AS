@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.046"
+#define VERSION_CODE                            "1.0.048"
 
 /***********************************************************
  *  Customization
@@ -277,7 +277,8 @@ int PDGPrintSetup() {
     int tof_freq = 45000000;
 
     // use all 4 columns of selected pen
-    int col_mask = 0xf0; // 0xf
+//    int col_mask = 0xf;   // PEN0
+    int col_mask = 0xf0; // PEN1
 //    int col_mask = 0xf;
 //    if (PEN_IDX == 1) col_mask <<= 4;
 
@@ -801,8 +802,9 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg) {
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
-    sprintf(strTemp, "Hp22mm Lib REV. = %s\nFW Rev = %d.%d\nFPGA Rev = %d.%d\nBoard Rev bd1 = %d, bd0 = %d, bd = %d\nStatus = %d\nBootloader = %d.%d\nBoard ID = %d",
+    sprintf(strTemp, "Hp22mm Lib REV. = %s\nIDS%d\nFW Rev = %d.%d\nFPGA Rev = %d.%d\nBoard Rev bd1 = %d, bd0 = %d, bd = %d\nStatus = %d\nBootloader = %d.%d\nBoard ID = %d",
             VERSION_CODE,
+            SUPPLY_IDX,
             ids_sys_info.fw_major_rev, ids_sys_info.fw_minor_rev,
             ids_sys_info.fpga_major_rev, ids_sys_info.fpga_minor_rev,
             ids_sys_info.board_rev_bd1, ids_sys_info.board_rev_bd0, ids_sys_info.board_rev_bd,

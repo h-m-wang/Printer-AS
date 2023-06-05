@@ -93,8 +93,10 @@ public class LetterHourObject extends BaseObject {
 		paint.setTextSize(height);
 		paint.setAntiAlias(true); //去除锯齿
 		paint.setFilterBitmap(true); //对位图进行滤波处理
+// H.M.Wang 2023-6-5 这个宽度倍数除2的操作似乎不对，将VBIN的宽度给缩小了一半
 		//buffer減半，因此scaleW要除以2
-		scaleW =scaleW / 2;
+//		scaleW =scaleW / 2;
+// End of H.M.Wang 2023-6-5 这个宽度倍数除2的操作似乎不对，将VBIN的宽度给缩小了一半
 
 		try {
 			paint.setTypeface(FontCache.get(ctx, mFont));
