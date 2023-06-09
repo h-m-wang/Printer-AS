@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.056"
+#define VERSION_CODE                            "1.0.057"
 
 /***********************************************************
  *  Customization
@@ -170,28 +170,30 @@ int PDGWrite(unsigned char reg, uint32_t four_bytes) {
 }
 
 void PDGWaitWBuffer(uint32_t wait_for) {
-    return;
+    int count = 0;
     uint32_t ui;
 
     while (true) {
         if (PDGRead(2, &ui) < 0 ||
             (ui == wait_for))
             break;
-        LOGI("Waiting R2 for %u, ret = %u\n", wait_for, ui);
+        LOGI("Waiting R2 for %u (%d times), ret = %u\n", wait_for, count++, ui);
+        if(count == 5) break;
 
         usleep(500000);     // 0.5 sec
     }
 }
 
 void PDGWaitRBuffer(uint32_t wait_for) {
-    return;
+    int count = 0;
     uint32_t ui;
 
     while (true) {
         if (PDGRead(3, &ui) < 0 ||
             (ui == wait_for))
             break;
-        LOGI("Waiting R3 for %u, ret = %u\n", wait_for, ui);
+        LOGI("Waiting R3 for %u (%d times), ret = %u\n", wait_for, count++, ui);
+        if(count == 5) break;
 
         usleep(500000);     // 0.5 sec
     }
@@ -332,7 +334,7 @@ void *_print_thread(void *arg) {
     if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
         LOGE("ERROR: cannot disable print\n");
     }
-    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
+//    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
     PrintThread = (pthread_t)NULL;     // (done printing)
     return (void*)NULL;
 }
@@ -343,11 +345,11 @@ int PDGTriggerPrint(int external, int count) {
         return -1;
     }
 
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
+/*    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
         LOGE("ERROR: pd_power_on()\n");
         return -1;
     }
-
+*/
     CancelPrint = false;
     if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
         PDGWrite(19, external) < 0 ||    // R19 0=internal 1=external TOF
@@ -499,13 +501,13 @@ JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg) {
 }
 
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
-    if (!IsPressurized) {
+/*    if (!IsPressurized) {
         if (CmdPressurize() != 0) {
             LOGE("ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized\n");
             return -1;
         }
     }
-
+*/
     if (PDGInit()) {
         LOGE("PDGInit failed\n");
         return -1;
