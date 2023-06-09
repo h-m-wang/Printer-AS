@@ -32,7 +32,7 @@
 
 // Customization for hardware
 #define I2C_DEVICE "/dev/i2c-1"
-#define MUX_ADDR 0xEA
+#define MUX_ADDR 0xE0
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@ Routines starting with "IDS_" are considered PUBLIC routines

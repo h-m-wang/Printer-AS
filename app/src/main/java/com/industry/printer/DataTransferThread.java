@@ -2170,7 +2170,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 								Debug.d(TAG, "DynamicText[" + strIndex + "]: " + recvStrs[strIndex]);
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 								SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), recvStrs[strIndex++]);
-//								baseObject.setContent(recvStrs[strIndex++]);
+								baseObject.setContent(recvStrs[strIndex++]);
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							}
 						}
@@ -2180,9 +2180,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							if(dtIndex >= 0 && dtIndex < recvStrs.length) {
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 								SystemConfigFile.getInstance().setDTBuffer(dtIndex, recvStrs[dtIndex]);
-//								baseObject.setContent(recvStrs[dtIndex]);
+								baseObject.setContent(recvStrs[dtIndex]);
 //							} else {
-//								baseObject.setContent("");
+								baseObject.setContent("");
 							}
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 						}
@@ -2191,7 +2191,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							Debug.d(TAG, "BarcodeObject: " + recvStrs[10]);
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
-//							((BarcodeObject)baseObject).setContent(recvStrs[10]);
+							((BarcodeObject)baseObject).setContent(recvStrs[10]);
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 						}
 					}

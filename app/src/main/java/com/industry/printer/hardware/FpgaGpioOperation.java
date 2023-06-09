@@ -9,6 +9,9 @@ import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.data.DataTask;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 /**
  * @author kevin
  *         用于操作Fpga Gpio的类
@@ -795,8 +798,44 @@ public class FpgaGpioOperation {
     public static int clearFIFO() {
         int fd = open();
         if (fd > 0) {
-            Debug.d(TAG, "FPGA_CMD_CLEAR_FIFO");
-            return ioctl(fd, FPGA_CMD_CLEAR_FIFO, 0);
+//            Debug.d(TAG, "FPGA_CMD_CLEAR_FIFO");
+//            return ioctl(fd, FPGA_CMD_CLEAR_FIFO, 0);
+            File file = null;
+            try {
+                file = new File(Configs.CONFIG_PATH_FLASH + "/aaa.bin");
+                FileInputStream fis = new FileInputStream(file);
+                byte[] buffer = new byte[fis.available()];
+                fis.read(buffer);
+                char[] cbuf = new char[buffer.length/2];
+                for(int i=0; i<cbuf.length; i++) {
+                    cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
+                }
+                ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
+                write(fd, cbuf, buffer.length);
+                fis.close();
+            } catch (Exception e) {
+                Debug.d(TAG, ""+e.getMessage());
+                try {
+                    file = new File(Configs.USB_ROOT_PATH2 + "/aaa.bin");
+                    FileInputStream fis = new FileInputStream(file);
+                    byte[] buffer = new byte[fis.available()];
+                    fis.read(buffer);
+                    char[] cbuf = new char[buffer.length/2];
+                    for(int i=0; i<cbuf.length; i++) {
+                        cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
+                    }
+                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
+                    write(fd, cbuf, buffer.length);
+                    fis.close();
+                } catch (Exception e1) {
+                    ExtGpio.playClick();
+                    try{Thread.sleep(200);} catch(Exception ex){};
+                    ExtGpio.playClick();
+                    try{Thread.sleep(200);} catch(Exception ex){};
+                    ExtGpio.playClick();
+                    Debug.d(TAG, ""+e1.getMessage());
+                }
+            }
         }
         return 0;
     }

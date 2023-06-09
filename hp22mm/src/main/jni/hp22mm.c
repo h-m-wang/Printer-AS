@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.048"
+#define VERSION_CODE                            "1.0.056"
 
 /***********************************************************
  *  Customization
@@ -162,10 +162,10 @@ int PDGWrite(unsigned char reg, uint32_t four_bytes) {
     // read and compare after write
     // NOTE: reg 28 cannot be read
     if (reg == 28) return 0;
-    if (PDGRead(reg, &read_bytes) < 0 ||
+/*    if (PDGRead(reg, &read_bytes) < 0 ||
         read_bytes != four_bytes)
         return -1;
-
+*/
     return 0;
 }
 
@@ -277,8 +277,8 @@ int PDGPrintSetup() {
     int tof_freq = 45000000;
 
     // use all 4 columns of selected pen
-//    int col_mask = 0xf;   // PEN0
-    int col_mask = 0xf0; // PEN1
+    int col_mask = 0xf;   // PEN0
+//    int col_mask = 0xf0; // PEN1
 //    int col_mask = 0xf;
 //    if (PEN_IDX == 1) col_mask <<= 4;
 
@@ -1311,7 +1311,7 @@ JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
-    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost0/PD.s19", true);
+    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
     if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
         pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
         if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
@@ -1325,7 +1325,7 @@ JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
-    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost0/FPGA.s19", true);
+    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
     if (pd_check("pd_fpga_fw_reflash", pd_r)) {
         pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
         if (pd_check("pd_fpga_fw_reflash", pd_r)) {
@@ -1339,7 +1339,7 @@ JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
     IDSResult_t ids_r;
 
-    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost0/IDS.s19", true);
+    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
     if (ids_check("ids_micro_fw_reflash", ids_r)) {
         ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
         if (ids_check("ids_micro_fw_reflash", ids_r)) {
