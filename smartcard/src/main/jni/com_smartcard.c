@@ -25,7 +25,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.392"
+#define VERSION_CODE                            "1.0.393"
 
 // 1.0.392
 //    (1) 增加Java_com_Smartcard_readHX24LC中，读取数据SC_I2C_DRIVER_read之前，写入WORD地址
@@ -173,12 +173,14 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_shutdown(JNIEnv *env, jclass arg) {
     LOGI("Shutting down smart card library....\n");
 
     pthread_mutex_lock(&mutex);
-
-    LIB_HP_SMART_CARD_shutdown();
+// H.M.Wang 2023-6-18 这里不关闭库，否则再次访问时会因为未初始化而失败
+//    LIB_HP_SMART_CARD_shutdown();
+// End of H.M.Wang 2023-6-18 这里不关闭库，否则再次访问时会因为未初始化而失败
 
     pthread_mutex_unlock(&mutex);
-
-    pthread_mutex_destroy(&mutex);
+// H.M.Wang 2023-6-18 初始化因为已到了library的初始化，因此这里释放太早了
+//    pthread_mutex_destroy(&mutex);
+// End of H.M.Wang 2023-6-18 初始化因为已到了library的初始化，因此这里释放太早了
 
     return SC_SUCCESS;
 }
@@ -208,10 +210,12 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint im
  */
 JNIEXPORT jint JNICALL Java_com_Smartcard_init(JNIEnv *env, jclass arg) {
     LOGI("Initializing smart card library....%s\n", VERSION_CODE);
-
-    if (pthread_mutex_init(&mutex, NULL) != 0){
-        return -1;
-    }
+// H.M.Wang 2023-6-18 将mutex的初始化移到laborary初始化的地方。在这里处理的话，要在shutdown的地方释放，这样导致设备启动以后，如果没有插卡，后续插卡后无法识别。
+// 原因是，开机后初始化处理以后，无论成功还是失败，都会先关闭该库，只从shutdown，在shutdown中会释放mutex，导致后续，只要不开始打印，就不能访问该库的功能了，因此即使中途插入卡，也无法识别
+//    if (pthread_mutex_init(&mutex, NULL) != 0){
+//        return -1;
+//    }
+// End of H.M.Wang 2023-6-18 将mutex的初始化移到laborary初始化的地方。
 
     pthread_mutex_lock(&mutex);
 
@@ -1249,6 +1253,12 @@ static JNINativeMethod gMethods[] = {
  * 注册RTC操作的JNI方法
  */
 int register_com_smartcard(JNIEnv* env) {
+// H.M.Wang 2023-6-18 初始化移到这里
+    if (pthread_mutex_init(&mutex, NULL) != 0){
+        return JNI_FALSE;
+    }
+// End of H.M.Wang 2023-6-18 初始化移到这里
+
     const char* kClassPathName = "com/industry/printer/hardware/SmartCard";
     jclass clazz = (*env)->FindClass(env, kClassPathName);
     if(clazz == NULL) {

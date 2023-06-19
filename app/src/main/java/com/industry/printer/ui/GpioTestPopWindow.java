@@ -79,87 +79,77 @@ public class GpioTestPopWindow {
             "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", "Serial"
     };
 
+    private int mIDSIdx = 1;
+    private int mPENIdx = 0;
+
 // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private String[] HP22MM_TEST_ITEMS = new String[] {
-        "T1 -- Print Test Pen 0",
-        "T2 -- Print Test Pen 1",
+        "",
+        "T1 -- Quick Start",
         "----------------------",
         "1 -- Init IDS",
         "2 -- Init PD",
         "3 -- ids_get_supply_status",
 //        "ids_get_supply_id[1]",
-        "4 -- pd_get_print_head_status[0]",
-        "5 -- pd_get_print_head_status[1]",
-        "6 -- pd_sc_get_status[0]",
-        "7 -- pd_sc_get_status[1]",
-        "8 -- pd_sc_get_info[0]",
-        "9 -- pd_sc_get_info[1]",
-        "10 -- DeletePairing",
-        "11 -- DoPairing(IDS,PEN0)",
-        "12 -- DoPairing(IDS,PEN1)",
-        "13 -- DoOverrides(IDS,PEN0)",
-        "14 -- DoOverrides(IDS,PEN1)",
-        "15 -- Pressurize",
-        "16 -- Depressurize",
-        "17 -- ids_set_platform_info",
-        "18 -- pd_set_platform_info",
-        "19 -- ids_set_date",
-        "20 -- pd_set_date",
-        "21 -- ids_set_stall_insert_count[1]",
-        "22 -- Start Print",
-        "23 -- Stop Print",
-        "24 -- Dump Registers",
-        "25 -- Write 1 Column",
-        "26 -- Write 1KB",
-        "27 -- Write 10 Columns",
-        "28 -- Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
-        "29 -- Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
-        "30 -- Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]",
-        "31 -- Toggle PI4",
-        "32 -- Toggle PI5",
-        "33 -- Write SPI FPGA"
+        "4 -- pd_get_print_head_status",
+        "5 -- pd_sc_get_status",
+        "6 -- pd_sc_get_info",
+        "7 -- Pairing",
+        "8 -- Pressurize",
+        "9 -- Depressurize",
+        "10 -- ids_set_platform_info",
+        "11 -- pd_set_platform_info",
+        "12 -- ids_set_date",
+        "13 -- pd_set_date",
+        "14 -- ids_set_stall_insert_count[1]",
+        "15 -- Start Print",
+        "16 -- Stop Print",
+        "17 -- Dump Registers",
+        "18 -- Write FIFO",
+        "19 -- FIFO -> DDR",
+        "20 -- DDR -> FIFO",
+        "21 -- Read FIFO",
+        "22 -- Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
+        "23 -- Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
+        "24 -- Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]",
+        "25 -- Toggle PI4",
+        "26 -- Toggle PI5",
+        "27 -- Write SPI FPGA"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
 
-    private final static int HP22MM_TEST_PEN0                           = 0;
-    private final static int HP22MM_TEST_PEN1                           = 1;
+    private final static int HP22MM_TEST_QUICK_START                    = 1;
     private final static int HP22MM_TEST_NOTHING                        = 2;
     private final static int HP22MM_TEST_INIT_IDS                       = 3;
     private final static int HP22MM_TEST_INIT_PD                        = 4;
     private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 5;
 //    private final static int HP22MM_TEST_IDS_GET_SUPPLY_INFO              = 8;
 //    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
-    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS      = 6;
-    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS      = 7;
-    private final static int HP22MM_TEST_PD_SC_GET_STATUS0              = 8;
-    private final static int HP22MM_TEST_PD_SC_GET_STATUS1              = 9;
-    private final static int HP22MM_TEST_PD_SC_GET_INFO0                = 10;
-    private final static int HP22MM_TEST_PD_SC_GET_INFO1                = 11;
-    private final static int HP22MM_TEST_DELETE_PAIRING                 = 12;
-    private final static int HP22MM_TEST_DO_PAIRING10                   = 13;
-    private final static int HP22MM_TEST_DO_PAIRING11                   = 14;
-    private final static int HP22MM_TEST_DO_OVERRIDES10                 = 15;
-    private final static int HP22MM_TEST_DO_OVERRIDES11                 = 16;
-    private final static int HP22MM_TEST_PRESSURIZE                     = 17;
-    private final static int HP22MM_TEST_DEPRESSURIZE                   = 18;
-    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 19;
-    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 20;
-    private final static int HP22MM_TEST_IDS_SET_DATE                   = 21;
-    private final static int HP22MM_TEST_PD_SET_DATE                    = 22;
-    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 23;
-    private final static int HP22MM_TEST_START_PRINT                    = 24;
-    private final static int HP22MM_TEST_STOP_PRINT                     = 25;
-    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 26;
-    private final static int HP22MM_TEST_WRITE_1_COLUMN                 = 27;
-    private final static int HP22MM_TEST_WRITE_1KB                      = 28;
-    private final static int HP22MM_TEST_WRITE_10_COLUMNS               = 29;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 30;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 31;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 32;
-    private final static int HP22MM_TOGGLE_PI4                          = 33;
-    private final static int HP22MM_TOGGLE_PI5                          = 34;
-    private final static int HP22MM_WRITE_SPIFPGA                       = 35;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD_STATUS       = 6;
+    private final static int HP22MM_TEST_PD_SC_GET_STATUS               = 7;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO                 = 8;
+    private final static int HP22MM_TEST_PAIRING                        = 9;
+    private final static int HP22MM_TEST_PRESSURIZE                     = 10;
+    private final static int HP22MM_TEST_DEPRESSURIZE                   = 11;
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 12;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 13;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 14;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 15;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 16;
+    private final static int HP22MM_TEST_START_PRINT                    = 17;
+    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
+    private final static int HP22MM_TEST_MCU2FIFO                       = 20;
+    private final static int HP22MM_TEST_FIFO2DDR                       = 21;
+    private final static int HP22MM_TEST_DDR2FIFO                       = 22;
+    private final static int HP22MM_TEST_FIFO2MCU                       = 23;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 24;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 25;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 26;
+    private final static int HP22MM_TOGGLE_PI4                          = 27;
+    private final static int HP22MM_TOGGLE_PI5                          = 28;
+    private final static int HP22MM_WRITE_SPIFPGA                       = 29;
 
 // End of H.M.Wang 2022-10-15 增加Hp22mm库的测试
 
@@ -290,20 +280,93 @@ public class GpioTestPopWindow {
 
     private void dispHp22mmTestItem(View view) {
         int position = ((Integer)view.getTag());
-        TextView cmd = (TextView) view.findViewById(R.id.hp22mm_test_cmd);
-        cmd.setText(HP22MM_TEST_ITEMS[position]);
-        View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
-        pb.setVisibility(View.GONE);
-        TextView result = (TextView) view.findViewById(R.id.hp22mm_test_result);
-        result.setText(mHp22mmTestResult[position]);
-        if(null == mHp22mmTestResult[position] || mHp22mmTestResult[position].isEmpty()) {
-            result.setVisibility(View.GONE);
-        } else if(mHp22mmTestResult[position].startsWith("Success")) {
-            result.setTextColor(Color.BLACK);
-            result.setVisibility(View.VISIBLE);
+
+        LinearLayout selArea = (LinearLayout) view.findViewById(R.id.hp22mm_test_sel_btn_area);
+        LinearLayout cmdBtn = (LinearLayout) view.findViewById(R.id.hp22mm_test_cmd_btn);
+        if(position == 0) {
+            selArea.setVisibility(View.VISIBLE);
+            cmdBtn.setVisibility(View.GONE);
+
+            final TextView ids0 = (TextView) view.findViewById(R.id.hp22mm_test_ids0_btn);
+            final TextView ids1 = (TextView) view.findViewById(R.id.hp22mm_test_ids1_btn);
+            final TextView pen0 = (TextView) view.findViewById(R.id.hp22mm_test_pen0_btn);
+            final TextView pen1 = (TextView) view.findViewById(R.id.hp22mm_test_pen1_btn);
+
+            if(mIDSIdx == 1) {
+                ids1.setBackgroundResource(R.color.white);
+                ids0.setBackgroundResource(R.color.background);
+            } else {
+                ids0.setBackgroundResource(R.color.white);
+                ids1.setBackgroundResource(R.color.background);
+            }
+
+            if(mPENIdx == 1) {
+                pen1.setBackgroundResource(R.color.white);
+                pen0.setBackgroundResource(R.color.background);
+            } else {
+                pen0.setBackgroundResource(R.color.white);
+                pen1.setBackgroundResource(R.color.background);
+            }
+
+            ids0.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mIDSIdx == 1) {
+                        mIDSIdx = 0;
+                        ids0.setBackgroundResource(R.color.white);
+                        ids1.setBackgroundResource(R.color.background);
+                    }
+                }
+            });
+            ids1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mIDSIdx == 0) {
+                        mIDSIdx = 1;
+                        ids1.setBackgroundResource(R.color.white);
+                        ids0.setBackgroundResource(R.color.background);
+                    }
+                }
+            });
+            pen0.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mPENIdx == 1) {
+                        mPENIdx = 0;
+                        pen0.setBackgroundResource(R.color.white);
+                        pen1.setBackgroundResource(R.color.background);
+                    }
+                }
+            });
+            pen1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mPENIdx == 0) {
+                        mPENIdx = 1;
+                        pen1.setBackgroundResource(R.color.white);
+                        pen0.setBackgroundResource(R.color.background);
+                    }
+                }
+            });
         } else {
-            result.setTextColor(Color.RED);
-            result.setVisibility(View.VISIBLE);
+            selArea.setVisibility(View.GONE);
+            cmdBtn.setVisibility(View.VISIBLE);
+
+            TextView cmd = (TextView) view.findViewById(R.id.hp22mm_test_cmd);
+            cmd.setText(HP22MM_TEST_ITEMS[position]);
+            View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
+            pb.setVisibility(View.GONE);
+            TextView result = (TextView) view.findViewById(R.id.hp22mm_test_result);
+            result.setText(mHp22mmTestResult[position]);
+            if(null == mHp22mmTestResult[position] || mHp22mmTestResult[position].isEmpty()) {
+                result.setVisibility(View.GONE);
+            } else if(mHp22mmTestResult[position].startsWith("Success")) {
+                result.setTextColor(Color.BLACK);
+                result.setVisibility(View.VISIBLE);
+            } else {
+                result.setTextColor(Color.RED);
+                result.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -531,6 +594,8 @@ public class GpioTestPopWindow {
     }
 
     private void doHp22mmTest(final View view, final int index) {
+        if(index == 0) return;      // skip select ids/pen line
+
         View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
         pb.setVisibility(View.VISIBLE);
         new Thread(new Runnable() {
@@ -543,12 +608,12 @@ public class GpioTestPopWindow {
                     mHandler.sendMessage(msg);
 
                     switch (index) {
-                        case HP22MM_TEST_PEN0:
-                            if (0 != Hp22mm.init_ids()) {
+                        case HP22MM_TEST_QUICK_START:
+                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
                                 break;
                             }
-                            if (0 != Hp22mm.init_pd()) {
+                            if (0 != Hp22mm.init_pd(mPENIdx)) {
                                 mHp22mmTestResult[index] = "init_pd failed\n" + Hp22mm.pd_get_sys_info();
                                 break;
                             }
@@ -556,7 +621,7 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "ids_get_supply_status failed\n" + Hp22mm.ids_get_supply_status_info();
                                 break;
                             }
-                            if (0 != Hp22mm.pd_get_print_head_status(0)) {
+                            if (0 != Hp22mm.pd_get_print_head_status()) {
                                 mHp22mmTestResult[index] = "pd_get_print_head_status failed\n" + Hp22mm.pd_get_print_head_status_info();
                                 break;
                             }
@@ -564,11 +629,11 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "DeletePairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoPairing(0)) {
+                            if (0 != Hp22mm.DoPairing()) {
                                 mHp22mmTestResult[index] = "DoPairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoOverrides(0)) {
+                            if (0 != Hp22mm.DoOverrides()) {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }
@@ -582,55 +647,15 @@ public class GpioTestPopWindow {
                             }
                             mHp22mmTestResult[index] = "Success";
                             break;
-                        case HP22MM_TEST_PEN1:
-                            if (0 != Hp22mm.init_ids()) {
-                                mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.init_pd()) {
-                                mHp22mmTestResult[index] = "init_pd failed\n" + Hp22mm.pd_get_sys_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.ids_get_supply_status()) {
-                                mHp22mmTestResult[index] = "ids_get_supply_status failed\n" + Hp22mm.ids_get_supply_status_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.pd_get_print_head_status(1)) {
-                                mHp22mmTestResult[index] = "pd_get_print_head_status failed\n" + Hp22mm.pd_get_print_head_status_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.DeletePairing()) {
-                                mHp22mmTestResult[index] = "DeletePairing failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.DoPairing(1)) {
-                                mHp22mmTestResult[index] = "DoPairing failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.DoOverrides(1)) {
-                                mHp22mmTestResult[index] = "DoOverrides failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.Pressurize()) {
-                                mHp22mmTestResult[index] = "Pressurize failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.startPrint()) {
-                                mHp22mmTestResult[index] = "Start print failed";
-                                break;
-                            }
-                            mHp22mmTestResult[index] = "Success";
-                            break;
-
                         case HP22MM_TEST_INIT_IDS:
-                            if (0 == Hp22mm.init_ids()) {
+                            if (0 == Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.ids_get_sys_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_sys_info();
                             }
                             break;
                         case HP22MM_TEST_INIT_PD:
-                            if (0 == Hp22mm.init_pd()) {
+                            if (0 == Hp22mm.init_pd(mPENIdx)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_sys_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_sys_info();
@@ -650,82 +675,41 @@ public class GpioTestPopWindow {
 //                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.ids_get_supply_id_info();
 //                            }
 //                            break;
-                        case HP22MM_TEST_PD_GET_PRINT_HEAD0_STATUS:
-                            if (0 == Hp22mm.pd_get_print_head_status(0)) {
+                        case HP22MM_TEST_PD_GET_PRINT_HEAD_STATUS:
+                            if (0 == Hp22mm.pd_get_print_head_status()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
-                        case HP22MM_TEST_PD_GET_PRINT_HEAD1_STATUS:
-                            if (0 == Hp22mm.pd_get_print_head_status(1)) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
-                            }
-                            break;
-                        case HP22MM_TEST_PD_SC_GET_STATUS0:
-                            if (0 == Hp22mm.pd_sc_get_status(0)) {
+                        case HP22MM_TEST_PD_SC_GET_STATUS:
+                            if (0 == Hp22mm.pd_sc_get_status()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_status_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-                        case HP22MM_TEST_PD_SC_GET_STATUS1:
-                            if (0 == Hp22mm.pd_sc_get_status(1)) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_status_info();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_PD_SC_GET_INFO0:
-                            if (0 == Hp22mm.pd_sc_get_info(0)) {
+                        case HP22MM_TEST_PD_SC_GET_INFO:
+                            if (0 == Hp22mm.pd_sc_get_info()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-                        case HP22MM_TEST_PD_SC_GET_INFO1:
-                            if (0 == Hp22mm.pd_sc_get_info(1)) {
-                                mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_info();
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                        case HP22MM_TEST_PAIRING:
+                            if (0 != Hp22mm.DeletePairing()) {
+                                mHp22mmTestResult[index] = "DeletePairing failed";
+                                break;
                             }
-                            break;
-                        case HP22MM_TEST_DELETE_PAIRING:
-                            if (0 == Hp22mm.DeletePairing()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                            if (0 != Hp22mm.DoPairing()) {
+                                mHp22mmTestResult[index] = "DoPairing failed";
+                                break;
                             }
-                            break;
-                        case HP22MM_TEST_DO_PAIRING10:
-                            if (0 == Hp22mm.DoPairing(0)) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                            if (0 != Hp22mm.DoOverrides()) {
+                                mHp22mmTestResult[index] = "DoOverrides failed";
+                                break;
                             }
-                            break;
-                        case HP22MM_TEST_DO_PAIRING11:
-                            if (0 == Hp22mm.DoPairing(1)) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_DO_OVERRIDES10:
-                            if (0 == Hp22mm.DoOverrides(0)) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-                            break;
-                        case HP22MM_TEST_DO_OVERRIDES11:
-                            if (0 == Hp22mm.DoOverrides(1)) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
+                            mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_PRESSURIZE:
                             if (0 == Hp22mm.Pressurize()) {
@@ -779,14 +763,14 @@ public class GpioTestPopWindow {
                             break;
                         case HP22MM_TEST_START_PRINT:
                             if (0 == Hp22mm.startPrint()) {
-                                mHp22mmTestResult[index] = "Success";
+                                mHp22mmTestResult[index] = "Printing launched";
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
                         case HP22MM_TEST_STOP_PRINT:
                             if (0 == Hp22mm.stopPrint()) {
-                                mHp22mmTestResult[index] = "Success";
+                                mHp22mmTestResult[index] = "Printing Stopped";
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
@@ -799,23 +783,34 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed\nRegister read error";
                             }
                             break;
-                        case HP22MM_TEST_WRITE_1_COLUMN:
-                            if (0 == Hp22mm.Write1Column()) {
-                                mHp22mmTestResult[index] = "Success";
+                        case HP22MM_TEST_MCU2FIFO:
+                            int ret = Hp22mm.mcu2fifo();
+                            if (ret >= 0) {
+                                mHp22mmTestResult[index] = "Success\n" + "R2 = " + ret;
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-                        case HP22MM_TEST_WRITE_1KB:
-                            if (0 == Hp22mm.Write1KB()) {
-                                mHp22mmTestResult[index] = "Success";
+                        case HP22MM_TEST_FIFO2DDR:
+                            ret = Hp22mm.fifo2ddr();
+                            if (ret >= 0) {
+                                mHp22mmTestResult[index] = "Success\n" + "R2 = " + ret;
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
-                        case HP22MM_TEST_WRITE_10_COLUMNS:
-                            if (0 == Hp22mm.Write10Columns()) {
-                                mHp22mmTestResult[index] = "Success";
+                        case HP22MM_TEST_DDR2FIFO:
+                            ret = Hp22mm.ddr2fifo();
+                            if (ret >= 0) {
+                                mHp22mmTestResult[index] = "Success\n" + "R3 = " + ret;
+                            } else {
+                                mHp22mmTestResult[index] = "Failed";
+                            }
+                            break;
+                        case HP22MM_TEST_FIFO2MCU:
+                            ret = Hp22mm.fifo2mcu();
+                            if (ret >= 0) {
+                                mHp22mmTestResult[index] = "Success\n" + "R3 = " + ret;
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }

@@ -46,7 +46,7 @@ typedef enum
 #define LEVEL_ERR 2
 #define IDS_NA -1
 
-extern int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message));
+extern int IDS_Init(int ids, void (*ids_callback_func)(int ids, int level, const char *message));
 extern void IDS_Shutdown(void);
 extern void IDS_LockAccess(void);
 extern void IDS_LockAccessAndSelectIDS(int IDS);
@@ -89,10 +89,10 @@ extern void IDS_LED_On(int IDS, int LED);
 extern void IDS_LED_Off(int IDS, int LED);
 extern void IDS_LED_Blink(int IDS, int LED);
 extern void IDS_LED_AllOff(void);
-extern void ResetMCU(void);
+extern void ResetMCU(int ids);
 
-extern int IDS_RTC_SetRTCFromSystemClock(void);
-extern struct tm* IDS_RTC_GetRTCTime(void);
-extern char* IDS_RTC_GetRTCTimeString(void);
-extern struct tm* IDS_RTC_SetSystemClockFromRTC(void);
+extern int IDS_RTC_SetRTCFromSystemClock(int ids);
+extern struct tm* IDS_RTC_GetRTCTime(int ids);
+extern char* IDS_RTC_GetRTCTimeString(int ids);
+extern struct tm* IDS_RTC_SetSystemClockFromRTC(int ids);
 

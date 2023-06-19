@@ -811,7 +811,7 @@ public class FpgaGpioOperation {
                     cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
                 }
                 ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
-                write(fd, cbuf, buffer.length);
+                write(fd, cbuf, cbuf.length*2);
                 fis.close();
             } catch (Exception e) {
                 Debug.d(TAG, ""+e.getMessage());
@@ -834,6 +834,7 @@ public class FpgaGpioOperation {
                     try{Thread.sleep(200);} catch(Exception ex){};
                     ExtGpio.playClick();
                     Debug.d(TAG, ""+e1.getMessage());
+                    return -1;
                 }
             }
         }

@@ -74,6 +74,13 @@ public class SmartCardManager implements IInkDevice {
         }
     };
 
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+    private int mInitFailedNum = 0;
+    private int mInitFatalFailedNum = 0;
+    private int mDownLocalFailedNum = 0;
+    private int mDownLocalFatalFailedNum = 0;
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+
     private int mBagNum                                 = 0;
     private _device_status[] mCards                      = null;
     private int mCurBagIdx                              = 0;
@@ -172,6 +179,13 @@ public class SmartCardManager implements IInkDevice {
 //        Debug.d(TAG, "---> enter SmartCardManager() - CARD_TYPE_BULK1(Full)");
         mContext = context;
 
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+        mInitFailedNum = 0;
+        mInitFatalFailedNum = 0;
+        mDownLocalFailedNum = 0;
+        mDownLocalFatalFailedNum = 0;
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+
         mCachedThreadPool = Executors.newCachedThreadPool();
 
         mBagNum = 1;        // 暂时墨袋只有一个
@@ -212,9 +226,39 @@ public class SmartCardManager implements IInkDevice {
 // End of H.M.Wang 2022-4-14 另外一种对应国外用户的PEN经常会初始化失败，导致不能打印的问题，如果失败尝试3次初始化
 // End of H.M.Wang 2022-4-18 再次开放，失败尝试次数改为5次
 
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+    public String getSCFailedNums() {
+        StringBuilder sb = new StringBuilder();
+
+        if(mInitFailedNum > 0) {
+            sb.append(mInitFailedNum);
+        }
+        sb.append("*");
+        if(mInitFatalFailedNum > 0) {
+            sb.append(mInitFatalFailedNum);
+        }
+        sb.append("*");
+        if(mDownLocalFailedNum > 0) {
+            sb.append(mDownLocalFailedNum);
+        }
+        sb.append("*");
+        if(mDownLocalFatalFailedNum > 0) {
+            sb.append(mDownLocalFatalFailedNum);
+        }
+        if(sb.length() <= 3) return "";
+        return sb.toString();
+    }
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+
+// H.M.Wang 2023-6-18 追加正在初始化处理状态和初始化完成时间戳，主要是为了防止在isValid函数中频繁启动初始化
+    private boolean mIniting = false;
+    private long mInitDoneTime = 0;
+// End of H.M.Wang 2023-6-18 追加正在初始化处理状态和初始化完成时间戳，主要是为了防止在isValid函数中频繁启动初始化
 // H.M.Wang 2022-1-24 将单卡的初始化流程提取出来成为一个独立的函数
     private void initComponent(int index) {
         if(index < 0 || index >= mPenNum+mBagNum) return;
+
+        mIniting = true;
 
         mCards[index].mRecentLevels.clear();
         if(index < mPenNum) {
@@ -236,12 +280,26 @@ public class SmartCardManager implements IInkDevice {
 // H.M.Wang 2022-4-18 因为在初始化成功之前，...
             getLocalInk(index);
         } else {
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+            mInitFailedNum++;
+//            Debug.d(TAG, "Fail-init: " + mInitFailedNum);
+            try{Thread.sleep(3000);}catch(Exception e){};
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
             try_num++;
             mCards[index].mInitialized = false;
             mCards[index].mValid = false;
-            if(try_num < 5) initComponent(index);
+            if(try_num < 5) {
+                initComponent(index);
+                return;
+            }
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+            mInitFatalFailedNum++;
+//            Debug.d(TAG, "Fail-Fatal-init: " + mInitFatalFailedNum);
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
             try_num = 0;
         }
+        mIniting = false;
+        mInitDoneTime = System.currentTimeMillis();
     }
 // End of H.M.Wang 2022-1-24 将单卡的初始化流程提取出来成为一个独立的函数
 
@@ -894,12 +952,19 @@ public class SmartCardManager implements IInkDevice {
 // H.M.Wang 2022-1-24 追加在卡为无效或者未初始化的时候，尝试初始化
 // H.M.Wang 2022-4-21 修改重新初始化的逻辑，没有初始化过的不尝试
 //            if(!mCards[cardIdx].mValid || !mCards[cardIdx].mInitialized) {
-              if(!mCards[cardIdx].mValid && mCards[cardIdx].mInitialized) {
+// H.M.Wang 2023-6-18 取消判断是否初始化，因为在未插卡的情况下开机，会导致初始化失败，然后关闭设备，这会导致mInitialized为false，这样就不会尝试重新初始化，因此重新插入卡也不会识别
+//            if(!mCards[cardIdx].mValid && mCards[cardIdx].mInitialized) {
+            if(!mCards[cardIdx].mValid) {
+// End of H.M.Wang 2023-6-18 取消判断是否初始化，因为在未插卡的情况下开机，会导致初始化失败，然后关闭设备，这会导致mInitialized为false，这样就不会尝试重新初始化，因此重新插入卡也不会识别
 // End of H.M.Wang 2022-4-21 修改重新初始化的逻辑，没有初始化过的不尝试
                 mCachedThreadPool.execute(new Runnable() {
                     @Override
                     public void run() {
-                        initComponent(cardIdx);
+// H.M.Wang 2023-6-18 追加调用初始化的条件判断
+                        if(!mIniting && System.currentTimeMillis() - mInitDoneTime > 1000) {    // 如果有其他的初始化在执行，或者刚刚初始化处理完成还不到1s，则不执行初始化
+// End of H.M.Wang 2023-6-18 追加调用初始化的条件判断
+                            initComponent(cardIdx);
+                        }
                     }
                 });
             }
@@ -931,12 +996,21 @@ public class SmartCardManager implements IInkDevice {
     private void trySmartCardDownLocal(final int cardIdx) {
         int tryNum;
         for(tryNum = 0; tryNum<3; tryNum++) {
-            Debug.d(TAG, "Try Downlocal " + (tryNum+1) + " times");
+//            Debug.d(TAG, "Try Downlocal " + (tryNum+1) + " times");
             if(SmartCard.SC_SUCCESS == SmartCard.downLocal(mCards[cardIdx].mCardType)) break;
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+            mDownLocalFailedNum++;
+//            Debug.d(TAG, "Fail-down: " + mDownLocalFailedNum);
+            try{Thread.sleep(3000);}catch(Exception e){};
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
         }
         if(tryNum >= 3) {
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+            mDownLocalFatalFailedNum++;
+//            Debug.d(TAG, "Fail-Fatal-down: " + mDownLocalFatalFailedNum);
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
             mHandler.obtainMessage(MSG_SHOW_ACCESS_ERROR, "Smartcard access error!").sendToTarget();
-            Debug.d(TAG, "Launch initComponent");
+//            Debug.d(TAG, "Launch initComponent");
             initComponent(cardIdx);
         }
     }

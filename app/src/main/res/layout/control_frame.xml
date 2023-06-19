@@ -355,6 +355,20 @@
             />
     </LinearLayout>
 
+<!-- H.M.Wang 2023-6-14 追加一个SC版本的监视信息显示 -->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/preview_scroll" >
+        <TextView
+            android:id="@+id/sc_monitor_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+        />
+    </RelativeLayout>
+<!-- End of H.M.Wang 2023-6-14 追加一个SC版本的监视信息显示 -->
 
     <HorizontalScrollView
         android:id="@+id/preview_scroll"

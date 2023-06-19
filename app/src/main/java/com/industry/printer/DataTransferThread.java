@@ -2213,7 +2213,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	char[] mPrintBuffer = null;
 // H.M.Wang 2020-5-6 参数设置页面，...
 
-	private static int mPrintCount = 0;
+	private static int mPrintCount = 10;
 
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 	public long Time1 = 0;

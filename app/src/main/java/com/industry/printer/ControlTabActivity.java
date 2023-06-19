@@ -151,6 +151,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView mMsgFile;
 	private TextView tvMsg;
 
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+	private TextView mSCMonitorInfo;
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+
 // H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
     public TextView mGroupIndex;
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
@@ -463,6 +467,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			TxtDT.getInstance(mContext).initView(getView());
 		}
 // End of H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+
+// H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
+		mSCMonitorInfo = (TextView) getView().findViewById(R.id.sc_monitor_info);
+// End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
 
 		mMsgFile = (TextView) getView().findViewById(R.id.opened_msg_name);
 		tvMsg = (TextView) getView().findViewById(R.id.tv_msg_name);
@@ -1240,6 +1248,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
 		}
 
+		boolean valid = true;
 		for(int i=0; i<heads; i++) {
 			float ink = mInkManager.getLocalInkPercentage(i);
 			float count = mInkManager.getLocalInk(i) - 1;
@@ -1279,6 +1288,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //				}
 				mBtnStart.setClickable(false);
 				mTvStart.setTextColor(Color.GRAY);
+				valid = false;
 
 				mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
 			} else if (mInkManager instanceof SmartCardManager && ink >= 5.0f ||
@@ -1289,6 +1299,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mInkValues[i].setBackgroundColor(Color.YELLOW);
 				mInkValues[i].setText(level);
 			} else {
+				valid = false;
 				mInkValues[i].setBackgroundColor(Color.RED);
 				mInkValues[i].setText(level);
 				if (mDTransThread != null && mDTransThread.isRunning()) {
@@ -1311,6 +1322,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mFlagAlarming = false;
 			}
 		}
+		if(valid) {
+			mBtnStart.setClickable(true);
+			mTvStart.setTextColor(Color.BLACK);
+		}
+// H.M.Wang 2023-6-14 借用这个常驻线程，显示SC初始化出现失败的状态
+		if(mInkManager instanceof SmartCardManager) {
+			Debug.d(TAG, ((SmartCardManager)mInkManager).getSCFailedNums());
+			mSCMonitorInfo.setText(((SmartCardManager)mInkManager).getSCFailedNums());
+		}
+// End of H.M.Wang 2023-6-14 借用这个常驻线程，显示SC初始化出现失败的状态
 		refreshVoltage();
 		refreshPulse();
 	}

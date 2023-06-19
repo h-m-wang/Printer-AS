@@ -66,7 +66,7 @@ int I2CInit(void);
 int GPIOInit(int IDS);
 int BlinkInit(void);
 int MonitorInit(void);
-int RTCInit(void);
+int RTCInit(int ids);
 
 // #####################################################################
 // # Local utilities
@@ -129,7 +129,7 @@ void ids_callback(int ids, int level, const char *message) {
 // #####################################################################
 
 // @@@ Initialize the IDS system including Smart Card library
-int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message)) {
+int IDS_Init(int ids, void (*ids_callback_func)(int ids, int level, const char *message)) {
 	LOGI("Enter %s", __FUNCTION__);
 
 	// @@@ Set callbacks @@@
@@ -147,13 +147,8 @@ int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message))
 	}
 	
 	// Init IDS GPIO / Blink
-//	if (GPIOInit(0) < 0) {
-//		LOGE("IDS_Init: cannot init GPIO on IDS0");
-//		return -1;
-//	}
-
-	if (GPIOInit(1) < 0) {
-		LOGE("IDS_Init: cannot init GPIO on IDS1");
+	if (GPIOInit(ids) < 0) {
+		LOGE("IDS_Init: cannot init GPIO on IDS%d", ids);
 		return -1;
 	}
 
@@ -163,7 +158,7 @@ int IDS_Init(void (*ids_callback_func)(int ids, int level, const char *message))
 	}
 		
 	// Init IDS RTC (only IDS 0)
-	if (RTCInit() < 0) {
+	if (RTCInit(ids) < 0) {
 		LOGE("IDS_Init: cannot init RTC");
 		return -1;
 	}
@@ -698,11 +693,11 @@ int BlinkInit(void) {
 	return (ret != 0 ? -1 : 0);		// return 0 or -1
 }
 
-void ResetMCU(void) {
+void ResetMCU(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	// reset the MCU; note that this line is only connected for IDS 0
-	IDS_LockAccessAndSelectIDS(0);		// LOCK/UNLOCK multiple commands
+	IDS_LockAccessAndSelectIDS(ids);		// LOCK/UNLOCK multiple commands
 	
 	// configure Reset pin as Output; Pull low; configure Reset pin as Input (default)
 	IDS_I2C_WriteTwoBytesToRegister(CURRENT_IDS, GPIO_I2C_ADDRESS, GPIO_CMD_CONFIG, GPIO_CONFIG_PORT0, GPIO_RESET_CONFIG_PORT1);
@@ -1134,11 +1129,11 @@ int BCDToDec(uint8_t BCD, uint8_t Mask) {
 	return (BCD >> 4) * 10 + (BCD & 0x0F);
 }
 
-int RTCInit(void) {
+int RTCInit(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	int ret = 0;
-	IDS_LockAccessAndSelectIDS(0);			// LOCK/UNLOCK multiple commands
+	IDS_LockAccessAndSelectIDS(ids);			// LOCK/UNLOCK multiple commands
 	
 	// read the RTC Config registers
 	ret = IDS_I2C_ReadByteFromRegister(0, RTC_I2C_ADDRESS, RTC_CONFIG_REG);
@@ -1149,14 +1144,14 @@ int RTCInit(void) {
 	return ret;
 }
 
-int IDS_RTC_SetRTCFromSystemClock(void) {
+int IDS_RTC_SetRTCFromSystemClock(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	int ret = 0;
 	time_t now;
 	struct tm* tdetail;
 
-	IDS_LockAccessAndSelectIDS(0);			// LOCK/UNLOCK multiple commands
+	IDS_LockAccessAndSelectIDS(ids);			// LOCK/UNLOCK multiple commands
 	
 	// get current time and convert to local
 	ret = time(&now);
@@ -1184,13 +1179,13 @@ int IDS_RTC_SetRTCFromSystemClock(void) {
 	return ret;
 }
 
-struct tm* IDS_RTC_GetRTCTime(void) {
+struct tm* IDS_RTC_GetRTCTime(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	int i;
 	int sec;
 	
-	IDS_LockAccessAndSelectIDS(0);			// LOCK/UNLOCK multiple commands
+	IDS_LockAccessAndSelectIDS(ids);			// LOCK/UNLOCK multiple commands
 	
 	// don't read time if it is about to turn over
 	for(i=0; i<6; i++) {
@@ -1216,11 +1211,11 @@ struct tm* IDS_RTC_GetRTCTime(void) {
     return &_tm;
 }
 
-char* IDS_RTC_GetRTCTimeString(void) {
+char* IDS_RTC_GetRTCTimeString(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	// get time from RTC, and do a gross validation
-	IDS_RTC_GetRTCTime();
+	IDS_RTC_GetRTCTime(ids);
 	if (_tm.tm_year < (2018-1900))
 		return NULL;
 		
@@ -1231,14 +1226,14 @@ char* IDS_RTC_GetRTCTimeString(void) {
 	return _time_string;
 }
 
-struct tm* IDS_RTC_SetSystemClockFromRTC(void) {
+struct tm* IDS_RTC_SetSystemClockFromRTC(int ids) {
     LOGI("Enter %s", __FUNCTION__);
 
 	int ret;
 	struct timeval tv;
 	
 	// get time from RTC, and do a gross validation
-	IDS_RTC_GetRTCTime();
+	IDS_RTC_GetRTCTime(ids);
 	if (_tm.tm_year < (2018-1900))
 		return NULL;
 	

@@ -10,11 +10,10 @@
 extern "C" {
 #endif
 
-JNIEXPORT jint JNICALL Java_com_hp22mm_init(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint idsIndex);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jint JNICALL Java_com_ids_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_pd_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_ids_set_date(JNIEnv *env, jclass arg);
@@ -22,15 +21,15 @@ JNIEXPORT jint JNICALL Java_com_pd_set_date(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_ids_set_stall_insert_count(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg, jint penIndex);
+JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_pd_get_sc_status(JNIEnv *env, jclass arg, jint penIndex);
+JNIEXPORT jint JNICALL Java_com_pd_get_sc_status(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sc_status_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_pd_get_sc_info(JNIEnv *env, jclass arg, jint penIndex);
+JNIEXPORT jint JNICALL Java_com_pd_get_sc_info(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sc_info_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penIdx);
-JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penIdx);
+JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);
@@ -40,9 +39,10 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_Write1Column(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_Write1KB(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_Write10Columns(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_MCU2FIFO(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_FIFO2DDR(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_FIFO2MCU(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
