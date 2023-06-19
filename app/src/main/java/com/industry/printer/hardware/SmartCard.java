@@ -15,7 +15,7 @@ public class SmartCard {
     public final static int CARD_TYPE_PEN2                  = 12;
     private final static int CARD_TYPE_BULK1                 = 13;               // 真实墨袋
     private final static int CARD_TYPE_BULKX                 = 14;             // 墨盒代替墨袋
-    public final static int CARD_TYPE_BULK                 = CARD_TYPE_BULKX;
+    public final static int CARD_TYPE_BULK                 = CARD_TYPE_BULK1;
     public final static int CARD_TYPE_LEVEL1                = 21;
     public final static int CARD_TYPE_LEVEL2                = 22;
 

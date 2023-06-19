@@ -231,21 +231,21 @@ public class SmartCardManager implements IInkDevice {
         StringBuilder sb = new StringBuilder();
 
         if(mInitFailedNum > 0) {
+            sb.append("A");
             sb.append(mInitFailedNum);
         }
-        sb.append("*");
         if(mInitFatalFailedNum > 0) {
+            sb.append("B");
             sb.append(mInitFatalFailedNum);
         }
-        sb.append("*");
         if(mDownLocalFailedNum > 0) {
+            sb.append("C");
             sb.append(mDownLocalFailedNum);
         }
-        sb.append("*");
         if(mDownLocalFatalFailedNum > 0) {
+            sb.append("D");
             sb.append(mDownLocalFatalFailedNum);
         }
-        if(sb.length() <= 3) return "";
         return sb.toString();
     }
 // End of H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
