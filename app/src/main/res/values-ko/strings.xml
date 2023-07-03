@@ -355,7 +355,12 @@
 	<string name="str_rfid_initfail_notify">카드초기화 실패！</string>
 	<string name="str_state_printing">프린트중</string>
 	<string name="str_state_stopped">이미중지</string>
-	
+<!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
+	<string name="str_state_cnt_printing">Cnt. Printing</string>
+	<string name="str_btn_up_print">Up Cnt. Print</string>
+	<string name="str_btn_down_print">Dn Cnt. Print</string>
+<!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->
+
 <!-- 树莓派3 设置界面相关 -->
 	<string name="str_textview_param1">01.속도</string>
 	<string name="str_textview_param2">02.프린트방향</string>

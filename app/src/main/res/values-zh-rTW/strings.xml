@@ -341,7 +341,12 @@
 	<string name="str_rfid_initfail_notify">卡初始化失敗！</string>
 	<string name="str_state_printing">打印中</string>
 	<string name="str_state_stopped">已停止</string>
-	
+<!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
+	<string name="str_state_cnt_printing">連續打印中</string>
+	<string name="str_btn_up_print">向上連續打印</string>
+	<string name="str_btn_down_print">向下連續打印</string>
+<!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->
+
 <!-- 树莓派3 设置界面相关 -->
 	<string name="str_textview_param1">01.速度</string>
 	<string name="str_textview_param2">02.打印方向</string>

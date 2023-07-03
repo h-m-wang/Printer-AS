@@ -849,7 +849,8 @@ public class GpioTestPopWindow {
                             mHp22mmTestResult[index] = "Success\n" + valPI5 + " -> " + valPI5_1;
                             break;
                         case HP22MM_WRITE_SPIFPGA:
-                            ExtGpio.writeGpioTestPin('I', 10, 1);
+                            ExtGpio.writeGpioTestPin('I', 7, 0);
+                            ExtGpio.writeGpioTestPin('I', 9, 0);
 //                            ExtGpio.writeGpioTestPin('I', 4, 0);
                             if (0 == FpgaGpioOperation.clearFIFO()) {
                                 mHp22mmTestResult[index] = "Success";
@@ -857,7 +858,8 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Failed";
                             }
 //                            ExtGpio.writeGpioTestPin('I', 4, 1);
-                            ExtGpio.writeGpioTestPin('I', 10, 0);
+                            ExtGpio.writeGpioTestPin('I', 9, 1);
+                            ExtGpio.writeGpioTestPin('I', 7, 1);
                             break;
 
                     }

@@ -672,6 +672,7 @@ public class FpgaGpioOperation {
 
 // H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
         ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
+// 暂时取消。2023-6-28 测试SPI大量下发，不下发给FPGA        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
 // End of H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
         writeData(DATA_GENRE_IGNORE, FPGA_STATE_SETTING, data, data.length * 2);
 // H.M.Wang 2022-3-12 设置之后恢复CLEAN（双高）

@@ -102,12 +102,14 @@
                     android:visibility="gone"
                     />
             </RadioGroup>
+
             <LinearLayout
                 android:id="@+id/ctrl_extra"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/top_btn_height"
                 android:orientation="horizontal"
                 android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/tab_group"
                 >
                 <!-- H.M.Wang 2020-6-3 这个完全没有必要，仅仅是为了解决扫码枪扫码时，msg_transfer被自动打开的问题 -->
                 <!-- 一定不要将该控件设置为Invisible或者gone，否则无法起到阻挡作用 -->
@@ -213,6 +215,7 @@
                 android:visibility="gone"
                 android:orientation="horizontal"
                 android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/tab_group"
                 >
                 <TextView
                     android:id="@+id/delete"
@@ -294,6 +297,7 @@
                 android:gravity="center_horizontal"
                 android:visibility="gone"
                 android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/tab_group"
                 >
                 <ImageView
                     android:id="@+id/link_state"

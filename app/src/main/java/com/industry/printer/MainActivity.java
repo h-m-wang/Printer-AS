@@ -173,7 +173,13 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setLocale();
 
-		setContentView(R.layout.activity_main);
+// H.M.Wang 2023-6-25 新的用户定制界面
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			setContentView(R.layout.activity_main2);
+		} else {
+			setContentView(R.layout.activity_main);
+		}
+// End of H.M.Wang 2023-6-25 新的用户定制界面
 		IP_address=(TextView)findViewById(R.id.IP_address);
 		mCode = (TextView) findViewById(R.id.code);
 		boolean isroot=false;
@@ -300,23 +306,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				}
 				ExtGpio.playClick();
 
-//				ExtGpio.writeGpioTestPin('I', 4, 1);
-//				ExtGpio.writeGpioTestPin('I', 5, 0);
-/*
-				Debug.d(TAG, "------------- 0");
-				ExtGpio.writeGpioTestPin('E', 7, 0);
-				try{
-					Thread.sleep(20000);
-				} catch (Exception e) {
-				}
-				Debug.d(TAG, "------------- 1");
-				ExtGpio.writeGpioTestPin('E', 7, 1);
-				try{
-					Thread.sleep(100);
-				} catch (Exception e) {
-				}
-				Hp22mm.init();
-*/
+//				ExtGpio.writeGpioTestPin('I', 7, 1);
+//				ExtGpio.writeGpioTestPin('I', 9, 1);
 			}
 		}.start();
 

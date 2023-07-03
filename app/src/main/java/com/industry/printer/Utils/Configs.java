@@ -108,6 +108,12 @@ UserGroup 使用方法说明
 */
 // End of H.M.Wang 2022-11-27 追加一个用户群组的文件头类型。
 
+// H.M.Wang 2023-6-25 新的用户定制界面开关
+	public static final int UI_STANDARD = 0;
+	public static final int UI_CUSTOMIZED0 = 1;
+	public static int UI_TYPE = UI_STANDARD;
+// End of H.M.Wang 2023-6-25 新的用户定制界面开关
+
 	/**vol
 	 * 开关配置：大字机的特殊版本，buffer宽度x8
 	 */

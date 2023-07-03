@@ -416,6 +416,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private PC_FIFO mPC_FIFO = null;
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+	private static final int PRINT_TYPE_NORMAL = 0;
+	private static final int PRINT_TYPE_UPWARD_CNT = 1;
+	private static final int PRINT_TYPE_DWWARD_CNT = 2;
+	private int mPrintType = PRINT_TYPE_NORMAL;
+
+	private TextView mUpCntPrint;
+	private TextView mDnCntPrint;
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+
 	public ControlTabActivity() {
 		//mMsgTitle = (ExtendMessageTitleFragment)fragment;
 		mCounter = 0;
@@ -437,6 +447,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			return inflater.inflate(R.layout.control3_frame, container, false);
 		}
 // End of H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+
+// H.M.Wang 2023-6-26 增加一个用户定义界面模式
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			return inflater.inflate(R.layout.control4_frame, container, false);
+		}
+// End of H.M.Wang 2023-6-26 增加一个用户定义界面模式
 		return inflater.inflate(R.layout.control_frame, container, false);
 	}
 
@@ -480,7 +496,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
 
 //		mPreview = (PreviewScrollView ) getView().findViewById(R.id.sv_preview);
-		
+
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			mUpCntPrint = (TextView) getView().findViewById(R.id.upward_cnt_print);
+			mDnCntPrint = (TextView) getView().findViewById(R.id.downward_cnt_print);
+		}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+
 		mBtnStart = (RelativeLayout) getView().findViewById(R.id.StartPrint);
 		mBtnStart.setOnClickListener(this);
 		mBtnStart.setOnTouchListener(this);
@@ -2839,6 +2862,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
 //	死机			mInkManager.checkRfid();
 //	拔出墨盒仍然返回有效数值56643			mInkManager.getLocalInk(0);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPrintType = PRINT_TYPE_NORMAL;
+				}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 // H.M.Wang 2022-1-12 延时1秒下发打印命令
 				mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
 // End of H.M.Wang 2022-1-12 延时1秒下发打印命令
@@ -2956,6 +2984,18 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				});
 				dlg1.show();
 				break;
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
+			case R.id.upward_cnt_print:
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPrintType = PRINT_TYPE_UPWARD_CNT;
+				}
+				break;
+			case R.id.downward_cnt_print:
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPrintType = PRINT_TYPE_DWWARD_CNT;
+				}
+				break;
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			default:
 				break;
 		}

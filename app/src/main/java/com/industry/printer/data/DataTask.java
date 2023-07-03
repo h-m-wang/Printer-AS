@@ -922,8 +922,23 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2021-3-3 由于从QR.txt文件当中读取的变量信息要对群组有效，在这里会导致每个任务都会读取一行，所以需要移植DataTransferThread类处理
 				// Bitmap bmp = o.getScaledBitmap(mContext);
 				Debug.d(TAG,"--->cover barcode w = " + o.getWidth() + "  h = " + o.getHeight() + " total=" + (mBinInfo.getBytesFeed()*8) + " " + (o.getWidth()/scaleW) + " " + (o.getHeight()/scaleH));
+
+// H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
+				float wx = 1.0f, hx=1.0f;
+				if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
+					wx = 2.0f;
+					hx = 2.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_38_1) {
+					wx = 3.0f;
+					hx = 3.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
+					wx = 4.0f;
+					hx = 4.0f;
+				}
+// End of H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
+
 // H.M.Wang 2021-2-20 o.getY()坐标直接传递改为除以scaleH后传递，因为这个是生成打印缓冲区，需要考虑scale
-				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), (int)(o.getY()/scaleH));
+				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW*wx), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW*wx), (int)(o.getHeight()/scaleH*hx), (int)(o.getY()/scaleH*hx));
 // End of H.M.Wang 2021-2-20 o.getY()坐标直接传递改为除以scaleH后传递，因为这个是生成打印缓冲区，需要考虑scale
 				// BinCreater.saveBitmap(bmp, "bar.png");
 				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);

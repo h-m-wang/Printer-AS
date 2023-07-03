@@ -351,6 +351,11 @@
 	<string name="str_message_no_content">لايمكن المعاينة</string>
 	<string name="str_state_printing">طباعة</string>
 	<string name="str_state_stopped">جاهز</string>
+<!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
+	<string name="str_state_cnt_printing">Cnt. Printing</string>
+	<string name="str_btn_up_print">Up Cnt. Print</string>
+	<string name="str_btn_down_print">Dn Cnt. Print</string>
+<!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->
 
 	<!-- 树莓派3 设置界面相关 -->
 
