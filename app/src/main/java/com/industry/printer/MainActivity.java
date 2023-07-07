@@ -1111,8 +1111,21 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
         mRadioCtl.setChecked(true);
         mControlTab.loadAndPrint(message);
 	}
-	
-	
+
+// H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+	public void onPreviewLongClicked(String objPath) {
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			onEditTitleChanged(objPath);
+			mRadioEdit.setChecked(true);
+			mEditSmallTab.openObjectDirectly(objPath);
+		}
+	}
+
+	public void onImportMsgClicked() {
+		msgImportOnly();
+	}
+// End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+
 	public static final int USB_STORAGE_ATTACHED = 0;
 	public static final int REFRESH_TIME_DISPLAY = 1;
 	public static final int UPDATE_COUNTER = 2;

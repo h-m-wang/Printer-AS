@@ -33,6 +33,17 @@
                 android:visibility="gone"
                 />
             <TextView
+                android:id="@+id/tv_cntPrintState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/str_state_cnt_printing"
+                android:textSize="@dimen/ctrlButtonsTextsize"
+                android:textColor="#000000"
+                android:background="@color/green"
+                android:visibility="gone"
+                />
+            <TextView
                 android:id="@+id/tv_stopState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -365,7 +376,7 @@
                     />
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/btnBinfile1"
+                android:id="@+id/btnTransfer"
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_marginLeft="3dp"
@@ -373,14 +384,14 @@
                 android:layout_weight="1"
                 >
                 <TextView
-                    android:id="@+id/tv_binfile1"
+                    android:id="@+id/tv_Transfer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:textSize="@dimen/ctrlButtonsTextsize"
                     android:textColor="#000000"
                     android:background="@drawable/bg_big_button"
-                    android:text="@string/str_openfile"
+                    android:text="@string/tips_import"
                     />
             </RelativeLayout>
         </LinearLayout>

@@ -551,7 +551,16 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 	public static final int HANDLER_MESSAGE_SAVE_SUCCESS = 10;
 	
 	public static final int HANDLER_MESSAGE_SAVE_CONFIRM = 7;
-	
+
+// H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+	public void openObjectDirectly(String objPath) {
+		mObjName = objPath;
+		mMsgTask = new MessageTask(mContext, mObjName);
+		mMsgManager.fill(mMsgTask);
+		mMsgManager.setSelect(1);
+	}
+// End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+
 	Handler mHandler = new Handler(){
 		public void handleMessage(final Message msg) {
 			//	String f;

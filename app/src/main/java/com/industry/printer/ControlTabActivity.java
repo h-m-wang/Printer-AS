@@ -121,6 +121,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	public static final String TAG="ControlTabActivity";
@@ -424,6 +425,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	private TextView mUpCntPrint;
 	private TextView mDnCntPrint;
+
+	public TextView mTVCntPrinting;
+	public RelativeLayout	mBtnImport;
+	public TextView		  mTvImport;
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 
 	public ControlTabActivity() {
@@ -500,7 +505,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
 			mUpCntPrint = (TextView) getView().findViewById(R.id.upward_cnt_print);
+			mUpCntPrint.setOnClickListener(this);
+			mUpCntPrint.setOnTouchListener(this);
 			mDnCntPrint = (TextView) getView().findViewById(R.id.downward_cnt_print);
+			mDnCntPrint.setOnClickListener(this);
+			mDnCntPrint.setOnTouchListener(this);
 		}
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 
@@ -582,13 +591,28 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			});
 		}
 
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			mBtnImport = (RelativeLayout) getView().findViewById(R.id.btnTransfer);
+			mBtnImport.setOnClickListener(this);
+			mBtnImport.setOnTouchListener(this);
+			mTvImport = (TextView) getView().findViewById(R.id.tv_Transfer);
+		}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+
 		mMsgPrev = (ImageButton) getView().findViewById(R.id.ctrl_btn_up);
 		mMsgNext = (ImageButton) getView().findViewById(R.id.ctrl_btn_down);
 		mMsgPrev.setOnClickListener(this);
 		mMsgNext.setOnClickListener(this);
 
 		setupViews();
-		
+
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			mTVCntPrinting = (TextView) getView().findViewById(R.id.tv_cntPrintState);
+		}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+
 		mTVPrinting = (TextView) getView().findViewById(R.id.tv_printState);
 		mTVStopped = (TextView) getView().findViewById(R.id.tv_stopState);
 
@@ -642,6 +666,19 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		});
 // End of H.M.Wang 2021-7-26 追加实际打印内容预览图显示功能
+
+// H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			mllPreview.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View view) {
+					((MainActivity)getActivity()).onPreviewLongClicked(mObjPath);
+					return false;
+				}
+			});
+		}
+// End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+
 		// mMsgPreview = (TextView) getView().findViewById(R.id.message_preview);
 		// mMsgPreImg = (ImageView) getView().findViewById(R.id.message_prev_img);
 		//
@@ -1147,6 +1184,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mTvOpen.setText(R.string.str_openfile);
 		mTvClean.setText(R.string.str_btn_clean);
 		mTVPrinting.setText(R.string.str_state_printing);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+			mTVCntPrinting.setText(R.string.str_state_cnt_printing);
+			mTvImport.setText(R.string.tips_import);
+		}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		mTVStopped.setText(R.string.str_state_stopped);
 //		mtvInk.setText(R.string.str_state_inklevel);
 
@@ -1311,6 +1354,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //				}
 				mBtnStart.setClickable(false);
 				mTvStart.setTextColor(Color.GRAY);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mUpCntPrint.setClickable(false);
+					mUpCntPrint.setTextColor(Color.GRAY);
+					mDnCntPrint.setClickable(false);
+					mDnCntPrint.setTextColor(Color.GRAY);
+				}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+
 				valid = false;
 
 				mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
@@ -1348,6 +1400,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		if(valid) {
 			mBtnStart.setClickable(true);
 			mTvStart.setTextColor(Color.BLACK);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+			if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+				mUpCntPrint.setClickable(true);
+				mUpCntPrint.setTextColor(Color.BLACK);
+				mDnCntPrint.setClickable(true);
+				mDnCntPrint.setTextColor(Color.BLACK);
+			}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		}
 // H.M.Wang 2023-6-14 借用这个常驻线程，显示SC初始化出现失败的状态
 		if(mInkManager instanceof SmartCardManager) {
@@ -2450,6 +2510,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mllPreview.addView(imgView);
 					// scaledChild.recycle();
 				}
+// H.M.Wang 2023-7-6 加上这个步骤，使得打印内容很少的时候，将实际内容区的宽度也能扩充到满屏，以实现整个区域对点击和长按时间作出反应
+				if(mllPreview.getWidth() < mScrollView.getWidth()) {
+					mllPreview.setMinimumWidth(mScrollView.getWidth());
+// End of H.M.Wang 2023-7-6 加上这个步骤，使得打印内容很少的时候，将实际内容区的宽度也能扩充到满屏，以实现整个区域对点击和长按时间作出反应
+				}
 			}
 		}, 10);
 // End of H.M.Wang 2021-5-21 修改预览页面显示方法
@@ -2546,6 +2611,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mBtnOpenfile.setClickable(false);
 				mTvOpen.setTextColor(Color.GRAY);
 				mTVPrinting.setVisibility(View.VISIBLE);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mBtnImport.setClickable(false);
+					mTvImport.setTextColor(Color.GRAY);
+					if(mPrintType == PRINT_TYPE_UPWARD_CNT || mPrintType == PRINT_TYPE_DWWARD_CNT) {
+						mTVPrinting.setVisibility(View.GONE);
+						mTVCntPrinting.setVisibility(View.VISIBLE);
+					}
+				}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 				mTVStopped.setVisibility(View.GONE);
 // 2020-7-21 取消打印状态下清洗按钮无效的设置
 //				mBtnClean.setEnabled(false);
@@ -2568,6 +2643,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mBtnOpenfile.setClickable(true);
 				mTvOpen.setTextColor(Color.BLACK);
 				mTVPrinting.setVisibility(View.GONE);
+// H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mBtnImport.setClickable(true);
+					mTvImport.setTextColor(Color.BLACK);
+					mTVCntPrinting.setVisibility(View.GONE);
+				}
+// End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 				mTVStopped.setVisibility(View.VISIBLE);
 // 2020-7-21 取消打印状态下清洗按钮无效的设置
 //				mBtnClean.setEnabled(true);
@@ -2986,14 +3068,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				break;
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			case R.id.upward_cnt_print:
-				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
-					mPrintType = PRINT_TYPE_UPWARD_CNT;
-				}
-				break;
 			case R.id.downward_cnt_print:
-				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+				thread = DataTransferThread.getInstance(mContext);
+				if(thread.isPurging) {
+					ToastUtil.show(mContext, R.string.str_under_purging);
+					break;
+				}
+				if(v.getId() == R.id.upward_cnt_print) {
+					mPrintType = PRINT_TYPE_UPWARD_CNT;
+				} else {
 					mPrintType = PRINT_TYPE_DWWARD_CNT;
 				}
+				mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
+				break;
+			case R.id.btnTransfer:
+				((MainActivity) getActivity()).onImportMsgClicked();
 				break;
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			default:
@@ -4308,6 +4397,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-11-18 cmdStatus=2,表示打印完成，msg里面放mCounter
 			}
 // End of H.M.Wang 2020-8-13 追加串口7协议
+// H.M.Wang 2023-7-6 增加一个用户定义界面模式，支持向上连续打印和向下连续打印
+			if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+				if(mPrintType == PRINT_TYPE_UPWARD_CNT) {
+					loadMessage(false);
+				} else if(mPrintType == PRINT_TYPE_DWWARD_CNT) {
+					loadMessage(true);
+				}
+			}
+// End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 		}
 
 // H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
