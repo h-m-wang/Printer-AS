@@ -1314,7 +1314,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
 		}
 
-		boolean valid = true;
+		boolean valid = !(null != mDTransThread && mDTransThread.isRunning());
 		for(int i=0; i<heads; i++) {
 			float ink = mInkManager.getLocalInkPercentage(i);
 			float count = mInkManager.getLocalInk(i) - 1;
@@ -2109,7 +2109,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						handleError(R.string.str_toast_no_bin, pcMsg);
 						break;
 					}
-					Debug.d(TAG, "--->finish TrheadId=" + Thread.currentThread().getId());
+					Debug.d(TAG, "--->finish ThreadId=" + Thread.currentThread().getId());
 					handlerSuccess(R.string.str_print_startok, pcMsg);
 					break;
 				case MESSAGE_PRINT_STOP:
@@ -3082,7 +3082,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
 				break;
 			case R.id.btnTransfer:
-				((MainActivity) getActivity()).onImportMsgClicked();
+				((MainActivity) getActivity()).showImportDialog();
 				break;
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			default:

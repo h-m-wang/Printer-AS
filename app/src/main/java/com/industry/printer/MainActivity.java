@@ -1120,10 +1120,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			mEditSmallTab.openObjectDirectly(objPath);
 		}
 	}
-
-	public void onImportMsgClicked() {
-		msgImportOnly();
-	}
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 
 	public static final int USB_STORAGE_ATTACHED = 0;
@@ -1364,7 +1360,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	
 	private ImportDialog mImportDialog;
 	
-	private void showImportDialog() {
+	public void showImportDialog() {
 		if (mImportDialog == null) {
 			mImportDialog = new ImportDialog(this);
 		}
