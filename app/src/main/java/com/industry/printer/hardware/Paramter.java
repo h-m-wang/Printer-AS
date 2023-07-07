@@ -215,10 +215,12 @@ public class Paramter {
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项
 //		mFPGAParam[23] = param[SystemConfigFile.INDEX_NOZZLE_WARMING] == 0 ? (mFPGAParam[23] & 0xFFFD) : (mFPGAParam[23] | 0x0002);
 		mFPGAParam[10] = (param[SystemConfigFile.INDEX_WARM_LIMIT] & 0x07);
+// 2023-7-7 恢复到原来的算式：(param[SystemConfigFile.INDEX_WARMING]/2)
 // 2023-2-23 修改计算公式，改为 C63 = (param[SystemConfigFile.INDEX_WARMING] - 7)/2，但不能为负数
-//		mFPGAParam[10] += (((param[SystemConfigFile.INDEX_WARMING]/2) << 3) & 0x0F8);
-		mFPGAParam[10] += (((Math.max(0, param[SystemConfigFile.INDEX_WARMING] - 7)/2) << 3) & 0x0F8);
+		mFPGAParam[10] += (((param[SystemConfigFile.INDEX_WARMING]/2) << 3) & 0x0F8);
+//		mFPGAParam[10] += (((Math.max(0, param[SystemConfigFile.INDEX_WARMING] - 7)/2) << 3) & 0x0F8);
 // End of 2023-2-23 修改计算公式，改为 C63 = (param[SystemConfigFile.INDEX_WARMING] - 7)/2，但不能为负数
+// End of 2023-7-7 恢复到原来的算式：(param[SystemConfigFile.INDEX_WARMING]/2)
 // End of H.M.Wang 2022-8-25 追加喷嘴加热参数项
 // End of H.M.Wang 2023-2-4 修改参数C62和参数C63
 
