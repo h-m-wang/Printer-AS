@@ -1289,7 +1289,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			// setScreenBrightness(50);
 			break;
 		case R.id.settings_view:
-			Debug.e(TAG, "settings_view Clicked! " + (System.currentTimeMillis() - mLastClick));
+//			Debug.e(TAG, "settings_view Clicked! " + (System.currentTimeMillis() - mLastClick));
 			if(System.currentTimeMillis() - mLastClick > 1000) {
 // H.M.Wang 2022-5-5 点击题目条空白处，关闭软键盘
 				try {

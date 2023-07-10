@@ -851,13 +851,11 @@ public class GpioTestPopWindow {
                         case HP22MM_WRITE_SPIFPGA:
                             ExtGpio.writeGpioTestPin('I', 7, 0);
                             ExtGpio.writeGpioTestPin('I', 9, 0);
-//                            ExtGpio.writeGpioTestPin('I', 4, 0);
-                            if (0 == FpgaGpioOperation.clearFIFO()) {
+                            if (0 == FpgaGpioOperation.updateFlash()) {
                                 mHp22mmTestResult[index] = "Success";
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
-//                            ExtGpio.writeGpioTestPin('I', 4, 1);
                             ExtGpio.writeGpioTestPin('I', 9, 1);
                             ExtGpio.writeGpioTestPin('I', 7, 1);
                             break;

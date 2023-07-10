@@ -77,6 +77,9 @@ public class FpgaGpioOperation {
     public static final int FPGA_STATE_RESERVED = 0x02;
     public static final int FPGA_STATE_CLEAN = 0x03;
     public static final int FPGA_STATE_PURGE = 0x05;
+// H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
+    public static final int FPGA_STATE_UPDATE_FLASH = 0x06;
+// End of H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
 
     public static final String FPGA_DRIVER_FILE = "/dev/fpga-gpio";
     public static int mFd = 0;
@@ -798,9 +801,18 @@ public class FpgaGpioOperation {
     public static int clearFIFO() {
         int fd = open();
         if (fd > 0) {
-//            Debug.d(TAG, "FPGA_CMD_CLEAR_FIFO");
-//            return ioctl(fd, FPGA_CMD_CLEAR_FIFO, 0);
-            File file = null;
+            Debug.d(TAG, "FPGA_CMD_CLEAR_FIFO");
+            return ioctl(fd, FPGA_CMD_CLEAR_FIFO, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+// H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
+    public static int updateFlash() {
+        int ret = 0;
+        int fd = open();
+        if (fd > 0) {
+            File file;
             try {
                 file = new File(Configs.CONFIG_PATH_FLASH + "/aaa.bin");
                 FileInputStream fis = new FileInputStream(file);
@@ -810,8 +822,8 @@ public class FpgaGpioOperation {
                 for(int i=0; i<cbuf.length; i++) {
                     cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
                 }
-                ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
-                write(fd, cbuf, cbuf.length*2);
+                ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+                ret = write(fd, cbuf, cbuf.length*2);
                 fis.close();
             } catch (Exception e) {
                 Debug.d(TAG, ""+e.getMessage());
@@ -824,8 +836,8 @@ public class FpgaGpioOperation {
                     for(int i=0; i<cbuf.length; i++) {
                         cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
                     }
-                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
-                    write(fd, cbuf, buffer.length);
+                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+                    ret = write(fd, cbuf, buffer.length);
                     fis.close();
                 } catch (Exception e1) {
                     ExtGpio.playClick();
@@ -838,7 +850,7 @@ public class FpgaGpioOperation {
                 }
             }
         }
-        return 0;
+        return (ret == 0 ? -1 : 0);
     }
-// End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+// End of H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
 }
