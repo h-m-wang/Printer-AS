@@ -92,6 +92,7 @@ import com.industry.printer.ui.CustomerDialog.ImportDialog;
 import com.industry.printer.ui.CustomerDialog.ImportDialog.IListener;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
+import com.industry.printer.ui.FuncTest.TestMainPage;
 import com.industry.printer.ui.GpioTestPopWindow;
 
 public class MainActivity extends Activity implements OnCheckedChangeListener, OnTouchListener, OnClickListener {
@@ -1313,6 +1314,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				mClickCount = 0;
 				GpioTestPopWindow gtp = new GpioTestPopWindow(MainActivity.this);
 				gtp.show(mSettings);
+//				TestMainPage tmp = new TestMainPage(MainActivity.this);
+//				tmp.show(mSettings);
 			}
 			break;
 		default:
