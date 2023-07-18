@@ -3,6 +3,7 @@ package com.industry.printer.hardware;
 import android.content.Context;
 
 import com.industry.printer.BinInfo;
+import com.industry.printer.DataTransferThread;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
@@ -682,6 +683,14 @@ public class FpgaGpioOperation {
 //        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
 // End of H.W.Wang 2022-3-17 暂时取消CLEAN设置
 // End of H.M.Wang 2022-3-12 设置之后恢复CLEAN（双高）
+// H.M.Wang 2023-7-15 这个下发， 打印中也会。打印中， 回打印，停止中， 回停止，
+        DataTransferThread dt = DataTransferThread.mInstance;
+        if(null != dt && dt.isRunning()) {
+            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
+        } else {
+            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
+        }
+// End of H.M.Wang 2023-7-15 这个下发， 打印中也会。打印中， 回打印，停止中， 回停止，
     }
 
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换

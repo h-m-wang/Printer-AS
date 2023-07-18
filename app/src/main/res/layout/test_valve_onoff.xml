@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background" >
+    <RelativeLayout
+        android:id="@+id/title_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" >
+        <TextView
+            android:id="@+id/btn_quit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:layout_alignParentLeft="true"
+            android:textSize="30sp"
+            android:background="@color/button_background"
+            android:text="@string/str_quit"
+            android:textColor="@color/black"
+            android:gravity="center" />
+        <TextView
+            android:id="@+id/test_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btn_quit"
+            android:layout_margin="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textSize="30sp"
+            android:textColor="@color/white"
+            android:gravity="center" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/sc_valve_test_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/title_area"
+        android:paddingTop="40dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/sc_valve1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/gray"
+            android:padding="10dp"
+            android:gravity="center"
+            android:text="Valve1"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            />
+        <TextView
+            android:id="@+id/sc_valve2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/gray"
+            android:padding="10dp"
+            android:gravity="center"
+            android:text="Valve2"
+            android:textColor="@color/white"
+            android:textSize="30dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:gravity="center"
+            android:text="Disconnect pen before test valve!"
+            android:textColor="@color/red"
+            android:textSize="30dp"
+            />
+    </LinearLayout>
+</RelativeLayout>

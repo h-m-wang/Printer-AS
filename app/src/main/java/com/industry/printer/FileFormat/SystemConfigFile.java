@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.industry.printer.Serial.EC_DOD_Protocol;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.RTCDevice;

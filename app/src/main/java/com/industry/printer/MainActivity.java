@@ -1,19 +1,14 @@
 package com.industry.printer;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -82,18 +77,14 @@ import com.industry.printer.Utils.ZipUtil;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
-import com.industry.printer.hardware.Hp22mm;
-import com.industry.printer.object.BaseObject;
-import com.industry.printer.object.HyperTextObject;
-import com.industry.printer.object.MessageObject;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
 import com.industry.printer.ui.CustomerDialog.ImportDialog.IListener;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
-import com.industry.printer.ui.FuncTest.TestMainPage;
 import com.industry.printer.ui.GpioTestPopWindow;
+import com.industry.printer.ui.Test.TestMain;
 
 public class MainActivity extends Activity implements OnCheckedChangeListener, OnTouchListener, OnClickListener {
 
@@ -799,7 +790,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public void onResume() {
 		super.onResume();
 		mHander.removeMessages(ENTER_LOWLIGHT_MODE);
-		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 10*1000);
+		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60*1000);
 	}
 	
 	public void drawObjects()
@@ -1206,7 +1197,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				break;
 			case QUIT_LOWLIGHT_MODE:
 				mHander.removeMessages(ENTER_LOWLIGHT_MODE);
-				mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 10 * 1000);
+				mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
 				break;
 			default:
 				break;
@@ -1235,15 +1226,15 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			Debug.d(TAG, "--->dispatch down event");
-			Debug.d(TAG, "--->onTouch：" + event.getX() + ", " + event.getY());
+//			Debug.d(TAG, "--->dispatch down event");
+//			Debug.d(TAG, "--->onTouch：" + event.getX() + ", " + event.getY());
 			setScreenBrightness(false);
 		}
 		return super.dispatchTouchEvent(event);
 	}
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
-		Debug.d(TAG, "--->onTouch：" + event.getX() + ", " + event.getY());
+//		Debug.d(TAG, "--->onTouch：" + event.getX() + ", " + event.getY());
 		switch(view.getId()) {
 		case R.id.btn_control:
 		case R.id.btn_edit:
@@ -1312,10 +1303,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 			if(mClickCount >= 5) {
 				mClickCount = 0;
-				GpioTestPopWindow gtp = new GpioTestPopWindow(MainActivity.this);
-				gtp.show(mSettings);
-//				TestMainPage tmp = new TestMainPage(MainActivity.this);
-//				tmp.show(mSettings);
+//				GpioTestPopWindow gtp = new GpioTestPopWindow(MainActivity.this);
+//				gtp.show(mSettings);
+				TestMain tmp = new TestMain(MainActivity.this);
+				tmp.show(mSettings);
 			}
 			break;
 		default:
@@ -1855,7 +1846,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			Debug.d(TAG, "--->setScreenBrightness. save == false");
 			mHander.removeMessages(ENTER_LOWLIGHT_MODE);
 //			mHander.removeMessages(ENTER_SCREENSAVE_MODE);
-			mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 10 * 1000);
+			mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
 		} else {
 			Debug.d(TAG, "--->setScreenBrightness. save == true");
 			mHander.removeMessages(ENTER_LOWLIGHT_MODE);
@@ -1867,6 +1858,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mScreensaveMode = save;
 		SystemConfigFile config = SystemConfigFile.getInstance(mContext);
 		float percent = config.getParam(SystemConfigFile.INDEX_LIGHTNESS) / 100.0f;
+// H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
+		String info = PlatformInfo.getImgUniqueCode();
+		if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2")) {
+			percent = 0.5f;
+		}
+// End of H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
 		int brightness = mScreensaveMode ? (int)(255 * percent) : 255;
 		Window window = getWindow();
 		WindowManager.LayoutParams localLP = window.getAttributes();
@@ -1875,7 +1872,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		localLP.screenBrightness = f;
 		window.setAttributes(localLP);
 	}
-
 
 	public Bitmap getActivityBitmap(Activity activity) {
 		// 获取windows中最顶层的view

@@ -10,6 +10,7 @@ import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.R;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.RTCDevice;
 import com.industry.printer.ui.CustomerAdapter.PopWindowAdapter.IOnItemClickListener;
 import com.industry.printer.ui.CustomerDialog.CounterEditDialog;
@@ -539,6 +540,15 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mHolder.mValueRTv.setVisibility(View.GONE);
 			mHolder.mValueREt.setVisibility(View.VISIBLE);
 			mHolder.mValueREt.setText(mSettingItems[2*position+1].getDisplayValue());
+// H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
+			if(2*position + 1 == 43) {
+				String info = PlatformInfo.getImgUniqueCode();
+				if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2")) {
+					mHolder.mValueREt.setEnabled(false);
+					mHolder.mValueREt.setText("50");
+				}
+			}
+// End of H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
 		}
 
 		return convertView;

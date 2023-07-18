@@ -23,12 +23,29 @@
             android:text="@string/str_quit"
             android:textColor="@color/black"
             android:gravity="center" />
+        <TextView
+            android:id="@+id/test_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/btn_quit"
+            android:layout_margin="5dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textSize="30sp"
+            android:textColor="@color/white"
+            android:gravity="center" />
     </RelativeLayout>
-    <FrameLayout
+    <ListView
+        android:id="@+id/test_main_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/title_area"
-        android:background="@color/green"
-        android:layout_margin="10dp">
-    </FrameLayout>
+        android:layout_margin="10dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@color/transparent"
+        android:divider="@color/background"
+        android:dividerHeight="10dp" />
 </RelativeLayout>
