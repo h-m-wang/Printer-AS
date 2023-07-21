@@ -9,10 +9,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.industry.printer.R;
+import com.industry.printer.Utils.Debug;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCardManager;
@@ -20,15 +23,19 @@ import com.industry.printer.hardware.SmartCardManager;
 /*
   读取100次Level1和Level2的值的测试，每读4次，关闭一次Level，第5次读后，再开启
  */
-public class TestReadLevel {
+public class TestReadLevel implements ITestOperation {
     public static final String TAG = TestReadLevel.class.getSimpleName();
 
     private Context mContext = null;
-    private PopupWindow mPopupWindow = null;
+    private FrameLayout mContainer = null;
+    private ScrollView mTestAreaSV = null;
+
     private int mSubIndex = 0;
     private IInkDevice mSCManager;
 
     private TextView mTestResult;
+
+    private final String TITLE = "Read Level Test";
 
     private final int MSG_SHOW_TEST_RESULT = 107;
 
@@ -49,36 +56,12 @@ public class TestReadLevel {
         mSCManager = InkManagerFactory.inkManager(mContext);
     }
 
-    public void show(final View v) {
-        if (null == mContext) {
-            return;
-        }
+    @Override
+    public void show(FrameLayout f) {
+        mContainer = f;
 
-        View popupView = LayoutInflater.from(mContext).inflate(R.layout.test_level, null);
-
-        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
-        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.update();
-
-        TextView quitTV = (TextView)popupView.findViewById(R.id.btn_quit);
-        quitTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                if(mSCManager instanceof SmartCardManager) {
-                    ((SmartCardManager)mSCManager).stopLevelTest();
-                }
-                TestSub tmp = new TestSub(mContext, mSubIndex);
-                tmp.show(v);
-            }
-        });
-
-        TextView titleTV = (TextView)popupView.findViewById(R.id.test_title);
-        titleTV.setText("Read Level Test");
-
-        mTestResult = (TextView)popupView.findViewById(R.id.test_result);
+        mTestAreaSV = (ScrollView)LayoutInflater.from(mContext).inflate(R.layout.test_level, null);
+        mTestResult = (TextView)mTestAreaSV.findViewById(R.id.test_result);
 
         if(mSCManager instanceof SmartCardManager) {
             ((SmartCardManager)mSCManager).startLevelTest(new SmartCardManager.SCTestListener() {
@@ -105,7 +88,20 @@ public class TestReadLevel {
             mHandler.sendMessage(msg);
         }
 
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
+        mContainer.addView(mTestAreaSV);
     }
 
+    @Override
+    public void setTitle(TextView tv) {
+        tv.setText(TITLE);
+    }
+
+    @Override
+    public boolean quit() {
+        if(mSCManager instanceof SmartCardManager) {
+            ((SmartCardManager)mSCManager).stopLevelTest();
+        }
+        mContainer.removeView(mTestAreaSV);
+        return true;
+    }
 }

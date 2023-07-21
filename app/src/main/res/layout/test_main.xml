@@ -37,15 +37,20 @@
             android:textColor="@color/white"
             android:gravity="center" />
     </RelativeLayout>
-    <ListView
-        android:id="@+id/test_main_menu"
+    <FrameLayout
+        android:id="@+id/client_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/title_area"
-        android:layout_margin="10dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:background="@color/transparent"
-        android:divider="@color/background"
-        android:dividerHeight="10dp" />
+        android:layout_margin="10dp">
+        <ListView
+            android:id="@+id/test_main_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:background="@color/background"
+            android:divider="@color/background"
+            android:dividerHeight="10dp" />
+    </FrameLayout>
 </RelativeLayout>

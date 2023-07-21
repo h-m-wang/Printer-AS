@@ -20,6 +20,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -27,6 +28,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
+@Deprecated
 public class CommonSelectDialog extends Dialog implements android.view.View.OnClickListener, OnItemClickListener {
 
 	private Context mContext;
@@ -41,7 +43,10 @@ public class CommonSelectDialog extends Dialog implements android.view.View.OnCl
 	private int mLayoutId;
 	
 	public CommonSelectDialog(Context context, Handler handler, int layout) {
-		super(context, R.style.Dialog_Fullscreen);
+// H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+//		super(context, R.style.Dialog_Fullscreen);
+		super(context);
+// End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 		mContext = context;
 		mHandler = handler;
 		mLayoutId = layout;
@@ -53,7 +58,15 @@ public class CommonSelectDialog extends Dialog implements android.view.View.OnCl
 	    super.onCreate(savedInstanceState);
 	    this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 	    this.setContentView(mLayoutId);
-	    
+
+// H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+		lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+		getWindow().setAttributes(lp);
+// End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+
 	    mOk = (TextView) findViewById(R.id.confirm);
 	    mCancel = (TextView) findViewById(R.id.cancel);
 	    

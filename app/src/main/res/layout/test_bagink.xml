@@ -3,41 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background" >
-    <RelativeLayout
-        android:id="@+id/title_area"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" >
-        <TextView
-            android:id="@+id/btn_quit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:layout_alignParentLeft="true"
-            android:textSize="30sp"
-            android:background="@color/button_background"
-            android:text="@string/str_quit"
-            android:textColor="@color/black"
-            android:gravity="center" />
-        <TextView
-            android:id="@+id/test_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/btn_quit"
-            android:layout_margin="5dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textSize="30sp"
-            android:textColor="@color/white"
-            android:gravity="center" />
-    </RelativeLayout>
-    <!-- H.M.Wang 2022-11-02 增加Bagink的测试 -->
     <LinearLayout
         android:id="@+id/bagink_test_area"
         android:layout_width="match_parent"
@@ -212,7 +177,6 @@
                 />
         </LinearLayout>
     </LinearLayout>
-    <!-- End of H.M.Wang 2022-11-02 增加Bagink的测试 -->
     <LinearLayout
         android:id="@+id/additional_test"
         android:layout_width="wrap_content"

@@ -9,8 +9,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.industry.printer.R;
@@ -18,15 +20,18 @@ import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.SmartCardManager;
 
 /*
   测试8个输出口（写）和8个输入口（读）的电平变化
  */
-public class TestGpioPins {
+public class TestGpioPins implements ITestOperation {
     public static final String TAG = TestGpioPins.class.getSimpleName();
 
     private Context mContext = null;
-    private PopupWindow mPopupWindow = null;
+    private FrameLayout mContainer = null;
+    private LinearLayout mTestAreaLL = null;
+
     private int mSubIndex = 0;
 
     String[] IN_PINS = new String[] {
@@ -48,6 +53,8 @@ public class TestGpioPins {
     private LinearLayout mInPinLayout = null;
     private TextView[] mOutPins = null;
     private TextView[] mInPins = null;
+
+    private final String TITLE = "GPIO Pin Test";
 
     private final int MSG_PINSTEST_NEXT = 103;
     private final int MSG_TERMINATE_TEST = 105;
@@ -78,33 +85,13 @@ public class TestGpioPins {
         mSubIndex = index;
     }
 
-    public void show(final View v) {
-        if (null == mContext) {
-            return;
-        }
+    @Override
+    public void show(FrameLayout f) {
+        mContainer = f;
 
-        View popupView = LayoutInflater.from(mContext).inflate(R.layout.test_gpio_pins, null);
+        mTestAreaLL = (LinearLayout)LayoutInflater.from(mContext).inflate(R.layout.test_gpio_pins, null);
 
-        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
-        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.update();
-
-        TextView quitTV = (TextView)popupView.findViewById(R.id.btn_quit);
-        quitTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                TestSub tmp = new TestSub(mContext, mSubIndex);
-                tmp.show(v);
-            }
-        });
-
-        TextView titleTV = (TextView)popupView.findViewById(R.id.test_title);
-        titleTV.setText("GPIO Pin Test");
-
-        mOutPinLayout = (LinearLayout) popupView.findViewById(R.id.out_pin_area);
+        mOutPinLayout = (LinearLayout) mTestAreaLL.findViewById(R.id.out_pin_area);
         mOutPins = new TextView[OUT_PINS.length];
         for(int i=0; i<OUT_PINS.length; i++) {
             TextView tv = new TextView(mContext);
@@ -124,7 +111,7 @@ public class TestGpioPins {
             mOutPins[i] = tv;
         }
 
-        mInPinLayout = (LinearLayout) popupView.findViewById(R.id.in_pin_area);
+        mInPinLayout = (LinearLayout) mTestAreaLL.findViewById(R.id.in_pin_area);
         mInPins = new TextView[IN_PINS.length];
         for(int i=0; i<IN_PINS.length; i++) {
             TextView tv = new TextView(mContext);
@@ -143,7 +130,8 @@ public class TestGpioPins {
             mInPinLayout.addView(tv);
             mInPins[i] = tv;
         }
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
+
+        mContainer.addView(mTestAreaLL);
 
         resetOutPins();
         resetInPins();
@@ -151,6 +139,17 @@ public class TestGpioPins {
         mCurrentOutPin = 0;
         mAutoTest = true;
         mHandler.sendEmptyMessage(MSG_PINSTEST_NEXT);
+    }
+
+    @Override
+    public void setTitle(TextView tv) {
+        tv.setText(TITLE);
+    }
+
+    @Override
+    public boolean quit() {
+        mContainer.removeView(mTestAreaLL);
+        return true;
     }
 
     private View.OnClickListener mOutPinBtnClickListener = new View.OnClickListener(){
@@ -270,5 +269,4 @@ public class TestGpioPins {
             mInPins[index].setBackgroundColor(COLOR_ENABLED);
         }
     }
-
 }

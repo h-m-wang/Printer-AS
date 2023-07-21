@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -45,7 +46,11 @@ public class MessageGroupsortDialog extends CustomerDialogBase implements View.O
     private ArrayList<Integer> mDispIndex = null;
 
     public MessageGroupsortDialog(Context context, ArrayList<String> tlks) {
-        super(context, R.style.Dialog_Fullscreen);
+// H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+// 这里不指定Theme，然后在onCreate函数中通过指定Layout为Match_Parent的方法，既可以达到全屏的效果，也可以避免变暗
+//		super(context, R.style.Dialog_Fullscreen);
+        super(context);
+// End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 
 ////        if (tlks != null) {
 ////            for (String t : tlks) {
@@ -86,6 +91,14 @@ public class MessageGroupsortDialog extends CustomerDialogBase implements View.O
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.setContentView(R.layout.group_sort_layout);
+
+// H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        getWindow().setAttributes(lp);
+// End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 
         mDown = (ImageButton) findViewById(R.id.move_down);
         mDown.setOnClickListener(this);

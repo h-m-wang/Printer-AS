@@ -13,8 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.industry.printer.R;
@@ -32,56 +34,47 @@ import java.util.ArrayList;
 /*
   墨袋减锁实验，每点击一次DO，检索一次
  */
-public class TestBagink {
+public class TestBagink implements ITestOperation {
     public static final String TAG = TestBagink.class.getSimpleName();
 
     private Context mContext = null;
-    private PopupWindow mPopupWindow = null;
-    private int mSubIndex = 0;
-    private IInkDevice mSCManager;
+    private FrameLayout mContainer = null;
+    private RelativeLayout mTestAreaRL = null;
 
-    private TextView mTestResult;
+    private int mSubIndex = 0;
+
+    private final String TITLE = "Bagink Test";
 
     public TestBagink(Context ctx, int index) {
         mContext = ctx;
         mSubIndex = index;
-        mSCManager = InkManagerFactory.inkManager(mContext);
     }
 
-    public void show(final View v) {
-        if (null == mContext) {
-            return;
-        }
+    @Override
+    public void show(FrameLayout f) {
+        mContainer = f;
 
-        View popupView = LayoutInflater.from(mContext).inflate(R.layout.test_bagink, null);
-
-        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
-        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.update();
-
-        TextView quitTV = (TextView)popupView.findViewById(R.id.btn_quit);
-        quitTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                TestSub tmp = new TestSub(mContext, mSubIndex);
-                tmp.show(v);
-            }
-        });
-
-        TextView titleTV = (TextView)popupView.findViewById(R.id.test_title);
-        titleTV.setText("Bagink Test");
+        mTestAreaRL = (RelativeLayout) LayoutInflater.from(mContext).inflate(R.layout.test_bagink, null);
 
         mBaginkTest = new BaginkTest[] {
-                new BaginkTest(popupView, 0),
-                new BaginkTest(popupView, 1),
-                new BaginkTest(popupView, 2),
-                new BaginkTest(popupView, 3)
+                new BaginkTest(mTestAreaRL, 0),
+                new BaginkTest(mTestAreaRL, 1),
+                new BaginkTest(mTestAreaRL, 2),
+                new BaginkTest(mTestAreaRL, 3)
         };
 
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
+        mContainer.addView(mTestAreaRL);
+    }
+
+    @Override
+    public void setTitle(TextView tv) {
+        tv.setText(TITLE);
+    }
+
+    @Override
+    public boolean quit() {
+        mContainer.removeView(mTestAreaRL);
+        return true;
     }
 
     private final int mBaginkLevelResIDs[] = new int[] {R.id.bagink_level1, R.id.bagink_level2, R.id.bagink_level3, R.id.bagink_level4};

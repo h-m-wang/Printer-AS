@@ -22,11 +22,18 @@ public class TestMain {
 
     private Context mContext = null;
     private PopupWindow mPopupWindow = null;
+//    private TextView mQuitBtnTV = null;
+    private TextView mTitleTV = null;
+    private FrameLayout mClientAreaFL = null;
+    private ListView mMainMenuLV = null;
+    private ITestOperation mIFTestOp = null;
 
+    private final String TITLE = "";
     private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
 
     public TestMain(Context ctx) {
         mContext = ctx;
+        mIFTestOp = null;
     }
 
     public void show(final View v) {
@@ -46,15 +53,25 @@ public class TestMain {
         quitTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPopupWindow.dismiss();
+                if(null != mIFTestOp) {
+                    if(mIFTestOp.quit()) {
+                        mMainMenuLV.setVisibility(View.VISIBLE);
+                        mTitleTV.setText(TITLE);
+                        mIFTestOp = null;
+                    }
+                } else {
+                    mPopupWindow.dismiss();
+                }
             }
         });
 
-        TextView titleTV = (TextView)popupView.findViewById(R.id.test_title);
-        titleTV.setText("");
+        mTitleTV = (TextView)popupView.findViewById(R.id.test_title);
+        mTitleTV.setText(TITLE);
 
-        ListView testMainMenu = (ListView) popupView.findViewById(R.id.test_main_menu);
-        testMainMenu.setAdapter(new BaseAdapter() {
+        mClientAreaFL = (FrameLayout) popupView.findViewById(R.id.client_area);
+
+        mMainMenuLV = (ListView) popupView.findViewById(R.id.test_main_menu);
+        mMainMenuLV.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {
                 return MAIN_TEST_ITEMS.length;
@@ -82,11 +99,14 @@ public class TestMain {
                 return convertView;
             }
         });
-        testMainMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        mMainMenuLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                TestSub tmp = new TestSub(mContext, i);
-                tmp.show(v);
+                mIFTestOp = new TestSub(mContext, i);
+                mIFTestOp.show(mClientAreaFL);
+                mIFTestOp.setTitle(mTitleTV);
+                mMainMenuLV.setVisibility(View.GONE);
             }
         });
 

@@ -141,6 +141,21 @@ public class PackageInstaller {
 	}
 // End of H.M.Wang 2022-5-26 USB授权信息检查。
 
+// H.M.Wang 2023-7-20 最新的升级条件整理，待修改
+/*	旧版：abcde
+	新版：abcde00xxxx（xxxx不等于1111）
+	特殊版：abcde00xxxx（xxxx等于1111）
+
+	升级条件
+	旧版 -> 旧版及新版   ： 无条件升级
+	旧版 -> 特殊版 ：无条件升级
+	新版 -> 旧版  ： 禁止升级
+	新版 -> 新版  ： （原来条件）后四位码一致的可以升级
+	新版 -> 特殊版 ： 核实文件+网卡(位置文件：79[原来的]，105  211 487[吕加的]，731[我加的，否则不够5个]，等5个。MAC地址保存在105文件中，或者105文件以MAC的MD5为文件名)
+	特殊版 -> 任何版本  ： 无条件升级
+*/
+// End of H.M.Wang 2023-7-20 最新的升级条件整理，待修改
+
 	public boolean silentUpgrade2() {
 		int curVersion = 0;
 		final String pkName = mContext.getPackageName();

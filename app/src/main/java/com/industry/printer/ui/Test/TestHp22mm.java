@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -30,19 +31,19 @@ import com.industry.printer.hardware.SmartCardManager;
 /*
   墨袋减锁实验，每点击一次DO，减锁一次
  */
-public class TestHp22mm {
+public class TestHp22mm implements ITestOperation {
     public static final String TAG = TestHp22mm.class.getSimpleName();
 
     private Context mContext = null;
-    private PopupWindow mPopupWindow = null;
-    private int mSubIndex = 0;
-    private IInkDevice mSCManager;
-
-    private TextView mTestResult;
+    private FrameLayout mContainer = null;
     private ListView mHp22mmTestLV = null;
+
+    private int mSubIndex = 0;
 
     private int mIDSIdx = 1;
     private int mPENIdx = 0;
+
+    private final String TITLE = "Hp22mm Test";
 
     // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private String[] HP22MM_TEST_ITEMS = new String[] {
@@ -130,36 +131,13 @@ public class TestHp22mm {
     public TestHp22mm(Context ctx, int index) {
         mContext = ctx;
         mSubIndex = index;
-        mSCManager = InkManagerFactory.inkManager(mContext);
     }
 
-    public void show(final View v) {
-        if (null == mContext) {
-            return;
-        }
+    @Override
+    public void show(FrameLayout f) {
+        mContainer = f;
 
-        View popupView = LayoutInflater.from(mContext).inflate(R.layout.test_hp22mm, null);
-
-        mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
-        mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setTouchable(true);
-        mPopupWindow.update();
-
-        TextView quitTV = (TextView)popupView.findViewById(R.id.btn_quit);
-        quitTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPopupWindow.dismiss();
-                TestSub tmp = new TestSub(mContext, mSubIndex);
-                tmp.show(v);
-            }
-        });
-
-        TextView titleTV = (TextView)popupView.findViewById(R.id.test_title);
-        titleTV.setText("Hp22mm Test");
-
-        mHp22mmTestLV = (ListView) popupView.findViewById(R.id.lv_hp22mm_test);
+        mHp22mmTestLV = (ListView)LayoutInflater.from(mContext).inflate(R.layout.test_hp22mm, null);
         mHp22mmTestLV.setAdapter(new BaseAdapter() {
             @Override
             public int getCount() {
@@ -195,7 +173,7 @@ public class TestHp22mm {
             }
         });
 
-        mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
+        mContainer.addView(mHp22mmTestLV);
     }
 
     private void dispHp22mmTestItem(View view) {
@@ -568,5 +546,16 @@ public class TestHp22mm {
                 }
             }
         }).start();
+    }
+
+    @Override
+    public void setTitle(TextView tv) {
+        tv.setText(TITLE);
+    }
+
+    @Override
+    public boolean quit() {
+        mContainer.removeView(mHp22mmTestLV);
+        return true;
     }
 }

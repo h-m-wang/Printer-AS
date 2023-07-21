@@ -790,7 +790,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public void onResume() {
 		super.onResume();
 		mHander.removeMessages(ENTER_LOWLIGHT_MODE);
-		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60*1000);
+		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 0*1000);
 	}
 	
 	public void drawObjects()

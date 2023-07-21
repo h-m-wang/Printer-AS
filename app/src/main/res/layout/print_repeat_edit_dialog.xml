@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/background" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+	android:orientation="vertical" >
 
 	<TextView
-		android:id="@+id/ceTitle"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="30dp"
+		android:layout_marginTop="5dp"
 		android:lines="1"
 		android:text="@string/strPrintRepeatEditTitle"
 		android:textColor="@color/black"
@@ -16,24 +16,23 @@
 		android:textSize="30sp" />
 
 	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/ceTitle"
-		android:layout_margin="24dp"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:layout_margin="5dp"
 		android:orientation="vertical" >
 		<EditText
 			android:id="@+id/printRepeatEdit"
-			android:layout_width="fill_parent"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:layout_gravity="center"
 			android:inputType="number"
 			android:textSize="30sp" />
 	</LinearLayout>
 
 	<LinearLayout
-		android:id="@+id/buttons"
 		android:layout_width="match_parent"
 		android:layout_height="60dp"
-		android:layout_alignParentBottom="true"
 		android:divider="@drawable/divider"
 		android:showDividers="middle"
 		android:orientation="horizontal" >
@@ -61,4 +60,4 @@
 			android:text="@string/strNativeBtn"
 			/>
 	</LinearLayout>
-</RelativeLayout>
+</LinearLayout>
