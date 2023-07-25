@@ -250,7 +250,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		//FpgaGpioOperation.updateSettings(this.getApplicationContext());
 
 		initView();
-		Configs.initConfigs(mContext);
+//		Configs.initConfigs(mContext);
 		String sDev = DeviceInfosr(mContext);
 		if (sDev.indexOf("SoftwinerEvb") <= 0) {
 			Intent intent = new Intent(getApplicationContext(), Socket_Control_Activity.class);

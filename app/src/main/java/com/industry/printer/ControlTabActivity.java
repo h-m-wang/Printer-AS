@@ -993,7 +993,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
                     //     协议２：　
                     //            0x01：是打印开始停止
                     //     协议４：
-                    //            0x01：是打印“开始／停止”控制位。其中，打印开始停止实在apk里面处理的，方向控制是在img里面控制的
+                    //            0x01：是打印“开始／停止”控制位。其中，打印开始停止是在apk里面处理的，方向控制是在img里面控制的
                     if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_2 ||
                        mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
                         if((mInPinState & 0x01) != (newState & 0x01)) {		// 0x01位的前后值不一致
@@ -1261,6 +1261,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	}
 
+	@Deprecated
 	public void reloadSettingAndMessage() {
 		mSysconfig.init();
 		loadMessage();

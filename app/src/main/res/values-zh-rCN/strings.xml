@@ -16,6 +16,7 @@
 	<string name="str_btn_stop">停止</string>
 	<string name="str_btn_launch">启动</string>
 	<string name="str_btn_clean">清洗</string>
+	<string name="str_btn_sclean">短清洗</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">点击OK开始清洗</string>
 	<string name="str_clean_confirm">长清洗将持续大约5分钟，继续吗？</string>
@@ -55,6 +56,7 @@
 	<string name="str_tlkfile">打开Tlk文件</string>
 	<string name="str_binfile">打开Bin文件</string>
 	<string name="str_openfile">选择文件</string>
+	<string name="str_openmsg">选信息</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_opentemplate">选择模板</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->

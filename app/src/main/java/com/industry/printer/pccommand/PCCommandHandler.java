@@ -35,8 +35,10 @@ import com.industry.printer.ui.CustomerDialog.RemoteMsgPrompt;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,12 +56,36 @@ public class PCCommandHandler {
     private ControlTabActivity mControlTabActivity = null;
 
     private boolean mWorking = false;
+    private static RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
 
     public PCCommandHandler(Context ctx, StreamTransport st, ControlTabActivity act, Handler hdlr) {
         mContext = ctx;
         mStreamTransport = st;
         mControlTabActivity = act;
         myHandler = hdlr;
+        myHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(null == mRemoteRecvedPromptDlg) {
+                    mRemoteRecvedPromptDlg = new RemoteMsgPrompt(mContext);
+// H.M.Wang 2020-6-3 解决提示对话窗在显示时，扫码枪的信息被其劫持，而无法识别的问题
+                    mRemoteRecvedPromptDlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                        @Override
+                        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                            if(event.getAction() == KeyEvent.ACTION_DOWN) {
+                                if(keyCode == KeyEvent.KEYCODE_ENTER) {
+                                    return true;
+                                } else {
+                                    BarcodeScanParser.append(keyCode, event.isShiftPressed());
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                }
+// End of H.M.Wang 2020-6-3 解决提示对话窗在显示时，扫码枪的信息被其劫持，而无法识别的问题
+            }
+        });
     }
 
     public void work() {
@@ -96,26 +122,21 @@ public class PCCommandHandler {
             myHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    RemoteMsgPrompt mRemoteRecvedPromptDlg = new RemoteMsgPrompt(mContext);
-// H.M.Wang 2020-6-3 解决提示对话窗在显示时，扫码枪的信息被其劫持，而无法识别的问题
-                    mRemoteRecvedPromptDlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
-                        @Override
-                        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                            if(event.getAction() == KeyEvent.ACTION_DOWN) {
-                                if(keyCode == KeyEvent.KEYCODE_ENTER) {
-                                    return true;
-                                } else {
-                                    BarcodeScanParser.append(keyCode, event.isShiftPressed());
-                                }
-                            }
-                            return false;
-                        }
-                    });
-// End of H.M.Wang 2020-6-3 解决提示对话窗在显示时，扫码枪的信息被其劫持，而无法识别的问题
-                    mRemoteRecvedPromptDlg.show();		// 不知道为啥，hide之后，必须要show两次才能够及时显示出来
-                    mRemoteRecvedPromptDlg.setMessage(msg);
+                    if(null != mRemoteRecvedPromptDlg) {
+                        mRemoteRecvedPromptDlg.show();		// 不知道为啥，hide之后，必须要show两次才能够及时显示出来
+                        SimpleDateFormat sdf = new SimpleDateFormat("[mm:ss]\n");
+                        mRemoteRecvedPromptDlg.setMessage(sdf.format(new Date()) + msg);
+                    }
                 }
             });
+            myHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(null != mRemoteRecvedPromptDlg) {
+                        mRemoteRecvedPromptDlg.hide();
+                    }
+                }
+            }, 5000L);
         }
     }
 
@@ -165,6 +186,7 @@ public class PCCommandHandler {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
                 PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
                 if(pc_FIFO.PCFIFOEnabled()) {
+                    showPromptDlg(cmd.content);
                     if(pc_FIFO.appendToFIFO(cmd.content)) {
                         sendmsg(Constants.pcOk(msg));
                     } else {
@@ -206,6 +228,7 @@ public class PCCommandHandler {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
                 PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
                 if(pc_FIFO.PCFIFOEnabled()) {
+                    showPromptDlg(cmd.content);
                     if(pc_FIFO.appendToFIFO(cmd.content)) {
                         sendmsg(Constants.pcOk(msg));
                     } else {

@@ -1602,6 +1602,18 @@ private void setSerialProtocol9DTs(final String data) {
 
 		BarcodeScanParser.setListener(null);
 
+// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
+		if(TxtDT.getInstance(mContext).isTxtDT()) {
+			TxtDT.getInstance(mContext).stopPrint();
+		}
+// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
+// H.M.Wang 2023-7-24 停止打印时，清空PC_FIFO
+		PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
+		if(pc_FIFO.PCFIFOEnabled()) {
+			pc_FIFO.clearBuffer();
+		}
+// End of H.M.Wang 2023-7-24 停止打印时，清空PC_FIFO
+
 		PrintTask t = mPrinter;
 		mPrinter = null;
 		mHandler.removeMessages(MESSAGE_DATA_UPDATE);
@@ -1612,12 +1624,6 @@ private void setSerialProtocol9DTs(final String data) {
 			return;
 		}
 		mScheduler.doAfterPrint();
-
-// H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
-		if(TxtDT.getInstance(mContext).isTxtDT()) {
-			TxtDT.getInstance(mContext).stopPrint();
-		}
-// End of H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印
 	}
 	
 	public void setOnInkChangeListener(InkLevelListener listener) {

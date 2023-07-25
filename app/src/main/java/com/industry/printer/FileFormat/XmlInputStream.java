@@ -59,7 +59,7 @@ public class XmlInputStream {
 					
 					break;
 				case XmlPullParser.START_TAG:
-					Debug.d(TAG, "===>tag:"+parser.getName());
+//					Debug.d(TAG, "===>tag:"+parser.getName());
 					String key = parser.getName();
 					String value = parser.nextText();
 					Debug.d(TAG, "===>tag key: "+key+", value: "+value);

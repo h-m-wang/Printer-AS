@@ -35,13 +35,13 @@
                     android:layout_width="@dimen/top_btn_width"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_mid_button"
-                    android:drawableTop="@drawable/control"
                     android:button="@null"
+                    android:background="@drawable/bg_mid_button"
                     android:checked="true"
                     android:focusable="false"
                     android:gravity="center"
                     android:textColor="@color/tab_color_selector"
+                    android:text="主页"
                     android:textSize="@dimen/top_btn_textsize" />
 
                 <RadioButton
@@ -52,7 +52,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:background="@drawable/bg_mid_button"
-                    android:drawableTop="@drawable/edit"
+                    android:text="编辑"
                     android:textColor="@color/tab_color_selector"
                     android:textSize="@dimen/top_btn_textsize"
                     android:focusable="false"
@@ -66,7 +66,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:background="@drawable/bg_mid_button"
-                    android:drawableTop="@drawable/setting"
+                    android:text="设置"
                     android:textColor="@color/tab_color_selector"
                     android:textSize="@dimen/top_btn_textsize"
                     android:focusable="false"
@@ -128,6 +128,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:visibility="gone"
                     android:orientation="vertical">
                     <TextView
                         android:id="@+id/disp_date"

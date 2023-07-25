@@ -57,7 +57,7 @@ public class PC_FIFO {
 
     public boolean PCFIFOAvailable() {
 //        Debug.d(TAG, "PCFIFOAvailable: " + (mPCFIFOBuffer.size() > 0));
-        if(mPCFIFOBuffer.size() <= 0) sendNoDataError();
+//        if(mPCFIFOBuffer.size() <= 0) sendNoDataError();
 
         return mPCFIFOBuffer.size() > 0;
     }
@@ -78,6 +78,7 @@ public class PC_FIFO {
         synchronized (mPCFIFOLock) {
             Debug.d(TAG, "useString: 0/" + mPCFIFOBuffer.size());
             if(mPCFIFOBuffer.size() > 0) {
+                Debug.d(TAG, "useString: 0/" + mPCFIFOBuffer.size());
                 SystemConfigFile.getInstance().setRemoteSeparated(mPCFIFOBuffer.get(0));
                 mPCFIFOBuffer.remove(0);
             } else {
@@ -91,9 +92,11 @@ public class PC_FIFO {
 
     public void onPrinted() {
         synchronized (mDelBufLock) {
-            PCCommandManager manager = PCCommandManager.getInstance();
-            manager.sendMessage("000B|0000|1000|0|" + mDeliveredBuffer.get(0) + "|0|0000|0000|0D0A");
-            mDeliveredBuffer.remove(0);
+            if(mDeliveredBuffer.size() > 0) {
+                PCCommandManager manager = PCCommandManager.getInstance();
+                manager.sendMessage("000B|0000|1000|0|" + mDeliveredBuffer.get(0) + "|0|0000|0000|0D0A");
+                mDeliveredBuffer.remove(0);
+            }
         }
     }
 

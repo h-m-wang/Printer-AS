@@ -16,6 +16,7 @@
 	<string name="str_btn_stop">Stop</string>
 	<string name="str_btn_launch">Start</string>
 	<string name="str_btn_clean">Purge</string>
+	<string name="str_btn_sclean">Purge</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">Confirm to purge</string>
 	<string name="str_clean_confirm">This Clean will take about 5 minutes, continue?</string>
@@ -63,6 +64,7 @@
 	<string name="str_tlkfile">Tlk</string>
 	<string name="str_binfile">Open</string>
 	<string name="str_openfile">Open...</string>
+	<string name="str_openmsg">Msg...</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_opentemplate">Temp...</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->

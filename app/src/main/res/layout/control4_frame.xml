@@ -353,7 +353,7 @@
                     android:textSize="@dimen/ctrlButtonsTextsize"
                     android:textColor="#000000"
                     android:background="@drawable/bg_big_button"
-                    android:text="@string/str_btn_clean"
+                    android:text="@string/str_btn_sclean"
                     />
             </RelativeLayout>
             <RelativeLayout
@@ -372,7 +372,7 @@
                     android:textSize="@dimen/ctrlButtonsTextsize"
                     android:textColor="#000000"
                     android:background="@drawable/bg_big_button"
-                    android:text="@string/str_openfile"
+                    android:text="@string/str_openmsg"
                     />
             </RelativeLayout>
             <RelativeLayout
@@ -388,6 +388,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:textSize="@dimen/ctrlButtonsTextsize"
                     android:textColor="#000000"
                     android:background="@drawable/bg_big_button"

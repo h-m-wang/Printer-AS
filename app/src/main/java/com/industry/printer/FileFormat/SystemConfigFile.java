@@ -587,6 +587,7 @@ public class SystemConfigFile{
 		}
 	}
 	public boolean parseSystemCofig() {
+		Debug.d(TAG, "--->parseSystemCofig");
 		FileReader reader=null;
 		BufferedReader br = null;
 		String tag;
@@ -793,6 +794,9 @@ public class SystemConfigFile{
 					mParam[70] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_72)) {
 					mParam[71] = Integer.parseInt(t.getValue());
+// H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小，取值范围0-20
+					mParam[71] = checkParam(72, mParam[71]);
+// End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小，取值范围0-20
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_73)) {
 					mParam[72] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_74)) {
@@ -843,7 +847,7 @@ public class SystemConfigFile{
 					mParam[95] = Integer.parseInt(t.getValue());
 // End of H.M.Wang 2022-10-18 参数扩容32项目
 				}
-				Debug.d(TAG, "===>tag key:" + tag + ", value:" + t.getValue());
+//				Debug.d(TAG, "===>tag key:" + tag + ", value:" + t.getValue());
 			} catch ( Exception e) {
 				continue;
 			}
@@ -1412,7 +1416,7 @@ public class SystemConfigFile{
 	 * TODO:后期做成通过xml进行配置
 	 */
 	public void initParamRange() {
-		Debug.d(TAG, "====>initParamRange");
+		Debug.d(TAG, "====>initParamRange in params.xml");
 		int id=1;
 		HashMap<String, Integer> map = null;
 		try {
@@ -1426,24 +1430,24 @@ public class SystemConfigFile{
 					
 					break;
 				case XmlPullParser.START_TAG:
-					Debug.d(TAG, "--->tag: " + parser.getName());
+//					Debug.d(TAG, "--->tag: " + parser.getName());
 					if (TAG_PARAMS.equals(parser.getName())) {
 						
 					} else if (TAG_PARAM.equals(parser.getName())) {
 						map = new HashMap<String, Integer>();
 					} else if (TAG_ID.equals(parser.getName())) {
 						parser.next();
-						Debug.d(TAG, "--->id: " + parser.getText());
+//						Debug.d(TAG, "--->id: " + parser.getText());
 						id = Integer.parseInt(parser.getText());
 					} else if (TAG_MIN.equals(parser.getName())) {
 						parser.next();
-						map.put("min", Integer.parseInt(parser.getText()));
+//						map.put("min", Integer.parseInt(parser.getText()));
 					} else if (TAG_MAX.equals(parser.getName())) {
 						parser.next();
-						map.put("max", Integer.parseInt(parser.getText()));
+//						map.put("max", Integer.parseInt(parser.getText()));
 					} else if (TAG_DEFAULT.equals(parser.getName())) {
 						parser.next();
-						map.put("default", Integer.parseInt(parser.getText()));
+//						map.put("default", Integer.parseInt(parser.getText()));
 					}
 					
 					break;

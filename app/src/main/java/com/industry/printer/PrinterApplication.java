@@ -53,7 +53,7 @@ public class PrinterApplication extends Application {
 			@Override
 			public void run() {
 				try {
-					Debug.d(TAG, "su -> start");
+//					Debug.d(TAG, "su -> start");
 					Process process = Runtime.getRuntime().exec("su");
 					DataOutputStream os = new DataOutputStream(process.getOutputStream());
 					sleep(100);

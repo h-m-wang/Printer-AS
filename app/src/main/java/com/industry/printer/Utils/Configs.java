@@ -338,7 +338,7 @@ UserGroup 使用方法说明
 		ConfigPath.makeSysDirsIfNeed();
 		/*从U盘中读取系统设置，解析*/
 		mSysconfig = SystemConfigFile.getInstance(context);
-		mSysconfig.init();
+//		mSysconfig.init();
 		/*读设备号*/
 		PlatformInfo.init();
 	}
