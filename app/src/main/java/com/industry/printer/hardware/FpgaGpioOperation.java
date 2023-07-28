@@ -319,7 +319,7 @@ public class FpgaGpioOperation {
         }
         char data[] = new char[Configs.gParams];
         SystemConfigFile config = SystemConfigFile.getInstance(context);
-// H.M.Wang 2021-12-31 在打自己的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
+// H.M.Wang 2021-12-31 在大字机的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
         if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
@@ -335,7 +335,7 @@ public class FpgaGpioOperation {
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
             config.setParam(2, 150);
         }
-// End of H.M.Wang 2021-12-31 在打自己的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
+// End of H.M.Wang 2021-12-31 在大字机的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
 
 //		config.paramTrans();
         //		RFIDManager manager = RFIDManager.getInstance(context);

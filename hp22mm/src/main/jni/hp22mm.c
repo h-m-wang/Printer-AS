@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.064"
+#define VERSION_CODE                            "1.0.066"
 
 static int sIdsIdx = 1;
 static int sPenIdx = 0;
@@ -338,21 +338,27 @@ void *_print_thread(void *arg) {
     if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
         LOGE("ERROR: cannot disable print\n");
     }
-    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, 0), 0);
+    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx);
     PrintThread = (pthread_t)NULL;     // (done printing)
     return (void*)NULL;
 }
 
-int PDGTriggerPrint(int external, int count) {
+extern char ERR_STRING[];
+
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+char *PDGTriggerPrint(int external, int count) {
     if (IsPrinting()) {
         LOGE("ERROR: already printing\n");
-        return -1;
+        return "ERROR: already printing\n";
+//        return -1;
     }
 
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, 0), 0)) {
-        LOGE("ERROR: pd_power_on()\n");
-        return -1;
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
+        LOGE("%s\n", ERR_STRING);
+        return ERR_STRING;
+//        return -1;
     }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 
     CancelPrint = false;
     if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
@@ -361,7 +367,8 @@ int PDGTriggerPrint(int external, int count) {
         PDGWrite(27, count) < 0 ||       // R27 set print count limit
         PDGWrite(25, 1) < 0) {            // R25 1 - enable print
         LOGE("ERROR: triggering print\n");
-        return -1;
+        return "ERROR: triggering print\n";
+//        return -1;
     }
 
     // start the print thread
@@ -370,10 +377,12 @@ int PDGTriggerPrint(int external, int count) {
     if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
         PrintThread = (pthread_t)NULL;
         LOGE("ERROR: pthread_create() of PrintThread failed\n");
-        return -1;
+        return "ERROR: pthread_create() of PrintThread failed\n";
+//        return -1;
     }
 
-    return 0;
+    return "";
+//    return 0;
 }
 
 void PDGCancelPrint() {
@@ -504,31 +513,38 @@ JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg) {
     fclose(file);
 }
 
-JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
     if (!IsPressurized) {
         if (CmdPressurize() != 0) {
             LOGE("ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized\n");
-            return -1;
+            return (*env)->NewStringUTF(env, "ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized");
+//            return -1;
         }
     }
 
     if (PDGInit()) {
         LOGE("PDGInit failed\n");
-        return -1;
+        return (*env)->NewStringUTF(env, "PDGInit failed");
+//        return -1;
     }
 
     if(PDGWriteImage() != 0) {
         LOGE("ERROR: PDGWriteImage failed\n");
-        return -1;
+        return (*env)->NewStringUTF(env, "ERROR: PDGWriteImage failed");
+//        return -1;
     };
 
     if(PDGPrintSetup() != 0) {
         LOGE("ERROR: PDGPrintSetup failed\n");
-        return -1;
+        return (*env)->NewStringUTF(env, "ERROR: PDGPrintSetup failed");
+//        return -1;
     };
 
-    return PDGTriggerPrint(0, 100);
+    return (*env)->NewStringUTF(env, PDGTriggerPrint(0, 100));
+//    return PDGTriggerPrint(0, 100);
 }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
     PDGCancelPrint();
@@ -1448,7 +1464,9 @@ static JNINativeMethod gMethods[] = {
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
-        {"startPrint",		            "()I",	                    (void *)Java_com_StartPrint},
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+        {"startPrint",		            "()Ljava/lang/String;",	                    (void *)Java_com_StartPrint},
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
         {"mcu2fifo",		            "()I",	                    (void *)Java_com_MCU2FIFO},

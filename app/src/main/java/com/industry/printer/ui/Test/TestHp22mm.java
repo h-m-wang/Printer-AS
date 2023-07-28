@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
@@ -316,10 +318,13 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-                            if (0 != Hp22mm.startPrint()) {
-                                mHp22mmTestResult[index] = "Start print failed";
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+                            String errStr = Hp22mm.startPrint();
+                            if (!StringUtil.isEmpty(errStr)) {
+                                mHp22mmTestResult[index] = errStr;
                                 break;
                             }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_INIT_IDS:
@@ -437,11 +442,14 @@ public class TestHp22mm implements ITestOperation {
                             }
                             break;
                         case HP22MM_TEST_START_PRINT:
-                            if (0 == Hp22mm.startPrint()) {
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+                            errStr = Hp22mm.startPrint();
+                            if (StringUtil.isEmpty(errStr)) {
                                 mHp22mmTestResult[index] = "Printing launched";
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = errStr;
                             }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
                             break;
                         case HP22MM_TEST_STOP_PRINT:
                             if (0 == Hp22mm.stopPrint()) {

@@ -30,6 +30,7 @@ import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
@@ -641,10 +642,13 @@ public class GpioTestPopWindow {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-                            if (0 != Hp22mm.startPrint()) {
-                                mHp22mmTestResult[index] = "Start print failed";
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+                            String errStr = Hp22mm.startPrint();
+                            if (!StringUtil.isEmpty(errStr)) {
+                                mHp22mmTestResult[index] = errStr;
                                 break;
                             }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_INIT_IDS:
@@ -762,11 +766,14 @@ public class GpioTestPopWindow {
                             }
                             break;
                         case HP22MM_TEST_START_PRINT:
-                            if (0 == Hp22mm.startPrint()) {
+// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+                            errStr = Hp22mm.startPrint();
+                            if (StringUtil.isEmpty(errStr)) {
                                 mHp22mmTestResult[index] = "Printing launched";
                             } else {
-                                mHp22mmTestResult[index] = "Failed";
+                                mHp22mmTestResult[index] = errStr;
                             }
+// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
                             break;
                         case HP22MM_TEST_STOP_PRINT:
                             if (0 == Hp22mm.stopPrint()) {

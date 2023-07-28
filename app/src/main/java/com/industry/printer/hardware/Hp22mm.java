@@ -39,7 +39,7 @@ public class Hp22mm {
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native int startPrint();
+    static public native String startPrint();
     static public native int stopPrint();
     static public native String dumpRegisters();
     static public native int mcu2fifo();
