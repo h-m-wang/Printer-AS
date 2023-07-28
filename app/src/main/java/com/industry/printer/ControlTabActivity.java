@@ -3176,13 +3176,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						}
 					}
  */
-//					if(s.length() < t1.length()) {
-//						return -1;
-//					} else if(s.length() > t1.length()) {
-//						return 1;
-//					} else {
+					if(s.length() < t1.length()) {
+						return -1;
+					} else if(s.length() > t1.length()) {
+						return 1;
+					} else {
 						return s.compareTo(t1);
-//					}
+					}
 // End of H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
 				} catch (Exception e) {
 					return 0;

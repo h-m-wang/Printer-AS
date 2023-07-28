@@ -229,7 +229,7 @@ public class Paramter {
 //		mFPGAParam[23] = param[1] == 0 ? (mFPGAParam[23] & 0xFFFB) : (mFPGAParam[23] | 0x0004);
 		if(param[SystemConfigFile.INDEX_ENC_DIR] == 0x01) {    // Left
 			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x0008;
-		} else if(param[67] == 0x02) {    // Right
+		} else if(param[SystemConfigFile.INDEX_ENC_DIR] == 0x02) {    // Right
 			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3) | 0x000C;
 		} else {
 			mFPGAParam[23] = (mFPGAParam[23] & 0xFFF3);
