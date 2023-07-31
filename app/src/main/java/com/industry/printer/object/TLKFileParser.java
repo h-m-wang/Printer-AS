@@ -135,8 +135,7 @@ public class TLKFileParser  extends TlkFile{
                      /** The first object must be MessageObject, create a default one otherwise */
                      if (objlist.size() == 0 && !(pObj instanceof MessageObject) ) {
                     	MessageObject msg = new MessageObject(context, 0);
-                    	int type = SystemConfigFile.getInstance(context).getParam(SystemConfigFile.INDEX_HEAD_TYPE);
-         				msg.setType(type);
+         				msg.setType(SystemConfigFile.getInstance(context).getParam(SystemConfigFile.INDEX_HEAD_TYPE));
          				//((MessageObject) obj).setDotCount(Integer.parseInt(attr[13]));
          				// mDots = Integer.parseInt(attr[13]);
          				objlist.add(msg);
@@ -585,6 +584,9 @@ public class TLKFileParser  extends TlkFile{
 // H.M.Wang 2022-10-19 追加64SLANT头。
 			case MESSAGE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2023-7-29 追加48点头
+			case MESSAGE_TYPE_48_DOT:
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
 			case MESSAGE_TYPE_96DN:
 // End of H.M.Wang 2021-8-16 追加96DN头

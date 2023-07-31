@@ -110,6 +110,9 @@
         <!-- H.M.Wang 2022-10-19 追加64SLANT头 -->
         <item>64SLANT</item>
         <!-- End of H.M.Wang 2022-10-19 追加64SLANT头 -->
+        <!-- H.M.Wang 2023-7-29 追加48点头 -->
+        <item>48 dot</item>
+        <!-- End of H.M.Wang 2023-7-29 追加48点头 -->
     </string-array>
 
     <string-array name="strFontArray">

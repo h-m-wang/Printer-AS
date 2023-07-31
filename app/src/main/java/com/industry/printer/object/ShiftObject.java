@@ -302,6 +302,9 @@ public class ShiftObject extends BaseObject {
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2021-8-16 追加96DN头
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+			head == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 			head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 			singleW = width;

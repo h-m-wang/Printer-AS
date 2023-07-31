@@ -40,6 +40,11 @@ public class MessageObject extends BaseObject {
 	public static final String[] mDot_32_Size = {
 		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32"
 	};
+// H.M.Wang 2023-7-29 追加48点头
+	public static final String[] mDot_48_Size = {
+			"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32", "48"
+	};
+// End of H.M.Wang 2023-7-29 追加48点头
 
     // H.M.Wang 追加下列3行
     public static final String[] mDot_64_Size = {
@@ -261,6 +266,9 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 						mPNozzle == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
 // End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2023-7-29 追加48点头
+						mPNozzle == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
 						mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN
 // End of H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
@@ -359,6 +367,14 @@ public class MessageObject extends BaseObject {
 			for (int i = 0; i < size.length; i++) {
 				size[i] = mDot_32_Size[i];
 			}
+
+// H.M.Wang 2023-7-29 追加48点头
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_48_DOT) {
+			size = new String[mDot_48_Size.length];
+			for (int i = 0; i < size.length; i++) {
+				size[i] = mDot_48_Size[i];
+			}
+// End of H.M.Wang 2023-7-29 追加48点头
 
         // H.M.Wang 追加下列5行
 // H.M.Wang 2020-8-26 追加64SN打印头
@@ -497,6 +513,36 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 32 / 32;
 			}
 //			return h;
+// H.M.Wang 2023-7-29 追加48点头
+		} else  if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_48_DOT) {
+			if (size.equalsIgnoreCase(mDot_48_Size[0])) {
+				h = 12.7f * 5 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[1])) {
+				h = 12.7f * 8 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[2])) {
+				h = 12.7f * 10 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[3])) {
+				h = 12.7f * 12 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[4])) {
+				h = 12.7f * 14 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[5]) || size.equalsIgnoreCase(mDot_48_Size[6]) || size.equalsIgnoreCase(mDot_48_Size[7])) {
+				h = 12.7f * 16 / 48;
+// H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+			} else if (size.equalsIgnoreCase(mDot_48_Size[8])) {
+				h = 12.7f * 19 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[9])) {
+				h = 12.7f * 21 / 48;
+// End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+			} else if (size.equalsIgnoreCase(mDot_48_Size[10])) {
+				h = 12.7f * 24 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[11])) {
+				h = 12.7f * 32 / 48;
+			} else {
+				h = 12.7f * 48 / 48;
+			}
+// End of H.M.Wang 2020-4-15 追加"5x5"字体
+// End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+// End of H.M.Wang 2023-7-29 追加48点头
 
         // H.M.Wang 追加下列9行
 // H.M.Wang 2020-8-26 追加64SN打印头
@@ -710,6 +756,37 @@ public class MessageObject extends BaseObject {
 				return mDot_32_Size[11];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			}
+// H.M.Wang 2023-7-29 追加48点头
+		} else  if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_48_DOT) {
+			if (size <= 152f * 5 / 48 + 1) {
+				return mDot_48_Size[0];
+			} else if (size <= 152f * 8 / 48 + 1) {
+				return mDot_48_Size[1];
+// H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+			} else if (size <= 152f * 10 / 48 + 1) {
+				return mDot_48_Size[2];
+			} else if (size <= 152f * 12 / 48 + 1) {
+				return mDot_48_Size[3];
+			} else if (size <= 152f * 14 / 48 + 1) {
+				return mDot_48_Size[4];
+			} else if (size <= 152f * 16 / 48 + 1) {
+				return mDot_48_Size[5] + "," + mDot_48_Size[6] + "," + mDot_48_Size[7];
+// H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+			} else if (size <= 152f * 19 / 48 + 1) {
+				return mDot_48_Size[8];
+			} else if (size <= 152f * 21 / 48 + 1) {
+//			} else if (size <= 152f * 21.1f / 64 + 1) {
+				return mDot_48_Size[9];
+// End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
+			} else if (size <= 152f * 24 / 48 + 1) {
+				return mDot_48_Size[10];
+			} else if (size <= 152f * 32 / 48 + 1) {
+				return mDot_48_Size[11];
+			} else {
+				return mDot_48_Size[12];
+			}
+// End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+// End of H.M.Wang 2023-7-29 追加48点头
 
         // H.M.Wang 追加下列10行
 // H.M.Wang 2020-8-26 追加64SN打印头

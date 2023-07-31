@@ -331,6 +331,9 @@ public class FpgaGpioOperation {
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2022-10-19 追加64SLANT头。
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// H.M.Wang 2023-7-29 追加48点头
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
             config.setParam(2, 150);
@@ -396,6 +399,9 @@ public class FpgaGpioOperation {
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2023-7-29 追加48点头
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
@@ -418,6 +424,9 @@ public class FpgaGpioOperation {
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
+// H.M.Wang 2023-7-29 追加48点头
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头

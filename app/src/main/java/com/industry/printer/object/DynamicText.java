@@ -198,6 +198,9 @@ public class DynamicText extends BaseObject {
 // H.M.Wang 2021-8-16 追加96DN头
 //            head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
             head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+            head == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
             head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
             paint.setTextScaleX(1.0f);
@@ -282,6 +285,9 @@ public class DynamicText extends BaseObject {
 // H.M.Wang 2021-8-16 追加96DN头
 //            head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
             head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+            head == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
             head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // End of H.M.Wang 2020-7-23 追加32DN打印头

@@ -841,6 +841,7 @@ public class BinInfo {
 	 * big dot machine
 	 * extend buffer to 8 times filled with 0
 	 */
+	@Deprecated
 	public void expendColumn(int extension) {
 
 		if (mTask == null || mTask.getNozzle() == null) {

@@ -399,6 +399,9 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 					case MESSAGE_TYPE_E6X50:
 // End of H.M.Wang 2021-3-6 追加E6X48,E6X50头
 					case MESSAGE_TYPE_E6X1:
+// H.M.Wang 2023-7-29 追加48点头
+					case MESSAGE_TYPE_48_DOT:
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
 					case MESSAGE_TYPE_96DN:
 // End of H.M.Wang 2021-8-16 追加96DN头

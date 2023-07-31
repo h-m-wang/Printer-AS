@@ -333,6 +333,9 @@ public class MessageTask {
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+					getNozzle() == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
@@ -803,6 +806,9 @@ public class MessageTask {
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2) ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) ||
+// H.M.Wang 2023-7-29 追加48点头
+			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_48_DOT) ||
+// End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2021-8-16 追加96DN头
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN)) {
 // End of H.M.Wang 2021-8-16 追加96DN头
