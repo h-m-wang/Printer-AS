@@ -41,7 +41,7 @@
                     android:focusable="false"
                     android:gravity="center"
                     android:textColor="@color/tab_color_selector"
-                    android:text="主页"
+                    android:text="@string/Home"
                     android:textSize="@dimen/top_btn_textsize" />
 
                 <RadioButton
@@ -52,7 +52,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:background="@drawable/bg_mid_button"
-                    android:text="编辑"
+                    android:text="@string/Edit"
                     android:textColor="@color/tab_color_selector"
                     android:textSize="@dimen/top_btn_textsize"
                     android:focusable="false"
@@ -66,7 +66,7 @@
                     android:button="@null"
                     android:gravity="center"
                     android:background="@drawable/bg_mid_button"
-                    android:text="设置"
+                    android:text="@string/Settings"
                     android:textColor="@color/tab_color_selector"
                     android:textSize="@dimen/top_btn_textsize"
                     android:focusable="false"

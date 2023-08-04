@@ -10,6 +10,7 @@
     <string name="hello_world">Hello world!</string>
 	<string name="ControlTab">Control</string>
 	<string name="manualCtrlTab">Control man</string>
+	<string name="Home">Home</string>
 	<string name="Edit">Edit</string>
 	<string name="Settings">Settings</string>
 	<string name="str_btn_start">Start</string>
@@ -64,7 +65,7 @@
 	<string name="str_tlkfile">Tlk</string>
 	<string name="str_binfile">Open</string>
 	<string name="str_openfile">Open...</string>
-	<string name="str_openmsg">Msg...</string>
+	<string name="str_open_msg">Msg...</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_opentemplate">Temp...</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
@@ -654,6 +655,7 @@
 	<string name="toast_content_empty">Content shouldn`t be empty</string>
 	<string name="toast_rfid_changed">Rfid changed</string>
 
+	<string name="tips_import_msp">Import</string>
 	<string name="tips_import">Import</string>
 	<string name="tips_import_message">Importing messages</string>
 	<string name="tips_import_resource">Importing resources</string>

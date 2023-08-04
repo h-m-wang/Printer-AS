@@ -1556,21 +1556,45 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			Debug.d(TAG, "--->power: " + power);
 			if (power >= 41) {
 //				mPower.setText(String.valueOf(100));
-				mPowerStat.setImageResource(R.drawable.battery100);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_100);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery100);
+				}
 			} else if (power >= 38) {
 //				mPower.setText(String.valueOf(75));
-				mPowerStat.setImageResource(R.drawable.battery75);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_75);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery75);
+				}
 			} else if (power >= 36) {
 //				mPower.setText(String.valueOf(50));
-				mPowerStat.setImageResource(R.drawable.battery50);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_50);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery50);
+				}
 			} else if (power >= 35) {
 //				mPower.setText(String.valueOf(25));
-				mPowerStat.setImageResource(R.drawable.battery25);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_25);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery25);
+				}
 			} else if (power >= 33) {
 //				mPower.setText(String.valueOf(0));
-				mPowerStat.setImageResource(R.drawable.battery0);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_0);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery0);
+				}
 			} else if (power >= 20) {
-				mPowerStat.setImageResource(R.drawable.battery0);
+				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+					mPowerStat.setImageResource(R.drawable.battery_0);
+				} else {
+					mPowerStat.setImageResource(R.drawable.battery0);
+				}
 			} else {
 				// mPower.setText("--");
 				mPowerStat.setVisibility(View.GONE);
@@ -2620,6 +2644,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						mTVPrinting.setVisibility(View.GONE);
 						mTVCntPrinting.setVisibility(View.VISIBLE);
 					}
+					mUpCntPrint.setClickable(false);
+					mUpCntPrint.setTextColor(Color.GRAY);
+					mDnCntPrint.setClickable(false);
+					mDnCntPrint.setTextColor(Color.GRAY);
 				}
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 				mTVStopped.setVisibility(View.GONE);
@@ -3240,13 +3268,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						}
 					}
 */
-//					if(s.length() < t1.length()) {
-//						return -1;
-//					} else if(s.length() > t1.length()) {
-//						return 1;
-//					} else {
+					if(s.length() < t1.length()) {
+						return -1;
+					} else if(s.length() > t1.length()) {
+						return 1;
+					} else {
 						return s.compareTo(t1);
-//					}
+					}
 // End of H.M.Wang 2023-3-27 修改排序算法，原来的排序算法如果名称不是数字则不会排序，并且与Open对话窗的排序不一致，全部修改为一致
 				} catch (Exception e) {
 					return 0;

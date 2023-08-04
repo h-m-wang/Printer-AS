@@ -10,13 +10,14 @@
     <string name="hello_world">Hello world!</string>
 	<string name="ControlTab">控制</string>
 	<string name="manualCtrlTab">編輯控制</string>
+	<string name="Home">主頁</string>
 	<string name="Edit">編輯</string>
 	<string name="Settings">設置</string>
 	<string name="str_btn_start">開始</string>
 	<string name="str_btn_stop">停止</string>
 	<string name="str_btn_launch">啓動</string>
 	<string name="str_btn_clean">清洗</string>
-	<string name="str_btn_sclean">短清洗</string>
+	<string name="str_btn_sclean">短\n清洗</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">點擊OK開始清洗</string>
 	<string name="str_clean_confirm">長清洗將持續大約5分鐘，繼續嗎？</string>
@@ -56,7 +57,7 @@
 	<string name="str_tlkfile">打開Tlk文件</string>
 	<string name="str_binfile">打開Bin文件</string>
 	<string name="str_openfile">選擇文件</string>
-	<string name="str_openmsg">選信息</string>
+	<string name="str_open_msg">選\n信息</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_opentemplate">選擇模板</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
@@ -613,6 +614,7 @@
 	<string name="str_tlk_not_found">1.TLK缺失</string>
 	<string name="str_quit">退出</string>
 	<string name="str_quit_confirm">確定要退出嗎？</string>
+	<string name="tips_import_msp">信息\n導入</string>
 	<string name="tips_import">導入數據</string>
 <!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
 	<string name="strNotice">提示</string>

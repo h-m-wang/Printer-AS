@@ -60,8 +60,17 @@ public class ObjectInsertDialog extends Dialog implements android.view.View.OnCl
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.layout_objinsert_gridview);
-		
-		
+
+// H.M.Wang 2023-8-4 增加一个退出的按钮
+		ImageView cancelBtn = (ImageView)findViewById(R.id.cancel_btn);
+		cancelBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				dismiss();
+			}
+		});
+// End of H.M.Wang 2023-8-4 增加一个退出的按钮
+
 		mText = (ImageView)findViewById(R.id.objinsert_text);
 		mText.setOnClickListener(this);
 		

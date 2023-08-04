@@ -10,13 +10,14 @@
     <string name="hello_world">Hello world!</string>
 	<string name="ControlTab">控制</string>
 	<string name="manualCtrlTab">编辑控制</string>
+	<string name="Home">主页</string>
 	<string name="Edit">编辑</string>
 	<string name="Settings">设置</string>
 	<string name="str_btn_start">开始</string>
 	<string name="str_btn_stop">停止</string>
 	<string name="str_btn_launch">启动</string>
 	<string name="str_btn_clean">清洗</string>
-	<string name="str_btn_sclean">短清洗</string>
+	<string name="str_btn_sclean">短\n清洗</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">点击OK开始清洗</string>
 	<string name="str_clean_confirm">长清洗将持续大约5分钟，继续吗？</string>
@@ -56,7 +57,7 @@
 	<string name="str_tlkfile">打开Tlk文件</string>
 	<string name="str_binfile">打开Bin文件</string>
 	<string name="str_openfile">选择文件</string>
-	<string name="str_openmsg">选信息</string>
+	<string name="str_open_msg">选\n信息</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
 	<string name="str_opentemplate">选择模板</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
@@ -638,6 +639,7 @@
 
 	<string name="str_quit">退出</string>
 	<string name="str_quit_confirm">确定要退出吗？</string>
+	<string name="tips_import_msp">信息\n导入</string>
 	<string name="tips_import">导入数据</string>
 
 	<string name="printDpiNotMatchError">打印分辨率不匹配，请重新保存信息后，再次尝试打印</string>

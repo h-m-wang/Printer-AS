@@ -177,7 +177,9 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 
 		mMessageList.setAdapter(mFileAdapter);
 
-		mMessageList.setOnItemLongClickListener(this);
+// H.M.Wang 2023-8-1 取消长按进入选择信息的功能
+//		mMessageList.setOnItemLongClickListener(this);
+// End of H.M.Wang 2023-8-1 取消长按进入选择信息的功能
 ////		mMessageList.setOnTouchListener(this);
 ////		mMessageList.setOnScrollListener(this);
 
@@ -389,7 +391,8 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 
 		int i = start;
 		do {
-			int et = find.compareTo(mTotalContents[index.get(i)]);
+			int et = find.length() - mTotalContents[index.get(i)].length();
+			if(et == 0) et = find.compareTo(mTotalContents[index.get(i)]);
 			if (et == 0) {
 				foundPos = i;
 				break;
