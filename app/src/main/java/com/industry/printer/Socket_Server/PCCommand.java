@@ -13,6 +13,10 @@ public class PCCommand {
     public static final String CMD_CLEAN = "200";
     public static final String CMD_CLEAN_S = "Purge";
 
+// H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen。在content字段的后六位设置被选头的组，格式为六位二进制数，1代表选中，0代表未选中。其他值报错。
+    public static final String CMD_SEL_PEN = "SelectPen";
+// End of H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
+
     /** 发送文件 */
     public static final String CMD_SEND_FILE = "300";
     public static final String CMD_SEND_FILE_S = "SendFile";

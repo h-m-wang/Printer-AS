@@ -83,7 +83,6 @@ import com.industry.printer.ui.CustomerDialog.ImportDialog;
 import com.industry.printer.ui.CustomerDialog.ImportDialog.IListener;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
-import com.industry.printer.ui.GpioTestPopWindow;
 import com.industry.printer.ui.Test.TestMain;
 
 public class MainActivity extends Activity implements OnCheckedChangeListener, OnTouchListener, OnClickListener {

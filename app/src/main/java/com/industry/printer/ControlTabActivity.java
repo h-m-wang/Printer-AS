@@ -83,6 +83,7 @@ import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnPositiveListe
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.MessageBrowserDialog;
 import com.industry.printer.ui.CustomerDialog.MessageBrowserDialog.OpenFrom;
+import com.industry.printer.ui.Test.TestGpioPins;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
@@ -122,6 +123,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import junit.framework.Test;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	public static final String TAG="ControlTabActivity";
@@ -426,7 +429,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private TextView mUpCntPrint;
 	private TextView mDnCntPrint;
 
-	public TextView mTVCntPrinting;
+	public TextView mTVCntUpPrinting;
+	public TextView mTVCntDownPrinting;
 	public RelativeLayout	mBtnImport;
 	public TextView		  mTvImport;
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
@@ -609,7 +613,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
-			mTVCntPrinting = (TextView) getView().findViewById(R.id.tv_cntPrintState);
+			mTVCntUpPrinting = (TextView) getView().findViewById(R.id.tv_cntPrintUp);
+			mTVCntDownPrinting = (TextView) getView().findViewById(R.id.tv_cntPrintDown);
 		}
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 
@@ -992,10 +997,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
                     //     协议２：　
                     //            0x01：是打印开始停止
-                    //     协议４：
+                    //     协议５：
                     //            0x01：是打印“开始／停止”控制位。其中，打印开始停止是在apk里面处理的，方向控制是在img里面控制的
+					//     协议６：　
+					//            0x01：是打印开始停止
                     if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_2 ||
-                       mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
+					   mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 ||
+                       mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
                         if((mInPinState & 0x01) != (newState & 0x01)) {		// 0x01位的前后值不一致
                             mBtnStart.post(new Runnable() {
                                 @Override
@@ -1044,27 +1052,63 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
                     //     协议３：
                     //            0x01：方向切换
-                    if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_3) {
-						if((mInPinState & 0x01) != (newState & 0x01)) {
-							Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
-							FpgaGpioOperation.setMirror(newState & 0x01);
-////						mInPinState &= (~0x01);
-////						mInPinState |= (newState & 0x01);
+					//     协议５：
+					//            0x04：方向切换
+					//     协议６：　
+					//            0x04：方向切换
+					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_3  && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04)) {
+						Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
+						FpgaGpioOperation.setMirror(newState & 0x01);
+                    }
+
+					//     协议４：
+					//            0x01：是计数器清零，包括RTC的数据和正在打印的数据
+					//     协议５：
+					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
+					//     协议６：　
+					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
+					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02)) {
+						Debug.d(TAG, "Clear counters");
+						SystemConfigFile sysConfigFile = SystemConfigFile.getInstance();
+						long[] counters = new long[10];
+						for (int i = 0; i < 10; i++) {
+							counters[i] = 0;
+							sysConfigFile.setParamBroadcast(i+SystemConfigFile.INDEX_COUNT_1, 0);
+						}
+						RTCDevice.getInstance(mContext).writeAll(counters);
+
+						List<DataTask> tasks = null;
+						if (mDTransThread != null) {
+							tasks = mDTransThread.getData();
+						}
+						if(null != tasks) {
+							for(DataTask task : tasks) {
+								ArrayList<BaseObject> objList = task.getObjList();
+								for (BaseObject obj : objList) {
+									if (obj instanceof CounterObject) {
+										((CounterObject)obj).setValue(((CounterObject)obj).getStart());
+									}
+								}
+							}
+							if(mDTransThread.isRunning()) {
+								DataTask task = mDTransThread.getCurData();
+								ArrayList<BaseObject> objList = task.getObjList();
+								for (BaseObject obj : objList) {
+									if (obj instanceof CounterObject) {
+										mDTransThread.mNeedUpdate = true;
+									}
+								}
+							}
 						}
                     }
 
-					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
-						//     协议４：
-						//            0x04：方向切换
-						if ((mInPinState & 0x04) != (newState & 0x04)) {
-							Debug.d(TAG, "设置方向调整：" + (((newState & 0x04) == 0x04) ? 1 : 0));
-							FpgaGpioOperation.setMirror(((newState & 0x04) == 0x04) ? 1 : 0);
-////						mInPinState &= (~0x04);
-////						mInPinState |= (newState & 0x04);
-						}
-
-						//     协议５：
-						//            0xF0段，即0x10 - 0xF0)为打印文件的文件名（数字形式，1-15）
+					//     协议５：
+					//            0xF0段，即0x10 - 0xF0)为打印文件的文件名（数字形式，1-15）
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
 						if((mInPinState & 0x0F0) != (newState & 0x0F0)) {
 ////                            mInPinState = (mInPinState & 0x0F) + (newState & 0x0F0);
 							int index = 0x0F & (newState >> 4);
@@ -1088,58 +1132,24 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 								}
 							}
 						}
+// H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
+						if (mDTransThread != null && mDTransThread.isRunning()) {
+							FpgaGpioOperation.clear();
+						}
+// End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
 					}
 
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x02) != (newState & 0x02)/*状态发生了变化*/ && (newState & 0x02) == 0x02)/*新值是设位*/ ||
-                        //     协议４：
-                        //            0x02：是计数器清零，包括RTC的数据和正在打印的数据
-						(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x01) != (newState & 0x01) && (newState & 0x01) == 0x01)) {
-						//     协议５：
-						//            0x01：是计数器清零，包括RTC的数据和正在打印的数据
-//						if((newState & 0x02) == 0x02) {
-							Debug.d(TAG, "Clear counters");
-							SystemConfigFile sysConfigFile = SystemConfigFile.getInstance();
-							long[] counters = new long[10];
-							for (int i = 0; i < 10; i++) {
-								counters[i] = 0;
-								sysConfigFile.setParamBroadcast(i+SystemConfigFile.INDEX_COUNT_1, 0);
-							}
-							RTCDevice.getInstance(mContext).writeAll(counters);
-
-// H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-							if (mDTransThread != null && mDTransThread.isRunning()) {
-								if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
-									FpgaGpioOperation.clear();
-								}
-							}
-// End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-
-							List<DataTask> tasks = null;
-							if (mDTransThread != null) {
-								tasks = mDTransThread.getData();
-							}
-							if(null != tasks) {
-								for(DataTask task : tasks) {
-									ArrayList<BaseObject> objList = task.getObjList();
-									for (BaseObject obj : objList) {
-										if (obj instanceof CounterObject) {
-											((CounterObject)obj).setValue(((CounterObject)obj).getStart());
-										}
-									}
-								}
-								if(mDTransThread.isRunning()) {
-									DataTask task = mDTransThread.getCurData();
-									ArrayList<BaseObject> objList = task.getObjList();
-									for (BaseObject obj : objList) {
-										if (obj instanceof CounterObject) {
-											mDTransThread.mNeedUpdate = true;
-										}
-									}
-								}
-							}
-////                            mInPinState = (mInPinState & (~0x02)) + (newState & 0x02);
-//                        }
-                    }
+					//     协议６：　
+					//            0x10：墨位低（Output2输出，弹窗）
+					//            0x20：溶剂低（Output2输出，弹窗）
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
+						if((mInPinState & 0x10) == 0x00 && (newState & 0x10) == 0x10) {
+//							ExtGpio.writeGpioTestPin(TestGpioPins.OUT_PINS[1].charAt(1), Integer.valueOf(TestGpioPins.OUT_PINS[1].substring(2)), TestGpioPins.PIN_ENABLE);
+						}
+						if((mInPinState & 0x20) == 0x00 && (newState & 0x20) == 0x20) {
+//							ExtGpio.writeGpioTestPin(TestGpioPins.OUT_PINS[1].charAt(1), Integer.valueOf(TestGpioPins.OUT_PINS[1].substring(2)), TestGpioPins.PIN_ENABLE);
+						}
+					}
 					mInPinState = newState;
 				}
             }, 3000L, 1000L);
@@ -1186,8 +1196,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mTVPrinting.setText(R.string.str_state_printing);
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
-			mTVCntPrinting.setText(R.string.str_state_cnt_printing);
+			mTVCntUpPrinting.setText(R.string.str_state_cnt_print_up);
+			mTVCntDownPrinting.setText(R.string.str_state_cnt_printdown);
 			mTvImport.setText(R.string.tips_import);
+			mTvOpen.setText(R.string.str_open_msg);
 		}
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 		mTVStopped.setText(R.string.str_state_stopped);
@@ -1258,7 +1270,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		bundle.putBoolean("printAfterLoad", true);
 		msg.setData(bundle);
 		mHandler.sendMessageDelayed(msg, 1000);
-
 	}
 
 	@Deprecated
@@ -2330,17 +2341,28 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				case MESSAGE_RFID_ZERO:
 					Debug.e(TAG, "--->zero: play error");
 					mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
-					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 2000);
+					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 5000);
 					break;
 				case MESSAGE_RFID_ALARM:
 					mFlagAlarming = true;
 					ExtGpio.writeGpio('h', 7, 1);
-					if (mRfiAlarmTimes++ < 3) {
-						ExtGpio.playClick();
-						mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ALARM, 150);
-					} else {
-						mRfiAlarmTimes = 0;
-					}
+
+                    ThreadPoolManager.mControlThread.execute(new Runnable() {
+						@Override
+						public void run() {
+							if(!AAAA) {
+								AAAA = true;
+								Debug.d(TAG, "---playClick---");
+								ExtGpio.playClick();
+								try{Thread.sleep(150);}catch(Exception e){};
+								ExtGpio.playClick();
+								try{Thread.sleep(150);}catch(Exception e){};
+								ExtGpio.playClick();
+								try{Thread.sleep(150);}catch(Exception e){};
+								AAAA = false;
+							}
+						}
+					});
 
 					break;
 				case MESSAGE_RECOVERY_PRINT:
@@ -2361,6 +2383,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 	};
 
+	private boolean AAAA = false;
 
 	private void handlerSuccess(int toastRs, String pcMsg) {
 		ToastUtil.show(mContext, toastRs);
@@ -2640,9 +2663,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
 					mBtnImport.setClickable(false);
 					mTvImport.setTextColor(Color.GRAY);
-					if(mPrintType == PRINT_TYPE_UPWARD_CNT || mPrintType == PRINT_TYPE_DWWARD_CNT) {
+					if(mPrintType == PRINT_TYPE_UPWARD_CNT) {
 						mTVPrinting.setVisibility(View.GONE);
-						mTVCntPrinting.setVisibility(View.VISIBLE);
+						mTVCntDownPrinting.setVisibility(View.GONE);
+						mTVCntUpPrinting.setVisibility(View.VISIBLE);
+					}
+					if(mPrintType == PRINT_TYPE_DWWARD_CNT) {
+						mTVPrinting.setVisibility(View.GONE);
+						mTVCntUpPrinting.setVisibility(View.GONE);
+						mTVCntDownPrinting.setVisibility(View.VISIBLE);
 					}
 					mUpCntPrint.setClickable(false);
 					mUpCntPrint.setTextColor(Color.GRAY);
@@ -2676,7 +2705,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
 					mBtnImport.setClickable(true);
 					mTvImport.setTextColor(Color.BLACK);
-					mTVCntPrinting.setVisibility(View.GONE);
+					mTVCntUpPrinting.setVisibility(View.GONE);
+					mTVCntDownPrinting.setVisibility(View.GONE);
 				}
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 				mTVStopped.setVisibility(View.VISIBLE);

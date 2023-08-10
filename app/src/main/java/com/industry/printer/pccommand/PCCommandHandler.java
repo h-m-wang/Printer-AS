@@ -282,11 +282,37 @@ public class PCCommandHandler {
                    PCCommand.CMD_CLEAN_S.equalsIgnoreCase(cmd.command)) {
             DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
             if(!aDTThread.isPurging) {
+// H.M.Wang 2023-8-7 增加12头清洗功能。通过CMD_CLEAN或CMD_CLEAN_S的content指定，0为全清洗，1-12为指定头清洗
+                try {
+                    DataTransferThread.CleanHead = Integer.parseInt(cmd.content);
+                } catch(NumberFormatException e) {
+                    Debug.e(TAG, e.getMessage());
+                }
+// End of H.M.Wang 2023-8-7 增加12头清洗功能。通过CMD_CLEAN或CMD_CLEAN_S的content指定，0为全清洗，1-12为指定头清洗
                 aDTThread.purge(mContext);
                 sendmsg(Constants.pcOk(msg));
             } else {
                 sendmsg(Constants.pcErr(msg));
             }
+// H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
+        } else if (PCCommand.CMD_SEL_PEN.equalsIgnoreCase(cmd.command)) {
+            if(cmd.content.length() <= 0) {
+                sendmsg(Constants.pcErr(msg));
+                return;
+            }
+            int selectPen = 0;
+            int startPos = cmd.content.length()-12;
+            startPos = startPos < 0 ? 0 : startPos;
+
+            try {
+                selectPen = Integer.valueOf(cmd.content.substring(startPos), 2);
+                DataTransferThread.SelectPen = selectPen;
+                sendmsg(Constants.pcOk(msg));
+            } catch (NumberFormatException e) {
+                sendmsg(Constants.pcErr(msg));
+                return;
+            }
+// End of H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
         } else if (PCCommand.CMD_SEND_FILE.equalsIgnoreCase(cmd.command) ||
                    PCCommand.CMD_SEND_FILE_S.equalsIgnoreCase(cmd.command)) {
             sendmsg(WriteFiles(msg));
@@ -519,12 +545,10 @@ public class PCCommandHandler {
             }
 // End of H.M.Wang 2020-7-28 追加一个设置参数命令
 // H.M.Wang 2020-9-28 追加一个心跳协议
-
         } else if(PCCommand.CMD_HEARTBEAT.equalsIgnoreCase(cmd.command)) {
                 mControlTabActivity.mLastHeartBeat = System.currentTimeMillis();
                 sendmsg(Constants.pcOk(msg));
 // End of H.M.Wang 2020-9-28 追加一个心跳协议
-
 // H.M.Wang 2021-2-4 追加软启动打印命令
         } else if(PCCommand.CMD_SOFT_PHO.equalsIgnoreCase(cmd.command)) {
             FpgaGpioOperation.softPho();

@@ -487,6 +487,9 @@ public class FpgaGpioOperation {
                 data[17] &= 0xFFEF;
             }
 // End of H.M.Wang 2022-12-5 25.4 的喷头， 不管双列偏移设了什么， S18[4]=0
+// H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
+            data[11] = (char)((data[11] & 0xF000) | (0x0FFF & DataTransferThread.SelectPen));
+// End of H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
         }
 
         if (type == SETTING_TYPE_PURGE1) {
@@ -528,6 +531,17 @@ public class FpgaGpioOperation {
 //            data[17] = (char) (data[17] | 0x010);
             data[17] = (char) (data[17] | 0x001F);
 // End of H.M.Wang 2021-5-20 清洗的时候，都选反表，S18[3:0]都设为1
+// H.M.Wang 2023-8-7 增加12头清洗功能。S12[5:0]标准1-12头的清洗。S12[0]为1-2头的清洗，S12[1]为3-4头的清洗，以此类推
+            if(DataTransferThread.CleanHead > 0 && DataTransferThread.CleanHead <=12) {
+                char s12 = 0x0001;
+                for (int i=0; i<DataTransferThread.CleanHead-1; i++) {
+                    s12 <<= 1;
+                }
+                data[11] = s12;
+            } else {
+                data[11] = 0xFFFF;
+            }
+// End of H.M.Wang 2023-8-7 增加12头清洗功能。S12[5:0]标准1-12头的清洗。S12[0]为1-2头的清洗，S12[1]为3-4头的清洗，以此类推
         } else if (type == SETTING_TYPE_PURGE2) {
             data[4] = (char) (data[4] * 2);
             data[17] = (char) (data[17] & 0xffef);
@@ -640,6 +654,7 @@ public class FpgaGpioOperation {
 //        data[26] = (char) config.getParam(32 - 1);
         data[26] = (char) config.getParam(1);
 // End of H.M.Wang 2021-11-19 增加打印方向参数传递
+
 /*
         data[0] = 1;
         data[1] = 4;

@@ -347,12 +347,24 @@ public class SystemConfigFile{
 //     协议３：
 //            0x01：方向切换
 //            其他禁止
+// H.M.Wang 2023-8-9 对 2022-5-28追加PROTO_5, PROTO_4改为清零做补充修改。原来修改的不彻底，没有完全对应上下述需求，已修改代码（未做标记，直接改的）
 //     协议４：
+//            0x01：方向切换
+//            其他禁止
+//     协议５：
 //            0x01：是打印“开始／停止”控制位。其中，打印开始停止实在apk里面处理的，方向控制是在img里面控制的
 //            0x02：是计数器清零，包括RTC的数据和正在打印的数据
 //            0x04：方向切换
 //            0x08：空
 //            0xF0段，即0x10 - 0xF0)为打印文件的文件名（数字形式，1-15）
+//     协议６：
+//            0x01：打印“开始／停止”控制位。
+//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
+//            0x04：方向切换。方向控制是在img里面控制的
+//            0x08：空
+//            0x10：墨位低（Output2输出，弹窗）
+//            0x20：溶剂低（Output2输出，弹窗）
+// End of H.M.Wang 2023-8-9 对 2022-5-28追加PROTO_5, PROTO_4改为清零做补充修改
 
 	public static final int INDEX_IPURT_PROC 		= 56;		// 外部输入（PI11）的动作定义参数
 
@@ -360,9 +372,13 @@ public class SystemConfigFile{
 	public static final int INPUT_PROTO_2           = 1;        // 0x01控制打印，其他管脚禁止
 	public static final int INPUT_PROTO_3           = 2;        // 0x01控制方向，其他管脚禁止
 // H.M.Wang 2022-5-28 增加清零操作，将原综合操作的PROTO_4改为PROTO_5，清零操作使用PROTO_4
-	public static final int INPUT_PROTO_4           = 3;        // 综合
-	public static final int INPUT_PROTO_5           = 4;        // 0x01清零
+	public static final int INPUT_PROTO_4           = 3;        // 0x01清零
+	public static final int INPUT_PROTO_5           = 4;        // 综合
 // End of H.M.Wang 2022-5-28 增加清零操作，将原综合操作的PROTO_4改为PROTO_5，清零操作使用PROTO_4
+// H.M.Wang 2023-8-9 追加一个新的PROTO_6
+	public static final int INPUT_PROTO_6           = 5;        // 新协议，功能见上文
+// End of H.M.Wang 2023-8-9 追加一个新的PROTO_6
+
 // End of H.M.Wang 追加输入设置参数
 
 // H.M.Wang 2020-3-3 镜像方向定义，影响到参数12，13，20，21

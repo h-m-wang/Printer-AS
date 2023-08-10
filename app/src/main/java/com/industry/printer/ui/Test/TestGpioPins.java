@@ -34,11 +34,11 @@ public class TestGpioPins implements ITestOperation {
 
     private int mSubIndex = 0;
 
-    String[] IN_PINS = new String[] {
+    private static final String[] IN_PINS = new String[] {
             "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
 
-    String[] OUT_PINS = new String[] {
+    private static final String[] OUT_PINS = new String[] {
             "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", "Serial"
     };
 

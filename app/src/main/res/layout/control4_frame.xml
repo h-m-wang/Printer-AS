@@ -33,11 +33,22 @@
                 android:visibility="gone"
                 />
             <TextView
-                android:id="@+id/tv_cntPrintState"
+                android:id="@+id/tv_cntPrintUp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/str_state_cnt_printing"
+                android:text="@string/str_state_cnt_print_up"
+                android:textSize="25sp"
+                android:textColor="#000000"
+                android:background="@color/green"
+                android:visibility="gone"
+                />
+            <TextView
+                android:id="@+id/tv_cntPrintDown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/str_state_cnt_printdown"
                 android:textSize="25sp"
                 android:textColor="#000000"
                 android:background="@color/green"

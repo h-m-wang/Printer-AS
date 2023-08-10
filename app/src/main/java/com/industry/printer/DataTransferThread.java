@@ -332,7 +332,13 @@ public class DataTransferThread {
 		
 		});
 	}
-	
+
+// H.M.Wang 2023-8-7 增加12头清洗功能。通过CMD_CLEAN或CMD_CLEAN_S的content指定，0为全清洗，1-12为指定头清洗
+	public static int CleanHead = 0;
+// H.M.Wang 2023-8-7 增加12头清洗功能。通过CMD_CLEAN或CMD_CLEAN_S的content指定，0为全清洗，1-12为指定头清洗
+// H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
+	public static int SelectPen = 0;
+// End of H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
 	private void purge(Context context, DataTask task, char[] buffer, int purgeType) {
 		
 		Debug.e(TAG, "--->buffer len: " + buffer.length);

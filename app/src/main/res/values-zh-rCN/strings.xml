@@ -362,7 +362,8 @@
 	<string name="str_state_printing">打印中</string>
 	<string name="str_state_stopped">已停止</string>
 <!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
-	<string name="str_state_cnt_printing">连续打印中</string>
+	<string name="str_state_cnt_print_up">上连打中</string>
+	<string name="str_state_cnt_printdown">下连打中</string>
 	<string name="str_btn_up_print">向上连续打印</string>
 	<string name="str_btn_down_print">向下连续打印</string>
 <!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->

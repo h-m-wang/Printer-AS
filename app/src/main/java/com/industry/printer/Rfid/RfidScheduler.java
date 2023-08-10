@@ -14,7 +14,6 @@ import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
-import com.industry.printer.ui.GpioTestPopWindow;
 
 import android.content.Context;
 import android.os.Handler;
