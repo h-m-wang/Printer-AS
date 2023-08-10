@@ -1886,12 +1886,14 @@ public char[] bitShiftFor64SN() {
 
 //            BinCreater.saveBin("/mnt/sdcard/purge1.bin", buffer, 32);
 			stream.close();
+// H.M.Wang 2023-8-10 大字机的数据复制2倍
 // H.M.Wang 2022-4-1 如果是大字机，则恢复回原来的12倍(暂时测试4倍）；如果是惠普则保持36倍
-			char[] rb = new char[buffer.length * (isDZJ ? 1 : 36)];
+			char[] rb = new char[buffer.length * (isDZJ ? 2 : 36)];
 // H.M.Wang 2021-12-29 在扩大3倍，到36倍（原来12倍）
-			for(int i = 0; i < (isDZJ ? 1 : 36); i++) {
+			for(int i = 0; i < (isDZJ ? 2 : 36); i++) {
 // End of H.M.Wang 2021-12-29 在扩大3倍，到36倍（原来12倍）
 // End of H.M.Wang 2022-4-1 如果是大字机，则恢复回原来的12倍(暂时测试4倍）；如果是惠普则保持36倍
+// End of H.M.Wang 2023-8-10 大字机的数据复制2倍
 				System.arraycopy(buffer, 0, rb, i * buffer.length, buffer.length -1);
 			}
 // H.M.Wang 2021-12-29 追加为清洗打印缓冲区生成调用slant
