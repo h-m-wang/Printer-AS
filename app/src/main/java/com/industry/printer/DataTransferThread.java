@@ -289,7 +289,15 @@ public class DataTransferThread {
 				if (dotHd) {
 					purgeFile = "purge/purge4big.bin";
 				}
-				
+// H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
+				PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
+				if(head == PrinterNozzle.MESSAGE_TYPE_32DN ||
+  				   head == PrinterNozzle.MESSAGE_TYPE_32SN ||
+				   head == PrinterNozzle.MESSAGE_TYPE_48_DOT) {
+					purgeFile = "purge/purge32.bin";
+				}
+// End of H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
+
 				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd);
 
 // H.M.Wang 2020-8-21 取消大字机清洗后直接退出，该恢复打印的还是应该恢复打印

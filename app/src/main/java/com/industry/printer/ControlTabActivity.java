@@ -61,6 +61,7 @@ import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.LRADCBattery;
+import com.industry.printer.hardware.PI11Monitor;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.RTCDevice;
@@ -83,7 +84,6 @@ import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnPositiveListe
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.MessageBrowserDialog;
 import com.industry.printer.ui.CustomerDialog.MessageBrowserDialog.OpenFrom;
-import com.industry.printer.ui.Test.TestGpioPins;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
@@ -411,8 +411,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //        private Timer mGpio11Timer = null;
 //		private int mPI11State = 0;
 // End of H.M.Wang 2021-9-19 追加PI11状态读取功能
+	private PI11Monitor mPI11Monitor = null;
+/*
 	private Timer mInPinReadTimer = null;
 	private int mInPinState = 0;
+// H.M.Wang 2023-8-12 追加P6，对于墨位低及溶剂低报警，这里定义时间间隔，单位为秒
+	public boolean mP6LevelLow = false;
+	private int mP6AlarmCount = 0;
+	public boolean mP6SolventLow = false;
+*/
+// H.M.Wang 2023-8-12 追加P6，对于墨位低及溶剂低报警，这里定义时间间隔，单位为秒
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 		//Socket___________________________________________________________________________________________
 
@@ -977,7 +985,158 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2022-3-21 根据工作中心对输入管脚协议的重新定义，大幅度修改相应的处理方法
 // H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 // H.M.Wang 2021-9-19 追加PI11状态读取功能
-        if(null == mInPinReadTimer) {
+		if(null == mPI11Monitor) {
+			mPI11Monitor = new PI11Monitor(mContext, new PI11Monitor.PI11MonitorFunc() {
+				@Override
+				public void onStartPrint() {
+					mBtnStart.post(new Runnable() {
+						@Override
+						public void run() {
+// H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
+							if(null == mDTransThread) {
+								mBtnStart.performClick();
+							} else
+// End of H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
+								if(mDTransThread.isPurging) {
+									ToastUtil.show(mContext, R.string.str_under_purging);
+//												return;
+								} else {
+									if(!mBtnStart.isClickable()) {
+//									ToastUtil.show(mContext, "Not executable");
+//												return;
+									} else if(mDTransThread.isRunning()) {
+//									ToastUtil.show(mContext, "Already in printing");
+//												return;
+									} else {
+////                                                mInPinState |= 0x01;
+//								Debug.d(TAG, "Launch Print by pressing PI11!");
+										mBtnStart.performClick();
+									}
+								}
+						}
+					});
+				}
+
+				@Override
+				public void onStopPrint() {
+					mBtnStart.post(new Runnable() {
+						@Override
+						public void run() {
+							if(null != mDTransThread) {
+								if (mDTransThread.isPurging) {
+									ToastUtil.show(mContext, R.string.str_under_purging);
+//												return;
+								} else {
+									if (!mBtnStop.isClickable()) {
+//									ToastUtil.show(mContext, "Not executable");
+//												return;
+									}
+									if (!mDTransThread.isRunning()) {
+//									ToastUtil.show(mContext, "Not in printing");
+//												return;
+									}
+//								Debug.d(TAG, "Stop Print by releasing PI11!");
+									mBtnStop.performClick();
+								}
+							}
+						}
+					});
+				}
+
+				@Override
+				public void onMirror() {
+
+				}
+
+				@Override
+				public void onResetCounter() {
+
+				}
+
+				@Override
+				public void onPrintFile(int index) {
+					if(index != 0x00) {
+						String fileName = "" + index;
+						Debug.d(TAG, "IN8-IN5 select file: " + fileName);
+						if(new File(ConfigPath.getTlkDir(fileName)).exists()) {
+							Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
+							Bundle bundle = new Bundle();
+							bundle.putString("file", fileName);
+// H.M.Wang 2022-3-1 正在打印中的时候切换打印信息，重新生成打印缓冲区
+							if (mDTransThread != null && mDTransThread.isRunning()) {
+								bundle.putBoolean("printNext", true);
+							}
+// End of H.M.Wang 2022-3-1 正在打印中的时候切换打印信息，重新生成打印缓冲区
+							msg.setData(bundle);
+							mHandler.sendMessage(msg);
+						}
+					}
+				}
+
+				@Override
+				public void onLevelLow() {
+					ExtGpio.writeGpio('h', 7, 1);
+					mBtnStart.post(new Runnable() {
+						@Override
+						public void run() {
+							ToastUtil.show(mContext, R.string.strLevelLow);
+						}
+					});
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
+						@Override
+						public void run() {
+							if(!mIsAlarming) {
+								mIsAlarming = true;
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+								mIsAlarming = false;
+							}
+						}
+					});
+				}
+
+				@Override
+				public void onSolventLow() {
+					ExtGpio.writeGpio('h', 7, 1);
+					mBtnStart.post(new Runnable() {
+						@Override
+						public void run() {
+							ToastUtil.show(mContext, R.string.strSolventLow);
+						}
+					});
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
+						@Override
+						public void run() {
+							if(!mIsAlarming) {
+								mIsAlarming = true;
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+								mIsAlarming = false;
+							}
+						}
+					});
+				}
+
+				@Override
+				public void onLevelHigh() {
+					ExtGpio.writeGpio('h', 7, 0);
+				}
+
+				@Override
+				public void onSolventHigh() {
+					ExtGpio.writeGpio('h', 7, 0);
+				}
+			});
+			mPI11Monitor.start(5000L);
+		}
+/*
+        if(null != mInPinReadTimer) {
 			mInPinReadTimer = new Timer();
 			mInPinReadTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -987,7 +1146,62 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
                         return;
                     }
 
-					final int newState = ExtGpio.readPI11State();
+//					final int newState = ExtGpio.readPI11State();
+					int aaa = 0;
+
+					if(ccc > 30) {
+						aaa = 0x30;
+					}
+					if(ccc > 60) {
+						aaa = 0x20;
+					}
+					if(ccc > 90) {
+						aaa = 0x10;
+					}
+					if(ccc > 120) {
+						aaa = 0x00;
+					}
+
+					Debug.d(TAG, "ccc = " + ccc);
+					final int newState = aaa;
+					ccc++;
+
+					//     协议６：　
+					//            0x10：墨位低（Output2输出，弹窗）
+					//            0x20：溶剂低（Output2输出，弹窗）
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
+						if(mP6LevelLow || mP6SolventLow) {
+							mP6AlarmCount++;
+						}
+						if(mP6AlarmCount >= 5) {
+							mP6AlarmCount = 0;
+							ExtGpio.writeGpio('h', 7, 1);
+							mBtnStart.post(new Runnable() {
+								@Override
+								public void run() {
+									if(mP6LevelLow)
+										ToastUtil.show(mContext, R.string.strLevelLow);
+									if(mP6SolventLow)
+										ToastUtil.show(mContext, R.string.strSolventLow);
+								}
+							});
+							ThreadPoolManager.mControlThread.execute(new Runnable() {
+								@Override
+								public void run() {
+									if(!mIsAlarming) {
+										mIsAlarming = true;
+										ExtGpio.playClick();
+										try{Thread.sleep(50);}catch(Exception e){};
+										ExtGpio.playClick();
+										try{Thread.sleep(50);}catch(Exception e){};
+										ExtGpio.playClick();
+										mIsAlarming = false;
+									}
+								}
+							});
+						}
+					}
+
 					if(mInPinState == newState) return;
 					Debug.d(TAG, "oldState = " + mInPinState + "; newState = " + newState);
 
@@ -997,12 +1211,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
                     //     协议２：　
                     //            0x01：是打印开始停止
-                    //     协议５：
+                    //     协议４：
                     //            0x01：是打印“开始／停止”控制位。其中，打印开始停止是在apk里面处理的，方向控制是在img里面控制的
 					//     协议６：　
 					//            0x01：是打印开始停止
                     if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_2 ||
-					   mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 ||
+					   mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 ||
                        mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
                         if((mInPinState & 0x01) != (newState & 0x01)) {		// 0x01位的前后值不一致
                             mBtnStart.post(new Runnable() {
@@ -1052,25 +1266,28 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
                     //     协议３：
                     //            0x01：方向切换
-					//     协议５：
-					//            0x04：方向切换
-					//     协议６：　
-					//            0x04：方向切换
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_3  && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04)) {
+					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_3  && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01)) {
 						Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
 						FpgaGpioOperation.setMirror(newState & 0x01);
+					}
+					//     协议４：
+					//            0x04：方向切换
+					//     协议６：　
+					//            0x04：方向切换
+					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04)) {
+						Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
+						FpgaGpioOperation.setMirror(((newState & 0x04) == 0x04) ? 1 : 0);
                     }
 
-					//     协议４：
-					//            0x01：是计数器清零，包括RTC的数据和正在打印的数据
 					//     协议５：
+					//            0x01：是计数器清零，包括RTC的数据和正在打印的数据
+					//     协议４：
 					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
 					//     协议６：　
 					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
+					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
+					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
 					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02)) {
 						Debug.d(TAG, "Clear counters");
 						SystemConfigFile sysConfigFile = SystemConfigFile.getInstance();
@@ -1080,6 +1297,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							sysConfigFile.setParamBroadcast(i+SystemConfigFile.INDEX_COUNT_1, 0);
 						}
 						RTCDevice.getInstance(mContext).writeAll(counters);
+
+// H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
+						if (mDTransThread != null && mDTransThread.isRunning() && mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
+							FpgaGpioOperation.clear();
+						}
+// End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
 
 						List<DataTask> tasks = null;
 						if (mDTransThread != null) {
@@ -1106,17 +1329,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						}
                     }
 
-					//     协议５：
+					//     协议４：
 					//            0xF0段，即0x10 - 0xF0)为打印文件的文件名（数字形式，1-15）
-					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
 						if((mInPinState & 0x0F0) != (newState & 0x0F0)) {
-////                            mInPinState = (mInPinState & 0x0F) + (newState & 0x0F0);
 							int index = 0x0F & (newState >> 4);
 							if(index != 0x00) {
-								String fileName = "0" + index;
-//						if(index >= 10) {
-								fileName = "" + index;
-//						}
+								String fileName = "" + index;
 								Debug.d(TAG, "IN8-IN5 select file: " + fileName);
 								if(new File(ConfigPath.getTlkDir(fileName)).exists()) {
 									Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
@@ -1132,11 +1351,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 								}
 							}
 						}
-// H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-						if (mDTransThread != null && mDTransThread.isRunning()) {
-							FpgaGpioOperation.clear();
-						}
-// End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
 					}
 
 					//     协议６：　
@@ -1144,16 +1358,34 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					//            0x20：溶剂低（Output2输出，弹窗）
 					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
 						if((mInPinState & 0x10) == 0x00 && (newState & 0x10) == 0x10) {
-//							ExtGpio.writeGpioTestPin(TestGpioPins.OUT_PINS[1].charAt(1), Integer.valueOf(TestGpioPins.OUT_PINS[1].substring(2)), TestGpioPins.PIN_ENABLE);
+							Debug.d(TAG, "Level Low");
+							mP6LevelLow = true;
+							mP6AlarmCount = 0;
+						} else if((mInPinState & 0x10) == 0x10 && (newState & 0x10) == 0x00) {
+							Debug.d(TAG, "Level High");
+							ExtGpio.writeGpio('h', 7, 0);
+							mP6LevelLow = false;
+							mP6AlarmCount = 0;
 						}
 						if((mInPinState & 0x20) == 0x00 && (newState & 0x20) == 0x20) {
-//							ExtGpio.writeGpioTestPin(TestGpioPins.OUT_PINS[1].charAt(1), Integer.valueOf(TestGpioPins.OUT_PINS[1].substring(2)), TestGpioPins.PIN_ENABLE);
+							Debug.d(TAG, "Solvent Low");
+							mP6SolventLow = true;
+							mP6AlarmCount = 0;
+						} else if((mInPinState & 0x20) == 0x20 && (newState & 0x20) == 0x00) {
+							Debug.d(TAG, "Solvent High");
+							ExtGpio.writeGpio('h', 7, 0);
+							mP6SolventLow = false;
+							mP6AlarmCount = 0;
 						}
+					} else {
+						mP6LevelLow = false;
+						mP6SolventLow = false;
 					}
 					mInPinState = newState;
 				}
-            }, 3000L, 1000L);
-        }
+			}, 3000L, 1000L);
+		}
+ */
 // End of H.M.Wang 2021-9-19 追加PI11状态读取功能
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 // End of H.M.Wang 2022-3-21 根据工作中心对输入管脚协议的重新定义，大幅度修改相应的处理方法
@@ -1162,6 +1394,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 		mPC_FIFO = PC_FIFO.getInstance(mContext);
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+	}
+
+	public boolean getLevelLow() {
+		if(null != mPI11Monitor) return mPI11Monitor.getLevelLow();
+		return false;
+	}
+
+	public boolean getSolventLow() {
+		if(null != mPI11Monitor) return mPI11Monitor.getSolventLow();
+		return false;
 	}
 
 	@Override
@@ -2025,39 +2267,31 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				case RFIDManager.MSG_RFID_CHECK_FAIL:
 					Debug.d(TAG, "--->Print check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
-					new Thread() {
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
 						@Override
 						public void run() {
-							try{
-								ExtGpio.playClick();
-								sleep(50);
-								ExtGpio.playClick();
-								sleep(50);
-								ExtGpio.playClick();
-							} catch (Exception e) {
-								Debug.e(TAG, e.getMessage());
-							}
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
 						}
-					}.start();
+					});
 					break;
 // H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 				case RFIDManager.MSG_RFID_CHECK_FAIL_INK_CHANGED:
 					Debug.d(TAG, "--->Print check UUID fail. Ink Changed!!!");
 					handleError(R.string.str_toast_ink_error_ink_changed, pcMsg);
-					new Thread() {
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
 						@Override
 						public void run() {
-							try{
-								ExtGpio.playClick();
-								sleep(50);
-								ExtGpio.playClick();
-								sleep(50);
-								ExtGpio.playClick();
-							} catch (Exception e) {
-								Debug.e(TAG, e.getMessage());
-							}
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
 						}
-					}.start();
+					});
 					break;
 // End of  H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 // H.M.Wang 2022-1-13 追加获取RFID写3次失败后的通知
@@ -2345,21 +2579,20 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case MESSAGE_RFID_ALARM:
 					mFlagAlarming = true;
+					// GPIO版本的img时，PH7是错误指示灯，SPI版本的img的时候，PI8是错误指示灯。但是apk仍然调用PH7，在img里面根据img的版本进行PH7或者PI8的调整
 					ExtGpio.writeGpio('h', 7, 1);
 
                     ThreadPoolManager.mControlThread.execute(new Runnable() {
 						@Override
 						public void run() {
-							if(!AAAA) {
-								AAAA = true;
-								Debug.d(TAG, "---playClick---");
+							if(!mIsAlarming) {
+								mIsAlarming = true;
 								ExtGpio.playClick();
-								try{Thread.sleep(150);}catch(Exception e){};
+								try{Thread.sleep(50);}catch(Exception e){};
 								ExtGpio.playClick();
-								try{Thread.sleep(150);}catch(Exception e){};
+								try{Thread.sleep(50);}catch(Exception e){};
 								ExtGpio.playClick();
-								try{Thread.sleep(150);}catch(Exception e){};
-								AAAA = false;
+								mIsAlarming = false;
 							}
 						}
 					});
@@ -2383,7 +2616,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 	};
 
-	private boolean AAAA = false;
+	private volatile boolean mIsAlarming = false;
 
 	private void handlerSuccess(int toastRs, String pcMsg) {
 		ToastUtil.show(mContext, toastRs);
@@ -3393,20 +3626,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		Debug.d(TAG, "--->onFinished");
 // H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 //		mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
-		new Thread() {
+		ThreadPoolManager.mControlThread.execute(new Runnable() {
 			@Override
 			public void run() {
-				try{
-					ExtGpio.playClick();
-					sleep(50);
-					ExtGpio.playClick();
-					sleep(50);
-					ExtGpio.playClick();
-				} catch (Exception e) {
-					Debug.e(TAG, e.getMessage());
-				}
+				ExtGpio.playClick();
+				try{Thread.sleep(50);}catch(Exception e){};
+				ExtGpio.playClick();
+				try{Thread.sleep(50);}catch(Exception e){};
+				ExtGpio.playClick();
 			}
-		}.start();
+		});
 // End of H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 
 		getActivity().runOnUiThread(new Runnable() {

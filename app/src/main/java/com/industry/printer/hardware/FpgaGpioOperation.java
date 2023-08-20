@@ -504,12 +504,14 @@ public class FpgaGpioOperation {
 // H.M.Wang 2023-5-29 data[4]设为200x3
 //            data[4] = 200;
 // H.M.Wang 2023-5-31 data[4]在喷头为32SN和32DN的时候，不设为200x3，反倒设为200/4
-            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
-                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN) {
-                data[4] = 50;
-            } else {
+// H.M.Wang 2023-8-11 32SN/DN的S5不在特殊处理，改为标准的600
+//            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
+//                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN) {
+//                data[4] = 50;
+//            } else {
                 data[4] = 600;
-            }
+//            }
+// End of H.M.Wang 2023-8-11 32SN/DN的S5不在特殊处理，改为标准的600
 // End of H.M.Wang 2023-5-31 data[4]在喷头为32SN和32DN的时候，不设为200x3，反倒设为200/4
 // End of H.M.Wang 2023-5-29 data[4]设为200x3
 // End of H.M.Wang 2022-3-4 data[4]设为200

@@ -1,580 +1,701 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!-- tr 20170319 -->
+<!-- En 20170322 -->
 
-    <string name="app_version">Sürüm:</string>
+    <string name="app_version">Ver:</string>
     <string name="system_time">Zaman:</string>
     <string name="app_name">Yazıcı</string>
-    <string name="action_settings">Ayar</string>
-    <string name="hello_world">Merhaba Dünya!</string>
-    <string name="ControlTab">Kontrol</string>
-    <string name="manualCtrlTab">Kontrol adamı</string>
-    <string name="Edit">Düzenle</string>
-    <string name="Settings">Ayarlar</string>
-    <string name="str_btn_start">Başla</string>
-    <string name="str_btn_stop">Dur</string>
-    <string name="str_btn_clean">Temizle</string>
-    <string name="str_btn_open">Aç</string>
-    <string name="str_btn_new">Yeni</string>
-    <string name="str_btn_save">Kaydet</string>
-    <string name="str_btn_saveas">Farklıkaydet</string>
-    <string name="str_btn_prerecord">Yukarı</string>
-    <string name="str_btn_nextrecord">Aşağı</string>
-    <string name="str_btn_send">Gönder</string>
-    <string name="str_btn_set">Ayar</string>
-    <string name="str_btn_get">Mesaj</string>
-    <string name="str_btn_print">Yazdır</string>
-    <string name="str_btn_finish">Bitir</string>
-    <string name="str_btn_header1">Kalem1</string>
-    <string name="str_btn_header2">Kalem2</string>
-    <string name="str_btn_header3">Kalem3</string>
-    <string name="str_btn_header4">Kalem4</string>
-    <string name="strDate">Tarih:</string>
-    <string name="strInklevel">Kalan</string>
-    <string name="strPhotocellState">Fotocel</string>
-    <string name="strEncoderState">Enkoder</string>
-    <string name="strPrintstate">Yazıyor：</string>
-    <string name="strPrinting">Yazıyor</string>
-    <string name="strPrintok">Hazır</string>
-    <string name="strOn">Aç</string>
-    <string name="strOff">Kapa</string>
-    <string name="strwaitting">yazıyor......</string>
-    <string name="str_csvfile">Csv</string>
-    <string name="str_tlkfile">Tlk</string>
-    <string name="str_binfile">Aç</string>
-    <string name="str_openfile">Aç...</string>
+    <string name="action_settings">Ayarla</string>
+    <string name="hello_world">Merhaba dünya!</string>
+	<string name="ControlTab">Kontrol</string>
+	<string name="manualCtrlTab">Kontrol adamı</string>
+	<string name="Home">Ev</string>
+	<string name="Edit">Düzenle</string>
+	<string name="Settings">Ayarlar</string>
+	<string name="str_btn_start">Başlat</string>
+	<string name="str_btn_stop">Dur</string>
+	<string name="str_btn_launch">Başlat</string>
+	<string name="str_btn_clean">Temizle</string>
+	<string name="str_btn_sclean">Temizle</string>
+<!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
+	<string name="str_purge_confirm">Temizlemeyi onaylayın</string>
+	<string name="str_clean_confirm">Bu temizlik yaklaşık 5 dakika sürecek, devam edecek mi?</string>
+	<string name="str_under_purging">Temizliyorum, lütfen sonra deneyin.</string>
+<!-- End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
+	<string name="str_under_printing">Lütfen bastırıp tekrar deneyin.</string>
+	<string name="str_btn_open">Aç</string>
+	<string name="str_remain_ink">Ink</string>
+	<string name="str_remain_ptimes">Yazıldı:</string>
+	<string name="str_btn_new">Yeni</string>
+	<string name="str_btn_save">Kaydet</string>
+	<string name="str_btn_saveprint">Yazımı Saqla</string>
+	<string name="str_btn_cancel">Lütfen</string>
+	<string name="str_ip_add">Ip Addr</string>
+	<string name="str_device_number">Aygıt:</string>
+	<string name="str_dialog_surecancel">Uyarı:</string>
+	<string name="str_device_but_sure">Tabii ki.</string>
+	<string name="str_ip_ed">Lütfen IP ayarlayın ve tekrar deneyin</string>
+	<string name="str_print_documents"></string>
+	<string name="str_port">Port</string>
+	<string name="str_information">İşletmek ister misiniz?</string>
+	<string name="str_btn_saveas">Kaydet\nas</string>
+	<string name="str_btn_prerecord">Yukarı</string>
+	<string name="str_btn_nextrecord">Aşağı</string>
+	<string name="str_btn_send">Gönderin</string>
+	<string name="str_btn_set">Ayarla</string>
+	<string name="str_btn_get">Metin</string>
+	<string name="str_btn_print">Bastır</string>
+	<string name="str_btn_finish">Bitir</string>
+	<string name="str_btn_header1">Pen1</string>
+	<string name="str_btn_header2">Pen2</string>
+	<string name="str_btn_header3">Pen3</string>
+	<string name="str_btn_header4">Pen4</string>
+	<string name="strDate">Tarih:</string>
+	<string name="strInklevel">Kalın:</string>
+	<string name="strPhotocellState">Fotoğraf hücresi</string>
+	<string name="strEncoderState">Kodlayıcı</string>
+	<string name="strPrintstate">Yazım:</string>
+	<string name="strPrinting">Yazılıyor</string>
+	<string name="strPrintok">Yazılıyor</string>
+	<string name="strOn">On</string>
+	<string name="strOff">Kapat</string>
+	<string name="strwaitting">Bastırmak...</string>
+	<string name="str_csvfile">Csv</string>
+	<string name="str_tlkfile">Tlk</string>
+	<string name="str_binfile">Aç</string>
+	<string name="str_openfile">Aç...</string>
+	<string name="str_open_msg">Bayan...</string>
 <!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
-    <string name="str_opentemplate">Temp...</string>
+	<string name="str_opentemplate">Temp...</string>
 <!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
-    <string name="str_mvforward">İleri</string>
-    <string name="str_mvbackward">Geri</string>
-    <string name="str_preview">Önizleme</string>
-    <string name="str_del">Sil</string>
-    <string name="str_multi_select">Group</string>
-    <string name="str_btn_shift">Vardiya</string>
-    <string name="str_btn_second">Dakika</string>
-<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
-    <string name="object_hypertext">Hypertext</string>
-<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
-    <string name="str_btn_upgrade">Yükselt</string>
-    <string name="str_btn_setDate">Tarih Ayarı</string>
-    <string name="str_btn_setTime">Zaman Ayarı</string>
-    <string name="str_btn_image">Logo</string>
-    <string name="str_goto">git</string>
-	<string name="str_remain_ink">MÜRK</string>
-	<string name="str_remain_ptimes">Total</string>
+	<string name="str_seldata">Aç....</string>
+	<string name="str_mvforward">İleri</string>
+	<string name="str_mvbackward">Geri</string>
+	<string name="str_preview">Önizleme</string>
 	
-    <!-- object info table -->
-    <string name="strWidth">Genişlik</string>
-    <string name="strHigh">Yükseklik</string>
-    <string name="strHightype">Stepwise</string>
-    <string name="strReverse">Inversion</string>
-    <string name="strRevert">Revert</string>
-    <string name="strXcor">X-Cor</string>
-    <string name="strYcor">Y-Cor</string>
-    <string name="strCnt">İçerik</string>
-    <string name="strDefault">0</string>
-    <string name="txtDefault">mesaj</string>
-    <string name="strDragable">Sürüklenebilir</string>
-    <string name="strShow">Göster</string>
-	<string name="strFontsize">yazı</string>
-    <string name="strFont">Yazı tipi</string>
-    <string name="strLinewidth">Satır Genişliği</string>
-    <string name="strBits">Rakamlar</string>
-    <string name="strImage">Resim</string>
-    <string name="strDirect">Yön</string>
-    <string name="strShift1">Vardiya1</string>
-    <string name="strShift2">Vardiya2</string>
-    <string name="strShift3">Vardiya3</string>
-    <string name="strShift4">Vardiya4</string>
-    <string name="strShift5">Variya5</string>
-    <string name="strInfoname">Bilgi</string>
-    <string name="strHeadType">KalemTipi</string>
-    <string name="strHeadResolution">HD</string>
-    <string name="strUpgradeConfirm">Yükseltmek istiyor musunuz?</string>
-    <string name="strUpgradeNoApk">Yükseltme dosyası yok!!!</string>
-    <string name="strSaving">kaydediliyor, lütfen bekleyin...</string>
-    <string name="strLoading">yükleniyor, lütfen bekleyin...</string>
-    <string name="strCopying">Copying, attendere prego...</string>
-    <string name="strInsertSerial">Lütfen cihazı bağlayın...</string>
-    <string name="strReinsertSerial">Hata, lütfen cihazı yenden bağlayın</string>
-    <string name="strCode">Kod Türü</string>
-    <string name="strBarsource">Data</string>
-    <string name="strLinetype">Hat Türü</string>
-    <string name="str_ok">tamam</string>
-    <string name="strNativeBtn">İptal etmek</string>
-    <string name="strRtFmt">Biçim</string>
-    <string name="strOffset">Offset</string>
+	<string name="str_del">Sil</string>
+	<string name="str_multi_select">Grup</string>
+	<string name="str_btn_shift">Shift</string>
+	<string name="str_btn_second">İkinci</string>
+	
+	<string name="str_btn_upgrade">Yükselt</string>
+	<string name="str_btn_setDate">Tarihi ayarla</string>
+	<string name="str_btn_setTime">Zamanı ayarla</string>
+	<string name="str_btn_image">Logo</string>
+	<string name="str_net_device_ink">Ink</string>
+	<string name="str_goto">Goto</string>
+	<!-- object info table -->
+	<string name="strWidth">genişliği</string>
+	<string name="strHigh">Ölçü</string>
+	<string name="strHightype">Stepwise</string>
+	<string name="strReverse">Dönüştürme</string>
+	<string name="strRevert">Geri dön</string>
+	<string name="strXcor">Horizon</string>
+	<string name="strYcor">Vertikal</string>
+	<string name="strCnt">İçindekiler</string>
+	<string name="strDefault">0</string>
+	<string name="txtDefault">metin</string>
+	<string name="strDragable">Yıldırabilir</string>
+	<string name="strShow">Göster</string>
+	<string name="strFontsize">Yazıtipi Ölçüsi</string>
+	<string name="strFont">Yazıtipi</string>
+	<string name="strLinewidth">Satır genişliği</string>
+	<string name="strBits">Sayılar</string>
+	<string name="strImage">Resim</string>
+	<string name="strDirect">Doğru</string>
+	<string name="strShift1">Shift1</string>
+	<string name="strShift2">Shift2</string>
+	<string name="strShift3">Shift3</string>
+	<string name="strShift4">Shift4</string>
+	<string name="strShift5">Shift5</string>
+	<string name="strInfoname">Nesne</string>
+	<string name="strHeadType">PenType</string>
+	<string name="strHeadResolution">HD</string>
+	<string name="strUpgradeConfirm">Güncelle mi?</string>
+	<string name="strUpgradeNoApk">Güncelleme dosyası yok!!!</string>
+	<string name="strSaving">kaydediyorum, lütfen bekle...</string>
+	<string name="strLoading">Yükleme, lütfen bekle...</string>
+	<string name="strCopying">Kopyalama, lütfen bekle...</string>
+	<string name="strInsertSerial">Lütfen cihazı bağlayın...</string>
+	<string name="strReinsertSerial">Hata, lütfen cihazı yeniden bağlayın</string>
+	<string name="str_net_error">Ağ iletişim hatası</string>
+<!--
+	<string-array name="strFontFile">
+	    <item>WelldrawH000</item>
+	</string-array>
+-->
+
+	<string name="strGroup">Grup</string>
+	<string name="strCode">Grup Kodu Türü</string>
+	<string name="strBarsource">Veri</string>
+	<string name="strLinetype">Hat Türü</string>
+	<string name="str_ok">Tamam.</string>
+	<string name="strNativeBtn">Lütfen</string>
+	<string name="strRtFmt">Format</string>
+	<string name="strOffset">Devam et</string>
 
 <!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
-    <string name="strFrame">Frame</string>
+	<string name="strFrame">Frame</string>
 <!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
 
 <!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
-    <string name="strErrorCorrectionLevel">EC Level</string>
+	<string name="strErrorCorrectionLevel">EC Level</string>
 <!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
 
-    <!-- object list -->
-    <string name="objectListName">Listeyi Göster</string>
-    <string name="objectInfoName">Mesajı Göster</string>
-    <string name="object_Msg">MESAJ</string>
-    <string name="object_text">Mesaj</string>
-    <string name="object_realtime">Tarih</string>
-    <string name="object_counter">Sayıcı</string>
-    <string name="object_bar">Barkod</string>
-    <string name="object_pic">Grafik</string>
-    <string name="object_julian">Julian</string>
-    <string name="object_line">Çizgi</string>
-    <string name="object_rect">Dikdörtgen</string>
-    <string name="object_ellipse">Elips</string>
-    <string name="object_shift">Vardiya</string>
-    <string name="object_second">Dakika</string>
-	<string name="object_weekofyear">WeekOfYear</string>
-	<string name="object_weekday">WeekDay</string>
-    <string name="object_charHour">AlphaHour</string>
-    <string name="object_msg_name">Konu</string>
-    <string name="object_qr">QRCode</string>
+	<!-- object list -->
+	<string name="objectListName">Listeyi göster</string>
+	<string name="objectInfoName">TEKST Göster</string>
+	<string name="object_Msg">TEKST</string>
+	<string name="object_text">Metin</string>
+	<string name="object_realtime">Tarih</string>
+	<string name="object_counter">Sayıcı</string>
+	<string name="object_bar">Barcode</string>
+	<string name="object_pic">Grafik</string>
+	<string name="object_julian">Yan@ item Calendar system</string>
+	<string name="object_line">Hat</string>
+	<string name="object_rect">Rect</string>
+	<string name="object_ellipse">Elipse</string>
+	<string name="object_shift">Shift</string>
+	<string name="object_second">İkinci</string>
+<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+	<string name="object_hypertext">Hypertext</string>
+<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_hypertext_hint1"><u>@Y</u>:Year <u>@M</u>:Month <u>@D</u>Tarih:</string>
+	<string name="object_hypertext_hint2"><u>@H</u>:Hour <u>@N</u>:Minute <u>@S</u>İkinci:</string>
+	<string name="object_hypertext_hint3"><u>@T</u>:Shift <u>@A</u>:Day <u>@W</u>Hafta yok.</string>
+	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>Sayıcılar:</string>
+<!-- H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
+	<string name="object_hypertext_hint5"><u>@UG</u>:Kullanıcı Grubu</string>
+<!-- End of H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
+<!-- End of H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_weekofyear">HaftayOfYear</string>
+	<string name="object_weekday">Hafta Günü</string>
+	<string name="object_charHour">Alfa Saat</string>
+	<string name="object_msg_name">Mevzu</string>
+	<string name="object_qr">QRCode</string>
 	<string name="object_dynamic_qr">DynamicQR</string>
 <!-- H.M.Wang 2020-7-29 所有条码均可以设置为动态条码，追加动态条码文字 -->
-    <string name="object_dynamic_barcode">DynamicBarcode</string>
+	<string name="object_dynamic_barcode">DynamicBarcode</string>
 <!-- End of H.M.Wang 2020-7-29 所有条码均可以设置为动态条码，追加动态条码文字 -->
-    <!-- Settings frame -->
-    <string name="strParam0">00.Ayrılmış</string>
-    <string name="strPrSpeedname">01.Hız</string>
-    <string name="strDelay_key">Gecikme anahtarı</string>
-    <string name="strDelayname">02.Gecikme</string>
-    <string name="strDelay_summary">Gecikme Ayarı</string>
-    <string name="strParam3">03.Ayrılmış</string>
-    <string name="strTrigger_key">tetikleme_tuşu</string>
-    <string name="strTriggername">04.Tetikleme</string>
-    <string name="strTrigger_summary">Tetikleme Modu</string>
-    <string name="strDirection_key">yön tuşu</string>
-    <string name="strSyncname">05.Enkoder</string>
-    <string name="strDirectionname">05.Senkrnz</string>
-    <string name="strBold">06.Kalınlık</string>
-    <string name="strFixlen">07.Uzunluk</string>
-    <string name="strFixtime">08.Zaman Ayarlama</string>
-    <string name="strHeadTemp">09.Kafa Sıcaklığı</string>
-    <string name="strResvTemp">10.Kutu Sıcaklığı</string>
-    <string name="strfontwidth">11.fontgenişlği</string>
-    <string name="strDotname">12.Damlaboyutu</string>
-    <string name="strDirection_summary">Yön Seçimi</string>
-    <string name="strEncoder_key">enkoder</string>
-    <string name="strEncodername">03.Enkoder</string>
-    <string name="strEncoder_summary">Enkoder mod Ayarı</string>
-    <string name="strHoriRes_key">dikey_tuşu</string>
-    <string name="strHoriResname">04.Dikey</string>
-    <string name="strHoriRes_summary">Dikey Çözünürlük Ayarı</string>
-    <string name="strVertRes_key">yatay_tuşu</string>
-    <string name="strVertResname">05.Yatay</string>
-    <string name="strVertRes_summary">Yatay Çözünürlük Ayarı</string>
-    <string name="strTimeunit">ms</string>
-    <string name="strResunit">dpi</string>
-    <string name="strLenunit">0.1mmm</string>
-    <string name="strTempunit">C</string>
-    <string name="strPrSpeedUnit">HZ</string>
-    <string name="strResvname8">08.Ayrılmış</string>
-    <string name="strResvname9">09.Ayrılmış</string>
-    <string name="strResvname10">10.Ayrılmış</string>
-    <string name="strResvname11">11.Ayrılmış</string>
-    <string name="strResvname12">12.Ayrılmış</string>
-    <string name="strResvname13">13.Ayrılmış</string>
-    <string name="strResvname14">14.Ayrılmış</string>
-    <string name="strResvname15">15.Ayrılmış</string>
-    <string name="strResvname16">16.Ayrılmış</string>
-    <string name="strResvname17">17.Ayrılmış</string>
-    <string name="strResvname18">18.Ayrılmış</string>
-    <string name="strResvname19">19.Ayrılmış</string>
-    <string name="strResvname20">20.Ayrılmış</string>
-    <string name="strResvname21">21.Ayrılmış</string>
-    <string name="strResvname22">22.Ayrılmış</string>
-    <string name="strResvname23">23.Ayrılmış</string>
-    <string name="strResvname24">24.Ayrılmış</string>
-    <string name="strResvname25">25.Ayrılmış</string>
-    <string name="strResvname26">26.Ayrılmış</string>
-    <string name="strResvname27">27.Ayrılmış</string>
-    <string name="strResvname28">28.Ayrılmış</string>
-    <string name="strResvname29">29.Ayrılmış</string>
-    <string name="strResvname30">30.Ayrılmış</string>
-    <string name="strResvname31">31.Ayrılmış</string>
-    <string name="strResvname32">32.Ayrılmış</string>
-    <string name="strResvname33">33.Ayrılmış</string>
-    <string name="strResvname34">34.Ayrılmış</string>
-    <string name="strResvname35">35.Ayrılmış</string>
-    <string name="strResvname36">36.Ayrılmış</string>
-    <string name="strResvname37">37.Ayrılmış</string>
-    <string name="strResvname38">38.Ayrılmış</string>
-    <string name="strResvname39">39.Ayrılmış</string>
-    <string name="strResvname40">40.Ayrılmış</string>
-    <string name="strResvname41">41.Ayrılmış</string>
-    <string name="strResvname42">42.Ayrılmış</string>
-    <string name="strResvname43">43.Pens</string>
-    <string name="strResvname44">44.Ayrılmış</string>
-    <string name="strResvname45">45.Ayrılmış</string>
-    <string name="strResvname46">46.Ayrılmış</string>
-    <string name="strResvname47">47.Ayrılmış</string>
-    <string name="strResvname48">48.Ayrılmış</string>
-    <string name="strResvname49">49.Ayrılmış</string>
-    <string name="strResvname50">50.Ayrılmış</string>
-    <string name="strResvname51">51.Ayrılmış</string>
-    <string name="strResvname52">52.Ayrılmış</string>
-    <string name="strResvname53">53.Ayrılmış</string>
-    <string name="strResvname54">54.Ayrılmış</string>
-    <string name="strResvname55">55.Ayrılmış</string>
-    <string name="strResvname56">56.Ayrılmış</string>
-    <string name="strResvname57">57.Ayrılmış</string>
-    <string name="strResvname58">58.Ayrılmış</string>
-    <string name="strResvname59">59.Ayrılmış</string>
-    <string name="strResvname60">60.Ayrılmış</string>
-    <string name="strResvname61">61.Ayrılmış</string>
-    <string name="strResvname62">62.Ayrılmış</string>
-    <string name="strResvname63">63.Ayrılmış</string>
-    <string name="strResvname64">64.Ayrılmış</string>
-    <string name="strBtnSave">Tamam</string>
-    <string name="str_fileicon_des">Dosya simgesi</string>
-    <string name="str_file_save"> Tamam </string>
-    <string name="str_file_cancel">İptal</string>
-    <string name="str_setting_upgrade">Yükselt</string>
-    <string name="str_month">Ay</string>
-    <string name="str_year">Yıl</string>
-    <string name="str_date">Gün</string>
-    <string name="str_hour">Saat</string>
-    <string name="str_minute">Dakika</string>
-    <string name="str_format">24-Format</string>
-    <string name="str_format_24">Evet</string>
-    <string name="str_format_12">Hayır</string>
-    <string name="cor_unit">dp</string>
-    <string name="font_unit">mm</string>
-    <string name="dot_unit">Dots</string>
-    <string name="str_trans">Sağdan</string>
-    <string name="str_column_index">içerik</string>
-    <string name="str_column_pic1">resim1</string>
-    <string name="str_column_pic2">resim2</string>
-    <string name="str_column_pic3">resim3</string>
-    <string name="str_column_pic4">resim4</string>
-    <string name="str_column_text1">mesaj1</string>
-    <string name="str_column_text2">mesaj2</string>
-    <string name="str_column_text3">mesaj3</string>
-    <string name="str_column_text4">mesaj4</string>
-    <string name="str_column_text5">mesaj5</string>
-    <string name="str_column_text6">mesaj6</string>
-    <string name="str_column_text7">mesaj7</string>
-    <string name="str_column_text8">mesaj8</string>
-    <string name="str_column_text9">mesaj9</string>
-    <string name="str_column_text10">mesaj10</string>
-    <string name="str_column_text11">mesaj11</string>
-    <string name="str_column_text12">mesaj12</string>
-    <string name="str_column_text13">mesaj13</string>
-    <string name="str_column_text14">mesaj14</string>
-    <string name="str_column_text15">mesaj15</string>
-    <string name="str_column_text16">mesaj16</string>
-    <string name="str_notlkfile">Lütfen TLK dosyasını seçin</string>
-    <string name="str_tlk_already_exist">Tlk dosyası hazır!!!</string>
-    <string name="str_createfile_failure">Düzenleme hatası</string>
-    <string name="str_no_print_target">Lütfen hedef seçiniz</string>
-    <string name="str_radioLocal">Dahili</string>
-    <string name="str_radioUsb">USB</string>
-    <string name="str_radioUsb1">USB1</string>
-    <string name="str_radioUsb2">USB2</string>
-    <string name="str_radioSdcard">SDKart</string>
-    <string name="str_title_infodialog">Nesne Bilgisi</string>
-    <string name="str_search">Ara</string>
+<!-- H.M.Wang 2020-6-10 追加DynamicText控件 -->
+	<string name="object_dynamictext">Dinamik metin</string>
+	<string name="object_dtindex">Indeks</string>
+<!-- End of H.M.Wang 2020-6-10 追加DynamicText控件 -->
 
-    <!-- 树莓派3 打印界面相关 -->
-    <string name="str_msg_name">MSJ:</string>
-    <!-- <string name="str_state_inklevel">MÜRK:  %1$d%%</string> -->
-    <string name="str_state_inklevel">MÜRK:</string>
-    <string name="str_invalid_ink">--</string>
-    <string name="str_state_battery">Güç:%1$d</string>
-    <string name="str_hint_preview">mesaj öngörünüm</string>
-    <string name="str_print_count">Kayıtlar: </string>
-    <string name="str_print_count_default">0</string>
-    <string name="str_print_printing">Yazdırma açık...</string>
-    <string name="str_print_startok">yazdırma işlemi başarılı...</string>
-    <string name="str_print_stopok">baskı durduruldu...</string>
-    <string name="str_toast_no_bin">Bin dosyası bulunamadı !!!</string>
-    <string name="str_toast_emptycontent">Seçilen mesaj boş!!!</string>
-    <string name="str_toast_no_message">Lütfen mesaj dosyası seçin!!!</string>
-    <string name="str_toast_no_ink">Mürekkep Az!!!</string>
+	<!-- Settings frame -->
+	<string name="strParam0">Saat.</string>
+	<string name="strPrSpeedname">01.Hız</string>
+	<string name="strDelay_key">delay_key</string>
+	<string name="strDelayname">02. Geç</string>
+	<string name="strDelay_summary">Geçici ayarlayın</string>
+	<string name="strParam3">03.Reserved</string>
+	<string name="strTrigger_key">trigger_key</string>
+	<string name="strTriggername">04.Trigger</string>
+	<string name="strTrigger_summary">Dönüştürme Modu</string>
+	<string name="strDirection_key">direction_key</string>
+	<string name="strSyncname">05. Kodlayıcı</string>
+	<string name="strDirectionname">05.Sync</string>
+	<string name="strBold">06. Karanlık</string>
+	<string name="strFixlen">07. Uzun</string>
+	<string name="strFixtime">08. Fix Zaman</string>
+	<string name="strHeadTemp">09.Head Temp</string>
+	<string name="strResvTemp">10.Box Temp</string>
+	<string name="strfontwidth">11. yazıtipi genişliği</string>
+	<string name="strDotname">12.Dotsize</string>
+	<string name="strDirection_summary">Doğru Seç</string>
+	<string name="strEncoder_key">Kodlayıcı</string>
+	<string name="strEncodername">03. Kodlayıcı</string>
+	<string name="strEncoder_summary">Kodlayıcı modunu ayarlayın</string>
+	<string name="strHoriRes_key">horires_key</string>
+	<string name="strHoriResname">04.Hori</string>
+	<string name="strHoriRes_summary">Hori Resolumu ayarlama</string>
+	<string name="strVertRes_key">vertres_key</string>
+	<string name="strVertResname">05.Vert</string>
+	<string name="strVertRes_summary">Vert Res ayarlama</string>
+	<string name="strTimeunit">ms</string>
+	<string name="strResunit">dpi</string>
+	<string name="strLenunit">0.1mmm</string>
+	<string name="strTempunit">C</string>
+	<string name="strPrSpeedUnit">HZ</string>
+	<string name="strResvname8">08.Reserved</string>
+	<string name="strResvname9">09.Reserved</string>
+	<string name="strResvname10">10.Reserved</string>
+	<string name="strResvname11">11.Reserved</string>
+	<string name="strResvname12">12.Reserved</string>
+	<string name="strResvname13">13.Reserved</string>
+	<string name="strResvname14">14.Reserved</string>
+	<string name="strResvname15">15.Reserved</string>
+	<string name="strResvname16">16.Reserved</string>
+	<string name="strResvname17">17.Reserved</string>
+	<string name="strResvname18">18.Reserved</string>
+	<string name="strResvname19">19.Reserved</string>
+	<string name="strResvname20">20.Reserved</string>
+	<string name="strResvname21">21.Reserved</string>
+	<string name="strResvname22">22.Reserved</string>
+	<string name="strResvname23">23.Reserved</string>
+	<string name="strResvname24">24.Reserved</string>
+	<string name="strResvname25">25.Reserved</string>
+	<string name="strResvname26">26.Reserved</string>
+	<string name="strResvname27">27.Reserved</string>
+	<string name="strResvname28">28.Reserved</string>
+	<string name="strResvname29">29.Reserved</string>
+	<string name="strResvname30">30.Reserved</string>
+	<string name="strResvname31">31.Reserved</string>
+	<string name="strResvname32">32.Reserved</string>
+	<string name="strResvname33">33.Reserved</string>
+	<string name="strResvname34">34.Reserved</string>
+	<string name="strResvname35">35.Reserved</string>
+	<string name="strResvname36">36.Reserved</string>
+	<string name="strResvname37">37.Reserved</string>
+	<string name="strResvname38">38. Hepsi için bir tane.</string>
+	<string name="strResvname39">39.Reserved</string>
+	<string name="strResvname40">40.Reserved</string>
+	<string name="strResvname41">41.Reserved</string>
+	<string name="strResvname42">42.Reserved</string>
+	<string name="strResvname43">43.Pens</string>
+	<string name="strResvname44">44.Reserved</string>
+	<string name="strResvname45">45.Reserved</string>
+	<string name="strResvname46">46.Reserved</string>
+	<string name="strResvname47">47.Reserved</string>
+	<string name="strResvname48">48.Reserved</string>
+	<string name="strResvname49">49.Reserved</string>
+	<string name="strResvname50">50.Reserved</string>
+	<string name="strResvname51">51.Reserved</string>
+	<string name="strResvname52">52.Reserved</string>
+	<string name="strResvname53">53.Reserved</string>
+	<string name="strResvname54">54.Reserved</string>
+	<string name="strResvname55">55.Reserved</string>
+	<string name="strResvname56">56.Reserved</string>
+	<string name="strResvname57">57.Reserved</string>
+	<string name="strResvname58">58.Reserved</string>
+	<string name="strResvname59">59.Reserved</string>
+	<string name="strResvname60">60.Reserved</string>
+	<string name="strResvname61">61.Reserved</string>
+	<string name="strResvname62">62.Reserved</string>
+	<string name="strResvname63">63.Reserved</string>
+	<string name="strResvname64">64.Reserved</string>
+
+<!-- H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+	<string name="strCounterEditTitle">Sayıcı Değerini Değiştir</string>
+	<string name="strCounterIndex">%1$d hesap:</string>
+	<string name="strCounterClear">Temizle</string>
+<!-- End of H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+<!-- H.M.Wang 2020-4-27 重复打印设置改为对话窗 -->
+	<string name="strPrintRepeatEditTitle">Tekrarlama Yazını Değiştir</string>
+<!-- End of H.M.Wang 2020-4-27 重复打印设置改为对话窗 -->
+	<!-- H.M.Wang 2020-4-27 编码器脉冲设置改为对话窗 -->
+	<string name="strEncoderPPREditTitle">Kodlayıcı PPR\'i değiştir</string>
+	<!-- End of H.M.Wang 2020-4-27 编码器脉冲设置改为对话窗 -->
+<!-- H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理 -->
+	<string name="strQRLastEditTitle">QRLast indeksini değiştir</string>
+<!-- End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理 -->
+
+	<string name="strBtnSave">Tamam.</string>
+
+	<string name="strRecvedRemote">Uzaktan alınmış</string>
+
+	<string name="str_fileicon_des">dosya simgesi</string>
+	<string name="str_file_save"> Tamam. </string>
+	<string name="str_file_cancel">Lütfen</string>
+	<string name="str_setting_upgrade">Yükselt</string>
+	<string name="str_setting_clean">Temiz</string>
+	
+	<string name="str_month">Ay</string>
+	<string name="str_year">Yıl</string>
+	<string name="str_date">Tarih</string>
+	<string name="str_hour">Saat</string>
+	<string name="str_minute">Minute</string>
+	<string name="str_format">24-Format</string>
+	<string name="str_format_24">Evet.</string>
+	<string name="str_format_12">Hayır, hayır.</string>
+	<string name="cor_unit">piksel</string>
+	<string name="font_unit">mm</string>
+	<string name="dot_unit">Noktalar</string>
+
+	<string name="str_trans">Sağ</string>
+	
+	<string name="str_column_index">indeks</string>
+	<string name="str_column_pic1">pic1</string>
+	<string name="str_column_pic2">pic2</string>
+	<string name="str_column_pic3">pic3</string>
+	<string name="str_column_pic4">pic4</string>
+	<string name="str_column_text1">text1</string>
+	<string name="str_column_text2">text2</string>
+	<string name="str_column_text3">text3</string>
+	<string name="str_column_text4">text4</string>
+	<string name="str_column_text5">text5</string>
+	<string name="str_column_text6">text6</string>
+	<string name="str_column_text7">text7</string>
+	<string name="str_column_text8">text8</string>
+	<string name="str_column_text9">text9</string>
+	<string name="str_column_text10">text10</string>
+	<string name="str_column_text11">text11</string>
+	<string name="str_column_text12">text12</string>
+	<string name="str_column_text13">text13</string>
+	<string name="str_column_text14">text14</string>
+	<string name="str_column_text15">text15</string>
+	<string name="str_column_text16">text16</string>
+	<string name="str_notlkfile">Lütfen bir TLK dosyasını seçin</string>
+	<string name="str_tlk_already_exist">Tlk dosyası zaten var!!!</string>
+	<string name="str_createfile_failure">Hata oluştur</string>
+	<string name="str_no_print_target">Lütfen bir hedef seçin</string>
+	
+	<string name="str_radioLocal">Yerli</string>
+	<string name="str_radioUsb">USB</string>
+	<string name="str_radioUsb1">USB1</string>
+	<string name="str_radioUsb2">USB2</string>
+	<string name="str_radioSdcard">SDCard</string>
+	
+	<string name="str_title_infodialog">Nesne Bilgisi</string>
+	<string name="str_fileopt_del">DEL</string>
+	<string name="str_fileopt_cancel">Lütfen</string>	
+	<string name="str_search">Arama</string>
+
+<!-- 树莓派3 打印界面相关 -->	
+	<string name="str_msg_name">MSG:</string>
+	<!-- 
+	<string name="str_state_inklevel">INK:  %1$d%%</string>
+	-->
+	<string name="str_state_inklevel">INK:</string>
+	<string name="str_invalid_ink">--</string>
+	<string name="str_state_battery">Güç: %1$d</string>
+	<string name="str_hint_preview">Mesaj önizleme</string>
+	<string name="str_print_count">Kayıtlar:</string>
+	<string name="str_print_count_default">0</string>
+	<string name="str_print_printing">Görevi Çalışıyor zaten, yeni bir görev yaratmadı</string>
+	<string name="str_print_startok">Bastırma görevi başarılı başlat...</string>
+	<string name="str_print_stopok">Bastırma görevi başarısından vazgeç...</string>
+	<string name="str_toast_no_bin">bin dosyası bulamadı!!!</string>
+	<string name="str_toast_emptycontent">Seçildiğiniz mesaj boş!</string>
+	<string name="str_toast_no_message">Lütfen önce bir mesaj dosyasını seçin!!!</string>
+	<string name="str_toast_no_ink">Inke düşük!</string>
 <!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
-    <string name="str_toast_ink_error">Ink Error!!!</string>
+	<string name="str_toast_ink_error">Ink Hatası!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 <!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
-    <string name="str_toast_ink_error_ink_changed">Please turn of power before replace cartridge</string>
+	<string name="str_toast_ink_error_ink_changed">Lütfen kartridge değiştirmeden önce güç dönüştür.</string>
 <!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
-    <string name="str_rfid_initfail_notify">RFID başlatma hatası！</string>
-    <string name="str_page_forward"> 《 </string>
-    <string name="str_page_backward"> 》 </string>
-    <string name="str_message_no_content">öngörünüm oluşturulamıyor</string>
-    <string name="str_state_printing">Yazıyor</string>
-    <string name="str_state_stopped">Hazır</string>
+	<string name="str_rfid_initfail_notify">RFID başlatma başarısız!</string>
+	<string name="str_page_forward"> 《 </string>
+	<string name="str_page_backward"> 》 </string>
+	<string name="str_message_no_content">önizlemez</string>
+	<string name="str_state_printing">Yazılıyor</string>
+	<string name="str_state_stopped">Hazır</string>
 <!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
-    <string name="str_state_cnt_print_up">Cnt. Up Printing</string>
-    <string name="str_state_cnt_printdown">Cnt. Down Printing</string>
-    <string name="str_btn_up_print">Up Cnt. Print</string>
-    <string name="str_btn_down_print">Dn Cnt. Print</string>
+	<string name="str_state_cnt_print_up">Cnt. Yukarı Yazım</string>
+	<string name="str_state_cnt_printdown">Cnt. Aşağı Yazım</string>
+	<string name="str_btn_up_print">Cnt yukarı. Bastır</string>
+	<string name="str_btn_down_print">Dn Cnt. Bastır</string>
 <!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->
 
-    <!-- 树莓派3 设置界面相关 -->
+	<!-- 树莓派3 设置界面相关 -->
+	
+	<string name="str_textview_param1">01. Hızlı</string>
+	<string name="str_textview_param2">02. Doğru</string>
+	<string name="str_textview_param3">03. Çözümler</string> 
+	<string name="str_textview_param4">04. Geç</string>
+	<string name="str_textview_param5">05. Fotomobil</string>
+	<string name="str_textview_param6">06. Kodlayıcı</string>
+	<string name="str_textview_param7">07. Tekrar baskı</string>
+	<string name="str_textview_param8">08. Bulmaca seçin</string>
+	<string name="str_textview_param9">09. Tepeden Diameter</string>
+	<string name="str_textview_param10">10. Kodlayıcı PPR</string>
+	<string name="str_textview_param11">11.Pen1 offset</string>
+	<string name="str_textview_param12">12.Pen2 offset</string>
+	<string name="str_textview_param13">13.Pen1 Ayıldı</string>
+	<string name="str_textview_param14">14.Pen2 Ayıldı</string>
+	<string name="str_textview_param15">15. Pen1 Döndür</string>
+	<string name="str_textview_param16">16. Pen2 Döndür</string>
+	<string name="str_textview_param17">17. Tarih gecikmesi</string>
 
-    <string name="str_textview_param1">01. Hız</string>
-    <string name="str_textview_param2">02. Yön</string>
-    <string name="str_textview_param3">03. Çözünürlük</string>
-    <string name="str_textview_param4">04. Gecikme</string>
-    <string name="str_textview_param5">05. Fotosel</string>
-    <string name="str_textview_param6">06. Enkoder</string>
-    <string name="str_textview_param7">07. Baskı tekrarı</string>
-    <string name="str_textview_param8">08. Nozul seçimi</string>
-    <string name="str_textview_param9">09. Teker Çapı</string>
-    <string name="str_textview_param10">10. Enkoder PPR</string>
-    <string name="str_textview_param11">11.Kalem1 Mahsup</string>
-    <string name="str_textview_param12">12.Kalem2 Mahsup</string>
-    <string name="str_textview_param13">13.Kalem1 Aynalanmış</string>
-    <string name="str_textview_param14">14.Kalem2 Aynalanmış</string>
-    <string name="str_textview_param15">15.Kalem1 Ters</string>
-    <string name="str_textview_param16">16.Kalem2 Ters</string>
-    <string name="str_textview_param17">17.Date delay</string>
-    <string name="str_textview_param18">18.Sayıcı</string>
-    <string name="str_textview_param19">19.Kalem3 Mahsup</string>
-    <string name="str_textview_param20">20.Kalem4 Mahsup</string>
-    <string name="str_textview_param21">21.Kalem3 Aynalanmış</string>
-    <string name="str_textview_param22">22.Kalem4 Aynalanmış</string>
-    <string name="str_textview_param23">23.Kalem3 Ters</string>
-    <string name="str_textview_param24">24.Kalem4 Ters</string>
-    <string name="str_textview_param25">25.Oto Voltaj</string>
-    <string name="str_textview_param26">26.Voltaj Ayarı</string>
-    <string name="str_textview_param27">27.Oto Puls</string>
-    <string name="str_textview_param28">28.Puls Ayarı</string>
-    <string name="str_textview_param29">29.Islak tutun</string>
-    <string name="str_textview_param30">30.Pho Filtresi</string>
-    <string name="str_textview_param31">31.Ayrılmış</string>
-    <string name="str_textview_param32">32.Ayrılmış</string>
+<!--	<string name="str_textview_param18">18.Reserved</string>-->
+	<string name="str_textview_param18">18. Sıfır Temiz</string>
+
+	<string name="str_textview_param19">19.Pen3 offset</string>
+	<string name="str_textview_param20">20.Pen4 offset</string>
+	<string name="str_textview_param21">21.Pen3 Ayıldı</string>
+	<string name="str_textview_param22">22.Pen4 Ayıldı</string>
+	<string name="str_textview_param23">23. Pen3 Döndür</string>
+	<string name="str_textview_param24">24. Pen4 Döndür</string>
+	<string name="str_textview_param25">25. Auto Voltage</string>
+	<string name="str_textview_param26">26.Voltage Set</string>
+	<string name="str_textview_param27">27. Otomatik Puls</string>
+	<string name="str_textview_param28">28. Puls Seti</string>
+	<string name="str_textview_param29">29. Tuzlu tut.</string>
+	<string name="str_textview_param30">30.Pho Filter</string>
+	<string name="str_textview_param31">31. Tip</string>
+	<string name="str_textview_param32">32. Cnt Sıfırlatma</string>
 	<string name="str_textview_param33">33.Dotsize</string>
 	<string name="str_textview_param34">34.PWML</string>
 	<string name="str_textview_param35">35.STR</string>
 	<string name="str_textview_param36">36.Slant</string>
 	<string name="str_textview_param37">37.PWMH</string>
-    <string name="str_textview_param38">38.Ayrılmış</string>
-    <!-- H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
-    <!--	<string name="str_textview_param39">39.Ayrılmış</string> -->
-    <string name="str_textview_param39">39.Data Source</string>
-    <!-- End of H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
-    <string name="str_textview_param40">40.Beep</string>
-    <!-- H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
-    <!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
-    <!--	<string name="str_textview_param41">41.Com Print</string> -->
-    <!--	<string name="str_textview_param41">41.Reserved</string> -->
-    <string name="str_repeat_times">41.Times</string>
-    <!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
-    <!-- End of H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
-    <string name="str_textview_param42">42.Ayrılmış</string>
-    <string name="str_textview_param43">43.Pens</string>
-    <string name="str_textview_param44">44.Brightness</string>
-    <string name="str_textview_param45">45.Sayıcı0</string>
-    <string name="str_textview_param46">46.Sayıcı1</string>
-    <string name="str_textview_param47">47.Sayıcı2</string>
-    <string name="str_textview_param48">48.Sayıcı3</string>
-    <string name="str_textview_param49">49.Sayıcı4</string>
-    <string name="str_textview_param50">50.Sayıcı5</string>
-    <string name="str_textview_param51">51.Sayıcı6</string>
-    <string name="str_textview_param52">52.Sayıcı7</string>
-    <string name="str_textview_param53">53.Sayıcı8</string>
-    <string name="str_textview_param54">54.Sayıcı9</string>
-    <string name="str_textview_param55">55.Ayrılmış</string>
-    <string name="str_textview_param56">56.FIFO</string>
-    <!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
-    <!--	<string name="str_textview_param57">57.Ayrılmış</string> -->
-    <string name="str_textview_param57">57.Input</string>
-    <!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
-    <string name="str_textview_param58">58.IP</string>
+	<string name="str_textview_param38">38. Hepsi için bir tane.</string>
+<!-- H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+<!--	<string name="str_textview_param39">39.Reserved</string> -->
+	<string name="str_textview_param39">39. Veri Kaynağı</string>
+<!-- End of H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+	<string name="str_textview_param40">40.Beep</string>
+<!-- H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
+<!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+<!--	<string name="str_textview_param41">41.Com Print</string> -->
+<!--	<string name="str_textview_param41">41.Reserved</string> -->
+	<string name="str_repeat_times">41.Times</string>
+<!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+<!-- End of H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
+	<string name="str_textview_param42">42. Bastırırken</string>
+	<string name="str_textview_param43">43.Pens</string>
+	<string name="str_textview_param44">"44.Parılık "</string>
+	<string name="str_textview_param45">45.Counter0</string>
+	<string name="str_textview_param46">46.Counter1</string>
+	<string name="str_textview_param47">47.Counter2</string>
+	<string name="str_textview_param48">48.Counter3</string>
+	<string name="str_textview_param49">49.Counter4</string>
+	<string name="str_textview_param50">50.Counter5</string>
+	<string name="str_textview_param51">51.Counter6</string>
+	<string name="str_textview_param52">52.Counter7</string>
+	<string name="str_textview_param53">53.Counter8</string>
+	<string name="str_textview_param54">54.Counter9</string>
+	<string name="str_textview_param55">55.QR indeksi</string>
+	<string name="str_textview_param56">56.FIFO</string>
+	<!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!--	<string name="str_textview_param57">57.Reserved</string> -->
+	<string name="str_textview_param57">57.Girdi</string>
+	<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+	<string name="str_textview_param58">58.IP</string>
 <!-- H.M.Wang 2022-5-30 增加编码器变倍 -->
-<!--    <string name="str_textview_param59">59.Ayrılmış</string>-->
-    <string name="str_textview_param59">59.Width Ratio</string>
+<!--	<string name="str_textview_param59">59.Reserved</string> -->
+	<string name="str_textview_param59">59. genişlik oranı</string>
 <!-- End of H.M.Wang 2022-5-30 增加编码器变倍 -->
-    <string name="str_textview_param60">60.Log</string>
+	<string name="str_textview_param60">60.Log</string>
 <!-- H.M.Wang 2021-11-19 修改双列支持的名称
-    <string name="str_textview_param61">61.Ayrılmış</string> -->
-    <string name="str_textview_param61">61.Nozzle Offset</string>
+	<string name="str_textview_param61">61.Reserved</string> -->
+	<string name="str_textview_param61">61.Nozzle Offset</string>
 <!-- End of H.M.Wang 2021-11-19 修改双列支持的名称 -->
 
 <!-- H.M.Wang 2023-2-4 修改参数62及63的名称 -->
 <!-- H.M.Wang 2022-8-25 追加喷嘴加热参数项
-    <string name="str_textview_param62">62.Ayrılmış</string>
-    <string name="str_textview_param62">62.Warming</string> -->
-    <string name="str_textview_param62">62.Warm limit</string>
+	<string name="str_textview_param62">62.Reserved</string>
+	<string name="str_textview_param62">62.Warming</string> -->
+	<string name="str_textview_param62">62. Sıcak sınırı</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
-<!--	<string name="str_textview_param63">63.Ayrılmış</string>-->
-    <string name="str_textview_param63">63.Warming</string>
+<!--	<string name="str_textview_param63">63.Reserved</string>-->
+	<string name="str_textview_param63">63.Warming</string>
 <!-- End of H.M.Wang 2023-2-4 修改参数62及63的名称 -->
 
-    <string name="str_textview_param64">64.User APK</string>
+<!-- H.M.Wang 2022-9-1 追加客户APK启动参数
+	<string name="str_textview_param64">64.Reserved</string>-->
+	<string name="str_textview_param64">64.Kullanıcı APK</string>
+<!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
 <!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
-    <string name="str_textview_param65">65.Slant2</string>
-    <string name="str_textview_param66">66.ADJ2</string>
+	<string name="str_textview_param65">65.Slant2</string>
+	<string name="str_textview_param66">66.ADJ2</string>
 <!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
-    <string name="str_textview_param67">67.ENC Filter</string>
+	<string name="str_textview_param67">67.ENC Filter</string>
 <!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
 <!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
-<!--    <string name="str_textview_param68">68.Ayrılmış</string>-->
-    <string name="str_textview_param68">68.ENC Dir</string>
+<!--	<string name="str_textview_param68">68.Reserved</string>-->
+	<string name="str_textview_param68">68.ENC Dir</string>
 <!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 <!-- H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
-<!--	<string name="str_textview_param69">69.Ayrılmış</string>-->
-    <string name="str_textview_param69">69.Sub Step</string>
+<!--	<string name="str_textview_param69">69.Reserved</string>-->
+	<string name="str_textview_param69">69.Sub Step</string>
 <!-- End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
 <!-- H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
-<!--	<string name="str_textview_param70">70.Ayrılmış</string>-->
-    <string name="str_textview_param70">70.Fast Print</string>
+	<string name="str_textview_param70">70.Fast Print</string>
 <!-- End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
 <!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
-    <string name="str_textview_param71">71.Easy mode</string>
+	<string name="str_textview_param71">71.Easy mode</string>
 <!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 <!-- H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
-<!--	<string name="str_textview_param72">72.Ayrılmış</string> -->
-    <string name="str_textview_param72">72.PC FIFO</string>
+<!--	<string name="str_textview_param72">72.Reserved</string>-->
+	<string name="str_textview_param72">72.PC FIFO</string>
 <!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
 <!-- H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
-<!--	<string name="str_textview_param73">73.Ayrılmış</string> -->
-    <string name="str_textview_param73">73.LCD Inverse</string>
+<!--	<string name="str_textview_param73">73.Reserved</string> -->
+	<string name="str_textview_param73">73. LCD Döndür</string>
 <!-- End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
-    <string name="str_textview_param74">74.Ayrılmış</string>
-    <string name="str_textview_param75">75.Ayrılmış</string>
-    <string name="str_textview_param76">76.Ayrılmış</string>
-    <string name="str_textview_param77">77.Ayrılmış</string>
-    <string name="str_textview_param78">78.Ayrılmış</string>
-    <string name="str_textview_param79">79.Ayrılmış</string>
-    <string name="str_textview_param80">80.Ayrılmış</string>
-    <string name="str_textview_param81">81.Ayrılmış</string>
-    <string name="str_textview_param82">82.Ayrılmış</string>
-    <string name="str_textview_param83">83.Ayrılmış</string>
-    <string name="str_textview_param84">84.Ayrılmış</string>
-    <string name="str_textview_param85">85.Ayrılmış</string>
-    <string name="str_textview_param86">86.Ayrılmış</string>
-    <string name="str_textview_param87">87.Ayrılmış</string>
-    <string name="str_textview_param88">88.Ayrılmış</string>
-    <string name="str_textview_param89">89.Ayrılmış</string>
-    <string name="str_textview_param90">90.Ayrılmış</string>
-    <string name="str_textview_param91">91.Ayrılmış</string>
-    <string name="str_textview_param92">92.Ayrılmış</string>
-    <string name="str_textview_param93">93.Ayrılmış</string>
-    <string name="str_textview_param94">94.Ayrılmış</string>
-    <string name="str_textview_param95">95.Ayrılmış</string>
-    <string name="str_textview_param96">96.Ayrılmış</string>
+	<string name="str_textview_param74">74.Reserved</string>
+	<string name="str_textview_param75">75.Reserved</string>
+	<string name="str_textview_param76">76.Reserved</string>
+	<string name="str_textview_param77">77.Reserved</string>
+	<string name="str_textview_param78">78.Reserved</string>
+	<string name="str_textview_param79">79.Reserved</string>
+	<string name="str_textview_param80">80.Reserved</string>
+	<string name="str_textview_param81">81.Reserved</string>
+	<string name="str_textview_param82">82.Reserved</string>
+	<string name="str_textview_param83">83.Reserved</string>
+	<string name="str_textview_param84">84.Reserved</string>
+	<string name="str_textview_param85">85.Reserved</string>
+	<string name="str_textview_param86">86.Reserved</string>
+	<string name="str_textview_param87">87.Reserved</string>
+	<string name="str_textview_param88">88.Reserved</string>
+	<string name="str_textview_param89">89.Reserved</string>
+	<string name="str_textview_param90">90.Reserved</string>
+	<string name="str_textview_param91">91.Reserved</string>
+	<string name="str_textview_param92">92.Reserved</string>
+	<string name="str_textview_param93">93.Reserved</string>
+	<string name="str_textview_param94">94.Reserved</string>
+	<string name="str_textview_param95">95.Reserved</string>
+	<string name="str_textview_param96">96.Reserved</string>
 <!-- End of H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
-    <string name="str_btn_settings_sync">Tamam</string>
-    <string name="str_time_unit_0_1v">0.1V</string>
-    <string name="str_length_unit_mm">mm</string>
-    <string name="str_length_unit_6_1mm">1/6mm</string>
-    <string name="str_time_unit_mm">ms</string>
-    <string name="str_time_unit_ms">ms</string>
-    <string name="str_time_unit_mm_s">mm/s</string>
-    <string name="str_time_unit_0_1us">0.1us</string>
-    <string name="str_time_unit_us">us</string>
-    <string name="str_time_unit_100us">100us</string>
-<!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
-    <string name="str_time_unit_min">min</string>
-<!-- End of H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
-    <string name="str_setting_time">Saat</string>
-    <string name="str_system_setting">Ayarlar</string>
-    <string name="str_upgrade_progress">sistem yükseltiliyor....</string>
-    <string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
-    <string name="str_toast_ink_unvalid">Mürekkep damlası seviye dışı,yeniden ayarlayın：800</string>
-    <string name="str_toast_photoelectricity_delay">Fotoselektrik gecikmesi çok yüksek,yeniden ayarlayın:100</string>
-    <string name="str_toast_photoelectricity_antishake">Fotoelektrik sallantısı yüksek,yeniden ayarlayın:20</string>
-    <string name="str_toast_timingprint">Baskı zamanlaması yüksek,yeniden ayarlayın:1000</string>
+	<string name="str_btn_settings_sync">Tamam.</string>
 
-    <!-- 树莓派3 编辑界面相关 -->
-    <string name="str_edit_btn_insert">Değişkenler</string>
-    <string name="str_edit_btn_temp1">Sıcaklık1</string>
-    <string name="str_edit_btn_temp2">Sıcaklık2</string>
-    <string name="str_edit_btn_temp3">Sıcaklık3</string>
-    <string name="str_edit_btn_temp4">Sıcaklık4</string>
-    <string name="str_edit_btn_temp5">Sıcaklık5</string>
-    <string name="str_edit_line1">1. Satır:</string>
-    <string name="str_edit_line2">2. Satır:</string>
-    <string name="str_edit_line3">3. Satır:</string>
-    <string name="str_edit_line4">4. Satır:</string>
-    <string name="str_notice_save">lütfen mesaj ismi girin:</string>
-    <string name="str_notice_no_objects">Kayıt için bilgi yok!</string>
-    <string name="str_file_title">Mesaj：</string>
-    <string name="str_file_hint">dosya ismi</string>
-    <string name="str_page_prev">SayfaYukarı</string>
-    <string name="str_page_next">SayfaAşağı</string>
-    <string name="str_filename_no">Yeni</string>
-    <string name="str_btn_back">Geri</string>
-    <string name="str_btn_up">Yukarı</string>
-    <string name="str_btn_detail">Ayar</string>
-    <string name="cursor">Kursor</string>
-    <!-- 树莓派3 -->
-    <string name="str_dialog_msgnote">请选择信息行数：</string>
-    <string name="str_no_upgrade">Son versiyon kullanılıyor</string>
-    <string name="str_cnt_min">Başlama</string>
-    <string name="str_cnt_max">Son</string>
-    <string name="str_cnt_index">Número</string>
-    <string name="str_cnt_steplen">Passo</string>
-    <string name="str_toast_no_qrfile">no QR.txt or QR.csv</string>
-    <string name="str_recover_print">recover last print</string>
-	<string name="str_net_devname">Device</string>
-	<string name="str_net_ipaddr">IP addr</string>
-	<string name="str_net_stat">State</string>
-	<string name="str_net_number">Number</string>
-	<string name="str_net_counts">Counts</string>
-	<string name="str_net_int">Ink</string>
-	<string name="str_net_commands">Commands</string>
-	<string name="str_net_back">Back</string>
+	<string name="str_time_unit_0_1v">0.1V</string>
+	<string name="str_length_unit_mm">mm</string>
+	<string name="str_length_unit_6_1mm">1/6mm</string>
+	<string name="str_time_unit_mm">ms</string>
+	<string name="str_time_unit_ms">ms</string>
+	<string name="str_time_unit_mm_s">mm/s</string>
+	<string name="str_time_unit_0_1us">0.1us</string>
+	<string name="str_time_unit_us">us</string>
+	<string name="str_time_unit_100us">100us</string>
+	<string name="str_unit_ps">p/s</string>
+<!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_time_unit_min">min</string>
+	<string name="str_temperature">℃</string>
+<!-- End of H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_setting_time">Saat</string>
+	<string name="str_system_setting">Ayarlar</string>
+	<string name="str_upgrade_progress">sistem geliştirmesi...</string>
+	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
+	<string name="str_toast_ink_unvalid">Tüm nokta dışında, öntanımlı olarak ayarlanmış:800</string>
+	<string name="str_toast_photoelectricity_delay">Fotoğraf elektrik yüksek gecikme düzeyi öntanımlı olarak ayarlandı:100</string>
+	<string name="str_toast_photoelectricity_antishake">Fotoğraf elektriğine karşı silme seviyesi öntanımlı olarak ayarlandı:20</string>
+	<string name="str_toast_timingprint">Zaman bastırma seviyesi, öntanımlı: 1000\'e ayarlandı</string>
+
+<!-- 树莓派3 编辑界面相关 -->
+	<string name="str_edit_btn_insert">Gir</string>
+	<string name="str_edit_btn_temp1">Temp1</string>
+	<string name="str_edit_btn_temp2">Temp2</string>
+	<string name="str_edit_btn_temp3">Temp3</string>
+	<string name="str_edit_btn_temp4">Temp4</string>
+	<string name="str_edit_btn_temp5">Temp5</string>
+	
+	<string name="str_edit_line1">1. Satır:</string>
+	<string name="str_edit_line2">2nd Line:</string>
+	<string name="str_edit_line3">3. Satır:</string>
+	<string name="str_edit_line4">4th Line:</string>
+	
+	<string name="str_notice_save">Lütfen mesaj adını girin:</string>
+	<string name="str_notice_no_objects">Kurtarmak için bir nesne yok!</string>
+	<string name="str_file_title">Mesaj:</string>
+	<string name="str_file_hint">dosya adı</string>
+	<string name="str_page_prev">PageUp</string>
+	<string name="str_page_next">PageDown</string>
+	<string name="str_filename_no">Yeni</string>
+	<string name="str_btn_back">Geri</string>
+	<string name="str_btn_up">Up</string>
+	<string name="str_btn_detail">Ayarla</string>
+	<string name="cursor">İmleç</string>
+<!-- 树莓派3  -->
+	<string name="str_dialog_msgnote">请选择信息行数：</string>
+
+	
+	<string name="str_no_upgrade">Şu anda son Sürümü şimdi.</string>
+	
+	<string name="str_cnt_min">Başlat</string>
+	<string name="str_cnt_max">Sonu</string>
+	<string name="str_cnt_index">CID</string>
+	<string name="str_cnt_steplen">Step-Len</string>
+	<string name="str_loading">yükleniyor...</string>
+	
+	<string name="str_toast_no_qrfile">QR.txt veya QR.csv yok</string>
+	<string name="str_barcode_end">Barcode dosyası sonlandı</string>
+	<string name="str_recover_print">Son yazıyı geri alın</string>
+	
+	<string name="str_net_devname">Aygıt</string>
+	<string name="str_net_ipaddr">IP eklentisi</string>
+	<string name="str_net_stat">Durum</string>
+	<string name="all_print">Tüm Bastır</string>
+	<string name="all_purge">Tüm Temizle</string>
+	<string name="all_stop">Dur!</string>
+	<string name="str_F1">F1</string>
+	<string name="str_F2">Arama Aygıtı</string>
+	<string name="str_net_back">Geri</string>
+	<string name="str_net_query">Sorgulama</string>
+	<string name="str_net_device">Aygıt:</string>
+	
+	<string name="str_net_device_times">Zaman:</string>
 	<string name="str_net_one">1</string>
 	<string name="str_net_hundred">100</string>
 	<string name="str_net_thousand">1000</string>
-	<string name="str_net_connect">Connect</string>
-	<string name="str_tip_nothing">~ There is no picture !!!</string>
-	<string name="str_no_permission">Permission denied for access the files</string>
-	<string name="str_flush_tips">Will Overwrite the settings, Confirm?</string>
-	<string name="str_prepared">TLK parse success!!!</string>
-	<string name="str_prepare_fail">TLK parse failed!!!</string>
-	<string name="password_title">Lütfen şifrenizi girin</string>
-    <string name="str_F1">F1</string>
-    <string name="str_net_ipdefault">192.168.1.101</string>
-    <string name="tips_import_font">Yazı tipleri alınıyor ...</string>
-    <string name="tips_import_sysconf">Sistem yapılandırması alınıyor ...</string>
-    <string name="tips_import_resource">Kaynak dosyaları içe aktarılıyor ...</string>
-    <string name="tips_import_message">Bilgi alınıyor ...</string>
-    <string name="toast_rfid_changed">Mürekkep değeri değişir</string>
-    <string name="toast_content_empty">İçerik boş olamaz</string>
-    <string name="toast_passwd_error">Şifre yanlış !!!</string>
-    <string name="toast_plug_usb">Lütfen bir USB flash sürücü takın</string>
-    <string name="toast_save_success">Başarıyla kaydedildi</string>
-    <string name="str_tlk_not_found">1.TLK eksik</string>
-    <string name="str_print_thread_create_err">Görev oluşturma başarısız oldu</string>
-    <string name="str_tlk_opening">TLK çözülüyor ...</string>
-    <string name="str_btn_cancel">iptal edildi</string>
-    <string name="str_device_number">cihaz:</string>
-    <string name="str_ip_add">IP</string>
-    <string name="str_dialog_surecancel">uyarı</string>
-    <string name="str_device_but_sure">öyle</string>
-    <string name="str_ip_ed">"Lütfen IP’yi ayarlayın ve tekrar deneyin "</string>
-    <string name="str_port">liman</string>
-    <string name="str_information">" İcra belirlenir mi?"</string>
-    <string name="str_net_device_ink">MÜRK</string>
-    <string name="str_net_device">cihaz:</string>
-    <string name="str_net_device_times">Times:</string>
-    <string name="str_btn_saveprint">SavePrint</string>
-    <string name="str_net_error">"Ağ yapılandırma hatası "</string>
+	<string name="str_net_connect">Bağlan</string>
+	<string name="str_net_tips">Düzeltme</string>
+	<string name="str_net_textview">TextView</string>
+	<string name="str_net_ipdefault">192.168.1.101</string>
+
+	<string name="str_quit">Çık</string>
+	<string name="str_quit_confirm">Çıkmanı doğrula</string>
+
+	<string name="str_tip_nothing">- Resim yok!</string>
+	<string name="str_no_permission">Dosyalara erişim izni reddedildi</string>
+	
+	<string name="str_message_tips">%s mesajı zaten mevcut, üstüne yazmak mı?</string>
+	
+	<string name="str_flush_tips">Ayarları Üstüne yazacak mı?</string>
+	
+	<string name="str_build_tlk_start">Kıpırdama başlayın.</string>
+	<string name="str_prepared">TLK başarılı analiz ediyor!!!</string>
+	<string name="str_prepare_fail">TLK analiz başarısız oldu!!!</string>
+	<string name="str_build_tlk_ok">TLK başarısı inşa et</string>
+	<string name="str_build_tlk_fail">TLK inşaatı başarısız oldu</string>
+	
+	<string name="str_tlk_opening">tlk ayırma...</string>
+	<string name="str_print_thread_create_err">İçki yaratması başarısız oldu...</string>
+	<string name="str_tlk_not_found">1. TLK bulamadı</string>
+	
+	<string name="password_title">Lütfen Şifre Girin</string>
+	
+	<!-- Toast -->
+	<string name="toast_save_success">Başarılı Kaydet</string>
+	<string name="toast_plug_usb">Lütfen bir USB aygıtı ekleyin</string>
+	<string name="toast_passwd_error">Şifre satranışı başarısız oldu!!!</string>
+	<string name="toast_content_empty">İçindeki boş olmamalı.</string>
+	<string name="toast_rfid_changed">Rfid değişti</string>
+
+	<string name="tips_import_msp">İçeri</string>
+	<string name="tips_import">İçeri</string>
+	<string name="tips_import_message">Mesajlar İtal ediliyor</string>
+	<string name="tips_import_resource">Kaynakları İtal ediliyor</string>
+	<string name="tips_import_sysconf">Sistem yapılandırmaları İtal ediliyor</string>
+	<string name="tips_import_font">Yazıtipi kütüphanesi import ediliyor</string>
+	
+	<string name="tips_export_message">Mesajlar dışarı aktarıyor</string>
+	<string name="tips_export_sysconf">Sistem ayarlarını dışarı aktarıyor</string>
+	<string name="tips_export_resource">Kaynakları Exporte</string>
+	
+
+	<string name="message_confirm_printnext">Mesaj değiştirmek için emin misin?</string>
+	<string name="str_net_number">Numara</string>
+	<string name="str_net_counts">Sayılar</string>
+	<string name="str_net_int">Ink</string>
+	<string name="str_net_commands">Komut</string>
+
+	<string name="invalid_message">Keçersiz Mesaj</string>
+	<string name="invalid_code">Keçersiz Kod</string>
+	<string name="invalid_protocol">Keçersiz Protokol</string>
+	<string name="decoding">Dekodlama...</string>
+
+	<string name="printDpiNotMatchError">DPI eşleşmiyor. Lütfen mesajı değiştirin ve tekrar deneyin.</string>
 <!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
-    <string name="strNotice">Notice</string>
-    <string name="strQuickGroupPrompt">The message will be saved as Quick Group</string>
+	<string name="strNotice">Bildirin</string>
+	<string name="strQuickGroupPrompt">Mesaj Hızlı Grup olarak kaydedilecek</string>
 <!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
-    <string name="strImportUG"><u>Import UG</u></string>
+	<string name="strImportUG"><u>UG İçeri</u></string>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+
 <!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
-    <string name="strTxtDtFile">File</string>
-    <string name="strTxtDtFileHint">Click to select a file</string>
-    <string name="strTxtDtLines">Lines:</string>
-    <string name="strTxtDtFrom">From</string>
-    <string name="strTxtDtTo">To</string>
-    <string name="strTxtDtCur">Cur</string>
-    <string name="strTxtDtRpt">Rpt</string>
-    <string name="strTxtDtCir">Cir</string>
+	<string name="strTxtDtFile">Dosya</string>
+	<string name="strTxtDtFileHint">Bir dosya seçmek için tıklayın</string>
+	<string name="strTxtDtLines">Hatlar:</string>
+	<string name="strTxtDtFrom">Senden</string>
+	<string name="strTxtDtTo">To</string>
+	<string name="strTxtDtCur">Cur</string>
+	<string name="strTxtDtRpt">Rpt</string>
+	<string name="strTxtDtCir">Cir</string>
 <!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
 </resources>

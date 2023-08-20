@@ -375,7 +375,7 @@
 	<string name="str_toast_ink_error">Ink Error!!!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 <!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
-	<string name="str_toast_ink_error_ink_changed">Please turn of power before replace cartridge</string>
+	<string name="str_toast_ink_error_ink_changed">Please turn off power before replace cartridge</string>
 <!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_rfid_initfail_notify">RFID initiallize fail！</string>
 	<string name="str_page_forward"> 《 </string>
@@ -698,4 +698,13 @@
 	<string name="strTxtDtRpt">Rpt</string>
 	<string name="strTxtDtCir">Cir</string>
 <!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
-</resources>
+	<string name="strLevelLow">Level Low</string>
+	<string name="strSolventLow">Solvent Low</string>
+<!-- H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
+	<string name="strBackupThenRefresh">Backup then clear data</string>
+	<string name="strDirectRefresh">Direct clearup</string>
+	<string name="strContinueStartup">Continue to startup</string>
+	<string name="strStartDlgComment">It will continue startup if no operation occurs in 15 seconds.</string>
+<!-- End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
+
+    </resources>

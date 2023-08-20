@@ -634,4 +634,12 @@
 	<string name="strTxtDtRpt">重複</string>
 	<string name="strTxtDtCir">循環</string>
 <!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strLevelLow">墨位低</string>
+	<string name="strSolventLow">溶劑低</string>
+<!-- H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
+	<string name="strBackupThenRefresh">備份數據到U盤，然後清空數據</string>
+	<string name="strDirectRefresh">直接清空數據</string>
+	<string name="strContinueStartup">保留數據，繼續開機</string>
+	<string name="strStartDlgComment">15秒内如無操作則自動繼續開機</string>
+<!-- End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
 </resources>

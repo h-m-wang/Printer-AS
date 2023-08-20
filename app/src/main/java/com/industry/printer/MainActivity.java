@@ -133,8 +133,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	private RelativeLayout mPgFore;
 
 	// H.M.Wang 2019-12-7 追加两个启动画面
-	private ImageView mBlack05s;
-	private ImageView mLoading1s;
+// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+//	private ImageView mBlack05s;
+//	private ImageView mLoading1s;
+// End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 
 	private LoadingDialog mProgressDialog;
 	
@@ -414,9 +416,11 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mPgFore.setOnClickListener(this);
 
 		// H.M.Wang 2019-12-7 追加两个启动画面
-		mBlack05s = (ImageView) findViewById(R.id.image05s);
-		mLoading1s = (ImageView) findViewById(R.id.image1s);
-		mHander.sendEmptyMessageDelayed(SHUT_BLACK_IMAGE, 0);
+// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+//		mBlack05s = (ImageView) findViewById(R.id.image05s);
+//		mLoading1s = (ImageView) findViewById(R.id.image1s);
+//		mHander.sendEmptyMessageDelayed(SHUT_BLACK_IMAGE, 0);
+// End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 		// End -----------------
 
 // H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息更改为显示时间
@@ -665,8 +669,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	/** 屏保模式 */
 	public static final int QUIT_SCREENSAVE_MODE = 10;
 	// H.M.Wang 2019-12-7 追加两个启动画面（一个黑屏，一个启动），相关事件定义
-	private static final int SHUT_BLACK_IMAGE = 6;
-	private static final int SHUT_LOADING_IMAGE = 7;
+// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+//	private static final int SHUT_BLACK_IMAGE = 6;
+//	private static final int SHUT_LOADING_IMAGE = 7;
+// End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 	// End ----
 
 	public Handler mHander = new Handler(){
@@ -674,17 +680,19 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			// H.M.Wang 2019-12-7 追加两个画面的关闭事件响应
-			case SHUT_BLACK_IMAGE:
-				if(mBlack05s.getWidth() == 0) {
-					sendEmptyMessageDelayed(SHUT_BLACK_IMAGE, 200);
-				} else {
-					mBlack05s.setVisibility(View.GONE);
-					sendEmptyMessageDelayed(SHUT_LOADING_IMAGE, 4500);
-				}
-				break;
-			case SHUT_LOADING_IMAGE:
-				mLoading1s.setVisibility(View.GONE);
-				break;
+// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+//			case SHUT_BLACK_IMAGE:
+//				if(mBlack05s.getWidth() == 0) {
+//					sendEmptyMessageDelayed(SHUT_BLACK_IMAGE, 200);
+//				} else {
+//					mBlack05s.setVisibility(View.GONE);
+//					sendEmptyMessageDelayed(SHUT_LOADING_IMAGE, 4500);
+//				}
+//				break;
+//			case SHUT_LOADING_IMAGE:
+//				mLoading1s.setVisibility(View.GONE);
+//				break;
+// End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 			case USB_STORAGE_ATTACHED:
 				Debug.d(TAG, "--->reload system settings");
 				mControlTab.loadMessage();

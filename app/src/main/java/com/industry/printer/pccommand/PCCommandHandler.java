@@ -325,9 +325,14 @@ public class PCCommandHandler {
             sb.append("" + mControlTabActivity.mCounter);
 
             IInkDevice inkManager = InkManagerFactory.inkManager(mContext);
-            for(int i=0; i<8; i++) {
+// H.M.Wang 2023-8-14 使用喷头7的墨水值位置传递墨位状态，喷头8的墨水值位置传递溶剂状态。低为T，高为F。当使用协议6以外时为F
+//            for(int i=0; i<8; i++) {
+            for(int i=0; i<6; i++) {
                 sb.append("|" + (int)(inkManager.getLocalInk(i)));
             }
+            sb.append("|" + (mControlTabActivity.getLevelLow() ? "T" : "F"));
+            sb.append("|" + (mControlTabActivity.getSolventLow() ? "T" : "F"));
+// End of H.M.Wang 2023-8-14 使用喷头7的墨水值位置传递墨位状态，喷头8的墨水值位置传递溶剂状态。低为T，高为F。当使用协议6以外时为F
 
 // H.M.Wang 2020-6-29 打印任务还没有启动时，DataTransferThread.getInstance(mContext)会自动生成instance，导致错误，应避免使用
             DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);

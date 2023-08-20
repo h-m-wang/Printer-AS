@@ -111,7 +111,7 @@ UserGroup 使用方法说明
 // H.M.Wang 2023-6-25 新的用户定制界面开关
 	public static final int UI_STANDARD = 0;
 	public static final int UI_CUSTOMIZED0 = 1;
-	public static int UI_TYPE = UI_CUSTOMIZED0;
+	public static int UI_TYPE = UI_STANDARD;
 // End of H.M.Wang 2023-6-25 新的用户定制界面开关
 
 	/**vol

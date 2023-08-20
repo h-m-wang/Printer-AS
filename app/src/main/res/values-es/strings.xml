@@ -297,7 +297,7 @@
 	<string name="str_toast_ink_error">Ink Error!!!</string>
 <!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
 <!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
-	<string name="str_toast_ink_error_ink_changed">Please turn of power before replace cartridge</string>
+	<string name="str_toast_ink_error_ink_changed">Please turn off power before replace cartridge</string>
 <!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
 	<string name="str_rfid_initfail_notify">RFID Error</string>
 	<string name="str_page_forward"> 《 </string>
