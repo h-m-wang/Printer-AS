@@ -31,9 +31,8 @@ import org.apache.http.util.ByteArrayBuffer;
 
 import android.os.SystemClock;
 
-import com.industry.printer.Rfid.N_RfidScheduler;
+import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
-//import com.industry.printer.Utils.EncryptionMethod;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Rfid.RFIDAsyncTask;
 import com.industry.printer.Rfid.RFIDAsyncTask.RfidCallback;
@@ -1130,6 +1129,7 @@ public class RFIDDevice implements RfidCallback{
 
 	private int openDevice() {
 		if (mFd <= 0) {
+//			ExtGpio.writeGpioTestPin('I', 9, 1);
 			mFd = open(PlatformInfo.getRfidDevice());
 			if (!mReady && SystemClock.uptimeMillis() < 100*1000) { // 上電後
 				//1.先修改模塊的baudrate
@@ -1137,6 +1137,10 @@ public class RFIDDevice implements RfidCallback{
 			}
 			//2.修改本地串口的baudrate
 			setBaudrate(mFd, 115200);
+//			SerialPort sp = new SerialPort();
+//			mFd = sp.openSerial(PlatformInfo.getRfidDevice());
+//			sp.writeSerial("AT\r\n".getBytes());
+//			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 		}
 		Debug.d(TAG, "===>mFd=" + mFd);
 		return mFd;
