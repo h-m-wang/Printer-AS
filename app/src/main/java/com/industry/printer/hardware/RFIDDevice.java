@@ -1137,10 +1137,29 @@ public class RFIDDevice implements RfidCallback{
 			}
 			//2.修改本地串口的baudrate
 			setBaudrate(mFd, 115200);
-//			SerialPort sp = new SerialPort();
-//			mFd = sp.openSerial(PlatformInfo.getRfidDevice());
-//			sp.writeSerial("AT\r\n".getBytes());
-//			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+/*			SerialPort sp = new SerialPort();
+			mFd = sp.spOpenSerial(PlatformInfo.getRfidDevice(), 115200);
+			sp.writeSerial("AT+RST\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+try{Thread.sleep(100);}catch(Exception e){};
+			sp.writeSerial("AT+GMR\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+try{Thread.sleep(100);}catch(Exception e){};
+			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEADDR?\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BTNAME=BT_HMWANG\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+SCANMODE=2\r\n".getBytes());
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+*/
 		}
 		Debug.d(TAG, "===>mFd=" + mFd);
 		return mFd;

@@ -67,7 +67,7 @@ public class SerialHandler {
         mSerialPort = new SerialPort();
         if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_PC_COMMAND) {
             Debug.i(TAG, "Open " + SERIAL_PORT);
-            mSerialPort.openStream(SERIAL_PORT);
+            mSerialPort.spOpenStream(SERIAL_PORT, 9600);
             Debug.i(TAG, "Start PCCommand Receiver");
             PCCommandManager pcCmdManager = PCCommandManager.getInstance();
             if(null != pcCmdManager)pcCmdManager.addSerialHandler(mSerialPort);
@@ -78,10 +78,10 @@ public class SerialHandler {
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_2_WIFI) {
 // End of H.M.Wang 2022-5-16 追加串口协议2无线
                 Debug.i(TAG, "Open " + SERIAL_CH341_PORT);
-                mSerialPort.openSerial(SERIAL_CH341_PORT);
+                mSerialPort.spOpenSerial(SERIAL_CH341_PORT, 9600);
             } else {
                 Debug.i(TAG, "Open " + SERIAL_PORT);
-                mSerialPort.openSerial(SERIAL_PORT);
+                mSerialPort.spOpenSerial(SERIAL_PORT, 9600);
             }
 // End of H.M.Wang 2022-4-4 根据数据源的类型选择串口
             Debug.i(TAG, "Start normal Receiver");

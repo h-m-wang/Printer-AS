@@ -585,6 +585,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 		int totalDot = 0;
 		for (int j = 0; j < dots.length; j++) {
+// H.M.Wang 2023-8-22 1带多的情况下，mPrintBuffer已经倍按头数复制了缓冲区，mCharsPerHFeed也没相应扩大，因此，计算得到的dots是扩大后的数值，需要更正
+			dots[j] /= mExtendStat.getScale();
+// End of H.M.Wang 2023-8-22 1带多的情况下，mPrintBuffer已经倍按头数复制了缓冲区，mCharsPerHFeed也没相应扩大，因此，计算得到的dots是扩大后的数值，需要更正
 			// H.M.Wang 2019-10-11 获得的点数乘2
 			SystemConfigFile config = SystemConfigFile.getInstance(mContext);
 			final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);

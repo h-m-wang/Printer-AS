@@ -37,13 +37,13 @@ public class SerialPort {
         Debug.d(TAG, "Loading SerialPort library...");
     }
 
-    public int openSerial(String port) {
-        mFdId = openSerial(port, 9600);
+    public int spOpenSerial(String port, int baudrate) {
+        mFdId = openSerial(port, baudrate);
         return mFdId;
     }
 
-    public StreamTransport openStream(String port) {
-        mFdStream = openStream(port, 9600);
+    public StreamTransport spOpenStream(String port, int baudrate) {
+        mFdStream = openStream(port, baudrate);
         mStreamTransport = new StreamTransport(new FileInputStream(mFdStream), new FileOutputStream(mFdStream));
         return mStreamTransport;
     }

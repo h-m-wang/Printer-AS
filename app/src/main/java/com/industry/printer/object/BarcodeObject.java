@@ -16,6 +16,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.google.zxing.qrcode.encoder.ByteMatrix;
 import com.google.zxing.qrcode.encoder.Encoder;
 import com.google.zxing.qrcode.encoder.QRCode;
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.data.BinFileMaker;
@@ -1071,6 +1072,9 @@ public class BarcodeObject extends BaseObject {
 
 		Bitmap bitmap = null;
 
+// H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
+		mHTContent.setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
+// End of H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
 		String cnt = mHTContent.getExpandedContent();
 		mContent = cnt;
 

@@ -1803,7 +1803,10 @@ public class SystemConfigFile{
 		if (param/20 > 0) {
 			return head%2;
 		} else if (param/10 > 0) {
-			return 0;
+// H.M.Wang 2023-8-22 修改1带多是返回的代表头
+//			return 0;
+			return (head / (param%10));
+// End of H.M.Wang 2023-8-22 修改1带多是返回的代表头
 		} else {
 			// 2020-5-11
 // H.M.Wang 2020-5-21 12.7R5头改为RX48，追加RX50头
