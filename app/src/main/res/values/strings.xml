@@ -687,6 +687,7 @@
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 	<string name="strImportUG"><u>Import UG</u></string>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+	<string name="strExportLog"><u>Log</u></string>
 
 <!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
 	<string name="strTxtDtFile">File</string>

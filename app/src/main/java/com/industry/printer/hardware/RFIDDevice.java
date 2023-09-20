@@ -1129,7 +1129,6 @@ public class RFIDDevice implements RfidCallback{
 
 	private int openDevice() {
 		if (mFd <= 0) {
-//			ExtGpio.writeGpioTestPin('I', 9, 1);
 			mFd = open(PlatformInfo.getRfidDevice());
 			if (!mReady && SystemClock.uptimeMillis() < 100*1000) { // 上電後
 				//1.先修改模塊的baudrate
@@ -1137,27 +1136,40 @@ public class RFIDDevice implements RfidCallback{
 			}
 			//2.修改本地串口的baudrate
 			setBaudrate(mFd, 115200);
-/*			SerialPort sp = new SerialPort();
+/*
+			ExtGpio.writeGpioTestPin('I', 9, 1);
+			SerialPort sp = new SerialPort();
 			mFd = sp.spOpenSerial(PlatformInfo.getRfidDevice(), 115200);
 			sp.writeSerial("AT+RST\r\n".getBytes());
-			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 try{Thread.sleep(100);}catch(Exception e){};
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 			sp.writeSerial("AT+GMR\r\n".getBytes());
-			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 try{Thread.sleep(100);}catch(Exception e){};
-			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
-			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
-			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
-			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
-			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
-			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
-			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
 			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 			sp.writeSerial("AT+BLEADDR?\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
 			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
-			sp.writeSerial("AT+BTNAME=BT_HMWANG\r\n".getBytes());
+			sp.writeSerial("AT+BLEINIT=2\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
 			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
-			sp.writeSerial("AT+SCANMODE=2\r\n".getBytes());
+			sp.writeSerial("AT+BLEGATTSSRVCRE\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEGATTSSRVSTART\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+///			sp.writeSerial("AT+BLESCAN=1\r\n".getBytes());
+///			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLENAME=\"AiThinker\"\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+//			sp.writeSerial("AT+BLEADVPARAM=50,50,0,0,4,0,0\r\n".getBytes());
+//			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEADVDATA=\"0201060A0941695468696E6B6572\"\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
+			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
+			sp.writeSerial("AT+BLEADVSTART\r\n".getBytes());
+try{Thread.sleep(100);}catch(Exception e){};
 			Debug.d(TAG, "RECV: " + new String(sp.readSerial()));
 */
 		}

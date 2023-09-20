@@ -218,6 +218,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView mPowerV;
 	private ImageView mPowerStat;
 	public TextView mTime;
+// H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
+	public TextView mSubStepTV;
+	public static int mSubStepCount = 0;
+// End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 
 	private ImageButton mMsgNext;
 	private ImageButton mMsgPrev;
@@ -753,6 +757,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mPower = (RelativeLayout) getView().findViewById(R.id.power);
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
 		mTime = (TextView) getView().findViewById(R.id.time);
+
+// H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
+		mSubStepTV = (TextView) getView().findViewById(R.id.sub_step_tv);
+// End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 
 		refreshPower();
 		//  鍔犺浇鎵撳嵃璁℃暟
@@ -1671,6 +1679,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2023-6-14 借用这个常驻线程，显示SC初始化出现失败的状态
 		refreshVoltage();
 		refreshPulse();
+// H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1 && mDTransThread != null && mDTransThread.isRunning()) {
+			mSubStepTV.setVisibility(View.VISIBLE);
+			mSubStepTV.setText("" + mSubStepCount);
+		} else {
+			mSubStepTV.setVisibility(View.GONE);
+		}
+// End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 	}
 
 	private void refreshCount() {
@@ -4650,7 +4666,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			// H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
 // H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0001|" + mPCCmdId + "|0D0A");
-			this.sendMsg("000B|0000|1000|" + index + "|0000|" + mObjPath + "|0001|" + mPCCmdId + "|0D0A");
+			sendToRemote("000B|0000|1000|" + index + "|0000|" + mObjPath + "|0001|" + mPCCmdId + "|0D0A");
 // End of H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|0000|0D0A");
 			// End of H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
@@ -4673,7 +4689,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			// H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
 // H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|" + mPCCmdId + "|0D0A");
-			this.sendMsg("000B|0000|1000|" + index + "|0000|" + mObjPath + "|0000|" + mPCCmdId + "|0D0A");
+			sendToRemote("000B|0000|1000|" + index + "|0000|" + mObjPath + "|0000|" + mPCCmdId + "|0D0A");
 // End of H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|0000|0D0A");
 			// End of H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID

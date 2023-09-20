@@ -35,7 +35,13 @@ public class RTCDevice {
 	private static int I2C_ADDRESS = 1;
 	private static int I2C_CHECK_VALUE = 0x55;
 	private final String[] ADDRESS = {"0x10", "0x14", "0x18", "0x1C", "0x20", "0x24", "0x28", "0x2C", "0x30", "0x34"};
-	
+// H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
+	private final static String SUB_STEP_REGISTER = "0x3c";
+// End of H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
+// H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
+	private final static String QRLAST_REGISTER = "0x38";
+// End of H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
+
 	public static RTCDevice mInstance = null;
 	
 	public static RTCDevice getInstance(Context context) {
@@ -160,6 +166,9 @@ public class RTCDevice {
 	 */
 
 	public void write(long count, int index) {
+// H.M.Wang 2023-9-20 函数化读写整形数的功能
+		if(index >= 0 && index < 10) writeInt(ADDRESS[index], (int)count);
+/*
 		Debug.d(TAG, "--->NVRAM written count[" + index + "] : " + count);
 		StringBuilder cmd = new StringBuilder(ADDRESS[index]);
 		byte byte0 = (byte) (count & 0x0ff);
@@ -175,6 +184,8 @@ public class RTCDevice {
 		cmd.append(",");
 		cmd.append("0x" + Integer.toHexString(byte3));
 		SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
+*/
+// End of H.M.Wang 2023-9-20 函数化读写整形数的功能
 	}
 
 	/**
@@ -185,7 +196,9 @@ public class RTCDevice {
 		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 		for (int i = 0; i < count.length; i++) {
 			Debug.d(TAG, "--->NVRAM written count[" + i + " : " + count[i]);
-			StringBuilder cmd = new StringBuilder(ADDRESS[i]);
+// H.M.Wang 2023-9-20 函数化读写整形数的功能
+			if(i < 10)  writeInt(ADDRESS[i], (int)count[i]);
+/*			StringBuilder cmd = new StringBuilder(ADDRESS[i]);
 			byte byte0 = (byte) (count[i] & 0x0ff);
 			byte byte1 = (byte) ((count[i] >> 8) & 0x0ff);
 			byte byte2 = (byte) ((count[i] >> 16) & 0x0ff);
@@ -200,14 +213,19 @@ public class RTCDevice {
 			cmd.append("0x" + Integer.toHexString(byte3));
 			Debug.i(TAG, "--->writeAll: " + cmd);
 			SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
+ */
+// End of H.M.Wang 2023-9-20 函数化读写整形数的功能
 		}
-
 		Debug.i(TAG, "--->writeAll: ok");
 //		SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
 
 	}
 
 	public long read(int index) {
+// H.M.Wang 2023-9-20 函数化读写整形数的功能
+		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+		return (long)((index >= 0 && index < 10) ? readInt(ADDRESS[index]) : 0);
+/*
 		String cmd = "4," + ADDRESS[index];
 		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 		SystemFs.writeSysfs(I2C_READ, cmd);
@@ -230,6 +248,8 @@ public class RTCDevice {
 		long count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
 		Debug.d(TAG, "--->NVRAM read count = " + count);
 		return count;
+ */
+// End of H.M.Wang 2023-9-20 函数化读写整形数的功能
 	}
 
 	public long[] readAll() {
@@ -246,49 +266,32 @@ public class RTCDevice {
 		return I2C_ADDRESS + ",0x68";
 	}
 
-//	public int[] readAll() {
-//		int[] counts = new int[10];
-//		String cmd = "40," + ADDRESS[0];
-//		SystemFs.writeSysfs(I2C_DEVICE, "1,0x68");
-//        SystemFs.writeSysfs(I2C_READ, cmd);
-//		String out = SystemFs.readSysfs(I2C_READ);
-//		if (out==null)  {
-//			return new int[0];
-//		}
-//		String[] bytes = out.split("/r/n");
-//		if (bytes == null || bytes.length < 8) {
-//			return new int[0];
-//		}
-//		Debug.d(TAG, "--->readAll NVRAM");
-//		for (int i = 3, j = 0; i < bytes.length; i++, j++) {
-//
-//			Debug.d(TAG, "--->readAll NVRAM out:  " + bytes[i] + ", " + bytes[i+1] + ", " + bytes[i+2] + ", " + bytes[i+3]);
-//			int index = bytes[i].lastIndexOf("0x");
-//			//int byte1 = Integer.parseInt("123", 16);
-//			byte byte1 = (byte) Integer.parseInt(bytes[i].substring(index+2), 16);
-//			index = bytes[i+1].lastIndexOf("0x");
-//			byte byte2 = (byte) Integer.parseInt(bytes[i+1].substring(index+2), 16);
-//			index = bytes[i+2].lastIndexOf("0x");
-//			byte byte3 = (byte) Integer.parseInt(bytes[i+2].substring(index+2), 16);
-//			index = bytes[i+3].lastIndexOf("0x");
-//			byte byte4 = (byte) Integer.parseInt(bytes[i+3].substring(index+2), 16);
-//			counts[j] = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
-//
-//			Debug.d(TAG, "--->readAll NVRAM counts[ " + j + "]= " + counts[j]);
-//		}
-//
-//		Debug.d(TAG, "--->readAll NVRAM");
-//		return counts;
-//	}
-
 // H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
-	private final static String QRLAST_REGISTER = "0x38";
-
 	public int readQRLast() {
+		return readInt(QRLAST_REGISTER);
+	}
+
+	public void writeQRLast(int count) {
+		writeInt(QRLAST_REGISTER, count);
+	}
+// End of H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
+
+// H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
+	public int readSubStep() {
+		return readInt(SUB_STEP_REGISTER);
+	}
+
+	public void writeSubStep(int substep) {
+		writeInt(SUB_STEP_REGISTER, substep);
+	}
+// End of H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
+
+// H.M.Wang 2023-9-20 函数化读写整形数的功能
+	private int readInt(String reg) {
 		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 
-		String cmd = "4," + QRLAST_REGISTER;
-		Debug.d(TAG, "--->Reading QRLast from register " + QRLAST_REGISTER);
+		String cmd = "4," + reg;
+		Debug.d(TAG, "--->Reading 4 int from register " + reg);
 
 		SystemFs.writeSysfs(I2C_READ, cmd);
 		String out = SystemFs.readSysfs(I2C_READ);
@@ -309,16 +312,16 @@ public class RTCDevice {
 
 		int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
 
-		Debug.d(TAG, "--->QRLast = " + count);
+		Debug.d(TAG, "--->Read int = " + count);
 
 		return count;
 	}
 
-	public void writeQRLast(int count) {
+	private void writeInt(String reg, int count) {
 		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 
-		StringBuilder cmd = new StringBuilder(QRLAST_REGISTER);
-		Debug.d(TAG, "--->Writing QRLast(" + count + ") to register " + QRLAST_REGISTER);
+		StringBuilder cmd = new StringBuilder(reg);
+		Debug.d(TAG, "--->Writing int(" + count + ") to register " + reg);
 
 		byte byte0 = (byte) (count & 0x0ff);
 		byte byte1 = (byte) ((count >> 8) & 0x0ff);
@@ -335,5 +338,5 @@ public class RTCDevice {
 
 		SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
 	}
-// End of H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
+// End of H.M.Wang 2023-9-20 函数化读写整形数的功能
 }

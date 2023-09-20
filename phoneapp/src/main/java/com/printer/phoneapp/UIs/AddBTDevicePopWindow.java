@@ -129,7 +129,7 @@ public class AddBTDevicePopWindow {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        mDevicesList.removeAllViews();
+//                                        mDevicesList.removeAllViews();
                                         searchTV.setEnabled(false);
                                         addTV.setEnabled(false);
                                         progressBar.setVisibility(View.VISIBLE);
@@ -155,7 +155,7 @@ public class AddBTDevicePopWindow {
 
                     @Override
                     public void onDeviceFound(BluetoothDevice device) {
-                        Log.d(TAG, "Device [" + device.getName() + "] found.");
+                        Log.d(TAG, "Device [" + device.getName() + "," + device.getAddress() + "," + device.getType() + "] found.");
                         addDeviceView(device);
                         addTV.setEnabled(true);
                     }
@@ -174,6 +174,7 @@ public class AddBTDevicePopWindow {
                             BluetoothDevice dev = (BluetoothDevice)iv.getTag();
 Log.d(TAG, dev.getAddress() + " -> DEVICE_TYPE_BT");
                             l.onAdd(dev.getAddress(), ConnectDevice.DEVICE_TYPE_BT);
+                            mBluetoothManager.connectDevice(dev);
                         }
                     }
                 }

@@ -56,6 +56,18 @@
 			android:text="@string/strImportUG"
 			android:textSize="40sp"/>
 <!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+<!-- H.M.Wang 2023-9-4 追加一个输出log到U盘的按键 -->
+		<TextView
+			android:id="@+id/btn_log_2usb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="10dp"
+			android:padding="10dp"
+			android:textColor="@color/blue"
+			android:text="@string/strExportLog"
+			android:textSize="40sp"/>
+<!-- End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键 -->
 		<Button
 			android:id="@+id/btn_cancel"
 			android:layout_width="wrap_content"

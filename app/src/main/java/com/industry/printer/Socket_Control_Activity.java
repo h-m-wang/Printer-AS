@@ -592,7 +592,7 @@ public class Socket_Control_Activity extends Activity {
 			@Override
 
 			public void onClick(View arg0) {
-				BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+/*				BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 
 				StringBuilder sb = new StringBuilder();
 				if(null != btAdapter) {
@@ -607,7 +607,7 @@ public class Socket_Control_Activity extends Activity {
 						Toast.makeText(Socket_Control_Activity.this, sb.toString(), Toast.LENGTH_LONG).show();
 					}
 				}
-
+*/
 				/*ShowDialog.show();
 				 
 				Db.deleteAll("device_info");
@@ -616,7 +616,7 @@ public class Socket_Control_Activity extends Activity {
 				
 				 //mThreadScanDevice.start();
 			  new Thread(mThreadScanDevice).start();*/
-////				Dialog_SureCancel();
+				Dialog_SureCancel();
 			}
 
 		});

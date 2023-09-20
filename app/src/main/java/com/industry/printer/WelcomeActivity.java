@@ -183,9 +183,11 @@ public class WelcomeActivity extends Activity {
 			switch (view.getId()) {
 				case R.id.backup_then_refresh:
 					Debug.d(TAG, "-------- backup_then_refresh --------");
+					mHander.removeMessages(LAUNCH_MAINACTIVITY);
 					if(!msgExport()) break;
 				case R.id.direct_refresh:
 					Debug.d(TAG, "-------- direct_refresh --------");
+					mHander.removeMessages(LAUNCH_MAINACTIVITY);
 					clearData();
 				case R.id.continue_startup:
 					Debug.d(TAG, "-------- continue_startup --------");

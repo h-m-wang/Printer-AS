@@ -163,7 +163,24 @@
             android:textColor="#000000"
             />
         <!-- End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的任务的序号 -->
+        <!-- H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能 -->
+        <TextView
+            android:id="@+id/sub_step_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/area_power_time"
+            android:background="@color/background"
+            android:layout_marginRight="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:visibility="gone"
+            android:textSize="@dimen/ctrlButtonsTextsize_min"
+            android:textColor="#000000"
+            />
+        <!-- End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能 -->
         <LinearLayout
+            android:id="@+id/area_power_time"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="20dp"

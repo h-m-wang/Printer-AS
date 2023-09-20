@@ -1,30 +1,27 @@
 package com.printer.phoneapp.Sockets;
 
-import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.util.Log;
-import android.view.View;
 
 import com.printer.phoneapp.Devices.ConnectDeviceManager;
-import com.printer.phoneapp.PhoneMainActivity;
-import com.printer.phoneapp.Utils.HTPermission;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -196,6 +193,7 @@ public class BluetoothManager {
         mFoundDevices = new ArrayList<BluetoothDevice>();
         mConnectDeviceManager = ConnectDeviceManager.getInstance(ctx);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        getBondedDevices();
     }
 
     private boolean isAddressExists(String address) {
@@ -278,12 +276,20 @@ public class BluetoothManager {
     private void registerDiscoveryBroadcaster() {
         try {
             if(null != mContext) {
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_UUID));
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
-                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothDevice.ACTION_UUID);
+                filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+                filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+                mContext.registerReceiver(mDiscoveryBroadcaster, filter);
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_UUID));
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
+//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
                 mDiscoveryReceiverRegisterred = true;
             }
         } catch (Exception e) {
@@ -322,9 +328,33 @@ public class BluetoothManager {
             mBluetoothAdapter.cancelDiscovery();
         }
 
-        registerDiscoveryBroadcaster();
+/*        registerDiscoveryBroadcaster();
         mOnDiscoveryListener = l;
         return mBluetoothAdapter.startDiscovery();
+ */
+        BluetoothLeScanner s = mBluetoothAdapter.getBluetoothLeScanner();
+        s.startScan(new ScanCallback() {
+            @Override
+            public void onScanResult(int callbackType, ScanResult result) {
+                super.onScanResult(callbackType, result);
+                BluetoothDevice device = result.getDevice();
+
+                Log.d(TAG, "BLE Device found.");
+                Log.d(TAG, "  Name = [" + device.getName() + "]");
+                Log.d(TAG, "  Address = [" + device.getAddress() + "]");
+                Log.d(TAG, "  Type = [" + device.getType() + "]");      // 可能无用
+                if(null != device.getUuids()) {
+                    for(ParcelUuid uuid : device.getUuids()) {
+                        Log.d(TAG, "  UUID = [" + uuid.getUuid() + "]");
+                    }
+                } else {
+                    Log.d(TAG, "  UUID = [null]");
+                }
+                Log.d(TAG, "  Bonded = [" + device.getBondState() + "]");
+
+            }
+        });
+        return true;
     }
 
     public boolean cancelDiscovery() {
@@ -361,7 +391,7 @@ public class BluetoothManager {
         }
     }
 
-    public void connectDevice() {
+    public void connectDevice(final BluetoothDevice device) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -380,12 +410,12 @@ public class BluetoothManager {
                         Log.e(TAG, "Not enabled!");
                         return;
                     }
-
                         Log.d(TAG, "Start-1004");
-                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("F4:4E:FD:14:63:66");  // SANSUI 耳机
+//                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("F4:4E:FD:14:63:66");  // SANSUI 耳机
 //                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("D0:9F:74:B1:ED:F9");    // 蓝牙鼠标
                         Log.d(TAG, "Device got " + device.getName());
-                        Log.d(TAG, "Device Class " + device.getBluetoothClass().getDeviceClass());
+                    Log.d(TAG, "Device Class " + device.getBluetoothClass().getDeviceClass());
+                    Log.d(TAG, "Device UUID " + device.getUuids());
 
                         // 这里调用配对，配对成功后，系统的蓝牙会自动连接这个蓝牙设备（因为是音乐播放器，已有的播放器会主动连接），因此导致我们后续的连接失败（因为蓝牙只支持一个连接）
 //                        Method m1 = device.getClass().getMethod("createBond");
@@ -404,7 +434,8 @@ public class BluetoothManager {
 // SANSUI 耳机。
 // 这个失败。出现Pin不匹配的错误。不配对也可以执行到这里                        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("0000111e-0000-1000-8000-00805f9b34fb"));
 // 这个成功。即使没有配对也可以链接成功，而不提示配对
-                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000111e-0000-1000-8000-00805f9b34fb"));
+                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000c300-0000-1000-8000-00805f9b34fb"));
+//                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000111e-0000-1000-8000-00805f9b34fb"));
 // 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000110e-0000-1000-8000-00805f9b34fb"));
 // 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000110b-0000-1000-8000-00805f9b34fb"));
 // 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00000000-0000-1000-8000-00805f9b34fb"));

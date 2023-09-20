@@ -123,7 +123,7 @@ public class PCCommandHandler {
                 @Override
                 public void run() {
                     if(null != mRemoteRecvedPromptDlg) {
-                        mRemoteRecvedPromptDlg.show();		// 不知道为啥，hide之后，必须要show两次才能够及时显示出来
+                        mRemoteRecvedPromptDlg.show();
                         SimpleDateFormat sdf = new SimpleDateFormat("[mm:ss]\n");
                         mRemoteRecvedPromptDlg.setMessage(sdf.format(new Date()) + msg);
                     }
