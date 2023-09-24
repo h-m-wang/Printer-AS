@@ -87,11 +87,15 @@ public class CalendarDialog extends Dialog {
 				Calendar c = Calendar.getInstance();
 				check();
 				try {
+// H.M.Wang 2023-9-24 设置时间增加秒的值
 					c.set(Integer.parseInt(mYear.getText().toString()),
 							Integer.parseInt(mMonth.getText().toString()) - 1,
 							Integer.parseInt(mDate.getText().toString()),
 							Integer.parseInt(mHour.getText().toString()),
-							Integer.parseInt(mMinute.getText().toString()));
+//							Integer.parseInt(mMinute.getText().toString()));
+							Integer.parseInt(mMinute.getText().toString()),
+							0);
+// End of H.M.Wang 2023-9-24 设置时间增加秒的值
 					long when = c.getTimeInMillis();
 
 					Debug.d(TAG, "===>setDate");
