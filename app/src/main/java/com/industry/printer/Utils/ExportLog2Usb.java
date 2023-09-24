@@ -17,8 +17,13 @@ public class ExportLog2Usb {
             if(null != pid) {
                 Debug.d(TAG, "Export Log to " + path);
                 pid.waitFor();
-//                pid.destroy();
             }
+            pid = Runtime.getRuntime().exec("umount " + path);
+            if(null != pid) {
+                Debug.d(TAG, "Export Log to " + path);
+                pid.waitFor();
+            }
+            try{Thread.sleep(5000);}catch(Exception e){}
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }

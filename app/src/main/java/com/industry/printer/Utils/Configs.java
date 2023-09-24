@@ -482,6 +482,12 @@ UserGroup 使用方法说明
 	
 	public static int getMessageShift(int index) {
 		int shift=0;
+// H.M.Wang 2023-9-21 当img为4FIFO的时候，不在apk中做位移处理，交给img来做
+		if(!PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+			return 0;
+		}
+// End of H.M.Wang 2023-9-21 当img为4FIFO的时候，不在apk中做位移处理，交给img来做
+
 		switch (index) {
 		case 0:
 			shift = mSysconfig.getParam(10);

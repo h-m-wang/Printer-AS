@@ -16,7 +16,7 @@ import com.industry.printer.Utils.ToastUtil;
  */
 
 public class GroupNamingDialog  extends Dialog {
-    private static final String TAG = CounterEditDialog.class.getSimpleName();
+    private static final String TAG = GroupNamingDialog.class.getSimpleName();
 
     private Context mContext;
     private String mSuffixName = "";

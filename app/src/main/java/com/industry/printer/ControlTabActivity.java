@@ -78,6 +78,7 @@ import com.industry.printer.pccommand.PCCommandManager;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.MessageGroupsortDialog;
+import com.industry.printer.ui.CustomerDialog.SubStepDialog;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
 import com.industry.printer.ui.CustomerAdapter.PreviewAdapter;
 import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnPositiveListener;
@@ -220,7 +221,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView mTime;
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 	public TextView mSubStepTV;
-	public static int mSubStepCount = 0;
 // End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 
 	private ImageButton mMsgNext;
@@ -760,6 +760,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 		mSubStepTV = (TextView) getView().findViewById(R.id.sub_step_tv);
+		mSubStepTV.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				SubStepDialog ssDialog = new SubStepDialog(mContext);
+				ssDialog.show();
+			}
+		});
 // End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 
 		refreshPower();
@@ -1680,9 +1687,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		refreshVoltage();
 		refreshPulse();
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
-		if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1 && mDTransThread != null && mDTransThread.isRunning()) {
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1) {
 			mSubStepTV.setVisibility(View.VISIBLE);
-			mSubStepTV.setText("" + mSubStepCount);
+			mSubStepTV.setText("" + RTCDevice.getInstance(mContext).readSubStep());
 		} else {
 			mSubStepTV.setVisibility(View.GONE);
 		}

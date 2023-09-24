@@ -41,7 +41,6 @@
 	</LinearLayout>
 
 	<RelativeLayout
-		android:id="@+id/cancel"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 <!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->

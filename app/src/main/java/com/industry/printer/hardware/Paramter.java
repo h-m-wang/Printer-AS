@@ -2,6 +2,7 @@ package com.industry.printer.hardware;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 
 public class Paramter {
 
@@ -205,11 +206,20 @@ public class Paramter {
 		mFPGAParam[13] *= (param[SystemConfigFile.INDEX_WIDTH_RATIO] <= 10 ? 100 : param[SystemConfigFile.INDEX_WIDTH_RATIO]);
 		mFPGAParam[13] /= 100;
 // End of H.M.Wang 2022-5-30 增加编码器变倍
-	    mFPGAParam[14] = param[SystemConfigFile.INDEX_STR];
-	    mFPGAParam[20] = param[36];
-	    mFPGAParam[21] = param[33];
-	    mFPGAParam[22] = param[SystemConfigFile.INDEX_DOT_SIZE];
-	    mFPGAParam[23] = param[39] == 0 ? (mFPGAParam[23] & 0xFFFE) : (mFPGAParam[23] | 0x0001);
+// H.M.Wang 2023-9-21 当img为4FIFO的时候，S15，S21，S22，S23用来向FPGA传递位移数据
+		if(!PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+			mFPGAParam[14] = (6 * param[3] + param[10]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C11 * C3 / 150
+			mFPGAParam[20] = (6 * param[3] + param[11]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C12 * C3 / 150
+			mFPGAParam[21] = (6 * param[3] + param[18]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C19 * C3 / 150
+			mFPGAParam[22] = (6 * param[3] + param[19]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C20 * C3 / 150
+		} else {
+			mFPGAParam[14] = param[SystemConfigFile.INDEX_STR];
+			mFPGAParam[20] = param[36];
+			mFPGAParam[21] = param[33];
+			mFPGAParam[22] = param[SystemConfigFile.INDEX_DOT_SIZE];
+		}
+// End of H.M.Wang 2023-9-21 当img为4FIFO的时候，S15，S21，S22，S23用来向FPGA传递位移数据
+		mFPGAParam[23] = param[39] == 0 ? (mFPGAParam[23] & 0xFFFE) : (mFPGAParam[23] | 0x0001);
 
 // H.M.Wang 2023-2-4 修改参数C62和参数C63
 // H.M.Wang 2022-8-25 追加喷嘴加热参数项

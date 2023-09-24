@@ -60,7 +60,6 @@ public class CounterObject extends BaseObject {
 // H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 		mSubStepCount = RTCDevice.getInstance(mContext).readSubStep();
 		if(mSubStepCount < 0 || mSubStepCount >= mSubStepValue) mSubStepCount = 0;
-		ControlTabActivity.mSubStepCount = mSubStepCount;
 //		mSubStepCount = mSubStepValue;
 // End of H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 // End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
@@ -194,7 +193,6 @@ public class CounterObject extends BaseObject {
 // H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 		mSubStepCount = RTCDevice.getInstance(mContext).readSubStep();
 		if(mSubStepCount < 0 || mSubStepCount >= mSubStepValue) mSubStepCount = 0;
-		ControlTabActivity.mSubStepCount = mSubStepCount;
 //		mSubStepCount = mSubStepValue;
 // End of H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 // End of H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
@@ -218,7 +216,6 @@ public class CounterObject extends BaseObject {
 // H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 // H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
 		mSubStepCount++;
-		ControlTabActivity.mSubStepCount = mSubStepCount;
 		RTCDevice.getInstance(mContext).writeSubStep(mSubStepCount);
 		Debug.d(TAG, "Value: " + mValue + "; SubStep: " + mSubStepCount);
 		if(mSubStepCount < mSubStepValue) return;

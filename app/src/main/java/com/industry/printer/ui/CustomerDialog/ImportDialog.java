@@ -22,7 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ImportDialog extends Dialog implements android.view.View.OnClickListener{
-
+	public static final String TAG = ImportDialog.class.getSimpleName();
 	
 	private ImageButton mImport;
 	private ImageButton mExport;
@@ -69,12 +69,12 @@ public class ImportDialog extends Dialog implements android.view.View.OnClickLis
 				mLog2Usb.post(new Runnable() {
 					@Override
 					public void run() {
-						final ArrayList<String> usbs = ConfigPath.getMountedUsb();
-						if (usbs.size() <= 0) {
-							mLog2Usb.setTextColor(Color.GRAY);
-							mLog2Usb.setClickable(false);
-						} else {
-							if(!mWrittingLog) {
+						if(!mWrittingLog) {
+							ArrayList<String> usbs = ConfigPath.getMountedUsb();
+							if (usbs.size() <= 0) {
+								mLog2Usb.setTextColor(Color.GRAY);
+								mLog2Usb.setClickable(false);
+							} else {
 								mLog2Usb.setTextColor(Color.BLUE);
 								mLog2Usb.setClickable(true);
 							}
@@ -85,7 +85,6 @@ public class ImportDialog extends Dialog implements android.view.View.OnClickLis
 		}, 0L, 500L);
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 
-		mCancel = (RelativeLayout) findViewById(R.id.cancel);
 		mBtncl = (Button) findViewById(R.id.btn_cancel);
 
 		mImport.setOnClickListener(this);
@@ -97,7 +96,6 @@ public class ImportDialog extends Dialog implements android.view.View.OnClickLis
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 		mLog2Usb.setOnClickListener(this);
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
-		mCancel.setOnClickListener(this);
 		mBtncl.setOnClickListener(this);
 	}
 
@@ -125,7 +123,6 @@ public class ImportDialog extends Dialog implements android.view.View.OnClickLis
 					mListener.onFlush();
 				}
 				break;
-			case R.id.cancel:
 			case R.id.btn_cancel:
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 				if(null != mTimer) {
@@ -152,9 +149,15 @@ public class ImportDialog extends Dialog implements android.view.View.OnClickLis
 				}
 				mWrittingLog = true;
 				mLog2Usb.setTextColor(Color.GRAY);
-				ExportLog2Usb.exportLog(usbs.get(0) + "/export.log");
-				mWrittingLog = false;
-				mLog2Usb.setTextColor(Color.BLUE);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Debug.d(TAG, "Start");
+						ExportLog2Usb.exportLog(usbs.get(0) + "/export.log");
+						Debug.d(TAG, "End");
+						mWrittingLog = false;
+					}
+				}).start();
 				break;
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 			default:
