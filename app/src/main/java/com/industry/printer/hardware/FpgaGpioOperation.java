@@ -1,6 +1,7 @@
 package com.industry.printer.hardware;
 
 import android.content.Context;
+import android.os.RecoverySystem;
 
 import com.industry.printer.BinInfo;
 import com.industry.printer.DataTransferThread;
