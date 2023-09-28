@@ -207,7 +207,7 @@ public class Paramter {
 		mFPGAParam[13] /= 100;
 // End of H.M.Wang 2022-5-30 增加编码器变倍
 // H.M.Wang 2023-9-21 当img为4FIFO的时候，S15，S21，S22，S23用来向FPGA传递位移数据
-		if(!PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+		if(PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
 			mFPGAParam[14] = (6 * param[3] + param[10]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C11 * C3 / 150
 			mFPGAParam[20] = (6 * param[3] + param[11]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C12 * C3 / 150
 			mFPGAParam[21] = (6 * param[3] + param[18]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C19 * C3 / 150
