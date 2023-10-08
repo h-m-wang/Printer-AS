@@ -14,8 +14,13 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.industry.printer.MessageTask;
 import com.industry.printer.R;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.ToastUtil;
+
+import java.io.File;
 
 public class TestMain {
     public static final String TAG = TestMain.class.getSimpleName();
@@ -29,7 +34,10 @@ public class TestMain {
     private ITestOperation mIFTestOp = null;
 
     private final String TITLE = "";
-    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
+// H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+//    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
+    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001"};
+// H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
     public TestMain(Context ctx) {
         mContext = ctx;
@@ -103,6 +111,44 @@ public class TestMain {
         mMainMenuLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+// H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+                if(i == 3) {
+                    final MessageTask mTask = new MessageTask(mContext, ConfigPath.getTlkPath() + File.separator + "Test001");
+                    if(new File(ConfigPath.getTlkPath() + File.separator + "Test001").exists()) {
+                        mTask.setName("Test001_");
+                        mSaving = false;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    for(int i=0; i<SAVE_COUNT_LIMIT; i++) {
+                                        final int pos = i+1;
+                                        mSaving = true;
+                                        mTask.save(new MessageTask.SaveProgressListener() {
+                                            @Override
+                                            public void onSaved() {
+                                                mSaving = false;
+                                                mMainMenuLV.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        ToastUtil.show(mContext, "Saved: " + pos);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        while(mSaving) {
+                                            Thread.sleep(10);
+                                        }
+                                    }
+                                } catch(Exception e) {
+                                    Debug.e(TAG, e.getMessage());
+                                }
+                            }
+                        }).start();
+                    }
+                    return;
+                }
+// End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);
@@ -112,4 +158,9 @@ public class TestMain {
 
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
     }
+
+// H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+    private int SAVE_COUNT_LIMIT = 1000;
+    private boolean mSaving;
+// End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 }

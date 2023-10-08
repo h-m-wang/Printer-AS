@@ -1456,8 +1456,11 @@ public class MessageTask {
 			}
 			if (mCallback != null) {
 				mCallback.sendMessage(msg);
-				mSaveTask = null;
+// H.M.Wang 2023-10-8 从这里移到if语句外面，因为这里应该跟if语句的判断条件无关
+//				mSaveTask = null;
 			}
+			mSaveTask = null;
+// End of H.M.Wang 2023-10-8 从这里移到if语句外面，因为这里应该跟if语句的判断条件无关
 
 			if(null != mSaveProgressListener) {
 				mSaveProgressListener.onSaved();
