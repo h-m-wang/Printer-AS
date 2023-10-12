@@ -750,7 +750,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mPowerStat = (ImageView) getView().findViewById(R.id.power_value);
 // H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
 		String imgUC = PlatformInfo.getImgUniqueCode();
-		if(PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS")) {
+// H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
+//		if(PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS")) {
+		if(!Configs.BATTERY_ALWAYS_ON && (PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS"))) {
+// End of H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
 			mPowerStat.setVisibility(View.INVISIBLE);
 		}
 // End of H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
