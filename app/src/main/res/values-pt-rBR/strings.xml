@@ -419,7 +419,10 @@
 <!--	<string name="str_textview_param73">73.Reservado</string> -->
 	<string name="str_textview_param73">73.LCD Inverse</string>
 <!-- End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
-	<string name="str_textview_param74">74.Reservado</string>
+<!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!--	<string name="str_textview_param74">74.Reservado</string>-->
+	<string name="str_textview_param74">74.AD</string>
+<!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
 	<string name="str_textview_param75">75.Reservado</string>
 	<string name="str_textview_param76">76.Reservado</string>
 	<string name="str_textview_param77">77.Reservado</string>

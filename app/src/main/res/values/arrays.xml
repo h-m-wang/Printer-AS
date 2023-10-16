@@ -361,6 +361,7 @@
         <item>P-4</item>
         <item>P-5</item>
         <item>P-6</item>
+        <item>P-7</item>
     </string-array>
 <!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
 <!-- H.M.Wang 2022-11-30 追加一个ENC DIR -->
@@ -387,5 +388,12 @@
         <item>Mode3</item>
     </string-array>
 <!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+<!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+    <string-array name="param_ad">
+        <item>None</item>
+        <item>Battery</item>
+        <item>Presure</item>
+    </string-array>
+<!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
 
 </resources>

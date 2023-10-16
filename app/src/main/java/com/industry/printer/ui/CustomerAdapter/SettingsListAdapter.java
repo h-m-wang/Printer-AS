@@ -116,6 +116,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mLCDInverse;
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+	private PopWindowAdapter mParamAD;
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
 
@@ -415,6 +419,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mLCDInverse = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+		mParamAD = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -681,7 +689,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 		mSettingItems[72] = new ItemOneLine(73, R.string.str_textview_param73, R.array.switch_item_entries, 0, ItemType.TYPE_SWITCH);
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
-		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, 0);
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+		mSettingItems[73] = new ItemOneLine(74, R.string.str_textview_param74, R.array.param_ad, 0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 		mSettingItems[74] = new ItemOneLine(75, R.string.str_textview_param75, 0);
 		mSettingItems[75] = new ItemOneLine(76, R.string.str_textview_param76, 0);
 		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0);
@@ -818,6 +828,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mLCDInverse.addItem(items[i]);
 		}
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+		items = mContext.getResources().getStringArray(R.array.param_ad);
+		for (int i = 0; i < items.length; i++) {
+			mParamAD.addItem(items[i]);
+		}
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 
 // H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 		items = mContext.getResources().getStringArray(R.array.user_mode);
@@ -1003,6 +1020,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 72) { //參數72
 			mSpiner.setAdapter(mLCDInverse);
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+		} else if (position == 73) { //參數72
+			mSpiner.setAdapter(mParamAD);
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

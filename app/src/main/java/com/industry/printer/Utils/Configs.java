@@ -39,11 +39,6 @@ public class Configs {
 //	public static final boolean READING = true;			// 忽略RFID检查
 	public static final boolean READING = false;		// 检查RFID
 
-// H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
-	public static final boolean BATTERY_ALWAYS_ON = false;		// 从前的逻辑，根据img的种类决定是否显示电池图标
-//	public static final boolean BATTERY_ALWAYS_ON = true;		// 所有机型均显示电池图标
-// End of H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
-
 // H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
 /*
 // H.M.Wang 2021-5-21 追加用户特色页面显示开关标识

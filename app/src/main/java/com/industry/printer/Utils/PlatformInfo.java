@@ -110,8 +110,8 @@ public class PlatformInfo {
 		return mProduct;
 	}
 
-	public static boolean isMImgType() {
-		return (getImgUniqueCode().startsWith("M9") || getImgUniqueCode().startsWith("M7") || getImgUniqueCode().startsWith("M5"));
+	public static boolean isMImgType(String imgUC) {
+		return (imgUC.startsWith("M9") || imgUC.startsWith("M7") || imgUC.startsWith("M5") || imgUC.startsWith("4FIFO") || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM"));
 	}
 
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示

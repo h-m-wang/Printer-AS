@@ -18,12 +18,12 @@ import com.industry.printer.Utils.SystemFs;
  * 0x10 ~ 0x37   保存0-9计数器值
  */
 public class RTCDevice {
-
-	public static native int open(String dev);
-	public static native int close(int fd);
-	public static native void syncSystemTimeToRTC(int fd);	//write
-	public static native void syncSystemTimeFromRTC(int fd); //read
-
+// H.M.Wang 2023-10-16 经确认，这几个函数已经不再使用
+//	public static native int open(String dev);
+//	public static native int close(int fd);
+//	public static native void syncSystemTimeToRTC(int fd);	//write
+//	public static native void syncSystemTimeFromRTC(int fd); //read
+// End of H.M.Wang 2023-10-16 经确认，这几个函数已经不再使用
 	private static final String TAG = RTCDevice.class.getSimpleName();
 	public static final String RTC_DEV = "/dev/rtc1"; 
 

@@ -228,6 +228,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 	public static final int INDEX_LCD_INVERSE = 72;
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+	public static final int INDEX_AD = 73;
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -378,6 +381,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-8-9 追加一个新的PROTO_6
 	public static final int INPUT_PROTO_6           = 5;        // 新协议，功能见上文
 // End of H.M.Wang 2023-8-9 追加一个新的PROTO_6
+// H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮20s
+	public static final int INPUT_PROTO_7           = 6;
+// End of H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮20s
 
 // End of H.M.Wang 追加输入设置参数
 

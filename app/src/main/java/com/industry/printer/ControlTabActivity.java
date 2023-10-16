@@ -416,15 +416,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		private int mPI11State = 0;
 // End of H.M.Wang 2021-9-19 追加PI11状态读取功能
 	private PI11Monitor mPI11Monitor = null;
-/*
-	private Timer mInPinReadTimer = null;
-	private int mInPinState = 0;
-// H.M.Wang 2023-8-12 追加P6，对于墨位低及溶剂低报警，这里定义时间间隔，单位为秒
-	public boolean mP6LevelLow = false;
-	private int mP6AlarmCount = 0;
-	public boolean mP6SolventLow = false;
-*/
-// H.M.Wang 2023-8-12 追加P6，对于墨位低及溶剂低报警，这里定义时间间隔，单位为秒
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 		//Socket___________________________________________________________________________________________
 
@@ -749,13 +740,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 		mPowerStat = (ImageView) getView().findViewById(R.id.power_value);
 // H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
-		String imgUC = PlatformInfo.getImgUniqueCode();
-// H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
-//		if(PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS")) {
-		if(!Configs.BATTERY_ALWAYS_ON && (PlatformInfo.isMImgType() || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM") || imgUC.startsWith("O7GS"))) {
-// End of H.M.Wang 2023-10-12 增加一个逻辑开关，当其为true时，无条件显示电池图标；当期为false的时候，按着从前的逻辑，根据img的种类决定是否显示电池图标
-			mPowerStat.setVisibility(View.INVISIBLE);
-		}
+// H.M.Wang 2023-10-13 由于在refreshPower函数中做了调整，所以取消这里的设置
+//		String imgUC = PlatformInfo.getImgUniqueCode();
+//		if(PlatformInfo.isMImgType(imgUC) || imgUC.startsWith("O7GS")) {
+//			mPowerStat.setVisibility(View.INVISIBLE);
+//		}
+// End of H.M.Wang 2023-10-13 由于在refreshPower函数中做了调整，所以取消这里的设置
 // End of H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
 //		mPower = (RelativeLayout) getView().findViewById(R.id.power);
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
@@ -1153,257 +1143,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			});
 			mPI11Monitor.start(5000L);
 		}
-/*
-        if(null != mInPinReadTimer) {
-			mInPinReadTimer = new Timer();
-			mInPinReadTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    //     协议１：　禁止GPIO　
-                    if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_1) {
-                        return;
-                    }
-
-//					final int newState = ExtGpio.readPI11State();
-					int aaa = 0;
-
-					if(ccc > 30) {
-						aaa = 0x30;
-					}
-					if(ccc > 60) {
-						aaa = 0x20;
-					}
-					if(ccc > 90) {
-						aaa = 0x10;
-					}
-					if(ccc > 120) {
-						aaa = 0x00;
-					}
-
-					Debug.d(TAG, "ccc = " + ccc);
-					final int newState = aaa;
-					ccc++;
-
-					//     协议６：　
-					//            0x10：墨位低（Output2输出，弹窗）
-					//            0x20：溶剂低（Output2输出，弹窗）
-					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
-						if(mP6LevelLow || mP6SolventLow) {
-							mP6AlarmCount++;
-						}
-						if(mP6AlarmCount >= 5) {
-							mP6AlarmCount = 0;
-							ExtGpio.writeGpio('h', 7, 1);
-							mBtnStart.post(new Runnable() {
-								@Override
-								public void run() {
-									if(mP6LevelLow)
-										ToastUtil.show(mContext, R.string.strLevelLow);
-									if(mP6SolventLow)
-										ToastUtil.show(mContext, R.string.strSolventLow);
-								}
-							});
-							ThreadPoolManager.mControlThread.execute(new Runnable() {
-								@Override
-								public void run() {
-									if(!mIsAlarming) {
-										mIsAlarming = true;
-										ExtGpio.playClick();
-										try{Thread.sleep(50);}catch(Exception e){};
-										ExtGpio.playClick();
-										try{Thread.sleep(50);}catch(Exception e){};
-										ExtGpio.playClick();
-										mIsAlarming = false;
-									}
-								}
-							});
-						}
-					}
-
-					if(mInPinState == newState) return;
-					Debug.d(TAG, "oldState = " + mInPinState + "; newState = " + newState);
-
-// H.M.Wang 2022-12-15 修改在线程当中生成DataTransferThread类的实例的话，会造成初始化是Handler生命部分异常，因为Handler不能在线程中生成
-//					final DataTransferThread thread = DataTransferThread.getInstance(mContext);
-// H.M.Wang 2022-12-15 修改在线程当中生成DataTransferThread类的实例的话，会造成初始化是Handler生命部分异常，因为Handler不能在线程中生成
-
-                    //     协议２：　
-                    //            0x01：是打印开始停止
-                    //     协议４：
-                    //            0x01：是打印“开始／停止”控制位。其中，打印开始停止是在apk里面处理的，方向控制是在img里面控制的
-					//     协议６：　
-					//            0x01：是打印开始停止
-                    if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_2 ||
-					   mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 ||
-                       mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
-                        if((mInPinState & 0x01) != (newState & 0x01)) {		// 0x01位的前后值不一致
-                            mBtnStart.post(new Runnable() {
-                                @Override
-                                public void run() {
-// H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
-                                	if(null == mDTransThread) {
-										if((newState & 0x01) == 0x01) {		// 新值为1，标识按键按下
-											mBtnStart.performClick();
-										}
-									} else
-// End of H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
-                                    if(mDTransThread.isPurging) {
-                                        ToastUtil.show(mContext, R.string.str_under_purging);
-//												return;
-                                    } else {
-                                        if((newState & 0x01) == 0x01) {		// 新值为1，标识按键按下
-                                            if(!mBtnStart.isClickable()) {
-//									ToastUtil.show(mContext, "Not executable");
-//												return;
-                                            } else if(mDTransThread.isRunning()) {
-//									ToastUtil.show(mContext, "Already in printing");
-//												return;
-                                            } else {
-////                                                mInPinState |= 0x01;
-//								Debug.d(TAG, "Launch Print by pressing PI11!");
-                                                mBtnStart.performClick();
-                                            }
-                                        } else if((newState & 0x01) == 0x00) {	// 新值为0，标识按键松开
-////                                            mInPinState &= (~0x01);
-                                            if(!mBtnStop.isClickable()) {
-//									ToastUtil.show(mContext, "Not executable");
-//												return;
-                                            }
-                                            if(!mDTransThread.isRunning()) {
-//									ToastUtil.show(mContext, "Not in printing");
-//												return;
-                                            }
-//								Debug.d(TAG, "Stop Print by releasing PI11!");
-                                            mBtnStop.performClick();
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    //     协议３：
-                    //            0x01：方向切换
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_3  && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01)) {
-						Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
-						FpgaGpioOperation.setMirror(newState & 0x01);
-					}
-					//     协议４：
-					//            0x04：方向切换
-					//     协议６：　
-					//            0x04：方向切换
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6  && (mInPinState & 0x04) == 0x00 && (newState & 0x04) == 0x04)) {
-						Debug.d(TAG, "设置方向调整：" + (newState & 0x01));
-						FpgaGpioOperation.setMirror(((newState & 0x04) == 0x04) ? 1 : 0);
-                    }
-
-					//     协议５：
-					//            0x01：是计数器清零，包括RTC的数据和正在打印的数据
-					//     协议４：
-					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
-					//     协议６：　
-					//            0x02：是计数器清零，包括RTC的数据和正在打印的数据
-					if((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
-					   (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02)) {
-						Debug.d(TAG, "Clear counters");
-						SystemConfigFile sysConfigFile = SystemConfigFile.getInstance();
-						long[] counters = new long[10];
-						for (int i = 0; i < 10; i++) {
-							counters[i] = 0;
-							sysConfigFile.setParamBroadcast(i+SystemConfigFile.INDEX_COUNT_1, 0);
-						}
-						RTCDevice.getInstance(mContext).writeAll(counters);
-
-// H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-						if (mDTransThread != null && mDTransThread.isRunning() && mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5) {
-							FpgaGpioOperation.clear();
-						}
-// End of H.M.Wang 2022-5-31 P-5的时候向FPGA的PG1和PG2下发11，3ms后再下发00
-
-						List<DataTask> tasks = null;
-						if (mDTransThread != null) {
-							tasks = mDTransThread.getData();
-						}
-						if(null != tasks) {
-							for(DataTask task : tasks) {
-								ArrayList<BaseObject> objList = task.getObjList();
-								for (BaseObject obj : objList) {
-									if (obj instanceof CounterObject) {
-										((CounterObject)obj).setValue(((CounterObject)obj).getStart());
-									}
-								}
-							}
-							if(mDTransThread.isRunning()) {
-								DataTask task = mDTransThread.getCurData();
-								ArrayList<BaseObject> objList = task.getObjList();
-								for (BaseObject obj : objList) {
-									if (obj instanceof CounterObject) {
-										mDTransThread.mNeedUpdate = true;
-									}
-								}
-							}
-						}
-                    }
-
-					//     协议４：
-					//            0xF0段，即0x10 - 0xF0)为打印文件的文件名（数字形式，1-15）
-					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
-						if((mInPinState & 0x0F0) != (newState & 0x0F0)) {
-							int index = 0x0F & (newState >> 4);
-							if(index != 0x00) {
-								String fileName = "" + index;
-								Debug.d(TAG, "IN8-IN5 select file: " + fileName);
-								if(new File(ConfigPath.getTlkDir(fileName)).exists()) {
-									Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
-									Bundle bundle = new Bundle();
-									bundle.putString("file", fileName);
-// H.M.Wang 2022-3-1 正在打印中的时候切换打印信息，重新生成打印缓冲区
-									if (mDTransThread != null && mDTransThread.isRunning()) {
-										bundle.putBoolean("printNext", true);
-									}
-// End of H.M.Wang 2022-3-1 正在打印中的时候切换打印信息，重新生成打印缓冲区
-									msg.setData(bundle);
-									mHandler.sendMessage(msg);
-								}
-							}
-						}
-					}
-
-					//     协议６：　
-					//            0x10：墨位低（Output2输出，弹窗）
-					//            0x20：溶剂低（Output2输出，弹窗）
-					if(mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
-						if((mInPinState & 0x10) == 0x00 && (newState & 0x10) == 0x10) {
-							Debug.d(TAG, "Level Low");
-							mP6LevelLow = true;
-							mP6AlarmCount = 0;
-						} else if((mInPinState & 0x10) == 0x10 && (newState & 0x10) == 0x00) {
-							Debug.d(TAG, "Level High");
-							ExtGpio.writeGpio('h', 7, 0);
-							mP6LevelLow = false;
-							mP6AlarmCount = 0;
-						}
-						if((mInPinState & 0x20) == 0x00 && (newState & 0x20) == 0x20) {
-							Debug.d(TAG, "Solvent Low");
-							mP6SolventLow = true;
-							mP6AlarmCount = 0;
-						} else if((mInPinState & 0x20) == 0x20 && (newState & 0x20) == 0x00) {
-							Debug.d(TAG, "Solvent High");
-							ExtGpio.writeGpio('h', 7, 0);
-							mP6SolventLow = false;
-							mP6AlarmCount = 0;
-						}
-					} else {
-						mP6LevelLow = false;
-						mP6SolventLow = false;
-					}
-					mInPinState = newState;
-				}
-			}, 3000L, 1000L);
-		}
- */
 // End of H.M.Wang 2021-9-19 追加PI11状态读取功能
 // End of H.M.Wang 2022-2-13 将PI11状态的读取，并且根据读取的值进行控制的功能扩展为对IN管脚的读取，并且做相应的控制
 // End of H.M.Wang 2022-3-21 根据工作中心对输入管脚协议的重新定义，大幅度修改相应的处理方法
@@ -1831,6 +1570,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private void refreshPower() {
 		Debug.d(TAG, "--->refreshPower");
 		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
+// H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+			if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 1) {
+				mPowerStat.setVisibility(View.VISIBLE);
+			} else if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 1) {
+				mPowerStat.setVisibility(View.GONE);
+				// 气压的显示算法及方法待定
+			} else if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 0) {
+				String imgUC = PlatformInfo.getImgUniqueCode();
+				if(PlatformInfo.isMImgType(imgUC) || imgUC.startsWith("O7GS")) {
+					mPowerStat.setVisibility(View.GONE);
+				} else {
+					mPowerStat.setVisibility(View.VISIBLE);
+				}
+			}
+// End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 			int power = LRADCBattery.getPower();
 			Debug.d(TAG, "--->power: " + power);
 			if (power >= 41) {
@@ -1881,11 +1635,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			//mPowerV.setText(String.valueOf(power));
 			// mTime.setText("0");
 			// display Voltage & pulse width
-			
-			mHandler.sendEmptyMessageDelayed(MESSAGE_REFRESH_POWERSTAT, 5*60*1000);
+
+// H.M.Wang 2023-10-13 循环时间从5分钟改为2秒
+			mHandler.sendEmptyMessageDelayed(MESSAGE_REFRESH_POWERSTAT, 2*1000);
+// End of H.M.Wang 2023-10-13 循环时间从5分钟改为2秒
 		}
 	}
-	
+
 	/**
 	 * if setting param25 == on, read from RFID feature 5
 	 * if setting param25 == off, read from setting param 26
