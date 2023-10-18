@@ -18,11 +18,13 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +38,46 @@ public class PrinterApplication extends Application {
 
 	public static PrinterApplication getInstance() {
 		return sInstance;
+	}
+
+	private void test111() {
+		Process pid = null;
+		Debug.d(TAG, "LSUSB Start");
+		try {
+			Debug.d(TAG, "LSUSB ---1");
+			pid = Runtime.getRuntime().exec("sudo busybox insmod /system/vendor/modules/fpga-sunxi.ko");
+			if(null != pid) {
+				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
+				String line;
+				pid.waitFor();
+				while(null != bReader && null != (line = bReader.readLine())) {
+					Debug.d(TAG, line);
+				}
+			}
+			Debug.d(TAG, "LSUSB ---2");
+			pid = Runtime.getRuntime().exec("busybox lsmod");
+			if(null != pid) {
+				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
+				String line;
+				pid.waitFor();
+				while(null != bReader && null != (line = bReader.readLine())) {
+					Debug.d(TAG, line);
+				}
+			}
+			Debug.d(TAG, "LSUSB ---3");
+			pid = Runtime.getRuntime().exec("busybox ls /system/vendor/modules -l");
+			if(null != pid) {
+				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
+				String line;
+				pid.waitFor();
+				while(null != bReader && null != (line = bReader.readLine())) {
+					Debug.d(TAG, line);
+				}
+			}
+		} catch(Exception e) {
+
+		}
+		Debug.d(TAG, "LSUSB Done");
 	}
 
 	@Override
@@ -53,6 +95,7 @@ public class PrinterApplication extends Application {
 			@Override
 			public void run() {
 				try {
+//					test111();
 //					Debug.d(TAG, "su -> start");
 					Process process = Runtime.getRuntime().exec("su");
 					DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -86,7 +129,7 @@ public class PrinterApplication extends Application {
 
 					is.close();
 
-                    // 复制SmartCard库
+					// 复制SmartCard库
 					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_SMARTCARD_SO);
 					os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_SMARTCARD_SO);
 					sleep(100);

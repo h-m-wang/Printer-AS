@@ -226,7 +226,7 @@ public class CounterObject extends BaseObject {
 				public void run() {
 					try{
 						ExtGpio.writeGpio('h', 7, 1);
-						Thread.sleep(20 * 1000);
+						Thread.sleep(30 * 1000);
 						ExtGpio.writeGpio('h', 7, 0);
 					} catch (Exception e) {
 						Debug.e(TAG, e.getMessage());
