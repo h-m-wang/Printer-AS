@@ -2561,7 +2561,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					Time2 = System.currentTimeMillis();
 // 2023-10-21 PC回送打印完成的操作，
 // H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
-					if(!mUsingFIFO) {
+					if(!mUsingFIFO &&
+						(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3 ||
+						(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER3 && dataSent))) {
 						if (mCallback != null) {
 							mCallback.onPrinted(index());
 						}

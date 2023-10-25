@@ -549,6 +549,7 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mHolder.mValueREt.setVisibility(View.VISIBLE);
 			mHolder.mValueREt.setText(mSettingItems[2*position+1].getDisplayValue());
 // H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
+			if(!mHolder.mValueREt.isEnabled()) mHolder.mValueREt.setEnabled(true);
 			if(2*position + 1 == 43) {
 				String info = PlatformInfo.getImgUniqueCode();
 				if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2")) {
