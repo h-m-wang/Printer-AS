@@ -451,8 +451,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                 max = max * 256 + (data[i] & 0x0ff);
             }
 
-            max = 1000;
-
             mStep = 1.0f * max / ILG_MAX_BIT_COUNT;
             Debug.d(TAG, "  ==> mStep = [" + mStep + "]");
             if(mStep < 1.0f) mStep = 1.0f;

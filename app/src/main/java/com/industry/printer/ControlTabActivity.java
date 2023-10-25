@@ -3355,7 +3355,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	@Override
 	public void onCountChanged() {
-		mCounter++;
+// H.M.Wang 2023-10-20 调整计数器的数值，从每次下发后加1（记忆的是下发的总次数），改为实际打印的总次数。这个在使用img的FIFO的时候，是有区别的，相差最大FIFO的个数
+//		mCounter++;
+		if(null != mDTransThread) mCounter += mDTransThread.getRecentPrintedCount();
+// End of H.M.Wang 2023-10-20 调整计数器的数值，从每次下发后加1（记忆的是下发的总次数），改为实际打印的总次数。这个在使用img的FIFO的时候，是有区别的，相差最大FIFO的个数
 
 		mHandler.removeMessages(MESSAGE_COUNT_CHANGE);
 		mHandler.sendEmptyMessageDelayed(MESSAGE_COUNT_CHANGE, 1);
@@ -3404,7 +3407,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 	
 	@Override
-	public void OnFinished(int code) {
+	public void onFinished(int code) {
 		Debug.d(TAG, "--->onFinished");
 // H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 //		mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
@@ -4456,6 +4459,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|" + mPCCmdId + "|0D0A");
 			sendToRemote("000B|0000|1000|" + index + "|0000|" + mObjPath + "|0000|" + mPCCmdId + "|0D0A");
+// 将转移到0002中			sendToRemote("000B|0000|1000|" + index + "|" + mCounter + "," + (null != mDTransThread ? mDTransThread.getRemainCount() : 0) + "|" + mObjPath + "|0000|" + mPCCmdId + "|0D0A");
 // End of H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|0000|0D0A");
 			// End of H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID

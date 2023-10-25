@@ -1585,6 +1585,10 @@ private void setSerialProtocol9DTs(final String data) {
 		mUsingFIFO = (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_FIFO_SIZE) > 1) && (mDataTask.size() == 1);
 		mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 只有在FIFO的size大于1，并且不是群组打印的时候，才启动该标识
+// H.M.Wang 2023-10-20 追加下发总数计数
+		mDownWrittenCount = 0;
+		mLastPrintedCount = 0;
+// End of H.M.Wang 2023-10-20 追加下发总数计数
 
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 		if(TxtDT.getInstance(mContext).isTxtDT()) {
@@ -1829,7 +1833,9 @@ private void setSerialProtocol9DTs(final String data) {
 				mInkListener.onInkLevelDown(i);
 			}
 		}
-		mInkListener.onCountChanged();
+// H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，修改打印计数器的操作改为PrintTask中获取实际打印数量的流程中调用，这里取消
+//		mInkListener.onCountChanged();
+// End of H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，修改打印计数器的操作改为PrintTask中获取实际打印数量的流程中调用，这里取消
 		mScheduler.schedule();
 	}
 	
@@ -2063,7 +2069,7 @@ private void setSerialProtocol9DTs(final String data) {
 		/**
 		 * 整個任務打印完成
 		 */
-		public void OnFinished(int code);
+		public void onFinished(int code);
 		/**
 		 * 一個任務打印完成
 		 */
@@ -2254,9 +2260,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 // End of 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 
+// H.M.Wang 2023-10-21 取消	mFirstForLanFast 变量的判断，改为直接用 mDataUpdatedForFastLan，响应代码已经删除
 // 2020-6-30 追加是否为网络快速打印的第一次数据生成标识
-	private boolean mFirstForLanFast = false;
+//	private boolean mFirstForLanFast = false;
 // End of 2020-6-30 追加是否为网络快速打印的第一次数据生成标识
+// End of H.M.Wang 2023-10-21 取消	mFirstForLanFast 变量的判断，改为直接用 mDataUpdatedForFastLan，响应代码已经删除
 
 // 2020-7-3 追加网络快速打印状态下数据是否更新的标识
 	private boolean mDataUpdatedForFastLan = false;
@@ -2266,6 +2274,20 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	public boolean mCounterReset=false;
 // End of H.M.Wang 2020-7-9 追加计数器重置标识
 	private long last = 0;
+// H.M.Wang 2023-10-20 追加下发总数计数，结合以前已经定义的已打印计数(mPrintedCount)。两者相减即为img中FIFO的剩余未打印任务数量
+	private int mDownWrittenCount;
+	private int mLastPrintedCount;
+// End of H.M.Wang 2023-10-20 追加下发总数计数，结合以前已经定义的已打印计数(mPrintedCount)。两者相减即为img中FIFO的剩余未打印任务数量
+// H.M.Wang 2023-10-20 为ControlTabActivity提供三个变量的获取接口
+	public int getRecentPrintedCount() {
+		int lastRecentPrintedCount = mPrintedCount - mLastPrintedCount;
+		mLastPrintedCount = mPrintedCount;
+		return lastRecentPrintedCount;
+	}
+	public int getRemainCount() {
+		return mDownWrittenCount - mPrintedCount;
+	}
+// End of H.M.Wang 2023-10-20 为ControlTabActivity提供三个变量的获取接口
 
 	public class PrintTask extends Thread {
 		@Override
@@ -2281,7 +2303,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 // 2020-6-30 网络快速打印的第一次数据生成标识设真
 			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
-				mFirstForLanFast = true;
 // H.M.Wang 2020-8-4 这个不设的话，可能上次停止打印时接收到数据后，mDataUpdatedForFastLan被设成true了，导致后面生成打印缓冲区误操作
 				mDataUpdatedForFastLan = false;
 // End of H.M.Wang 2020-8-4 这个不设的话，可能上次停止打印时接收到数据后，mDataUpdatedForFastLan被设成true了，导致后面生成打印缓冲区误操作
@@ -2400,14 +2421,22 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 // 2020-6-30 网络快速打印的第一次数据生成后不下发
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
-//				if(!mFirstForLanFast) {
-				if(!mFirstForLanFast && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
+// H.M.Wang 2023-10-21 对于网络快速打印的下发机制做调整，取消原来的mFirstForLanFast变量，改为直接用mDataUpdatedForFastLan来判断
+				if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN || mDataUpdatedForFastLan) &&
+					// 数据源不是网络快速打印，或者如果是网络快速打印，但是数据已经准备好则下发
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
+					// 数据源不是扫描协议3
+					// 综合起来，下发的条件就是：既不是网络快速打印也不是扫描协议3的时候下发，或者是网络快速打印但是数据已经准备好了，也下发
+// End of H.M.Wang 2023-10-21 对于网络快速打印的下发机制做调整，取消原来的mFirstForLanFast变量，改为直接用mDataUpdatedForFastLan来判断
 // End of H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 					Debug.e(TAG, "--->write data");
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 //					DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
+// H.M.Wang 2023-10-20 追加下发总数计数
+					mDownWrittenCount++;
+// End of H.M.Wang 2023-10-20 追加下发总数计数
 				}
 // End of 2020-6-30 网络快速打印的第一次数据生成后不下发
 
@@ -2460,22 +2489,26 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 // H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 // H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
-				if(mUsingFIFO) {
+// H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，未采用FIFO时，也需要通过这里的处理调整打印计数
+//				if(mUsingFIFO) {
+// End of H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，未采用FIFO时，也需要通过这里的处理调整打印计数
 					lastPrintedCount = FpgaGpioOperation.getPrintedCount();
 					if(lastPrintedCount != mPrintedCount) {
 						Debug.d(TAG, "lastPrintedCount = " + lastPrintedCount + "; mPrintedCount = " + mPrintedCount);
-						setCounterPrintedNext(mDataTask.get(index()), lastPrintedCount - mPrintedCount);
-						for(int i=0; i<lastPrintedCount - mPrintedCount; i++) {
+						int printedCount = lastPrintedCount - mPrintedCount;
+						setCounterPrintedNext(mDataTask.get(index()), printedCount);
+						for(int i=0; i<printedCount; i++) {
 // H.M.Wang 2023-3-10 在群组打印的时候，把打印完成的回送也移到这里，这样就不会丢掉连续的次数了，并且，这时似乎没有必要做下发数据后的后续操作
 //							afterDataSent();
+							mPrintedCount++;
 							if (mCallback != null) {
-								mCallback.onPrinted(index());
+								mInkListener.onCountChanged();
+								if(mUsingFIFO) mCallback.onPrinted(index());
 							}
 // End of H.M.Wang 2023-3-10 在群组打印的时候，把打印完成的回送也移到这里，这样就不会丢掉连续的次数了，并且，这时似乎没有必要做下发数据后的后续操作
 						}
 					}
-					mPrintedCount = lastPrintedCount;
-				}
+//				}
 // End of H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
 // End of H.M.Wang 2021-5-8 试图修改根据打印次数修改主屏幕显示打印数量的功能
 
@@ -2517,6 +2550,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // 2020-7-3 在网络快速打印状态下，如果没有接收到新的数据，即使触发也不生成新的打印缓冲区下发
 					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
 						if(!mDataUpdatedForFastLan) {
+							try { Thread.sleep(3); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
 							continue;
 						}
 						mDataUpdatedForFastLan = false;
@@ -2525,6 +2559,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 					Time1 = Time2;
 					Time2 = System.currentTimeMillis();
+// 2023-10-21 PC回送打印完成的操作，
 // H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
 					if(!mUsingFIFO) {
 						if (mCallback != null) {
@@ -2580,7 +2615,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 								!isReady &&
 								mCallback != null) {
 // End of H.M.Wang 2021-3-5 修改判断条件，只有在FILE和FILE2数据源时才判断是否为到了文件末尾而结束
-								mCallback.OnFinished(CODE_BARFILE_END);
+								mCallback.onFinished(CODE_BARFILE_END);
 // H.M.Wang 2022-4-25 补充修改2022-4-8取消停止打印修改的遗漏，如果不停止打印，这里就不要break了
 //								break;
 // End of H.M.Wang 2022-4-25 补充修改2022-4-8取消停止打印修改的遗漏，如果不停止打印，这里就不要break了
@@ -2614,6 +2649,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 							Debug.d(TAG, "--->FPGA data sent!");
+// H.M.Wang 2023-10-20 追加下发总数计数
+							mDownWrittenCount++;
+// End of H.M.Wang 2023-10-20 追加下发总数计数
 							reportEmpty = true;
 // H.M.Wang 2021-4-20 该函数的调用移到这里。否则在网络快速打印的首发之前，或者SCAN3协议的时候可能需要发送时被错误清除
 							mNeedUpdate = false;
@@ -2724,6 +2762,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER3) {
 						    if(!dataSent) {
 								FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
+// H.M.Wang 2023-10-20 追加下发总数计数
+								mDownWrittenCount++;
+// End of H.M.Wang 2023-10-20 追加下发总数计数
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 								dataSent = true;
 								reportEmpty = true;
@@ -2743,32 +2784,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						mHandler.sendEmptyMessageDelayed(MESSAGE_DATA_UPDATE, MESSAGE_EXCEED_TIMEOUT);
 						mNeedUpdate = false;
 // 2020-6-30 网络快速打印时第一次收到网络数据后下发
-// 2020-7-3 追加判断是否有网络快速打印数据更新
-//					} else if(mFirstForLanFast) {
-					} else if(mFirstForLanFast && mDataUpdatedForFastLan) {
-// End of 2020-7-3 追加判断是否有网络快速打印数据更新
-						mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
-						Debug.d(TAG, "First print buffer deliver to FPGA. size = " + mPrintBuffer.length);
-// H.M.Wang 2021-4-20 取消判断，因为此时底层正在申请数据，所以返回肯定是1，这个下发可能会被跳过
-// H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
-//						if(FpgaGpioOperation.pollState() == 0) {
-							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
-//						}
-// End of H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
-// End of H.M.Wang 2021-4-20 取消判断，因为此时底层正在申请数据，所以返回肯定是1，这个下发可能会被跳过
-// 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-//						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
-// End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4
-						mNeedUpdate = false;
-						mFirstForLanFast = false;
-// H.M.Wang 2020-7-9 解决开始打印后，首次内容被打印两次的问题
-                        mDataUpdatedForFastLan = false;
-// End of H.M.Wang 2020-7-9 解决开始打印后，首次内容被打印两次的问题
-// H.M.Wang 2020-7-9 解决开始打印后，仅打印首次内容一次的问题
-						if (mCallback != null) {
-							mCallback.onComplete(index());
-						}
-// End of H.M.Wang 2020-7-9 解决开始打印后，仅打印首次内容一次的问题
 // H.M.Wang 2020-7-9 追加计数器重置标识
 					} else if(mCounterReset) {
 						mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
@@ -2796,12 +2811,8 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 //				if(System.currentTimeMillis() - startMillis > 10) Debug.d(TAG, "Process time: " + (System.currentTimeMillis() - startMillis) + " from: " + writable);
 
-				try {
-					Thread.sleep(3);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				try { Thread.sleep(3); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+
 				//Debug.d(TAG, "===>kernel buffer empty, fill it");
 				//TO-DO list 下面需要把打印数据下发
 

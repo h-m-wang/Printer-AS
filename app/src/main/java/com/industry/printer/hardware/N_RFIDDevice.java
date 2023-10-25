@@ -75,9 +75,6 @@ public class N_RFIDDevice {
         mValid = false;
 
 // H.M.Wang 2023-5-17 暂时取消自动判断模块种类，固定为1207。待以后对这里的RFID_MOD_M104DPCS和RFID_MOD_M104BPCS模块动作完成商业确认后，再恢复
-//        if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
-//            mRFIDModule = new N_RFIDModule_M104BPCS_KX1207();
-//        }
 /*
         if(null == mRFIDModule) {
             N_RFIDModuleChecker checker = new N_RFIDModuleChecker();

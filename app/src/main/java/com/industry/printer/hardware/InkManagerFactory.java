@@ -56,16 +56,22 @@ public class InkManagerFactory {
             }
 // End of H.M.Wang 2022-5-9 Exception e修改为UnsatisfiedLinkError e，并且打印log输出，否则catch不到
 // End of H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机
-// H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager
-//            if(PlatformInfo.getImgUniqueCode().startsWith("NNM2")) {
-// 暂时为了push取消，待所有动作确认后修改回来                return new N_RFIDManager(ctx);
-//            }
-            if(RFIDDevice.FEATURE_HIGH >= 102) {
+
+// H.M.Wang 2023-10-18 取消2023-5-17的修改，恢复到根据img的版本号，为NNM2的时候启用N_RFIDManager，其他的启用RFIDManager
+// H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 102时，启动N_RFIDManager，否则启动RFIDManager
+            String imgCode = PlatformInfo.getImgUniqueCode();
+            if(imgCode.startsWith("NSM2") || imgCode.startsWith("NGM2") || imgCode.startsWith("OS07") || imgCode.startsWith("OG07")) {
                 return new N_RFIDManager(ctx);
             } else {
                 return new RFIDManager(ctx);
             }
-// End of H.M.Wang 2023-5-17 FEATURE_HIGH >= 101时，启动N_RFIDManager，否则启动RFIDManager
+/*            if(RFIDDevice.FEATURE_HIGH >= 102) {
+                return new N_RFIDManager(ctx);
+            } else {
+                return new RFIDManager(ctx);
+            }*/
+// End of H.M.Wang 2023-5-17 FEATURE_HIGH >= 102时，启动N_RFIDManager，否则启动RFIDManager
+// End of H.M.Wang 2023-10-18 取消2023-5-17的修改，恢复到根据img的版本号，为NNM2的时候启用N_RFIDManager，其他的启用RFIDManager
         }
     }
 }

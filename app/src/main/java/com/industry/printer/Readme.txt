@@ -1,3 +1,51 @@
+2023-10-25 231025-31115
+==================
+为了网络回送报文逻辑恢复到从前的状态。231023-31113版本修改1中放开了是否为FIFO的判断，因此需要在发送onPrinted的地方加上，否则逻辑就回复不到原来的状态。
+
+2023-10-25 231025-31114
+==================
+网络回送报文逻辑恢复到从前的状态。具体如下：
+1. 取消231018-31109版本修改2。恢复为即使在网络快速打印和扫描3时，初始没有下发数据，也会回送onComplete(0001)
+2. 取消231021-31110版本修改4。该修改内容将转移到未来增加的完成打印恢复(0002)中
+
+2023-10-23 231023-31113
+==================
+1. 在PrinterTask类的run中，取消获取实际打印数量的部分仅适用于FIFO的情况（因为FpgaGpioOperation.getPrintedCount()最初的目的是在FIFO的时候，避免CounterObject记忆已下发值而非实际打印值），因为主页面显示的打印数量已经修改为实际打印数量。
+2. 在InkManagerFactory类和InkSchedulerFactory类中，追加OS07（7寸SPI采用1207RFID卡）和OG07（7寸GPIO采用1207RFID卡）的判断
+
+2023-10-21 231021-31112
+==================
+修改打印后，打印计数不变化的问题。原因是当启用FIFO的时候，FIFO中可以有多个任务等待打印，这些任务在被打印的过程当中，实际上是不需要有新任务下发的，因此也就不会调用更新打印计数显示。
+在DataTransferThread类中的PrinterTask子类的run函数中，在获取打印计数后
+		lastPrintedCount = FpgaGpioOperation.getPrintedCount();
+追加一个更新计数显示的调用
+		mInkListener.onCountChanged();
+
+2023-10-21 231021-31111
+==================
+修改N_RFIDModule_M104BPCS_KX1207类中，readMaxInkLevel函数中以前用来调试的
+    max = 1000;
+的语句，该语句导致墨水最大值被固定在了1000
+
+2023-10-21 231021-31110
+==================
+1. DataTransferThread类中追加变量：
+	private int mDownWrittenCount;  // 用来保存已经下发到img的任务的数量。每次下发新数据加1
+	private int mLastPrintedCount;  // 用来保存上次查询时已打印任务数量。其目的是方便这次查询已打印数量时，获取两次查询时间段内新近完成的打印数量
+2. DataTransferThread类中追加两个函数：
+	public int getRecentPrintedCount()  // 用来查询从上次查询到这次查询时间段内，新近完成的打印任务数量
+	public int getRemainCount()         // 用来查询img中驻留的未打印任务数量
+3. ControlTabActivity类中，打印计数其mCounter不再每次下发加1，而是根据实际打印完成的任务数增加，此处修改在onCountChanged函数中
+4. 在打印完成后的网络反馈报文中，增加已打印任务数量和img驻留未打印任务数量的信息。但是由于img当中，数据从FIFO转移到下发缓存后，FIFO即产生空位，而此时apk可能就会下发新的数据，而此时下发缓存中的任务还没有打印完成。因此，此处
+   获得的驻留任务数量可能等于FIFO的空间数+1。
+5. 修改DataTransferThread中网络快速打印数据下发的逻辑。删除mFirstForLanFast变量。以前的逻辑会发生下发打印数据后，还没有触发打印之前，如果再次通过网络发送打印数据，会再次下发的问题。经过仔细分析，mFirstForLanFast本来可以不用，
+   用mDataUpdatedForFastLan适当的判断就可以实现网络快速打印的下发逻辑，并且能够避免引入mFirstForLanFast，而操作不当而导致的上述问题。使用mFirstForLanFast的源代码已经删除，如果需要参照，可以从git的历史数据中查找
+
+2023-10-18 231018-31109
+==================
+1. 取消230517-31042的修改，改为根据img的版本号来启动Rfid的实现路径。NSM2时使用1207，其他的启用原来的逻辑
+2. DataTransferThread类中，PrinterTask类中，第一次下发数据后发送onComplete，避免网络快速打印时，没有下发数据也会发送一次网络回复1.
+
 2023-10-18 231018-31108
 ==================
 修改231016-31106版本bug
