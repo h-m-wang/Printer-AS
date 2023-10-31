@@ -1,6 +1,7 @@
 package com.industry.printer.Utils;
 
 public class StringUtil {
+	private static final String TAG = StringUtil.class.getSimpleName();
 
 	public static boolean isEmpty(String str) {
 		Debug.d("StringUtil", "--->str: " + str);
@@ -74,5 +75,22 @@ public class StringUtil {
 			
 		}
 		return builder.toString();
+	}
+
+// H.M.Wang 2023-10-30 增加俄文字符检车功能
+	public static boolean containsRussian(String str) {
+		boolean ret = false;
+		for(int i=0; i<str.length(); i++) {
+			byte bs[] = str.substring(i, i+1).getBytes();
+			if(bs.length != 2) continue;
+			if((bs[0] == (byte)0xD0 && bs[1] >= (byte)0x90 && bs[1] <= (byte)0xBF) ||
+   			   (bs[0] == (byte)0xD1 && bs[1] >= (byte)0x80 && bs[1] <= (byte)0x8F) ||
+			   (bs[0] == (byte)0xD0 && bs[1] == (byte)0x81) ||
+			   (bs[0] == (byte)0xD1 && bs[1] == (byte)0x91)) {
+				ret = true;
+				break;
+			}
+		}
+		return ret;
 	}
 }

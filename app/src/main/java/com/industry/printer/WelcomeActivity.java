@@ -15,6 +15,7 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.ui.CustomerDialog.CounterEditDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;

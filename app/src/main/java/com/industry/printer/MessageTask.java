@@ -44,6 +44,7 @@ import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.exception.PermissionDeniedException;
+import com.industry.printer.exception.RussianCharException;
 import com.industry.printer.exception.TlkNotFoundException;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.object.BarcodeObject;
@@ -127,6 +128,12 @@ public class MessageTask {
 			ToastUtil.show(mContext, R.string.str_tlk_not_found);
 			isPrintable = false;
 			Debug.d(TAG, "TlkNotFoundException");
+// H.M.Wang 2023-10-30 禁止含有俄文字符的内容
+		} catch (RussianCharException ex) {
+			ToastUtil.show(mContext, ex.getMessage());
+			isPrintable = false;
+			Debug.d(TAG, ex.getMessage());
+// End of H.M.Wang 2023-10-30 禁止含有俄文字符的内容
 		}
 		mDots = parser.getDots();
 		if (!checkBin()) {
@@ -186,6 +193,17 @@ public class MessageTask {
 
 			isPrintable = false;
 			Debug.d(TAG, "TlkNotFoundException");
+// H.M.Wang 2023-10-30 禁止含有俄文字符的内容
+		} catch (final RussianCharException ex) {
+			((MainActivity)context).runOnUiThread(new  Runnable() {
+				@Override
+				public void run() {
+					ToastUtil.show(mContext, ex.getMessage());
+				}
+			});
+			isPrintable = false;
+			Debug.d(TAG, ex.getMessage());
+// End of H.M.Wang 2023-10-30 禁止含有俄文字符的内容
 		}
 
 		mDots = parser.getDots();

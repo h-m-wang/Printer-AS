@@ -52,6 +52,7 @@ import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinCreater;
+import com.industry.printer.data.BufferRebuilder;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.NativeGraphicJni;
 import com.industry.printer.data.PC_FIFO;
@@ -2075,7 +2076,10 @@ private void setSerialProtocol9DTs(final String data) {
 		 */
 		public void onComplete(int index);
 
-		void onPrinted(int index);
+// H.M.Wang 2023-10-26 将原来的onPrinted修改为onPrinted0000，用来完成以前onPrinted的功能。增加一个新的onPrinted0002，仅在INDEX_FEEDBACK=1的时候，回送给PC相应的信息
+		void onPrinted0000(int index);
+		void onPrinted0002(int index);
+// End of H.M.Wang 2023-10-26 将原来的onPrinted修改为onPrinted0000，用来完成以前onPrinted的功能。增加一个新的onPrinted0002，仅在INDEX_FEEDBACK=1的时候，回送给PC相应的信息
 
         void onPrint(int index);
 
@@ -2128,26 +2132,32 @@ private void setSerialProtocol9DTs(final String data) {
 			for (BaseObject object : task.getObjList()) {
 				if (object instanceof CounterObject) {
 					((CounterObject) object).goNext();
+// H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 // H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
-					if(!mUsingFIFO) {
-						((CounterObject) object).goPrintedNext();
-					}
+//					if(!mUsingFIFO) {
+//						((CounterObject) object).goPrintedNext();
+//					}
 // End of H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
+// End of H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 // H.M.Wang 2020-7-31 追加超文本及条码当中超文本的计数器打印后调整
 				} else if (object instanceof HyperTextObject) {
 					((HyperTextObject) object).goNext();
+// H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 // H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
-					if(!mUsingFIFO) {
-						((HyperTextObject) object).goPrintedNext();
-					}
+//					if(!mUsingFIFO) {
+//						((HyperTextObject) object).goPrintedNext();
+//					}
 // End of H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
+// End of H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 				} else if (object instanceof BarcodeObject) {
 					((BarcodeObject) object).goNext();
+// H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 // H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
-					if(!mUsingFIFO) {
-						((BarcodeObject) object).goPrintedNext();
-					}
+//					if(!mUsingFIFO) {
+//						((BarcodeObject) object).goPrintedNext();
+//					}
 // End of H.M.Wang 2021-5-7 当不是FIFO模式的时候，在这里对实际打印次数进行修正
+// End of H.M.Wang 2023-10-26 由于2023-10-22取消了检测实际打印计数时进对于使用FIFO的限制，因此，未使用FIFO的也会在那里被修改
 // End of H.M.Wang 2020-7-31 追加超文本及条码当中超文本的计数器打印后调整
 				}
 			}
@@ -2288,6 +2298,34 @@ private void setCounterPrintedNext(DataTask task, int count) {
 		return mDownWrittenCount - mPrintedCount;
 	}
 // End of H.M.Wang 2023-10-20 为ControlTabActivity提供三个变量的获取接口
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+	public static volatile int sDirectionCmd;
+	public static volatile int sInverseCmd;
+
+	private void doDirrectionCmd() {
+		Debug.d(TAG, "doDirrectionCmd(" + sDirectionCmd + ")");
+		if(sDirectionCmd == 1 && mDataTask.get(index()).getPNozzle().mirrorEnable) {
+			BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mDataTask.get(index()).mBinInfo.getCharsFeed(), 4);
+			br.mirror(new int[]{0x01,0x01,0x01,0x01});
+			mPrintBuffer = br.getCharBuffer();
+		}
+	}
+
+	private void doInverseCmd() {
+		Debug.d(TAG, "doInverseCmd(" + sInverseCmd + ")");
+		if(sInverseCmd == 1 && mDataTask.get(index()).getPNozzle().reverseEnable) {
+			BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mDataTask.get(index()).mBinInfo.getCharsFeed(), 4);
+			br.reverse(0x03);
+			br.reverse(0x0C);
+			mPrintBuffer = br.getCharBuffer();
+		} else if(sInverseCmd == 2 && mDataTask.get(index()).getPNozzle().reverseEnable) {
+			BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mDataTask.get(index()).mBinInfo.getCharsFeed(), 4);
+			br.reverse(0x0F);
+			mPrintBuffer = br.getCharBuffer();
+		}
+	}
+
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 
 	public class PrintTask extends Thread {
 		@Override
@@ -2429,6 +2467,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					// 综合起来，下发的条件就是：既不是网络快速打印也不是扫描协议3的时候下发，或者是网络快速打印但是数据已经准备好了，也下发
 // End of H.M.Wang 2023-10-21 对于网络快速打印的下发机制做调整，取消原来的mFirstForLanFast变量，改为直接用mDataUpdatedForFastLan来判断
 // End of H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+					if(sDirectionCmd > 0) doDirrectionCmd();
+					if(sInverseCmd > 0) doInverseCmd();
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 					Debug.e(TAG, "--->write data");
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
@@ -2503,7 +2545,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							mPrintedCount++;
 							if (mCallback != null) {
 								mInkListener.onCountChanged();
-								if(mUsingFIFO) mCallback.onPrinted(index());
+								if(mUsingFIFO) mCallback.onPrinted0000(index());
+// H.M.Wang 2023-10-26 追加一个向PC端的回复，当INDEX_FEEDBACK=1时，回复0002到PC端
+								if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FEEDBACK)) == 1) mCallback.onPrinted0002(index());
+// End of H.M.Wang 2023-10-26 追加一个向PC端的回复，当INDEX_FEEDBACK=1时，回复0002到PC端
 							}
 // End of H.M.Wang 2023-3-10 在群组打印的时候，把打印完成的回送也移到这里，这样就不会丢掉连续的次数了，并且，这时似乎没有必要做下发数据后的后续操作
 						}
@@ -2565,7 +2610,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3 ||
 						(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER3 && dataSent))) {
 						if (mCallback != null) {
-							mCallback.onPrinted(index());
+							mCallback.onPrinted0000(index());
 						}
 					}
 // End of H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
@@ -2649,6 +2694,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-5-19 QR文件打印最后一行后无反应问题。应该先生成打印缓冲区，而不是先判断是否到了终点。顺序不对
 							}
 
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+							if(sDirectionCmd > 0) doDirrectionCmd();
+							if(sInverseCmd > 0) doInverseCmd();
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 							Debug.d(TAG, "--->FPGA data sent!");
 // H.M.Wang 2023-10-20 追加下发总数计数
@@ -2763,6 +2812,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2021-4-20 增加是否为串口协议3的判断，否则，串口协议3的时候，底层会不断的申请数据，原来的判断会跳过下发数据
 						if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER3) {
 						    if(!dataSent) {
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+								if(sDirectionCmd > 0) doDirrectionCmd();
+								if(sInverseCmd > 0) doInverseCmd();
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 								FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 // H.M.Wang 2023-10-20 追加下发总数计数
 								mDownWrittenCount++;
@@ -2776,6 +2829,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
 						} else {
 							if(FpgaGpioOperation.pollState() == 0) {
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+								if(sDirectionCmd > 0) doDirrectionCmd();
+								if(sInverseCmd > 0) doInverseCmd();
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 								FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 							}
 						}
@@ -2793,6 +2850,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						try {sleep(30);}catch(Exception e){};
 // H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误
 						if(FpgaGpioOperation.pollState() == 0) {
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+							if(sDirectionCmd > 0) doDirrectionCmd();
+							if(sInverseCmd > 0) doInverseCmd();
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 						}
 // End of H.M.Wang 2020-11-13 检查一下底层驱动是否在要新数据，如果底层要的是新数据，这个更新数据可能就会冒名顶替，带来打印错误

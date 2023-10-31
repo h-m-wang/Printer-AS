@@ -18,6 +18,7 @@ import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.exception.PermissionDeniedException;
+import com.industry.printer.exception.RussianCharException;
 import com.industry.printer.exception.TlkNotFoundException;
 
 import android.content.Context;
@@ -96,7 +97,10 @@ public class TLKFileParser  extends TlkFile{
 		}
 	}
 	*/
-	public void parse(Context context, MessageTask task, ArrayList<BaseObject> objlist) throws PermissionDeniedException, TlkNotFoundException
+// H.M.Wang 2023-10-30 禁止含有俄文字符的内容
+//	public void parse(Context context, MessageTask task, ArrayList<BaseObject> objlist) throws PermissionDeniedException, TlkNotFoundException
+	public void parse(Context context, MessageTask task, ArrayList<BaseObject> objlist) throws PermissionDeniedException, TlkNotFoundException, RussianCharException
+// End of H.M.Wang 2023-10-30 禁止含有俄文字符的内容
 	{
 		int i;
 		BaseObject pObj = null;
@@ -202,14 +206,16 @@ public class TLKFileParser  extends TlkFile{
 		}
 	}
 	
-	public BaseObject parseLine(MessageTask task, String str)
-	{
+	public BaseObject parseLine(MessageTask task, String str) throws RussianCharException {
 		Debug.d(TAG, "*************************");
 		BaseObject obj = null;
 		String [] attr = str.split("\\^",0);
 		if (attr == null || attr.length < 22) {
 			return null;
 		}
+// H.M.Wang 2023-10-30 禁止含有俄文字符的内容
+		if(Configs.RUSSIAN_CONTROL && StringUtil.containsRussian(attr[21])) throw new RussianCharException();
+// End of H.M.Wang 2023-10-30 禁止含有俄文字符的内容
 
 		Debug.d(TAG, "attr[1]="+attr[1]);
 		try {
@@ -449,7 +455,7 @@ public class TLKFileParser  extends TlkFile{
 	 * 暂时只支持文本对象，后续会添加对变量的支持
 	 */
 	
-	public String getContentAbatract() {
+	public String getContentAbatract() throws RussianCharException {
 		String content = "";
 		BaseObject pObj;
 		if (mPath == null || mPath.isEmpty()) {

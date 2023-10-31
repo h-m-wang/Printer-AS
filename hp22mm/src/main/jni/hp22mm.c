@@ -78,7 +78,7 @@ void CmdDepressurize();
 int CmdPressurize();
 
 int PDGInit() {
-    if(spidev >=0 ) return 0;
+    if(spidev >= 0 ) return 0;
 
     spidev = open(SPI_DEV_NAME, O_RDWR);
     if (spidev < 0) {
@@ -722,7 +722,7 @@ JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
 
     buffer[0] = PDG_MEM_TRANS;
     buffer[1] = 32;
-    buffer[2] = DDR_2_FIFO;         // FIFO -> DDR
+    buffer[2] = DDR_2_FIFO;         // DDR -> FIFO
     buffer[3] = 0;                  // From Address:0
     buffer[4] = 0;
     buffer[5] = 0;

@@ -44,8 +44,19 @@ public class PrinterApplication extends Application {
 		Process pid = null;
 		Debug.d(TAG, "LSUSB Start");
 		try {
+			Debug.d(TAG, "LSUSB ---3");
+			pid = Runtime.getRuntime().exec("busybox rm /system/vendor/modules/fpga-sunxi.ko");
+			if(null != pid) {
+				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
+				String line;
+				pid.waitFor();
+				while(null != bReader && null != (line = bReader.readLine())) {
+					Debug.d(TAG, line);
+				}
+			}
 			Debug.d(TAG, "LSUSB ---1");
-			pid = Runtime.getRuntime().exec("sudo busybox insmod /system/vendor/modules/fpga-sunxi.ko");
+			pid = Runtime.getRuntime().exec("busybox chmod 777 /system/vendor/modules/fpga-sunxi.ko");
+//			pid = Runtime.getRuntime().exec("sudo busybox insmod /system/vendor/modules/fpga-sunxi.ko");
 			if(null != pid) {
 				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
 				String line;
@@ -75,7 +86,7 @@ public class PrinterApplication extends Application {
 				}
 			}
 		} catch(Exception e) {
-
+			Debug.e(TAG, e.getMessage());
 		}
 		Debug.d(TAG, "LSUSB Done");
 	}

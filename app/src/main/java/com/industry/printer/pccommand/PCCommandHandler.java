@@ -566,6 +566,32 @@ public class PCCommandHandler {
             FpgaGpioOperation.clearFIFO();
             sendmsg(Constants.pcOk(msg));
 // End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+        } else if(PCCommand.CMD_DIRECTION.equalsIgnoreCase(cmd.command)) {
+            try {
+                DataTransferThread.sDirectionCmd = Integer.parseInt(cmd.content);
+                DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
+                if(null != aDTThread && aDTThread.isRunning()) {
+                    aDTThread.mNeedUpdate = true;
+                }
+                sendmsg(Constants.pcOk(msg));
+            } catch(NumberFormatException e) {
+                Debug.e(TAG, e.getMessage());
+                sendmsg(Constants.pcErr(msg));
+            }
+        } else if(PCCommand.CMD_INVERSE.equalsIgnoreCase(cmd.command)) {
+            try {
+                DataTransferThread.sInverseCmd = Integer.parseInt(cmd.content);
+                DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
+                if(null != aDTThread && aDTThread.isRunning()) {
+                    aDTThread.mNeedUpdate = true;
+                }
+                sendmsg(Constants.pcOk(msg));
+            } catch(NumberFormatException e) {
+                Debug.e(TAG, e.getMessage());
+                sendmsg(Constants.pcErr(msg));
+            }
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
         } else {
             sendmsg(Constants.pcErr(msg));
         }

@@ -39,6 +39,10 @@ public class Configs {
 //	public static final boolean READING = true;			// 忽略RFID检查
 	public static final boolean READING = false;		// 检查RFID
 
+// H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
+	public static final boolean RUSSIAN_CONTROL = false;
+// H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
+
 // H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
 /*
 // H.M.Wang 2021-5-21 追加用户特色页面显示开关标识

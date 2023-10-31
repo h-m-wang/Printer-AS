@@ -1140,6 +1140,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				public void onSolventHigh() {
 					ExtGpio.writeGpio('h', 7, 0);
 				}
+
+// H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
+				@Override
+				public void onLaunchPurge() {
+					DataTransferThread thread = DataTransferThread.getInstance(mContext);
+					DataTransferThread.SelectPen = 0x3F;			// 选择所有头
+					if(!thread.isRunning())	thread.purge(mContext);	// 在非打印状态下清洗一次
+				}
+// End of H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
 			});
 			mPI11Monitor.start(5000L);
 		}
@@ -4447,7 +4456,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	             e.printStackTrace();  
 //	         }  
 		}
-		public void onPrinted(int index) {
+		public void onPrinted0000(int index) {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 			if(mPC_FIFO.PCFIFOEnabled()) {
 				mPC_FIFO.onPrinted();
@@ -4480,6 +4489,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 			}
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+		}
+
+		public void onPrinted0002(int index) {
+			sendToRemote("000B|0000|1000|" + index + "|" + mCounter + "," + (null != mDTransThread ? mDTransThread.getRemainCount() : 0) + "|" + mObjPath + "|0002|" + mPCCmdId + "|0D0A");
 		}
 
 // H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号

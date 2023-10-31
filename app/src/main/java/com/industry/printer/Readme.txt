@@ -1,3 +1,48 @@
+2023-10-31 231031-31122
+==================
+给俄语控制功能增加一个开关，设置在Configs类中。
+	public static final boolean RUSSIAN_CONTROL = false;
+为true时，控制含有俄文字符信息的打印，为false时，允许含有俄文字符信息的打印
+
+2023-10-30 231030-31121
+==================
+增加禁止俄文字符的机制。
+1. 在StringUtil类中增加一个判断是否包含俄文字符的函数containsRussian
+2. 增加一个异常类RussianCharException
+3. 在TLKFileParser类中，增加一个根据读到的内容判断是否为俄文字符的功能，如果包含俄文字符，则抛出RussianCharException异常
+
+2023-10-28 231028-31120
+==================
+修改231028-31119版本，打印方向(Direction)和倒置(Inverse)改为上电期间内保留设置内容
+
+2023-10-28 231028-31119
+==================
+增加打印方向(Direction)和倒置(Inverse)
+    =0: 无操作； =1: 生成时，设备内设置参数相反
+    仅限大字机，=0: 无操作； =1: (1-16)及(17-32)单独反转； =2 (1-32)整体反转
+
+2023-10-26 231026-31118
+==================
+追加IN-8：0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
+
+2023-10-26 231026-31117
+==================
+追加一个参数FEEDBACK(网络回复)，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端
+
+2023-10-25 231025-31116
+==================
+1. 修改PrintTask在empty事件以后，回送onPrinted的判断条件，如下：
+由
+            if(!mUsingFIFO) {
+改为
+			if(!mUsingFIFO &&
+				(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3 ||
+				(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER3 && dataSent))) {
+主要原因是，当数据源是扫描协议3的时候，如果没有扫描数据下发，会频繁出现empty事件，这样就会频繁会送0000。本修改主要是为了避免该情况。
+2. 修改参数设置页面FIFO编辑框有时不能选择的问题。主要是设置3.5寸亮度的地方设置为了disable，在FIFO重用的时候继承了该属性，因此需要设回去。
+    添加改行
+    if(!mHolder.mValueREt.isEnabled()) mHolder.mValueREt.setEnabled(true);
+
 2023-10-25 231025-31115
 ==================
 为了网络回送报文逻辑恢复到从前的状态。231023-31113版本修改1中放开了是否为FIFO的判断，因此需要在发送onPrinted的地方加上，否则逻辑就回复不到原来的状态。

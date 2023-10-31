@@ -30,6 +30,9 @@ public class PI11Monitor {
         public void onSolventLow();
         public void onLevelHigh();
         public void onSolventHigh();
+// H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
+        public void onLaunchPurge();
+// End of H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
     }
     private PI11MonitorFunc mCallbackFunc = null;
 
@@ -69,7 +72,7 @@ public class PI11Monitor {
                 public void run() {
                     try{Thread.sleep(delay);}catch(Exception e){};
                     while(true) {
-                        try{Thread.sleep(1000);}catch(Exception e){};
+                        try{Thread.sleep(500);}catch(Exception e){};
                         //     协议１：　禁止GPIO　
                         if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_1) {
                             continue;
@@ -77,40 +80,6 @@ public class PI11Monitor {
 
                         final int newState = ExtGpio.readPI11State();
 
-/*                        int aaa = 0;
-
-                        if (ccc > 30) {
-                            aaa = 0x01;
-                        }
-                        if (ccc > 60) {
-                            aaa = 0x00;
-                        }
-                        if (ccc > 90) {
-                            aaa = 0x02;
-                        }
-                        if (ccc > 120) {
-                            aaa = 0x00;
-                        }
-                        if (ccc > 150) {
-                            aaa = 0x04;
-                        }
-                        if (ccc > 180) {
-                            aaa = 0x00;
-                        }
-                        if (ccc > 210) {
-                            aaa = 0x30;
-                        }
-                        if (ccc > 240) {
-                            aaa = 0x10;
-                        }
-                        if (ccc > 270) {
-                            aaa = 0x00;
-                        }
-
-                        Debug.d(TAG, "ccc = " + ccc);
-                        final int newState = aaa;
-                        ccc++;
-*/
                         //     协议６：　
                         //            0x10：墨位低（Output1输出，弹窗）
                         //            0x20：溶剂低（Output1输出，弹窗）
@@ -255,6 +224,12 @@ public class PI11Monitor {
                                 mP6AlarmCount = 0;
                                 if (null != mCallbackFunc) mCallbackFunc.onSolventHigh();
                             }
+// H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
+                            if ((mInPinState & 0x80) == 0x80 && (newState & 0x80) == 0x00) {
+                                Debug.d(TAG, "0x80 Clear");
+                                if (null != mCallbackFunc) mCallbackFunc.onLaunchPurge();
+                            }
+// End of H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
                         } else {
                             mP6LevelLow = false;
                             mP6SolventLow = false;

@@ -91,6 +91,12 @@ public class PCCommand {
 // H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
     public static final String CMD_CLEAR_FIFO = "ClearFIFO";
 // End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
+// H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+    public static final String CMD_DIRECTION = "Direction";
+    // =0: 无操作； =1: 生成时，设备内设置参数相反
+    public static final String CMD_INVERSE = "Inverse";
+    // 仅限大字机，=0: 无操作； =1: (1-16)及(17-32)单独反转； =2 (1-32)整体反转
+// End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
 
     /** 包头 */
     public String header;

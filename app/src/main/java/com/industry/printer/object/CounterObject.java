@@ -219,7 +219,7 @@ public class CounterObject extends BaseObject {
 		RTCDevice.getInstance(mContext).writeSubStep(mSubStepCount);
 		Debug.d(TAG, "Value: " + mValue + "; SubStep: " + mSubStepCount);
 		if(mSubStepCount < mSubStepValue) return;
-// H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮20s
+// H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮30s
 		if(mSubStepValue > 0 && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_7) {
 			new Thread(new Runnable() {
 				@Override

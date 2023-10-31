@@ -231,6 +231,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 	public static final int INDEX_AD = 73;
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+// H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端
+	public static final int INDEX_FEEDBACK = 74;
+// End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -367,7 +370,12 @@ public class SystemConfigFile{
 //            0x08：空
 //            0x10：墨位低（Output1输出，弹窗）
 //            0x20：溶剂低（Output1输出，弹窗）
+// H.M.Wang 2023-10-26 追加IN-8：
+//            0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
+// End of H.M.Wang 2023-10-26 追加IN-8：
 // End of H.M.Wang 2023-8-9 对 2022-5-28追加PROTO_5, 确认PROTO_5为清零，PROTO_4为综合。
+//     协议７：
+//			  当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮30s
 
 	public static final int INDEX_IPURT_PROC 		= 56;		// 外部输入（PI11）的动作定义参数
 

@@ -423,7 +423,10 @@
 <!--	<string name="str_textview_param74">74.Reservado</string>-->
 	<string name="str_textview_param74">74.AD</string>
 <!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
-	<string name="str_textview_param75">75.Reservado</string>
+<!-- H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
+<!--	<string name="str_textview_param75">75.Reservado</string>-->
+	<string name="str_textview_param75">75.Feedback</string>
+<!-- End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
 	<string name="str_textview_param76">76.Reservado</string>
 	<string name="str_textview_param77">77.Reservado</string>
 	<string name="str_textview_param78">78.Reservado</string>
