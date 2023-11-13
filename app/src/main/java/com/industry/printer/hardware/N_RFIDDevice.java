@@ -107,6 +107,10 @@ public class N_RFIDDevice {
         ret = mRFIDModule.initCard();
         if(!ret) return false;
 
+        if(mRFIDModule instanceof N_RFIDModule_M104BPCS_KX1207) {
+            if(!((N_RFIDModule_M104BPCS_KX1207)mRFIDModule).verifyKey()) return false;
+        }
+
         mInkMax = mRFIDModule.readMaxInkLevel();
         mCurInkLevel = mRFIDModule.readInkLevel();
         mFeature = mRFIDModule.readFeature();

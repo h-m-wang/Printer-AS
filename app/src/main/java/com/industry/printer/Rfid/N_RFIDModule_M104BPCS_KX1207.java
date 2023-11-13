@@ -222,8 +222,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             return false;
         }
 
-        if(!verifyKey()) return false;
-
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
         byte[] writeData = new byte[data.length+1];
@@ -302,7 +300,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         return key;
     }
 
-    private boolean verifyKey() {
+    public boolean verifyKey() {
         // 如果未进行初始化，或者访问中途失败后，需要重新初始化
         if(!mInitialized) {
             Debug.d(TAG, "  ==> 需要(重新)初始化");
@@ -407,8 +405,9 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         if(!mInitialized) return false;
         mInitialized = checkKeyMark();
         if(!mInitialized) return false;
-		mMaxInkLevel = readMaxInkLevel();
-        readInkLevel();
+
+//	mMaxInkLevel = readMaxInkLevel();
+//        readInkLevel();
 
         return mInitialized;
     }
@@ -431,6 +430,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         if(writePage(PAGE_MAX_LEVEL, maxbytes)) {
             Debug.d(TAG, "  ==> 写入墨水最大值成功");
+            mMaxInkLevel = max;
             return true;
         }
 
@@ -456,8 +456,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             if(mStep < 1.0f) mStep = 1.0f;
 
             Debug.d(TAG, "  ==> 读墨水最大值成功[" + max + "]。 mStep = " + mStep);
-
-            return max;
+            mMaxInkLevel = max;
+            return mMaxInkLevel;
         }
 
         Debug.e(TAG, "  ==> 读墨水最大值失败");
@@ -621,6 +621,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         }
 
         Debug.e(TAG, "  ==> 读取块索引失败");
+
         return -1;
     }
 

@@ -40,7 +40,7 @@ public class Configs {
 	public static final boolean READING = false;		// 检查RFID
 
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
-	public static final boolean RUSSIAN_CONTROL = false;
+	public static final boolean RUSSIAN_CONTROL = true;
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
 
 // H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
@@ -239,17 +239,19 @@ UserGroup 使用方法说明
 	public static final String UPGRADE_APK_FILE = "/Printer.apk";
 
 	// H.M.Wang 添加1行，升级必要的so文件
-	public static final String UPGRADE_NATIVEGRAPHIC_SO = "libNativeGraphicJni.so";
+	public static final String NATIVEGRAPHIC_SO = "libNativeGraphicJni.so";
 
 	// H.M.Wang 2019-10-21 添加1行，升级smartcard的so库文件
-	public static final String UPGRADE_SMARTCARD_SO = "libsmartcard.so";
+	public static final String SMARTCARD_SO = "libsmartcard.so";
 
 	// H.M.Wang 2019-10-31 添加1行，升级SerialPort的so库文件
-	public static final String UPGRADE_SERIAL_SO = "libSerialPort.so";
+	public static final String SERIAL_SO = "libSerialPort.so";
 
-	public static final String UPGRADE_HARDWARE_SO = "libHardware_jni.so";
+	public static final String HARDWARE_SO = "libHardware_jni.so";
 
-	public static final String UPGRADE_HP22MM_SO = "libhp22mm.so";
+	public static final String HP22MM_SO = "libhp22mm.so";
+
+	public static final String FPGA_SUNXI_KO = "fpga-sunxi.ko";
 
 	/**
 	 * SYSTEM_CONFIG_FILE
@@ -278,7 +280,12 @@ UserGroup 使用方法说明
 // End of H.M.Wang 2020-12-17 以前修改将QR的Index从保存于QRlast文件改为了保存到RTC当中，这个变量实际上没有用途了，现在取消该变量
 
 	public static final String QR_DIR = "/QRdata";
-	
+
+// H.M.Wang 2023-11-2 追击F1和F2的定义，这两个文件用来管理apk是否正确升级。具体的使用方法参照PackageInstaller类中的说明
+	public static final String FILE_1 = CONFIG_PATH_FLASH + SYSTEM_CONFIG_DIR + "/F1.txt";
+	public static final String FILE_2 = CONFIG_PATH_FLASH + SYSTEM_CONFIG_DIR + "/F2.txt";
+// End of H.M.Wang 2023-11-2 追击F1和F2的定义，这两个文件用来管理apk是否正确升级。具体的使用方法参照PackageInstaller类中的说明
+
 	public static final String SYSTEM_CONFIG_MSG_PATH = "/MSG1";
 	/**
 	 * 用户pc端编辑的文本存放路径，编辑打印对象的内容时可以从这个目录加载，而不需要手动输入 

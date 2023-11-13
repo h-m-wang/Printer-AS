@@ -307,7 +307,7 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
 
         byte[] data = readBlock(DATA_KEY_A, BLOCK_COPY_INKLEVEL);
         if(null != data) {
-            int level = EncryptionMethod.getInstance().decryptInkLevel(data);
+            int level = EncryptionMethod.getInstance().N_decryptInkLevel(data);
             Debug.d(TAG, "  ==> 读备份墨水值成功[" + level + "]");
             return level;
         }

@@ -1,9 +1,15 @@
 package com.industry.printer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,9 +27,11 @@ import com.industry.printer.ui.CustomerDialog.CounterEditDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +39,7 @@ import android.os.Message;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebIconDatabase;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +68,82 @@ public class WelcomeActivity extends Activity {
 			switch (msg.what) {
 				case LAUNCH_MAINACTIVITY:
 					Debug.d(TAG, "-------- LAUNCH_MAINACTIVITY --------");
+/*					String str = "";
+					try {
+						int curVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+						if(curVersion <= 100000000 || curVersion >= 1000000000) {                // 非9位数
+							str = "版本号：" + curVersion + "\n" + "旧版apk，不检查启动合法性，允许启动";
+						} else {
+							File f1 = new File(Configs.FILE_1);
+							File f2 = new File(Configs.FILE_2);
+							if(!f1.exists() && !f2.exists()) {
+								str = "版本号：" + curVersion + "\n" + "F1和F2均不存在，疑似从旧版升级，允许启动";
+								f1.createNewFile();
+								BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
+								bw.write(curVersion + "\n");
+								bw.flush();
+								bw.close();
+								f2.createNewFile();
+								BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+								bw1.write(curVersion + "\n");
+								bw1.flush();
+								bw1.close();
+							} else if(f2.exists()) {
+								BufferedReader br = new BufferedReader(new FileReader(f2));
+								if(null != br) {
+									String tmp = br.readLine();
+									int tmpInt = Integer.parseInt(tmp);
+									br.close();
+									if(curVersion == tmpInt) {
+										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号一致，判断为正常升级，允许启动";
+										if(!f1.exists()) f1.createNewFile();
+										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
+										bw.write(curVersion + "\n");
+										bw.flush();
+										bw.close();
+									} else {
+										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动";
+									}
+								}
+							} else if(f1.exists()) {
+								BufferedReader br = new BufferedReader(new FileReader(f1));
+								if(null != br) {
+									String tmp = br.readLine();
+									int tmpInt = Integer.parseInt(tmp);
+									br.close();
+									if(curVersion == tmpInt) {
+										str = "版本号：" + curVersion + "\n" + "F1存在，记录版本号与apk版本号一致，判断为正常升级，允许启动";
+										if(!f2.exists()) f2.createNewFile();
+										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+										bw.write(curVersion + "\n");
+										bw.flush();
+										bw.close();
+									} else {
+										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动";
+									}
+								}
+							}
+						}
+					} catch(PackageManager.NameNotFoundException e) {
+						Debug.e(TAG, e.getMessage());
+						str = e.getMessage();
+					} catch(FileNotFoundException e) {
+						Debug.e(TAG, e.getMessage());
+						str = e.getMessage();
+					} catch(IOException e) {
+						Debug.e(TAG, e.getMessage());
+						str = e.getMessage();
+					} catch(NumberFormatException e) {
+						Debug.e(TAG, e.getMessage());
+						str = e.getMessage();
+					} catch(Exception e) {
+						Debug.e(TAG, e.getMessage());
+						str = e.getMessage();
+					}
+
+					AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
+					builder.setMessage(str).create().show();*/
+
 					mLoading1s.setVisibility(View.GONE);
 					if(null != mStartupDialog) mStartupDialog.dismiss();
 					Intent intent = new Intent();
@@ -99,7 +184,6 @@ public class WelcomeActivity extends Activity {
 			mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5*1000);
 		}
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
-
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 /*
 // H.M.Wang 2022-5-12 修改升级的方法。取消启动后自动升级，改为在设置页面按钮启动升级

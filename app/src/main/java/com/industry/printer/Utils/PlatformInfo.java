@@ -127,7 +127,7 @@ public class PlatformInfo {
 				ret = "OLD-" + verInc;
 			} else {
 //				ret = buildID.substring(0,2) + "xx" + verInc.substring(1);
-				ret = buildID + verInc + getFPGAVersion();
+				ret = buildID + verInc + getFPGAVersion(buildID);
 			}
 //			Debug.d(TAG, "===>Img Unique Code: " + ret);
 			return ret;
@@ -154,7 +154,7 @@ public class PlatformInfo {
 //  1101 0000 0000 0000 0000 1011 0000 0000
 //  1010 0000 0000 0000 0001 0110 0000 0001 (B001)
 
-	public static String getFPGAVersion() {
+	public static String getFPGAVersion(String buildID) {
 		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
 
 		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
@@ -165,8 +165,19 @@ public class PlatformInfo {
 
 		fpgaVersion = ((fpgaVersion << 1) | bit31);
 
-		int bank = (int)((fpgaVersion & 0x00007FFF) >> 9);
-		int code = (int)(fpgaVersion & 0x000001FF);
+// H.M.Wang 2023-11-12 暂时变更4FIFO版本号的取位规则
+		int bank;
+		int code;
+		if (buildID.startsWith("4FIFO")) {
+			bank = (int)((fpgaVersion & 0x7FFF0000) >> 25);
+			code = (int)((fpgaVersion & 0x01FF0000) >> 16);
+		} else {
+			bank = (int)((fpgaVersion & 0x00007FFF) >> 9);
+			code = (int)(fpgaVersion & 0x000001FF);
+		}
+//		int bank = (int)((fpgaVersion & 0x00007FFF) >> 9);
+//		int code = (int)(fpgaVersion & 0x000001FF);
+// End of H.M.Wang 2023-11-12 暂时变更4FIFO版本号的取位规则
 
 		String codeStr = "000" + code;
 		codeStr = codeStr.substring(codeStr.length()-3, codeStr.length());

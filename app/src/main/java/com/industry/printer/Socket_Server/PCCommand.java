@@ -97,6 +97,10 @@ public class PCCommand {
     public static final String CMD_INVERSE = "Inverse";
     // 仅限大字机，=0: 无操作； =1: (1-16)及(17-32)单独反转； =2 (1-32)整体反转
 // End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+// H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
+    public static final String CMD_ENCPPR = "encppr";
+    public static final String CMD_SLANT = "slant";
+// End of H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
 
     /** 包头 */
     public String header;

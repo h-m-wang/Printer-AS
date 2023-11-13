@@ -1,5 +1,6 @@
 package com.industry.printer.Utils;
 
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -8,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -141,6 +143,127 @@ public class PackageInstaller {
 	}
 // End of H.M.Wang 2022-5-26 USB授权信息检查。
 
+// H.M.Wang 2023-11-2 最新的升级策略管理
+/*
+【运行权限】
+	1. 当F1和F2都没有的时候，应该是在旧版上升级了新版后第一次启动，允许
+    2. 当F2有，且F2内保存的版本号与当前apk的版本号相同时，可以认为apk的正常升级的，允许
+	允许运行后，将F1内写入当前apk的版本号（如F2无，则生成后也写如当前apk的版本号），因此当apk进入正常运行状态时，F1=F2是常态。
+
+【升级权限】
+	按着以前指定的原则，
+	1. 旧版 -> 旧版，新版及特殊版
+	这个是在旧版apk上面升级apk，因此也没有可能限制升级，所以都是允许升级的。升级后F2文件不存在
+        *旧版的版本号是5位的数字，新版的版本是abcd0xxxx格式，9位，后4位为厂商识别号，前4位为内部版本号。后4位为1111时，为特殊版
+    2. 新版 -> 旧版
+	这个因为可以控制，所以可以禁止升级（实际上是降级）
+	3. 新版 -> 新版
+	厂商识别码相同的apk可以升级，否则禁止升级。升级前将目标apk的版本号写入F2，F1内应该是升级前apk的版本号
+    4. 新版 -> 特殊版
+	核实5个特殊位置的文件是否为已登记文件名的文件，暂时定为在79， 105，211，487，731（这些文件位置选取的原则就是比较随机，没有其他意义）。其中105位置文件保存MAC地址，用来比对目标设备的MAC地址一致性。当上述检测均成功时，允许升级，同样升级前修改F2的内容为目标apk的版本号
+    5. 特殊版 -> 任何版本
+	允许升级。升级前，如果目标apk是新版，则将新版apk版本号写入F2；如果目标apk是旧版，则将F1和F2删除，以避免残留F2影响后续升级apk的正常运行
+ */
+private boolean checkUSBAuthentication3() {
+	return true;
+}
+
+public static String ShowString = "";
+
+public boolean silentUpgrade3() {
+	int curVersion = 0;
+	final String pkName = mContext.getPackageName();
+	final String path = ConfigPath.getUpgradePath();
+	Debug.d(TAG, "path:" + path);
+
+	ShowString = "";
+
+	/*判断升级包是否存在*/
+	if (path == null || !new File(path).exists()) {
+		return false;
+	}
+	/*判断版本号*/
+	PackageManager pm = mContext.getPackageManager();
+	try {
+		curVersion = pm.getPackageInfo(pkName, 0).versionCode;
+	} catch (NameNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	PackageInfo pInfo = pm.getPackageArchiveInfo(path, PackageManager.GET_ACTIVITIES);
+	if (pInfo == null) {
+		Debug.e(TAG, "===>package info ");
+		return false;
+	}
+	final int newVersion = pInfo.versionCode;
+	Debug.d(TAG, "===>curVer:" + curVersion + ",  newVer:" + newVersion);
+	if (curVersion == newVersion) {
+		ToastUtil.show(mContext, R.string.str_no_upgrade);
+		return false;
+	}
+
+	ShowString = curVersion + " -> " + newVersion;
+
+	int curFeature = 0;
+	int newFeature= 0;
+
+	if(curVersion > 100000000 && curVersion < 1000000000) {				// 9位数
+		curFeature = curVersion % 10000;		// 厂商码取后4位
+	}
+	if(newVersion > 100000000 && newVersion < 1000000000) {				// 9位数
+		newFeature = newVersion % 10000;		// 取后4位
+	}
+
+	if( curFeature == 0 ) {                    	// 当前apk为旧版apk，可以升级
+		ShowString = ShowString + "\n" + "从旧版apk升级：允许升级";
+	} else if( curFeature == 1111 ) {			// 当前apk为特权apk，可以升级
+		ShowString = ShowString + "\n" + "从特权版apk升级：允许升级";
+	} else if( newFeature == curFeature ) {		// 两个apk的特征码一致，则可以升级
+		ShowString = ShowString + "\n" + "相同客户apk间升级：允许升级";
+	} else if( (newFeature == 1111 && checkUSBAuthentication3())) {    // 当目标apk为特权apk时，检查USB授权
+		ShowString = ShowString + "\n" + "升级为特权版apk，限制条件满足：允许升级";
+	} else {
+		ShowString = ShowString + "\n" + "升级条件不满足：禁止升级";
+		Debug.e(TAG, ShowString);
+		ToastUtil.show(mContext, R.string.str_no_permission);
+		return false;
+	}
+
+	Debug.e(TAG, ShowString);
+
+	new Thread() {
+		public void run() {
+			try{
+				Thread.sleep(5000);
+			}catch (Exception e) {
+				Debug.e(TAG, e.getMessage());
+			}
+
+			try {
+				File f2 = new File(Configs.FILE_2);
+				if(f2.exists()) f2.delete();
+				if(newVersion > 100000000 && newVersion < 1000000000) {				// 9位数
+					if(!f2.exists()) f2.createNewFile();
+					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+					bw.write(newVersion + "\n");
+					bw.flush();
+					bw.close();
+				}
+			} catch(FileNotFoundException e) {
+				Debug.e(TAG, e.getMessage());
+			} catch(IOException e) {
+				Debug.e(TAG, e.getMessage());
+			} catch(Exception e) {
+				Debug.e(TAG, e.getMessage());
+			}
+			install();
+		}
+	}.start();
+	return true;
+}
+// End of H.M.Wang 2023-11-2 最新的升级策略管理
+
+
 // H.M.Wang 2023-7-20 最新的升级条件整理，待修改
 /*	旧版：abcde
 	新版：abcde00xxxx（xxxx不等于1111）
@@ -154,7 +277,6 @@ public class PackageInstaller {
 	特殊版 -> 任何版本  ： 无条件升级
 */
 // End of H.M.Wang 2023-7-20 最新的升级条件整理，待修改
-
 	public boolean silentUpgrade2() {
 		int curVersion = 0;
 		final String pkName = mContext.getPackageName();

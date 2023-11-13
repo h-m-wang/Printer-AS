@@ -1448,6 +1448,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 
 	private void refreshCount() {
+		Debug.d(TAG, "refreshCount = " + mCounter);
 		mCtrlTitle.setText(String.valueOf(mCounter));
 // H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
 		if(SystemClock.uptimeMillis() > 50000 && System.currentTimeMillis() - inkDispInterval > 100) {
@@ -2431,10 +2432,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	 * @param pcMsg
 	 */
 	private void handleError(int toastRs, String pcMsg) {
-		if (toastRs == 0) {
-			toastRs = R.string.str_toast_no_bin;
-		}
-		ToastUtil.show(mContext, toastRs);
+// H.M.Wang 2023-10-31 暂时停止未指定错误内容的情况下使用str_toast_no_bin 错误
+//		if (toastRs == 0) {
+//			toastRs = R.string.str_toast_no_bin;
+//		}
+		if(toastRs != 0) ToastUtil.show(mContext, toastRs);
+// End of H.M.Wang 2023-10-31 暂时停止未指定错误内容的情况下使用str_toast_no_bin 错误
 		sendToRemote(Constants.pcErr(pcMsg));
 		dismissProgressDialog();
 	}
@@ -3368,9 +3371,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mCounter++;
 		if(null != mDTransThread) mCounter += mDTransThread.getRecentPrintedCount();
 // End of H.M.Wang 2023-10-20 调整计数器的数值，从每次下发后加1（记忆的是下发的总次数），改为实际打印的总次数。这个在使用img的FIFO的时候，是有区别的，相差最大FIFO的个数
+		Debug.d(TAG, "refreshCount = *" + mCounter);
 
 		mHandler.removeMessages(MESSAGE_COUNT_CHANGE);
-		mHandler.sendEmptyMessageDelayed(MESSAGE_COUNT_CHANGE, 1);
+		mHandler.sendEmptyMessage(MESSAGE_COUNT_CHANGE);
 	}
 
 	@Override

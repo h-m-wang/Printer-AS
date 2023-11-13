@@ -75,7 +75,7 @@ public class MessageTask {
 	public static final String MSG_PREV_IMAGE = "/1.bmp";
 	public static final String MSG_PREV_IMAGE2 = "/2.bmp";
 	private Context mContext;
-	private int mDots[]; 
+	private int mDots[];
 	private String mName;
 	private ArrayList<BaseObject> mObjects;
 

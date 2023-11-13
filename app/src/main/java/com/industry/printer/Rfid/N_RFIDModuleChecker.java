@@ -74,7 +74,7 @@ public class N_RFIDModuleChecker {
             return RFID_MOD_M104BPCS;
         }
 
-        // 02 00 00 0B 21 00 18 FF FF FF FF FF FF 37 03
+        // 02 00 00 0B 21 00 18 FF FF FF FF FF FF 3E 03
         // 读取扇区6，块0的值，这个区没有使用，因此可以使用缺省密钥访问，如果返回A9，则说明模块是1207模块
         rfidData = transfer(RFID_CMD_READ_VERIFY, RFID_DATA_READ_BLOCK);
         if(null == rfidData) {

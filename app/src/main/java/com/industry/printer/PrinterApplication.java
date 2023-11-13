@@ -40,55 +40,165 @@ public class PrinterApplication extends Application {
 		return sInstance;
 	}
 
-	private void test111() {
-		Process pid = null;
-		Debug.d(TAG, "LSUSB Start");
+	private boolean upgradeFpgaSunxiKO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
 		try {
-			Debug.d(TAG, "LSUSB ---3");
-			pid = Runtime.getRuntime().exec("busybox rm /system/vendor/modules/fpga-sunxi.ko");
-			if(null != pid) {
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
-				String line;
-				pid.waitFor();
-				while(null != bReader && null != (line = bReader.readLine())) {
-					Debug.d(TAG, line);
-				}
-			}
-			Debug.d(TAG, "LSUSB ---1");
-			pid = Runtime.getRuntime().exec("busybox chmod 777 /system/vendor/modules/fpga-sunxi.ko");
-//			pid = Runtime.getRuntime().exec("sudo busybox insmod /system/vendor/modules/fpga-sunxi.ko");
-			if(null != pid) {
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
-				String line;
-				pid.waitFor();
-				while(null != bReader && null != (line = bReader.readLine())) {
-					Debug.d(TAG, line);
-				}
-			}
-			Debug.d(TAG, "LSUSB ---2");
-			pid = Runtime.getRuntime().exec("busybox lsmod");
-			if(null != pid) {
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
-				String line;
-				pid.waitFor();
-				while(null != bReader && null != (line = bReader.readLine())) {
-					Debug.d(TAG, line);
-				}
-			}
-			Debug.d(TAG, "LSUSB ---3");
-			pid = Runtime.getRuntime().exec("busybox ls /system/vendor/modules -l");
-			if(null != pid) {
-				BufferedReader bReader = new BufferedReader(new InputStreamReader(pid.getInputStream()), 1024);
-				String line;
-				pid.waitFor();
-				while(null != bReader && null != (line = bReader.readLine())) {
-					Debug.d(TAG, line);
-				}
+			File file = new File("/system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.FPGA_SUNXI_KO);
+
+			if(file.length() != is.available()) {
+				Debug.d(TAG, "chmod 777 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+				os.writeBytes("chmod 777 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+				os.flush();
+				Thread.sleep(5000);
+
+				FileUtil.writeFile("/system/vendor/modules/" + Configs.FPGA_SUNXI_KO, is);
+				Thread.sleep(5000);
+
+				Debug.d(TAG, "chmod 644 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+				os.writeBytes("chmod 644 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+				os.flush();
+				Thread.sleep(5000);
+
+				ret = true;
 			}
 		} catch(Exception e) {
 			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
 		}
-		Debug.d(TAG, "LSUSB Done");
+
+		return ret;
+	}
+
+	private boolean upgradeHardwareSO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
+		try {
+			File file = new File("/system/lib/" + Configs.HARDWARE_SO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.HARDWARE_SO);
+
+			if(file.length() != is.available()) {
+// H.M.Wang 2020-12-26 追加硬件库复制功能
+				Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HARDWARE_SO);
+				os.writeBytes("chmod 777 /system/lib/" + Configs.HARDWARE_SO);
+				Thread.sleep(100);
+
+				FileUtil.writeFile("/system/lib/" + Configs.HARDWARE_SO, is);
+// End of H.M.Wang 2020-12-26 追加硬件库复制功能
+				ret = true;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
+		}
+		return ret;
+	}
+
+	private boolean upgradeNativeGraphicSO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
+		try {
+			File file = new File("/system/lib/" + Configs.NATIVEGRAPHIC_SO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.NATIVEGRAPHIC_SO);
+
+			if(file.length() != is.available()) {
+				Debug.d(TAG, "chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
+				os.writeBytes("chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
+				Thread.sleep(100);
+
+				FileUtil.writeFile("/system/lib/" + Configs.NATIVEGRAPHIC_SO, is);
+				ret = true;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
+		}
+		return ret;
+	}
+
+	private boolean upgradeSmartCardSO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
+		try {
+			File file = new File("/system/lib/" + Configs.SMARTCARD_SO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.SMARTCARD_SO);
+
+			if(file.length() != is.available()) {
+				Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
+				os.writeBytes("chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
+				Thread.sleep(100);
+
+				FileUtil.writeFile("/system/lib/" + Configs.SMARTCARD_SO, is);
+				ret = true;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
+		}
+		return ret;
+	}
+
+	private boolean upgradeSerialSO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
+		try {
+			File file = new File("/system/lib/" + Configs.SERIAL_SO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.SERIAL_SO);
+
+			if(file.length() != is.available()) {
+				Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SERIAL_SO);
+				os.writeBytes("chmod 777 /system/lib/" + Configs.SERIAL_SO);
+				Thread.sleep(100);
+
+				FileUtil.writeFile("/system/lib/" + Configs.SERIAL_SO, is);
+				ret = true;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
+		}
+		return ret;
+	}
+
+	private boolean upgradeHp22mmSO(DataOutputStream os) {
+		boolean ret = false;
+		InputStream is = null;
+
+		try {
+			File file = new File("/system/lib/" + Configs.HP22MM_SO);
+			AssetManager assetManager = sInstance.getAssets();
+			is = assetManager.open(Configs.HP22MM_SO);
+
+			if(file.length() != is.available()) {
+				Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HP22MM_SO);
+				os.writeBytes("chmod 777 /system/lib/" + Configs.HP22MM_SO);
+				Thread.sleep(100);
+
+				FileUtil.writeFile("/system/lib/" + Configs.HP22MM_SO, is);
+				ret = true;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		} finally {
+			try{if(null != is) is.close();}catch(IOException e){}
+		}
+		return ret;
 	}
 
 	@Override
@@ -102,91 +212,55 @@ public class PrinterApplication extends Application {
 		asyncInit();
 
 		// H.M.Wang 增加一个线程，用来将so文件拷贝到/system/lib目录下
-		new Thread() {
-			@Override
-			public void run() {
+//		new Thread() {
+//			@Override
+//			public void run() {
 				try {
-//					test111();
-//					Debug.d(TAG, "su -> start");
-					Process process = Runtime.getRuntime().exec("su");
+					boolean needReboot = false;
+
+				Process process = Runtime.getRuntime().exec("su");
 					DataOutputStream os = new DataOutputStream(process.getOutputStream());
-					sleep(100);
+					Thread.sleep(100);
 
-					Debug.d(TAG, "chmod 777 /system/lib");
-					os.writeBytes("chmod 777 /system/lib\n");
-					sleep(100);
+/*							Debug.d(TAG, "chmod 777 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+							os.writeBytes("chmod 777 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+							os.flush();
+							Thread.sleep(10000);
 
-                    AssetManager assetManager = sInstance.getAssets();
+//							FileUtil.writeFile("/system/vendor/modules/" + Configs.FPGA_SUNXI_KO, is);
+//							Thread.sleep(5000);
 
-// H.M.Wang 2020-12-26 追加硬件库复制功能
-                    // 复制硬件处理库
-                    Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_HARDWARE_SO);
-                    os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_HARDWARE_SO);
-                    sleep(100);
+							Debug.d(TAG, "chmod 644 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+							os.writeBytes("chmod 644 /system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
+							os.flush();
+							Thread.sleep(5000);
+					needReboot = true;
+*/
+//					needReboot |= upgradeFpgaSunxiKO(os);
+					needReboot |= upgradeHardwareSO(os);
+					needReboot |= upgradeNativeGraphicSO(os);
+					needReboot |= upgradeSmartCardSO(os);
+					needReboot |= upgradeSerialSO(os);
+					needReboot |= upgradeHp22mmSO(os);
 
-                    InputStream is = assetManager.open(Configs.UPGRADE_HARDWARE_SO);
-
-                    FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_HARDWARE_SO, is);
-// End of H.M.Wang 2020-12-26 追加硬件库复制功能
-
-                    // 复制图片处理库
-					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_NATIVEGRAPHIC_SO);
-					os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_NATIVEGRAPHIC_SO);
-					sleep(100);
-
-					is = assetManager.open(Configs.UPGRADE_NATIVEGRAPHIC_SO);
-
-					FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_NATIVEGRAPHIC_SO, is);
-
-					is.close();
-
-					// 复制SmartCard库
-					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_SMARTCARD_SO);
-					os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_SMARTCARD_SO);
-					sleep(100);
-
-					is = assetManager.open(Configs.UPGRADE_SMARTCARD_SO);
-
-					FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_SMARTCARD_SO, is);
-
-					is.close();
-
-                    // 复制SerialPort库
-                    Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_SERIAL_SO);
-                    os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_SERIAL_SO);
-                    sleep(100);
-
-                    is = assetManager.open(Configs.UPGRADE_SERIAL_SO);
-
-                    FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_SERIAL_SO, is);
-
-                    is.close();
-
-					Debug.d(TAG, "chmod 777 /system/lib/" + Configs.UPGRADE_HP22MM_SO);
-					os.writeBytes("chmod 777 /system/lib/" + Configs.UPGRADE_HP22MM_SO);
-					sleep(100);
-
-					is = assetManager.open(Configs.UPGRADE_HP22MM_SO);
-
-					FileUtil.writeFile("/system/lib/" + Configs.UPGRADE_HP22MM_SO, is);
-
-					is.close();
-
-                    os.writeBytes("exit\n");
+					if(needReboot) {
+						Debug.e(TAG, "Reboot!!!");
+						os.writeBytes("reboot\n");
+					}
+					os.flush();
+					os.close();
 
 					NativeGraphicJni.loadLibrary();
 					if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
 					SerialPort.loadLibrary();
 					Hp22mm.loadLibrary();
-
 				} catch (ExceptionInInitializerError e) {
 					Debug.e(TAG, "--->e: " + e.getMessage());
 				} catch (Exception e) {
 					Debug.e(TAG, "--->e: " + e.getMessage());
 				}
-			}
-		}.start();
-
+//			}
+//		}.start();
 	}
 
 	private void registerFileListener() {

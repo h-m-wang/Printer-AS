@@ -592,6 +592,24 @@ public class PCCommandHandler {
                 sendmsg(Constants.pcErr(msg));
             }
 // End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+// H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
+        } else if(PCCommand.CMD_ENCPPR.equalsIgnoreCase(cmd.command)) {
+            try {
+                SystemConfigFile.getInstance().setParamBroadcast(SystemConfigFile.INDEX_ENCODER_PPR, Integer.parseInt(cmd.content));
+                sendmsg(Constants.pcOk(msg));
+            } catch(NumberFormatException e) {
+                Debug.e(TAG, e.getMessage());
+                sendmsg(Constants.pcErr(msg));
+            }
+        } else if(PCCommand.CMD_SLANT.equalsIgnoreCase(cmd.command)) {
+            try {
+                SystemConfigFile.getInstance().setParamBroadcast(SystemConfigFile.INDEX_SLANT, Integer.parseInt(cmd.content));
+                sendmsg(Constants.pcOk(msg));
+            } catch(NumberFormatException e) {
+                Debug.e(TAG, e.getMessage());
+                sendmsg(Constants.pcErr(msg));
+            }
+// End of H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
         } else {
             sendmsg(Constants.pcErr(msg));
         }

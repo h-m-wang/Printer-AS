@@ -4,7 +4,7 @@ public class RussianCharException extends Exception {
 
     @Override
     public String getMessage() {
-        return "Permission Denied: Russian character not allowed";
+        return "Russian character not allowed";
     }
 
     @Override

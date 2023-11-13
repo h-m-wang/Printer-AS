@@ -1,3 +1,19 @@
+2023-11-12 231112-31126
+==================
+修改231112-31125版本在getFPGAVersion和getImgUniqueCode之间的循环参照，修改了getFPGAVersion函数的形参，以避免在getFPGAVersion中调用getImgUniqueCode。
+
+2023-11-12 231112-31125
+==================
+在Platform类的getFPGAVersion函数中，暂时变更4FIFO版本号的取位规则
+
+2023-11-3 231103-31124
+==================
+修改俄文限制提示文字。取消“Permission Denied: ”，保留”Russian character not allowed“
+
+2023-11-2 231102-31123
+==================
+追加两个网络命令，同步器(encppr)和旋转(slant)
+
 2023-10-31 231031-31122
 ==================
 给俄语控制功能增加一个开关，设置在Configs类中。
