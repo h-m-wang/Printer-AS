@@ -1,3 +1,9 @@
+2023-11-15 231115-31127
+==================
+在InkManagerFactory类和InkSchedulerFactory中，取消2023-5-17及2023-10-18判断1207卡模块的方法，改为自动判断。当判定模块为DPCS模块时，启用原RfidManager类，1207模块时，启用N_RfidManager。
+因此，N_RFIDDevice中仍然固定模块种类为1207（待所有Rfid的管理流程都并入到N_RfidManager体系之后，在恢复为在这里做判断，而不在Factory类中判断）
+img同时取消为1207特定的img种类。
+
 2023-11-12 231112-31126
 ==================
 修改231112-31125版本在getFPGAVersion和getImgUniqueCode之间的循环参照，修改了getFPGAVersion函数的形参，以避免在getFPGAVersion中调用getImgUniqueCode。

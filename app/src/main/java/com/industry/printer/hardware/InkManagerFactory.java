@@ -2,6 +2,7 @@ package com.industry.printer.hardware;
 
 import android.content.Context;
 
+import com.industry.printer.Rfid.N_RFIDModuleChecker;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 
@@ -31,7 +32,6 @@ public class InkManagerFactory {
     }
 
     private static IInkDevice getManager(Context ctx) {
-
         String inkDev = PlatformInfo.getInkDevice();
         Debug.d(TAG, "--->Platform: " + inkDev);
         if (PlatformInfo.DEVICE_SMARTCARD.equals(inkDev)) {
@@ -59,17 +59,26 @@ public class InkManagerFactory {
 
 // H.M.Wang 2023-10-18 取消2023-5-17的修改，恢复到根据img的版本号，为NNM2的时候启用N_RFIDManager，其他的启用RFIDManager
 // H.M.Wang 2023-5-17 RFIDDevice.FEATURE_HIGH >= 102时，启动N_RFIDManager，否则启动RFIDManager
-            String imgCode = PlatformInfo.getImgUniqueCode();
+// H.M.Wang 2023-11-15 取消2023-10-18和2023-5-17的修改，改为在这里通过自动判断来选择，如果是复旦卡就走原路径，如果是23(1207)卡就走新路径
+            N_RFIDModuleChecker checker = new N_RFIDModuleChecker();
+            if(N_RFIDModuleChecker.RFID_MOD_M104BPCS_KX1207 == checker.check(PlatformInfo.getRfidDevice())) {
+                return new N_RFIDManager(ctx);
+            } else {
+                return new RFIDManager(ctx);
+            }
+/* 2023-10-18           String imgCode = PlatformInfo.getImgUniqueCode();
             if(imgCode.startsWith("NSM2") || imgCode.startsWith("NGM2") || imgCode.startsWith("OS07") || imgCode.startsWith("OG07")) {
                 return new N_RFIDManager(ctx);
             } else {
                 return new RFIDManager(ctx);
             }
-/*            if(RFIDDevice.FEATURE_HIGH >= 102) {
+*/
+/* 2023-5-17           if(RFIDDevice.FEATURE_HIGH >= 102) {
                 return new N_RFIDManager(ctx);
             } else {
                 return new RFIDManager(ctx);
             }*/
+// End of H.M.Wang 2023-11-15 取消2023-10-18和2023-5-17的修改，改为在这里通过自动判断来选择，如果是复旦卡就走原路径，如果是23(1207)卡就走新路径
 // End of H.M.Wang 2023-5-17 FEATURE_HIGH >= 102时，启动N_RFIDManager，否则启动RFIDManager
 // End of H.M.Wang 2023-10-18 取消2023-5-17的修改，恢复到根据img的版本号，为NNM2的时候启用N_RFIDManager，其他的启用RFIDManager
         }
