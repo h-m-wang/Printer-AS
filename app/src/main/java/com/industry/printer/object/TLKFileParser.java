@@ -256,6 +256,12 @@ public class TLKFileParser  extends TlkFile{
 						((BarcodeObject) obj).setCode("QR");
 					} else if (code == 1) {
 						((BarcodeObject) obj).setCode("DM");
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+					} else if (code == 2) {
+						((BarcodeObject) obj).setCode("GS1QR");
+					} else if (code == 3) {
+						((BarcodeObject) obj).setCode("GS1DM");
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 					} else {
 						((BarcodeObject) obj).setCode("QR");
 					}

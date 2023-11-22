@@ -171,6 +171,10 @@
         <item>ITF_14</item>
         <item>QR</item>
         <item>DM</item>
+<!-- H.M.Wang 2023-11-21 追加GS1的QR和DM -->
+        <item>GS1QR</item>
+        <item>GS1DM</item>
+<!-- H.M.Wang 2023-11-21 追加GS1的QR和DM -->
     </string-array>
 
 

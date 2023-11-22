@@ -85,8 +85,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public static final byte SECTOR_04 							= 0x04;
     public static final byte SECTOR_05 							= 0x05;
 
-    private Map<Byte, Object> mKeyAs;
-    private Map<Byte, Boolean> mKeyNeedVerify;
+    private Map<Byte, Boolean> mKeyVerified;
 
     private static final byte BLOCK_NUM_PER_SECTOR 					= 4;									// 每个扇区的块数
     private static final byte SECTOR_INK_MAX 						= SECTOR_04;							// 锁值最大值，特征值及锁值，保存在第04扇区
@@ -109,14 +108,10 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     }
 
     private void initVariables() {
-        mKeyAs = new HashMap<Byte, Object>();
-        mKeyAs.put(SECTOR_00, DATA_KEY_SECTOR0);
-        mKeyAs.put(SECTOR_04, DATA_KEY_DEFAULT);
-        mKeyAs.put(SECTOR_05, DATA_KEY_DEFAULT);
-        mKeyNeedVerify = new HashMap<Byte, Boolean>();
-        mKeyNeedVerify.put(SECTOR_00, true);
-        mKeyNeedVerify.put(SECTOR_04, true);
-        mKeyNeedVerify.put(SECTOR_05, true);
+    	mKeyVerified = new HashMap<Byte, Boolean>();
+        mKeyVerified.put(SECTOR_00, false);
+        mKeyVerified.put(SECTOR_04, false);
+        mKeyVerified.put(SECTOR_05, false);
     }
 
     @Override
@@ -210,8 +205,8 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
 
     @Override
     public boolean initCard() {
-        for(Entry<Byte, Boolean> entry : mKeyNeedVerify.entrySet()) {
-            entry.setValue(true);
+        for(Entry<Byte, Boolean> entry : mKeyVerified.entrySet()) {
+            entry.setValue(false);
         }
         mInitialized = searchCard();
         if(!mInitialized) return false;
@@ -221,21 +216,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
         return mInitialized;
     }
 
-    private boolean verifyKey(byte sector, byte type, boolean retry) {
-        // 如果未进行初始化，或者访问中途失败后，需要重新初始化
-        if(!mInitialized) {
-            Debug.d(TAG, "  ==> 需要(重新)初始化");
-            if(!initCard()) return false;	// 初始化失败返回失败
-        }
-
-        byte[] key = (byte[])mKeyAs.get(sector);
-
-        // 如果该扇区不需要再进行密钥验证，则直接返回成功
-        if(!mKeyNeedVerify.get(sector)) {
-            Debug.d(TAG, "  ==> 无需验证密钥。扇区" + sector + "的验证密钥[" + ByteArrayUtils.toHexString(key) + "]");
-            return true;
-        }
-
+    private boolean verifyKey(byte sector, byte type, byte[] key) {
         // 验证密钥
         byte[] writeData = new byte[key.length+2];
 
@@ -250,7 +231,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
         if(null != rfidData) {
             if(rfidData.getResult() == RESULT_OK) {
                 // 验证密钥成功，标注该扇区不再需要验证
-                mKeyNeedVerify.put(sector, false);
+            	mKeyVerified.put(sector, true);
                 Debug.d(TAG, "  ==> 密钥验证成功");
                 return true;
             } else {
@@ -264,22 +245,35 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
 
         Debug.e(TAG, "  ==> 密钥验证失败");
 
-        if(!retry) return false;
-
-        // 如果刚刚验证过的密钥为缺省密钥，则切换到唯一密钥再进行一次尝试
-        if(key.equals(DATA_KEY_DEFAULT)) {
-            Debug.d(TAG, "  ==> 切换至唯一密钥");
-            mKeyAs.put(sector, (type == DATA_KEY_A ? EncryptionMethod.getInstance().getKeyA(mUID) : EncryptionMethod.getInstance().getKeyB(mUID)));
-            return verifyKey(sector, type, false);	// 如果失败，则返回失败，不需要再次尝试
-        } else {
-            // 如果刚刚验证过的密钥为唯一密钥，则切换到缺省密钥再进行一次尝试
-            Debug.d(TAG, "  ==> 切换至缺省密钥");
-            mKeyAs.put(sector, DATA_KEY_DEFAULT);
-            return verifyKey(sector, type, true);		// 如果失败需要再次尝试
-        }
+        return false;
     }
 
-    private boolean writeBlock(byte block, byte[]data) {
+    private boolean verifySector(byte sector, byte type) {
+        // 如果未进行初始化，或者访问中途失败后，需要重新初始化
+        if(!mInitialized) {
+            Debug.d(TAG, "  ==> 需要(重新)初始化");
+            if(!initCard()) return false;	// 初始化失败返回失败
+        }
+
+        // 如果该扇区不需要再进行密钥验证，则直接返回成功
+        if(mKeyVerified.get(sector)) {
+            Debug.d(TAG, "  ==> 无需验证扇区" + sector + "的验证密钥");
+            return true;
+        }
+
+        Debug.d(TAG, "  ==> 验证A密钥的缺省密钥");
+        if(verifyKey(sector, type, DATA_KEY_DEFAULT)) return true;
+
+        Debug.d(TAG, "  ==> 验证A密钥的唯一密钥");
+        if(verifyKey(sector, type, 
+        	(sector == 0 ? 
+        	DATA_KEY_SECTOR0 : 
+           	(type == DATA_KEY_A ? EncryptionMethod.getInstance().getKeyA(mUID) : EncryptionMethod.getInstance().getKeyB(mUID))))) return true;
+
+        return false;
+    }
+
+    private boolean writeBlock(byte type, byte block, byte[]data) {
         if(block < 0x00 || block > 0x3F) {
             mErrorMessage = "错误的页号";
             Debug.e(TAG, mErrorMessage);
@@ -298,7 +292,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
             return false;
         }
 
-        if(!verifyKey((byte)(block/BLOCK_NUM_PER_SECTOR), DATA_KEY_A, true)) return false;
+        if(!verifySector((byte)(block/BLOCK_NUM_PER_SECTOR), type)) return false;
 
         Debug.d(TAG, "  ==> 开始写入块[" + String.format("0x%02X", block) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
@@ -325,8 +319,8 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
         return false;
     }
 
-    private byte[] readBlock(byte block) {
-        if(!verifyKey((byte)(block/BLOCK_NUM_PER_SECTOR), DATA_KEY_A, true)) return null;
+    private byte[] readBlock(byte type, byte block) {
+        if(!verifySector((byte)(block/BLOCK_NUM_PER_SECTOR), type)) return null;
 
         Debug.d(TAG, "  ==> 开始读块[" + String.format("0x%02X", block) + "]");
 
@@ -359,7 +353,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeMaxInkLevel(int level) {
         Debug.d(TAG, "  ==> 开始写入墨水最大值");
 
-        if(writeBlock(BLOCK_INK_MAX, EncryptionMethod.getInstance().encryptInkLevel(level))) {
+        if(writeBlock(DATA_KEY_A, BLOCK_INK_MAX, EncryptionMethod.getInstance().encryptInkLevel(level))) {
             Debug.d(TAG, "  ==> 写入墨水最大值成功");
             return true;
         }
@@ -373,9 +367,9 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public int readMaxInkLevel() {
         Debug.d(TAG, "  ==> 开始读墨水最大值");
 
-        byte[] data = readBlock(BLOCK_INK_MAX);
+        byte[] data = readBlock(DATA_KEY_A, BLOCK_INK_MAX);
         if(null != data) {
-            int max = EncryptionMethod.getInstance().decryptInkLevel(data);
+            int max = EncryptionMethod.getInstance().N_decryptInkLevel(data);
             Debug.d(TAG, "  ==> 读墨水最大值成功[" + max + "]");
             return max;
         }
@@ -389,7 +383,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeInkLevel(int level) {
         Debug.d(TAG, "  ==> 开始写入墨水值");
 
-        if(writeBlock(BLOCK_INKLEVEL, EncryptionMethod.getInstance().encryptInkLevel(level))) {
+        if(writeBlock(DATA_KEY_A, BLOCK_INKLEVEL, EncryptionMethod.getInstance().encryptInkLevel(level))) {
             Debug.d(TAG, "  ==> 写入墨水值成功");
             return true;
         }
@@ -403,9 +397,9 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public int readInkLevel() {
         Debug.d(TAG, "  ==> 开始读墨水值");
 
-        byte[] data = readBlock(BLOCK_INKLEVEL);
+        byte[] data = readBlock(DATA_KEY_A, BLOCK_INKLEVEL);
         if(null != data) {
-            int level = EncryptionMethod.getInstance().decryptInkLevel(data);
+            int level = EncryptionMethod.getInstance().N_decryptInkLevel(data);
             Debug.d(TAG, "  ==> 读墨水值成功[" + level + "]");
             return level;
         }
@@ -419,7 +413,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeFeature(byte[] feature) {
         Debug.d(TAG, "  ==> 开始写入特征值");
 
-        if(writeBlock(BLOCK_FEATURE, feature)) {
+        if(writeBlock(DATA_KEY_A, BLOCK_FEATURE, feature)) {
             Debug.d(TAG, "  ==> 写入特征值成功");
             return true;
         }
@@ -433,7 +427,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public byte[] readFeature() {
         Debug.d(TAG, "  ==> 开始读特征值");
 
-        byte[] data = readBlock(BLOCK_FEATURE);
+        byte[] data = readBlock(DATA_KEY_A, BLOCK_FEATURE);
         if(null != data) {
             Debug.d(TAG, "  ==> 读特征值成功[" + ByteArrayUtils.toHexString(data) + "]");
             return data;
@@ -448,7 +442,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeCopyInkLevel(int level) {
         Debug.d(TAG, "  ==> 开始写入备份墨水值");
 
-        if(writeBlock(BLOCK_COPY_INKLEVEL, EncryptionMethod.getInstance().encryptInkLevel(level))) {
+        if(writeBlock(DATA_KEY_A, BLOCK_COPY_INKLEVEL, EncryptionMethod.getInstance().encryptInkLevel(level))) {
             Debug.d(TAG, "  ==> 写入备份墨水值成功");
             return true;
         }
@@ -462,9 +456,9 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public int readCopyInkLevel() {
         Debug.d(TAG, "  ==> 开始读备份墨水值");
 
-        byte[] data = readBlock(BLOCK_COPY_INKLEVEL);
+        byte[] data = readBlock(DATA_KEY_A, BLOCK_COPY_INKLEVEL);
         if(null != data) {
-            int level = EncryptionMethod.getInstance().decryptInkLevel(data);
+            int level = EncryptionMethod.getInstance().N_decryptInkLevel(data);
             Debug.d(TAG, "  ==> 读备份墨水值成功[" + level + "]");
             return level;
         }
@@ -477,14 +471,14 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeKey(byte sector, byte type, byte[] key) {
         Debug.d(TAG, "  ==> 开始写入密钥，扇区=" + sector + "; 密钥种类=" + type + "; 密钥值=[" + ByteArrayUtils.toHexString(key) + "]");
 
-        byte[] data = readBlock((byte)(sector * BLOCK_NUM_PER_SECTOR + BLOCK_KEY));
+        byte[] data = readBlock(DATA_KEY_A, (byte)(sector * BLOCK_NUM_PER_SECTOR + BLOCK_KEY));
         if(null != data) {
             for (int i=0; i<Math.min(key.length, 6); i++) {
                 data[(type == DATA_KEY_A ? i : i+10)] = key[i];
             }
-            if(writeBlock((byte)(sector * BLOCK_NUM_PER_SECTOR + BLOCK_KEY), data)) {
+            if(writeBlock(DATA_KEY_A, (byte)(sector * BLOCK_NUM_PER_SECTOR + BLOCK_KEY), data)) {
                 Debug.d(TAG, "  ==> 写入密钥成功");
-                mKeyNeedVerify.put(sector, true);
+                mKeyVerified.put(sector, false);
                 return true;
             }
         }
@@ -497,13 +491,13 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public boolean writeSector0Key() {
         Debug.d(TAG, "  ==> 开始写入密钥，0扇区; ; 密钥值=[" + ByteArrayUtils.toHexString(DATA_KEY_SECTOR0) + "]");
 
-        byte[] data = readBlock((byte)(0 * BLOCK_NUM_PER_SECTOR + BLOCK_KEY));
+        byte[] data = readBlock(DATA_KEY_A, (byte)(0 * BLOCK_NUM_PER_SECTOR + BLOCK_KEY));
         if(null != data) {
             for (int i=0; i<Math.min(DATA_KEY_SECTOR0.length, 6); i++) {
                 data[i] = DATA_KEY_SECTOR0[i];
                 data[i+10] = DATA_KEY_SECTOR0[i];
             }
-            if(writeBlock((byte)(0 * BLOCK_NUM_PER_SECTOR + BLOCK_KEY), data)) {
+            if(writeBlock(DATA_KEY_A, (byte)(0 * BLOCK_NUM_PER_SECTOR + BLOCK_KEY), data)) {
                 Debug.d(TAG, "  ==> 写入密钥成功");
                 return true;
             }
@@ -535,7 +529,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
     public byte[] read0Block() {
         Debug.d(TAG, "  ==> 开始读0块");
 
-        byte[] data = readBlock((byte)(SECTOR_00 * BLOCK_NUM_PER_SECTOR + 0));
+        byte[] data = readBlock(DATA_KEY_A, (byte)(SECTOR_00 * BLOCK_NUM_PER_SECTOR + 0));
         if(null != data) {
             Debug.d(TAG, "  ==> 读读0块成功[" + ByteArrayUtils.toHexString(data) + "]");
             return data;

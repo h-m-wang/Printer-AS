@@ -37,6 +37,11 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import uk.org.okapibarcode.backend.DataMatrix;
+import uk.org.okapibarcode.backend.OkapiException;
+import uk.org.okapibarcode.backend.QrCode;
+import uk.org.okapibarcode.backend.Symbol;
+import uk.org.okapibarcode.output.Java2DRenderer;
 
 public class BarcodeObject extends BaseObject {
 	private static final String TAG = BarcodeObject.class.getSimpleName();
@@ -93,7 +98,11 @@ public class BarcodeObject extends BaseObject {
 	private static final int CODE_UPC_A 						= 6;
 	private static final int CODE_ITF_14 						= 7;
 	private static final int CODE_QR 							= 0;
-	private static final int CODE_DM 							= 8;
+	private static final int CODE_DM 							= 1;
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	private static final int CODE_GS1QR							= 2;
+	private static final int CODE_GS1DM							= 3;
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
 	private static final int QUIET_ZONE_SIZE = 4;
 	private static final int STROKE_WIDTH = 3;
@@ -175,8 +184,16 @@ public class BarcodeObject extends BaseObject {
 			mCode = 0;
 			mId = BaseObject.OBJECT_TYPE_QR;
 		} else if ("DM".equals(code)) {
-			mCode = 8;
+			mCode = 1;
 			mId = BaseObject.OBJECT_TYPE_QR;
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+		} else if ("GS1QR".equals(code)) {
+			mCode = 2;
+			mId = BaseObject.OBJECT_TYPE_QR;
+		} else if ("GS1DM".equals(code)) {
+			mCode = 3;
+			mId = BaseObject.OBJECT_TYPE_QR;
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 		} else {
 			return;
 		}
@@ -207,9 +224,6 @@ public class BarcodeObject extends BaseObject {
 		} else if (code == 7) {
 			mCode = 7;
 			mFormat = "UPC_A";
-		} else if (code == 8) {
-			mCode = 8;
-			mFormat = "DM";
 		}
 		mId = BaseObject.OBJECT_TYPE_BARCODE;
 		isNeedRedraw = true;
@@ -471,7 +485,12 @@ public class BarcodeObject extends BaseObject {
 //            mWidth = mHeight;
 			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
-//				mBitmap = drawDataMatrix(mContent, 152, 152);
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+				mBitmap = drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
+			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+				mBitmap = drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
 				mBitmap = drawQR(mContent, (int) mWidth, (int) mHeight);
 //				mBitmap = drawQR(mContent, 152, 152);
@@ -527,6 +546,12 @@ public class BarcodeObject extends BaseObject {
 		if (is2D()) {
 			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 				return drawDataMatrix(content, ctW, ctH);
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+				return drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
+			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+				return drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
 				return drawQR(content, ctW, ctH);
 			}
@@ -534,7 +559,7 @@ public class BarcodeObject extends BaseObject {
 			return draw(content, ctW, ctH);
 		}
 	}
-	
+
 	private Bitmap drawQR(String content, int w, int h) {
 		try {
 			Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h);
@@ -607,6 +632,100 @@ public class BarcodeObject extends BaseObject {
 		}
 		return null;
 	}
+
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	private Bitmap drawOkapiQR(String content, int w, int h) {
+		long startTime = System.nanoTime();
+		Bitmap bitmap;
+		Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
+
+		Debug.d(TAG, "GS1 QR: cnt=[" + content + "]; w=" + w + "; h=" + h);
+		try {
+			QrCode qrcode = new QrCode();
+			qrcode.setDataType(Symbol.DataType.GS1);
+			qrcode.setSeparatorType(Symbol.SeparatorType.GS);
+			switch(mErrorCorrectionLevel) {
+			case 1:
+				Debug.d(TAG, "ECL: M");
+				qrcode.setPreferredEccLevel(QrCode.EccLevel.M);
+				break;
+			case 2:
+				Debug.d(TAG, "ECL: Q");
+				qrcode.setPreferredEccLevel(QrCode.EccLevel.Q);
+				break;
+			case 3:
+				Debug.d(TAG, "ECL: H");
+				qrcode.setPreferredEccLevel(QrCode.EccLevel.H);
+				break;
+			default:
+				Debug.d(TAG, "ECL: L");
+				qrcode.setPreferredEccLevel(QrCode.EccLevel.L);
+				break;
+			}
+			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
+				qrcode.setPreferredVersion(3);
+			}
+			renderer.setReverse(mRevert);
+			if (isDynamicCode()) {
+				renderer.setInk(0xff0000ff);
+			}
+			qrcode.setContent(content);
+			bitmap = renderer.render(qrcode);
+			Debug.d(TAG, "GS1 QR-QR spent time: " + ((System.nanoTime() - startTime) / 1000000));
+			return Bitmap.createScaledBitmap(bitmap, w, h, true);
+		} catch (OkapiException e) {
+			try {
+				QrCode qrcode = new QrCode();
+				qrcode.setDataType(Symbol.DataType.GS1);
+//				setEccLevel(qrcode.getPreferredEccLevel());
+//				setVersion(qrcode.getPreferredVersion());
+				renderer.setReverse(mRevert);
+				if (isDynamicCode()) {
+					renderer.setInk(0xff0000ff);
+				}
+				qrcode.setContent(content);
+				bitmap = renderer.render(qrcode);
+				return Bitmap.createScaledBitmap(bitmap, w, h, true);
+			} catch (Exception exception) {
+				Debug.e(TAG, e.getMessage());
+				bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+				return bitmap;
+			}
+		}
+	}
+
+	private Bitmap drawGS1Datamatrix(String content, int w, int h) {
+		long startTime = System.nanoTime();
+		Bitmap bitmap;
+		Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
+
+		Debug.d(TAG, "GS1 DM: cnt=[" + content + "]; w=" + w + "; h=" + h);
+		try {
+			DataMatrix dataMatrix = new DataMatrix();
+			dataMatrix.setDataType(Symbol.DataType.GS1);
+			dataMatrix.setSeparatorType(Symbol.SeparatorType.GS);
+			dataMatrix.setPreferredSize(8);
+			dataMatrix.setForceMode(DataMatrix.ForceMode.SQUARE);
+
+			renderer.setReverse(mRevert);
+			if (isDynamicCode()) {
+				renderer.setInk(0xff0000ff);
+			}
+
+			dataMatrix.setContent(content);
+//			if (Configs.PIXEL_REDUCTION == 1)
+//				bitmap = renderer.render(dataMatrix, Configs.PIXEL_REDUCTION_SIZE);
+//			else
+			bitmap = renderer.render(dataMatrix);
+			Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
+			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+		} catch (Exception e) {
+			Debug.e(TAG, e.getMessage());
+			bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+			return bitmap;
+		}
+	}
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
 	private Bitmap drawDataMatrix(String content, int w, int h) {
 
@@ -1085,6 +1204,12 @@ public class BarcodeObject extends BaseObject {
 		} else {
 			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 				bitmap = drawDataMatrix(mContent, w, h);
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+				bitmap = drawOkapiQR(mContent, w, h);
+			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+				bitmap = drawGS1Datamatrix(mContent, w, h);
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
 				bitmap = drawQR(mContent, w, h);
 			}
@@ -1201,6 +1326,10 @@ public class BarcodeObject extends BaseObject {
 		if (mFormat.equalsIgnoreCase("QR")
 				|| mFormat.equalsIgnoreCase("DATA_MATRIX")
 				|| mFormat.equalsIgnoreCase("DM")
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+				|| mFormat.equalsIgnoreCase("GS1QR")
+				|| mFormat.equalsIgnoreCase("GS1DM")
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 				|| mFormat.equalsIgnoreCase("AZTEC")
 				|| mFormat.equalsIgnoreCase("PDF_417")) {
 			return true;
@@ -1435,7 +1564,13 @@ public class BarcodeObject extends BaseObject {
 				.append(BaseObject.boolToFormatString(mDragable, 3))		// Tag 7
 				.append("^")
 				.append("000^")												// Tag 8
-				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")		// Tag 9
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+//				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")		// Tag 9
+				.append("QR".equalsIgnoreCase(mFormat) ? "000" :
+						("DM".equalsIgnoreCase(mFormat) ? "001" :
+						("GS1QR".equalsIgnoreCase(mFormat) ? "002" :
+						("GS1DM".equalsIgnoreCase(mFormat) ? "003" : "000"))))		// Tag 9
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 				.append("^000^")											// Tag 10
 				.append(BaseObject.boolToFormatString(mReverse, 3))		// Tag 11
 				.append("^")

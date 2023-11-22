@@ -8,8 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 17
-        versionCode 31127          //next: 31128
-        versionName "231115-31127"
+        versionCode 31130          //next: 31131
+        versionName "231122-31130"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -58,6 +58,7 @@ dependencies {
     //    compile 'io.reactivex:rxandroid:1.3.4'
 //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3.1'
     compile project(':corelib')
+    implementation project(':gs1datamatrix')
     testCompile 'junit:junit:4.12'
     //    androidTestImplementation 'com.android.support.test:runner:1.0.1'
     //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
