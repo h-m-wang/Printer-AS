@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import com.industry.printer.ControlTabActivity;
 import com.industry.printer.MessageTask;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.FileFormat.TlkFile;
@@ -24,8 +25,7 @@ import com.industry.printer.exception.TlkNotFoundException;
 import android.content.Context;
 
 public class TLKFileParser  extends TlkFile{
-	
-	public static final String TAG="TLKFileParser";
+	private static final String TAG = TLKFileParser.class.getSimpleName();
 	
 	private int mDots[];
 	private float mProportion = 1;
@@ -252,18 +252,18 @@ public class TLKFileParser  extends TlkFile{
 				obj = new BarcodeObject(mContext, 0);
 				if (BaseObject.OBJECT_TYPE_QR.equals(attr[1])) {
 					int code = Integer.parseInt(attr[9]);
-					if (code == 0) {
-						((BarcodeObject) obj).setCode("QR");
-					} else if (code == 1) {
-						((BarcodeObject) obj).setCode("DM");
+					if (code == BarcodeObject.CODE_QR) {
+						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_QR);
+					} else if (code == BarcodeObject.CODE_DM) {
+						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_DM);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-					} else if (code == 2) {
-						((BarcodeObject) obj).setCode("GS1QR");
-					} else if (code == 3) {
-						((BarcodeObject) obj).setCode("GS1DM");
+					} else if (code == BarcodeObject.CODE_GS1QR) {
+						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_GS1QR);
+					} else if (code == BarcodeObject.CODE_GS1DM) {
+						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_GS1DM);
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 					} else {
-						((BarcodeObject) obj).setCode("QR");
+						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_QR);
 					}
 					((BarcodeObject) obj).setContent(attr[21]);
 				} else {

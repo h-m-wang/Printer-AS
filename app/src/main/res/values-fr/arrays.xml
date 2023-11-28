@@ -165,6 +165,9 @@
         <item>EAN8</item>
         <item>EAN13</item>
         <item>EAN128</item>
+<!-- H.M.Wang 2023-11-21 追加GS1的QR和DM -->
+        <item>GS1128</item>
+<!-- End of H.M.Wang 2023-11-21 追加GS1的QR和DM -->
         <item>CODE_128</item>
         <item>CODE_39</item>
         <item>UPC_A</item>

@@ -128,7 +128,7 @@ import android.widget.Toast;
 import junit.framework.Test;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
-	public static final String TAG="ControlTabActivity";
+	private static final String TAG = ControlTabActivity.class.getSimpleName();
 	
 	public static final String ACTION_REOPEN_SERIAL="com.industry.printer.ACTION_REOPEN_SERIAL";
 	public static final String ACTION_CLOSE_SERIAL="com.industry.printer.ACTION_CLOSE_SERIAL";

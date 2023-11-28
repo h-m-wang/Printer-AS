@@ -59,7 +59,10 @@ import java.util.Arrays;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
-public class ObjectInfoDialog extends Dialog implements android.view.View.OnClickListener, IOnItemClickListener, OnCheckedChangeListener
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ObjectInfoDialog extends RelightableDialog implements android.view.View.OnClickListener, IOnItemClickListener, OnCheckedChangeListener
+//public class ObjectInfoDialog extends Dialog implements android.view.View.OnClickListener, IOnItemClickListener, OnCheckedChangeListener
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 	, OnTouchListener, TextWatcher {
 	
 	public static final String TAG="ObjectInfoDialog";
@@ -269,7 +272,7 @@ public class ObjectInfoDialog extends Dialog implements android.view.View.OnClic
 	     if(mObject==null)
 	     {
 //	    	 Debug.d(TAG, "--->obj: " + mObject.mIndex);
-	    	 this.setContentView(R.layout.obj_info_msg); 
+	    	 this.setContentView(R.layout.obj_info_msg);
 	     }
 	     else if(mObject instanceof TextObject)
 	     {

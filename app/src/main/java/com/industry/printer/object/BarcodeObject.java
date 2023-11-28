@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View.MeasureSpec;
@@ -37,7 +38,9 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import uk.org.okapibarcode.backend.Code128;
 import uk.org.okapibarcode.backend.DataMatrix;
+import uk.org.okapibarcode.backend.HumanReadableLocation;
 import uk.org.okapibarcode.backend.OkapiException;
 import uk.org.okapibarcode.backend.QrCode;
 import uk.org.okapibarcode.backend.Symbol;
@@ -82,6 +85,11 @@ public class BarcodeObject extends BaseObject {
 	public static final String BARCODE_FORMAT_RSS_AZTEC 		= "AZTEC";
 	/** PDF417 format. */
 	public static final String BARCODE_FORMAT_RSS_PDF_417 		= "PDF_417";
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	public static final String BARCODE_FORMAT_GS1128 			= "GS1128";
+	public static final String BARCODE_FORMAT_GS1QR 			= "GS1QR";
+	public static final String BARCODE_FORMAT_GS1DM 			= "GS1DM";
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
 	/** MaxiCode 2D barcode format. */
 	// MAXICODE,
@@ -90,18 +98,21 @@ public class BarcodeObject extends BaseObject {
 
 // H.M.Wang 2021-10-7 EAN128的生成有错误
 // 参照模型：CODE(本机支持的格式如下，仅作为保存数值使用) -> FORMAT(内部的格式定义，如上）-> FORMAT（Zxing的BarcodeFormat格式，如getBarcodeFormat的返回，但该函数直接使用的字符串）
-	private static final int CODE_EAN8 							= 0;
-	private static final int CODE_EAN13 						= 1;
-	private static final int CODE_EAN128 						= 2;
-	private static final int CODE_CODE128 						= 3;
-	private static final int CODE_CODE39 						= 5;
-	private static final int CODE_UPC_A 						= 6;
-	private static final int CODE_ITF_14 						= 7;
-	private static final int CODE_QR 							= 0;
-	private static final int CODE_DM 							= 1;
+	public static final int CODE_EAN8 							= 0;
+	public static final int CODE_EAN13 						= 1;
+	public static final int CODE_EAN128 						= 2;
+	public static final int CODE_CODE128 						= 3;
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-	private static final int CODE_GS1QR							= 2;
-	private static final int CODE_GS1DM							= 3;
+	public static final int CODE_GS1128 						= 4;
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+	public static final int CODE_CODE39 						= 5;
+	public static final int CODE_UPC_A 						= 6;
+	public static final int CODE_ITF_14 						= 7;
+	public static final int CODE_QR 							= 0;
+	public static final int CODE_DM 							= 1;
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	public static final int CODE_GS1QR							= 2;
+	public static final int CODE_GS1DM							= 3;
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
 	private static final int QUIET_ZONE_SIZE = 4;
@@ -154,7 +165,9 @@ public class BarcodeObject extends BaseObject {
 		mHTContent = new HyperTextObject(context, x);
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 
-		mFormat="CODE_128";
+//		mFormat="CODE_128";
+		mFormat = BARCODE_FORMAT_CODE128;
+
 		if (mSource == true) {
 			setContent("123456789");
 		} else {
@@ -166,32 +179,58 @@ public class BarcodeObject extends BaseObject {
 	{
 		
 		mId = BaseObject.OBJECT_TYPE_BARCODE;
-		if ("EAN8".equals(code)) {
-			mCode = 0;
-		} else if ("EAN13".equals(code)) {
-			mCode = 1;
-		} else if ("EAN128".equals(code)) {
-			mCode = 2;
-		} else if ("CODE_128".equals(code)) {
-			mCode = 3;
-		} else if ("CODE_39".equals(code)) {
-			mCode = 5;
-		} else if ("ITF_14".equals(code)) {
-			mCode = 6;
-		} else if ("UPC_A".equals(code)) {
-			mCode = 7;
-		} else if ("QR".equals(code)) {
-			mCode = 0;
+//		if ("EAN8".equals(code)) {
+		if (BARCODE_FORMAT_EAN8.equals(code)) {
+//			mCode = 0;
+			mCode = CODE_EAN8;
+//		} else if ("EAN13".equals(code)) {
+		} else if (BARCODE_FORMAT_EAN13.equals(code)) {
+//			mCode = 1;
+			mCode = CODE_EAN13;
+//		} else if ("EAN128".equals(code)) {
+		} else if (BARCODE_FORMAT_EAN128.equals(code)) {
+//			mCode = 2;
+			mCode = CODE_EAN128;
+//		} else if ("CODE_128".equals(code)) {
+		} else if (BARCODE_FORMAT_CODE128.equals(code)) {
+//			mCode = 3;
+			mCode = CODE_CODE128;
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+		} else if (BARCODE_FORMAT_GS1128.equals(code)) {
+			mCode = CODE_GS1128;
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+//		} else if ("CODE_39".equals(code)) {
+		} else if (BARCODE_FORMAT_CODE39.equals(code)) {
+//			mCode = 5;
+			mCode = CODE_CODE39;
+//		} else if ("ITF_14".equals(code)) {
+		} else if (BARCODE_FORMAT_ITF_14.equals(code)) {
+//			mCode = 6;
+			mCode = CODE_ITF_14;
+//		} else if ("UPC_A".equals(code)) {
+		} else if (BARCODE_FORMAT_UPC_A.equals(code)) {
+//			mCode = 7;
+			mCode = CODE_UPC_A;
+//		} else if ("QR".equals(code)) {
+		} else if (BARCODE_FORMAT_QR.equals(code)) {
+//			mCode = 0;
+			mCode = CODE_QR;
 			mId = BaseObject.OBJECT_TYPE_QR;
-		} else if ("DM".equals(code)) {
-			mCode = 1;
+//		} else if ("DM".equals(code)) {
+		} else if (BARCODE_FORMAT_DM.equals(code)) {
+//			mCode = 1;
+			mCode = CODE_DM;
 			mId = BaseObject.OBJECT_TYPE_QR;
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-		} else if ("GS1QR".equals(code)) {
-			mCode = 2;
+//		} else if ("GS1QR".equals(code)) {
+		} else if (BARCODE_FORMAT_GS1QR.equals(code)) {
+//			mCode = 2;
+			mCode = CODE_GS1QR;
 			mId = BaseObject.OBJECT_TYPE_QR;
-		} else if ("GS1DM".equals(code)) {
-			mCode = 3;
+//		} else if ("GS1DM".equals(code)) {
+		} else if (BARCODE_FORMAT_GS1DM.equals(code)) {
+//			mCode = 3;
+			mCode = CODE_GS1DM;
 			mId = BaseObject.OBJECT_TYPE_QR;
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 		} else {
@@ -203,7 +242,34 @@ public class BarcodeObject extends BaseObject {
 	
 	public void setCode(int code)
 	{
-		if (code == 0) {
+		if (code == CODE_EAN8) {
+			mCode = CODE_EAN8;
+			mFormat = BARCODE_FORMAT_EAN8;
+		} else if (code == CODE_EAN13) {
+			mCode = CODE_EAN13;
+			mFormat = BARCODE_FORMAT_EAN13;
+		} else if (code == CODE_EAN128) {
+			mCode = CODE_EAN128;
+			mFormat = BARCODE_FORMAT_EAN128;
+		} else if (code == CODE_CODE128) {
+			mCode = CODE_CODE128;
+			mFormat = BARCODE_FORMAT_CODE128;
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+		} else if (code == CODE_GS1128) {
+			mCode = CODE_GS1128;
+			mFormat = BARCODE_FORMAT_GS1128;
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+		} else if (code == CODE_CODE39) {
+			mCode = CODE_CODE39;
+			mFormat = BARCODE_FORMAT_CODE39;
+		} else if (code == CODE_ITF_14) {
+			mCode = CODE_ITF_14;
+			mFormat = BARCODE_FORMAT_ITF_14;
+		} else if (code == CODE_UPC_A) {
+			mCode = CODE_UPC_A;
+			mFormat = BARCODE_FORMAT_UPC_A;
+		}
+/*		if (code == 0) {
 			mCode = 0;
 			mFormat = "EAN8";
 		} else if (code == 1) {
@@ -224,7 +290,7 @@ public class BarcodeObject extends BaseObject {
 		} else if (code == 7) {
 			mCode = 7;
 			mFormat = "UPC_A";
-		}
+		}*/
 		mId = BaseObject.OBJECT_TYPE_BARCODE;
 		isNeedRedraw = true;
 	}
@@ -235,7 +301,8 @@ public class BarcodeObject extends BaseObject {
 	}
 	
 	public boolean isQRCode() {
-		return "QR".equals(mFormat);
+//		return "QR".equals(mFormat);
+		return BARCODE_FORMAT_QR.equals(mFormat);
 	}
 
 // H.M.Wang 2019-12-15 原来判断是否为二维动态二维码的逻辑可能有问题
@@ -483,12 +550,13 @@ public class BarcodeObject extends BaseObject {
 //			mWidth = mRatio * 152;
 //			mWidth = mRatio * mHeight;
 //            mWidth = mHeight;
-			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+//			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
 				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
 				mBitmap = drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
-			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
 				mBitmap = drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
@@ -544,12 +612,13 @@ public class BarcodeObject extends BaseObject {
 	@Override
 	public Bitmap makeBinBitmap(Context ctx, String content, int ctW, int ctH, String font) {
 		if (is2D()) {
-			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+//			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
 				return drawDataMatrix(content, ctW, ctH);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
 				return drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
-			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
 				return drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
@@ -636,10 +705,10 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 	private Bitmap drawOkapiQR(String content, int w, int h) {
 		long startTime = System.nanoTime();
-		Bitmap bitmap;
-		Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
+		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);;
 
-		Debug.d(TAG, "GS1 QR: cnt=[" + content + "]; w=" + w + "; h=" + h);
+//		Debug.d(TAG, "GS1 QR: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
+
 		try {
 			QrCode qrcode = new QrCode();
 			qrcode.setDataType(Symbol.DataType.GS1);
@@ -662,68 +731,66 @@ public class BarcodeObject extends BaseObject {
 				qrcode.setPreferredEccLevel(QrCode.EccLevel.L);
 				break;
 			}
-			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
-				qrcode.setPreferredVersion(3);
-			}
-			renderer.setReverse(mRevert);
-			if (isDynamicCode()) {
-				renderer.setInk(0xff0000ff);
-			}
 			qrcode.setContent(content);
-			bitmap = renderer.render(qrcode);
-			Debug.d(TAG, "GS1 QR-QR spent time: " + ((System.nanoTime() - startTime) / 1000000));
-			return Bitmap.createScaledBitmap(bitmap, w, h, true);
-		} catch (OkapiException e) {
-			try {
-				QrCode qrcode = new QrCode();
-				qrcode.setDataType(Symbol.DataType.GS1);
-//				setEccLevel(qrcode.getPreferredEccLevel());
-//				setVersion(qrcode.getPreferredVersion());
+//			Debug.d(TAG, "GS1 QR Height: " + qrcode.getHeight() + "; Bar Height: " + qrcode.getBarHeight());
+
+			if(qrcode.getHeight() <= h) {
+				Java2DRenderer renderer = new Java2DRenderer(h/qrcode.getHeight(), Color.WHITE, Color.BLACK);
 				renderer.setReverse(mRevert);
 				if (isDynamicCode()) {
 					renderer.setInk(0xff0000ff);
 				}
-				qrcode.setContent(content);
-				bitmap = renderer.render(qrcode);
-				return Bitmap.createScaledBitmap(bitmap, w, h, true);
-			} catch (Exception exception) {
-				Debug.e(TAG, e.getMessage());
-				bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
-				return bitmap;
+				Bitmap bitmap = renderer.render(qrcode);
+//				Debug.d(TAG, "GS1 QR width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
+
+				Canvas canvas = new Canvas(outBmp);
+				canvas.drawBitmap(bitmap, (w - bitmap.getWidth())/2, (h - bitmap.getHeight())/2, new Paint());
+				bitmap.recycle();
 			}
+		} catch (OkapiException e) {
+			Debug.e(TAG, e.getMessage());
+		} catch (Exception e) {
+			Debug.e(TAG, e.getMessage());
 		}
+
+		Debug.d(TAG, "GS1 QR spent time: " + ((System.nanoTime() - startTime) / 1000000));
+		return outBmp;
 	}
 
 	private Bitmap drawGS1Datamatrix(String content, int w, int h) {
 		long startTime = System.nanoTime();
-		Bitmap bitmap;
-		Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
+		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 
-		Debug.d(TAG, "GS1 DM: cnt=[" + content + "]; w=" + w + "; h=" + h);
+//		Debug.d(TAG, "GS1 DM: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
+
 		try {
 			DataMatrix dataMatrix = new DataMatrix();
 			dataMatrix.setDataType(Symbol.DataType.GS1);
 			dataMatrix.setSeparatorType(Symbol.SeparatorType.GS);
-			dataMatrix.setPreferredSize(8);
+//			dataMatrix.setPreferredSize(8);				// 不指定的话，会根据内容自动确定大小；如果指定的话，则内容超过范围会失败
 			dataMatrix.setForceMode(DataMatrix.ForceMode.SQUARE);
-
-			renderer.setReverse(mRevert);
-			if (isDynamicCode()) {
-				renderer.setInk(0xff0000ff);
-			}
-
 			dataMatrix.setContent(content);
-//			if (Configs.PIXEL_REDUCTION == 1)
-//				bitmap = renderer.render(dataMatrix, Configs.PIXEL_REDUCTION_SIZE);
-//			else
-			bitmap = renderer.render(dataMatrix);
-			Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
-			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+//			Debug.d(TAG, "GS1 DM Height: " + dataMatrix.getHeight() + "; Actual Height: " + dataMatrix.getActualHeight() + "; Bar Height: " + dataMatrix.getBarHeight());
+
+			if(dataMatrix.getHeight() <= h) {
+				Java2DRenderer renderer = new Java2DRenderer(h/dataMatrix.getHeight(), Color.WHITE, Color.BLACK);
+				renderer.setReverse(mRevert);
+				if (isDynamicCode()) {
+					renderer.setInk(0xff0000ff);
+				}
+				Bitmap bitmap = renderer.render(dataMatrix);
+//				Debug.d(TAG, "GS1 DM width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
+
+				Canvas canvas = new Canvas(outBmp);
+				canvas.drawBitmap(bitmap, (w - bitmap.getWidth())/2, (h - bitmap.getHeight())/2, new Paint());
+				bitmap.recycle();
+			}
 		} catch (Exception e) {
 			Debug.e(TAG, e.getMessage());
-			bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
-			return bitmap;
 		}
+
+		Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
+		return outBmp;
 	}
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
@@ -946,32 +1013,58 @@ public class BarcodeObject extends BaseObject {
 
 	private Bitmap draw(String content, int w, int h) {
 // H.M.Wang 2020-6-19 修改EAN-13和EAN-8的图片输出格式
-		if ("EAN13".equals(mFormat)) {
+//		if ("EAN13".equals(mFormat)) {
+		if (BARCODE_FORMAT_EAN13.equals(mFormat)) {
 			return drawEAN13(w, h);
 		}
 
-		if ("EAN8".equals(mFormat)) {
+//		if ("EAN8".equals(mFormat)) {
+		if (BARCODE_FORMAT_EAN8.equals(mFormat)) {
 			return drawEAN8(w, h);
 		}
 // End of H.M.Wang 2020-6-19 修改EAN-13和EAN-8的图片输出格式
 
 		BitMatrix matrix=null;
-		int margin = 0;
+		int margin = 4;
 //		if (h <= mTextSize) {
 //			h = mTextSize + 10;
 //		}
 		int textH = (h * mTextSize) / 100;
+		int width = w - 2 * margin;
+		int height = h - textH - 2 * margin;
+		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+
 		Paint paint = new Paint();
-		Debug.d(TAG, "--->draw w : " + w + "  h: " + h + "  textH = " + textH);
+		Debug.d(TAG, "--->draw TotalW : " + w + "; TotalH: " + h + "; textH = " + textH + "; barWidth: " + width + "; barHeight: " + height);
 		try {
-			MultiFormatWriter writer = new MultiFormatWriter();
-			Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();  
-            hints.put(EncodeHintType.CHARACTER_SET, CODE);
-            // hints.put(EncodeHintType.MARGIN, margin);
-            BarcodeFormat format = getBarcodeFormat(mFormat);
-            
-            Debug.d(TAG, "--->content: " + mContent + "   format:" + mFormat);
-            /* 条形码的宽度设置:每个数字占70pix列  */
+			Bitmap barBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+			if(BARCODE_FORMAT_GS1128.equalsIgnoreCase(mFormat)) {
+				Code128 code128 = new Code128();
+				code128.setDataType(Symbol.DataType.GS1);
+				code128.unsetCc();
+				code128.setContent(content);
+				code128.setFontSize(0);
+//				code128.setHumanReadableLocation(HumanReadableLocation.NONE);
+				code128.setHumanReadableLocation(HumanReadableLocation.BOTTOM);
+
+				Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
+				code128.setBarHeight(height);
+				barBmp = renderer.render(code128);
+				if(barBmp.getWidth() != width) {
+					barBmp = Bitmap.createScaledBitmap(barBmp, width, height, false);
+				}
+			} else {
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+				MultiFormatWriter writer = new MultiFormatWriter();
+				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+				hints.put(EncodeHintType.CHARACTER_SET, CODE);
+				// hints.put(EncodeHintType.MARGIN, margin);
+				BarcodeFormat format = getBarcodeFormat(mFormat);
+
+				Debug.d(TAG, "--->content: " + mContent + "   format:" + mFormat);
+				/* 条形码的宽度设置:每个数字占70pix列  */
 /*			if ("EAN13".equals(mFormat)) {
 				content = checkSum();
 			} else if ("EAN8".equals(mFormat)) {
@@ -981,61 +1074,56 @@ public class BarcodeObject extends BaseObject {
 			} else if ("UPC_A".equals(mFormat)) {
 				content = checkLen(11,12);
 			}
-*/			
-            content = check();
-            matrix = writer.encode(content, format, w, h - textH- 5, null);
+*/
+				content = check();
 
-			int tl[] = matrix.getTopLeftOnBit();
-			int width = matrix.getWidth();
-			int height = matrix.getHeight();
-			int br[] = matrix.getBottomRightOnBit();
-			Debug.d(TAG, "width="+ width +", height="+height + "， left=" + tl[0] + "， top=" + tl[1] + "， right=" + br[0] + "， bottom=" + br[1]);
-			// setWidth(width);
-			int[] pixels = new int[width * height];
-			for (int y = 0; y < height; y++) 
-			{
-				for (int x = 0; x < width; x++) 
+				matrix = writer.encode(content, format, width, height, null);
+
+				int tl[] = matrix.getTopLeftOnBit();
+				int br[] = matrix.getBottomRightOnBit();
+
+				int[] pixels = new int[width * height];
+				for (int y = 0; y < height; y++)
 				{
-					if (matrix.get(x, y)) 
+					for (int x = 0; x < width; x++)
 					{
-						pixels[y * width + x] = 0xff000000;
-					} else {
-						pixels[y * width + x] = 0xffffffff;
+						if (matrix.get(x, y))
+						{
+							pixels[y * width + x] = 0xff000000;
+						} else {
+							pixels[y * width + x] = 0xffffffff;
+						}
 					}
 				}
-			}
-			/* 条码/二维码的四个边缘空出20像素作为白边 */
-			Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+				/* 条码/二维码的四个边缘空出20像素作为白边 */
+				barBmp.setPixels(pixels, 0, width, 0, 0, width, height);
 
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
-			if ("ITF_14".equals(mFormat) && mWithFrame) {
+				if (BARCODE_FORMAT_ITF_14.equals(mFormat) && mWithFrame) {
+//			if ("ITF_14".equals(mFormat) && mWithFrame) {
 //			if ("ITF_14".equals(mFormat)) {
-				Canvas cvs = new Canvas(bitmap);
-				paint.setStrokeWidth(STROKE_WIDTH * 2);
-				cvs.drawLine(/* top */  0, STROKE_WIDTH, bitmap.getWidth(), STROKE_WIDTH, paint);
-				cvs.drawLine(/* left */ STROKE_WIDTH, 0, STROKE_WIDTH, bitmap.getHeight(), paint);
-				cvs.drawLine(/* right */bitmap.getWidth() - STROKE_WIDTH, 0, bitmap.getWidth() - STROKE_WIDTH, bitmap.getHeight(), paint);
-				cvs.drawLine(/* bottom*/0, bitmap.getHeight() - STROKE_WIDTH,bitmap.getWidth(), bitmap.getHeight() - STROKE_WIDTH, paint);
+					Canvas cvs = new Canvas(barBmp);
+					paint.setStrokeWidth(STROKE_WIDTH * 2);
+					cvs.drawLine(/* top */  0, STROKE_WIDTH, barBmp.getWidth(), STROKE_WIDTH, paint);
+					cvs.drawLine(/* left */ STROKE_WIDTH, 0, STROKE_WIDTH, barBmp.getHeight(), paint);
+					cvs.drawLine(/* right */barBmp.getWidth() - STROKE_WIDTH, 0, barBmp.getWidth() - STROKE_WIDTH, barBmp.getHeight(), paint);
+					cvs.drawLine(/* bottom*/0, barBmp.getHeight() - STROKE_WIDTH,barBmp.getWidth(), barBmp.getHeight() - STROKE_WIDTH, paint);
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+				}
 			}
-			if(mShow)
-			{
-				// 用於生成bin的bitmap
-				Bitmap bmp = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
-				Bitmap code = createCodeBitmapFromDraw(content, width-tl[0]*2, textH + 5);
-				Debug.d(TAG, "===>code width=" + code.getWidth());
+
+			if(mShow) {
+				Bitmap code = createCodeBitmapFromDraw(content, width, textH);
+
 				//BinCreater.saveBitmap(code, "barcode.png");
-				Canvas can = new Canvas(bmp);
-				can.drawBitmap(bitmap, 0, 0, paint);
-				can.drawBitmap(code, tl[0], height, paint);
-				BinFromBitmap.recyleBitmap(bitmap);
+				Canvas can = new Canvas(outBmp);
+				can.drawBitmap(barBmp, margin, margin, paint);
+				can.drawBitmap(code, margin, height+margin, paint);
+				BinFromBitmap.recyleBitmap(barBmp);
 				BinFromBitmap.recyleBitmap(code);
-				bitmap = bmp;
 			}
 
 			// H.M.Wang 2019-9-26 因为传入的元素已经是mWidth和mHeight，因此直接使用参数
-			return Bitmap.createScaledBitmap(bitmap, w, h, false);
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //			return bitmap;
 
@@ -1043,7 +1131,7 @@ public class BarcodeObject extends BaseObject {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
 // H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
-		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		return outBmp;
 //		return null;
 // End of H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
 	}
@@ -1202,12 +1290,13 @@ public class BarcodeObject extends BaseObject {
 		if (!is2D()) {
 			bitmap = draw(mContent, w, h);
 		} else {
-			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+//			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
 				bitmap = drawDataMatrix(mContent, w, h);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-			} else if (mFormat.equalsIgnoreCase("GS1QR")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
 				bitmap = drawOkapiQR(mContent, w, h);
-			} else if (mFormat.equalsIgnoreCase("GS1DM")) {
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
 				bitmap = drawGS1Datamatrix(mContent, w, h);
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
@@ -1323,12 +1412,11 @@ public class BarcodeObject extends BaseObject {
 		if (TextUtils.isEmpty(mFormat)) {
 			return false;
 		}
-		if (mFormat.equalsIgnoreCase("QR")
-				|| mFormat.equalsIgnoreCase("DATA_MATRIX")
-				|| mFormat.equalsIgnoreCase("DM")
+		if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_QR)
+				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
-				|| mFormat.equalsIgnoreCase("GS1QR")
-				|| mFormat.equalsIgnoreCase("GS1DM")
+				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)
+				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 				|| mFormat.equalsIgnoreCase("AZTEC")
 				|| mFormat.equalsIgnoreCase("PDF_417")) {
@@ -1339,37 +1427,37 @@ public class BarcodeObject extends BaseObject {
 	
 	private BarcodeFormat getBarcodeFormat(String format) {
 		int i;
-		if ("CODE_128".equals(format)) {
+		if (BARCODE_FORMAT_CODE128.equals(format)) {
 			return BarcodeFormat.CODE_128;
-		} else if ("CODE_39".equals(format)) {
+		} else if (BARCODE_FORMAT_CODE39.equals(format)) {
 			return BarcodeFormat.CODE_39;
-		} else if ("CODE_93".equals(format)) {
+		} else if (BARCODE_FORMAT_CODE93.equals(format)) {
 			return BarcodeFormat.CODE_93;
 		} else if ("CODABAR".equals(format)) {
 			return BarcodeFormat.CODABAR;
-		} else if ("EAN8".equals(format)) {
+		} else if (BARCODE_FORMAT_EAN8.equals(format)) {
 			return BarcodeFormat.EAN_8;
-		} else if ("EAN13".equals(format)) {
+		} else if (BARCODE_FORMAT_EAN13.equals(format)) {
 			return BarcodeFormat.EAN_13;
-		} else if ("UPC_E".equals(format)) {
+		} else if (BARCODE_FORMAT_UPC_E.equals(format)) {
 			return BarcodeFormat.UPC_E;
-		} else if ("UPC_A".equals(format)) {
+		} else if (BARCODE_FORMAT_UPC_A.equals(format)) {
 			return BarcodeFormat.UPC_A;
-		} else if ("ITF_14".equals(format)) {
+		} else if (BARCODE_FORMAT_ITF_14.equals(format)) {
 			return BarcodeFormat.ITF;
-		} else if ("RSS14".equals(format)) {
+		} else if (BARCODE_FORMAT_RSS14.equals(format)) {
 			return BarcodeFormat.RSS_14;
-		} else if ("RSS_EXPANDED".equals(format)) {
+		} else if (BARCODE_FORMAT_RSS_EXPANDED.equals(format)) {
 			return BarcodeFormat.RSS_EXPANDED;
-		} else if ("QR".equals(format)) {
+		} else if (BARCODE_FORMAT_QR.equals(format)) {
 			return BarcodeFormat.QR_CODE;
-		} else if ("DATA_MATRIX".equals(format)) {
+		} else if (BARCODE_FORMAT_DATA_MATRIX.equals(format)) {
 			return BarcodeFormat.DATA_MATRIX;
-		} else if ("AZTEC".equals(format)) {
+		} else if (BARCODE_FORMAT_RSS_AZTEC.equals(format)) {
 			return BarcodeFormat.AZTEC;
-		} else if ("PDF_417".equals(format)) {
+		} else if (BARCODE_FORMAT_RSS_PDF_417.equals(format)) {
 			return BarcodeFormat.PDF_417;
-		} else if ("DM".equalsIgnoreCase(format)) {
+		} else if (BARCODE_FORMAT_DM.equalsIgnoreCase(format)) {
 			return BarcodeFormat.DATA_MATRIX;
 		} else {
 			return BarcodeFormat.CODE_128;
@@ -1499,14 +1587,14 @@ public class BarcodeObject extends BaseObject {
 
 	private String check() {
 		String content = mContent;
-		if ("EAN13".equals(mFormat)) {
+		if (BARCODE_FORMAT_EAN13.equals(mFormat)) {
 			content = checkSum();
-		} else if ("EAN8".equals(mFormat)) {
+		} else if (BARCODE_FORMAT_EAN8.equals(mFormat)) {
 //			content = checkLen(8);
 			content = checkSum(7);
-		} else if ("ITF_14".equals(mFormat)) {
+		} else if (BARCODE_FORMAT_ITF_14.equals(mFormat)) {
 			content = checkLen(14);
-		} else if ("UPC_A".equals(mFormat)) {
+		} else if (BARCODE_FORMAT_UPC_A.equals(mFormat)) {
 			content = checkLen(11,12);
 		} else {
 			
@@ -1566,10 +1654,10 @@ public class BarcodeObject extends BaseObject {
 				.append("000^")												// Tag 8
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 //				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")		// Tag 9
-				.append("QR".equalsIgnoreCase(mFormat) ? "000" :
-						("DM".equalsIgnoreCase(mFormat) ? "001" :
-						("GS1QR".equalsIgnoreCase(mFormat) ? "002" :
-						("GS1DM".equalsIgnoreCase(mFormat) ? "003" : "000"))))		// Tag 9
+				.append(BARCODE_FORMAT_QR.equalsIgnoreCase(mFormat) ? "000" :
+						(BARCODE_FORMAT_DM.equalsIgnoreCase(mFormat) ? "001" :
+						(BARCODE_FORMAT_GS1QR.equalsIgnoreCase(mFormat) ? "002" :
+						(BARCODE_FORMAT_GS1DM.equalsIgnoreCase(mFormat) ? "003" : "000"))))		// Tag 9
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 				.append("^000^")											// Tag 10
 				.append(BaseObject.boolToFormatString(mReverse, 3))		// Tag 11

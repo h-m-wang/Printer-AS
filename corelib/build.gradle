@@ -16,6 +16,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+//    task makeJar(type: Copy) {
+//        delete 'build/libs/myjar.jar'
+//        from('build/intermediates/aar_main_jar/release/')
+//        into('build/libs/')
+//        include('classes.jar')
+//        rename('classes.jar', 'myjar.jar')
+//    }
+//    makeJar.dependsOn(build)
 }
 
 dependencies {

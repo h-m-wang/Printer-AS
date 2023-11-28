@@ -67,7 +67,7 @@ public final class Gs1 {
         }
 
         /* Make sure we start with an AI */
-        if (source[0] != '[') {
+        if (source[0] != '[' && source[0] != '(') {
             throw new OkapiException("Data does not start with an AI");
         }
 
@@ -81,14 +81,14 @@ public final class Gs1 {
         boolean ai_latch = false;
         for (int i = 0; i < source.length; i++) {
             ai_length += j;
-            if (((j == 1) && (source[i] != ']')) && ((source[i] < '0') || (source[i] > '9'))) {
+            if (((j == 1) && (source[i] != ']') && (source[i] != ')')) && ((source[i] < '0') || (source[i] > '9'))) {
                 ai_latch = true;
             }
-            if (source[i] == '[') {
+            if (source[i] == '[' || source[i] == '(') {
                 bracket_level++;
                 j = 1;
             }
-            if (source[i] == ']') {
+            if (source[i] == ']' || source[i] == ')') {
                 bracket_level--;
                 if (ai_length < min_ai_length) {
                     min_ai_length = ai_length;
@@ -132,10 +132,10 @@ public final class Gs1 {
 
         int ai_count = 0;
         for (int i = 1; i < source.length; i++) {
-            if (source[i - 1] == '[') {
+            if (source[i - 1] == '[' || source[i - 1] == '(') {
                 ai_location[ai_count] = i;
                 ai_value[ai_count] = 0;
-                for (j = 0; source[i + j] != ']'; j++) {
+                for (j = 0; source[i + j] != ']' && source[i + j] != ')'; j++) {
                     ai_value[ai_count] *= 10;
                     ai_value[ai_count] += Character.getNumericValue(source[i + j]);
                 }
@@ -153,7 +153,7 @@ public final class Gs1 {
             }
             data_length[i] = source.length - data_location[i];
             for (j = source.length - 1; j >= data_location[i]; j--) {
-                if (source[j] == '[') {
+                if (source[j] == '[' || source[j] == '(') {
                     data_length[i] = j - data_location[i];
                 }
             }
@@ -575,10 +575,10 @@ public final class Gs1 {
         int last_ai = 0;
         boolean fixedLengthAI = true;
         for (int i = 0; i < source.length; i++) {
-            if ((source[i] != '[') && (source[i] != ']')) {
+            if ((source[i] != '[') && (source[i] != ']') && (source[i] != '(') && (source[i] != ')')) {
                 reduced.append(source[i]);
             }
-            if (source[i] == '[') {
+            if (source[i] == '[' || source[i] == '(') {
                 /* Start of an AI string */
                 if (!fixedLengthAI) {
                     reduced.append(fnc1);

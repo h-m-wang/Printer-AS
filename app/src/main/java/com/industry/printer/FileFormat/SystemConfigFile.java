@@ -529,7 +529,7 @@ public class SystemConfigFile{
 	private static final String BC_PREFS = "BCPrefs";
 	private static final String TAG_BC = "BC";
 
-	private String mBarCodeBuffer = "123456";
+	private String mBarCodeBuffer = "[10]123456";
 	public String getBarcodeBuffer() {
 		return mBarCodeBuffer;
 	}
@@ -544,7 +544,7 @@ public class SystemConfigFile{
 	private void readBarcodePrefs() {
 		try {
 			SharedPreferences sp = mContext.getSharedPreferences(BC_PREFS, Context.MODE_PRIVATE);
-			mBarCodeBuffer = sp.getString(TAG_BC, "123456");
+			mBarCodeBuffer = sp.getString(TAG_BC, "[10]123456");
 			Debug.d(TAG, "Read: " + TAG_BC + " = [" + mBarCodeBuffer + "]");
 		} catch(Exception e) {
 			Debug.e(TAG, e.getMessage());

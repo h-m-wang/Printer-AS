@@ -84,6 +84,7 @@ import com.industry.printer.ui.CustomerDialog.ImportDialog.IListener;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
 import com.industry.printer.ui.Test.TestMain;
+import com.printer.corelib.JarTest;
 
 public class MainActivity extends Activity implements OnCheckedChangeListener, OnTouchListener, OnClickListener {
 
@@ -476,6 +477,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 /*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
 			transaction.add(R.id.tab_content, mCustomTab2);
 		}*/
+		JarTest.d(TAG, "JarTest");
 		Debug.d(TAG, "===>transaction");
 		// transaction.add(R.id.tv_counter_msg, mCtrlTitle);
 		// transaction.add(R.id.tv_counter_msg, mEditTitle);
@@ -774,6 +776,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 		return super.dispatchTouchEvent(event);
 	}
+
 	@Override
 	public boolean onTouch(View view, MotionEvent event) {
 //		Debug.d(TAG, "--->onTouch：" + event.getX() + ", " + event.getY());
