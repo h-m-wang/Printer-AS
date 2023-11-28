@@ -22,7 +22,10 @@ import android.widget.TextView;
  * Created by hmwan on 2019/12/19.
  */
 
-public class DataSourceSelectDialog extends Dialog implements android.view.View.OnClickListener, AdapterView.OnItemClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class DataSourceSelectDialog extends RelightableDialog implements android.view.View.OnClickListener, AdapterView.OnItemClickListener {
+//public class DataSourceSelectDialog extends Dialog implements android.view.View.OnClickListener, AdapterView.OnItemClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
     private Context                 mContext;
 

@@ -10,7 +10,10 @@ import android.widget.ImageButton;
 
 import com.industry.printer.R;
 
-public class ButtonExtendDialog extends Dialog implements View.OnClickListener{
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ButtonExtendDialog extends RelightableDialog implements View.OnClickListener{
+//public class ButtonExtendDialog extends Dialog implements View.OnClickListener{
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 
 	private Button mSave;

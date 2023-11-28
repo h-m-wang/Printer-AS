@@ -21,7 +21,10 @@ import com.industry.printer.Utils.Debug;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ScreenSaveDialog extends Dialog implements DialogInterface.OnDismissListener, View.OnClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ScreenSaveDialog extends RelightableDialog implements DialogInterface.OnDismissListener, View.OnClickListener {
+//public class ScreenSaveDialog extends Dialog implements DialogInterface.OnDismissListener, View.OnClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
     private static final int MESSAGE_TIMER = 101;
 

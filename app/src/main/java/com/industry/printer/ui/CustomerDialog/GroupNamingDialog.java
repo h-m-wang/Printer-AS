@@ -15,7 +15,10 @@ import com.industry.printer.Utils.ToastUtil;
  * Created by hmwan on 2021/4/28.
  */
 
-public class GroupNamingDialog  extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class GroupNamingDialog  extends RelightableDialog {
+//public class GroupNamingDialog  extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
     private static final String TAG = GroupNamingDialog.class.getSimpleName();
 
     private Context mContext;

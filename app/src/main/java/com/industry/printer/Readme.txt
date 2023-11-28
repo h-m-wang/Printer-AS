@@ -1,3 +1,13 @@
+2023-11-28 231128-31133
+==================
+解决静止1分钟之后屏幕变暗，在对话窗中点击画面也不变亮的问题。
+1. 增加一个RelightableDialog类，继承Dialog类，该类的主要功能是接收点击事件，并且点亮屏幕，同时1分钟无操作的情况下，再次变暗
+2. 修改所有Dialog类的派生类，改为继承RelightableDialog类。这样就可以使得所有这些类都可以被点击事件点亮
+
+放开新的版本升级机制的全功能。涉及：
+WelcomeActivity类的case LAUNCH_MAINACTIVITY
+和PackageInstaller.java的silentUpgrade3函数。checkUSBAuthentication3函数暂时使用原checkUSBAuthentication函数的机制（仅检测第79个文件的文件名）
+
 2023-11-27 231127-31132
 ==================
 优化生成GS1QR及GS1DM的流程，提高处理速度

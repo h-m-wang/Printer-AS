@@ -10,6 +10,7 @@ import com.industry.printer.R;
 import com.industry.printer.R.id;
 import com.industry.printer.R.layout;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import android.R.integer;
 import android.app.Dialog;
@@ -182,7 +183,10 @@ public class ListViewButtonAdapter extends BaseAdapter {
 	 * @author zhaotongkai
 	 * for further file operations
 	 */
-	private class FileDeleteDialog extends Dialog
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+	private class FileDeleteDialog extends RelightableDialog
+//	private class FileDeleteDialog extends Dialog
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 	{
 		/**
 		 * delete button

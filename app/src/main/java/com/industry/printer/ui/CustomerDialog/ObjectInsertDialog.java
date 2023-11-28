@@ -16,7 +16,10 @@ import android.widget.TextView;
 import com.industry.printer.R;
 import com.industry.printer.object.BaseObject;
 
-public class ObjectInsertDialog extends Dialog implements android.view.View.OnClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ObjectInsertDialog extends RelightableDialog implements android.view.View.OnClickListener {
+//public class ObjectInsertDialog extends Dialog implements android.view.View.OnClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 	public static final String OBJECT_TYPE = "ObjType";
 	public static final String OBJECT_FORMAT = "ObjFormat";

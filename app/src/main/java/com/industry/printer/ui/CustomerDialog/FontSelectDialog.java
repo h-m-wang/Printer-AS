@@ -33,7 +33,10 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
-public class FontSelectDialog extends Dialog implements android.view.View.OnClickListener, OnItemClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class FontSelectDialog extends RelightableDialog implements android.view.View.OnClickListener, OnItemClickListener {
+//public class FontSelectDialog extends Dialog implements android.view.View.OnClickListener, OnItemClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 	private static final String TAG = FontSelectDialog.class.getSimpleName(); 
 	private Context mContext;

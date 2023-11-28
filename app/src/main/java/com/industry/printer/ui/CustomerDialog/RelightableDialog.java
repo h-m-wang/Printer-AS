@@ -37,6 +37,12 @@ public class RelightableDialog extends Dialog {
         mScreensaveMode = true;
     }
 
+    public RelightableDialog(Context context, int theme) {
+        super(context, theme);
+        mContext = context;
+        mScreensaveMode = true;
+    }
+
     private void setScreenBrightness(boolean save) {
         Debug.d(TAG, "--->setScreenBrightness. mScreensaveMode=" + mScreensaveMode + " ;save=" + save);
         if (save == false) {

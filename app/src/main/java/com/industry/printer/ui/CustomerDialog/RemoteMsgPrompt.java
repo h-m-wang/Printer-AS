@@ -14,7 +14,10 @@ import com.industry.printer.R;
  * Created by hmwan on 2020/11/4.
  */
 
-public class RemoteMsgPrompt extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class RemoteMsgPrompt extends RelightableDialog {
+//public class RemoteMsgPrompt extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
     private Context mContext;
     private RelativeLayout mTotalView;

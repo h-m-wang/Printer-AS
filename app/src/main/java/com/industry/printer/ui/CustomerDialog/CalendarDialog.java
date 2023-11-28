@@ -25,7 +25,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
-public class CalendarDialog extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class CalendarDialog extends RelightableDialog {
+//public class CalendarDialog extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 	public static final String TAG="CalendarDialog";
 
 	private int mLayout;

@@ -28,7 +28,10 @@ import java.util.ArrayList;
  * Created by hmwan on 2020/5/16.
  */
 
-public class QRLastEditDialog extends Dialog implements android.view.View.OnClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class QRLastEditDialog extends RelightableDialog implements android.view.View.OnClickListener {
+//public class QRLastEditDialog extends Dialog implements android.view.View.OnClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
     private static final String TAG = CounterEditDialog.class.getSimpleName();
 
     private Context                 mContext;

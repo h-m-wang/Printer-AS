@@ -9,7 +9,10 @@ import android.view.Window;
 import android.view.WindowManager;
 
 @Deprecated
-public class DialogContainer extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class DialogContainer extends RelightableDialog {
+//public class DialogContainer extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 	public DialogContainer(Context context) {
 // H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲

@@ -5,7 +5,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
-public class CustomerDialogBase extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class CustomerDialogBase extends RelightableDialog {
+//public class CustomerDialogBase extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 	/**
 	 * 按键处理回调函数

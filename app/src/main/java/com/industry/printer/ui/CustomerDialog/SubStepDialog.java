@@ -19,7 +19,10 @@ import com.industry.printer.hardware.RTCDevice;
  * Created by hmwan on 2023/9/20.
  */
 
-public class SubStepDialog  extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class SubStepDialog  extends RelightableDialog {
+//public class SubStepDialog  extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
     private static final String TAG = SubStepDialog.class.getSimpleName();
 
     private Context mContext;

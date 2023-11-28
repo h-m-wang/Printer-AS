@@ -14,7 +14,10 @@ import com.industry.printer.ui.CustomerAdapter.ObjectListAdapter;
 
 import java.util.List;
 
-public class ObjectListDialog extends Dialog implements AdapterView.OnItemClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ObjectListDialog extends RelightableDialog implements AdapterView.OnItemClickListener {
+//public class ObjectListDialog extends Dialog implements AdapterView.OnItemClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 
     private ListView mListview;

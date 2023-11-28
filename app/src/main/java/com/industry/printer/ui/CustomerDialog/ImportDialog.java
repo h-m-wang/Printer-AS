@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ImportDialog extends Dialog implements android.view.View.OnClickListener{
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class ImportDialog extends RelightableDialog implements android.view.View.OnClickListener{
+//public class ImportDialog extends Dialog implements android.view.View.OnClickListener{
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 	public static final String TAG = ImportDialog.class.getSimpleName();
 	
 	private ImageButton mImport;

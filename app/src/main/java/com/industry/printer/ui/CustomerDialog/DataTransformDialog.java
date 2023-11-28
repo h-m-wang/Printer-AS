@@ -32,7 +32,10 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 @Deprecated
-public class DataTransformDialog extends Dialog {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class DataTransformDialog extends RelightableDialog {
+//public class DataTransformDialog extends Dialog {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 
 	public static final String TAG="DataTransformDialog";
 	

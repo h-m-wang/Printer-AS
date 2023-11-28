@@ -15,12 +15,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 /**
  * Created by hmwan on 2020/4/24.
  */
 
-public class PrintRepeatEditDialog extends Dialog implements android.view.View.OnClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+public class PrintRepeatEditDialog extends RelightableDialog implements android.view.View.OnClickListener {
+//public class PrintRepeatEditDialog extends Dialog implements android.view.View.OnClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
     private static final String TAG = CounterEditDialog.class.getSimpleName();
 
     private Context                 mContext;

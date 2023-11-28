@@ -165,7 +165,7 @@ public class PackageInstaller {
 	允许升级。升级前，如果目标apk是新版，则将新版apk版本号写入F2；如果目标apk是旧版，则将F1和F2删除，以避免残留F2影响后续升级apk的正常运行
  */
 private boolean checkUSBAuthentication3() {
-	return true;
+	return checkUSBAuthentication();
 }
 
 public static String ShowString = "";

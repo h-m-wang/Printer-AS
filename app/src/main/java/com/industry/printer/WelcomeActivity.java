@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.ui.CustomerDialog.CounterEditDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
+import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -68,16 +70,15 @@ public class WelcomeActivity extends Activity {
 			switch (msg.what) {
 				case LAUNCH_MAINACTIVITY:
 					Debug.d(TAG, "-------- LAUNCH_MAINACTIVITY --------");
-/*					String str = "";
 					try {
 						int curVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 						if(curVersion <= 100000000 || curVersion >= 1000000000) {                // 非9位数
-							str = "版本号：" + curVersion + "\n" + "旧版apk，不检查启动合法性，允许启动";
+							Debug.d(TAG, "版本号：" + curVersion + "\n" + "旧版apk，不检查启动合法性，允许启动");
 						} else {
 							File f1 = new File(Configs.FILE_1);
 							File f2 = new File(Configs.FILE_2);
 							if(!f1.exists() && !f2.exists()) {
-								str = "版本号：" + curVersion + "\n" + "F1和F2均不存在，疑似从旧版升级，允许启动";
+								Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1和F2均不存在，疑似从旧版升级，允许启动");
 								f1.createNewFile();
 								BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
 								bw.write(curVersion + "\n");
@@ -95,14 +96,15 @@ public class WelcomeActivity extends Activity {
 									int tmpInt = Integer.parseInt(tmp);
 									br.close();
 									if(curVersion == tmpInt) {
-										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号一致，判断为正常升级，允许启动";
+										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
 										if(!f1.exists()) f1.createNewFile();
 										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
 										bw.write(curVersion + "\n");
 										bw.flush();
 										bw.close();
 									} else {
-										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动";
+										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+										return;
 									}
 								}
 							} else if(f1.exists()) {
@@ -112,37 +114,38 @@ public class WelcomeActivity extends Activity {
 									int tmpInt = Integer.parseInt(tmp);
 									br.close();
 									if(curVersion == tmpInt) {
-										str = "版本号：" + curVersion + "\n" + "F1存在，记录版本号与apk版本号一致，判断为正常升级，允许启动";
+										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
 										if(!f2.exists()) f2.createNewFile();
 										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
 										bw.write(curVersion + "\n");
 										bw.flush();
 										bw.close();
 									} else {
-										str = "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动";
+										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+										return;
 									}
 								}
 							}
 						}
 					} catch(PackageManager.NameNotFoundException e) {
 						Debug.e(TAG, e.getMessage());
-						str = e.getMessage();
+//						str = e.getMessage();
 					} catch(FileNotFoundException e) {
 						Debug.e(TAG, e.getMessage());
-						str = e.getMessage();
+//						str = e.getMessage();
 					} catch(IOException e) {
 						Debug.e(TAG, e.getMessage());
-						str = e.getMessage();
+//						str = e.getMessage();
 					} catch(NumberFormatException e) {
 						Debug.e(TAG, e.getMessage());
-						str = e.getMessage();
+//						str = e.getMessage();
 					} catch(Exception e) {
 						Debug.e(TAG, e.getMessage());
-						str = e.getMessage();
+//						str = e.getMessage();
 					}
 
-					AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
-					builder.setMessage(str).create().show();*/
+//					AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
+//					builder.setMessage(str).create().show();
 
 					mLoading1s.setVisibility(View.GONE);
 					if(null != mStartupDialog) mStartupDialog.dismiss();
@@ -150,6 +153,7 @@ public class WelcomeActivity extends Activity {
 					intent.setClass(mContext, MainActivity.class);
 					startActivity(intent);
 					finish();
+
 					break;
 			}
 		}
@@ -225,13 +229,16 @@ public class WelcomeActivity extends Activity {
 		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			PackageInstaller installer = PackageInstaller.getInstance(this);
-			return installer.silentUpgrade();
+			return installer.silentUpgrade3();
 		}
 		return false;
 	}
 
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
-	private class StartupDialog extends Dialog implements android.view.View.OnClickListener {
+// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+	private class StartupDialog extends RelightableDialog implements android.view.View.OnClickListener {
+//	private class StartupDialog extends Dialog implements android.view.View.OnClickListener {
+// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 		private final String TAG = StartupDialog.class.getSimpleName();
 
 		private LoadingDialog mProgressDialog;

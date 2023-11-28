@@ -850,6 +850,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				mClickCount = 0;
 //				GpioTestPopWindow gtp = new GpioTestPopWindow(MainActivity.this);
 //				gtp.show(mSettings);
+				mHander.removeMessages(ENTER_LOWLIGHT_MODE);
 				TestMain tmp = new TestMain(MainActivity.this);
 				tmp.show(mSettings);
 			}
