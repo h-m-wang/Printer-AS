@@ -325,7 +325,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mHander.removeMessages(ENTER_LOWLIGHT_MODE);
 		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 0*1000);
 	}
-	
+
 	public void drawObjects()
 	{
 		
@@ -741,7 +741,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				break;
 			case QUIT_LOWLIGHT_MODE:
 				mHander.removeMessages(ENTER_LOWLIGHT_MODE);
-				mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
+				mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 3*60 * 1000);
 				break;
 			default:
 				break;
@@ -1392,7 +1392,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			Debug.d(TAG, "--->setScreenBrightness. save == false");
 			mHander.removeMessages(ENTER_LOWLIGHT_MODE);
 //			mHander.removeMessages(ENTER_SCREENSAVE_MODE);
-			mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
+			mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 3*60 * 1000);
 		} else {
 			Debug.d(TAG, "--->setScreenBrightness. save == true");
 			mHander.removeMessages(ENTER_LOWLIGHT_MODE);

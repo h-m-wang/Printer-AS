@@ -10,6 +10,7 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.WelcomeActivity;
 import com.industry.printer.hardware.RTCDevice;
 
 import android.R.string;
@@ -130,7 +131,13 @@ public class CalendarDialog extends RelightableDialog {
 			public void onClick(View v) {
 				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
-					if(installer.silentUpgrade2()) {
+					boolean ret;
+					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
+						ret = installer.silentUpgrade3();
+					} else {
+						ret = installer.silentUpgrade();
+					}
+					if(ret) {
 						dismiss();
 						LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
 					}
