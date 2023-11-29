@@ -64,89 +64,92 @@ public class WelcomeActivity extends Activity {
 
 	private static final int LAUNCH_MAINACTIVITY = 7;
 
+	private static final boolean AVOID_CROSS_UPGRADE = false;
+
 	public Handler mHander = new Handler() {
 
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 				case LAUNCH_MAINACTIVITY:
 					Debug.d(TAG, "-------- LAUNCH_MAINACTIVITY --------");
-					try {
-						int curVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-						if(curVersion <= 100000000 || curVersion >= 1000000000) {                // 非9位数
-							Debug.d(TAG, "版本号：" + curVersion + "\n" + "旧版apk，不检查启动合法性，允许启动");
-						} else {
-							File f1 = new File(Configs.FILE_1);
-							File f2 = new File(Configs.FILE_2);
-							if(!f1.exists() && !f2.exists()) {
-								Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1和F2均不存在，疑似从旧版升级，允许启动");
-								f1.createNewFile();
-								BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
-								bw.write(curVersion + "\n");
-								bw.flush();
-								bw.close();
-								f2.createNewFile();
-								BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
-								bw1.write(curVersion + "\n");
-								bw1.flush();
-								bw1.close();
-							} else if(f2.exists()) {
-								BufferedReader br = new BufferedReader(new FileReader(f2));
-								if(null != br) {
-									String tmp = br.readLine();
-									int tmpInt = Integer.parseInt(tmp);
-									br.close();
-									if(curVersion == tmpInt) {
-										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
-										if(!f1.exists()) f1.createNewFile();
-										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
-										bw.write(curVersion + "\n");
-										bw.flush();
-										bw.close();
-									} else {
-										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
-										return;
+					if(AVOID_CROSS_UPGRADE) {
+						try {
+							int curVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+							if (curVersion <= 100000000 || curVersion >= 1000000000) {                // 非9位数
+								Debug.d(TAG, "版本号：" + curVersion + "\n" + "旧版apk，不检查启动合法性，允许启动");
+							} else {
+								File f1 = new File(Configs.FILE_1);
+								File f2 = new File(Configs.FILE_2);
+								if (!f1.exists() && !f2.exists()) {
+									Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1和F2均不存在，疑似从旧版升级，允许启动");
+									f1.createNewFile();
+									BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
+									bw.write(curVersion + "\n");
+									bw.flush();
+									bw.close();
+									f2.createNewFile();
+									BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+									bw1.write(curVersion + "\n");
+									bw1.flush();
+									bw1.close();
+								} else if (f2.exists()) {
+									BufferedReader br = new BufferedReader(new FileReader(f2));
+									if (null != br) {
+										String tmp = br.readLine();
+										int tmpInt = Integer.parseInt(tmp);
+										br.close();
+										if (curVersion == tmpInt) {
+											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
+											if (!f1.exists()) f1.createNewFile();
+											BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f1)));
+											bw.write(curVersion + "\n");
+											bw.flush();
+											bw.close();
+										} else {
+											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2版本号：" + tmpInt + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+											return;
+										}
 									}
-								}
-							} else if(f1.exists()) {
-								BufferedReader br = new BufferedReader(new FileReader(f1));
-								if(null != br) {
-									String tmp = br.readLine();
-									int tmpInt = Integer.parseInt(tmp);
-									br.close();
-									if(curVersion == tmpInt) {
-										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
-										if(!f2.exists()) f2.createNewFile();
-										BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
-										bw.write(curVersion + "\n");
-										bw.flush();
-										bw.close();
-									} else {
-										Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
-										return;
+								} else if (f1.exists()) {
+									BufferedReader br = new BufferedReader(new FileReader(f1));
+									if (null != br) {
+										String tmp = br.readLine();
+										int tmpInt = Integer.parseInt(tmp);
+										br.close();
+										if (curVersion == tmpInt) {
+											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1存在，记录版本号与apk版本号一致，判断为正常升级，允许启动");
+											if (!f2.exists()) f2.createNewFile();
+											BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+											bw.write(curVersion + "\n");
+											bw.flush();
+											bw.close();
+										} else {
+											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1版本号：" + tmpInt + "\n" + "F1存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+											return;
+										}
 									}
 								}
 							}
+						} catch (PackageManager.NameNotFoundException e) {
+							Debug.e(TAG, e.getMessage());
+//						str = e.getMessage();
+						} catch (FileNotFoundException e) {
+							Debug.e(TAG, e.getMessage());
+//						str = e.getMessage();
+						} catch (IOException e) {
+							Debug.e(TAG, e.getMessage());
+//						str = e.getMessage();
+						} catch (NumberFormatException e) {
+							Debug.e(TAG, e.getMessage());
+//						str = e.getMessage();
+						} catch (Exception e) {
+							Debug.e(TAG, e.getMessage());
+//						str = e.getMessage();
 						}
-					} catch(PackageManager.NameNotFoundException e) {
-						Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
-					} catch(FileNotFoundException e) {
-						Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
-					} catch(IOException e) {
-						Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
-					} catch(NumberFormatException e) {
-						Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
-					} catch(Exception e) {
-						Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
-					}
 
 //					AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
 //					builder.setMessage(str).create().show();
-
+					}
 					mLoading1s.setVisibility(View.GONE);
 					if(null != mStartupDialog) mStartupDialog.dismiss();
 					Intent intent = new Intent();
@@ -229,7 +232,11 @@ public class WelcomeActivity extends Activity {
 		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			PackageInstaller installer = PackageInstaller.getInstance(this);
-			return installer.silentUpgrade3();
+			if(AVOID_CROSS_UPGRADE) {
+				return installer.silentUpgrade3();
+			} else {
+				return installer.silentUpgrade();
+			}
 		}
 		return false;
 	}
