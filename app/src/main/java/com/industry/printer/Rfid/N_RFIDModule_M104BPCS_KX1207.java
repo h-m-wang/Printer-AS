@@ -406,9 +406,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         mInitialized = checkKeyMark();
         if(!mInitialized) return false;
 
-//	mMaxInkLevel = readMaxInkLevel();
-//        readInkLevel();
-
         return mInitialized;
     }
 
