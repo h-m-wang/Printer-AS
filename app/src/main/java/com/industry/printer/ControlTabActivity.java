@@ -752,14 +752,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mTime = (TextView) getView().findViewById(R.id.time);
 
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
-		mSubStepTV = (TextView) getView().findViewById(R.id.sub_step_tv);
-		mSubStepTV.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				SubStepDialog ssDialog = new SubStepDialog(mContext);
-				ssDialog.show();
-			}
-		});
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_NONE && Configs.UI_TYPE == Configs.UI_STANDARD) {
+			mSubStepTV = (TextView) getView().findViewById(R.id.sub_step_tv);
+			mSubStepTV.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					SubStepDialog ssDialog = new SubStepDialog(mContext);
+					ssDialog.show();
+				}
+			});
+		}
 // End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 
 		refreshPower();
@@ -1438,11 +1440,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		refreshVoltage();
 		refreshPulse();
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
-		if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1) {
-			mSubStepTV.setVisibility(View.VISIBLE);
-			mSubStepTV.setText("" + RTCDevice.getInstance(mContext).readSubStep());
-		} else {
-			mSubStepTV.setVisibility(View.GONE);
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_NONE && Configs.UI_TYPE == Configs.UI_STANDARD) {
+			if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1) {
+				mSubStepTV.setVisibility(View.VISIBLE);
+				mSubStepTV.setText("" + RTCDevice.getInstance(mContext).readSubStep());
+			} else {
+				mSubStepTV.setVisibility(View.GONE);
+			}
 		}
 // End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 	}

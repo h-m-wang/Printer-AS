@@ -51,6 +51,7 @@ import java.util.ArrayList;
  * Created by hmwan on 2021/5/14.
  */
 
+@Deprecated
 public class CustomTabActivity extends Fragment {
     private static final String TAG = CustomTabActivity.class.getSimpleName();
 

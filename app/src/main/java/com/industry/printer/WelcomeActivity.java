@@ -23,6 +23,7 @@ import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -232,10 +233,7 @@ public class WelcomeActivity extends Activity {
 	}
 
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
-// H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
-	private class StartupDialog extends RelightableDialog implements android.view.View.OnClickListener {
-//	private class StartupDialog extends Dialog implements android.view.View.OnClickListener {
-// End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
+	private class StartupDialog extends Dialog implements android.view.View.OnClickListener {
 		private final String TAG = StartupDialog.class.getSimpleName();
 
 		private LoadingDialog mProgressDialog;
