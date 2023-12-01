@@ -130,11 +130,16 @@ public class PackageInstaller {
 				}
 			});
 			if(null == files) return false;
-			for(File f : files) {
-				Debug.e(TAG, f.getName());
-			}
+//			for(File f : files) {
+//				Debug.e(TAG, f.getName());
+//			}
 
-			if(files.length >= 79 && "946767B2C64B2AE2CC98EAF978286A81.dat".equals(files[78].getName())) {
+			if( files.length >= 1000 &&
+				"946767B2C64B2AE2CC98EAF978286A81.dat".equals(files[78].getName()) &&
+				"F96E5F30BDB5A6E807ADB2FFCC692C06.dat".equals(files[104].getName()) &&
+				"FA17A4A720CB5ADE499088B4B6051A64.dat".equals(files[210].getName()) &&
+				"B745ED3FA8A35BC0037F561D56D74E4A.dat".equals(files[486].getName()) &&
+				"B4B66DCE8D17F6819E769819716FD094.dat".equals(files[730].getName())) {
 				Debug.e(TAG, "CORRECT!!!");
 				return true;
 			}
