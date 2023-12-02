@@ -208,12 +208,7 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
         for(Entry<Byte, Boolean> entry : mKeyVerified.entrySet()) {
             entry.setValue(false);
         }
-        mInitialized = searchCard();
-        if(!mInitialized) return false;
-        mInitialized = avoidConflict();
-        if(!mInitialized) return false;
-        mInitialized = selectCard();
-        return mInitialized;
+        return (searchCard() ? (avoidConflict() ? selectCard() : false) : false);
     }
 
     private boolean verifyKey(byte sector, byte type, byte[] key) {
@@ -240,21 +235,12 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
             }
         }
 
-        // 验证密钥失败，标注该卡需要重新初始化
-        mInitialized = false;
-
         Debug.e(TAG, "  ==> 密钥验证失败");
 
         return false;
     }
 
     private boolean verifySector(byte sector, byte type) {
-        // 如果未进行初始化，或者访问中途失败后，需要重新初始化
-        if(!mInitialized) {
-            Debug.d(TAG, "  ==> 需要(重新)初始化");
-            if(!initCard()) return false;	// 初始化失败返回失败
-        }
-
         // 如果该扇区不需要再进行密钥验证，则直接返回成功
         if(mKeyVerified.get(sector)) {
             Debug.d(TAG, "  ==> 无需验证扇区" + sector + "的验证密钥");
@@ -312,8 +298,6 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
             }
         }
 
-        mInitialized = false;
-
         Debug.e(TAG, "  ==> 写入块失败");
 
         return false;
@@ -341,8 +325,6 @@ public class N_RFIDModule_M104BPCS extends N_RFIDModule {
                 Debug.e(TAG, mErrorMessage);
             }
         }
-
-        mInitialized = false;
 
         Debug.e(TAG, "  ==> 读块失败");
 

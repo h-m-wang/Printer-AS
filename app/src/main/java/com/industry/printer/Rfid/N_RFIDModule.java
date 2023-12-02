@@ -36,7 +36,6 @@ public abstract class N_RFIDModule {
     public static final byte[] 				DATA_WORK_TYPEA = {0x41};
 
     protected N_RFIDSerialPort mRFIDSerialPort = null;
-    protected boolean mInitialized = false;
     protected byte[] mUID;
     protected byte mCardType;
     protected String mErrorMessage = null;
@@ -61,7 +60,6 @@ public abstract class N_RFIDModule {
 
     public N_RFIDModule() {
         mRFIDSerialPort = N_RFIDSerialPort.getInstance();
-        mInitialized = false;
         mUID = null;
         mCardType = CARD_TYPE_UNKNOWN;
         mErrorMessage = null;
@@ -141,8 +139,7 @@ public abstract class N_RFIDModule {
     }
 
     public byte[] getUID() {
-        if(mInitialized) return mUID;
-        else return null;
+        return mUID;
     }
 
     public String getErrorMessage() {

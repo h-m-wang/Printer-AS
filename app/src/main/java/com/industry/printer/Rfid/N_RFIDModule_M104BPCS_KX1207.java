@@ -79,7 +79,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     private static final byte				KEY_CREATED_MARK = (byte)0x80;
 
     private boolean mKeyExist = false;			// 密钥是否已经写入到了卡中，如果写入了则无需再写，如果没有写入，则禁止任何写入和密钥验证操作，否则卡就废了
-    private boolean mKeyVerified = false;		// 密钥是否已经验证过，每次初始化卡以后，只需要验证一次即可
 
     private int mBlockCnt = 0;
     private int mPageCnt = 0;
@@ -141,7 +140,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
     private void initData() {
         mKeyExist = false;
-        mKeyVerified = false;
 
         mBlockCnt = 0;
         mPageCnt = 0;
@@ -159,12 +157,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         initData();
     }
 
-    /*	public N_RFIDModule_M104BPCS_KX1207(String portName) {
-            super(portName);
-
-            initData();
-        }
-    */
     @Override
     public boolean searchCard() {
         Debug.d(TAG, "  ==> 开始寻卡");
@@ -222,10 +214,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             return false;
         }
 
-// H.M.Wang 2023-12-2 1207卡在写卡时总是失败，在执行写之前加进去验证卡就不失败了
-        if(!verifyKey()) return false;
-// End of H.M.Wang 2023-12-2 1207卡在写卡时总是失败，在执行写之前加进去验证卡就不失败了
-
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
         byte[] writeData = new byte[data.length+1];
@@ -239,12 +227,11 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                 Debug.d(TAG, "  ==> 写入页成功");
                 return true;
             } else {
-                mErrorMessage = "设备返回失败：" +  String.format("0x%02X", rfidData.getResult());
+                mErrorMessage = "设备返回失败：" +  String.format("0x%02X", rfidData.getResult())  + ". 尝试重新初始化模块和验证密钥";
                 Debug.e(TAG, mErrorMessage);
+                if(initCard() && verifyKey()) return writePage(page, data);
             }
         }
-
-        mInitialized = false;
 
         Debug.e(TAG, "  ==> 写入页失败");
 
@@ -273,12 +260,11 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                     Debug.e(TAG, mErrorMessage);
                 }
             } else {
-                mErrorMessage = "设备返回失败：" +  String.format("0x%02X", rfidData.getResult());
+                mErrorMessage = "设备返回失败：" +  String.format("0x%02X", rfidData.getResult()) + ". 尝试重新初始化模块";
                 Debug.e(TAG, mErrorMessage);
+                if(initCard()) return readPage(page);
             }
         }
-
-        mInitialized = false;
 
         Debug.e(TAG, "  ==> 读页失败");
 
@@ -305,25 +291,11 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     }
 
     public boolean verifyKey() {
-        // 如果未进行初始化，或者访问中途失败后，需要重新初始化
-        if(!mInitialized) {
-            Debug.d(TAG, "  ==> 需要(重新)初始化");
-            if(!initCard()) return false;	// 初始化失败返回失败
-        }
-
         if(!mKeyExist) {
             mErrorMessage = "本卡片还没有写入密钥，不能验证";
             Debug.e(TAG, mErrorMessage);
             return false;
         }
-
-// H.M.Wang 2023-12-2 由于每次写卡都需要再次验证（似乎是最近才发生变化的，可能卡的固件有变化），因此不能因为初始化时验证过就不再验证了
-        // 如果该块不需要再进行密钥验证，则直接返回成功
-//        if(mKeyVerified) {
-  //          Debug.d(TAG, "  ==> 本卡片已经验证过了，无需再次验证密钥");
-    //        return true;
-      //  }
-// End of H.M.Wang 2023-12-2 由于每次写卡都需要再次验证（似乎是最近才发生变化的，可能卡的固件有变化），因此不能因为初始化时验证过就不再验证了
 
         byte[] key = calKey();
         if(null == key) {
@@ -334,9 +306,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         Debug.d(TAG, "  ==> 开始验证密钥[" + ByteArrayUtils.toHexString(key) + "]");
 
-        // 验证密钥
-        mKeyVerified = false;
-
         byte[] sendData = new byte[1+key.length];
         sendData[0] = DATA_KEY_PAGE;
         System.arraycopy(key, 0, sendData, 1, key.length);
@@ -345,8 +314,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         if(null != rfidData) {
             if(rfidData.getResult() == RESULT_OK) {
-                // 验证密钥成功，标注该块不再需要验证
-                mKeyVerified = true;
                 Debug.d(TAG, "  ==> 密钥验证成功");
                 return true;
             } else {
@@ -354,9 +321,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
                 Debug.e(TAG, mErrorMessage);
             }
         }
-
-        // 验证密钥失败，标注该卡需要重新初始化
-        mInitialized = false;
 
         Debug.e(TAG, "  ==> 密钥验证失败");
 
@@ -405,14 +369,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
     @Override
     public boolean initCard() {
-        initData();
-
-        mInitialized = searchCard();
-        if(!mInitialized) return false;
-        mInitialized = checkKeyMark();
-        if(!mInitialized) return false;
-
-        return mInitialized;
+        return (searchCard() ? checkKeyMark() : false);
     }
 
     @Override
@@ -473,12 +430,9 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         Debug.d(TAG, "  ==> 开始写入墨水值");
 
         if(mMaxInkLevel <= 0) {
-            mMaxInkLevel = readMaxInkLevel();
-            if(mMaxInkLevel <= 0) {
-                mErrorMessage = "无有效的总墨水值";
-                Debug.e(TAG, mErrorMessage);
-                return false;
-            }
+            mErrorMessage = "无有效的总墨水值";
+            Debug.e(TAG, mErrorMessage);
+            return false;
         }
 
         inkLevel = Math.round(((mMaxInkLevel - inkLevel) / mStep));
@@ -610,12 +564,9 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         Debug.d(TAG, "  ==> 开始读取墨水值");
 
         if(mMaxInkLevel <= 0) {
-            mMaxInkLevel = readMaxInkLevel();
-            if(mMaxInkLevel <= 0) {
-                mErrorMessage = "无有效的总墨水值";
-                Debug.e(TAG, mErrorMessage);
-                return 0;
-            }
+            mErrorMessage = "无有效的总墨水值";
+            Debug.e(TAG, mErrorMessage);
+            return 0;
         }
 
         byte blockCnt = readBlockCnt();

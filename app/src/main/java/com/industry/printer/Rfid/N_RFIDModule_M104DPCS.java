@@ -108,8 +108,7 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
 
     @Override
     public boolean initCard() {
-        mInitialized = searchCard();
-        return mInitialized;
+        return searchCard();
     }
 
     private byte writeBlockWithKey(byte type, byte block, byte[] key, byte[]data) {
@@ -137,11 +136,6 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
     }
 
     private boolean writeBlock(byte type, byte block, byte[]data) {
-        if(!mInitialized) {
-            Debug.d(TAG, "  ==> 需要(重新)初始化");
-            if(!initCard()) return false;	// 初始化失败返回失败
-        }
-
         if(block < 0x00 || block > 0x3F) {
             mErrorMessage = "错误的页号";
             Debug.e(TAG, mErrorMessage);
@@ -187,8 +181,6 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
            	}
         }
 
-        mInitialized = false;
-
         Debug.e(TAG, "  ==> 写入块失败");
 
         return false;
@@ -206,11 +198,6 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
     }
 
     private byte[] readBlock(byte type, byte block) {
-        if(!mInitialized) {
-            Debug.d(TAG, "  ==> 需要(重新)初始化");
-            if(!initCard()) return null;	// 初始化失败返回失败
-        }
-
         if(block < 0x00 || block > 0x3F) {
             mErrorMessage = "错误的页号";
             Debug.e(TAG, mErrorMessage);
@@ -257,8 +244,6 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
                 break;
            	}
         }
-
-        mInitialized = false;
 
         Debug.e(TAG, "  ==> 读块失败");
 
