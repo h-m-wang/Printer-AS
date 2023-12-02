@@ -23,6 +23,7 @@ public abstract class N_RFIDModule {
     // 		 NN: 00 成功；非零：失败
     //       LL:数据长度；CC：校验码
     public static final byte 				CMD_SET_BAUDRATE 	= 0x15;
+    public static final byte[] 				DATA_BITRATE_9600	= {0x01};
     public static final byte[] 				DATA_BITRATE_19200	= {0x03};
     public static final byte[] 				DATA_BITRATE_115200	= {0x07};
 
@@ -72,6 +73,7 @@ public abstract class N_RFIDModule {
             mErrorMessage = "COM异常：" + mRFIDSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
         }
+//        setBaudrate(9600);
         return success;
     }
 
@@ -109,7 +111,9 @@ public abstract class N_RFIDModule {
     public boolean setBaudrate(int baudrate) {
         byte[] writeBytes;
 
-        if(baudrate == 19200) {
+        if(baudrate == 9600) {
+            writeBytes = DATA_BITRATE_9600;
+        } else if(baudrate == 19200) {
             writeBytes = DATA_BITRATE_19200;
         } else if(baudrate == 115200) {
             writeBytes = DATA_BITRATE_115200;

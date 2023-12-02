@@ -222,6 +222,10 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             return false;
         }
 
+// H.M.Wang 2023-12-2 1207卡在写卡时总是失败，在执行写之前加进去验证卡就不失败了
+        if(!verifyKey()) return false;
+// End of H.M.Wang 2023-12-2 1207卡在写卡时总是失败，在执行写之前加进去验证卡就不失败了
+
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
         byte[] writeData = new byte[data.length+1];
@@ -313,11 +317,13 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             return false;
         }
 
+// H.M.Wang 2023-12-2 由于每次写卡都需要再次验证（似乎是最近才发生变化的，可能卡的固件有变化），因此不能因为初始化时验证过就不再验证了
         // 如果该块不需要再进行密钥验证，则直接返回成功
-        if(mKeyVerified) {
-            Debug.d(TAG, "  ==> 本卡片已经验证过了，无需再次验证密钥");
-            return true;
-        }
+//        if(mKeyVerified) {
+  //          Debug.d(TAG, "  ==> 本卡片已经验证过了，无需再次验证密钥");
+    //        return true;
+      //  }
+// End of H.M.Wang 2023-12-2 由于每次写卡都需要再次验证（似乎是最近才发生变化的，可能卡的固件有变化），因此不能因为初始化时验证过就不再验证了
 
         byte[] key = calKey();
         if(null == key) {
@@ -487,29 +493,6 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         if(blockCnt != mBlockCnt) {
             writeBlockCnt(blockCnt);
-/*
-            byte[] readBytes = readPage(PAGE_QUICK_JUMP);
-            if(null != readBytes) {			// 如果有设备，肯定会在超时(3秒)之前返回数值，否则，超时返回空
-                short blockBitmap = 0x00;
-//                byte tmpBlockCnt = blockCnt;
-                for(byte tmpBlockCnt = blockCnt; tmpBlockCnt > 0; tmpBlockCnt--) {
-                    blockBitmap <<= 1;
-                    blockBitmap |= 0x01;
-                }
-
-                byte[] sendData = new byte[BYTES_PER_PAGE];
-                sendData[0] = (byte)(blockBitmap & 0x0FF);
-                sendData[1] = (byte)((blockBitmap >> 8) & 0x0FF);
-                sendData[2] = readBytes[2];
-                sendData[3] = readBytes[3];
-
-                if(!writePage(PAGE_QUICK_JUMP, sendData)) {
-                    Debug.e(TAG, "  ==> 写入块索引失败");
-                    return false;
-                }
-                Debug.d(TAG, "  ==> 写入块索引成功");
-            }
-*/
         } else {
             Debug.d(TAG, "  ==> 块索引没有变化，不需写入块索引");
         }

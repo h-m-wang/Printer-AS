@@ -156,7 +156,7 @@ public class N_RFIDDevice {
             Debug.d(TAG, "Write ink[" + mIndex + "](" + mCurInkLevel +")");
             if(!mRFIDModule.writeInkLevel(mCurInkLevel)) {
                 mWriteRetryCount++;
-                if(mWriteRetryCount > 10) mValid = false;
+                if(mWriteRetryCount >= 10) mValid = false;
             } else {
                 mWriteRetryCount = 0;
                 mInkLevelModified = false;

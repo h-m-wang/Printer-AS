@@ -82,10 +82,10 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                         boolean init_success = true;
 
                         for(int i=0; i<mRfidDevices.size(); i++) {
-                            Debug.d(TAG, "Init RFID[" + i + "]");
                             N_RFIDDevice device = mRfidDevices.get(i);
                             if(!device.isValid()) {
                                 synchronized (ExtGpio.RFID_ACCESS_LOCK) {
+                                    Debug.d(TAG, "Init RFID[" + i + "]");
                                     switchRfid(i);
                                     init_success = (device.init() && init_success);
                                 }
@@ -109,10 +109,10 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                                                     }
                                                 }
 //                            Debug.d(TAG, "RFID[" + i + "] absent? " + device.checkCardAbsence());
-                                            } else {
-                                                Debug.d(TAG, "Initializing RFID[" + i + "]");
-                                                if(device.isValid()) continue;
-                                                device.init();
+//                                            } else {
+//                                                Debug.d(TAG, "Initializing RFID[" + i + "]");
+//                                                if(device.isValid()) continue;
+//                                                device.init();
                                             }
                                         }
                                     }
@@ -122,7 +122,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                             break;
                         }
 
-                        try { Thread.sleep(50); } catch(InterruptedException e){};
+                        try { Thread.sleep(100); } catch(InterruptedException e){};
                     }
                 }
             }
