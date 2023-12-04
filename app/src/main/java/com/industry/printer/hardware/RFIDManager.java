@@ -546,4 +546,11 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		mCallback.sendEmptyMessageDelayed(MSG_RFID_WRITE_FAIL, 100);
 	}
 // End of H.M.Wang 2022-1-13 追加写3次失败后通知上层的功能
+
+// H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+	@Override
+	public float getMaxRatio(int dev) {
+		return 1.0f;
+	}
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
 }

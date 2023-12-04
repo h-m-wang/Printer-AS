@@ -70,4 +70,9 @@ public interface IInkDevice {
      * 忽略设备时的默认锁值
      */
     void defaultInkForIgnoreRfid();
+
+// H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法。1207卡使用库函数计算的值（Max/1000)。其它的类型直接返回1
+    float getMaxRatio(int dev);
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法。1207卡使用库函数计算的值（Max/1000)。其它的类型直接返回1
+
 }

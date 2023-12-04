@@ -260,7 +260,6 @@ UserGroup 使用方法说明
 	public static final String SYSTEM_CONFIG_FILE = SYSTEM_CONFIG_DIR + "/system_config.txt";
 	public static final String SYSTEM_CONFIG_XML = SYSTEM_CONFIG_DIR + "/system_config.xml";
 	public static final String LAST_MESSAGE_XML = SYSTEM_CONFIG_DIR + "/last_message.xml";
-	public static final String LAST_FEATURE_XML = SYSTEM_CONFIG_DIR + "/feature.xml";
 	public static final String FONT_METRIC_PATH = SYSTEM_CONFIG_DIR + "/ZK";
 	
 	/**

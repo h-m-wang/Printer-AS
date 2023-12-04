@@ -56,6 +56,8 @@ public abstract class N_RFIDModule {
     abstract public boolean writeCopyInkLevel(int ink);
     abstract public int readCopyInkLevel();
 
+    abstract public float getMaxRatio();
+
     abstract public byte[] readUID();
 
     public N_RFIDModule() {

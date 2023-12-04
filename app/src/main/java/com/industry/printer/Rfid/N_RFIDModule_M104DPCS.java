@@ -467,4 +467,9 @@ public class N_RFIDModule_M104DPCS extends N_RFIDModule {
 
         return null;
     }
+
+    @Override
+    public float getMaxRatio() {
+        return 1.0f;
+    }
 }

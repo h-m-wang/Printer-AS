@@ -130,6 +130,12 @@ public class N_RFIDDevice {
         return mInkMax;
     }
 
+// H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+    public float getMaxRatio() {
+        return mRFIDModule.getMaxRatio();
+    }
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+
     public void down() {
         if (mCurInkLevel > 0) {
             mCurInkLevel = mCurInkLevel -1;

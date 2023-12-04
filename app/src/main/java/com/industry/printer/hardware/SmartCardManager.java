@@ -1091,6 +1091,11 @@ public class SmartCardManager implements IInkDevice {
         // No need to implement. In RFID, this function set ink level of every devices to 185.
     }
 
+    @Override
+    public float getMaxRatio(int dev) {
+        return 1.0f;
+    }
+
     public int getInkCount() {
         return mCards.length;
     }

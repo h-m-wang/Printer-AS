@@ -271,6 +271,18 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
         Debug.e(TAG, "Function defaultInkForIgnoreRfid() has been deprecapted");
     }
 
+// H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+    @Override
+    public float getMaxRatio(int dev) {
+        if (dev >= mRfidDevices.size()) {
+            return 1.0f;
+        }
+        N_RFIDDevice device = mRfidDevices.get(dev);
+
+        return device.getMaxRatio();
+    }
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+
     /**
      * 获取设备Feature信息
      * @param device

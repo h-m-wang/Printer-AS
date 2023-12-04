@@ -478,11 +478,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mContext = this.getActivity();
 		mSysconfig = SystemConfigFile.getInstance(mContext);
 		mDTransThread = DataTransferThread.getInstance(mContext);
-// H.M.Wang 2022-5-24 如果apk自带Feature与内部保存的不一致，可能是用户自己推送的apk，则禁止打印
-        if(!mSysconfig.getFeatureCode().equals(mSysconfig.getPackageFeatureCode())) {
-            ToastUtil.show(mContext, R.string.str_no_permission);
-        }
-// End of H.M.Wang 2022-5-24 如果apk自带Feature与内部保存的不一致，可能是用户自己推送的apk，则禁止打印
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_REOPEN_SERIAL);
 		filter.addAction(ACTION_CLOSE_SERIAL);
@@ -2099,13 +2094,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				case RFIDManager.MSG_RFID_CHECK_SUCCESS:
 				case MESSAGE_PRINT_START:
 					Debug.d(TAG, "--->Print check success = " + msg.what);
-// H.M.Wang 2022-5-24 如果apk自带Feature与内部保存的不一致，可能是用户自己推送的apk，则禁止打印
-					if(!mSysconfig.getFeatureCode().equals(mSysconfig.getPackageFeatureCode())) {
-						ToastUtil.show(mContext, R.string.str_no_permission);
-						break;
-					}
-// End of H.M.Wang 2022-5-24 如果apk自带Feature与内部保存的不一致，可能是用户自己推送的apk，则禁止打印
-
 					if (mDTransThread != null && mDTransThread.isRunning()) {
 						// H.M.Wang注释掉一行
 //						handleError(R.string.str_print_printing, pcMsg);

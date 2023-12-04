@@ -96,8 +96,12 @@ public class DataTransferThread {
 	
 	public boolean mNeedUpdate=false;
 	private boolean isBufferReady = false;
-	
-	private int mcountdown[];
+
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//	private int mcountdown[];
+	private float mcountdown[];
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+
 	/**打印数据buffer**/
 	public List<DataTask> mDataTask;
 	/* task index currently printing */
@@ -1778,7 +1782,10 @@ private void setSerialProtocol9DTs(final String data) {
 	
 	public void initCount() {
 		if (mcountdown == null) {
-			mcountdown = new int[8];
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//			mcountdown = new int[8];
+			mcountdown = new float[8];
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 // H.M.Wang 2019-10-10 取消内部初始化0的操作，这样不全面
 //		} else {
 //			for (int i = 0; i < mcountdown.length; i++) {
@@ -1802,7 +1809,10 @@ private void setSerialProtocol9DTs(final String data) {
 // 2023-1-18 追加这个函数，目的是在第一次生成打印缓冲区后，重新计算阈值和计数器
 	private void recalCount() {
 		if (mcountdown == null) {
-			mcountdown = new int[8];
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//			mcountdown = new int[8];
+			mcountdown = new float[8];
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 		}
 
 		for (int i = 0; i < mcountdown.length; i++) {
@@ -1822,15 +1832,22 @@ private void setSerialProtocol9DTs(final String data) {
 // End of H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
 		for (int i = 0; i < mScheduler.count(); i++) {
 			// H.M.Wang 2019-10-10 添加初值是否为0的判断，如果为0，则判定为还没有初始化，首先进行初始化
-			if(mcountdown[i] == 0) mcountdown[i] = getInkThreshold(i);
-// 为快速减锁测试			if(mcountdown[i] == 0) mcountdown[i] = 10;
+// H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
+//			if(mcountdown[i] == 0) mcountdown[i] = getInkThreshold(i);
+			if(mcountdown[i] < 1.0f) mcountdown[i] += getInkThreshold(i);
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
 
 			Debug.d(TAG, "mCountDown[" + i + "] = " + mcountdown[i]);
-			mcountdown[i]--;
-			if (mcountdown[i] <= 0) {
-				// 赋初值
-				mcountdown[i] = getInkThreshold(i);
-// 为快速减锁测试				mcountdown[i] = 10;
+
+// H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
+//			mcountdown[i]--;
+			mcountdown[i] -= 1.0f;
+
+//			if (mcountdown[i] <= 0) {
+//				mcountdown[i] = getInkThreshold(i);
+			if (mcountdown[i] < 1.0f) {
+				mcountdown[i] += getInkThreshold(i);
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
 				mInkListener.onInkLevelDown(i);
 			}
 		}
@@ -1839,8 +1856,11 @@ private void setSerialProtocol9DTs(final String data) {
 // End of H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，修改打印计数器的操作改为PrintTask中获取实际打印数量的流程中调用，这里取消
 		mScheduler.schedule();
 	}
-	
-	public int getCount(int head) {
+
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//	public int getCount(int head) {
+	public float getCount(int head) {
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 		if (mcountdown == null) {
 			initCount();
 		}
@@ -1851,11 +1871,17 @@ private void setSerialProtocol9DTs(final String data) {
 	private int[] mPrintDots = new int[8];
 // End of H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
-	private int[] mThresHolds = new int[8];
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//	private int[] mThresHolds = new int[8];
+	private float[] mThresHolds = new float[8];
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
 
 // H.M.Wang 2023-1-17 追加这个函数，用来避免每次显示剩余次数时都要重新计算阈值（以前调用的是getInkThreshold，所以会实际计算
-	public int getKeptInkThreshold(int head) {
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//	public int getKeptInkThreshold(int head) {
+	public float getKeptInkThreshold(int head) {
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 		return mThresHolds[head];
 	}
 // End of H.M.Wang 2023-1-17 追加这个函数，用来避免每次显示剩余次数时都要重新计算阈值（以前调用的是getInkThreshold，所以会实际计算
@@ -1864,7 +1890,10 @@ private void setSerialProtocol9DTs(final String data) {
 	 * @param head 喷头索引
 	 * @return
 	 */
-	public int getInkThreshold(int head) {
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//	public int getInkThreshold(int head) {
+	public float getInkThreshold(int head) {
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 		//if (isLanPrint()) return 1;
 		float bold = 1.0f;
 		int index = isLanPrint() ? 0 : index();
@@ -2028,9 +2057,13 @@ private void setSerialProtocol9DTs(final String data) {
 
 		Debug.d(TAG, "--->dotCount[" + head + "]: " + mPrintDots[head] + "  bold=" + bold + "  dotrate=" + rate);
 
-		mThresHolds[head] = (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
-
-		return (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
+// H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
+//		mThresHolds[head] = (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
+//		return (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
+		IInkDevice scm = InkManagerFactory.inkManager(mContext);
+		mThresHolds[head] = 1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold) / rate * scm.getMaxRatio(head);
+		return mThresHolds[head];
+// End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 	}
 	
 	public int getHeads() {
