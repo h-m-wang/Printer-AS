@@ -9,6 +9,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.data.DataTask;
 
 import java.io.File;
@@ -496,10 +497,19 @@ public class FpgaGpioOperation {
         if (type == SETTING_TYPE_PURGE1) {
 // H.M.Wang 2021-12-29 修改S5，S15，S21，S22，S23为下列固定值
 ///////            data[4] = (char) (data[4] * 2);
-            data[20] = 50;
-            data[21] = 50;
-            data[22] = 1000;
-            data[14] = 500;
+// H.M.Wang 2023-12-5 4FIFO版本清洗的时候S15，S21，S22，S23均设为0
+            if(PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+                data[20] = 0;
+                data[21] = 0;
+                data[22] = 0;
+                data[14] = 0;
+            } else {
+// End of H.M.Wang 2023-12-5 4FIFO版本清洗的时候S15，S21，S22，S23均设为0
+                data[20] = 50;
+                data[21] = 50;
+                data[22] = 1000;
+                data[14] = 500;
+            }
 // H.M.Wang 2022-3-4 data[4]设为200
 //            data[4] = 100;
 // H.M.Wang 2023-5-29 data[4]设为200x3
