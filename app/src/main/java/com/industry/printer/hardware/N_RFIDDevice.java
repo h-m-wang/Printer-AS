@@ -175,7 +175,7 @@ public class N_RFIDDevice {
 
     public int checkUID() {
         if(mValid && null != mRFIDModule) {
-            byte[] uid = mRFIDModule.readUID();
+            byte[] uid = (mRFIDModule.getUID() == null ? mRFIDModule.readUID() : mRFIDModule.getUID());
             if(null == uid) return 0;
             if(!Arrays.equals(uid, mRFIDModule.getUID())) {
                 return -1;

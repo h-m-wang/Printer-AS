@@ -1143,7 +1143,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				public void onLaunchPurge() {
 					DataTransferThread thread = DataTransferThread.getInstance(mContext);
 					DataTransferThread.SelectPen = 0x3F;			// 选择所有头
-					if(!thread.isRunning())	thread.purge(mContext);	// 在非打印状态下清洗一次
+// H.M.Wang 2023-12-11 修改为喷码机在等待打印及正在打印的状态下据可以清洗一次
+//					if(!thread.isRunning())	thread.purge(mContext);	// 在非打印状态下清洗一次
+					thread.purge(mContext);	// 在非打印状态下清洗一次
+// End of H.M.Wang 2023-12-11 修改为喷码机在等待打印及正在打印的状态下据可以清洗一次
 				}
 // End of H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
 			});
