@@ -43,6 +43,10 @@ public class Configs {
 	public static final boolean RUSSIAN_CONTROL = true;
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
 
+// H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
+	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION = false;
+// End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
+
 // H.M.Wang 2023-2-15 修改到参数71选择，取消再次的定义
 /*
 // H.M.Wang 2021-5-21 追加用户特色页面显示开关标识

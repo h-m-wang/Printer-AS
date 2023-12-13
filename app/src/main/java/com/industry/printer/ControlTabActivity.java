@@ -2103,6 +2103,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						break;
 					}
 
+// H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
+					if (Configs.PROHIBIT_BIG_DOTS_FUNCTION) {
+						handleError(R.string.str_print_thread_create_err, pcMsg);
+						break;
+					}
+// End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
+
 					if (!checkRfid()) {
 						handleError(R.string.str_toast_no_ink, pcMsg);
 						return;

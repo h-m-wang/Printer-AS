@@ -1,6 +1,18 @@
-2023-12-11 231211-31141
+2023-12-13 231213-31142
 ==================
-协议６：0x80：低有效，常态高。IN-8=0时，修改为喷码机在等待打印及正在打印的状态下据可以清洗一次
+几处修改：
+1. 支持QR.txt简介格式（每行中没有序号，也没有DT0-9。直接是GS1条码的内容）(2023-12-12)。DataTransferThread.java
+   即不是这种格式
+   1,D10,D11,D2,D3,D4,D5,D6,D7,D8,D9,[01]05607017595534[21]ABCDEF ABCDEF[10]231120
+   而是这种格式
+   [01]05607017595534[21]ABCDEF ABCDEF[10]231120
+2. 修改动态二维码录入方法。ObjectInfoDialog.java
+   2.1 动态二维码的内容输入框设为不可编辑，并且内容为空
+   2.2 当确定编辑内容提交时，GS1QR，GS1DM及GS1128的内容设为该格式名，并使用改内容生成示意二维码（条码），改内容在运行时将被远程数据取代，重新生成
+3. 增加限制大字机打印功能。Configs.java和ControlTabActivity.java
+   在Configs.java中追加PROHIBIT_BIG_DOTS_FUNCTION变量，当其位TRUE时，禁止大字机的打印功能
+4. 增加串口协议12。SystemConfigFile.java, SerialHandler.java, SerialProtocol12, DataTransferThread.java，及各语言版本arrays.xml
+   报文 [FE 0F 4A 44 41 7C 76 31 3D 20 31 30 33 31 7C 0D 0A]，取第10字节开始的4个字节[31 30 33 31]赋值给DT0
 
 2023-12-5 231205-31140
 ==================

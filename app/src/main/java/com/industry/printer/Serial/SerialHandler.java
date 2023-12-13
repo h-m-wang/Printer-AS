@@ -178,6 +178,11 @@ public class SerialHandler {
             SerialDotMarker p = new SerialDotMarker(mSerialPort, mContext);
             p.handleCommand(mNormalCmdListeners, mPrintCmdListeners, bab);
 //  End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+// H.M.Wang 2023-12-13 追加一个串口协议12
+        } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_12) {
+            SerialProtocol12 p = new SerialProtocol12(mSerialPort, mContext);
+            p.handleCommand(mNormalCmdListeners, mPrintCmdListeners, bab);
+// End of H.M.Wang 2023-12-13 追加一个串口协议12
         }
     }
 
@@ -239,6 +244,11 @@ public class SerialHandler {
             SerialDotMarker p = new SerialDotMarker(mSerialPort, mContext);
             p.sendCommandProcessResult(cmd, ack, devStatus, cmdStatus, message);
 //  End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+// H.M.Wang 2023-12-13 追加一个串口协议12
+        } else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_12) {
+            SerialProtocol12 p = new SerialProtocol12(mSerialPort, mContext);
+            p.sendCommandProcessResult(cmd, ack, devStatus, cmdStatus, message);
+// End of H.M.Wang 2023-12-13 追加一个串口协议12
         }
     }
 

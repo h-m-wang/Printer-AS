@@ -55,7 +55,8 @@ public class WelcomeActivity extends Activity {
 
 	private static final int LAUNCH_MAINACTIVITY = 7;
 
-	public static final boolean AVOID_CROSS_UPGRADE = true;
+//	public static final boolean AVOID_CROSS_UPGRADE = true;			// 禁止交叉升级
+	public static final boolean AVOID_CROSS_UPGRADE = false;		// 自由升级
 
 	public Handler mHander = new Handler() {
 

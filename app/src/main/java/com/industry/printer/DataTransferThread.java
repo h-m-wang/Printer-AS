@@ -1275,7 +1275,6 @@ private void setSerialProtocol9DTs(final String data) {
 			mNeedUpdate = needUpdate;
 		}
 	}
-
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
 
 // H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
@@ -1349,6 +1348,26 @@ private void setSerialProtocol9DTs(final String data) {
 		mNeedUpdate = true;
 	}
 // End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+
+// H.M.Wang 2023-12-13 追加一个串口协议12
+	public void setProtocol12Data(final byte[] data) {
+		Debug.d(TAG, "String from Remote = [" + ByteArrayUtils.toHexString(data) + "]");
+
+		for(DataTask dataTask : mDataTask) {
+			ArrayList<BaseObject> objList = dataTask.getObjList();
+			for(BaseObject baseObject: objList) {
+				if(baseObject instanceof DynamicText) {
+					int dtIndex = ((DynamicText)baseObject).getDtIndex();
+					if(dtIndex == 0) {
+						SystemConfigFile.getInstance().setDTBuffer(dtIndex, new String(data));
+						baseObject.setContent(new String(data));
+						mNeedUpdate = true;
+					}
+				}
+			}
+		}
+	}
+// End of H.M.Wang 2023-12-13 追加一个串口协议12
 
 //	private AlertDialog mRemoteRecvedPromptDlg = null;
 	private RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
@@ -1478,6 +1497,11 @@ private void setSerialProtocol9DTs(final String data) {
 					showDotMarkerData(data);
 					serialHandler.sendCommandProcessResult(SerialProtocol.ERROR_SUCESS, 1, 0, 0, data);
 // End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
+// H.M.Wang 2023-12-13 追加一个串口协议12
+				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_12) {
+					setProtocol12Data(data);
+					serialHandler.sendCommandProcessResult(SerialProtocol.ERROR_SUCESS, 1, 0, 0, data);
+// End of H.M.Wang 2023-12-13 追加一个串口协议12
 				}
 			}
 		});
@@ -2242,6 +2266,18 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			for(DataTask dataTask : mDataTask) {
 				ArrayList<BaseObject> objList = dataTask.getObjList();
 				for(BaseObject baseObject: objList) {
+// H.M.Wang 2023-12-12 修改支持File的行格式没有序号，也没有DT0-9。直接是GS1条码的内容
+					if(recvStrs.length == 1) {
+						if(baseObject instanceof BarcodeObject) {
+							if(((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1QR) ||
+							   ((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1DM)) {
+								SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[0]);
+								((BarcodeObject)baseObject).setContent(recvStrs[0]);
+							}
+						}
+						continue;
+					}
+// End of H.M.Wang 2023-12-12 修改支持File的行格式没有序号，也没有DT0-9。直接是GS1条码的内容
 					if(baseObject instanceof DynamicText) {
 						if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE) {
 							if(strIndex < recvStrs.length) {

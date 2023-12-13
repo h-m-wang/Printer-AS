@@ -566,7 +566,21 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 //							if (!mObject.mSource) {
 // H.M.Wang 2022-9-7 取消动态二维码保存桶里面内容的操作，否则编辑的内容永远不会生效。并且只有在编辑页面才会重新计算宽度
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
-							mObject.setContent(mContent.getText().toString());
+// H.M.Wang 2023-12-12 动态条码的时候，设置缺省内容
+							if(((BarcodeObject) mObject).isDynamicCode()) {
+								if(((BarcodeObject) mObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1QR)) {
+									mObject.setContent("[21]GS1QR");
+								} else if(((BarcodeObject) mObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1DM)) {
+									mObject.setContent("[21]GS1DM");
+								} else if(((BarcodeObject) mObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1128)) {
+									mObject.setContent("[21]GS1128");
+								} else {
+									mObject.setContent("123456");
+								}
+							} else {
+								mObject.setContent(mContent.getText().toString());
+							}
+// End of H.M.Wang 2023-12-12 动态条码的时候，设置缺省内容
 							((BarcodeObject) mObject).calWidth();
 /*							if(((BarcodeObject) mObject).isDynamicCode()) {
 								mObject.setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
@@ -876,7 +890,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					mCode.setText(((BarcodeObject) mObject).getCode());
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 					mITF14Frame.setChecked(((BarcodeObject) mObject).getWithFrame());
-					if("ITF_14".equals(((BarcodeObject) mObject).getCode())) {
+					if(BarcodeObject.BARCODE_FORMAT_ITF_14.equals(((BarcodeObject) mObject).getCode())) {
 						mITF14FrameCaption.setVisibility(View.VISIBLE);
 						mITF14Frame.setVisibility(View.VISIBLE);
 					} else {
@@ -890,7 +904,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 // End of H.M.Wang 2022-12-20 追加反白设置
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 					mErrorCorrectionLevel.setText(mECLs[((BarcodeObject) mObject).getErrorCorrectionLevel()]);
-					if("QR".equals(((BarcodeObject) mObject).getCode())) {
+					if(BarcodeObject.BARCODE_FORMAT_QR.equals(((BarcodeObject) mObject).getCode()) ||
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+						BarcodeObject.BARCODE_FORMAT_GS1QR.equals(((BarcodeObject) mObject).getCode())) {
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 						mCapECL.setVisibility(View.VISIBLE);
 						mErrorCorrectionLevel.setVisibility(View.VISIBLE);
 					} else {
@@ -899,6 +916,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					}
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 					mTextsize.setText(String.valueOf(((BarcodeObject) mObject).getTextsize()));
+// H.M.Wang 2023-12-12 动态条码的时候，内容区为空
+					if(((BarcodeObject) mObject).isDynamicCode()) mContent.setText("");
+// End of H.M.Wang 2023-12-12 动态条码的时候，内容区为空
 				}
 				else if(mObject instanceof ShiftObject)
 				{
@@ -952,6 +972,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 // H.M.Wang 2021-5-21 追加动态文本内容框失效
 			mObject instanceof DynamicText ||
 // End of H.M.Wang 2021-5-21 追加动态文本内容框失效
+// H.M.Wang 2023-12-12 动态条码的时候，内容区不显示
+			(mObject instanceof BarcodeObject && ((BarcodeObject) mObject).isDynamicCode()) ||
+// End of H.M.Wang 2023-12-12 动态条码的时候，内容区不显示
 			mObject instanceof GraphicObject ||
 			mObject instanceof RealtimeSecond ||
 			mObject instanceof ShiftObject ||
@@ -1222,7 +1245,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		} else if (view == mCode) {
 			view.setText((String)mBarFormatAdapter.getItem(index));
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
-			if("ITF_14".equals(view.getText())) {
+			if(BarcodeObject.BARCODE_FORMAT_ITF_14.equals(view.getText())) {
 				mITF14FrameCaption.setVisibility(View.VISIBLE);
 				mITF14Frame.setVisibility(View.VISIBLE);
 			} else {
@@ -1231,7 +1254,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 			}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
-			if("QR".equals(view.getText())) {
+			if(BarcodeObject.BARCODE_FORMAT_QR.equals(view.getText()) ||
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+				BarcodeObject.BARCODE_FORMAT_GS1QR.equals(view.getText())) {
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 				mCapECL.setVisibility(View.VISIBLE);
 				mErrorCorrectionLevel.setVisibility(View.VISIBLE);
 			} else {

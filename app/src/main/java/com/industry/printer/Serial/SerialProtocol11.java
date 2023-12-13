@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
  */
 
 public class SerialProtocol11 extends SerialProtocol {
-    public static String TAG = SerialProtocol5.class.getSimpleName();
+    public static String TAG = SerialProtocol11.class.getSimpleName();
 
     public SerialProtocol11(/*StreamTransport st*/SerialPort serialPort, Context ctx){
         super(serialPort, ctx);

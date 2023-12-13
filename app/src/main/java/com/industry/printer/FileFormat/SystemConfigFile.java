@@ -332,6 +332,9 @@ public class SystemConfigFile{
 // 例如：1E 01 01 00 00 01 01 00 00 01 01 00 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00。1E代表30个点，01代表点，00代表空格
 	public static final int DATA_SOURCE_DOT_MARKER = 25;
 // End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
+// H.M.Wang 2023-12-13 追加一个串口协议12
+	public static final int DATA_SOURCE_RS232_12 	= 26;		// 报文 [FE 0F 4A 44 41 7C 76 31 3D 20 31 30 33 31 7C 0D 0A]，取 [31 30 33 31]赋值给DT0
+// End of H.M.Wang 2023-12-13 追加一个串口协议12
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。
