@@ -1353,14 +1353,26 @@ private void setSerialProtocol9DTs(final String data) {
 	public void setProtocol12Data(final byte[] data) {
 		Debug.d(TAG, "String from Remote = [" + ByteArrayUtils.toHexString(data) + "]");
 
+		final String cnt = new String(data).substring(10,14);
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (null != mRemoteRecvedPromptDlg) {
+					mRemoteRecvedPromptDlg.show();
+					mRemoteRecvedPromptDlg.setMessage(ByteArrayUtils.toHexString(data) + "\n" + cnt);
+				}
+			}
+		});
+
 		for(DataTask dataTask : mDataTask) {
 			ArrayList<BaseObject> objList = dataTask.getObjList();
 			for(BaseObject baseObject: objList) {
 				if(baseObject instanceof DynamicText) {
 					int dtIndex = ((DynamicText)baseObject).getDtIndex();
 					if(dtIndex == 0) {
-						SystemConfigFile.getInstance().setDTBuffer(dtIndex, new String(data));
-						baseObject.setContent(new String(data));
+						SystemConfigFile.getInstance().setDTBuffer(dtIndex, cnt);
+						baseObject.setContent(cnt);
 						mNeedUpdate = true;
 					}
 				}

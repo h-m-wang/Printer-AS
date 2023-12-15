@@ -39,9 +39,7 @@ public class SerialProtocol12 extends SerialProtocol {
 
         int result = parseFrame(bab);
         if (result == ERROR_SUCESS) {
-            byte[] recvData = new byte[4];
-            System.arraycopy(bab.toByteArray(), 10, recvData, 0, 4);
-            procCommands(result, recvData);
+            procCommands(result, bab.toByteArray());
         } else {
             procError("ERROR_FAILED");
         }

@@ -95,6 +95,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     env->SetByteArrayRegion(result, 0, newSize, rbuf);
     env->ReleaseIntArrayElements(src, cbuf, 0);
     env->ReleaseByteArrayElements(result, rbuf, JNI_ABORT);
+    delete(rbuf);
 
     return result;
 }

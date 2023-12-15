@@ -41,9 +41,11 @@ public class Configs {
 
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
 	public static final boolean RUSSIAN_CONTROL = true;
+//	public static final boolean RUSSIAN_CONTROL = false;
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
 
 // H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
+//	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION = true;
 	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION = false;
 // End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 

@@ -1439,11 +1439,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		refreshPulse();
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_NONE && Configs.UI_TYPE == Configs.UI_STANDARD) {
-			if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1) {
-				mSubStepTV.setVisibility(View.VISIBLE);
-				mSubStepTV.setText("" + RTCDevice.getInstance(mContext).readSubStep());
-			} else {
-				mSubStepTV.setVisibility(View.GONE);
+// H.M.Wang 2023-12-14 当INDEX_USER_MODE从其它的模式改回到USER_MODE_NONE时，可能mSubStepTV并没有被初始化，因此会死机
+			if(null != mSubStepTV) {
+// End of H.M.Wang 2023-12-14 当INDEX_USER_MODE从其它的模式改回到USER_MODE_NONE时，可能mSubStepTV并没有被初始化，因此会死机
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_SUB_STEP) > 1) {
+					mSubStepTV.setVisibility(View.VISIBLE);
+					mSubStepTV.setText("" + RTCDevice.getInstance(mContext).readSubStep());
+				} else {
+					mSubStepTV.setVisibility(View.GONE);
+				}
 			}
 		}
 // End of H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
