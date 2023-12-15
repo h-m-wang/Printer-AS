@@ -95,7 +95,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     env->SetByteArrayRegion(result, 0, newSize, rbuf);
     env->ReleaseIntArrayElements(src, cbuf, 0);
     env->ReleaseByteArrayElements(result, rbuf, JNI_ABORT);
-    delete(rbuf);
+    delete[] rbuf;
 
     return result;
 }
@@ -176,6 +176,7 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
         result = env->NewCharArray(length/2);
         env->SetCharArrayRegion(result, 0, length/2, rCharBuf);
         env->ReleaseCharArrayElements(result, rCharBuf, JNI_ABORT);
+        delete[] rCharBuf;
     }
 
     return result;
@@ -264,12 +265,13 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 
     jintArray result = env->NewIntArray(8);
     env->SetIntArrayRegion(result, 0, 8, dots);
+    delete[] dots;
 
     return result;
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.2 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.3 Loaded.");
     return JNI_VERSION_1_4;     //这里很重要，必须返回版本，否则加载会失败。
 }
 
