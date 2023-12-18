@@ -165,7 +165,7 @@
 	</param>
 	<param>
 	    <id>29</id>
-		<min>200</min>
+		<min>20</min>
 		<max>60000</max>
 		<default>200</default>
 	</param>

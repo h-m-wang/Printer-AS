@@ -74,12 +74,12 @@ public class TestHp22mm implements ITestOperation {
             "19 -- FIFO -> DDR",
             "20 -- DDR -> FIFO",
             "21 -- Read FIFO",
-            "22 -- Update PD MCU\nPut s19 file into [/mnt/sdcard/system/PD_FW.s19]",
-            "23 -- Update FPGA FLASH\nPut s19 file into [/mnt/sdcard/system/FPGA.s19]",
-            "24 -- Update IDS MCU\nPut s19 file into [/mnt/sdcard/system/IDS_FW.s19]",
+            "22 -- Update PD MCU\nFrom [U-Disk/PD_FW.s19]",
+            "23 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
+            "24 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "25 -- Toggle PI4",
             "26 -- Toggle PI5",
-            "27 -- Write SPI FPGA"
+            "27 -- Write SPI FPGA\nFrom [U-Disk/aaa.bin]"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];

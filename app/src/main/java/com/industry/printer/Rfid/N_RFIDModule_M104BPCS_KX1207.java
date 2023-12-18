@@ -35,12 +35,35 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     //       （16字节返回数据为从开始页码开始的连续4个页的内容）
     public static final byte CMD_READ_PAGE = 0x4B;
 
+// H.M.Wang 2023-12-18 对应模块版本V0302，增加新的带密钥读页命令
+    // 带密钥读页 - 实际上独到的是该页号以及其后连续的4个页
+    // [报文] 02 00 00 0B 0E 04 3A 06 01 KK KK KK KK XX 03
+    //       04 3A: 固定值
+    //       06: 读数据的开始页码
+    //       01: 固定值
+    //       KK KK KK KK: 密钥
+    //       XX: 校验值
+    // [返回] 02 00 00 13 0E 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 XX 03
+    // 		 RR: 00 成功；非零：失败.
+    //       （16字节返回数据为从开始页码开始的连续4个页的内容）
+// End of H.M.Wang 2023-12-18 对应模块版本V0302，增加新的带密钥读页命令
+    public static final byte CMD_NEW_READ_PAGE = 0x0E;
+
     // 写页
     // [报文] 02 00 00 08 35 06 00 00 00 01 44 03
     //       06：写数据的页号，00 00 00 01：为写入的4个字节数据
     // [返回] 02 00 00 10 03 35 00 38 03
     // 		 RR: 00 成功；非零：失败.
     public static final byte CMD_WRITE_PAGE = 0x35;
+
+// H.M.Wang 2023-12-18 对应模块版本V0302，增加新的带密钥写页命令
+    // 带密钥写页
+    // [报文] 02 00 00 08 35 06 00 00 00 01 44 03
+    //       06：写数据的页号，00 00 00 01：为写入的4个字节数据
+    // [返回] 02 00 00 10 03 35 00 38 03
+    // 		 RR: 00 成功；非零：失败.
+    public static final byte CMD_NEW_WRITE_PAGE = 0x0F;
+// End of H.M.Wang 2023-12-18 对应模块版本V0302，增加新的带密钥写页命令
 
     // 设置密钥
     // [报文] 02 00 00 08 35 3A 12 34 56 79 78 03
@@ -230,7 +253,16 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         }
 
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
-
+/*
+        byte[] sendData = new byte[12];
+        sendData[0] = 0x04;
+        sendData[1] = 0x3A;
+        sendData[2] = page;
+        sendData[3] = 0x01;
+        System.arraycopy(calKey(), 0, sendData, 4, 4);
+        System.arraycopy(data, 0, sendData, 8, 4);
+        N_RFIDData rfidData = transfer(CMD_NEW_WRITE_PAGE, sendData);
+*/
         byte[] writeData = new byte[data.length + 1];
         writeData[0] = page;
         System.arraycopy(data, 0, writeData, 1, data.length);
@@ -244,7 +276,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
             } else {
                 mErrorMessage = "设备返回失败：" + String.format("0x%02X", rfidData.getResult()) + ". 尝试重新初始化模块和验证密钥";
                 Debug.e(TAG, mErrorMessage);
-                if (initCard() && verifyKey()) return writePage(page, data);
+//                if (initCard() && verifyKey()) return writePage(page, data);
             }
         }
 
@@ -261,7 +293,15 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         }
 
         Debug.d(TAG, "  ==> 开始读页[" + String.format("0x%02X", page) + "]");
-
+/*
+        byte[] sendData = new byte[8];
+        sendData[0] = 0x04;
+        sendData[1] = 0x3A;
+        sendData[2] = page;
+        sendData[3] = 0x01;
+        System.arraycopy(calKey(), 0, sendData, 4, 4);
+        N_RFIDData rfidData = transfer(CMD_NEW_READ_PAGE, new byte[]{page});
+*/
         N_RFIDData rfidData = transfer(CMD_READ_PAGE, new byte[]{page});
 
         if (null != rfidData) {
