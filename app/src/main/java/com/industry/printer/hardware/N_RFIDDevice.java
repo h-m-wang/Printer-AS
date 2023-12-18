@@ -107,6 +107,12 @@ public class N_RFIDDevice {
         ret = mRFIDModule.initCard();
         if(!ret) return false;
 
+// H.M.Wang 2023-12-18 向P57(H39)写入密钥的0xAA异或值，如果写入成功，则说明卡已经写入了正确的密钥，否则则没有写入正确密钥，不允许继续使用。该功能在纸卡工具中不适用
+        if(mRFIDModule instanceof N_RFIDModule_M104BPCS_KX1207) {
+            if(!((N_RFIDModule_M104BPCS_KX1207) mRFIDModule).checkCard()) return false;
+        }
+// End of H.M.Wang 2023-12-18 向P57(H39)写入密钥的0xAA异或值，如果写入成功，则说明卡已经写入了正确的密钥，否则则没有写入正确密钥，不允许继续使用。该功能在纸卡工具中不适用
+
         mInkMax = mRFIDModule.readMaxInkLevel();
         mCurInkLevel = mRFIDModule.readInkLevel();
         mFeature = mRFIDModule.readFeature();

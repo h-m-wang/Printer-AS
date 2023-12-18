@@ -78,6 +78,8 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
             @Override
             public void run() {
                 synchronized (N_RFIDManager.this) {
+                    mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 3000L);
+
                     while(true) {
                         boolean init_success = true;
 
@@ -93,8 +95,6 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                         }
 
                         if(init_success) {
-                            mCallback.sendEmptyMessage(MSG_RFID_READ_SUCCESS);
-
                             mTimer.scheduleAtFixedRate(new TimerTask() {
                                 @Override
                                 public void run() {
@@ -122,7 +122,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                             break;
                         }
 
-                        try { Thread.sleep(100); } catch(InterruptedException e){};
+                        try { Thread.sleep(1000); } catch(InterruptedException e){};
                     }
                 }
             }
