@@ -74,56 +74,44 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
             }
         }
 
-        new Thread(new Runnable() {
+        mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 synchronized (N_RFIDManager.this) {
-                    mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 3000L);
+                    for(int i=0; i<mRfidDevices.size(); i++) {
+                        N_RFIDDevice device = mRfidDevices.get(i);
+                        if(device.isValid()) {
+                            if(device.inkModified()) {
+                                synchronized (ExtGpio.RFID_ACCESS_LOCK) {
+                                    switchRfid(i);
+                                    device.writeInkLevel();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }, 3000L, 3000L);
 
-                    while(true) {
-                        boolean init_success = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 2000L);
 
+                while(true) {
+                    synchronized (N_RFIDManager.this) {
                         for(int i=0; i<mRfidDevices.size(); i++) {
                             N_RFIDDevice device = mRfidDevices.get(i);
                             if(!device.isValid()) {
                                 synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                                     Debug.d(TAG, "Init RFID[" + i + "]");
                                     switchRfid(i);
-                                    init_success = (device.init() && init_success);
+                                    device.init();
                                 }
                             }
                         }
-
-                        if(init_success) {
-                            mTimer.scheduleAtFixedRate(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    synchronized (N_RFIDManager.this) {
-                                        for(int i=0; i<mRfidDevices.size(); i++) {
-                                            N_RFIDDevice device = mRfidDevices.get(i);
-                                            if(device.isValid()) {
-                                                if(device.inkModified()) {
-                                                    synchronized (ExtGpio.RFID_ACCESS_LOCK) {
-                                                        switchRfid(i);
-                                                        device.writeInkLevel();
-                                                    }
-                                                }
-//                            Debug.d(TAG, "RFID[" + i + "] absent? " + device.checkCardAbsence());
-//                                            } else {
-//                                                Debug.d(TAG, "Initializing RFID[" + i + "]");
-//                                                if(device.isValid()) continue;
-//                                                device.init();
-                                            }
-                                        }
-                                    }
-                                }
-                            }, 3000L, 3000L);
-
-                            break;
-                        }
-
-                        try { Thread.sleep(1000); } catch(InterruptedException e){};
                     }
+                    try { Thread.sleep(1000); } catch(InterruptedException e){};
                 }
             }
         }).start();

@@ -1,3 +1,16 @@
+2023-12-19 231219-31149
+==================
+修改N_RFIDModule_M104BPCS_KX1207中密钥的算法，由原来的
+        key[0] = (byte) ((~(mUID[0] ^ mUID[4])) + mUID[1]);
+        key[1] = (byte) ((~(mUID[5] ^ mUID[6])) + mUID[2]);
+        key[2] = (byte) ((~(mUID[0] ^ mUID[5])) + mUID[3]);
+        key[3] = (byte) ((~(mUID[4] ^ mUID[6])) + mUID[1] + mUID[2] + mUID[3]);
+修改为
+        key[0] = (byte) ((((~(mUID[0] ^ mUID[1])) + mUID[2]) ^ mUID[3]) + mUID[6]);
+        key[1] = (byte) ((((~(mUID[1] ^ mUID[2])) + mUID[3]) ^ mUID[6]) + mUID[0]);
+        key[2] = (byte) ((((~(mUID[2] ^ mUID[3])) + mUID[6]) ^ mUID[0]) + mUID[1]);
+        key[3] = (byte) ((((~(mUID[3] ^ mUID[6])) + mUID[0]) ^ mUID[1]) + mUID[2]);
+
 2023-12-18 231218-31148
 ==================
 1. 修改N_RFIDModule_M104BPCS_KX1207的writePage和readPage，支持V0302版的带密钥读写接口

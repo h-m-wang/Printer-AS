@@ -105,6 +105,9 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
     private static final byte KEY_CREATED_MARK = (byte) 0x80;
 
+    private static boolean APK_USAGE = true;        // 设备使用
+//    private static boolean APK_USAGE = false;     // 制卡工具使用
+
     private boolean mKeyExist = false;            // 密钥是否已经写入到了卡中，如果写入了则无需再写，如果没有写入，则禁止任何写入和密钥验证操作，否则卡就废了
 
     private int mBlockCnt = 0;
@@ -170,7 +173,7 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 //  ~
 //  P51    |0000 0000|0000 0000|0000 0000|0000 0000|
 //  -- P52 ~ P57 预留
-//  P52    |0000 0000|0000 0000|0000 0000|0000 0000|
+//  P52    |0000 0000|0000 0000|0000 0000|0000 0000|    2023-12-18 写入密钥的0xAA异或值，用来验证卡内是否使用了正确的密钥
 //  ~
 //  P57    |0000 0000|0000 0000|0000 0000|0000 0000|
 //  -- P58 ~ P63 系统占用
@@ -259,20 +262,24 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         Debug.d(TAG, "  ==> 开始写入页[" + String.format("0x%02X", page) + "]的值[" + ByteArrayUtils.toHexString(data) + "]");
 
-        byte[] sendData = new byte[12];
-        sendData[0] = 0x04;
-        sendData[1] = 0x3A;
-        sendData[2] = page;
-        sendData[3] = 0x01;
-        System.arraycopy(calKey(), 0, sendData, 4, 4);
-        System.arraycopy(data, 0, sendData, 8, 4);
-        N_RFIDData rfidData = transfer(CMD_NEW_WRITE_PAGE, sendData);
+        N_RFIDData rfidData;
 
-/*        byte[] writeData = new byte[data.length + 1];
-        writeData[0] = page;
-        System.arraycopy(data, 0, writeData, 1, data.length);
-        N_RFIDData rfidData = transfer(CMD_WRITE_PAGE, writeData);
-*/
+        if(APK_USAGE) {
+            byte[] sendData = new byte[12];
+            sendData[0] = 0x04;
+            sendData[1] = 0x3A;
+            sendData[2] = page;
+            sendData[3] = 0x01;
+            System.arraycopy(calKey(), 0, sendData, 4, 4);
+            System.arraycopy(data, 0, sendData, 8, 4);
+            rfidData = transfer(CMD_NEW_WRITE_PAGE, sendData);
+        } else {
+            byte[] writeData = new byte[data.length + 1];
+            writeData[0] = page;
+            System.arraycopy(data, 0, writeData, 1, data.length);
+            rfidData = transfer(CMD_WRITE_PAGE, writeData);
+        }
+
         if (null != rfidData) {
             if (rfidData.getResult() == RESULT_OK) {
                 Debug.d(TAG, "  ==> 写入页成功");
@@ -284,10 +291,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
         }
 
         Debug.e(TAG, "  ==> 写入页失败. 尝试重新初始化模块");
-//        Debug.e(TAG, "  ==> 写入页失败. 尝试重新初始化模块和验证密钥");
 
-        initCard();
-//      verifyKey());
+        if(APK_USAGE) initCard();
 
         return false;
     }
@@ -301,15 +306,19 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         Debug.d(TAG, "  ==> 开始读页[" + String.format("0x%02X", page) + "]");
 
-        byte[] sendData = new byte[8];
-        sendData[0] = 0x04;
-        sendData[1] = 0x3A;
-        sendData[2] = page;
-        sendData[3] = 0x01;
-        System.arraycopy(calKey(), 0, sendData, 4, 4);
-        N_RFIDData rfidData = transfer(CMD_NEW_READ_PAGE, sendData);
+        N_RFIDData rfidData;
 
-//        N_RFIDData rfidData = transfer(CMD_READ_PAGE, new byte[]{page});
+        if(APK_USAGE) {
+            byte[] sendData = new byte[8];
+            sendData[0] = 0x04;
+            sendData[1] = 0x3A;
+            sendData[2] = page;
+            sendData[3] = 0x01;
+            System.arraycopy(calKey(), 0, sendData, 4, 4);
+            rfidData = transfer(CMD_NEW_READ_PAGE, sendData);
+        } else {
+            rfidData = transfer(CMD_READ_PAGE, new byte[]{page});
+        }
 
         if (null != rfidData) {
             if (rfidData.getResult() == RESULT_OK) {
@@ -329,36 +338,64 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
         Debug.e(TAG, "  ==> 读页失败. 尝试重新初始化模块");
 
-        initCard();
+        if(APK_USAGE) initCard();
 
         return null;
     }
 
+    public void readAllPages() {
+        Debug.d(TAG, "========================= Read All Pages Start =========================");
+        for(int i=0; i<64; i+=4) {
+            N_RFIDData rfidData;
+            if(APK_USAGE) {
+                byte[] sendData = new byte[8];
+                sendData[0] = 0x04;
+                sendData[1] = 0x3A;
+                sendData[2] = (byte)i;
+                sendData[3] = 0x01;
+                System.arraycopy(calKey(), 0, sendData, 4, 4);
+                rfidData = transfer(CMD_NEW_READ_PAGE, sendData);
+            } else {
+                rfidData = transfer(CMD_READ_PAGE, new byte[]{(byte)i});
+            }
+            if (null != rfidData) {
+                if (rfidData.getResult() == RESULT_OK) {
+                    byte[] resData = rfidData.getData();
+                    if (null != resData && resData.length == 4 * BYTES_PER_PAGE) {
+                        Debug.d(TAG, "[" + ByteArrayUtils.toHexString(resData) + "]");
+                    }
+                }
+            }
+        }
+        Debug.d(TAG, "========================= Read All Pages End =========================");
+    }
+
 // H.M.Wang 2023-12-18 向P57(H39)写入密钥的0xAA异或值，如果写入成功，则说明卡已经写入了正确的密钥，否则则没有写入正确密钥，不允许继续使用
-    public boolean checkCard() {
+    public boolean tryWrite() {
         byte[] verKey = calKey();
         for(int i=0; i<verKey.length; i++) {
             verKey[i] = (byte)(verKey[i] ^ 0xAA);
         }
-        return writePage((byte)0x39, verKey);
+        return writePage((byte)0x34, verKey);
     }
 // End of H.M.Wang 2023-12-18 向P57(H39)写入密钥的0xAA异或值，如果写入成功，则说明卡已经写入了正确的密钥，否则则没有写入正确密钥，不允许继续使用
 
     private byte[] calKey() {
-        // 暂时算法
-        // Key[B0] = ~(SB0 ^ SB4) ==> BA
-        // Key[B1] = ~(SB5 ^ SB6) ==> AC
-        // Key[B2] = ~(SB0 ^ SB5) ==> 85
-        // Key[B2] = ~(SB4 ^ SB6) ==> 93
-
         if (null == mUID || mUID.length != 7) return null;
 
         byte[] key = new byte[4];
 
-        key[0] = (byte) ((~(mUID[0] ^ mUID[4])) + mUID[1]);
-        key[1] = (byte) ((~(mUID[5] ^ mUID[6])) + mUID[2]);
-        key[2] = (byte) ((~(mUID[0] ^ mUID[5])) + mUID[3]);
-        key[3] = (byte) ((~(mUID[4] ^ mUID[6])) + mUID[1] + mUID[2] + mUID[3]);
+// 2023-12-19 前使用的密钥计算公式
+//        key[0] = (byte) ((~(mUID[0] ^ mUID[4])) + mUID[1]);
+//        key[1] = (byte) ((~(mUID[5] ^ mUID[6])) + mUID[2]);
+//        key[2] = (byte) ((~(mUID[0] ^ mUID[5])) + mUID[3]);
+//        key[3] = (byte) ((~(mUID[4] ^ mUID[6])) + mUID[1] + mUID[2] + mUID[3]);
+
+// 2023-12-19 以后使用的密钥计算公式
+        key[0] = (byte) ((((~(mUID[0] ^ mUID[1])) + mUID[2]) ^ mUID[3]) + mUID[6]);
+        key[1] = (byte) ((((~(mUID[1] ^ mUID[2])) + mUID[3]) ^ mUID[6]) + mUID[0]);
+        key[2] = (byte) ((((~(mUID[2] ^ mUID[3])) + mUID[6]) ^ mUID[0]) + mUID[1]);
+        key[3] = (byte) ((((~(mUID[3] ^ mUID[6])) + mUID[0]) ^ mUID[1]) + mUID[2]);
 
         return key;
     }
@@ -401,7 +438,9 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     }
 
     protected boolean writeKeyMark() {
-        Debug.d(TAG, "  ==> 开始设立密钥已注册标记");
+        if(APK_USAGE) return false;
+
+        Debug.d(TAG, "  ==> 开始写入密钥注册标记");
 
         byte[] readBytes = readPage(PAGE_QUICK_JUMP);
         if (null != readBytes) {
@@ -410,39 +449,41 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
             if (writePage(PAGE_QUICK_JUMP, writeBytes)) {
                 // 验证密钥成功，标注该块不再需要验证
-                Debug.d(TAG, "  ==> 成功设立密钥已注册标记");
+                Debug.d(TAG, "  ==> 成功写入密钥注册标记");
                 mKeyExist = true;
                 return true;
             }
         }
 
-        Debug.e(TAG, "  ==> 密钥已注册标记设立失败");
+        Debug.e(TAG, "  ==> 密钥注册标记写入失败");
 
         return false;
     }
 
-    private boolean checkKeyMark() {
-        Debug.d(TAG, "  ==> 开始验证密钥是否已经写入");
+    private boolean readKeyMark() {
+        Debug.d(TAG, "  ==> 开始读取密钥注册标记");
+
+        mKeyExist = false;
 
         byte[] readBytes = readPage(PAGE_QUICK_JUMP);
         if (null != readBytes) {
             if ((readBytes[3] & (byte) KEY_CREATED_MARK) == (byte) KEY_CREATED_MARK) {
                 mKeyExist = true;
-                Debug.d(TAG, "  ==> 密钥已经写入。使用该卡需要先验证密钥");
+                Debug.d(TAG, "  ==> 密钥注册标记已写入。使用该卡需要先验证密钥");
             } else {
-                Debug.d(TAG, "  ==> 密钥还未写入。执行验证密钥操作，否则卡会废掉");
+                Debug.d(TAG, "  ==> 密钥注册标记未写入。执行验证密钥操作会废掉");
             }
             return true;
         }
 
-        Debug.e(TAG, "  ==> 验证密钥是否已经写入操作失败");
+        Debug.e(TAG, "  ==> 读取密钥注册标记失败");
 
         return false;
     }
 
     @Override
     public boolean initCard() {
-        return (searchCard() ? checkKeyMark() : false);
+        return (searchCard() ? readKeyMark() : false);
     }
 
     @Override
@@ -790,6 +831,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     }
 
     protected boolean writeKey() {
+        if(APK_USAGE) return false;
+
         Debug.d(TAG, "  ==> 开始写入密钥");
 
         byte[] key = calKey();
@@ -824,6 +867,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     }
 
     protected boolean enableKey() {
+        if(APK_USAGE) return false;
+
         Debug.d(TAG, "  ==> 开始启用密钥");
 
         N_RFIDData rfidData = transfer(CMD_ENABLE_KEY, DATA_ENABLE_KEY);
