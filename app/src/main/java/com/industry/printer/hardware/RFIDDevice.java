@@ -49,7 +49,8 @@ public class RFIDDevice implements RfidCallback{
 	public static native int write(int fd, byte[] buf, int len);
 	public static native byte[] read(int fd, int len);
 	public static native int setBaudrate(int fd, int rate);
-	
+	public static native byte[] calKey(byte[] uid);
+
 
 	/************************
 	 * RFID命令操作部分

@@ -297,3 +297,46 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_close
 	ALOGD("*******ret=%d",ret);
 	return ret;
 }
+
+/*
+ * Class:     com_industry_printer_RFID
+ * Method:    calKey
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_RFID_calKey
+		(JNIEnv *env, jclass arg, jbyteArray uid)
+{
+	jbyte *cbuf;
+	cbuf = (*env)->GetByteArrayElements(env, uid, 0);
+
+/* Java Code moved from N_RFIDModule_M104BPCS_KX1207.java::calKey
+        byte[] key = new byte[4];
+
+// 2023-12-19 前使用的密钥计算公式
+//        key[0] = (byte) ((~(mUID[0] ^ mUID[4])) + mUID[1]);
+//        key[1] = (byte) ((~(mUID[5] ^ mUID[6])) + mUID[2]);
+//        key[2] = (byte) ((~(mUID[0] ^ mUID[5])) + mUID[3]);
+//        key[3] = (byte) ((~(mUID[4] ^ mUID[6])) + mUID[1] + mUID[2] + mUID[3]);
+
+// 2023-12-19 以后使用的密钥计算公式
+        key[0] = (byte) ((((~(mUID[0] ^ mUID[1])) + mUID[2]) ^ mUID[3]) + mUID[6]);
+        key[1] = (byte) ((((~(mUID[1] ^ mUID[2])) + mUID[3]) ^ mUID[6]) + mUID[0]);
+        key[2] = (byte) ((((~(mUID[2] ^ mUID[3])) + mUID[6]) ^ mUID[0]) + mUID[1]);
+        key[3] = (byte) ((((~(mUID[3] ^ mUID[6])) + mUID[0]) ^ mUID[1]) + mUID[2]);
+
+        return key;*/
+
+    char rBuf[4];
+
+    rBuf[0] = (((~(cbuf[0] ^ cbuf[1])) + cbuf[2]) ^ cbuf[3]) + cbuf[6];
+	rBuf[1] = (((~(cbuf[1] ^ cbuf[2])) + cbuf[3]) ^ cbuf[6]) + cbuf[0];
+	rBuf[2] = (((~(cbuf[2] ^ cbuf[3])) + cbuf[6]) ^ cbuf[0]) + cbuf[1];
+	rBuf[3] = (((~(cbuf[3] ^ cbuf[6])) + cbuf[0]) ^ cbuf[1]) + cbuf[2];
+
+	(*env)->ReleaseByteArrayElements(env, uid, cbuf, 0);
+	jbyteArray result = (*env)->NewByteArray(env, 4);
+	(*env)->SetByteArrayRegion(env, result, 0, 4, rBuf);
+	(*env)->ReleaseByteArrayElements(env, result, rBuf, JNI_ABORT);
+
+	return result;
+}

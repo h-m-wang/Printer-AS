@@ -2,6 +2,7 @@ package com.industry.printer.Rfid;
 
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.RFIDDevice;
 
 public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
     private static final String TAG = N_RFIDModule_M104BPCS_KX1207.class.getSimpleName();
@@ -382,22 +383,8 @@ public class N_RFIDModule_M104BPCS_KX1207 extends N_RFIDModule {
 
     private byte[] calKey() {
         if (null == mUID || mUID.length != 7) return null;
-
-        byte[] key = new byte[4];
-
-// 2023-12-19 前使用的密钥计算公式
-//        key[0] = (byte) ((~(mUID[0] ^ mUID[4])) + mUID[1]);
-//        key[1] = (byte) ((~(mUID[5] ^ mUID[6])) + mUID[2]);
-//        key[2] = (byte) ((~(mUID[0] ^ mUID[5])) + mUID[3]);
-//        key[3] = (byte) ((~(mUID[4] ^ mUID[6])) + mUID[1] + mUID[2] + mUID[3]);
-
-// 2023-12-19 以后使用的密钥计算公式
-        key[0] = (byte) ((((~(mUID[0] ^ mUID[1])) + mUID[2]) ^ mUID[3]) + mUID[6]);
-        key[1] = (byte) ((((~(mUID[1] ^ mUID[2])) + mUID[3]) ^ mUID[6]) + mUID[0]);
-        key[2] = (byte) ((((~(mUID[2] ^ mUID[3])) + mUID[6]) ^ mUID[0]) + mUID[1]);
-        key[3] = (byte) ((((~(mUID[3] ^ mUID[6])) + mUID[0]) ^ mUID[1]) + mUID[2]);
-
-        return key;
+// H.M.Wang 2023-12-20 算法移至HardwareJni中计算
+        return RFIDDevice.calKey(mUID);
     }
 
     public boolean verifyKey() {

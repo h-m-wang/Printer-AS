@@ -131,10 +131,10 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                             N_RFIDDevice device = mRfidDevices.get(i);
                             int ret = device.checkUID();
 
-                            if(ret == 0) {
+                            if(ret == N_RFIDDevice.CHECK_UID_FAILED) {
                                 mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL);
                                 return;
-                            } else if(ret == -1) {
+                            } else if(ret == N_RFIDDevice.CHECK_UID_CHANGED) {
                                 mCallback.sendEmptyMessage(MSG_RFID_CHECK_FAIL_INK_CHANGED);
                                 return;
                             }

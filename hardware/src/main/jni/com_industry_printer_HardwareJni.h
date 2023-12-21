@@ -151,6 +151,14 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_write
 JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_close
   (JNIEnv *env, jclass arg, jint fd);
 
+/*
+ * Class:     com_industry_printer_RFID
+ * Method:    calKey
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_RFID_calKey
+		(JNIEnv *env, jclass arg, jbyteArray uid);
+
 JNIEXPORT jint Java_com_industry_printer_RFID_setBaudrate
 	(JNIEnv *env, jclass arg, jint fd, jint speed);
 /**************************************

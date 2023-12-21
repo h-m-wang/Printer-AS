@@ -36,6 +36,7 @@ import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Socket_Server.Network;
@@ -2109,8 +2110,35 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 					if (Configs.PROHIBIT_BIG_DOTS_FUNCTION) {
-						handleError(R.string.str_print_thread_create_err, pcMsg);
-						break;
+// H.M.Wang 2023-12-21 禁止大字机功能的标识要甄别是否为大字机
+						PrinterNozzle head = PrinterNozzle.getInstance(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
+						if(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+							head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+// H.M.Wang 2020-7-23 追加32DN打印头
+							head == PrinterNozzle.MESSAGE_TYPE_32DN ||
+// End of H.M.Wang 2020-7-23 追加32DN打印头
+// H.M.Wang 2020-8-18 追加32SN打印头
+							head == PrinterNozzle.MESSAGE_TYPE_32SN ||
+// End of H.M.Wang 2020-8-18 追加32SN打印头
+// H.M.Wang 2020-8-26 追加64SN打印头
+							head == PrinterNozzle.MESSAGE_TYPE_64SN ||
+// End of H.M.Wang 2020-8-26 追加64SN打印头
+// H.M.Wang 2022-10-19 追加64SLANT头
+							head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2022-5-27 追加32x2头类型
+							head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+// End of H.M.Wang 2022-5-27 追加32x2头类型
+							head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+							head == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2021-8-16 追加96DN头
+							head == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// End of H.M.Wang 2023-12-21 禁止大字机功能的标识要甄别是否为大字机
+							handleError(R.string.str_print_thread_create_err, pcMsg);
+							break;
+						}
 					}
 // End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 

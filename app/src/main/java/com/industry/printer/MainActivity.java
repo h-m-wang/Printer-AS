@@ -1,8 +1,12 @@
 package com.industry.printer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet6Address;
@@ -41,6 +45,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -808,6 +813,40 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	private long mLastClick = 0;
 	private int mClickCount = 0;
 
+	private void divAAATxt() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("/mnt/sdcard/aaa.txt"));
+			BufferedWriter writter = new BufferedWriter(new FileWriter("/mnt/sdcard/out.txt"));
+			String line;
+			do {
+				line = reader.readLine();
+				if (!TextUtils.isEmpty(line)) {
+					if(line.indexOf("Send FPGA print data. head=0") > 0) {
+						writter.write("\t" + line + "\n");
+					} else if(line.indexOf("Send FPGA print data. head=1") > 0) {
+						writter.write("\t\t" + line + "\n");
+					} else if(line.indexOf("Send FPGA print data. head=2") > 0) {
+						writter.write("\t\t\t" + line + "\n");
+					} else if(line.indexOf("Send FPGA print data. head=3") > 0) {
+						writter.write("\t\t\t\t" + line + "\n");
+					} else if(line.indexOf("=== expand_data ===") > 0) {
+						writter.write(line + "\n");
+					} else if(line.indexOf("===>startPrint") > 0) {
+						writter.write(line + "\n");
+					} else if(line.indexOf("===>stopPrint") > 0) {
+						writter.write(line + "\n");
+					} else if(line.indexOf("sPrintPool[") > 0) {
+						writter.write(line + "\n");
+					}
+				}
+			} while(!TextUtils.isEmpty(line));
+			reader.close();
+			writter.close();
+		} catch(IOException e) {
+			Debug.e(TAG, e.getMessage());
+		}
+	}
+
 	@Override
 	public void onClick(View arg0) {
 		switch (arg0.getId()) {
@@ -823,6 +862,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		case R.id.msg_transfer:
 //			Debug.e(TAG, "Transfer Clicked!");
 			showImportDialog();
+//			divAAATxt();
 			// setScreenBrightness(50);
 			break;
 		case R.id.settings_view:

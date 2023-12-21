@@ -180,16 +180,21 @@ public class N_RFIDDevice {
         return mValid;
     }
 
+    public static final int CHECK_UID_FAILED = 0;
+    public static final int CHECK_UID_CHANGED = -1;
+    public static final int CHECK_UID_SUCCESS = 1;
+
     public int checkUID() {
         if(mValid && null != mRFIDModule) {
-            byte[] uid = (mRFIDModule.getUID() == null ? mRFIDModule.readUID() : mRFIDModule.getUID());
-            if(null == uid) return 0;
+            byte[] uid = mRFIDModule.readUID();
+            if(null == uid) return CHECK_UID_FAILED;
             if(!Arrays.equals(uid, mRFIDModule.getUID())) {
-                return -1;
+                return CHECK_UID_CHANGED;
             }
+            Debug.d(TAG, "Check UID[" + mIndex + "] OK.");
+            return CHECK_UID_SUCCESS;
         }
-        Debug.d(TAG, "Check UID[" + mIndex + "] OK.");
-        return 1;
+        return CHECK_UID_FAILED;
     }
 
     public int getFeature(int index) {
