@@ -1137,6 +1137,26 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				Vector<BaseObject> htObjs = ((HyperTextObject) o).getSubObjs();
 
 				for (BaseObject htObj : htObjs) {
+// H.M.Wang 2023-12-30 增加对DT的支持。
+					if (htObj instanceof DynamicText) {
+						float wx = 1.0f, hx=1.0f;
+						if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
+							wx = 2.0f;
+							hx = 2.0f;
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_38_1) {
+							wx = 3.0f;
+							hx = 3.0f;
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
+							wx = 4.0f;
+							hx = 4.0f;
+						}
+
+						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
+						BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+						BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(htObj.getX()/div), info.getCharsFeed() * stat.getScale());
+						continue;
+					}
+// End H.M.Wang 2023-12-30 增加对DT的支持。
 					if (htObj instanceof RealtimeYear) {
 						substr = ((RealtimeYear) htObj).getContent();
 					} else if (htObj instanceof RealtimeMonth) {

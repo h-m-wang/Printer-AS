@@ -1,3 +1,27 @@
+2023-12-30 231230-115300001
+==================
+1. 在HyperTextObject类中，追加对DT的支持功能。
+   DT的格式为 @#n#m#。其中@#作为DT的识别标签，n代表DT的索引，m代表DT的位数，第二个#为索引和位数的分隔符，第三个为DT的结束符
+   4.1 修改HyperTextObject类parseContent函数，追加对DT的识别
+   4.2 在getExpandedContent中，增加判断，如果是DT则返回桶里的内容，否则如果直接返回getContent，将返回缺省值，位数个的#
+   4.3 增加setDTCntByIndex函数，对应于网络协议650，接收到的10个DT字符串顺序为对应的桶的顺序
+   4.4 增加setDTCntByOrder函数，对应于网络协议600，接收到的10个DT字符串顺序为对应的DT变量的顺序
+2. 在DataTask类中的refreshVariable函数中，增加HyperTextObject对于DT的支持
+3. 在DataTransferThread类中，对应于600协议的setRemoteTextSeparated函数和对应于650协议的setRemote1TextSeparated函数中，追加对于DT的支持
+4. 在HyperTextObject类的parseContent函数中，取消对TAG仅可出现一次的限制
+5. 整理CRC16_X25和CRC16_MODBUS算法的代码
+6. 追加一个CypherUtils类，用来计算文件或者流的MD5值
+7. 将原来PrinterApplication类中的升级ko和so的代码独立出来为一个类（LibUpgrade.java）
+8. 修改BarcodeScanParser类的扫描算法，原来的扫描算法会在汉字和%出现复杂组合时出现无法正确识别的问题
+9. 替换12字体
+
+2023-12-29 231229-115200001
+==================
+实现ko的通过apk升级功能。具体实现方法是：
+1. 在apk的升级部分，将ko复制到/data/camera目录中，并且修改权限为644，然后自动重启
+2. 在img的init.rc中，追加一个从/data/camera目录中将ko复制到/system/vendor/modules目录中的功能，该功能在重启机器时被执行
+3. 增加asset中的新文件和img中的旧文件的MD5比较功能，只有有变化（解释为有更新）时才会操作1和2
+
 2023-12-21 231221-115100001
 ==================
 修改禁止大字机功能的标识未甄别是否为大字机的bug

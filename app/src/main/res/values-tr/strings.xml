@@ -166,6 +166,9 @@
 	<string name="object_hypertext_hint2"><u>@H</u>:Hour <u>@N</u>:Minute <u>@S</u>İkinci:</string>
 	<string name="object_hypertext_hint3"><u>@T</u>:Shift <u>@A</u>:Day <u>@W</u>Hafta yok.</string>
 	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>Sayıcılar:</string>
+<!-- H.M.Wang 2023-12-30 增加对DT的支持。 -->
+	<string name="object_hypertext_hint6"><u>@#n#m#</u>:Dynamic Text. n:index; m:bits</string>
+<!-- End of H.M.Wang 2023-12-30 增加对DT的支持。 -->
 <!-- H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
 	<string name="object_hypertext_hint5"><u>@UG</u>:Kullanıcı Grubu</string>
 <!-- End of H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->

@@ -161,7 +161,10 @@
 	<string name="object_hypertext_hint2"><u>@H</u>:ساعة <u>@N</u>:دقيقة <u>@S</u>:ثانية</string>
 	<string name="object_hypertext_hint3"><u>@T</u>:وردية <u>@A</u>:يوم <u>@W</u>:رقم الاسبوع.</string>
 	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:عدادات</string>
-	<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+<!-- H.M.Wang 2023-12-30 增加对DT的支持。 -->
+	<string name="object_hypertext_hint6"><u>@#n#m#</u>:Dynamic Text. n:index; m:bits</string>
+<!-- End of H.M.Wang 2023-12-30 增加对DT的支持。 -->
+<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
 	<string name="object_weekofyear">الاسبوع فى الاسنة</string>
 <!--	<string name="object_monthtext">شهر النص</string>
 	<string name="object_dayofweektext">اليوم فى الاسبوع</string>-->

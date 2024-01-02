@@ -64,7 +64,7 @@ public class DynamicText extends BaseObject {
         return sb.toString();
     }
 
-    private String getValidString(String cnt) {
+    public String getValidString(String cnt) {
         StringBuilder sb = new StringBuilder();
         sb.append(cnt);
         for(int i=0; i<mBits-cnt.length(); i++) {

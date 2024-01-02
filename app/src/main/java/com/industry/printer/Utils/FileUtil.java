@@ -232,8 +232,8 @@ public class FileUtil {
             byte[] buffer = new byte[4112];  
             int read;  
             while((read = in.read(buffer)) != -1)  
-            {  
-                os.write(buffer, 0, read);  
+            {
+                os.write(buffer, 0, read);
             }  
             in.close();  
             in = null;  

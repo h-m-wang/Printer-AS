@@ -149,6 +149,9 @@
 	<string name="object_hypertext_hint2"><u>@H</u>:时 <u>@N</u>:分 <u>@S</u>:秒</string>
 	<string name="object_hypertext_hint3"><u>@T</u>:班次 <u>@A</u>:周数 <u>@W</u>:年周数</string>
 	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:计数器</string>
+<!-- H.M.Wang 2023-12-30 增加对DT的支持。 -->
+	<string name="object_hypertext_hint6"><u>@#n#m#</u>:动态文本. n:索引; m:位数</string>
+<!-- End of H.M.Wang 2023-12-30 增加对DT的支持。 -->
 <!-- H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
 	<string name="object_hypertext_hint5"><u>@UG</u>:用户群组</string>
 <!-- End of H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->

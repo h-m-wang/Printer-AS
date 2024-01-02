@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MessageTask;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
@@ -36,6 +37,11 @@ public class HyperTextObject extends BaseObject {
     private static final String HYPER_TEXT_3_COUNTER    = "@3C";           // 三位计数器
     private static final String HYPER_TEXT_4_COUNTER    = "@4CC";          // 4位计数器
     private static final String HYPER_TEXT_5_COUNTER    = "@5CCC";         // 5位计数器
+
+// H.M.Wang 2023-12-30 增加对DT的支持。DT的格式为 @#n#m#。其中@#作为DT的识别标签，n代表DT的索引，m代表DT的位数，第二个#为索引和位数的分隔符，第三个为DT的结束符
+    private static final String HYPER_TEXT_DT_START     = "@#";            // DT的识别标签
+    private static final String HYPER_TEXT_DT_TAG       = "#";             // DT的分隔符
+// End of H.M.Wang 2023-12-30 增加对DT的支持
 
     public Vector<BaseObject> mSubObjs = null;
     public HashMap<BaseObject, String> mSubObjsTag = null;
@@ -102,7 +108,15 @@ public class HyperTextObject extends BaseObject {
         StringBuilder sb = new StringBuilder();
         sb.append("");
         for (BaseObject obj : mSubObjs) {
-            sb.append(obj.getContent());
+// H.M.Wang 2023-12-30 增加对DT的支持。对于条码返回DT的实际值。
+            if(obj instanceof DynamicText) {
+//                Debug.d(TAG, "getContent: " + obj.getContent());     // 返回的是动态文本的缺省内容(位数个)#
+//                Debug.d(TAG, "getDtIndex: " + ((DynamicText) obj).getValidString(SystemConfigFile.getInstance().getDTBuffer(((DynamicText) obj).getDtIndex())));     // 返回的是桶里的内容。但是，使用的是桶里的具体值
+                sb.append(((DynamicText) obj).getValidString(SystemConfigFile.getInstance().getDTBuffer(((DynamicText) obj).getDtIndex())));
+            } else {
+// End of H.M.Wang 2023-12-30 增加对DT的支持。
+                sb.append(obj.getContent());
+            }
         }
         return sb.toString();
     }
@@ -122,7 +136,9 @@ public class HyperTextObject extends BaseObject {
         mSubObjsTag.clear();
 
         int procStart = 0, searchStart = 0, foundPos = 0;
-        HashMap<String, String> addedMap = new HashMap<String, String>();
+// H.M.Wang 2023-12-30 取消对相同变量的排斥，否则一个超文本中只能相同变量只能出现一次
+//        HashMap<String, String> addedMap = new HashMap<String, String>();
+// End of H.M.Wang 2023-12-30 取消对相同变量的排斥，否则一个超文本中只能相同变量只能出现一次
 
         String testStr = new String(cnt);
         testStr = testStr.toUpperCase();
@@ -135,71 +151,63 @@ public class HyperTextObject extends BaseObject {
 
                 if(testStr.startsWith(HYPER_TEXT_5_COUNTER, foundPos)) {
                     tag = HYPER_TEXT_5_COUNTER;
-                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
-                        addedMap.put(CounterObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
+//                        addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((CounterObject)obj).setBits(5);
-//                        ((CounterObject)obj).setStart(mCounterStart);
-//                        ((CounterObject)obj).setEnd(mCounterEnd);
                         ((CounterObject)obj).setRange(mCounterStart, mCounterEnd);;
                         ((CounterObject)obj).setCounterIndex(mCounterIndex);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_4_COUNTER, foundPos)) {
                     tag = HYPER_TEXT_4_COUNTER;
-                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
-                        addedMap.put(CounterObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
+//                        addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((CounterObject)obj).setBits(4);
-//                        ((CounterObject)obj).setStart(mCounterStart);
-//                        ((CounterObject)obj).setEnd(mCounterEnd);
                         ((CounterObject)obj).setRange(mCounterStart, mCounterEnd);;
                         ((CounterObject)obj).setCounterIndex(mCounterIndex);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_3_COUNTER, foundPos)) {
                     tag = HYPER_TEXT_3_COUNTER;
-                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
-                        addedMap.put(CounterObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
+//                        addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((CounterObject)obj).setBits(3);
-//                        ((CounterObject)obj).setStart(mCounterStart);
-//                        ((CounterObject)obj).setEnd(mCounterEnd);
                         ((CounterObject)obj).setRange(mCounterStart, mCounterEnd);;
                         ((CounterObject)obj).setCounterIndex(mCounterIndex);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_2_COUNTER, foundPos)) {
                     tag = HYPER_TEXT_2_COUNTER;
-                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
-                        addedMap.put(CounterObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(CounterObject.class.getSimpleName())) {
+//                        addedMap.put(CounterObject.class.getSimpleName(), "");
                         obj = new CounterObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((CounterObject)obj).setBits(2);
-//                        ((CounterObject)obj).setStart(mCounterStart);
-//                        ((CounterObject)obj).setEnd(mCounterEnd);
                         ((CounterObject)obj).setRange(mCounterStart, mCounterEnd);;
                         ((CounterObject)obj).setCounterIndex(mCounterIndex);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_WEEK_OF_YEAR, foundPos)) {
                     tag = HYPER_TEXT_WEEK_OF_YEAR;
-                    if(!addedMap.containsKey(WeekOfYearObject.class.getSimpleName())) {
-                        addedMap.put(WeekOfYearObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(WeekOfYearObject.class.getSimpleName())) {
+//                        addedMap.put(WeekOfYearObject.class.getSimpleName(), "");
                         obj = new WeekOfYearObject(mContext, this, 0);
                         obj.setFont(mFont);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_WEEKDAY, foundPos)) {
                     tag = HYPER_TEXT_WEEKDAY;
-                    if(!addedMap.containsKey(WeekDayObject.class.getSimpleName())) {
-                        addedMap.put(WeekDayObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(WeekDayObject.class.getSimpleName())) {
+//                        addedMap.put(WeekDayObject.class.getSimpleName(), "");
                         obj = new WeekDayObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((WeekDayObject)obj).setBits(2);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_SHIFT, foundPos)) {
                     tag = HYPER_TEXT_SHIFT;
-                    if(!addedMap.containsKey(ShiftObject.class.getSimpleName())) {
-                        addedMap.put(ShiftObject.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(ShiftObject.class.getSimpleName())) {
+//                        addedMap.put(ShiftObject.class.getSimpleName(), "");
                         obj = new ShiftObject(mContext, this, 0);
                         obj.setFont(mFont);
                         ((ShiftObject)obj).setBits(2);
@@ -211,52 +219,83 @@ public class HyperTextObject extends BaseObject {
                         ((ShiftObject)obj).setValue(1, mShiftValues[1]);
                         ((ShiftObject)obj).setValue(2, mShiftValues[2]);
                         ((ShiftObject)obj).setValue(3, mShiftValues[3]);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_SECOND, foundPos)) {
                     tag = HYPER_TEXT_SECOND;
-                    if(!addedMap.containsKey(RealtimeSecond.class.getSimpleName())) {
-                        addedMap.put(RealtimeSecond.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeSecond.class.getSimpleName())) {
+//                        addedMap.put(RealtimeSecond.class.getSimpleName(), "");
                         obj = new RealtimeSecond(mContext, this, 0);
                         obj.setFont(mFont);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_MINUTE, foundPos)) {
                     tag = HYPER_TEXT_MINUTE;
-                    if(!addedMap.containsKey(RealtimeMinute.class.getSimpleName())) {
-                        addedMap.put(RealtimeMinute.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeMinute.class.getSimpleName())) {
+//                        addedMap.put(RealtimeMinute.class.getSimpleName(), "");
                         obj = new RealtimeMinute(mContext, this, 0);
                         obj.setFont(mFont);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_HOUR, foundPos)) {
                     tag = HYPER_TEXT_HOUR;
-                    if(!addedMap.containsKey(RealtimeHour.class.getSimpleName())) {
-                        addedMap.put(RealtimeHour.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeHour.class.getSimpleName())) {
+//                        addedMap.put(RealtimeHour.class.getSimpleName(), "");
                         obj = new RealtimeHour(mContext, this, 0);
                         obj.setFont(mFont);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_DATE, foundPos)) {
                     tag = HYPER_TEXT_DATE;
-                    if(!addedMap.containsKey(RealtimeDate.class.getSimpleName())) {
-                        addedMap.put(RealtimeDate.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeDate.class.getSimpleName())) {
+//                        addedMap.put(RealtimeDate.class.getSimpleName(), "");
                         obj = new RealtimeDate(mContext, this, 0);
                         obj.setFont(mFont);
                         obj.setOffset(mOffset);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_MONTH, foundPos)) {
                     tag = HYPER_TEXT_MONTH;
-                    if(!addedMap.containsKey(RealtimeMonth.class.getSimpleName())) {
-                        addedMap.put(RealtimeMonth.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeMonth.class.getSimpleName())) {
+//                        addedMap.put(RealtimeMonth.class.getSimpleName(), "");
                         obj = new RealtimeMonth(mContext, this, 0);
                         obj.setFont(mFont);
                         obj.setOffset(mOffset);
-                    }
+//                    }
                 } else if(testStr.startsWith(HYPER_TEXT_YEAR, foundPos)) {
                     tag = HYPER_TEXT_YEAR;
-                    if(!addedMap.containsKey(RealtimeYear.class.getSimpleName())) {
-                        addedMap.put(RealtimeYear.class.getSimpleName(), "");
+//                    if(!addedMap.containsKey(RealtimeYear.class.getSimpleName())) {
+//                        addedMap.put(RealtimeYear.class.getSimpleName(), "");
                         obj = new RealtimeYear(mContext, this, 0, false);
                         obj.setFont(mFont);
                         obj.setOffset(mOffset);
+//                    }
+// H.M.Wang 2023-12-30 增加对DT的支持。
+                } else if(testStr.startsWith(HYPER_TEXT_DT_START, foundPos)) {
+                    int index1 = testStr.indexOf(HYPER_TEXT_DT_TAG, foundPos + HYPER_TEXT_DT_START.length());
+                    if(index1 < 0) {
+                        searchStart += 2;
+                        continue;
                     }
+                    int index2 = testStr.indexOf(HYPER_TEXT_DT_TAG, index1+1);
+                    if(index2 < 0) {
+                        searchStart += 2;
+                        continue;
+                    }
+                    Debug.d(TAG, "Index1 = " + index1 + "; Index2 = " + index2);
+                    try {
+                        int dt_id = Integer.parseInt(testStr.substring(foundPos + HYPER_TEXT_DT_START.length(), index1));
+                        int dt_bits = Integer.parseInt(testStr.substring(index1+1, index2));
+
+                        tag = testStr.substring(foundPos,index2+1);
+
+                        Debug.d(TAG, "dt_id = " + dt_id + "; dt_bits = " + dt_bits);
+                        Debug.d(TAG, "Tag = " + tag);
+
+                        obj = new DynamicText(mContext, this, 0);
+                        obj.setFont(mFont);
+                        ((DynamicText) obj).setDtIndex(dt_id);
+                        ((DynamicText) obj).setBits(dt_bits);
+                    } catch (NumberFormatException e) {
+                        searchStart += 2;
+                        continue;
+                    }
+// End of H.M.Wang 2023-12-30 增加对DT的支持。
                 } else {
                     searchStart++;
                     continue;
@@ -554,6 +593,46 @@ public class HyperTextObject extends BaseObject {
         return mOffset;
     }
 
+// H.M.Wang 2023-12-30 增加对DT的支持。
+    /*
+        功能：根据DT索引设置DT的内容。
+        参数：接收到的字符串清单，前10个为DT的值。从0-9分别对应桶0-9
+        返回值：true -> 有对应的DT，需要重新生成打印缓冲区
+                false -> 无对应的DT，无需重新生成打印缓冲区
+     */
+    public boolean setDTCntByIndex(String[] recvStrs) {
+        boolean ret = false;
+        for (BaseObject o : mSubObjs) {
+            if (o instanceof DynamicText) {
+                ((DynamicText) o).setContent(recvStrs[((DynamicText) o).getDtIndex()]);
+                ret = true;
+            }
+        }
+        return ret;
+    }
+
+    /*
+        功能：根据DT索引设置DT的内容。
+        参数：接收到的字符串清单，前10个为DT的值。从0-9分别对应从前到后的DT变量
+        返回值：true -> 有对应的DT，需要重新生成打印缓冲区
+                false -> 无对应的DT，无需重新生成打印缓冲区
+     */
+    public boolean setDTCntByOrder(String[] recvStrs) {
+        boolean ret = false;
+        int dtCount = 0;
+
+        for (BaseObject o : mSubObjs) {
+            if (o instanceof DynamicText) {
+                SystemConfigFile.getInstance().setDTBuffer(((DynamicText) o).getDtIndex(), recvStrs[dtCount]);
+                ((DynamicText) o).setContent(recvStrs[dtCount]);
+                dtCount++;
+                ret = true;
+            }
+        }
+        return ret;
+    }
+// End of H.M.Wang 2023-12-30 增加对DT的支持。
+
     @Override
     public Bitmap getScaledBitmap(Context context) {
         Debug.d(TAG, "getScaledBitmap Width=" + (int)(mXcor_end - mXcor) + ", Height = " + (int)mHeight);
@@ -701,5 +780,4 @@ public class HyperTextObject extends BaseObject {
 
         return str;
     }
-
 }

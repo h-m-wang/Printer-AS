@@ -566,6 +566,10 @@ public class DataTransferThread {
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 						needUpdate = true;
 					}
+// H.M.Wang 2023-12-30 增加对DT的支持。
+				} else if(baseObject instanceof HyperTextObject) {
+					needUpdate = ((HyperTextObject)baseObject).setDTCntByIndex(recvStrs);
+// End of H.M.Wang 2023-12-30 增加对DT的支持。
 				}
 			}
 		}
@@ -628,6 +632,10 @@ public class DataTransferThread {
 						needUpdate = true;
 					}
 // End. -----
+// H.M.Wang 2023-12-30 增加对DT的支持。
+				} else if(baseObject instanceof HyperTextObject) {
+					needUpdate = ((HyperTextObject)baseObject).setDTCntByOrder(recvStrs);
+// End of H.M.Wang 2023-12-30 增加对DT的支持。
 				}
 			}
 		}

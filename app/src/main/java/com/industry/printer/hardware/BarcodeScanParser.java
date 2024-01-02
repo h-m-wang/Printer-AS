@@ -207,50 +207,33 @@ public class BarcodeScanParser {
 
         if(mCodes.length() > 2 && mCodes.charAt(1) == mCodes.charAt(mCodes.length()-1)) {          // 最后一位与第二位的值需要一致
             mCodes.deleteCharAt(mCodes.length()-1);
-
-            String[] abc = mCodes.toString().split("%");
             StringBuilder sb = new StringBuilder();
-            int i = 0;
-            try {
-                for(i=0; i<abc.length; i++) {
-                    if(abc[i].length() == 0) {
-                        if(i != 0) {
-                            sb.append("%");
-                        }
-                    } else if(abc[i].length() < 4) {
-                        sb.append(abc[i]);
-                    } else {
-                        if(i != 0) {
-                            int index = Integer.parseInt(abc[i].substring(0,2), 16);
-                            index += (Integer.parseInt(abc[i].substring(2,4), 16) << 8);
-                            sb.append((char) index);
-                            sb.append(abc[i].substring(4));
-                        } else {
-                            sb.append(abc[i]);
-                        }
+            int pos = 0;
+            String code = mCodes.toString();
+
+            while(pos < code.length()) {
+                int index = code.indexOf("%", pos);
+                if(index < 0) {
+                    sb.append(code.substring(pos));
+                    break;
+                } else {
+                    if(index > pos) sb.append(code, pos, index);
+                    if(index + 1 < code.length() && code.charAt(index+1) == '%') {
+                        sb.append("%");
+                        pos = index + 2;
+                    } else if(index + 4 < code.length()) {
+                        int utf = Integer.parseInt(code.substring(index+1,index+3), 16);
+                        utf += (Integer.parseInt(code.substring(index+3,index+5), 16) << 8);
+                        sb.append((char) utf);
+                        pos = index + 5;
                     }
                 }
-            } catch (Exception e) {
-                Debug.e(TAG, e.getMessage() + ": " + i);
             }
+
             Debug.i(TAG, "Code: [" + sb.toString() + "]");
 
-
-//        String code = mCodes.toString();
-//        if(code.length() != 33) {                               // 扫描到的字符串长度为32+1
-//            mCodes.delete(0, mCodes.length());
-//        } else if(code.charAt(1) != code.charAt(32)) {          // 最后一位与第二位的值需要一致
-//            mCodes.delete(0, mCodes.length());
-//        } else {
             if(null != mCodeListener) {
-//            Debug.i(TAG, "Handle Code: " + mCodes.toString());
-//                mCodes.setLength(32);
                 mCodeListener.onCodeReceived(sb.toString());
-            }
-//        }
-        } else {
-            if(mContext != null) {
-//                ToastUtil.show(mContext, R.string.invalid_code);
             }
         }
         mCodes.delete(0, mCodes.length());
