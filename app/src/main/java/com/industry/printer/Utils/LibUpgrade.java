@@ -6,6 +6,7 @@ import com.industry.printer.PrinterApplication;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,39 +21,56 @@ public class LibUpgrade {
 
     }
 
-    public boolean upgradeFpgaSunxiKO(DataOutputStream os) {
+    public boolean upgradeKOs(DataOutputStream os, String ko) {
         boolean ret = false;
-        InputStream is = null;
 
         try {
-            File file = new File("/system/vendor/modules/" + Configs.FPGA_SUNXI_KO);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.FPGA_SUNXI_KO);
+            String path = ConfigPath.getKoPath(ko);
+            if(StringUtil.isEmpty(path)) {
+                Debug.e(TAG, "Source file not indicated.");
+                return false;
+            }
+            File src = new File(path);
+            if(!src.exists()) {
+                Debug.e(TAG, "Source ko not exists.");
+                return false;
+            }
 
-            Debug.d(TAG, "[FpgaSunxiKO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
-                is.reset();
-                FileUtil.writeFile("/data/camera/" + Configs.FPGA_SUNXI_KO, is);
-                Debug.d(TAG, "/data/camera/" + Configs.FPGA_SUNXI_KO + " written.");
+            Debug.d(TAG, "[" + ko + "]");
+
+            String srcMD5 = CypherUtils.getFileMD5(src);
+            Debug.d(TAG, "SrcMD5: [" + srcMD5 + "].");
+
+            ;
+            if(!new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5 + ".dat").exists()) {
+                Debug.e(TAG, "Source md5 file not exists or incorrect.");
+                return false;
+            }
+
+            String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
+            Debug.d(TAG, "DstMD5: [" + dstMD5 + "].");
+            if(!srcMD5.equals(dstMD5)) {
+                FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(src));
+                Debug.d(TAG, "/data/camera/" + ko + " written.");
                 Thread.sleep(100);
 
-                Debug.d(TAG, "chmod 0644 /data/camera/" + Configs.FPGA_SUNXI_KO);
-                os.writeBytes("chmod 0644 /data/camera/" + Configs.FPGA_SUNXI_KO + "\n");
+                Debug.d(TAG, "chmod 0644 /data/camera/" + ko);
+                os.writeBytes("chmod 0644 /data/camera/" + ko + "\n");
 
+                if(!srcMD5.equals(CypherUtils.getFileMD5("/data/camera/" + ko))) {
+                    Debug.e(TAG, "Copy to temp failed.");
+                    return false;
+                }
                 ret = true;
             } else {
-                file = new File("/data/camera/" + Configs.FPGA_SUNXI_KO);
-                if(file.exists()) {
-                    file.delete();
+                File dst = new File("/data/camera/" + ko);
+                if(dst.exists()) {
+                    dst.delete();
                 }
             }
         } catch(Exception e) {
+            Debug.e(TAG, e.getMessage());
             e.printStackTrace();
-        } finally {
-            try{if(null != is) is.close();}catch(IOException e){}
         }
 
         return ret;

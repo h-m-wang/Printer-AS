@@ -4,7 +4,7 @@ public class StringUtil {
 	private static final String TAG = StringUtil.class.getSimpleName();
 
 	public static boolean isEmpty(String str) {
-		Debug.d("StringUtil", "--->str: " + str);
+//		Debug.d("StringUtil", "--->str: " + str);
 		if (str == null || str.isEmpty() || str.length() == 0) {
 			return true;
 		}

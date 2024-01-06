@@ -47,7 +47,6 @@ public class PrinterApplication extends Application {
 			Thread.sleep(100);
 
 			LibUpgrade libUp = new LibUpgrade();
-//			needReboot |= libUp.upgradeFpgaSunxiKO(os);
 			needReboot |= libUp.upgradeHardwareSO(os);
 			needReboot |= libUp.upgradeNativeGraphicSO(os);
 			needReboot |= libUp.upgradeSmartCardSO(os);

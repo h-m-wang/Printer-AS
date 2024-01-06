@@ -58,6 +58,10 @@ public class FpgaGpioOperation {
     public static final int FPGA_CMD_CLEAR_FIFO = 0x0E;
 // End of H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
 
+// H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
+    public static final int FPGA_CMD_DRVVERSION = 0x0F;
+// End of H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
+
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -842,6 +846,28 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
+
+// H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
+    public static int getDrvVersion() {
+        int fd = open();
+        if (fd > 0) {
+    //        Debug.d(TAG, "FPGA_CMD_GETVERSION");
+            return ioctl(fd, FPGA_CMD_DRVVERSION, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
+
+// H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
+    public static int getDriverVersion() {
+        int fd = open();
+        if (fd > 0) {
+    //        Debug.d(TAG, "FPGA_CMD_DRVVERSION");
+            return ioctl(fd, FPGA_CMD_DRVVERSION, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
 
 // H.M.Wang 2023-3-13 追加一个清除PCFIFO的网络命令
     public static int clearFIFO() {

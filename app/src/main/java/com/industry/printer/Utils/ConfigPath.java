@@ -175,6 +175,23 @@ public class ConfigPath {
 		return paths.get(0) + Configs.UPGRADE_APK_FILE;
 	}
 
+// H.M.Wang 2024-1-3 追加ko的升级功能
+	public static String getKoPath(String ko) {
+		ArrayList<String> paths = getMountedUsb();
+		if (paths == null || paths.size() <= 0) {
+			return null;
+		}
+		return paths.get(0) + File.separator + ko;
+	}
+
+	public static String getUsb1() {
+		ArrayList<String> paths = getMountedUsb();
+		if (paths == null || paths.size() <= 0) {
+			return "";
+		}
+		return paths.get(0);
+	}
+// End of H.M.Wang 2024-1-3 追加ko的升级功能
 	public static String getPictureDir() {
 //		ArrayList<String> paths = getMountedUsb();
 //		if (paths == null || paths.size() <= 0) {

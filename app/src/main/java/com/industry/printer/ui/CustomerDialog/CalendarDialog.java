@@ -1,12 +1,16 @@
 package com.industry.printer.ui.CustomerDialog;
 
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
 import com.industry.printer.R;
 import com.industry.printer.R.id;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
@@ -140,11 +144,49 @@ public class CalendarDialog extends RelightableDialog {
 					if(ret) {
 						dismiss();
 						LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
+					} else {
+// H.M.Wang 2024-1-3 追加ko的升级功能
+						upgradeKOs();
+// End of H.M.Wang 2024-1-3 追加ko的升级功能
 					}
 				}
 			}
 		});
 	}
+
+// H.M.Wang 2024-1-3 追加ko的升级功能
+	private void upgradeKOs() {
+		try {
+			boolean needReboot = false;
+
+			Process process = Runtime.getRuntime().exec("su");
+			DataOutputStream os = new DataOutputStream(process.getOutputStream());
+			Thread.sleep(100);
+
+			LibUpgrade libUp = new LibUpgrade();
+			needReboot |= libUp.upgradeKOs(os, Configs.FPGA_SUNXI_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.EXT_GPIO_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.GSLX680_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.RTC_DS1307_KO);
+
+			if(needReboot) {
+				ToastUtil.show(this.getContext(), "Rebooting...");
+				Debug.e(TAG, "Reboot!!!");
+				os.writeBytes("reboot\n");
+			}
+			os.flush();
+			os.close();
+
+		} catch(IOException e) {
+			Debug.e(TAG, e.getMessage());
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			Debug.e(TAG, e.getMessage());
+			e.printStackTrace();
+		}
+
+	}
+// End of H.M.Wang 2024-1-3 追加ko的升级功能
 	/**
 	 * 验证时间是否有效
 	 */

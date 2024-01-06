@@ -257,7 +257,13 @@ UserGroup 使用方法说明
 
 	public static final String HP22MM_SO = "libhp22mm.so";
 
+// H.M.Wang 2024-1-3 追加ko的升级功能
 	public static final String FPGA_SUNXI_KO = "fpga-sunxi.ko";
+	public static final String EXT_GPIO_KO = "ext_gpio.ko";
+	public static final String GSLX680_KO = "gslX680.ko";
+	public static final String RTC_DS1307_KO = "rtc-ds1307.ko";
+// End of H.M.Wang 2024-1-3 追加ko的升级功能
+
 
 	/**
 	 * SYSTEM_CONFIG_FILE

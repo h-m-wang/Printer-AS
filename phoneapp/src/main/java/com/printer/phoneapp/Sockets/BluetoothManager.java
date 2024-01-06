@@ -110,6 +110,52 @@ public class BluetoothManager {
         }
     };
 
+    private boolean mStateReceiverRegisterred = false;
+
+    private void registerStateBroadcaster() {
+        try {
+            if(null != mContext) {
+                mContext.registerReceiver(mStateBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                mStateReceiverRegisterred = true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    private void unregisterStateBroadcaster() {
+        try {
+            if(null != mContext && mStateReceiverRegisterred) {
+                mStateReceiverRegisterred = false;
+                mContext.unregisterReceiver(mStateBroadcaster);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    public void enableBluetooth() {
+        if(!isEnabled()) {
+            registerStateBroadcaster();
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            ((Activity)mContext).startActivityForResult(enableIntent, REQUEST_ENBLE_BT);
+        } else {
+            Log.d(TAG, "Bluetooth enabled already");
+        }
+    }
+
+    public void finishEnabling() {
+        Log.d(TAG, "Enabling job finished");
+        unregisterStateBroadcaster();
+    }
+
+    public void setEnablingResult(int result) {
+        if(result == Activity.RESULT_CANCELED) {
+            finishEnabling();
+        }
+    }
+
+// ------------------- 只用在使用 BluetoothAdapter.startDiscovery() 时才被启用
     private BroadcastReceiver mDiscoveryBroadcaster = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -184,6 +230,49 @@ public class BluetoothManager {
        }
     };
 
+    private boolean mDiscoveryReceiverRegisterred = false;
+
+    private void registerDiscoveryBroadcaster() {
+        try {
+            if(null != mContext) {
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothDevice.ACTION_UUID);
+                filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+                filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+                mContext.registerReceiver(mDiscoveryBroadcaster, filter);
+                mDiscoveryReceiverRegisterred = true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    private void unregisterDiscoveryBroadcaster() {
+        try {
+            if(null != mContext && mDiscoveryReceiverRegisterred) {
+                mDiscoveryReceiverRegisterred = false;
+                mContext.unregisterReceiver(mDiscoveryBroadcaster);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+    }
+
+    public boolean cancelDiscovery() {
+        if(!isEnabled()) {
+            Log.e(TAG, "Not enabled!");
+            return false;
+        }
+
+        mOnDiscoveryListener = null;
+        unregisterDiscoveryBroadcaster();
+        return mBluetoothAdapter.cancelDiscovery();
+    }
+// End of ------------------- 只用在使用 BluetoothAdapter.startDiscovery() 时才被启用
+
     private static BluetoothManager mBluetoothManager = null;
 
     public static BluetoothManager getInstance(Context ctx) {
@@ -219,36 +308,6 @@ public class BluetoothManager {
         return false;
     }
 
-    private boolean mEnabling = false;
-
-    public void enableBluetooth() {
-        if(null == mBluetoothAdapter || !mBluetoothAdapter.isEnabled()) {
-            mEnabling = true;
-            registerStateBroadcaster();
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            ((Activity)mContext).startActivityForResult(enableIntent, REQUEST_ENBLE_BT);
-//            mBluetoothAdapter.enable();
-        } else {
-            Log.d(TAG, "Bluetooth enabled already");
-        }
-    }
-
-    public boolean isEnabling() {
-        return mEnabling;
-    }
-
-    public void finishEnabling() {
-        Log.d(TAG, "Enabling job finished");
-        mEnabling = false;
-        unregisterStateBroadcaster();
-    }
-
-    public void setEnablingResult(int result) {
-        if(result == Activity.RESULT_CANCELED) {
-            finishEnabling();
-        }
-    }
-
     public BluetoothAdapter getAdapter() {
         return mBluetoothAdapter;
     }
@@ -261,81 +320,13 @@ public class BluetoothManager {
         return (null != mBluetoothAdapter && mBluetoothAdapter.isEnabled());
     }
 
-    private boolean mStateReceiverRegisterred = false;
-
-    private void registerStateBroadcaster() {
-        try {
-            if(null != mContext) {
-                mContext.registerReceiver(mStateBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-                mStateReceiverRegisterred = true;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
-    private void unregisterStateBroadcaster() {
-        try {
-            if(null != mContext && mStateReceiverRegisterred) {
-                mStateReceiverRegisterred = false;
-                mContext.unregisterReceiver(mStateBroadcaster);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
-    private boolean mPermissionReceiverRegisterred = false;
-
-    private boolean mDiscoveryReceiverRegisterred = false;
-
-    private void registerDiscoveryBroadcaster() {
-        try {
-            if(null != mContext) {
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-                filter.addAction(BluetoothDevice.ACTION_FOUND);
-                filter.addAction(BluetoothDevice.ACTION_UUID);
-                filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
-                filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-                mContext.registerReceiver(mDiscoveryBroadcaster, filter);
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED));
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_UUID));
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST));
-//                mContext.registerReceiver(mDiscoveryBroadcaster, new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED));
-                mDiscoveryReceiverRegisterred = true;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
-    private void unregisterDiscoveryBroadcaster() {
-        try {
-            if(null != mContext && mDiscoveryReceiverRegisterred) {
-                mDiscoveryReceiverRegisterred = false;
-                mContext.unregisterReceiver(mDiscoveryBroadcaster);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
     private  ScanCallback mScanCallback;
     private BluetoothLeScanner mBLEScanner;
-
+//private int count = 0;
     public boolean startDiscovery(OnDiscoveryListener l) {
         if(!isSupported()) {
             Log.e(TAG, "Not supported!");
             return false;
-        }
-
-        if(!isEnabled()) {
-            enableBluetooth();
-            while(mEnabling) {try{Thread.sleep(100);}catch(Exception e){}};
         }
 
         if(!isEnabled()) {
@@ -344,13 +335,18 @@ public class BluetoothManager {
         }
 
         if(mBluetoothAdapter.isDiscovering()) {
-            mBluetoothAdapter.cancelDiscovery();
+            Log.e(TAG, "Discovering!");
+            return false;
         }
 
-/*        registerDiscoveryBroadcaster();
+        mFoundDevices.clear();
         mOnDiscoveryListener = l;
+
+/* 普通蓝牙的扫描处理
+        registerDiscoveryBroadcaster();
         return mBluetoothAdapter.startDiscovery();
- */
+*/
+// BLE蓝牙的扫描处理
         mBLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
         mScanCallback = new ScanCallback() {
             @Override
@@ -371,6 +367,16 @@ public class BluetoothManager {
                 }
                 Log.d(TAG, "  Bonded = [" + device.getBondState() + "]");
 
+                if(null != device.getName() &&
+                    !device.getName().isEmpty() &&
+                    !isAddressExists(device.getAddress()) &&
+                    !mConnectDeviceManager.isAddressExists(device.getAddress())) {
+                    mFoundDevices.add(device);
+                    if(null != mOnDiscoveryListener) {
+                        mOnDiscoveryListener.onDeviceFound(device);
+                    };
+                }
+/*
                 if(null != device.getName() && device.getName().startsWith("aithinker")) {
                     mBLEScanner.stopScan(mScanCallback);
                     BluetoothGatt gatt = device.connectGatt(mContext, true, new BluetoothGattCallback() {
@@ -402,6 +408,7 @@ public class BluetoothManager {
                                             }
                                         }
                                         if(charr.getUuid().toString().indexOf("c304") > 0) {
+                                            count = 0;
                                             charr.setValue(new String("123456789012345678901234567890").getBytes());
                                             Log.d(TAG, "Launch Write: " + gatt.writeCharacteristic(charr));
                                         }
@@ -426,6 +433,10 @@ public class BluetoothManager {
                             super.onCharacteristicWrite(gatt, characteristic, status);
                             if(status == BluetoothGatt.GATT_SUCCESS) {
                                 Log.d(TAG, "[Characteristic Write]: " + characteristic.getUuid() + "\n" + Arrays.toString(characteristic.getValue()));
+                                if(count++ < 10) {
+                                    characteristic.setValue(new String("123456789012345678901234567890ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ").getBytes());
+                                    Log.d(TAG, "Launch Write: " + gatt.writeCharacteristic(characteristic));
+                                }
                             }
                         }
                         @Override
@@ -456,23 +467,26 @@ public class BluetoothManager {
                     } else {
                         Log.d(TAG, "BluetoothGatt null.");
                     }
-                }
+                }*/
             }
         };
+        if(null != mOnDiscoveryListener) {
+            mOnDiscoveryListener.onDiscoveryStarted();
+        };
         mBLEScanner.startScan(mScanCallback);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{ Thread.sleep(15000);} catch(InterruptedException e){};
+                mBLEScanner.stopScan(mScanCallback);
+                if(null != mOnDiscoveryListener) {
+                    mOnDiscoveryListener.onDiscoveryFinished();
+                };
+            }
+        }).start();
         return true;
     }
 
-    public boolean cancelDiscovery() {
-        if(!isEnabled()) {
-            Log.e(TAG, "Not enabled!");
-            return false;
-        }
-
-        mOnDiscoveryListener = null;
-        unregisterDiscoveryBroadcaster();
-        return mBluetoothAdapter.cancelDiscovery();
-    }
 
     public void getBondedDevices() {
         if(isEnabled()) {
@@ -485,7 +499,6 @@ public class BluetoothManager {
                 if(null != dev.getUuids()) {
                     for(ParcelUuid uuid : dev.getUuids()) {
                         Log.d(TAG, "  UUID = [" + uuid.getUuid() + "] (" + mUUIDTable.get(uuid.getUuid().toString().substring(4, 8)) + ")");
-                        ;
                     }
                 } else {
                     Log.d(TAG, "  UUID = [null]");

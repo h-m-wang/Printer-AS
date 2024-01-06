@@ -317,6 +317,15 @@
             android:layout_gravity="center_vertical"
             >
 
+            <!-- H.M.Wang 2023-1-6 这个完全没有必要，仅仅是为了解决扫码枪扫码时，ctrl_btn_up被自动打开的问题 -->
+            <!-- 一定不要将该控件设置为Invisible或者gone，否则无法起到阻挡作用 -->
+            <ImageButton
+                android:id="@+id/ctrl_btn_up1"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:src="@drawable/ctrl_up"
+                android:background="@drawable/bg_small_button"
+                />
             <ImageButton
                 android:id="@+id/ctrl_btn_up"
                 android:layout_width="wrap_content"

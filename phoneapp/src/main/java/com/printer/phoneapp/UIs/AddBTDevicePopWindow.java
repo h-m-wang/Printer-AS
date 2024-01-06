@@ -49,6 +49,10 @@ public class AddBTDevicePopWindow {
         mBluetoothManager = BluetoothManager.getInstance(ctx);
     }
 
+    private void clearDeviceView() {
+        mDevicesList.removeAllViews();
+    }
+
     private void addDeviceView(final BluetoothDevice dev) {
         final LinearLayout linearLayout;
 
@@ -121,6 +125,7 @@ public class AddBTDevicePopWindow {
                     Toast.makeText(mContext, "Bluetooth not enabled.", Toast.LENGTH_LONG).show();
                     return;
                 }
+                clearDeviceView();
                 mBluetoothManager.startDiscovery(new BluetoothManager.OnDiscoveryListener() {
                     @Override
                     public void onDiscoveryStarted() {
