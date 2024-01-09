@@ -3,6 +3,7 @@ package com.printer.phoneapp.UIs;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -22,6 +23,8 @@ import com.printer.phoneapp.Devices.ConnectDevice;
 import com.printer.phoneapp.Devices.ConnectDeviceManager;
 import com.printer.phoneapp.PhoneMainActivity;
 import com.printer.phoneapp.R;
+import com.printer.phoneapp.Sockets.BLEManager;
+import com.printer.phoneapp.Sockets.BTManager;
 import com.printer.phoneapp.Sockets.BluetoothManager;
 
 import java.util.ArrayList;
@@ -46,7 +49,13 @@ public class AddBTDevicePopWindow {
     public AddBTDevicePopWindow(Context ctx) {
         mContext = ctx;
         mConDevManager = ConnectDeviceManager.getInstance(ctx);
-        mBluetoothManager = BluetoothManager.getInstance(ctx);
+        if(!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
+            mBluetoothManager = BTManager.getInstance(ctx);
+        } else {
+            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
+            mBluetoothManager = BLEManager.getInstance(ctx);
+        }
     }
 
     private void clearDeviceView() {
@@ -73,8 +82,10 @@ public class AddBTDevicePopWindow {
             public void onClick(View v) {
                 if(!linearLayout.isSelected()) {
                     selIV.setImageResource(R.drawable.check_mark);
+                    mBluetoothManager.connectDevice(dev);
                 } else {
                     selIV.setImageBitmap(null);
+                    mBluetoothManager.disconnectDevice(dev);
                 }
                 linearLayout.setSelected(!selIV.isSelected());
             }

@@ -1875,11 +1875,15 @@ private void setSerialProtocol9DTs(final String data) {
 		if(mIndex > 0) return;
 // End of H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
 		for (int i = 0; i < mScheduler.count(); i++) {
-			// H.M.Wang 2019-10-10 添加初值是否为0的判断，如果为0，则判定为还没有初始化，首先进行初始化
+// H.M.Wang 2024-1-9 取消在此处判断计数是否需要填充一次阈值的操作，因为：(1)开始打印的时候通过recalCount函数已经预填数据，因此这里不需要再填充；(2)由于本函数后部有判断填充操作，因此在打印过程中，这里无需再次判断
+/*
 // H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
+			// H.M.Wang 2019-10-10 添加初值是否为0的判断，如果为0，则判定为还没有初始化，首先进行初始化
 //			if(mcountdown[i] == 0) mcountdown[i] = getInkThreshold(i);
 			if(mcountdown[i] < 1.0f) mcountdown[i] += getInkThreshold(i);
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
+*/
+// End of H.M.Wang 2024-1-9 取消在此处判断计数是否需要填充一次阈值的操作，因为：(1)开始打印的时候通过recalCount函数已经预填数据，因此这里不需要再填充；(2)由于本函数后部有判断填充操作，因此在打印过程中，这里无需再次判断
 
 			Debug.d(TAG, "mCountDown[" + i + "] = " + mcountdown[i]);
 
@@ -1889,7 +1893,10 @@ private void setSerialProtocol9DTs(final String data) {
 
 //			if (mcountdown[i] <= 0) {
 //				mcountdown[i] = getInkThreshold(i);
-			if (mcountdown[i] < 1.0f) {
+// H.M.Wang 2024-1-9 由于阈值可能小于1，即打印一次需要减锁数次才符合要求，因此，这里需要重复获取阈值并且减锁才可以。
+//			if (mcountdown[i] < 1.0f) {
+			while (mcountdown[i] <= 0.0f) {
+// End of H.M.Wang 2024-1-9 由于阈值可能小于1，即打印一次需要减锁数次才符合要求，因此，这里需要重复获取阈值并且减锁才可以。
 				mcountdown[i] += getInkThreshold(i);
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
 				mInkListener.onInkLevelDown(i);
@@ -2106,6 +2113,10 @@ private void setSerialProtocol9DTs(final String data) {
 //		return (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
 		IInkDevice scm = InkManagerFactory.inkManager(mContext);
 		mThresHolds[head] = 1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold) / rate * scm.getMaxRatio(head);
+// H.M.Wang 2024-1-8 计算时考虑双列的设置，如果设置了双列，因为同样内容要被打印两次，所以要消耗墨水量也要加倍(对应于threshold减少)
+		mThresHolds[head] /= (config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS) > 0 ? 2 : 1);
+// End of H.M.Wang 2024-1-8 计算时考虑双列的设置，如果设置了双列，因为同样内容要被打印两次，所以要消耗墨水量也要加倍
+		Debug.d(TAG, "mThresHolds[" + head + "]: " + mThresHolds[head]);
 		return mThresHolds[head];
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 	}

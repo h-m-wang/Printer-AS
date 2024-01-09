@@ -2,39 +2,20 @@ package com.printer.phoneapp.Sockets;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.ParcelUuid;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.printer.phoneapp.Devices.ConnectDeviceManager;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by hmwan on 2021/9/8.
@@ -45,18 +26,18 @@ public class BluetoothManager {
 
     public static final int REQUEST_ENBLE_BT = 18761;
 
-    private Context mContext;
-    private BluetoothAdapter mBluetoothAdapter = null;
-    private ConnectDeviceManager mConnectDeviceManager = null;
+    protected Context mContext;
+    protected BluetoothAdapter mBluetoothAdapter = null;
+    protected ConnectDeviceManager mConnectDeviceManager = null;
 
-    private ArrayList<BluetoothDevice> mFoundDevices = null;
+    protected ArrayList<BluetoothDevice> mFoundDevices = null;
 
     public interface OnDiscoveryListener {
         public void onDiscoveryStarted();
         public void onDiscoveryFinished();
         public void onDeviceFound(BluetoothDevice device);
     }
-    private OnDiscoveryListener mOnDiscoveryListener = null;
+    protected OnDiscoveryListener mOnDiscoveryListener = null;
 
     private BroadcastReceiver mStateBroadcaster = new BroadcastReceiver() {
         @Override
@@ -114,7 +95,7 @@ public class BluetoothManager {
 
     private void registerStateBroadcaster() {
         try {
-            if(null != mContext) {
+            if(null != mContext && !mStateReceiverRegisterred) {
                 mContext.registerReceiver(mStateBroadcaster, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
                 mStateReceiverRegisterred = true;
             }
@@ -155,151 +136,20 @@ public class BluetoothManager {
         }
     }
 
-// ------------------- 只用在使用 BluetoothAdapter.startDiscovery() 时才被启用
-    private BroadcastReceiver mDiscoveryBroadcaster = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            Log.d(TAG, "Action: " + action);
-
-            switch (action) {
-                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                    Log.d(TAG, "Discovery started.");
-                    mFoundDevices.clear();
-                    if(null != mOnDiscoveryListener) {
-                        mOnDiscoveryListener.onDiscoveryStarted();
-                    };
-                    break;
-                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                    Log.d(TAG, "Discovery finished.");
-                    if(null != mOnDiscoveryListener) {
-                        mOnDiscoveryListener.onDiscoveryFinished();
-                    };
-                    unregisterDiscoveryBroadcaster();
-                    break;
-                case BluetoothDevice.ACTION_FOUND:
-                    Log.d(TAG, "Device found.");
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Log.d(TAG, "  Name = [" + device.getName() + "]");
-                    Log.d(TAG, "  Address = [" + device.getAddress() + "]");
-                    Log.d(TAG, "  Type = [" + device.getType() + "]");      // 可能无用
-                    if(null != device.getUuids()) {
-                        for(ParcelUuid uuid : device.getUuids()) {
-                            Log.d(TAG, "  UUID = [" + uuid.getUuid() + "]");
-                        }
-                    } else {
-                        Log.d(TAG, "  UUID = [null]");
-                    }
-                    Log.d(TAG, "  Bonded = [" + device.getBondState() + "]");
-                    BluetoothClass bClass = intent.getParcelableExtra(BluetoothDevice.EXTRA_CLASS);
-                    Log.d(TAG, "  Class = [" + bClass.getDeviceClass() + "]");
-                    if(null != device.getName() &&
-                        !device.getName().isEmpty() &&
-                        !isAddressExists(device.getAddress()) &&
-                        !mConnectDeviceManager.isAddressExists(device.getAddress())) {
-                        mFoundDevices.add(device);
-                        if(null != mOnDiscoveryListener) {
-                            mOnDiscoveryListener.onDeviceFound(device);
-                        };
-                    }
-                    break;
-                case BluetoothDevice.ACTION_UUID:   // 这个只有是绑定了的设备才能够获得
-                    BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Log.d(TAG, "UUIDs of Device [" + (null == dev ? "null" : dev.getName()) + "]");
-                    Parcelable[] uuids = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
-                    if(null != uuids) {
-                        for(Parcelable uuid : uuids) {
-                            Log.d(TAG, "  UUID = [" + uuid.toString() + "]");
-                        }
-                    } else {
-                        Log.d(TAG, "  UUID = [null]");
-                    }
-                    break;
-                case BluetoothDevice.ACTION_PAIRING_REQUEST:
-                    dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Log.d(TAG, "ACTION_PAIRING_REQUEST of Device [" + (null == dev ? "null" : dev.getName()) + "]");
-                    break;
-                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
-                    dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Log.d(TAG, "ACTION_BOND_STATE_CHANGED of Device [" + (null == dev ? "null" : dev.getName()) + "]");
-                    Log.d(TAG, "Previous Bond state: " + intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, BluetoothDevice.BOND_NONE));
-                    Log.d(TAG, "Bond state: " + intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.BOND_NONE));
-                    break;
-            }
-       }
-    };
-
-    private boolean mDiscoveryReceiverRegisterred = false;
-
-    private void registerDiscoveryBroadcaster() {
-        try {
-            if(null != mContext) {
-                IntentFilter filter = new IntentFilter();
-                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-                filter.addAction(BluetoothDevice.ACTION_FOUND);
-                filter.addAction(BluetoothDevice.ACTION_UUID);
-                filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
-                filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-                mContext.registerReceiver(mDiscoveryBroadcaster, filter);
-                mDiscoveryReceiverRegisterred = true;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
-    private void unregisterDiscoveryBroadcaster() {
-        try {
-            if(null != mContext && mDiscoveryReceiverRegisterred) {
-                mDiscoveryReceiverRegisterred = false;
-                mContext.unregisterReceiver(mDiscoveryBroadcaster);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
-
-    public boolean cancelDiscovery() {
-        if(!isEnabled()) {
-            Log.e(TAG, "Not enabled!");
-            return false;
-        }
-
-        mOnDiscoveryListener = null;
-        unregisterDiscoveryBroadcaster();
-        return mBluetoothAdapter.cancelDiscovery();
-    }
-// End of ------------------- 只用在使用 BluetoothAdapter.startDiscovery() 时才被启用
-
-    private static BluetoothManager mBluetoothManager = null;
-
-    public static BluetoothManager getInstance(Context ctx) {
-        if(null == mBluetoothManager) {
-            mBluetoothManager = new BluetoothManager(ctx);
-        }
-        return mBluetoothManager;
+    protected static BluetoothManager mBluetoothManager = null;
+    public BluetoothManager(Context ctx) {
+        mContext = ctx;
+        mFoundDevices = new ArrayList<BluetoothDevice>();
+        mConnectDeviceManager = ConnectDeviceManager.getInstance(ctx);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        getBondedDevices();
     }
 
     public static BluetoothManager getInstance() {
         return mBluetoothManager;
     }
 
-    private BluetoothManager(Context ctx) {
-        mContext = ctx;
-        mFoundDevices = new ArrayList<BluetoothDevice>();
-        mConnectDeviceManager = ConnectDeviceManager.getInstance(ctx);
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
-        } else {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
-        }
-//        getBondedDevices();
-    }
-
-    private boolean isAddressExists(String address) {
+    protected boolean isAddressExists(String address) {
         for(BluetoothDevice dev : mFoundDevices) {
             if(dev.getAddress().equalsIgnoreCase(address)) {
                 return true;
@@ -320,9 +170,8 @@ public class BluetoothManager {
         return (null != mBluetoothAdapter && mBluetoothAdapter.isEnabled());
     }
 
-    private  ScanCallback mScanCallback;
-    private BluetoothLeScanner mBLEScanner;
-//private int count = 0;
+    public void stopDiscovery() {}
+
     public boolean startDiscovery(OnDiscoveryListener l) {
         if(!isSupported()) {
             Log.e(TAG, "Not supported!");
@@ -342,151 +191,8 @@ public class BluetoothManager {
         mFoundDevices.clear();
         mOnDiscoveryListener = l;
 
-/* 普通蓝牙的扫描处理
-        registerDiscoveryBroadcaster();
-        return mBluetoothAdapter.startDiscovery();
-*/
-// BLE蓝牙的扫描处理
-        mBLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        mScanCallback = new ScanCallback() {
-            @Override
-            public void onScanResult(int callbackType, ScanResult result) {
-                super.onScanResult(callbackType, result);
-                BluetoothDevice device = result.getDevice();
-
-                Log.d(TAG, "BLE Device found.");
-                Log.d(TAG, "  Name = [" + device.getName() + "]");
-                Log.d(TAG, "  Address = [" + device.getAddress() + "]");
-                Log.d(TAG, "  Type = [" + device.getType() + "]");      // 可能无用
-                if(null != device.getUuids()) {
-                    for(ParcelUuid uuid : device.getUuids()) {
-                        Log.d(TAG, "  UUID = [" + uuid.getUuid() + "]");
-                    }
-                } else {
-                    Log.d(TAG, "  UUID = [null]");
-                }
-                Log.d(TAG, "  Bonded = [" + device.getBondState() + "]");
-
-                if(null != device.getName() &&
-                    !device.getName().isEmpty() &&
-                    !isAddressExists(device.getAddress()) &&
-                    !mConnectDeviceManager.isAddressExists(device.getAddress())) {
-                    mFoundDevices.add(device);
-                    if(null != mOnDiscoveryListener) {
-                        mOnDiscoveryListener.onDeviceFound(device);
-                    };
-                }
-/*
-                if(null != device.getName() && device.getName().startsWith("aithinker")) {
-                    mBLEScanner.stopScan(mScanCallback);
-                    BluetoothGatt gatt = device.connectGatt(mContext, true, new BluetoothGattCallback() {
-                        @Override
-                        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                            super.onConnectionStateChange(gatt, status, newState);
-                            if(newState == BluetoothProfile.STATE_CONNECTED) {
-                                gatt.discoverServices();
-                                Log.d(TAG, "Connected to GATT server.");
-                            } else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
-                                Log.d(TAG, "Disconnected from GATT server.");
-                            }
-                        }
-                        @Override
-                        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                            super.onServicesDiscovered(gatt, status);
-                            if(status == BluetoothGatt.GATT_SUCCESS) {
-                                Log.d(TAG, "Gatt connect succeed.");
-                                for(BluetoothGattService service : gatt.getServices()) {
-                                    Log.d(TAG, "[Service] Type: " + service.getType() + "; UUID: " + service.getUuid());
-                                    for(BluetoothGattCharacteristic charr : service.getCharacteristics()) {
-//                                        try{Thread.sleep(50);}catch(Exception e){};
-                                        Log.d(TAG, "\t[Characteristic] Properties: " + charr.getProperties() + "; UUID: " + charr.getUuid());
-                                        for(BluetoothGattDescriptor desc : charr.getDescriptors()) {
-                                            Log.d(TAG, "\t\t[Descriptor] UUID: " + desc.getUuid());
-                                            if(charr.getProperties() == BluetoothGattCharacteristic.PROPERTY_INDICATE ||
-                                               charr.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
-                                                gatt.setCharacteristicNotification(charr, true);
-                                            }
-                                        }
-                                        if(charr.getUuid().toString().indexOf("c304") > 0) {
-                                            count = 0;
-                                            charr.setValue(new String("123456789012345678901234567890").getBytes());
-                                            Log.d(TAG, "Launch Write: " + gatt.writeCharacteristic(charr));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        @Override
-                        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                            super.onCharacteristicRead(gatt, characteristic, status);
-                            if(status == BluetoothGatt.GATT_SUCCESS) {
-                                Log.d(TAG, "[Characteristic Read]: " + characteristic.getUuid() + "\n" + Arrays.toString(characteristic.getValue()));
-                            }
-                        }
-                        @Override
-                        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-                            super.onCharacteristicChanged(gatt, characteristic);
-                            Log.d(TAG, "[Characteristic Changed]: " + characteristic.getUuid() + "\n" + Arrays.toString(characteristic.getValue()));
-                        }
-                        @Override
-                        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                            super.onCharacteristicWrite(gatt, characteristic, status);
-                            if(status == BluetoothGatt.GATT_SUCCESS) {
-                                Log.d(TAG, "[Characteristic Write]: " + characteristic.getUuid() + "\n" + Arrays.toString(characteristic.getValue()));
-                                if(count++ < 10) {
-                                    characteristic.setValue(new String("123456789012345678901234567890ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ").getBytes());
-                                    Log.d(TAG, "Launch Write: " + gatt.writeCharacteristic(characteristic));
-                                }
-                            }
-                        }
-                        @Override
-                        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                            super.onDescriptorWrite(gatt, descriptor, status);
-                            if(status == BluetoothGatt.GATT_SUCCESS) {
-                                Log.d(TAG, "[Descriptor Write]: " + descriptor.getUuid() + "\n" + Arrays.toString(descriptor.getValue()));
-                            } else {
-                                Log.d(TAG, "[Descriptor Write]: failed. " + status);
-                            }
-                        }
-                        @Override
-                        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                            super.onDescriptorRead(gatt, descriptor, status);
-                            if(status == BluetoothGatt.GATT_SUCCESS) {
-                                Log.d(TAG, "[Descriptor Read]: " + descriptor.getUuid() + "\n" + Arrays.toString(descriptor.getValue()));
-                            } else {
-                                Log.d(TAG, "[Descriptor Read]: failed. " + status);
-                            }
-                        }
-                    });
-                    if(null != gatt) {
-                        if(gatt.connect()) {
-                            Log.d(TAG, "Connect succeed.");
-                        } else {
-                            Log.d(TAG, "Connect failed.");
-                        }
-                    } else {
-                        Log.d(TAG, "BluetoothGatt null.");
-                    }
-                }*/
-            }
-        };
-        if(null != mOnDiscoveryListener) {
-            mOnDiscoveryListener.onDiscoveryStarted();
-        };
-        mBLEScanner.startScan(mScanCallback);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{ Thread.sleep(15000);} catch(InterruptedException e){};
-                mBLEScanner.stopScan(mScanCallback);
-                if(null != mOnDiscoveryListener) {
-                    mOnDiscoveryListener.onDiscoveryFinished();
-                };
-            }
-        }).start();
         return true;
     }
-
 
     public void getBondedDevices() {
         if(isEnabled()) {
@@ -510,93 +216,8 @@ public class BluetoothManager {
         }
     }
 
-    public void connectDevice(final BluetoothDevice device) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if(!isSupported()) {
-                        Log.e(TAG, "Not supported!");
-                        return;
-                    }
-
-            //        if(!isEnabled()) {
-            //            enableBluetooth();
-            //            while(mEnabling) {try{Thread.sleep(100);}catch(Exception e){}};
-            //        }
-
-                    if(!isEnabled()) {
-                        Log.e(TAG, "Not enabled!");
-                        return;
-                    }
-                        Log.d(TAG, "Start-1004");
-//                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("F4:4E:FD:14:63:66");  // SANSUI 耳机
-//                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("D0:9F:74:B1:ED:F9");    // 蓝牙鼠标
-                        Log.d(TAG, "Device got " + device.getName());
-                    Log.d(TAG, "Device Class " + device.getBluetoothClass().getDeviceClass());
-                    Log.d(TAG, "Device UUID " + device.getUuids());
-
-                        // 这里调用配对，配对成功后，系统的蓝牙会自动连接这个蓝牙设备（因为是音乐播放器，已有的播放器会主动连接），因此导致我们后续的连接失败（因为蓝牙只支持一个连接）
-//                        Method m1 = device.getClass().getMethod("createBond");
-//                        Log.d(TAG, "Bond: " + m1.invoke(device));
-
-                        // 直接获得socket(0000111e-0000-1000-8000-00805f9b34fb)成功，无论是否配对，但是其他的都会失败，无论配对与否，连接与否
-                        // 如果有配对，Method的方法可以成功，如果没有配对，会提示配对，如果不配对会失败，配对会成功。（但是出过pin不匹配错误而失败）
-                        // 如果已有其他设备连接，则都会失败；因为只支持一个连接
-// 蓝牙鼠标
-//
-//                        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001812-0000-1000-8000-00805f9b34fb"));
-// 已配对未连接状态下，不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001812-0000-1000-8000-00805f9b34fb"));
-// 已配对未连接状态下，不成功                      Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-//                        BluetoothSocket socket = (BluetoothSocket)m.invoke(device, 1);
-
-// SANSUI 耳机。
-// 这个失败。出现Pin不匹配的错误。不配对也可以执行到这里                        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("0000111e-0000-1000-8000-00805f9b34fb"));
-// 这个成功。即使没有配对也可以链接成功，而不提示配对
-                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000c300-0000-1000-8000-00805f9b34fb"));
-//                    BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000111e-0000-1000-8000-00805f9b34fb"));
-// 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000110e-0000-1000-8000-00805f9b34fb"));
-// 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000110b-0000-1000-8000-00805f9b34fb"));
-// 这个不成功                        BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00000000-0000-1000-8000-00805f9b34fb"));
-// 会提示配对                       Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-//                        BluetoothSocket socket = (BluetoothSocket)m.invoke(device, 1);
-
-                        Log.d(TAG, "Socket created " + socket.toString());
-                        if(null != socket && !socket.isConnected()) {
-                            Log.d(TAG, "Connecting...");
-                            cancelDiscovery();
-                            socket.connect();
-                            Log.d(TAG, "Socket connected: " + socket.isConnected());
-                            if(null != socket) {
-                                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                                String is = br.readLine();      // 首次从耳机收到[AT+BRSF=639]
-                                Log.d(TAG, "Socket Received: [" + is + "]");
-
-                                while(true) {
-                                    OutputStream os = socket.getOutputStream();
-                                    os.write(new byte[]{0x0D});
-                                    os.write(new byte[]{0x0A});
-                                    os.write("+BRSF:639".getBytes());
-                                    os.write(new byte[]{0x0D});
-                                    os.write(new byte[]{0x0A});
-                                    os.flush();
-
-                                    is = br.readLine();
-                                    Log.d(TAG, "Socket Received: [" + is + "]");
-                                }
-
-//                                09-09 16:56:36.054 30112-30502/com.printer.phoneapp D/BluetoothManager: Socket Received: [AT+BRSF=639]
-//                                发送 <CR><LF>+BRSF:639<CR><LF>
-//                                09-09 16:56:42.760 30112-30502/com.printer.phoneapp D/BluetoothManager: Socket Received: [AT+CIND=?]
-                            }
-
-                        }
-                } catch(Exception e) {
-                    Log.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
-                }
-            }
-        }).start();
-    }
+    public void connectDevice(final BluetoothDevice device){}
+    public void disconnectDevice(final BluetoothDevice device){}
 
     private HashMap<String, String> mUUIDTable = new HashMap<String, String>() {
         {

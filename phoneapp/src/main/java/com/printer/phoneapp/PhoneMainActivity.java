@@ -294,7 +294,8 @@ public class PhoneMainActivity extends AppCompatActivity {
         setContentView(R.layout.phone_main_layout);
 
         mConDevManager = ConnectDeviceManager.getInstance(this);
-        mBluetoothManager = BluetoothManager.getInstance(this);
+        mBluetoothManager = new BluetoothManager(this);
+        mBluetoothManager.enableBluetooth();
 
         mDeviceAddingArea = (LinearLayout) findViewById(R.id.DeviceAddingArea);
         mAddWIFIDevice0 = (TextView) findViewById(R.id.CmdAddWIFIDevice0);

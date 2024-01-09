@@ -145,7 +145,7 @@ public class PCCommandHandler {
         PCCommand cmd = PCCommand.fromString(msg);
         if(null == cmd) return;
 
-        // End of H.M.Wang 2020-1-8 提取命令ID
+        // H.M.Wang 2020-1-8 提取命令ID
         mControlTabActivity.mPCCmdId = cmd.check;
         // End of H.M.Wang 2020-1-8 提取命令ID
 
