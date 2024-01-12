@@ -903,7 +903,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //				Debug.d(TAG, "+++++++++++++>source: " + o.getSource());
 //				/* 如果二維碼從QR文件中讀 */
 // H.M.Wang 2021-4-4 恢复如果是静态二维码，则不再生成二维码图片
-				if (!o.getSource()) {
+// H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
+//				if (!o.getSource()) {
+				if (!o.getSource() && !((BarcodeObject) o).needRedraw()) {
+// End of H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
 					continue;
 				}
 // End of H.M.Wang 2021-4-4 恢复如果是静态二维码，则不再生成二维码图片
@@ -964,12 +967,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				// BinCreater.saveBitmap(bmp, "bar.png");
 				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
 
+// H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 // 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
 // 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式试着可能会重叠，改为覆盖
-				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
-//				BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+//				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+				BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
 // End of 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式试着可能会重叠，改为覆盖
 // End of 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
+// End of H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 				continue;
 // H.M.Wang 2020-5-22 串口数据启用DynamicText，取消代用CounterObject
             } else if(o instanceof DynamicText) {

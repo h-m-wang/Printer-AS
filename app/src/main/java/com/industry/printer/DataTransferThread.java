@@ -565,6 +565,10 @@ public class DataTransferThread {
 // End of H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 						needUpdate = true;
+// H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
+// End of H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
+					} else if(!((BarcodeObject) baseObject).isDynamicCode() && ((BarcodeObject) baseObject).containsDT()) {
+						needUpdate = true;
 					}
 // H.M.Wang 2023-12-30 增加对DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {
@@ -630,7 +634,11 @@ public class DataTransferThread {
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 // End of H.M.Wang 2023-5-30 放开这个注释，否则新的BC可能不能及时反映到当前的变量中
 						needUpdate = true;
+// End of H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
+					} else if(!((BarcodeObject) baseObject).isDynamicCode() && ((BarcodeObject) baseObject).containsDT()) {
+						needUpdate = true;
 					}
+// H.M.Wang 2023-12-30 增加对DT的支持。
 // End. -----
 // H.M.Wang 2023-12-30 增加对DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {

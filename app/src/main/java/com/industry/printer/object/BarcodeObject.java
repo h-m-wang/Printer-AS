@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Vector;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -672,12 +673,12 @@ public class BarcodeObject extends BaseObject {
 					{
 // H.M.Wang 2022-12-20 追加反白设置
 //						pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
-						pixels[y * width + x] = mRevert ? 0xffffffff : 0xff000000;
+						pixels[y * width + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
 // End of H.M.Wang 2022-12-20 追加反白设置
 					} else {
 // H.M.Wang 2022-12-20 追加反白设置
 //						pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
-						pixels[y * width + x] = mRevert ? 0xff000000 : 0xffffffff;
+						pixels[y * width + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
 // End of H.M.Wang 2022-12-20 追加反白设置
 					}
 				}
@@ -737,7 +738,7 @@ public class BarcodeObject extends BaseObject {
 			if(qrcode.getHeight() <= h) {
 				Java2DRenderer renderer = new Java2DRenderer(h/qrcode.getHeight(), Color.WHITE, Color.BLACK);
 				renderer.setReverse(mRevert);
-				if (isDynamicCode()) {
+				if (isDynamicCode() || needRedraw()) {
 					renderer.setInk(0xff0000ff);
 				}
 				Bitmap bitmap = renderer.render(qrcode);
@@ -775,7 +776,7 @@ public class BarcodeObject extends BaseObject {
 			if(dataMatrix.getHeight() <= h) {
 				Java2DRenderer renderer = new Java2DRenderer(h/dataMatrix.getHeight(), Color.WHITE, Color.BLACK);
 				renderer.setReverse(mRevert);
-				if (isDynamicCode()) {
+				if (isDynamicCode() || needRedraw()) {
 					renderer.setInk(0xff0000ff);
 				}
 				Bitmap bitmap = renderer.render(dataMatrix);
@@ -817,12 +818,12 @@ public class BarcodeObject extends BaseObject {
 				{
 // H.M.Wang 2022-12-20 追加反白设置
 //					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
-					pixels[y * width + x] = mRevert ? 0xffffffff : 0xff000000;
+					pixels[y * width + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
 // End of H.M.Wang 2022-12-20 追加反白设置
 				} else {
 // H.M.Wang 2022-12-20 追加反白设置
 //					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
-					pixels[y * width + x] = mRevert ? 0xff000000 : 0xffffffff;
+					pixels[y * width + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
 // End of H.M.Wang 2022-12-20 追加反白设置
 				}
 			}
@@ -1273,6 +1274,24 @@ public class BarcodeObject extends BaseObject {
 
 	}
 */
+// H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此在生成打印缓冲区的时候，判断是否需要重画
+	public boolean needRedraw() {
+		Vector<BaseObject> subOjbs = mHTContent.getSubObjs();
+		for (BaseObject object : subOjbs) {
+			if(!(object instanceof TextObject)) return true;
+		}
+		return false;
+	}
+
+	public boolean containsDT() {
+		Vector<BaseObject> subOjbs = mHTContent.getSubObjs();
+		for (BaseObject object : subOjbs) {
+			if(object instanceof DynamicText) return true;
+		}
+		return false;
+	}
+// End of H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此在生成打印缓冲区的时候，判断是否需要重画
+
 	public Bitmap getPrintBitmap(int totalW, int totalH, int w, int h, int y) {
 		Bitmap bg = Bitmap.createBitmap(totalW, totalH, Configs.BITMAP_CONFIG);
 		Canvas canvas = new Canvas(bg);
@@ -1280,7 +1299,9 @@ public class BarcodeObject extends BaseObject {
 		Bitmap bitmap = null;
 
 // H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
-		mHTContent.setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
+// H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此静态条码也可能会被重画，这里只有动态条码才使用桶里面的内容
+		if(isDynamicCode())	mHTContent.setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
+// End of H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此静态条码也可能会被重画，这里只有动态条码才使用桶里面的内容
 // End of H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
 		String cnt = mHTContent.getExpandedContent();
 		mContent = cnt;
