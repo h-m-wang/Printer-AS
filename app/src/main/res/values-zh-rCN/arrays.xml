@@ -22,6 +22,9 @@
         <item>扫描2</item>
         <item>扫描3</item>
         <item>扫描4</item>
+<!-- H.M.Wang 2024-1-12 增加一个扫描协议5 -->
+        <item>扫描5</item>
+<!-- End of H.M.Wang 2024-1-12 增加一个扫描协议5 -->
         <item>串口协议1</item>
         <item>串口协议2</item>
         <item>串口协议3</item>

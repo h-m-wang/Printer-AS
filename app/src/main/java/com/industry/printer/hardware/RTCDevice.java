@@ -149,7 +149,7 @@ public class RTCDevice {
 		byte byte4 = (byte) Integer.parseInt(bytes[6].substring(index+2), 16);
 		byte byte5 = (byte) Integer.parseInt(bytes[7].substring(index+2), 16);
 		int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
-		
+
 		//检查校验和
 		byte checksum = (byte) ((byte1 + byte2 + byte3 + byte4) & 0x0ff);
 		if (checksum == byte5) {

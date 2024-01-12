@@ -7,6 +7,7 @@ import android.support.v4.app.INotificationSideChannel;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ToastUtil;
@@ -202,39 +203,48 @@ public class BarcodeScanParser {
         mCodeListener = l;
     }
 
+    private static void parseCode() {
+        StringBuilder sb = new StringBuilder();
+        int pos = 0;
+        String code = mCodes.toString();
+
+        while(pos < code.length()) {
+            int index = code.indexOf("%", pos);
+            if(index < 0) {
+                sb.append(code.substring(pos));
+                break;
+            } else {
+                if(index > pos) sb.append(code, pos, index);
+                if(index + 1 < code.length() && code.charAt(index+1) == '%') {
+                    sb.append("%");
+                    pos = index + 2;
+                } else if(index + 4 < code.length()) {
+                    int utf = Integer.parseInt(code.substring(index+1,index+3), 16);
+                    utf += (Integer.parseInt(code.substring(index+3,index+5), 16) << 8);
+                    sb.append((char) utf);
+                    pos = index + 5;
+                }
+            }
+        }
+
+        Debug.i(TAG, "Code: [" + sb.toString() + "]");
+
+        if(null != mCodeListener) {
+            mCodeListener.onCodeReceived(sb.toString());
+        }
+    }
+
     private static void handleCode() {
         Debug.i(TAG, "Code: [" + mCodes.toString() + "](" + mCodes.length() + ")");
 
+// H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
+        if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+            parseCode();
+        } else
+// End of H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
         if(mCodes.length() > 2 && mCodes.charAt(1) == mCodes.charAt(mCodes.length()-1)) {          // 最后一位与第二位的值需要一致
             mCodes.deleteCharAt(mCodes.length()-1);
-            StringBuilder sb = new StringBuilder();
-            int pos = 0;
-            String code = mCodes.toString();
-
-            while(pos < code.length()) {
-                int index = code.indexOf("%", pos);
-                if(index < 0) {
-                    sb.append(code.substring(pos));
-                    break;
-                } else {
-                    if(index > pos) sb.append(code, pos, index);
-                    if(index + 1 < code.length() && code.charAt(index+1) == '%') {
-                        sb.append("%");
-                        pos = index + 2;
-                    } else if(index + 4 < code.length()) {
-                        int utf = Integer.parseInt(code.substring(index+1,index+3), 16);
-                        utf += (Integer.parseInt(code.substring(index+3,index+5), 16) << 8);
-                        sb.append((char) utf);
-                        pos = index + 5;
-                    }
-                }
-            }
-
-            Debug.i(TAG, "Code: [" + sb.toString() + "]");
-
-            if(null != mCodeListener) {
-                mCodeListener.onCodeReceived(sb.toString());
-            }
+            parseCode();
         }
         mCodes.delete(0, mCodes.length());
     }

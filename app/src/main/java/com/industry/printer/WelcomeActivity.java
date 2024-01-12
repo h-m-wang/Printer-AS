@@ -124,23 +124,15 @@ public class WelcomeActivity extends Activity {
 							}
 						} catch (PackageManager.NameNotFoundException e) {
 							Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
 						} catch (FileNotFoundException e) {
 							Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
 						} catch (IOException e) {
 							Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
 						} catch (NumberFormatException e) {
 							Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
 						} catch (Exception e) {
 							Debug.e(TAG, e.getMessage());
-//						str = e.getMessage();
 						}
-
-//					AlertDialog.Builder builder = new AlertDialog.Builder(WelcomeActivity.this);
-//					builder.setMessage(str).create().show();
 					}
 					mLoading1s.setVisibility(View.GONE);
 					if(null != mStartupDialog) mStartupDialog.dismiss();

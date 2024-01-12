@@ -929,7 +929,7 @@ public class DataTransferThread {
 						int dtIndex = ((DynamicText)baseObject).getDtIndex();
 						if(dtIndex == mDtIndex) {
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
-							SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), data);
+// 在下面设了，这里不用设							SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), data);
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							baseObject.setContent(data);
 							needUpdate = true;
@@ -1571,6 +1571,15 @@ private void setSerialProtocol9DTs(final String data) {
                 }
             });
 // End of H.M.Wang 2021-9-17 追加扫描协议1-FIFO
+// H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
+		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
+				@Override
+				public void onCodeReceived(String code) {
+					setRemote1TextSeparated(code);
+				}
+			});
+// End of H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
 		}
 // End of H.M.Wang 2020-10-30 追加数据源判断，启动扫描处理，因为有两个处理从一个扫码枪途径获取数据
 

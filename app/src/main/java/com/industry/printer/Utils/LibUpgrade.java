@@ -49,7 +49,7 @@ public class LibUpgrade {
 
             String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
             Debug.d(TAG, "DstMD5: [" + dstMD5 + "].");
-            if(!srcMD5.equals(dstMD5)) {
+            if(!srcMD5.equalsIgnoreCase(dstMD5)) {
                 FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(src));
                 Debug.d(TAG, "/data/camera/" + ko + " written.");
                 Thread.sleep(100);
@@ -57,7 +57,7 @@ public class LibUpgrade {
                 Debug.d(TAG, "chmod 0644 /data/camera/" + ko);
                 os.writeBytes("chmod 0644 /data/camera/" + ko + "\n");
 
-                if(!srcMD5.equals(CypherUtils.getFileMD5("/data/camera/" + ko))) {
+                if(!srcMD5.equalsIgnoreCase(CypherUtils.getFileMD5("/data/camera/" + ko))) {
                     Debug.e(TAG, "Copy to temp failed.");
                     return false;
                 }
@@ -89,7 +89,7 @@ public class LibUpgrade {
             Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
             Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
             is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
+            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
 // H.M.Wang 2020-12-26 追加硬件库复制功能
                 Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HARDWARE_SO);
                 os.writeBytes("chmod 777 /system/lib/" + Configs.HARDWARE_SO);
@@ -121,7 +121,7 @@ public class LibUpgrade {
             Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
             Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
             is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
+            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
                 Debug.d(TAG, "chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
                 os.writeBytes("chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
                 Thread.sleep(100);
@@ -151,7 +151,7 @@ public class LibUpgrade {
             Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
             Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
             is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
+            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
                 Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
                 os.writeBytes("chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
                 Thread.sleep(100);
@@ -181,7 +181,7 @@ public class LibUpgrade {
             Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
             Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
             is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
+            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
                 Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SERIAL_SO);
                 os.writeBytes("chmod 777 /system/lib/" + Configs.SERIAL_SO);
                 Thread.sleep(100);
@@ -211,7 +211,7 @@ public class LibUpgrade {
             Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
             Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
             is.reset();
-            if(!CypherUtils.getFileMD5(file).equals(CypherUtils.getStreamMD5(is))) {
+            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
                 Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HP22MM_SO);
                 os.writeBytes("chmod 777 /system/lib/" + Configs.HP22MM_SO);
                 Thread.sleep(100);
