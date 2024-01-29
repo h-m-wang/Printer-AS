@@ -19,20 +19,20 @@ import java.util.concurrent.TimeoutException;
 public class StreamTransport {
     private static final String TAG = StreamTransport.class.getSimpleName();
 
-    private InputStream mFileInputStream = null;
-    private OutputStream mFileOutputStream = null;
+    private InputStream mInputStream = null;
+    private OutputStream mOutputStream = null;
 //    private BufferedWriter mBufferedWriter = null;
 //    private PrintWriter mPrintWriter = null;
     private BufferedReader mBufferedReader = null;
 
     public StreamTransport(InputStream is, OutputStream os) {
-        mFileInputStream = is;
-        mFileOutputStream = os;
+        mInputStream = is;
+        mOutputStream = os;
 // 使用BufferedWriter
-//            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8")));
+//            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mOutputStream, Charset.forName("UTF-8")));
 // 使用PrintWriter
-//            mPrintWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8"))));
-        mBufferedReader = new BufferedReader(new InputStreamReader(mFileInputStream, Charset.forName("UTF-8")));
+//            mPrintWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mOutputStream, Charset.forName("UTF-8"))));
+        mBufferedReader = new BufferedReader(new InputStreamReader(mInputStream, Charset.forName("UTF-8")));
     }
 
     public void close() {
@@ -42,14 +42,14 @@ public class StreamTransport {
                 mBufferedReader = null;
                 Debug.d(TAG, "mBufferedReader closed");
             }
-            if(null != mFileInputStream) {
-                mFileInputStream.close();
-                mFileInputStream = null;
+            if(null != mInputStream) {
+                mInputStream.close();
+                mInputStream = null;
                 Debug.d(TAG, "InputStream closed");
             }
-            if(null != mFileOutputStream) {
-                mFileOutputStream.close();
-                mFileOutputStream = null;
+            if(null != mOutputStream) {
+                mOutputStream.close();
+                mOutputStream = null;
                 Debug.d(TAG, "OutputStream closed");
             }
         } catch(Exception e) {
@@ -59,8 +59,8 @@ public class StreamTransport {
 
     public void write(byte[] buffer, int offset, int count) {
         try {
-            mFileOutputStream.write(buffer, offset, count);
-            mFileOutputStream.flush();
+            mOutputStream.write(buffer, offset, count);
+            mOutputStream.flush();
 //            Debug.d(TAG, "Send Data :[" + ByteArrayUtils.toHexString(buffer, offset, count) + "](" + count + " bytes)");
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
@@ -118,11 +118,11 @@ public class StreamTransport {
         int recv = 0;
         try {
             while(recv < count) {
-                int ret = mFileInputStream.read(buffer, offset + recv, count - recv);
+                int ret = mInputStream.read(buffer, offset + recv, count - recv);
                 if(ret == -1) break;
                 recv += ret;
             }
-//            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
+            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }
@@ -134,10 +134,10 @@ public class StreamTransport {
     }
 
     public InputStream getInputStream() {
-        return mFileInputStream;
+        return mInputStream;
     }
 
     public OutputStream getOutputStream() {
-        return mFileOutputStream;
+        return mOutputStream;
     }
 }

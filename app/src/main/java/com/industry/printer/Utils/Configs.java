@@ -36,8 +36,8 @@ public class Configs {
 	 * set Rfid value to 370/2 if Rfid is missing;
 	 * skip UID checking after 'print' command triggered before data transfer;
 	 */
-	public static final boolean READING = true;			// 忽略RFID检查
-//	public static final boolean READING = false;		// 检查RFID
+//	public static final boolean READING = true;			// 忽略RFID检查
+	public static final boolean READING = false;		// 检查RFID
 
 // H.M.Wang 2023-10-31 增加一个俄语限制的控制符，用来使能或失能俄语控制功能
 	public static final boolean RUSSIAN_CONTROL = true;

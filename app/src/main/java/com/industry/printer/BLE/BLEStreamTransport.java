@@ -26,4 +26,16 @@ public class BLEStreamTransport extends StreamTransport {
     public void writeLine(String str) {
         mBLEDevice.writeLine(str);
     }
+
+    @Override
+    public int read(byte[] buffer, int offset, int count) {
+        return mBLEDevice.read(buffer, offset, count);
+    }
+
+    @Override
+    public int read(byte[] buffer) {
+        return this.read(buffer, 0, buffer.length);
+    }
+
+
 }

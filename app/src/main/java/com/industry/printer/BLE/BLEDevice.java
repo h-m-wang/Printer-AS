@@ -186,6 +186,9 @@ public class BLEDevice {
                 mClientConnected = true;
                 mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+4, RECV_CONNECTED.length()+21);
 //                Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
+                mStreamTransport.readLine();
+                byte[] aaa = new byte[20];
+                read(aaa,0,20);
             }
         } else {
             if(rcvString.startsWith(RECV_DISCONNECTED)) {
@@ -207,5 +210,53 @@ public class BLEDevice {
         if(sendATCmd(CMD_GATTS_INDICATE+msg.length())) {
             sendString(msg);
         }
+    }
+
+    public int read(byte[] buffer, int offset, int count) {
+        int recv = 0;
+
+        synchronized (RFIDDevice.SERIAL_LOCK) {
+            ExtGpio.writeGpioTestPin('I', 9, 1);
+
+            byte[] temp = new byte[RECV_CLIENT_WRITE.length()+8];
+
+            // 假如读入：+WRITE:0,1,5,,5,ASDFG<0D><0A>
+            while(recv < count) {
+                int ret = mStreamTransport.read(temp);      // +WRITE:0,1,5,,
+                if(ret != temp.length) {
+                    Debug.e(TAG, "No package head");
+                    return 0;
+                }
+                if(!(new String(temp).startsWith(RECV_CLIENT_WRITE))) {
+                    Debug.e(TAG, "Invalid pakage head");
+                    return 0;
+                }
+                int packCount = 0;
+                while(true) {   // 5,
+                    ret = mStreamTransport.read(temp, 0, 1);
+                    if(ret != 1) {
+                        Debug.e(TAG, "Invalid charactor number");
+                        return 0;
+                    }
+                    if(temp[0] == ',') break;
+                    if(temp[0] < '0' || temp[0] > '9') {
+                        Debug.e(TAG, "Invalid charactor number");
+                        return 0;
+                    }
+                    packCount *= 10;
+                    packCount += (0x00f & temp[0]);
+                }
+                ret = mStreamTransport.read(buffer, offset + recv, packCount);      // ASDFG
+                if (ret != packCount) {
+                    Debug.e(TAG, "Character number dont't match");
+                    return 0;
+                }
+                recv += ret;
+                mStreamTransport.read(temp, 0, 2);      // 0D 0A
+            }
+            Debug.d(TAG, ByteArrayUtils.toHexString(buffer));
+            ExtGpio.writeGpioTestPin('I', 9, 0);
+        }
+        return recv;
     }
 }
