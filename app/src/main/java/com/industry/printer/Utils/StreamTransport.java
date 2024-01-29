@@ -2,6 +2,7 @@ package com.industry.printer.Utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -20,14 +21,27 @@ public class StreamTransport {
 
     private InputStream mFileInputStream = null;
     private OutputStream mFileOutputStream = null;
+//    private BufferedWriter mBufferedWriter = null;
+//    private PrintWriter mPrintWriter = null;
+    private BufferedReader mBufferedReader = null;
 
     public StreamTransport(InputStream is, OutputStream os) {
         mFileInputStream = is;
         mFileOutputStream = os;
+// 使用BufferedWriter
+//            mBufferedWriter = new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8")));
+// 使用PrintWriter
+//            mPrintWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8"))));
+        mBufferedReader = new BufferedReader(new InputStreamReader(mFileInputStream, Charset.forName("UTF-8")));
     }
 
     public void close() {
         try {
+            if(null != mBufferedReader) {
+                mBufferedReader.close();
+                mBufferedReader = null;
+                Debug.d(TAG, "mBufferedReader closed");
+            }
             if(null != mFileInputStream) {
                 mFileInputStream.close();
                 mFileInputStream = null;
@@ -62,18 +76,24 @@ public class StreamTransport {
         try {
             Debug.d(TAG, "Send Data :[" + msg + "]");
 // 使用BufferedWriter
-//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8")));
-//            bw.write(msg + "\n");
+//            mBufferedWriter.write(msg + "\n");
 // 使用PrintWriter
-//            PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mFileOutputStream, Charset.forName("UTF-8"))));
-//            pw.println(msg);
+//            mPrintWriter.println(msg);
 // 直接使用OutputStream
-            write((msg + "\n").getBytes(Charset.forName("UTF-8")));
+            write((msg + "\r\n").getBytes(Charset.forName("UTF-8")));
         } catch(Exception e) {
             Debug.e(TAG, e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }
 // End of H.M.Wang 2021-11-23 发送字符串的时候，自动加上一个换行符，以便对方接收，对方可能是在readLine
+
+    public boolean readerReady() {
+        try {
+            return mBufferedReader.ready();
+        } catch(IOException e) {
+        }
+        return false;
+    }
 
     public String readLine() {
         String line = null;
@@ -83,8 +103,7 @@ public class StreamTransport {
         // 当发生异常的时候，返回null，将根据这个信息上层决定关闭该链接
         // 当连接关闭时，返回null，将根据这个信息上层决定关闭该链接
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(mFileInputStream, Charset.forName("UTF-8")));
-            line = br.readLine();
+            line = mBufferedReader.readLine();
             Debug.d(TAG, "Recv Data :[" + line + "]");
         } catch(SocketTimeoutException e) {
             line = "";

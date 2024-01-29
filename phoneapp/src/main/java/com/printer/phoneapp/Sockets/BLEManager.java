@@ -121,11 +121,11 @@ public class BLEManager extends BluetoothManager {
                 for(BluetoothGattService service : gatt.getServices()) {
                     Log.d(TAG, "[Service] Type: " + service.getType() + "; UUID: " + service.getUuid());
                     for(BluetoothGattCharacteristic charr : service.getCharacteristics()) {
-                        Log.d(TAG, "\t[Characteristic] Properties: " + charr.getProperties() + "; UUID: " + charr.getUuid());
+                        Log.d(TAG, "\t[Characteristic] Properties: " + getPropString(charr.getProperties()) + "; UUID: " + charr.getUuid());
                         for(BluetoothGattDescriptor desc : charr.getDescriptors()) {
                             Log.d(TAG, "\t\t[Descriptor] UUID: " + desc.getUuid());
                             if(charr.getProperties() == BluetoothGattCharacteristic.PROPERTY_INDICATE ||
-                                    charr.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
+                               charr.getProperties() == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
                                 gatt.setCharacteristicNotification(charr, true);
                             }
                         }

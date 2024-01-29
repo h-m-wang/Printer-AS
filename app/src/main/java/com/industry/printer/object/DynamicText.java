@@ -87,6 +87,9 @@ public class DynamicText extends BaseObject {
     }
 
     public void setBits(int n) {
+// H.M.Wang 2024-1-15 检车位数是否小于等于0，如果小于等于0，则生成bitmap会崩溃
+        if(n <= 0) return;
+// End of H.M.Wang 2024-1-15 检车位数是否小于等于0，如果小于等于0，则生成bitmap会崩溃
         Debug.d(TAG, "setBits: [" + n + "]");
         mBits = n;
         setContent(getDefaultContent());

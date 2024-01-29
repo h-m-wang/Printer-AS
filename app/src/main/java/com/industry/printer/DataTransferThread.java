@@ -581,7 +581,12 @@ public class DataTransferThread {
 		mNeedUpdate = needUpdate;
 
 // 2020-7-3 标识网络快速打印状态下数据更新
-		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 			mDataUpdatedForFastLan = true;
 		}
 // End of 2020-7-3 标识网络快速打印状态下数据更新
@@ -651,7 +656,11 @@ public class DataTransferThread {
 		mNeedUpdate = needUpdate;
 
 // 2020-7-3 标识网络快速打印状态下数据更新
-		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
             mDataUpdatedForFastLan = true;
 		}
 // End of 2020-7-3 标识网络快速打印状态下数据更新
@@ -2457,7 +2466,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 
 // 2020-6-30 网络快速打印的第一次数据生成标识设真
-			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN ||
+				SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 // H.M.Wang 2020-8-4 这个不设的话，可能上次停止打印时接收到数据后，mDataUpdatedForFastLan被设成true了，导致后面生成打印缓冲区误操作
 				mDataUpdatedForFastLan = false;
 // End of H.M.Wang 2020-8-4 这个不设的话，可能上次停止打印时接收到数据后，mDataUpdatedForFastLan被设成true了，导致后面生成打印缓冲区误操作
@@ -2577,7 +2590,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // 2020-6-30 网络快速打印的第一次数据生成后不下发
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 // H.M.Wang 2023-10-21 对于网络快速打印的下发机制做调整，取消原来的mFirstForLanFast变量，改为直接用mDataUpdatedForFastLan来判断
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//				if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN || mDataUpdatedForFastLan) &&
 				if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN || mDataUpdatedForFastLan) &&
+					(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER5 || mDataUpdatedForFastLan) &&
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 					// 数据源不是网络快速打印，或者如果是网络快速打印，但是数据已经准备好则下发
 					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
 					// 数据源不是扫描协议3
@@ -2710,7 +2727,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 					reportEmpty = false;
 // 2020-7-3 在网络快速打印状态下，如果没有接收到新的数据，即使触发也不生成新的打印缓冲区下发
-					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER5) {
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 						if(!mDataUpdatedForFastLan) {
 							try { Thread.sleep(3); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
 							continue;
@@ -2896,7 +2917,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 				if(mNeedUpdate == true) {
 // H.M.Wang 2020-6-28 修改打印数据缓冲区更新策略，当网络快速打印的时候不再根据数据更新重新生成打印缓冲区
-					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+// H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+//					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN) {
+					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN &&
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER5) {
+// End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 // End of H.M.Wang 2020-6-28 修改打印数据缓冲区更新策略，当网络快速打印的时候不再根据数据更新重新生成打印缓冲区
 						mHandler.removeMessages(MESSAGE_DATA_UPDATE);
 					//在此处发生打印数据，同时

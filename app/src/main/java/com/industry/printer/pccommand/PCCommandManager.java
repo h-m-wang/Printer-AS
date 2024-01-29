@@ -32,6 +32,7 @@ public class PCCommandManager {
     private PCCommandHandler mSocketHandler = null;
     private SerialPort mSerialPort = null;
     private PCCommandHandler mSerialHandler = null;
+    private PCCommandHandler mBLEHandler = null;
 
     private static PCCommandManager mInstance = null;
 
@@ -48,6 +49,7 @@ public class PCCommandManager {
             public void handleMessage(Message msg) {
                 if(null != mSocketHandler)mSocketHandler.handleReCreateResult(msg);
                 if(null != mSerialHandler)mSerialHandler.handleReCreateResult(msg);
+                if(null != mBLEHandler)mSerialHandler.handleReCreateResult(msg);
             }
         };
 
@@ -68,6 +70,9 @@ public class PCCommandManager {
         }
         if(null != mSerialHandler) {
             mSerialHandler.close();
+        }
+        if(null != mBLEHandler) {
+            mBLEHandler.close();
         }
     }
 
@@ -143,5 +148,13 @@ public class PCCommandManager {
         if(null != mSerialHandler) {
             mSerialHandler.sendmsg(msg);
         }
+    }
+
+    public void addBLEHandler(StreamTransport st) {
+        if(null != mBLEHandler) {
+            mBLEHandler.close();
+        }
+        mBLEHandler = new PCCommandHandler(mContext, st, mControlTabActivity, mHandler);
+        mBLEHandler.work();
     }
 }

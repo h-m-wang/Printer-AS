@@ -2,21 +2,29 @@ package com.industry.printer.ui.CustomerDialog;
 
 import com.industry.printer.R;
 import com.industry.printer.Utils.ConfigPath;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ExportLog2Usb;
 import com.industry.printer.Utils.ToastUtil;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,26 +35,39 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 // End of H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
 	public static final String TAG = ImportDialog.class.getSimpleName();
 	
-	private ImageButton mImport;
-	private ImageButton mExport;
-	private ImageButton mFlush;
+	private TextView mImport;
+	private TextView mExport;
+	private TextView mFlush;
 // H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
 	private TextView mImportUG;
 // End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 	private TextView mLog2Usb;
-	private Timer mTimer;
-	private boolean mWrittingLog = false;
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 
 	private RelativeLayout mCancel;
 	private Button mBtncl;
 
 	private IListener mListener;
-	
+
+	private static final int MESSAGE_EXPORT_START = 7;
+	private static final int MESSAGE_EXPORT_FINISH = 8;
+
+	private Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case MESSAGE_EXPORT_START:
+					ToastUtil.show(getContext(), R.string.str_btn_start);
+					break;
+				case MESSAGE_EXPORT_FINISH:
+					ToastUtil.show(getContext(), R.string.toast_save_success);
+					break;
+			}
+		}
+	};
+
 	public ImportDialog(Context context) {
 		super(context);
-		
 	}
 
 	@Override
@@ -56,38 +77,15 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.setContentView(R.layout.import_dialog);
 		
-		mImport = (ImageButton) findViewById(R.id.ib_import);
-		mExport = (ImageButton) findViewById(R.id.ib_export);
-		mFlush = (ImageButton) findViewById(R.id.ib_flush);
+		mImport = (TextView) findViewById(R.id.ib_import);
+		mExport = (TextView) findViewById(R.id.ib_export);
+		mFlush = (TextView) findViewById(R.id.ib_flush);
 // H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
 		mImportUG = (TextView) findViewById(R.id.btn_import_ug);
 // End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
-
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 		mLog2Usb = (TextView) findViewById(R.id.btn_log_2usb);
-		mTimer = new Timer();
-		mTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				mLog2Usb.post(new Runnable() {
-					@Override
-					public void run() {
-						if(!mWrittingLog) {
-							ArrayList<String> usbs = ConfigPath.getMountedUsb();
-							if (usbs.size() <= 0) {
-								mLog2Usb.setTextColor(Color.GRAY);
-								mLog2Usb.setClickable(false);
-							} else {
-								mLog2Usb.setTextColor(Color.BLUE);
-								mLog2Usb.setClickable(true);
-							}
-						}
-					}
-				});
-			}
-		}, 0L, 500L);
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
-
 		mBtncl = (Button) findViewById(R.id.btn_cancel);
 
 		mImport.setOnClickListener(this);
@@ -127,12 +125,6 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 				}
 				break;
 			case R.id.btn_cancel:
-// H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
-				if(null != mTimer) {
-					mTimer.cancel();
-					mTimer = null;
-				}
-// End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 				dismiss();
 				break;
 // H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮
@@ -150,15 +142,13 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 					ToastUtil.show(getContext(), R.string.toast_plug_usb);
 					break;
 				}
-				mWrittingLog = true;
-				mLog2Usb.setTextColor(Color.GRAY);
+				dismiss();
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						Debug.d(TAG, "Start");
+						mHandler.sendEmptyMessage(MESSAGE_EXPORT_START);
 						ExportLog2Usb.exportLog(usbs.get(0) + "/export.log");
-						Debug.d(TAG, "End");
-						mWrittingLog = false;
+						mHandler.sendEmptyMessage(MESSAGE_EXPORT_FINISH);
 					}
 				}).start();
 				break;

@@ -161,7 +161,7 @@ public class ExtGpio {
 		int fd = open();
 		int g = group - 'A';
 		int v = ((g & 0x0f) << 12) | ((index & 0x0ff) << 4) | value;
-		Debug.d("ExtGpio", "--->writeGpioTestPin: fd= " + fd + "  group=" + group + "  index=" + index + " value=" + value + "  v=" + v);
+//		Debug.d("ExtGpio", "--->writeGpioTestPin: fd= " + fd + "  group=" + group + "  index=" + index + " value=" + value + "  v=" + v);
 		FpgaGpioOperation.ioctl(fd, GPIO_TEST_WRITE_PIN, v);
 	}
 
@@ -169,7 +169,7 @@ public class ExtGpio {
 		int fd = open();
 		int g = group - 'A';
 		int v = ((g & 0x0f) << 12) | ((index & 0x0ff) << 4);
-		Debug.d("ExtGpio", "--->readGpioTestPin: fd= " + fd + "  group=" + group + "  index=" + index);
+//		Debug.d("ExtGpio", "--->readGpioTestPin: fd= " + fd + "  group=" + group + "  index=" + index);
 		return FpgaGpioOperation.ioctl(fd, GPIO_TEST_READ_PIN, v);
 	}
 

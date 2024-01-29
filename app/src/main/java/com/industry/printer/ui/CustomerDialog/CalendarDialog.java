@@ -173,6 +173,8 @@ public class CalendarDialog extends RelightableDialog {
 				ToastUtil.show(this.getContext(), "Rebooting...");
 				Debug.e(TAG, "Reboot!!!");
 				os.writeBytes("reboot\n");
+			} else {
+				ToastUtil.show(this.getContext(), "Upgrading failed!!!");
 			}
 			os.flush();
 			os.close();

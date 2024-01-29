@@ -693,6 +693,9 @@ public class SmartCardManager implements IInkDevice {
         }
     }
 // End of H.M.Wang 2022-7-20 增加Bag减1的操作内容
+// H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
+//    private int mTempAddInkValue = 13800050;
+// End of H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
 
     private void readLevelValue(int cardIdx) {
         Debug.d(TAG, "---> enter readLevelValue(" + cardIdx + ")");
@@ -745,12 +748,18 @@ public class SmartCardManager implements IInkDevice {
         int avgLevel = (readCount == 0 ? 0 : (int)(readLevels / readCount));
         Debug.d(TAG, "Read Level = " + avgLevel);
 
+// H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
+/*        mCards[cardIdx].mRecentLevels.add(mTempAddInkValue--);
+        if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {
+            mCards[cardIdx].mRecentLevels.remove(0);
+        }*/
         if(avgLevel >= 12000000 && avgLevel <= 16000000) {
             mCards[cardIdx].mRecentLevels.add(avgLevel);
             if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {
                 mCards[cardIdx].mRecentLevels.remove(0);
             }
         }
+// End of H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
     }
 
     public void addInkOn(int cardIdx) {
@@ -824,6 +833,7 @@ public class SmartCardManager implements IInkDevice {
 // End of H.M.Wang 2020-11-24 追加加墨10次失败后停止打印
                 } else {
                     if(!mCards[cardIdx].mInkAdding) {
+//                        mTempAddInkValue = 13800050;
                         mCachedThreadPool.execute(new Runnable() {
                             @Override
                             public void run() {
@@ -866,6 +876,7 @@ public class SmartCardManager implements IInkDevice {
                     levelValueUpdated(i);
                 }
                 mHandler.sendEmptyMessage(MSG_SHOW_LEVEL);
+//                if(mTempAddInkValue == 13800050) initComponent(0);
             }
         });
     }

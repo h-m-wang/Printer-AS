@@ -27,6 +27,7 @@ extern "C"
 
 #define VERSION_CODE                            "1.0.393"
 
+// 1.0.393 临时取消对ILG的修改
 // 1.0.392
 //    (1) 增加Java_com_Smartcard_readHX24LC中，读取数据SC_I2C_DRIVER_read之前，写入WORD地址
 //          SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
@@ -915,7 +916,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_downLocal(JNIEnv *env, jclass arg, jin
     LOGD(">>> downLocal(#%d) -> %d", card, x);
 
     if(p1 != p2) {
-        writeILG(card, p1);
+/*        writeILG(card, p1);
 
         if(100 <= p2) {
             LOGD(">>> OIB(#%d)", card);
@@ -928,7 +929,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_downLocal(JNIEnv *env, jclass arg, jin
             } else if(CARD_SELECT_BULKX == card) {
                 inkWriteTag9ILGOutOfInkBit(HP_SMART_CARD_DEVICE_BULK1, 1);
             }
-        }
+        }*/
     }
 
     pthread_mutex_unlock(&mutex);

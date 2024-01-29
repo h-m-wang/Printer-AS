@@ -1,6 +1,7 @@
 package com.industry.printer.Rfid;
 
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.RFIDDevice;
 
 public class N_RFIDModuleChecker {
     private static final String TAG = N_RFIDModuleChecker.class.getSimpleName();
@@ -29,15 +30,15 @@ public class N_RFIDModuleChecker {
 
     private N_RFIDData transfer(byte cmd, byte[] data) {
         N_RFIDData rfidData = new N_RFIDData();
-
-        if(0 == mSerialPort.write(rfidData.make(cmd, data))) {
+synchronized (RFIDDevice.SERIAL_LOCK) {
+        if (0 == mSerialPort.write(rfidData.make(cmd, data))) {
             mErrorMessage = "COM异常：" + mSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
             return null;
         }
 
         byte[] recvData = mSerialPort.read();
-        if(null == recvData) {
+        if (null == recvData) {
             mErrorMessage = "COM异常：" + mSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
             return null;
@@ -48,7 +49,7 @@ public class N_RFIDModuleChecker {
             Debug.e(TAG, mErrorMessage);
             return null;
         }
-
+}
         return rfidData;
     }
 

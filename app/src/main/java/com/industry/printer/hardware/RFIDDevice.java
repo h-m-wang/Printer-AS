@@ -51,6 +51,7 @@ public class RFIDDevice implements RfidCallback{
 	public static native int setBaudrate(int fd, int rate);
 	public static native byte[] calKey(byte[] uid);
 
+	public static Object SERIAL_LOCK = new Object();
 
 	/************************
 	 * RFID命令操作部分

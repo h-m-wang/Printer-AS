@@ -3405,7 +3405,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mCounter++;
 		if(null != mDTransThread) mCounter += mDTransThread.getRecentPrintedCount();
 // End of H.M.Wang 2023-10-20 调整计数器的数值，从每次下发后加1（记忆的是下发的总次数），改为实际打印的总次数。这个在使用img的FIFO的时候，是有区别的，相差最大FIFO的个数
-		Debug.d(TAG, "refreshCount = *" + mCounter);
 
 		mHandler.removeMessages(MESSAGE_COUNT_CHANGE);
 		mHandler.sendEmptyMessage(MESSAGE_COUNT_CHANGE);

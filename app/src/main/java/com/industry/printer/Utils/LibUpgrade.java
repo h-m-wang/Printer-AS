@@ -42,7 +42,8 @@ public class LibUpgrade {
             Debug.d(TAG, "SrcMD5: [" + srcMD5 + "].");
 
             ;
-            if(!new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5 + ".dat").exists()) {
+            if(!new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5.toUpperCase() + ".dat").exists() &&
+               !new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5.toLowerCase() + ".dat").exists()) {
                 Debug.e(TAG, "Source md5 file not exists or incorrect.");
                 return false;
             }

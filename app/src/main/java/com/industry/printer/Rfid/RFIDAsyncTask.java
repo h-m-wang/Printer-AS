@@ -57,12 +57,14 @@ public class RFIDAsyncTask implements Runnable {
 			for(int i=0; i<3; i++) {
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
+synchronized (RFIDDevice.SERIAL_LOCK) {
 				int writed = RFIDDevice.write(mFd, mCmd.mTransData, mCmd.mTransData.length);
 				for(int j=0; j<5; j++) {
 					readin = RFIDDevice.read(mFd, 64);
 					if(null != readin) break;
 					Thread.sleep(100);
 				}
+}
 				if(null != readin) break;
 				Thread.sleep(1000);
 			}

@@ -3,6 +3,7 @@ package com.printer.phoneapp.Sockets;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -142,7 +143,7 @@ public class BluetoothManager {
         mFoundDevices = new ArrayList<BluetoothDevice>();
         mConnectDeviceManager = ConnectDeviceManager.getInstance(ctx);
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        getBondedDevices();
+//        getBondedDevices();
     }
 
     public static BluetoothManager getInstance() {
@@ -218,6 +219,84 @@ public class BluetoothManager {
 
     public void connectDevice(final BluetoothDevice device){}
     public void disconnectDevice(final BluetoothDevice device){}
+
+    protected String getPropString(int properties) {
+        StringBuilder sb = new StringBuilder();
+
+        // 1
+        if((properties & BluetoothGattCharacteristic.PROPERTY_BROADCAST) == BluetoothGattCharacteristic.PROPERTY_BROADCAST) {
+            sb.append("PROPERTY_BROADCAST|");
+        }
+        // 2
+        if((properties & BluetoothGattCharacteristic.PROPERTY_READ) == BluetoothGattCharacteristic.PROPERTY_READ) {
+            sb.append("PROPERTY_READ|");
+        }
+        //4
+        if((properties & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) == BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) {
+            sb.append("PROPERTY_WRITE_NO_RESPONSE|");
+        }
+        // 8
+        if((properties & BluetoothGattCharacteristic.PROPERTY_WRITE) == BluetoothGattCharacteristic.PROPERTY_WRITE) {
+            sb.append("PROPERTY_WRITE|");
+        }
+        // 16
+        if((properties & BluetoothGattCharacteristic.PROPERTY_NOTIFY) == BluetoothGattCharacteristic.PROPERTY_NOTIFY) {
+            sb.append("PROPERTY_NOTIFY|");
+        }
+        // 32
+        if((properties & BluetoothGattCharacteristic.PROPERTY_INDICATE) == BluetoothGattCharacteristic.PROPERTY_INDICATE) {
+            sb.append("PROPERTY_INDICATE|");
+        }
+        //64
+        if((properties & BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) == BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE) {
+            sb.append("PROPERTY_SIGNED_WRITE|");
+        }
+        //128
+        if((properties & BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS) == BluetoothGattCharacteristic.PROPERTY_EXTENDED_PROPS) {
+            sb.append("PROPERTY_EXTENDED_PROPS|");
+        }
+        if(sb.length() > 0) sb.setLength(sb.length()-1);
+        return sb.toString();
+    }
+
+    protected String getPermString(int permissions) {
+        StringBuilder sb = new StringBuilder();
+
+        // 1
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_READ) == BluetoothGattCharacteristic.PERMISSION_READ) {
+            sb.append("PERMISSION_READ|");
+        }
+        // 2
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED) == BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED) {
+            sb.append("PERMISSION_READ_ENCRYPTED|");
+        }
+        // 4
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM) == BluetoothGattCharacteristic.PERMISSION_READ_ENCRYPTED_MITM) {
+            sb.append("PERMISSION_READ_ENCRYPTED_MITM|");
+        }
+        // 16
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_WRITE) == BluetoothGattCharacteristic.PERMISSION_WRITE) {
+            sb.append("PERMISSION_WRITE|");
+        }
+        // 32
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED) == BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED) {
+            sb.append("PERMISSION_WRITE_ENCRYPTED|");
+        }
+        // 64
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM) == BluetoothGattCharacteristic.PERMISSION_WRITE_ENCRYPTED_MITM) {
+            sb.append("PERMISSION_WRITE_ENCRYPTED_MITM|");
+        }
+        // 128
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED) == BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED) {
+            sb.append("PERMISSION_WRITE_SIGNED|");
+        }
+        // 256
+        if((permissions & BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM) == BluetoothGattCharacteristic.PERMISSION_WRITE_SIGNED_MITM) {
+            sb.append("PERMISSION_WRITE_SIGNED_MITM|");
+        }
+        if(sb.length() > 0) sb.setLength(sb.length()-1);
+        return sb.toString();
+    }
 
     private HashMap<String, String> mUUIDTable = new HashMap<String, String>() {
         {
@@ -703,6 +782,7 @@ public class BluetoothManager {
 // https://www.cnblogs.com/Free-Thinker/p/6514529.html     （蓝牙耳机比较有用）
 // https://blog.csdn.net/zrf1335348191/article/details/51103435 (比较全的蓝牙说明文档)
 // https://www.cnblogs.com/loaderman/p/10075499.html
+// https://zhuanlan.zhihu.com/p/580083928?utm_id=0（开发详细说明）
 /*
     09-09 10:55:35.437    --------------------------------
     09-09 10:55:35.440    Name = [RK Bluetooth Keyboard]

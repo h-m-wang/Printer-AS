@@ -1,6 +1,7 @@
 package com.industry.printer.Rfid;
 
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.RFIDDevice;
 
 public abstract class N_RFIDModule {
     private static final String TAG = N_RFIDModule.class.getSimpleName();
@@ -86,6 +87,7 @@ public abstract class N_RFIDModule {
 
         N_RFIDData rfidData = new N_RFIDData();
 
+synchronized (RFIDDevice.SERIAL_LOCK) {
         if(0 == mRFIDSerialPort.write(rfidData.make(cmd, data))) {
             mErrorMessage = "COM异常：" + mRFIDSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
@@ -104,7 +106,7 @@ public abstract class N_RFIDModule {
             Debug.e(TAG, mErrorMessage);
             return null;
         }
-
+}
         return rfidData;
     }
 

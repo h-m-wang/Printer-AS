@@ -3,6 +3,7 @@ package com.industry.printer.ui.Test;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +14,20 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.MessageTask;
 import com.industry.printer.R;
+import com.industry.printer.Serial.SerialPort;
+import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.RFIDDevice;
 
 import java.io.File;
 
@@ -36,13 +45,15 @@ public class TestMain {
     private final String TITLE = "";
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 //    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
-    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001"};
+    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001", "蓝牙模块开启"};
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
     public TestMain(Context ctx) {
         mContext = ctx;
         mIFTestOp = null;
     }
+
+    private byte[] rMMM;
 
     public void show(final View v) {
         if (null == mContext) {
@@ -149,6 +160,20 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+// H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
+                if(i == 4) {
+                    ToastUtil.show(mContext,"Starting BLE ...");
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            BLEDevice ble = BLEDevice.getInstance();
+                            if(ble.initServer());
+                        }
+                    }).start();
+                    return;
+                }
+// End of H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);

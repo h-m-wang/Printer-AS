@@ -21,7 +21,7 @@ public class RelightableDialog extends Dialog {
 
     public static final int ENTER_LOWLIGHT_MODE = 5;
 
-    public Handler mHander = new Handler() {
+    private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case ENTER_LOWLIGHT_MODE:
@@ -46,10 +46,10 @@ public class RelightableDialog extends Dialog {
     private void setScreenBrightness(boolean save) {
         Debug.d(TAG, "--->setScreenBrightness. mScreensaveMode=" + mScreensaveMode + " ;save=" + save);
         if (save == false) {
-            mHander.removeMessages(ENTER_LOWLIGHT_MODE);
-            mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
+            mHandler.removeMessages(ENTER_LOWLIGHT_MODE);
+            mHandler.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 60 * 1000);
         } else {
-            mHander.removeMessages(ENTER_LOWLIGHT_MODE);
+            mHandler.removeMessages(ENTER_LOWLIGHT_MODE);
         }
 
         if (mScreensaveMode == save) {
@@ -84,7 +84,7 @@ public class RelightableDialog extends Dialog {
 
     @Override
     public void dismiss() {
-        mHander.removeMessages(ENTER_LOWLIGHT_MODE);
+        mHandler.removeMessages(ENTER_LOWLIGHT_MODE);
         super.dismiss();
     }
 }

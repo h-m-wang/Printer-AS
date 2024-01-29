@@ -25,8 +25,12 @@ public class SerialPort {
     private native void stop();
 
     // H.M.Wang 2021-11-24 恢复原来的串口功能。原来的串口支持二进制传送，无通讯的结束符标志，使用Stream不可行。因此，PC命令的使用Stream，原有的串口通讯还是按着原来的二进制传送，靠超时判断传送结束
-    private static int mFdId = -1;                      // 原有的文件描述符
-    private static FileDescriptor mFdStream = null;     // Stream用的文件描述符
+// H.M.Wang 2024-1-22 由于普通串口通讯和蓝牙可能都会访问这个库，因此这里不能在使用static变量
+//    private static int mFdId = -1;                      // 原有的文件描述符
+//    private static FileDescriptor mFdStream = null;     // Stream用的文件描述符
+    private int mFdId = -1;                      // 原有的文件描述符
+    private FileDescriptor mFdStream = null;     // Stream用的文件描述符
+// End of H.M.Wang 2024-1-22 由于普通串口通讯和蓝牙可能都会访问这个库，因此这里不能在使用static变量
     private StreamTransport mStreamTransport = null;
 
     static {
