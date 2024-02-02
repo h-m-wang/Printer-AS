@@ -70,16 +70,19 @@ public class TestHp22mm implements ITestOperation {
             "15 -- Start Print",
             "16 -- Stop Print",
             "17 -- Dump Registers",
-            "18 -- Write FIFO",
-            "19 -- FIFO -> DDR",
-            "20 -- DDR -> FIFO",
-            "21 -- Read FIFO",
-            "22 -- Update PD MCU\nFrom [U-Disk/PD_FW.s19]",
-            "23 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
-            "24 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
-            "25 -- Toggle PI4",
-            "26 -- Toggle PI5",
-            "27 -- Write SPI FPGA\nFrom [U-Disk/aaa.bin]"
+// H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
+            "18 -- SPI Test",
+// End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
+            "19 -- Write FIFO",
+            "20 -- FIFO -> DDR",
+            "21 -- DDR -> FIFO",
+            "22 -- Read FIFO",
+            "23 -- Update PD MCU\nFrom [U-Disk/PD_FW.s19]",
+            "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
+            "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
+            "26 -- Toggle PI4",
+            "27 -- Toggle PI5",
+            "28 -- Write SPI FPGA\nFrom [U-Disk/aaa.bin]"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -105,16 +108,19 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_TEST_START_PRINT                    = 17;
     private final static int HP22MM_TEST_STOP_PRINT                     = 18;
     private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
-    private final static int HP22MM_TEST_MCU2FIFO                       = 20;
-    private final static int HP22MM_TEST_FIFO2DDR                       = 21;
-    private final static int HP22MM_TEST_DDR2FIFO                       = 22;
-    private final static int HP22MM_TEST_FIFO2MCU                       = 23;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 24;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 25;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 26;
-    private final static int HP22MM_TOGGLE_PI4                          = 27;
-    private final static int HP22MM_TOGGLE_PI5                          = 28;
-    private final static int HP22MM_WRITE_SPIFPGA                       = 29;
+// H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
+    private final static int HP22MM_TEST_SPI_TEST                       = 20;
+// End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
+    private final static int HP22MM_TEST_MCU2FIFO                       = 21;
+    private final static int HP22MM_TEST_FIFO2DDR                       = 22;
+    private final static int HP22MM_TEST_DDR2FIFO                       = 23;
+    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 25;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 26;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 27;
+    private final static int HP22MM_TOGGLE_PI4                          = 28;
+    private final static int HP22MM_TOGGLE_PI5                          = 29;
+    private final static int HP22MM_WRITE_SPIFPGA                       = 30;
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -466,6 +472,16 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Failed\nRegister read error";
                             }
                             break;
+// H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
+                        case HP22MM_TEST_SPI_TEST:
+                            str = Hp22mm.spiTest();
+                            if (null != str) {
+                                mHp22mmTestResult[index] = str;
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\nRegister write/read error";
+                            }
+                            break;
+// End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
                         case HP22MM_TEST_MCU2FIFO:
                             int ret = Hp22mm.mcu2fifo();
                             if (ret >= 0) {

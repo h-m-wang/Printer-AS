@@ -86,8 +86,12 @@ public class FileUtil {
                 // source file
                 File sourceFile=file[i];  
                 // target file
-               File targetFile=new File(new File(targetDir).getAbsolutePath() + File.separator + file[i].getName());  
-                copyFile(sourceFile,targetFile);  
+               File targetFile=new File(new File(targetDir).getAbsolutePath() + File.separator + file[i].getName());
+// H.M.Wang 2024-2-1 由于将F1.txt和F2.txt错误的放在了system目录下，因此在导入导出时，需要排除
+               if(!sourceFile.getAbsolutePath().equalsIgnoreCase(Configs.FILE_1) && !sourceFile.getAbsolutePath().equalsIgnoreCase(Configs.FILE_2) &&
+                  !targetFile.getAbsolutePath().equalsIgnoreCase(Configs.FILE_1) && !targetFile.getAbsolutePath().equalsIgnoreCase(Configs.FILE_2))
+// End of H.M.Wang 2024-2-1 由于将F1.txt和F2.txt错误的放在了system目录下，因此在导入导出时，需要排除
+                copyFile(sourceFile,targetFile);
             }  
             if (file[i].isDirectory()) {  
                 // source directory 

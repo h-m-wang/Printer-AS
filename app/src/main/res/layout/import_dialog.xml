@@ -24,7 +24,7 @@
 			android:text="USB\n↓\nPrinter"
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
 
@@ -38,7 +38,7 @@
 			android:text="Printer\n↓\nUSB"
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
 
@@ -52,7 +52,7 @@
 			android:text="Reset\n↓\nPrinter"
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
 
@@ -81,7 +81,7 @@
 			android:text="UG\n↓\nPrinter"
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
 
@@ -95,7 +95,7 @@
 			android:text="Log\n↓\nUSB"
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
 		<TextView
@@ -107,7 +107,7 @@
 			android:text=""
 			android:gravity="center"
 			android:textColor="@color/black"
-			android:textSize="36sp"
+			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			android:visibility="invisible"
 			/>

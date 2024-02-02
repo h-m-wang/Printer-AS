@@ -29,8 +29,9 @@ public class BLEDevice {
     private final static String CMD_GATTS_START_SERVICE = "AT+BLEGATTSSRVSTART";
     private final static String CMD_SET_ADV_DATA = "AT+BLEADVDATA=\"020106%02X09%s\"";
     private final static String CMD_START_ADVERTISE = "AT+BLEADVSTART";
-    private final static String RECV_CONNECTED = "+BLECONN";
-    private final static String RECV_DISCONNECTED = "+BLEDISCONN";
+    private final static String RECV_CONNECTED = "+BLECONN:";
+    private final static String RECV_CONNECTPARAM = "+BLECONNPARAM";
+    private final static String RECV_DISCONNECTED = "+BLEDISCONN:";
     private final static String RECV_CLIENT_WRITE = "+WRITE";
     private final static String CMD_GATTS_INDICATE = "AT+BLEGATTSIND=0,1,7,";
     private final static String CMD_GATTS_NOTIFY = "AT+BLEGATTSNTFY=0,1,6,";
@@ -67,9 +68,7 @@ public class BLEDevice {
             synchronized (RFIDDevice.SERIAL_LOCK) {
                 ExtGpio.writeGpioTestPin('I', 9, 1);
                 mStreamTransport.writeLine(cmd);
-                int counter = 0;
-                while(true) {
-                    if(counter >= 10) break;
+                for(int j=0; j<10; j++) {
                     if(mStreamTransport.readerReady()) {
                         String rcv = mStreamTransport.readLine();
 //                        Debug.d(TAG, "RECV: [" + rcv + "]");
@@ -81,10 +80,8 @@ public class BLEDevice {
                             mErrorMsg = "ERROR";
                             break;
                         }
-                    } else {
-                        try {Thread.sleep(100);} catch(Exception e){}
-                        counter++;
                     }
+                    try {Thread.sleep(100);} catch(Exception e){}
                 }
                 ExtGpio.writeGpioTestPin('I', 9, 0);
             }
@@ -110,9 +107,22 @@ public class BLEDevice {
                     String rcv = mStreamTransport.readLine();
 //                    Debug.d(TAG, "RECV: [" + rcv + "]");
                     if(rcv.startsWith(prompt)) break;
-                } else {
-                    try {Thread.sleep(100);} catch (Exception e) {}
                 }
+                try {Thread.sleep(100);} catch (Exception e) {}
+                ExtGpio.writeGpioTestPin('I', 9, 0);
+            }
+        }
+    }
+
+    private void clearReceivingBuffer() {
+        for(int i=0; i<30; i++) {
+            synchronized (RFIDDevice.SERIAL_LOCK) {
+                ExtGpio.writeGpioTestPin('I', 9, 1);
+                if (mStreamTransport.readerReady()) {
+                    String rcv = mStreamTransport.readLine();
+//                    Debug.d(TAG, "RECV: [" + rcv + "]");
+                }
+                try {Thread.sleep(100);} catch(Exception e){}
                 ExtGpio.writeGpioTestPin('I', 9, 0);
             }
         }
@@ -184,11 +194,11 @@ public class BLEDevice {
         if(!mClientConnected) {
             if(rcvString.startsWith(RECV_CONNECTED)) {
                 mClientConnected = true;
-                mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+4, RECV_CONNECTED.length()+21);
+                mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+3, RECV_CONNECTED.length()+20);
 //                Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
-                mStreamTransport.readLine();
-                byte[] aaa = new byte[20];
-                read(aaa,0,20);
+                waitString(RECV_CONNECTPARAM);
+                byte[] aaa = new byte[23];
+                read(aaa,0,23);
             }
         } else {
             if(rcvString.startsWith(RECV_DISCONNECTED)) {
@@ -246,13 +256,13 @@ public class BLEDevice {
                     packCount *= 10;
                     packCount += (0x00f & temp[0]);
                 }
-                ret = mStreamTransport.read(buffer, offset + recv, packCount);      // ASDFG
-                if (ret != packCount) {
+                ret = mStreamTransport.read(buffer, offset + recv, Math.min(count-recv, packCount));      // ASDFG
+                if (ret != Math.min(count-recv, packCount)) {
                     Debug.e(TAG, "Character number dont't match");
                     return 0;
                 }
                 recv += ret;
-                mStreamTransport.read(temp, 0, 2);      // 0D 0A
+                mStreamTransport.read(temp, 0, packCount - ret + 2);      // 0D 0A
             }
             Debug.d(TAG, ByteArrayUtils.toHexString(buffer));
             ExtGpio.writeGpioTestPin('I', 9, 0);

@@ -28,7 +28,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.066"
+#define VERSION_CODE                            "1.0.068"
+
+// 1.0.068 2024-1-31
+//    1.删除以前写入FPGA的Flash的部分代码，因为这部分代码已经移到img里面实现了，这里不需要了，apk已经很久之前去掉了该连接
+//    2.放开startPrint中读取正式的image.bin的代码
+// 1.0.067 2024-1-30 追加一个SpiTest
 
 static int sIdsIdx = 1;
 static int sPenIdx = 0;
@@ -58,7 +63,7 @@ void IDSCallback(int ids, int level, const char *message) {
 #define SPI_SPEED 8000000
 int spidev = -1;
 
-#define IMAGE_FILE "/system/lib/image.bin"
+#define IMAGE_FILE "/mnt/sdcard/image.bin"
 uint image_cols = 0;
 #define IMAGE_ROWS 1056
 #define IMAGE_ADDR 0x0000
@@ -212,20 +217,17 @@ void PDGWaitRBuffer(uint32_t wait_for) {
 
 int PDGWriteImage() {
     // get image file size
-/* 暂时取消从文件获取数据
     struct stat st;
     if (stat(IMAGE_FILE, &st) != 0) {
         LOGE("ERROR: cannot process %s\n", IMAGE_FILE);
         return -1;
     }
     image_cols = (st.st_size * 8 / IMAGE_ROWS);
-*/
-    image_cols = 10;
 
     // open binary image
-/*    FILE *file = fopen(IMAGE_FILE, "rb");
+    FILE *file = fopen(IMAGE_FILE, "rb");
     if (file == NULL) return -1;
-*/
+
     // SLOT IMAGES - rows and increment are fixed
     // write image DDR using data Mask; Cols determines size
     unsigned int addr = IMAGE_ADDR;
@@ -239,11 +241,10 @@ int PDGWriteImage() {
         // read from image file and write to PDG
         buffer[0] = PDG_WRITE_FIFO;
         buffer[1] = write_words;
-        memset((buffer+2), 0x5A, write_bytes);
-/*        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
+        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
             LOGE("ERROR: reading %s\n", IMAGE_FILE);
             return -1;
-        }*/
+        }
         buffer[write_bytes+2] = 0;
         if (SPIMessage(buffer, buffer_size) < 0) return -1;
         PDGWaitWBuffer(write_words);
@@ -389,130 +390,6 @@ void PDGCancelPrint() {
     CancelPrint = true;
 }
 
-int SPISend(unsigned char *message, int length) {
-    struct spi_ioc_transfer transfer[length];
-
-    LOGD("SPISend.Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-    // fill in transfer array for each byte (non-default, non-zero)
-    for (int i=0; i<length; i++) {
-        memset(&(transfer[i]), 0, sizeof(transfer[i]));
-        transfer[i].tx_buf  = (unsigned long)(message+i);
-//        transfer[i].rx_buf  = (unsigned long)(message+i);
-        transfer[i].rx_buf  = NULL;
-        transfer[i].len = sizeof(*(message+i));
-    }
-    // execute message
-    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
-        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
-        return -1;
-    }
-    return 0;
-}
-
-int SPIRecv(unsigned char *message, int length) {
-    struct spi_ioc_transfer transfer[length];
-
-    // fill in transfer array for each byte (non-default, non-zero)
-    for (int i=0; i<length; i++) {
-        memset(&(transfer[i]), 0, sizeof(transfer[i]));
-//        transfer[i].tx_buf  = (unsigned long)(message+i);
-        transfer[i].tx_buf  = NULL;
-        transfer[i].rx_buf  = (unsigned long)(message+i);
-        transfer[i].len = sizeof(*(message+i));
-    }
-    // execute message
-    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
-        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
-        return -1;
-    }
-
-    LOGD("SPIRecv.Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-    return 0;
-}
-
-// 容量4MB闪存，8个扇区，每个扇区256页，每页256字节；整个芯片有2048页或者524288字节。写入可以以页为单位，擦除要以扇区为单位
-/* command list */
-#define CMD_WREN                    (0x06)  /* Write Enable */
-#define CMD_WRDI                    (0x04)  /* Write Disable */
-#define CMD_RDID                    (0x9F)  /* Read ID */
-#define CMD_RDSR                    (0x05)  /* Read Status Register */
-#define CMD_WRSR                    (0x01)  /* Write Status Register */
-#define CMD_READ                    (0x03)  /* Read Data Bytes */
-#define CMD_FAST_READ               (0x0B)  /* Fast Read */
-#define CMD_PP                      (0x02)  /* Page Program */
-#define CMD_SE                      (0xD8)  /* Sector Erase */
-#define CMD_BE                      (0xC7)  /* Bulk Erase */
-#define CMD_DP                      (0xB9)  /* Deep Power-down */
-#define CMD_RES                     (0xAH)  /* Release from Deep Power-down */
-#define DUMMY                       (0xFF)
-
-#define SPIFPGA_FILE "/sdcard/spifpga.bin"
-JNIEXPORT jint JNICALL Java_com_WriteSPIFPGA(JNIEnv *env, jclass arg) {
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    FILE *file = fopen(SPIFPGA_FILE, "rb");
-    if (file == NULL) return -1;
-
-    uint8_t cmd_buffer[4];
-    uint8_t data_buffer[260];
-    uint32_t page_addr = 0;
-
-    cmd_buffer[0] = CMD_WREN;
-    SPISend(cmd_buffer, 1);        // 设置允许写
-
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-    cmd_buffer[0] = CMD_BE;
-    SPISend(cmd_buffer, 1);        // 擦除全盘
-
-    while(!feof(file)) {
-        memset(data_buffer, 0xFF, 260);
-        data_buffer[0] = CMD_PP;
-        data_buffer[1] = (uint8_t)(page_addr >> 16);
-        data_buffer[2] = (uint8_t)(page_addr >> 8);
-        data_buffer[3] = (uint8_t)(page_addr);
-
-        fread((data_buffer+4), 1, 256, file);
-
-        cmd_buffer[0] = CMD_WREN;
-        SPISend(cmd_buffer, 1);        // 设置允许写
-        usleep(1000);           // Sleep 1ms 等待硬件回暖
-        SPISend(data_buffer, 260);    // 写一页数据
-        usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-        page_addr += 256;
-    }
-
-    page_addr = 0;
-    cmd_buffer[0] = CMD_WRDI;
-    SPISend(cmd_buffer, 1);
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-    cmd_buffer[0] = CMD_READ;
-    data_buffer[1] = (uint8_t)(page_addr >> 16);
-    data_buffer[2] = (uint8_t)(page_addr >> 8);
-    data_buffer[3] = (uint8_t)(page_addr);
-    SPISend(cmd_buffer, 4);
-    memset(data_buffer, 0x00, 256);
-    SPIRecv(data_buffer, 256);
-
-    page_addr += 256;
-    cmd_buffer[0] = CMD_WRDI;
-    SPISend(cmd_buffer, 1);
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-    cmd_buffer[0] = CMD_READ;
-    data_buffer[1] = (uint8_t)(page_addr >> 16);
-    data_buffer[2] = (uint8_t)(page_addr >> 8);
-    data_buffer[3] = (uint8_t)(page_addr);
-    SPISend(cmd_buffer, 4);
-    memset(data_buffer, 0x00, 256);
-    SPIRecv(data_buffer, 256);
-
-    fclose(file);
-}
-
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
     if (!IsPressurized) {
@@ -541,7 +418,7 @@ JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
 //        return -1;
     };
 
-    return (*env)->NewStringUTF(env, PDGTriggerPrint(0, 100));
+    return (*env)->NewStringUTF(env, PDGTriggerPrint(0, 10));
 //    return PDGTriggerPrint(0, 100);
 }
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
@@ -613,6 +490,30 @@ JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
     }
 
     return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg) {
+    uint32_t ui;
+    int done_count = 0;
+    char str[128];
+
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return NULL;
+    }
+
+    for (int i=0; i<100; i++) {
+        if (PDGWrite(6, 10000+i) < 0) {
+            return NULL;
+        }
+        if (PDGRead(6, &ui) < 0) {
+            return NULL;
+        }
+        if(ui == 10000+i) done_count++;
+    }
+    sprintf(str,"Success Rate: %d/%d\n", done_count, 100);
+
+    return (*env)->NewStringUTF(env, str);
 }
 
 static char skip = 0;
@@ -1469,11 +1370,11 @@ static JNINativeMethod gMethods[] = {
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
+        {"spiTest",	    "()Ljava/lang/String;",	    (void *)Java_com_SpiTest},
         {"mcu2fifo",		            "()I",	                    (void *)Java_com_MCU2FIFO},
         {"fifo2ddr",		            "()I",	                    (void *)Java_com_FIFO2DDR},
         {"ddr2fifo",		            "()I",	                    (void *)Java_com_DDR2FIFO},
         {"fifo2mcu",		            "()I",	                    (void *)Java_com_FIFO2MCU},
-        {"WriteSPIFPGA",		            "()I",	                    (void *)Java_com_WriteSPIFPGA},
 };
 
 /**

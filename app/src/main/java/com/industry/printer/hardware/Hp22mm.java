@@ -42,6 +42,7 @@ public class Hp22mm {
     static public native String startPrint();
     static public native int stopPrint();
     static public native String dumpRegisters();
+    static public native String spiTest();
     static public native int mcu2fifo();
     static public native int fifo2ddr();
     static public native int ddr2fifo();
