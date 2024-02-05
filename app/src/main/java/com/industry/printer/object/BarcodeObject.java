@@ -20,6 +20,7 @@ import com.google.zxing.qrcode.encoder.QRCode;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.cache.FontCache;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.R;
@@ -788,6 +789,13 @@ public class BarcodeObject extends BaseObject {
 			}
 		} catch (Exception e) {
 			Debug.e(TAG, e.getMessage());
+/*			Canvas canvas = new Canvas(outBmp);
+			Paint paint = new Paint();
+			paint.setTextSize(h);
+			paint.setTextScaleX(w/paint.measureText("X"));
+			paint.setColor(Color.BLACK);
+			paint.setTextAlign(Paint.Align.CENTER);
+			canvas.drawText("X", w/2, h, paint);*/
 		}
 
 		Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
@@ -1316,9 +1324,15 @@ public class BarcodeObject extends BaseObject {
 				bitmap = drawDataMatrix(mContent, w, h);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
-				bitmap = drawOkapiQR(mContent, w, h);
+// H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+//				bitmap = drawOkapiQR(mContent, w, h);
+				bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+// End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
-				bitmap = drawGS1Datamatrix(mContent, w, h);
+// H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+//				bitmap = drawGS1Datamatrix(mContent, w, h);
+				bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("(")) ? mContent : "[21]" + mContent), w, h);
+// End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
 				bitmap = drawQR(mContent, w, h);

@@ -1900,7 +1900,15 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
 		if(mIndex > 0) return;
 // End of H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组
-		for (int i = 0; i < mScheduler.count(); i++) {
+// H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的头的数量也要减记
+		int count = mScheduler.count();
+		IInkDevice scm = InkManagerFactory.inkManager(mContext);
+		if(scm instanceof SmartCardManager) {
+			count++;
+		}
+		for (int i = 0; i < count; i++) {
+//		for (int i = 0; i < mScheduler.count(); i++) {
+// End of H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的头的数量也要减记
 // H.M.Wang 2024-1-9 取消在此处判断计数是否需要填充一次阈值的操作，因为：(1)开始打印的时候通过recalCount函数已经预填数据，因此这里不需要再填充；(2)由于本函数后部有判断填充操作，因此在打印过程中，这里无需再次判断
 /*
 // H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值
@@ -1974,6 +1982,25 @@ private void setSerialProtocol9DTs(final String data) {
 		//if (isLanPrint()) return 1;
 		float bold = 1.0f;
 		int index = isLanPrint() ? 0 : index();
+
+// H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的是墨盒(1个或者2个)后面的头来显示在主页面，但是在计算这个对应头的阈值的时候，因为这个头实际上是没有真实头的，所以没有打印数据，点数为0，因此阈值会成为一个固定数65536*8
+// 这会导致两个问题：(1) 开始打印时显示的墨袋(B)的初始剩余次数为一个固定值524288(65536*8)，(2) 打印过程当中减记打印次数时墨袋的次数不被减记。对此问题修改为：
+//     (1) 对应于墨袋的阈值按下列公式结算： threshold[B] = threshold[P1] * threshold[P2] / (threshold[P1] * threshold[P2])
+//     (2) 在countDown函数中，减记实际头的次数时也同时减记墨袋的剩余次数
+		IInkDevice scm = InkManagerFactory.inkManager(mContext);
+		if(scm instanceof SmartCardManager) {
+			if(head == ((SmartCardManager)scm).getInkCount()-1) {
+				if(head == 1) {
+					mThresHolds[head] = mThresHolds[0];
+				} else if(head == 2) {
+					mThresHolds[head] = mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]);
+				} else {
+					mThresHolds[head] = 65536 * 8;
+				}
+				return mThresHolds[head];
+			}
+		}
+// End of H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的是墨盒(1个或者2个)后面的头来显示在主页面，但是在计算这个对应头的阈值的时候，因为这个头实际上是没有真实头的，所以没有打印数据，点数为0，因此阈值会成为一个固定数65536*8
 
 //		int dotCount = getDotCount(mDataTask.get(index), head);
 		SystemConfigFile config = SystemConfigFile.getInstance(mContext);
@@ -2137,7 +2164,6 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 //		mThresHolds[head] = (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
 //		return (int)(1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold)/rate);
-		IInkDevice scm = InkManagerFactory.inkManager(mContext);
 		mThresHolds[head] = 1.0f * Configs.DOTS_PER_PRINT/(mPrintDots[head] * bold) / rate * scm.getMaxRatio(head);
 // H.M.Wang 2024-1-8 计算时考虑双列的设置，如果设置了双列，因为同样内容要被打印两次，所以要消耗墨水量也要加倍(对应于threshold减少)
 		mThresHolds[head] /= (config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS) > 0 ? 2 : 1);
