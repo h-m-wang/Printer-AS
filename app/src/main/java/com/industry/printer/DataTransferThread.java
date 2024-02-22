@@ -557,7 +557,11 @@ public class DataTransferThread {
 						needUpdate = true;
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
-						Debug.d(TAG, "Dynamic QRCode: " + recvStrs[10]);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+						if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE) {
+							recvStrs[10] = parseGS1Brace(recvStrs[10]);
+						}
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
 //// H.M.Wang 2022-6-15 追加条码内容的保存桶
 //						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
@@ -570,10 +574,10 @@ public class DataTransferThread {
 					} else if(!((BarcodeObject) baseObject).isDynamicCode() && ((BarcodeObject) baseObject).containsDT()) {
 						needUpdate = true;
 					}
-// H.M.Wang 2023-12-30 增加对DT的支持。
+// H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {
 					needUpdate = ((HyperTextObject)baseObject).setDTCntByIndex(recvStrs);
-// End of H.M.Wang 2023-12-30 增加对DT的支持。
+// End of H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				}
 			}
 		}
@@ -632,6 +636,11 @@ public class DataTransferThread {
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
 						Debug.d(TAG, "Dynamic QRCode: " + recvStrs[10]);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+						if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE) {
+							recvStrs[10] = parseGS1Brace(recvStrs[10]);
+						}
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
 						SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶
@@ -643,12 +652,10 @@ public class DataTransferThread {
 					} else if(!((BarcodeObject) baseObject).isDynamicCode() && ((BarcodeObject) baseObject).containsDT()) {
 						needUpdate = true;
 					}
-// H.M.Wang 2023-12-30 增加对DT的支持。
-// End. -----
-// H.M.Wang 2023-12-30 增加对DT的支持。
+// H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {
 					needUpdate = ((HyperTextObject)baseObject).setDTCntByOrder(recvStrs);
-// End of H.M.Wang 2023-12-30 增加对DT的支持。
+// End of H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				}
 			}
 		}
@@ -2326,13 +2333,58 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2021-3-3 从QR.txt文件当中读取的变量信息的功能从DataTask类转移至此
 	private boolean isReady = true;
 
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+	protected String parseGS1Brace(String recv) {
+		int pos = 0;
+
+		if(recv.length() < 21) return recv; // 至少包含示例字符串中的 01,21和93的AI，和14字的01段内容，以及一个空格。共计21个字。【0104607017595534215iD&U( 93CV0u】
+
+		StringBuilder sb = new StringBuilder();
+
+		if(recv.charAt(pos) != '0' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+14);
+		pos += 14;
+
+		if(recv.charAt(pos) != '2' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		for(; recv.charAt(pos) != ' '; pos++) {
+			if(pos >= recv.length()) return recv;
+			sb.append(recv, pos, pos+1);
+		}
+		pos++;
+
+		if(pos+2 > recv.length()) return recv;
+		if(recv.charAt(pos) != '9' || recv.charAt(pos+1) != '3') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+
+		for(; pos < recv.length(); pos++) {
+			sb.append(recv, pos, pos+1);
+		}
+
+		return sb.toString();
+	}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+
 	public void setContentsFromQRFile() {
 		int strIndex = -1;
 		String[] recvStrs = new String[1];
 // H.M.Wang 2021-1-4 追加数据源FILE2，也是从QR.txt读取DT0,DT1,...,DT9,BARCODE的信息，但是DT赋值根据DT变量内部的序号匹配
 //		if (!prev && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE) {
-		if((SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE ||
-			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2)) {
+		if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE ||
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2) {
 // End of H.M.Wang 2021-1-4 追加数据源FILE2，也是从QR.txt读取DT0,DT1,...,DT9,BARCODE的信息，但是DT赋值根据DT变量内部的序号匹配
 			QRReader reader = QRReader.getInstance(mContext);
 			String content = reader.read();
@@ -2354,6 +2406,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						if(baseObject instanceof BarcodeObject) {
 							if(((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1QR) ||
 							   ((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1DM)) {
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+								if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+									recvStrs[0] = parseGS1Brace(recvStrs[0]);
+								}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
 								SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[0]);
 								((BarcodeObject)baseObject).setContent(recvStrs[0]);
 							}
@@ -2386,6 +2443,14 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					} else if(baseObject instanceof BarcodeObject) {
 						if(recvStrs.length >= 11) {
 							Debug.d(TAG, "BarcodeObject: " + recvStrs[10]);
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+							if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+								if(((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1QR) ||
+									((BarcodeObject) baseObject).getCode().equals(BarcodeObject.BARCODE_FORMAT_GS1DM)) {
+									recvStrs[10] = parseGS1Brace(recvStrs[10]);
+								}
+							}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
 							((BarcodeObject)baseObject).setContent(recvStrs[10]);

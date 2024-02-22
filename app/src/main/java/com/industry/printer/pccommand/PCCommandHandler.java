@@ -179,6 +179,9 @@ public class PCCommandHandler {
 // H.M.Wang 2022-5-28 当数据源定义为PC命令的时候，通过串口传递WIFI的命令。但是，由于PC命令占用了数据源的LAN和LAN_FAST的位置，这里协议是冲突的，因此视作LAN和LAN_FAST打开，但是LAN的动作能够全部实现，LAN_FAST由于有多余的打印流程控制，不会动作
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_PC_COMMAND ||
 // End of H.M.Wang 2022-5-28 当数据源定义为PC命令的时候，通过串口传递WIFI的命令。但是，由于PC命令占用了数据源的LAN和LAN_FAST的位置，这里协议是冲突的，因此视作LAN和LAN_FAST打开
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+                SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2020-6-28 追加专门为网络快速打印设置
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
 // End of H.M.Wang 2020-6-28 追加专门为网络快速打印设置
@@ -221,6 +224,9 @@ public class PCCommandHandler {
 // H.M.Wang 2022-5-28 当数据源定义为PC命令的时候，通过串口传递WIFI的命令。但是，由于PC命令占用了数据源的LAN和LAN_FAST的位置，这里协议是冲突的，因此视作LAN和LAN_FAST打开，但是LAN的动作能够全部实现，LAN_FAST由于有多余的打印流程控制，不会动作
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_PC_COMMAND ||
 // End of H.M.Wang 2022-5-28 当数据源定义为PC命令的时候，通过串口传递WIFI的命令。但是，由于PC命令占用了数据源的LAN和LAN_FAST的位置，这里协议是冲突的，因此视作LAN和LAN_FAST打开
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+                SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2020-6-28 追加专门为网络快速打印设置
                 SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FAST_LAN) {
 // End of H.M.Wang 2020-6-28 追加专门为网络快速打印设置

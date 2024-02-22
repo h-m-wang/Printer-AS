@@ -27,6 +27,21 @@ public final class Gs1 {
 
     public static Paint GS1_PAINT = new Paint();
 
+// H.M.Wang 2024-2-20 为一个特殊用户做的定制，AI的分隔符为花括号
+    public static int AI_TYPE_NORMAL = 0;
+    public static int AI_TYPE_BRACE = 1;
+    public static int AIType = AI_TYPE_NORMAL;
+
+    private static boolean isAIStart(char ai) {
+        return ((AIType == AI_TYPE_BRACE && ai == '{') || (AIType == AI_TYPE_NORMAL && (ai == '[' || ai == '(')));
+    }
+
+    private static boolean isAIEnd(char ai) {
+        return ((AIType == AI_TYPE_BRACE && ai == '}') || (AIType == AI_TYPE_NORMAL && (ai == ']' || ai == ')')));
+    }
+
+// End of H.M.Wang 2024-2-20 为一个特殊用户做的定制，AI的分隔符为花括号
+
     private Gs1() {
         // utility class
     }
@@ -67,7 +82,8 @@ public final class Gs1 {
         }
 
         /* Make sure we start with an AI */
-        if (source[0] != '[' && source[0] != '(') {
+//        if (source[0] != '[' && source[0] != '(') {
+        if (!isAIStart(source[0])) {
             throw new OkapiException("Data does not start with an AI");
         }
 
@@ -81,14 +97,17 @@ public final class Gs1 {
         boolean ai_latch = false;
         for (int i = 0; i < source.length; i++) {
             ai_length += j;
-            if (((j == 1) && (source[i] != ']') && (source[i] != ')')) && ((source[i] < '0') || (source[i] > '9'))) {
+//            if (((j == 1) && (source[i] != ']') && (source[i] != ')')) && ((source[i] < '0') || (source[i] > '9'))) {
+            if (j == 1 && !isAIEnd(source[i]) && ((source[i] < '0') || (source[i] > '9'))) {
                 ai_latch = true;
             }
-            if (source[i] == '[' || source[i] == '(') {
+//            if (source[i] == '[' || source[i] == '(') {
+            if (isAIStart(source[i])) {
                 bracket_level++;
                 j = 1;
             }
-            if (source[i] == ']' || source[i] == ')') {
+//            if (source[i] == ']' || source[i] == ')') {
+            if (isAIEnd(source[i])) {
                 bracket_level--;
                 if (ai_length < min_ai_length) {
                     min_ai_length = ai_length;
@@ -132,10 +151,12 @@ public final class Gs1 {
 
         int ai_count = 0;
         for (int i = 1; i < source.length; i++) {
-            if (source[i - 1] == '[' || source[i - 1] == '(') {
+//            if (source[i - 1] == '[' || source[i - 1] == '(') {
+            if (isAIStart(source[i - 1])) {
                 ai_location[ai_count] = i;
                 ai_value[ai_count] = 0;
-                for (j = 0; source[i + j] != ']' && source[i + j] != ')'; j++) {
+//                for (j = 0; source[i + j] != ']' && source[i + j] != ')'; j++) {
+                for (j = 0; !isAIEnd(source[i + j]); j++) {
                     ai_value[ai_count] *= 10;
                     ai_value[ai_count] += Character.getNumericValue(source[i + j]);
                 }
@@ -153,7 +174,8 @@ public final class Gs1 {
             }
             data_length[i] = source.length - data_location[i];
             for (j = source.length - 1; j >= data_location[i]; j--) {
-                if (source[j] == '[' || source[j] == '(') {
+//                if (source[j] == '[' || source[j] == '(') {
+                if (isAIStart(source[j])) {
                     data_length[i] = j - data_location[i];
                 }
             }
@@ -575,10 +597,12 @@ public final class Gs1 {
         int last_ai = 0;
         boolean fixedLengthAI = true;
         for (int i = 0; i < source.length; i++) {
-            if ((source[i] != '[') && (source[i] != ']') && (source[i] != '(') && (source[i] != ')')) {
+//            if ((source[i] != '[') && (source[i] != ']') && (source[i] != '(') && (source[i] != ')')) {
+            if (!isAIStart(source[i]) && !isAIEnd(source[i])) {
                 reduced.append(source[i]);
             }
-            if (source[i] == '[' || source[i] == '(') {
+//            if (source[i] == '[' || source[i] == '(') {
+            if (isAIStart(source[i])) {
                 /* Start of an AI string */
                 if (!fixedLengthAI) {
                     reduced.append(fnc1);

@@ -341,6 +341,15 @@ public class SystemConfigFile{
 // H.M.Wang 2023-12-13 追加一个串口协议12
 	public static final int DATA_SOURCE_RS232_12 	= 27;		// 报文 [FE 0F 4A 44 41 7C 76 31 3D 20 31 30 33 31 7C 0D 0A]，取 [31 30 33 31]赋值给DT0
 // End of H.M.Wang 2023-12-13 追加一个串口协议12
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。内容为：从串口收到 【0104607017595534215iD&U( 93CV0u】样式的数据，其中
+// 		01, 21和93为GS1的AI，01为固定长度（14个字符），21为可变长度，以空格为结束符，93为自定义AI，可变长度
+// 		AI原本使用方括号或圆括号作为标识，但由于用户数据中包含方括号和圆括号，因此使用花括号作为标识
+// 		将AI用花括号标识标注后，传递给GS1库生成二维码
+	public static final int DATA_SOURCE_GS1_BRACE	= 28;
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。内容为：从串口收到 【0104607017595534215iD&U( 93CV0u】样式的数据，其中
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+	public static final int DATA_SOURCE_LAN_GS1_BRACE	= 29;
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。

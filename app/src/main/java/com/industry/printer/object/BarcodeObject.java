@@ -47,6 +47,7 @@ import uk.org.okapibarcode.backend.OkapiException;
 import uk.org.okapibarcode.backend.QrCode;
 import uk.org.okapibarcode.backend.Symbol;
 import uk.org.okapibarcode.output.Java2DRenderer;
+import uk.org.okapibarcode.util.Gs1;
 
 public class BarcodeObject extends BaseObject {
 	private static final String TAG = BarcodeObject.class.getSimpleName();
@@ -1326,12 +1327,38 @@ public class BarcodeObject extends BaseObject {
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
 // H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 //				bitmap = drawOkapiQR(mContent, w, h);
-				bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+//				bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+//				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+				    SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE) {
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+					Gs1.AIType = Gs1.AI_TYPE_BRACE;
+					bitmap = drawOkapiQR((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
+					Gs1.AIType = Gs1.AI_TYPE_NORMAL;
+				} else {
+					bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+				}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
 // End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
 // H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 //				bitmap = drawGS1Datamatrix(mContent, w, h);
-				bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("(")) ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+//				bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("(")) ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+//				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE) {
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+					Gs1.AIType = Gs1.AI_TYPE_BRACE;
+					bitmap = drawGS1Datamatrix((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
+					Gs1.AIType = Gs1.AI_TYPE_NORMAL;
+				} else {
+					bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+				}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
 // End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {

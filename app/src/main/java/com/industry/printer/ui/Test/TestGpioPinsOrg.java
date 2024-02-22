@@ -25,7 +25,7 @@ import com.industry.printer.hardware.SmartCardManager;
 /*
   测试8个输出口（写）和8个输入口（读）的电平变化
  */
-public class TestGpioPins implements ITestOperation {
+public class TestGpioPinsOrg implements ITestOperation {
     public static final String TAG = TestGpioPins.class.getSimpleName();
 
     private Context mContext = null;
@@ -35,19 +35,11 @@ public class TestGpioPins implements ITestOperation {
     private int mSubIndex = 0;
 
     private static final String[] IN_PINS = new String[] {
-            "PG3", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
+            "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
 
     private static final String[] OUT_PINS = new String[] {
-            "PI8", "PB11", "PG4", "PH26", "PH27", "", "PE4", "PE5"
-    };
-
-    private static final String[] OUT_PIN_TITLES = new String[] {
-            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "OUT-6", "ValveOut1", "ValveOut2"
-    };
-
-    private static final String[] IN_PIN_TITLES = new String[] {
-            "IN-1", "IN-2", "IN-3", "IN-4", "IN-5", "IN-6", "IN-7", "IN-8"
+            "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", "Serial"
     };
 
     private final int PIN_ENABLE = 1;
@@ -91,7 +83,7 @@ public class TestGpioPins implements ITestOperation {
         }
     };
 
-    public TestGpioPins(Context ctx, int index) {
+    public TestGpioPinsOrg(Context ctx, int index) {
         mContext = ctx;
         mSubIndex = index;
     }
@@ -115,7 +107,8 @@ public class TestGpioPins implements ITestOperation {
             tv.setTextColor(Color.BLACK);
             tv.setTextSize(20);
             tv.setTag(i);
-            tv.setText(OUT_PIN_TITLES[i]);
+//            tv.setText(OUT_PINS[i]);
+            tv.setText("Out-" + (i+1));
             tv.setOnClickListener(mOutPinBtnClickListener);
             mOutPinLayout.addView(tv);
             mOutPins[i] = tv;
@@ -134,7 +127,8 @@ public class TestGpioPins implements ITestOperation {
             tv.setTextColor(Color.BLACK);
             tv.setTextSize(20);
             tv.setTag(i);
-            tv.setText(IN_PIN_TITLES[i]);
+//            tv.setText(IN_PINS[i]);
+            tv.setText("In-" + (i+1));
             tv.setOnClickListener(mInPinBtnClickListener);
             mInPinLayout.addView(tv);
             mInPins[i] = tv;
