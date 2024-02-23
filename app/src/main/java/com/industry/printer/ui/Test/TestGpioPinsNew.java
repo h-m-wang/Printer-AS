@@ -3,6 +3,8 @@ package com.industry.printer.ui.Test;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
@@ -19,14 +21,15 @@ import com.industry.printer.R;
 import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.SmartCardManager;
 
 /*
   测试8个输出口（写）和8个输入口（读）的电平变化
  */
-public class TestGpioPinsOrg implements ITestOperation {
-    public static final String TAG = TestGpioPins.class.getSimpleName();
+public class TestGpioPinsNew implements ITestOperation {
+    public static final String TAG = TestGpioPinsNew.class.getSimpleName();
 
     private Context mContext = null;
     private FrameLayout mContainer = null;
@@ -35,11 +38,19 @@ public class TestGpioPinsOrg implements ITestOperation {
     private int mSubIndex = 0;
 
     private static final String[] IN_PINS = new String[] {
-            "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
+            "PG3", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
 
     private static final String[] OUT_PINS = new String[] {
-            "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", "Serial"
+            "PI8", "PB11", "PG4", "PH26", "PH27", "PI8", "PE4", "PE5"
+    };
+
+    private static final String[] OUT_PIN_TITLES = new String[] {
+            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "OUT-6", "ValveOut1", "ValveOut2"
+    };
+
+    private static final String[] IN_PIN_TITLES = new String[] {
+            "IN-1", "IN-2", "IN-3", "IN-4", "IN-5", "IN-6", "IN-7", "IN-8"
     };
 
     private final int PIN_ENABLE = 1;
@@ -53,8 +64,9 @@ public class TestGpioPinsOrg implements ITestOperation {
     private LinearLayout mInPinLayout = null;
     private TextView[] mOutPins = null;
     private TextView[] mInPins = null;
+    private TextView mLaunchTestBtn = null;
 
-    private final String TITLE = "GPIO Pin Test";
+    private final String TITLE = "New GPIO Pin Test";
 
     private final int MSG_PINSTEST_NEXT = 103;
     private final int MSG_TERMINATE_TEST = 105;
@@ -76,6 +88,8 @@ public class TestGpioPinsOrg implements ITestOperation {
                     testInPin(msg.arg1);
                     break;
                 case MSG_TERMINATE_TEST:
+                    mLaunchTestBtn.setBackgroundColor(Color.GREEN);
+                    mLaunchTestBtn.setEnabled(true);
                     mHandler.removeMessages(MSG_TEST_IN_PIN);
                     mSerialWritting = false;
                     break;
@@ -83,7 +97,7 @@ public class TestGpioPinsOrg implements ITestOperation {
         }
     };
 
-    public TestGpioPinsOrg(Context ctx, int index) {
+    public TestGpioPinsNew(Context ctx, int index) {
         mContext = ctx;
         mSubIndex = index;
     }
@@ -92,7 +106,7 @@ public class TestGpioPinsOrg implements ITestOperation {
     public void show(FrameLayout f) {
         mContainer = f;
 
-        mTestAreaLL = (LinearLayout)LayoutInflater.from(mContext).inflate(R.layout.test_gpio_pins, null);
+        mTestAreaLL = (LinearLayout)LayoutInflater.from(mContext).inflate(R.layout.test_gpio_pins_new, null);
 
         mOutPinLayout = (LinearLayout) mTestAreaLL.findViewById(R.id.out_pin_area);
         mOutPins = new TextView[OUT_PINS.length];
@@ -107,8 +121,7 @@ public class TestGpioPinsOrg implements ITestOperation {
             tv.setTextColor(Color.BLACK);
             tv.setTextSize(20);
             tv.setTag(i);
-//            tv.setText(OUT_PINS[i]);
-            tv.setText("Out-" + (i+1));
+            tv.setText(OUT_PIN_TITLES[i] + " (" + (OUT_PINS[i].length() > 0 ? OUT_PINS[i] : " - ") + ")");
             tv.setOnClickListener(mOutPinBtnClickListener);
             mOutPinLayout.addView(tv);
             mOutPins[i] = tv;
@@ -127,20 +140,42 @@ public class TestGpioPinsOrg implements ITestOperation {
             tv.setTextColor(Color.BLACK);
             tv.setTextSize(20);
             tv.setTag(i);
-//            tv.setText(IN_PINS[i]);
-            tv.setText("In-" + (i+1));
+            tv.setText(IN_PIN_TITLES[i] + " (" + IN_PINS[i] + ")");
             tv.setOnClickListener(mInPinBtnClickListener);
             mInPinLayout.addView(tv);
             mInPins[i] = tv;
         }
 
+        mLaunchTestBtn = (TextView) mTestAreaLL.findViewById(R.id.launch_test_btn);
+        mLaunchTestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mLaunchTestBtn.setBackgroundColor(Color.DKGRAY);
+                mLaunchTestBtn.setEnabled(false);
+                mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0).sendToTarget();
+            }
+        });
+
         mContainer.addView(mTestAreaLL);
 
-        resetOutPins();
-        resetInPins();
+        WifiManager wifiManager = (WifiManager)mContext.getSystemService(Context.WIFI_SERVICE);
+        Debug.d(TAG, "WifiEnabled: " + wifiManager.isWifiEnabled());
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        Debug.d(TAG, "IP Address: " + int2ip(wifiInfo.getIpAddress()));
+//        resetOutPins();
+//        resetInPins();
         mSerialWritting = false;
         mAutoTest = true;
-        mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0).sendToTarget();
+//        mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0).sendToTarget();
+    }
+
+    private static String int2ip(int ipInt) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ipInt & 0xFF).append(".");
+        sb.append((ipInt >> 8) & 0xFF).append(".");
+        sb.append((ipInt >> 16) & 0xFF).append(".");
+        sb.append((ipInt >> 24) & 0xFF);
+        return sb.toString();
     }
 
     @Override
