@@ -2,6 +2,7 @@ package com.industry.printer.Rfid;
 
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.RFIDDevice;
 
 
@@ -58,12 +59,14 @@ public class RFIDAsyncTask implements Runnable {
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
 synchronized (RFIDDevice.SERIAL_LOCK) {
+	ExtGpio.writeGpioTestPin('I', 9, 0);
 				int writed = RFIDDevice.write(mFd, mCmd.mTransData, mCmd.mTransData.length);
 				for(int j=0; j<5; j++) {
 					readin = RFIDDevice.read(mFd, 64);
 					if(null != readin) break;
 					Thread.sleep(100);
 				}
+	ExtGpio.writeGpioTestPin('I', 9, 1);
 }
 				if(null != readin) break;
 				Thread.sleep(1000);

@@ -45,7 +45,7 @@ public class TestMain {
     private final String TITLE = "";
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 //    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
-    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001", "蓝牙模块开启"};
+    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001", "蓝牙模块开启", "新测试"};
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
     public TestMain(Context ctx) {
@@ -174,6 +174,13 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
+                if(i == 5) {
+                    mIFTestOp = new TestGpioPinsNew(mContext, 0);
+                    mIFTestOp.show(mClientAreaFL);
+                    mIFTestOp.setTitle(mTitleTV);
+                    mMainMenuLV.setVisibility(View.GONE);
+                    return;
+                }
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);

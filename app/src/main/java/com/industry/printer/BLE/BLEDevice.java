@@ -83,7 +83,6 @@ public class BLEDevice {
                     }
                     try {Thread.sleep(100);} catch(Exception e){}
                 }
-                ExtGpio.writeGpioTestPin('I', 9, 0);
             }
             if(ret == true) break;
             else try {Thread.sleep(1000);} catch(Exception e){}
@@ -95,21 +94,20 @@ public class BLEDevice {
         synchronized (RFIDDevice.SERIAL_LOCK) {
             ExtGpio.writeGpioTestPin('I', 9, 1);
             mStreamTransport.writeLine(data);
-            ExtGpio.writeGpioTestPin('I', 9, 0);
         }
     }
 
     private void waitString(String prompt) {
         while(true) {
             synchronized (RFIDDevice.SERIAL_LOCK) {
+                String rcv = "";
                 ExtGpio.writeGpioTestPin('I', 9, 1);
                 if (mStreamTransport.readerReady()) {
-                    String rcv = mStreamTransport.readLine();
+                    rcv = mStreamTransport.readLine();
 //                    Debug.d(TAG, "RECV: [" + rcv + "]");
-                    if(rcv.startsWith(prompt)) break;
                 }
                 try {Thread.sleep(100);} catch (Exception e) {}
-                ExtGpio.writeGpioTestPin('I', 9, 0);
+                if(rcv.startsWith(prompt)) break;
             }
         }
     }
@@ -123,7 +121,6 @@ public class BLEDevice {
 //                    Debug.d(TAG, "RECV: [" + rcv + "]");
                 }
                 try {Thread.sleep(100);} catch(Exception e){}
-                ExtGpio.writeGpioTestPin('I', 9, 0);
             }
         }
     }
@@ -183,7 +180,6 @@ public class BLEDevice {
                 rcvString = mStreamTransport.readLine();
 //                Debug.d(TAG, "RECV: [" + rcvString + "]");
             }
-            ExtGpio.writeGpioTestPin('I', 9, 0);
         }
 
         if(StringUtil.isEmpty(rcvString)) {
@@ -197,8 +193,6 @@ public class BLEDevice {
                 mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+3, RECV_CONNECTED.length()+20);
 //                Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
                 waitString(RECV_CONNECTPARAM);
-                byte[] aaa = new byte[23];
-                read(aaa,0,23);
             }
         } else {
             if(rcvString.startsWith(RECV_DISCONNECTED)) {
@@ -264,8 +258,7 @@ public class BLEDevice {
                 recv += ret;
                 mStreamTransport.read(temp, 0, packCount - ret + 2);      // 0D 0A
             }
-            Debug.d(TAG, ByteArrayUtils.toHexString(buffer));
-            ExtGpio.writeGpioTestPin('I', 9, 0);
+            Debug.d(TAG, new String(buffer) + "[" + ByteArrayUtils.toHexString(buffer) + "]");
         }
         return recv;
     }

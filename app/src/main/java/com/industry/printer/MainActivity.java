@@ -1487,7 +1487,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		        Enumeration nis = NetworkInterface.getNetworkInterfaces();  
 		        InetAddress ia = null;  
 		        while (nis.hasMoreElements()) {  
-		            NetworkInterface ni = (NetworkInterface) nis.nextElement();  
+		            NetworkInterface ni = (NetworkInterface) nis.nextElement();
 		            Enumeration<InetAddress> ias = ni.getInetAddresses();  
 		            while (ias.hasMoreElements()) {  
 		                ia = ias.nextElement(); 
