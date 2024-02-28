@@ -3456,7 +3456,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public void onFinished(int code) {
 		Debug.d(TAG, "--->onFinished");
 // H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
-//		mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+// H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
+		mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 1000);
+// End of H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
 		ThreadPoolManager.mControlThread.execute(new Runnable() {
 			@Override
 			public void run() {
