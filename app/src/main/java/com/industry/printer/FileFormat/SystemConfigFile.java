@@ -1612,6 +1612,11 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_E5X50;
 				break;
 // End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_22MM:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_22MM;
+				break;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 		}
 
 		return nozzle;

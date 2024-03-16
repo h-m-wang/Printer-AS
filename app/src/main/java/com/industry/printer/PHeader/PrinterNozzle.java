@@ -70,8 +70,11 @@ public enum PrinterNozzle {
     MESSAGE_TYPE_64SLANT(MessageType.NOZZLE_INDEX_64SLANT, NozzleType.NOZZLE_TYPE_64SLANT, 1, 1),
 // End of H.M.Wang 2022-10-19 追加64SLANT头
 // H.M.Wang 2023-7-29 追加48点头
-    MESSAGE_TYPE_48_DOT(MessageType.NOZZLE_INDEX_48_DOT, NozzleType.NOZZLE_TYPE_48_DOT, 1, 1);
+    MESSAGE_TYPE_48_DOT(MessageType.NOZZLE_INDEX_48_DOT, NozzleType.NOZZLE_TYPE_48_DOT, 1, 1),
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+    MESSAGE_TYPE_22MM(MessageType.NOZZLE_INDEX_22MM, NozzleType.NOZZLE_TYPE_22MM, 1, 1);
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 
     public final int mIndex;
     public final int mType;
@@ -163,6 +166,14 @@ public enum PrinterNozzle {
             /**
              * for 'Nova' header, shift & mirror is forbiden;
              */
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case NozzleType.NOZZLE_TYPE_22MM:
+                shiftEnable = false;
+                mirrorEnable = false;
+                reverseEnable = false;
+                rotateAble = false;
+                break;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             case 14:
                 shiftEnable = false;
                 mirrorEnable = false;
@@ -315,6 +326,11 @@ public enum PrinterNozzle {
                 mHeight = 48;
                 break;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case NozzleType.NOZZLE_TYPE_22MM:
+                mHeight = 1056;
+                break;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
         }
     }
 
@@ -485,6 +501,12 @@ public enum PrinterNozzle {
                 scaleH = 48f/152;
                 break;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case NozzleType.NOZZLE_TYPE_22MM:
+                scaleW = 1056f/152;
+                scaleH = 1056f/152;
+                break;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             default:
                 scaleW = 1f;
                 scaleH = 1f;
@@ -581,6 +603,11 @@ public enum PrinterNozzle {
                 ratio = 48f / 304;
                 break;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case NozzleType.NOZZLE_TYPE_22MM:
+                ratio = 1.0f * 22.0f / 304;
+                break;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             default:
                 break;
         }
@@ -753,6 +780,10 @@ public enum PrinterNozzle {
             case MessageType.NOZZLE_INDEX_48_DOT:
                 return MESSAGE_TYPE_48_DOT;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case MessageType.NOZZLE_INDEX_22MM:
+                return MESSAGE_TYPE_22MM;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             default:
                 return MESSAGE_TYPE_12_7;
 
@@ -843,6 +874,10 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_48_DOT:
                 return MESSAGE_TYPE_48_DOT;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+            case NozzleType.NOZZLE_TYPE_22MM:
+                return MESSAGE_TYPE_22MM;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             default:
                 return MESSAGE_TYPE_12_7;
         }
@@ -909,6 +944,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2023-7-29 追加48点头
         public static final int NOZZLE_INDEX_48_DOT = 26;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+        public static final int NOZZLE_INDEX_22MM = 27;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
     }
 
     public static class NozzleType {
@@ -966,5 +1004,8 @@ public enum PrinterNozzle {
 // H.M.Wang 2023-7-29 追加48点头
         public static final int NOZZLE_TYPE_48_DOT = 45;
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+        public static final int NOZZLE_TYPE_22MM = 46;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
     }
 }

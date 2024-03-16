@@ -164,10 +164,10 @@ public class CalendarDialog extends RelightableDialog {
 			Thread.sleep(100);
 
 			LibUpgrade libUp = new LibUpgrade();
-			needReboot |= libUp.upgradeKOs(os, Configs.FPGA_SUNXI_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.EXT_GPIO_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.GSLX680_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.RTC_DS1307_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_FPGA_SUNXI_KO, Configs.FPGA_SUNXI_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
+			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
 
 			if(needReboot) {
 				ToastUtil.show(this.getContext(), "Rebooting...");

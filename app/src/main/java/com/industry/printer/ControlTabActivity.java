@@ -59,6 +59,7 @@ import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.LRADCBattery;
@@ -1161,6 +1162,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 		mPC_FIFO = PC_FIFO.getInstance(mContext);
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+
+		Hp22mm.gCtrlHandler = mHandler;
 	}
 
 	public boolean getLevelLow() {
@@ -1746,6 +1749,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			final boolean printNext = msg.getData().getBoolean("printNext", false);
 			switch(msg.what)
 			{
+				case 888888:
+					ToastUtil.show(mContext, "" + msg.obj);
+					break;
 				case MESSAGE_OPEN_PREVIEW:
 					String tlk = msg.getData().getString("file");
 					setMessage(tlk);

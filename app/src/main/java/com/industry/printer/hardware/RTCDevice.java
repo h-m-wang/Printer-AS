@@ -290,13 +290,13 @@ public class RTCDevice {
 		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 
 		String cmd = "4," + reg;
-		Debug.d(TAG, "--->Reading 4 int from register " + reg);
 
 		SystemFs.writeSysfs(I2C_READ, cmd);
 		String out = SystemFs.readSysfs(I2C_READ);
 		if (out == null) {
 			return 0;
 		}
+		Debug.d(TAG, "--->Read 4 int from register " + reg + ": " + out);
 
 		int pos =0;
 		String[] bytes = out.split("/r/n");

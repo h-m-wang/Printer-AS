@@ -28,8 +28,17 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.068"
+#define VERSION_CODE                            "1.0.070"
 
+// 1.0.069 2024-3-15
+//    增加
+//        {"readRegisters",	    "()[I",	    (void *)Java_com_ReadRegisters},
+//        {"writeSettings",	    "([I)I",	    (void *)Java_com_WriteSettins},
+//        {"writeImage",	    "(III[B)I",	    (void *)Java_com_WriteImage},
+//        {"start",	    "([I)I",	    (void *)Java_com_LaunchPrint},
+//    以实现从apk的自动控制打印
+// 1.0.069 2024-3-8
+//    修改几个参数的值
 // 1.0.068 2024-1-31
 //    1.删除以前写入FPGA的Flash的部分代码，因为这部分代码已经移到img里面实现了，这里不需要了，apk已经很久之前去掉了该连接
 //    2.放开startPrint中读取正式的image.bin的代码
@@ -125,7 +134,7 @@ int PDGInit() {
 int SPIMessage(unsigned char *message, int length) {
     struct spi_ioc_transfer transfer[length];
 
-    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+//    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     // fill in transfer array for each byte (non-default, non-zero)
     for (int i=0; i<length; i++) {
         memset(&(transfer[i]), 0, sizeof(transfer[i]));
@@ -139,7 +148,7 @@ int SPIMessage(unsigned char *message, int length) {
         return -1;
     }
 
-    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+//    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
     return 0;
 }
 
@@ -287,8 +296,8 @@ int PDGPrintSetup() {
     // calculate encoder and TOF values
 //    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
 //    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
-    int encoder = 1500;
-    int tof_freq = 45000000;
+    int encoder = 180000;
+    int tof_freq = 180000000;
 
     // use all 4 columns of selected pen
     int col_mask = 0xf;
@@ -297,7 +306,7 @@ int PDGPrintSetup() {
     if (PDGWrite(15, encoder) < 0 ||    // R15 internal encoder period (divider of clock freq)
         PDGWrite(16, tof_freq) < 0 ||   // R16 internal TOF frequency (Hz)
         PDGWrite(17, 0) < 0 ||          // R17 0 = internal encoder
-        PDGWrite(18, 2) < 0 ||          // R18 external encoder divider (2=600 DPI)
+        PDGWrite(18, 1) < 0 ||          // R18 external encoder divider (2=600 DPI)
         PDGWrite(19, 0) < 0 ||          // R19 0 = internal TOF
         PDGWrite(20, 0/*IMAGE_TOF*/) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
         PDGWrite(21, 0/*IMAGE_TOF*/) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
@@ -322,9 +331,6 @@ bool IsPrinting() {
 void *_print_thread(void *arg) {
     uint32_t ui;
 
-    int cnt = 0;
-    int cnt1 = 0;
-    int cnt2 = 0;
     while (true) {
         // check for print done (or cancel/error)
         if (PDGRead(25, &ui) < 0 ||     // (R25 print enable)
@@ -490,6 +496,151 @@ JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
     }
 
     return (*env)->NewStringUTF(env, strTemp);
+}
+
+JNIEXPORT jintArray JNICALL Java_com_ReadRegisters(JNIEnv *env, jclass arg) {
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return NULL;
+    }
+
+    int count = (sizeof(reg_name)/sizeof(reg_name[0]));
+    uint32_t regs[count];
+
+    memset(regs, 0x00, sizeof(uint32_t) * count);
+
+    for (int i=2; i < count; i++) {
+        PDGRead(i, &(regs[i]));
+    }
+
+    jintArray ret_buf = (*env)->NewIntArray(env, count);
+    (*env)->SetIntArrayRegion(env, ret_buf, 0, count, regs);
+    (*env)->ReleaseIntArrayElements(env, ret_buf, regs, JNI_ABORT);
+
+    return ret_buf;
+}
+
+JNIEXPORT jint JNICALL Java_com_WriteSettins(JNIEnv *env, jclass arg, jintArray regs) {
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return -1;
+    }
+
+    int ret = 0;
+    jint *cbuf = (*env)->GetIntArrayElements(env, regs, 0);
+
+    if (PDGWrite(4, cbuf[4]) < 0 ||             // R4 = words/col
+        PDGWrite(5, cbuf[5]) < 0 ||             // R5 = byte memory advance (1 column)
+// 下发数据时再设        PDGWrite(6, cbuf[6]) < 0 ||             // R6 = columns (all cols using same image)
+        PDGWrite(7, cbuf[7]) < 0 ||             // R7 = Start Address P0_S0_odd
+        PDGWrite(8, cbuf[8]) < 0 ||             // R8 = Start Address P0_S0_even
+        PDGWrite(9, cbuf[9]) < 0 ||             // R9 = Start Address P0_S1_odd
+        PDGWrite(10, cbuf[10]) < 0 ||           // R10 = Start Address P0_S1_even
+        PDGWrite(11, cbuf[11]) < 0 ||           // R11 = Start Address P1_S0_odd
+        PDGWrite(12, cbuf[12]) < 0 ||           // R12 = Start Address P1_S0_even
+        PDGWrite(13, cbuf[13]) < 0 ||           // R13 = Start Address P1_S1_odd
+        PDGWrite(14, cbuf[14]) < 0 ||           // R14 = Start Address P1_S1_even
+        PDGWrite(15, cbuf[15]) < 0 ||           // R15 Frequency of the internal encoder pulse generator. The resulting frequency equals 90 MHz divided by the value of this register.
+        PDGWrite(16, cbuf[16]) < 0 ||           // R16 Frequency of the internal top of form (TOF) pulse generator. The resulting frequency equals 90 MHz divided by the value of this register. For example, writing 45000000 to this register results in 2 TOF signals per second.
+        PDGWrite(17, cbuf[17]) < 0 ||           // R17 Source for the encoder signals. 0 = internal encoder, 1=external encoder
+        PDGWrite(18, cbuf[18]) < 0 ||           // R18 External Encoder Divider.
+        PDGWrite(19, cbuf[19]) < 0 ||           // R19 Source for the TOF signals. 0=Internal TOF, 1=External TOF
+        PDGWrite(20, cbuf[20]) < 0 ||           // R20 Number of encoder counts from TOF until printing starts, for Printhead 1
+        PDGWrite(21, cbuf[21]) < 0 ||           // R21 Number of encoder counts from TOF until printing starts, for Printhead 2
+        PDGWrite(22, cbuf[22]) < 0 ||           // R22 0 = forward, 1 = reverse, 2 = no offsets
+        PDGWrite(23, cbuf[23]) < 0 ||           // R23 Spacing between columns in a single slot, in 1/600 of an inch
+        PDGWrite(24, cbuf[24]) < 0 ||           // R24 Spacing between slots in a single printhead, in encoder counts
+        PDGWrite(25, cbuf[25]) < 0 ||           // R25 Enables printing. 1=enable, 0= disable
+        PDGWrite(28, cbuf[28]) < 0 ||           // R28 0 - not reset, 1 = Abort and reset
+        PDGWrite(29, cbuf[29]) < 0) {           // R29 column enable bits
+        ret = -1;
+    }
+
+    (*env)->ReleaseIntArrayElements(env, regs, cbuf, 0);
+
+    return ret;
+}
+
+JNIEXPORT jint JNICALL Java_com_WriteImage(JNIEnv *env, jclass arg, int addr, int cols, int bytes_per_col, jbyteArray image) {
+    if (PDGInit()) {
+        LOGE("PDGInit failed\n");
+        return 0;
+    }
+
+    jbyte *cbuf = (*env)->GetByteArrayElements(env, image, 0);
+
+    int write_words = bytes_per_col / 4;
+    int buffer_size = bytes_per_col + 3;
+    unsigned char buffer[buffer_size];
+
+    for (int i=0; i < cols; i++) {
+        // read from image file and write to PDG
+        buffer[0] = PDG_WRITE_FIFO;
+        buffer[1] = write_words;
+        memcpy((buffer+2), cbuf+i*bytes_per_col, bytes_per_col);
+        buffer[bytes_per_col+2] = 0;
+        if (SPIMessage(buffer, buffer_size) < 0) return 0;
+        PDGWaitWBuffer(write_words);
+
+        // Generic command (write)
+        buffer[0] = PDG_MEM_TRANS;
+        buffer[1] = (write_words - 1);
+        buffer[2] = FIFO_2_DDR;
+        buffer[3] = (addr >> 24) & 0xff;
+        buffer[4] = (addr >> 16) & 0xff;
+        buffer[5] = (addr >> 8) & 0xff;
+        buffer[6] = addr & 0xff;
+        buffer[7] = 0;
+        if (SPIMessage(buffer, 8) < 0) return 0;
+        PDGWaitWBuffer(0);
+
+        addr += bytes_per_col;
+    }
+
+    PDGWrite(6, cols) < 0 ||             // R6 = columns
+
+    LOGI("Print image (%d rows x %d cols) written to DDR from addr %d\n", bytes_per_col, cols, addr);
+
+    (*env)->ReleaseByteArrayElements(env, image, cbuf, 0);
+
+    return cols * bytes_per_col;
+}
+
+JNIEXPORT jint JNICALL Java_com_LaunchPrint(JNIEnv *env, jclass arg, jintArray regs) {
+    if (IsPrinting()) {
+        LOGE("ERROR: already printing\n");
+        return 0;
+    }
+
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
+        LOGE("%s\n", ERR_STRING);
+        return -1;
+    }
+
+    int ret = 0;
+    jint *cbuf = (*env)->GetIntArrayElements(env, regs, 0);
+
+    CancelPrint = false;
+    if (PDGWrite(17, cbuf[17]) < 0 ||    // R17 0=internal 1=external encoder
+        PDGWrite(19, cbuf[19]) < 0 ||    // R19 0=internal 1=external TOF
+        PDGWrite(26, cbuf[26]) < 0 ||           // R26 init print count to 0
+        PDGWrite(27, cbuf[27]) < 0 ||       // R27 set print count limit
+        PDGWrite(25, 1) < 0) {            // R25 1 - enable print
+        LOGE("ERROR: triggering print\n");
+        ret = -1;
+    }
+
+    if(ret == 0) {
+        if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
+            PrintThread = (pthread_t)NULL;
+            LOGE("ERROR: pthread_create() of PrintThread failed\n");
+            ret = -1;
+        }
+    }
+
+    (*env)->ReleaseIntArrayElements(env, regs, cbuf, 0);
+
+    return ret;
 }
 
 JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg) {
@@ -1370,6 +1521,10 @@ static JNINativeMethod gMethods[] = {
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
+        {"readRegisters",	    "()[I",	    (void *)Java_com_ReadRegisters},
+        {"writeSettings",	    "([I)I",	    (void *)Java_com_WriteSettins},
+        {"writeImage",	    "(III[B)I",	    (void *)Java_com_WriteImage},
+        {"start",	    "([I)I",	    (void *)Java_com_LaunchPrint},
         {"spiTest",	    "()Ljava/lang/String;",	    (void *)Java_com_SpiTest},
         {"mcu2fifo",		            "()I",	                    (void *)Java_com_MCU2FIFO},
         {"fifo2ddr",		            "()I",	                    (void *)Java_com_FIFO2DDR},

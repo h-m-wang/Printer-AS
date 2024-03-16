@@ -110,7 +110,9 @@ public class EditScrollView extends View {
 // H.M.Wang 2021-8-16 追加96DN头
 				case MESSAGE_TYPE_96DN:
 // End of H.M.Wang 2021-8-16 追加96DN头
-
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+				case MESSAGE_TYPE_22MM:
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 					break;
 				case MESSAGE_TYPE_25_4:
 				case MESSAGE_TYPE_1_INCH_DUAL:

@@ -2,52 +2,40 @@ package com.industry.printer.ui.Test;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.net.ConnectivityManager;
-import android.net.DhcpInfo;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.industry.printer.MainActivity;
+import com.industry.printer.FileFormat.ImExPort;
 import com.industry.printer.R;
 import com.industry.printer.Serial.SerialHandler;
-import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
+import com.industry.printer.Utils.ConfigPath;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
-import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.hardware.ExtGpio;
-import com.industry.printer.hardware.SmartCardManager;
+import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.IInkDevice;
+import com.industry.printer.hardware.InkManagerFactory;
+import com.industry.printer.hardware.RTCDevice;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 /*
   测试8个输出口（写）和8个输入口（读）的电平变化
@@ -59,18 +47,16 @@ public class TestGpioPinsNew implements ITestOperation {
     private FrameLayout mContainer = null;
     private LinearLayout mTestAreaLL = null;
 
-    private int mSubIndex = 0;
-
     private static final String[] IN_PINS = new String[] {
-            "PG3", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
+            "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
 
     private static final String[] OUT_PINS = new String[] {
-            "PI8", "PB11", "PG4", "PH26", "PH27", "", "PE4", "PE5"
+            "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", ""
     };
 
     private static final String[] OUT_PIN_TITLES = new String[] {
-            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "OUT-6", "ValveOut1", "ValveOut2"
+            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "ValveOut1", "ValveOut2", ""
     };
 
     private static final String[] IN_PIN_TITLES = new String[] {
@@ -88,15 +74,41 @@ public class TestGpioPinsNew implements ITestOperation {
     private LinearLayout mInPinLayout = null;
     private TextView[] mOutPins = null;
     private TextView[] mInPins = null;
-    private TextView mLaunchTestBtn = null;
-    private TextView mPintTime = null;
+    private TextView mGpioTestBtn = null;
 
-    private final String TITLE = "New GPIO Pin Test";
+    private TextView mInitTest = null;
+    private TextView mEtherTest = null;
+    private TextView mSerialTest = null;
+    private TextView mRFIDTest = null;
+
+    private TextView mResImport = null;
+    private TextView mResFPGA = null;
+    private TextView mResKOs = null;
+    private TextView mResCNTs = null;
+    private TextView mResTime = null;
+    private TextView mResEth = null;
+    private TextView mResSerial = null;
+
+    private Thread mInPinsThread = null;
+    private boolean mRunning = false;
+    private boolean mGpioPinTesting = false;
+
+    private final String TITLE = "M9测试";
 
     private final int MSG_PINSTEST_NEXT = 103;
     private final int MSG_TERMINATE_TEST = 105;
-    private final int MSG_TEST_IN_PINS = 106;
-    private final int MSG_TEST_PING_TIME = 107;
+    private final int MSG_DISP_OUT_PINS = 106;
+    private final int MSG_DISP_IN_PINS = 107;
+    private final int MSG_DISP_TEST_RESULT = 108;
+    private final int MSG_TEST_RESULT_ERROR = 109;
+
+    private final int TEST_SEC_IMPORT = 0;
+    private final int TEST_SEC_WRITE_FPGA = 1;
+    private final int TEST_SEC_UPDATE_KOS = 2;
+    private final int TEST_SEC_RESET_CNTS = 3;
+    private final int TEST_SEC_RESET_TIME = 4;
+    private final int TEST_SEC_ETHERNET = 5;
+    private final int TEST_SEC_SERIAL = 6;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -110,16 +122,35 @@ public class TestGpioPinsNew implements ITestOperation {
                     Message nmsg = obtainMessage(MSG_PINSTEST_NEXT, msg.arg1 + 1, 0);
                     sendMessageDelayed(nmsg, 1000);
                     break;
-                case MSG_TEST_IN_PINS:
-                    testInPins();
+                case MSG_DISP_OUT_PINS:
+                    mOutPins[msg.arg1].setBackgroundColor(msg.arg2 == 0 ? COLOR_DISABLED : COLOR_ENABLED);
+                    break;
+                case MSG_DISP_IN_PINS:
+                    mInPins[msg.arg1].setBackgroundColor(msg.arg2 == 0 ? COLOR_ENABLED : COLOR_DISABLED);
                     break;
                 case MSG_TERMINATE_TEST:
-                    mLaunchTestBtn.setBackgroundColor(Color.GREEN);
-                    mLaunchTestBtn.setEnabled(true);
-                    mSerialWritting = false;
+                    mGpioPinTesting = false;
+                    mGpioTestBtn.setBackgroundColor(Color.GREEN);
+                    mGpioTestBtn.setEnabled(true);
                     break;
-                case MSG_TEST_PING_TIME:
-                    mPintTime.setText("Ping finished in " + msg.obj + "ms");
+                case MSG_DISP_TEST_RESULT:
+                    if(msg.arg1 == TEST_SEC_IMPORT) {
+                        mResImport.setBackgroundColor(msg.arg2);
+                    } if(msg.arg1 == TEST_SEC_WRITE_FPGA) {
+                        mResFPGA.setBackgroundColor(msg.arg2);
+                    } if(msg.arg1 == TEST_SEC_UPDATE_KOS) {
+                        mResKOs.setBackgroundColor(msg.arg2);
+                    } if(msg.arg1 == TEST_SEC_RESET_CNTS) {
+                        mResCNTs.setBackgroundColor(msg.arg2);
+                    } if(msg.arg1 == TEST_SEC_RESET_TIME) {
+                        mResTime.setBackgroundColor(msg.arg2);
+                    } if(msg.arg1 == TEST_SEC_ETHERNET) {
+                        mResEth.setBackgroundColor(msg.arg2);
+                        if(msg.arg2 == Color.GREEN) mResEth.setText(msg.obj + "ms");
+                    } if(msg.arg1 == TEST_SEC_SERIAL) {
+                        mResSerial.setBackgroundColor(msg.arg2);
+                    }
+                    if(msg.arg2 == Color.RED) ExtGpio.playClick();
                     break;
             }
         }
@@ -127,7 +158,183 @@ public class TestGpioPinsNew implements ITestOperation {
 
     public TestGpioPinsNew(Context ctx, int index) {
         mContext = ctx;
-        mSubIndex = index;
+    }
+
+    private boolean mSerialRecv = false;
+
+    private void testImport() {
+        final ArrayList<String> usbs = ConfigPath.getMountedUsb();
+        if (usbs.size() <= 0) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_IMPORT, Color.RED).sendToTarget();
+            return;
+        }
+
+        for(String path : usbs) {
+            new File(path).delete();
+        }
+
+        ImExPort importTest = new ImExPort(mContext);
+        importTest.msgImport(usbs);
+        mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_IMPORT, Color.GREEN).sendToTarget();
+    }
+
+    private void testWriteFPGA() {
+        ExtGpio.writeGpioTestPin('I', 7, 0);
+        if (0 == FpgaGpioOperation.updateFlash()) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.GREEN).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED).sendToTarget();
+        }
+        ExtGpio.writeGpioTestPin('I', 7, 1);
+    }
+
+    private void testUpgradeKOs() {
+        try {
+            boolean needReboot = false;
+
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            Thread.sleep(100);
+
+            LibUpgrade libUp = new LibUpgrade();
+            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_FPGA_SUNXI_KO, Configs.FPGA_SUNXI_KO);
+            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
+            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
+            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
+
+            if(needReboot) {
+                mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.GREEN).sendToTarget();
+            } else {
+                mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.RED).sendToTarget();
+            }
+//            os.flush();
+//            os.close();
+        } catch(IOException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void testSerial() {
+        mSerialTest.post(new Runnable() {
+            @Override
+            public void run() {
+                mSerialTest.setEnabled(false);
+                mSerialTest.setBackgroundColor(Color.GRAY);
+            }
+        });
+        SerialHandler sh = SerialHandler.getInstance();
+
+        mSerialRecv = false;
+
+        ExtGpio.writeGpioTestPin(OUT_PINS[1].charAt(1), Integer.valueOf(OUT_PINS[1].substring(2)), PIN_DISABLE);
+        sh.sendTestString("123456", new SerialHandler.ReadSerialListener() {
+            @Override
+            public void onRecvSerial(byte[] msg) {
+                mSerialRecv = true;
+            }
+        });
+
+        try{ Thread.sleep(3000);}catch(Exception e){}
+
+        if(mSerialRecv) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_SERIAL, Color.RED).sendToTarget();
+        } else {
+//            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_SERIAL, Color.GREEN).sendToTarget();
+        }
+
+        try{ Thread.sleep(3000);}catch(Exception e){}
+
+        mSerialRecv = false;
+        ExtGpio.writeGpioTestPin(OUT_PINS[1].charAt(1), Integer.valueOf(OUT_PINS[1].substring(2)), PIN_ENABLE);
+
+        for(int i=0; i<400 && !mSerialRecv; i++) {
+            try{ Thread.sleep(500);}catch(Exception e){}
+
+            sh.sendTestString("123456", new SerialHandler.ReadSerialListener() {
+                @Override
+                public void onRecvSerial(byte[] msg) {
+                    String rmsg = new String(msg);
+                    if(rmsg.startsWith("123456")) {
+                        mSerialRecv = true;
+                    } else {
+                        mSerialRecv = false;
+                    }
+                }
+            });
+        }
+        sh.sendTestString("123456", null);
+
+        if(!mSerialRecv) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_SERIAL, Color.RED).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_SERIAL, Color.GREEN).sendToTarget();
+        }
+
+        mSerialTest.post(new Runnable() {
+            @Override
+            public void run() {
+                mSerialTest.setEnabled(true);
+                mSerialTest.setBackgroundColor(Color.GREEN);
+            }
+        });
+    }
+
+    private void testRFID() {
+        int rfid_ids[] = new int[] {R.id.rfid0, R.id.rfid1, R.id.rfid2, R.id.rfid3};
+        IInkDevice inkManager = InkManagerFactory.inkManager(mContext);
+        for(int i=0; i<4; i++) {
+            TextView rfid = (TextView) mTestAreaLL.findViewById(rfid_ids[i]);
+            if(inkManager.isValid(i)) {
+                rfid.setBackgroundColor(Color.GREEN);
+            } else {
+                rfid.setBackgroundColor(Color.RED);
+            }
+        }
+    }
+
+    private void testInit() {
+        mInitTest.post(new Runnable() {
+            @Override
+            public void run() {
+                mInitTest.setEnabled(false);
+                mInitTest.setBackgroundColor(Color.GRAY);
+            }
+        });
+
+        testImport();
+        try{Thread.sleep(3000);}catch (Exception e){}
+
+        testWriteFPGA();
+        try{Thread.sleep(3000);}catch (Exception e){}
+
+        testUpgradeKOs();
+        try{Thread.sleep(3000);}catch (Exception e){}
+
+        Calendar c = Calendar.getInstance();
+        c.set(2020, 2, 1, 3, 20,0);
+        long when = c.getTimeInMillis();
+        if (when / 1000 < Integer.MAX_VALUE) {
+            SystemClock.setCurrentTimeMillis(when);
+        }
+        RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
+        rtcDevice.syncSystemTimeToRTC(mContext);
+        mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_TIME, Color.GREEN).sendToTarget();
+        try{Thread.sleep(3000);}catch (Exception e){}
+
+        rtcDevice.write(0,9);
+        mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_CNTS, Color.GREEN).sendToTarget();
+
+        mInitTest.post(new Runnable() {
+            @Override
+            public void run() {
+                mInitTest.setEnabled(true);
+                mInitTest.setBackgroundColor(Color.GREEN);
+            }
+        });
     }
 
     @Override
@@ -143,7 +350,7 @@ public class TestGpioPinsNew implements ITestOperation {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(0,1,0,1);
             tv.setLayoutParams(lp);
-            tv.setPadding(0,5,0,5);
+            tv.setPadding(0,3,0,3);
             tv.setGravity(Gravity.CENTER);
             tv.setBackgroundColor(COLOR_DISABLED);
             tv.setTextColor(Color.BLACK);
@@ -162,46 +369,206 @@ public class TestGpioPinsNew implements ITestOperation {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(0,1,0,1);
             tv.setLayoutParams(lp);
-            tv.setPadding(0,5,0,5);
+            tv.setPadding(0,3,0,3);
             tv.setGravity(Gravity.CENTER);
             tv.setBackgroundColor(COLOR_DISABLED);
             tv.setTextColor(Color.BLACK);
             tv.setTextSize(20);
             tv.setTag(i);
             tv.setText(IN_PIN_TITLES[i] + " (" + IN_PINS[i] + ")");
-            tv.setOnClickListener(mInPinBtnClickListener);
             mInPinLayout.addView(tv);
             mInPins[i] = tv;
         }
 
-        mLaunchTestBtn = (TextView) mTestAreaLL.findViewById(R.id.launch_test_btn);
-        mLaunchTestBtn.setOnClickListener(new View.OnClickListener() {
+        mGpioTestBtn = (TextView) mTestAreaLL.findViewById(R.id.gpio_test_btn);
+        mGpioTestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mLaunchTestBtn.setBackgroundColor(Color.DKGRAY);
-                mLaunchTestBtn.setEnabled(false);
+                mGpioTestBtn.setBackgroundColor(Color.DKGRAY);
+                mGpioTestBtn.setEnabled(false);
                 resetOutPins();
-                testInPins();
+                mGpioPinTesting = true;
                 mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
             }
         });
 
-        mPintTime = (TextView) mTestAreaLL.findViewById(R.id.ping_time);
-
-        CheckBox cb = (CheckBox) mTestAreaLL.findViewById(R.id.net_test);
-        cb.setOnClickListener(new View.OnClickListener() {
+        TextView clearBtn = (TextView) mTestAreaLL.findViewById(R.id.clear_gpio_btn);
+        clearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                testWifiResponseTime();
+                resetOutPins();
             }
         });
+
+        mResImport = (TextView) mTestAreaLL.findViewById(R.id.result_import);
+        mResFPGA = (TextView) mTestAreaLL.findViewById(R.id.result_fpga);
+        mResKOs = (TextView) mTestAreaLL.findViewById(R.id.result_kos);
+        mResCNTs = (TextView) mTestAreaLL.findViewById(R.id.result_counter);
+        mResTime = (TextView) mTestAreaLL.findViewById(R.id.result_time);;
+        mResEth = (TextView) mTestAreaLL.findViewById(R.id.result_eth);;
+        mResSerial = (TextView) mTestAreaLL.findViewById(R.id.result_serial);;
+
+        mInitTest = (TextView) mTestAreaLL.findViewById(R.id.init_test_btn);
+        mInitTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testInit();
+                    }
+                }).start();
+            }
+        });
+
+        mEtherTest = (TextView) mTestAreaLL.findViewById(R.id.eth_test_btn);
+        mEtherTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testWifiResponseTime();
+                    }
+                }).start();
+            }
+        });
+
+        mSerialTest = (TextView) mTestAreaLL.findViewById(R.id.serial_test_btn);
+        mSerialTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testSerial();
+                    }
+                }).start();
+            }
+        });
+
+        mRFIDTest = (TextView) mTestAreaLL.findViewById(R.id.rfid_test_btn);
+        mRFIDTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                testRFID();
+            }
+        });
+
+        final TextView writeFPGA = (TextView) mTestAreaLL.findViewById(R.id.write_fpga_btn);
+        writeFPGA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        writeFPGA.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                writeFPGA.setEnabled(false);
+                                writeFPGA.setBackgroundColor(Color.GRAY);
+                            }
+                        });
+                        testWriteFPGA();
+                        writeFPGA.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                writeFPGA.setEnabled(true);
+                                writeFPGA.setBackgroundColor(Color.GREEN);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+
+        final TextView totalBtn = (TextView) mTestAreaLL.findViewById(R.id.total_test_btn);
+        totalBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        totalBtn.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                totalBtn.setEnabled(false);
+                                totalBtn.setBackgroundColor(Color.GRAY);
+                            }
+                        });
+
+                        mGpioPinTesting = true;
+                        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
+
+                        while(mGpioPinTesting) {
+                            try{Thread.sleep(1000);}catch (Exception e){}
+                        }
+
+                        testInit();
+                        try{Thread.sleep(3000);}catch (Exception e){}
+                        testWifiResponseTime();
+                        try{Thread.sleep(3000);}catch (Exception e){}
+                        testSerial();
+
+                        totalBtn.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                testRFID();
+                                totalBtn.setEnabled(true);
+                                totalBtn.setBackgroundColor(Color.GREEN);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+
         mContainer.addView(mTestAreaLL);
 
-        mSerialWritting = false;
-//        mAutoTest = true;
-
         resetOutPins();
-        testInPins();
+
+        Calendar c = Calendar.getInstance();
+        if(c.get(Calendar.YEAR) != 2020 || c.get(Calendar.MONTH) != 2 || c.get(Calendar.DAY_OF_MONTH) != 1) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_TIME, Color.RED).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_TIME, Color.GREEN).sendToTarget();
+        }
+
+        RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
+        if(rtcDevice.read(9) != 0) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_CNTS, Color.RED).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_RESET_CNTS, Color.GREEN).sendToTarget();
+        }
+
+        mInPinsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mRunning = true;
+                while(mRunning) {
+                    testOutPins();
+                    testInPins();
+                    try{Thread.sleep(200);}catch(Exception e){}
+                }
+            }
+        });
+        mInPinsThread.start();
+    }
+
+    private void testOutPins() {
+        for (int i = 0; i < mOutPins.length; i++) {
+            if(!OUT_PINS[i].isEmpty()) {
+                int value = ExtGpio.readGpioTestPin(OUT_PINS[i].charAt(1), Integer.valueOf(OUT_PINS[i].substring(2)));
+                mHandler.obtainMessage(MSG_DISP_OUT_PINS, i, value).sendToTarget();
+            }
+        }
+    }
+
+    private void testInPins() {
+        for (int i = 0; i < mInPins.length; i++) {
+            int value = ExtGpio.readGpioTestPin(IN_PINS[i].charAt(1), Integer.valueOf(IN_PINS[i].substring(2)));
+            mHandler.obtainMessage(MSG_DISP_IN_PINS, i, value).sendToTarget();
+        }
     }
 
     @Override
@@ -212,6 +579,10 @@ public class TestGpioPinsNew implements ITestOperation {
     @Override
     public boolean quit() {
         mContainer.removeView(mTestAreaLL);
+        if(null != mInPinsThread && mInPinsThread.isAlive()) {
+            mRunning = false;
+            mInPinsThread.interrupt();
+        }
         return true;
     }
 
@@ -225,14 +596,6 @@ public class TestGpioPinsNew implements ITestOperation {
         }
     };
 
-    private View.OnClickListener mInPinBtnClickListener = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            Integer index = (Integer)v.getTag();
-            Debug.d(TAG, "In Index: " + index);
-        }
-    };
-
     // 将输出口管脚全部设为DISABLE（拉低）
     private void resetOutPins() {
         mBeepOn = false;
@@ -242,117 +605,86 @@ public class TestGpioPinsNew implements ITestOperation {
             } catch (NumberFormatException e) {
                 Debug.e(TAG, e.getMessage());
             }
-            mOutPins[i].setBackgroundColor(COLOR_DISABLED);
         }
     }
 
     private boolean mBeepOn = false;
-//    private boolean mAutoTest = false;
-    private boolean mSerialWritting = false;
 
     private boolean toggleOutPin(int index) {
         boolean enable = false;
 
         if (index < 8 && !OUT_PINS[index].isEmpty()) {
             try {
-                if(index == 2/* && !mAutoTest*/) {
-//                    Thread.sleep(1000);
+                if(index == 2) {
                     mBeepOn = !mBeepOn;
                     enable = mBeepOn;
                 } else {
                     enable = !(ExtGpio.readGpioTestPin(OUT_PINS[index].charAt(1), Integer.valueOf(OUT_PINS[index].substring(2))) == PIN_DISABLE ? false : true);
                 }
-//                Debug.d(TAG, "Value = " + enable);
                 ExtGpio.writeGpioTestPin(OUT_PINS[index].charAt(1), Integer.valueOf(OUT_PINS[index].substring(2)), (enable ? PIN_ENABLE : PIN_DISABLE));
-                enable = ExtGpio.readGpioTestPin(OUT_PINS[index].charAt(1), Integer.valueOf(OUT_PINS[index].substring(2))) == PIN_DISABLE ? false : true;
             } catch (NumberFormatException e) {
                 Debug.e(TAG, e.getMessage());
                 return false;
-//            } catch (InterruptedException e) {
-//                Debug.e(TAG, e.getMessage());
-//                return false;
             }
         }
 
-        mOutPins[index].setBackgroundColor(enable ? COLOR_ENABLED : COLOR_DISABLED);
-
-        mHandler.removeMessages(MSG_TEST_IN_PINS);
-        mHandler.sendEmptyMessageDelayed(MSG_TEST_IN_PINS, 10);
         return true;
     }
 
-    private void testInPins() {
-        for (int i = 0; i < mInPins.length; i++) {
-            int value = ExtGpio.readGpioTestPin(IN_PINS[i].charAt(1), Integer.valueOf(IN_PINS[i].substring(2)));
-            Debug.d(TAG, "IN_PIN[" + i + "]= " + value);
-            if(value != 0) {
-                mInPins[i].setBackgroundColor(COLOR_DISABLED);
-            } else {
-                mInPins[i].setBackgroundColor(COLOR_ENABLED);
-            }
-        }
-    }
-
-    private static String int2ip(int ipInt) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ipInt & 0xFF).append(".");
-        sb.append((ipInt >> 8) & 0xFF).append(".");
-        sb.append((ipInt >> 16) & 0xFF).append(".");
-        sb.append((ipInt >> 24) & 0xFF);
-        return sb.toString();
-    }
-
-    private String testWifiResponseTime() {
-        mPintTime.setText("Pinging...");
-        new Thread(new Runnable() {
+    private void testWifiResponseTime() {
+        mEtherTest.post(new Runnable() {
             @Override
             public void run() {
-                ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo[] nis = connectivityManager.getAllNetworkInfo();
-
-                if(null == nis) {
-                    Debug.d(TAG, "NIS null");
-                    return;
-                }
-
-                try {
-                    Process process = Runtime.getRuntime().exec("su");
-                    DataOutputStream os = new DataOutputStream(process.getOutputStream());
-                    BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));
-
-                    os.writeBytes("ping -c 3 169.254.173.207\n");
-                    while(true) {
-                        String str = br.readLine();
-                        if(str.startsWith("rtt min/avg/max/mdev = ")) {
-                            str = str.substring("rtt min/avg/max/mdev = ".length());
-                            String strs[] = str.split("/");
-                            Message msg = mHandler.obtainMessage();
-                            msg.what = MSG_TEST_PING_TIME;
-                            msg.obj = strs[1];
-                            mHandler.sendMessage(msg);
-                            Debug.d(TAG, strs[1]);
-                            break;
-                        }
-                    }
-                } catch (ExceptionInInitializerError e) {
-                    Debug.e(TAG, "--->e: " + e.getMessage());
-                } catch (Exception e) {
-                    Debug.e(TAG, "--->e: " + e.getMessage());
-                }
-
-/*                try {
-                    Socket socket = new Socket("169.254.173.207", 8899);
-                    Debug.e(TAG, "Serial Send: 1234ABCD\n");
-                    socket.getOutputStream().write("1234ABCD\n".getBytes());
-                    socket.close();
-                } catch (UnknownHostException e) {
-                    Debug.e(TAG, "--->e: " + e.getMessage());
-                } catch (Exception e) {
-                    Debug.e(TAG, "--->e: " + e.getMessage());
-                }*/
+                mEtherTest.setEnabled(false);
+                mEtherTest.setBackgroundColor(Color.GRAY);
             }
-        }).start();
+        });
 
-        return "";
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), Charset.forName("UTF-8")));
+
+            os.writeBytes("ping -c 3 192.168.1.253\n");
+
+            long tStart = System.currentTimeMillis();
+            while(true) {
+                if(!br.ready()) {
+                    Thread.sleep(100);
+                    if(System.currentTimeMillis() - tStart > 3000) {
+                        mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_ETHERNET, Color.RED).sendToTarget();
+                        break;
+                    }
+                    continue;
+                }
+
+                String str = br.readLine();
+                Debug.d(TAG, "ETH: " + str);
+                if(str.startsWith("rtt min/avg/max/mdev = ")) {
+                    str = str.substring("rtt min/avg/max/mdev = ".length());
+                    String strs[] = str.split("/");
+                    mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_ETHERNET, Color.GREEN, strs[1]).sendToTarget();
+                    break;
+                }
+            }
+            br.close();
+        } catch (ExceptionInInitializerError e) {
+            Debug.e(TAG, "--->e: " + e.getMessage());
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_ETHERNET, Color.RED).sendToTarget();
+        } catch (IOException e) {
+            Debug.e(TAG, "--->e: " + e.getMessage());
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_ETHERNET, Color.RED).sendToTarget();
+        } catch (Exception e) {
+            Debug.e(TAG, "--->e: " + e.getMessage());
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_ETHERNET, Color.RED).sendToTarget();
+        }
+
+        mEtherTest.post(new Runnable() {
+            @Override
+            public void run() {
+                mEtherTest.setEnabled(true);
+                mEtherTest.setBackgroundColor(Color.GREEN);
+            }
+        });
     }
 }

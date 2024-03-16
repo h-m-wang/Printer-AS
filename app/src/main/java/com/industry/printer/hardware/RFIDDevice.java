@@ -624,7 +624,7 @@ public class RFIDDevice implements RfidCallback{
 		Debug.print(RFID_DATA_RECV, readin);
 		if (readin == null || readin.length == 0) {
 			Debug.e(TAG, "===>read err");
-//			closeDevice();
+			closeDevice();
 			return null;
 		}
 		

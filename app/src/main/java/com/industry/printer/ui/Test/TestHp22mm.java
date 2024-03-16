@@ -81,8 +81,7 @@ public class TestHp22mm implements ITestOperation {
             "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
             "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "26 -- Toggle PI4",
-            "27 -- Toggle PI5",
-            "28 -- Write SPI FPGA\nFrom [U-Disk/aaa.bin]"
+            "27 -- Toggle PI5"
     };
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
@@ -120,7 +119,6 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 27;
     private final static int HP22MM_TOGGLE_PI4                          = 28;
     private final static int HP22MM_TOGGLE_PI5                          = 29;
-    private final static int HP22MM_WRITE_SPIFPGA                       = 30;
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -547,18 +545,6 @@ public class TestHp22mm implements ITestOperation {
                             int valPI5_1 = ExtGpio.readGpioTestPin('I', 5);
                             mHp22mmTestResult[index] = "Success\n" + valPI5 + " -> " + valPI5_1;
                             break;
-                        case HP22MM_WRITE_SPIFPGA:
-                            ExtGpio.writeGpioTestPin('I', 7, 0);
-//  H.M.Wang 2023-7-13 今日确认PI9与此无关                          ExtGpio.writeGpioTestPin('I', 9, 0);
-                            if (0 == FpgaGpioOperation.updateFlash()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
-                            }
-//                            ExtGpio.writeGpioTestPin('I', 9, 1);
-                            ExtGpio.writeGpioTestPin('I', 7, 1);
-                            break;
-
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;

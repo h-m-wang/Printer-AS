@@ -88,11 +88,15 @@ public class SerialHandler {
             new Thread() {
                 @Override
                 public void run() {
-                    mRunning = true;
-                    while(mRunning) {
-                        byte[] data = mSerialPort.readSerial();
-                        if(null != data) {
-                            dispatchProtocol(data);
+                    while(true) {
+                        try {
+                            byte[] data = mSerialPort.readSerial();
+                            if(null != data) {
+                                dispatchProtocol(data);
+                            }
+                        } catch (Exception e){
+                            Debug.e(TAG, e.getMessage());
+                            break;
                         }
                     }
                 }
@@ -102,7 +106,6 @@ public class SerialHandler {
 
     public void stop() {
         if(isInitialized()) {
-            mRunning = false;
             mSerialPort.closeSerial();
             mSerialPort = null;
             mSerialHandler = null;
@@ -115,6 +118,7 @@ public class SerialHandler {
         ByteArrayBuffer bab = new ByteArrayBuffer(0);
         bab.append(data, 0, data.length);
 
+        if(null != mRL) mRL.onRecvSerial(data);
 //        Debug.d(TAG, "DataSource: " + SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE));
 
         if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_1 ||
@@ -261,6 +265,19 @@ public class SerialHandler {
             p.sendCommandProcessResult(cmd, ack, devStatus, cmdStatus, message);
         }
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
+    }
+
+    public interface ReadSerialListener {
+        public void onRecvSerial(byte[] msg);
+    }
+    private ReadSerialListener mRL = null;
+
+    // 借用串口协议11，直接发送一个字符串
+    public void sendTestString(String message, ReadSerialListener l) {
+        if (!isInitialized()) return;
+        mRL = l;
+        SerialProtocol11 p = new SerialProtocol11(mSerialPort, mContext);
+        p.sendCommandProcessResult(0, 0, 0, 0, message);
     }
 
     public SerialPort getSerialPort() {

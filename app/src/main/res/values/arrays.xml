@@ -124,6 +124,9 @@
         <!-- H.M.Wang 2023-7-29 追加48点头 -->
         <item>48 dot</item>
         <!-- End of H.M.Wang 2023-7-29 追加48点头 -->
+        <!-- H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
+        <item>hp22mm</item>
+        <!-- End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
     </string-array>
 
     <string-array name="strFontArray">

@@ -296,6 +296,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR ||
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM ||
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_9MM ) {
 				if(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_150) {
 					maxColNumPerUnit = sysconf.getParam(SystemConfigFile.INDEX_REPEAT_PRINT) * 6;	// 1mm有6列
@@ -769,6 +772,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			scaleW /= 4.0f * 308 / 152;
 			div = scaleW;
 			scaleH = 0.125f;
+// H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MM) {
+			scaleW /= 1.0f * 1056 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / 1056;
+// End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;
 			scaleW = 152f/16;

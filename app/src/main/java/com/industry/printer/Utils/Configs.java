@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -262,6 +263,13 @@ UserGroup 使用方法说明
 	public static final String EXT_GPIO_KO = "ext_gpio.ko";
 	public static final String GSLX680_KO = "gslX680.ko";
 	public static final String RTC_DS1307_KO = "rtc-ds1307.ko";
+	public static final String PREFIX_FPGA_SUNXI_KO = "SPI_";				//"fpga-sunxi.ko";
+	public static final String PREFIX_EXT_GPIO_KO = "GPIO_";				//"ext_gpio.ko";
+	public static final String PREFIX_GSLX680_KO = "LCD_";					//"gslX680.ko";
+	public static final String PREFIX_RTC_DS1307_KO = "RTC_";				//"rtc-ds1307.ko";
+	public static final String KOUPDATE_FOLDER = "KOupdate";
+	public static final String PREFIX_FW = "FW_";
+	public static final String FWUPDATE_FOLDER = "FWupdate";
 // End of H.M.Wang 2024-1-3 追加ko的升级功能
 
 

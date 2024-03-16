@@ -7,13 +7,18 @@ import com.industry.printer.BinInfo;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
+import com.industry.printer.Utils.CypherUtils;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.data.DataTask;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 
 /**
  * @author kevin
@@ -197,6 +202,12 @@ public class FpgaGpioOperation {
     public static synchronized int writeData(int dataGenre, int type, char data[], int len) {
 // End of H.M.Wang 2020-12-25 追加两个命令
 
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+        if(type == FPGA_STATE_OUTPUT) {
+            if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) return Hp22mm.writeData(data, len);
+        }
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+
         int fd = open();
         if (fd <= 0) {
             return -1;
@@ -319,12 +330,13 @@ public class FpgaGpioOperation {
 			return;
 		}
 */
+        SystemConfigFile config = SystemConfigFile.getInstance(context);
+
         int fd = open();
         if (fd <= 0) {
             return;
         }
         char data[] = new char[Configs.gParams];
-        SystemConfigFile config = SystemConfigFile.getInstance(context);
 // H.M.Wang 2021-12-31 在大字机的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
         if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
@@ -742,6 +754,14 @@ public class FpgaGpioOperation {
      * 启动打印时调用，用于初始化内核轮训线程
      */
     public static void init(Context context) {
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+        SystemConfigFile config = SystemConfigFile.getInstance();
+        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+            Hp22mm.initPrint();
+            return;
+        }
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+
         int fd = open();
         if (fd <= 0) {
             return;
@@ -749,7 +769,6 @@ public class FpgaGpioOperation {
 		/*设置状态为输出*/
         // ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_OUTPUT);
 		/*启动内核轮训线程*/
-        SystemConfigFile config = SystemConfigFile.getInstance(context);
 /* H.M.Wang 2022-6-10 取消连续打印模式的修改
 // H.M.Wang 2022-6-6 追加连续打印模式
         Debug.d(TAG, "FPGA_CMD_PERSIST_PRINT -> " + config.getParam(SystemConfigFile.INDEX_PRINT_TIMES));
@@ -776,6 +795,14 @@ public class FpgaGpioOperation {
      * 停止打印时调用，用于停止内核轮训线程
      */
     public static void uninit() {
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+        SystemConfigFile config = SystemConfigFile.getInstance();
+        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+            Hp22mm.stopPrint();
+            return;
+        }
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+
         int fd = open();
         if (fd <= 0) {
             return;
@@ -886,8 +913,33 @@ public class FpgaGpioOperation {
         if (fd > 0) {
             File file;
             try {
-                file = new File(Configs.CONFIG_PATH_FLASH + "/aaa.bin");
-                FileInputStream fis = new FileInputStream(file);
+                String path = ConfigPath.getFWUpgradePath();
+                if(StringUtil.isEmpty(path)) {
+                    Debug.e(TAG, "Source file not exist.");
+                    return -1;
+                }
+
+                File srcFWFile = new File(path.substring(0, path.lastIndexOf(".")) + ".bin");
+                File srcMD5File = new File(path.substring(0, path.lastIndexOf(".")) + ".txt");
+
+                if(!srcFWFile.exists() || !srcMD5File.exists()) {
+                    Debug.e(TAG, "Source bin or md5 not exists.");
+                    return -1;
+                }
+
+                BufferedReader br = new BufferedReader(new FileReader(srcMD5File));
+                String srcMD5Read = br.readLine();
+//            Debug.d(TAG, "SrcMD5Read: [" + srcMD5Read + "].");
+
+                String srcMD5Cal = CypherUtils.getFileMD5(srcFWFile);
+//            Debug.d(TAG, "SrcMD5Cal: [" + srcMD5Cal + "].");
+
+                if(!srcMD5Read.equalsIgnoreCase(srcMD5Cal)) {
+                    Debug.e(TAG, "Source md5 not match.");
+                    return -1;
+                }
+
+                FileInputStream fis = new FileInputStream(srcFWFile);
                 byte[] buffer = new byte[fis.available()];
                 fis.read(buffer);
                 char[] cbuf = new char[buffer.length/2];
@@ -899,27 +951,6 @@ public class FpgaGpioOperation {
                 fis.close();
             } catch (Exception e) {
                 Debug.d(TAG, ""+e.getMessage());
-                try {
-                    file = new File(Configs.USB_ROOT_PATH2 + "/aaa.bin");
-                    FileInputStream fis = new FileInputStream(file);
-                    byte[] buffer = new byte[fis.available()];
-                    fis.read(buffer);
-                    char[] cbuf = new char[buffer.length/2];
-                    for(int i=0; i<cbuf.length; i++) {
-                        cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
-                    }
-                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
-                    ret = write(fd, cbuf, buffer.length);
-                    fis.close();
-                } catch (Exception e1) {
-                    ExtGpio.playClick();
-                    try{Thread.sleep(200);} catch(Exception ex){};
-                    ExtGpio.playClick();
-                    try{Thread.sleep(200);} catch(Exception ex){};
-                    ExtGpio.playClick();
-                    Debug.d(TAG, ""+e1.getMessage());
-                    return -1;
-                }
             }
         }
         return (ret == 0 ? -1 : 0);

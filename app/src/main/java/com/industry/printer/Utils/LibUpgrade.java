@@ -4,9 +4,11 @@ import android.content.res.AssetManager;
 
 import com.industry.printer.PrinterApplication;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -21,44 +23,51 @@ public class LibUpgrade {
 
     }
 
-    public boolean upgradeKOs(DataOutputStream os, String ko) {
+    public boolean upgradeKOs(DataOutputStream os, String prefix, String ko) {
         boolean ret = false;
 
         try {
-            String path = ConfigPath.getKoPath(ko);
+            String path = ConfigPath.getKoPath(prefix);
             if(StringUtil.isEmpty(path)) {
-                Debug.e(TAG, "Source file not indicated.");
+                Debug.e(TAG, "Source file[" + prefix + "] not exist.");
                 return false;
             }
-            File src = new File(path);
-            if(!src.exists()) {
-                Debug.e(TAG, "Source ko not exists.");
+// H.M.Wang 2024-3-12 将升级ko的方法，从使用USB根目录下的固定.ko文件名，改为使用KKK_xxxxx.ko的可变名称格式
+            File srcKoFile = new File(path.substring(0, path.lastIndexOf(".")) + ".ko");
+            File srcMD5File = new File(path.substring(0, path.lastIndexOf(".")) + ".txt");
+//            File src = new File(path);
+// End of H.M.Wang 2024-3-12 将升级ko的方法，从使用USB根目录下的固定.ko文件名，改为使用KKK_xxxxx.ko的可变名称格式
+//            Debug.e(TAG, srcKoFile.getAbsolutePath());
+//            Debug.e(TAG, srcMD5File.getAbsolutePath());
+
+            if(!srcKoFile.exists() || !srcMD5File.exists()) {
+                Debug.e(TAG, "Source ko or md5 not exists.");
                 return false;
             }
 
-            Debug.d(TAG, "[" + ko + "]");
+            BufferedReader br = new BufferedReader(new FileReader(srcMD5File));
+            String srcMD5Read = br.readLine();
+//            Debug.d(TAG, "SrcMD5Read: [" + srcMD5Read + "].");
 
-            String srcMD5 = CypherUtils.getFileMD5(src);
-            Debug.d(TAG, "SrcMD5: [" + srcMD5 + "].");
+            String srcMD5Cal = CypherUtils.getFileMD5(srcKoFile);
+//            Debug.d(TAG, "SrcMD5Cal: [" + srcMD5Cal + "].");
 
-            ;
-            if(!new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5.toUpperCase() + ".dat").exists() &&
-               !new File(path.substring(0, path.lastIndexOf(File.separator)+1) + srcMD5.toLowerCase() + ".dat").exists()) {
-                Debug.e(TAG, "Source md5 file not exists or incorrect.");
+            if(!srcMD5Read.equalsIgnoreCase(srcMD5Cal)) {
+                Debug.e(TAG, "Source md5 not match.");
                 return false;
             }
 
             String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
-            Debug.d(TAG, "DstMD5: [" + dstMD5 + "].");
-            if(!srcMD5.equalsIgnoreCase(dstMD5)) {
-                FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(src));
+//            Debug.d(TAG, "DstMD5: [" + dstMD5 + "].");
+            if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
+                FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(srcKoFile));
                 Debug.d(TAG, "/data/camera/" + ko + " written.");
                 Thread.sleep(100);
 
                 Debug.d(TAG, "chmod 0644 /data/camera/" + ko);
                 os.writeBytes("chmod 0644 /data/camera/" + ko + "\n");
 
-                if(!srcMD5.equalsIgnoreCase(CypherUtils.getFileMD5("/data/camera/" + ko))) {
+                if(!srcMD5Cal.equalsIgnoreCase(CypherUtils.getFileMD5("/data/camera/" + ko))) {
                     Debug.e(TAG, "Copy to temp failed.");
                     return false;
                 }

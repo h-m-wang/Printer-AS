@@ -2339,6 +2339,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 		if(recv.length() < 21) return recv; // 至少包含示例字符串中的 01,21和93的AI，和14字的01段内容，以及一个空格。共计21个字。【0104607017595534215iD&U( 93CV0u】
 
+// H.M.Wang 2024-2-28 txt文件有个不可见的文件头，UTF-8的文件头是EF BB BF，在从文件读入的第一行中，这个头会存在，并且以0xfeff的值存在，这个需要跳过，否则会导致GS1DM/QR生成失败。在这里排除是权宜之计，应该在QRReader里面排除，比较繁琐
+		if(recv.charAt(pos) == (char)0xfeff) pos++;
+// End of H.M.Wang 2024-2-28 txt文件有个不可见的文件头，UTF-8的文件头是EF BB BF，在从文件读入的第一行中，这个头会存在，并且以0xfeff的值存在，这个需要跳过，否则会导致GS1DM/QR生成失败。在这里排除是权宜之计，应该在QRReader里面排除，比较繁琐
+
 		StringBuilder sb = new StringBuilder();
 
 		if(recv.charAt(pos) != '0' || recv.charAt(pos+1) != '1') return recv;
@@ -2744,7 +2748,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 			while(mRunning == true) {
 // H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
-                if(isPurging) {
+                if(isPurging || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
