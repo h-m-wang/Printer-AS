@@ -28,9 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.070"
+#define VERSION_CODE                            "1.0.071"
 
-// 1.0.069 2024-3-15
+// 1.0.071 2024-3-17
+//    修改SPIMessage函数的数据区，从原来的每个字节一个数据结构修改为所有数据使用一个数据结构，这样可以节省为每个字节准备数据结构的时间，也可以节约对内存的使用
+// 1.0.070 2024-3-15
 //    增加
 //        {"readRegisters",	    "()[I",	    (void *)Java_com_ReadRegisters},
 //        {"writeSettings",	    "([I)I",	    (void *)Java_com_WriteSettins},
@@ -132,6 +134,21 @@ int PDGInit() {
 #define DDR_2_FIFO       1
 
 int SPIMessage(unsigned char *message, int length) {
+    struct spi_ioc_transfer transfer;
+
+//    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+    memset(&(transfer), 0, sizeof(transfer));
+    transfer.tx_buf  = (unsigned long)(message);
+    transfer.rx_buf  = (unsigned long)(message);
+    transfer.len = length;
+
+    // execute message
+    if (ioctl(spidev, SPI_IOC_MESSAGE(1), &transfer) < 0) {
+        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
+        return -1;
+    }
+//    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+/*
     struct spi_ioc_transfer transfer[length];
 
 //    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
@@ -149,6 +166,7 @@ int SPIMessage(unsigned char *message, int length) {
     }
 
 //    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
+*/
     return 0;
 }
 

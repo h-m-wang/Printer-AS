@@ -175,18 +175,7 @@ public class ConfigPath {
 		if (paths == null || paths.size() <= 0) {
 			return null;
 		}
-// H.M.Wang 2024-3-12 将升级apk的方法，从使用USB根目录下的Printer.apk固定文件名，改为使用Print_xxxxx.apk的可变名称格式
-		File path = new File(paths.get(0));
-		String files[] = path.list(new FilenameFilter() {
-			@Override
-			public boolean accept(File file, String s) {
-				if(s.startsWith("printer_") && s.endsWith(".apk")) return true;
-				return false;
-			}
-		});
-		if(null != files && files.length > 0) return paths.get(0) + File.separator + files[0]; else return null;
-//		return paths.get(0) + Configs.UPGRADE_APK_FILE;
-// End of H.M.Wang 2024-3-12 将升级apk的方法，从使用USB根目录下的Printer.apk固定文件名，改为使用Print_xxxxx.apk的可变名称格式
+		return paths.get(0) + Configs.UPGRADE_APK_FILE;
 	}
 
 // H.M.Wang 2024-1-3 追加ko的升级功能
