@@ -52,7 +52,7 @@ public class Hp22mm {
     static public native int[] readRegisters();
     static public native int writeSettings(int[] regs);
     static public native int writeImage(int addr, int cols, int bytes_per_col, byte[] image);
-    static public native int start(int[] regs);
+    static public native int launchPrint();
     static public native String spiTest();
     static public native int mcu2fifo();
     static public native int fifo2ddr();
@@ -200,7 +200,7 @@ public class Hp22mm {
         return ret;
     }
 
-    public static void initPrint() {
+    public static void initHp22mm() {
         if (0 != Hp22mm.init_ids(IDS_INDEX)) {
             Debug.d(TAG, "init_ids failed\n");
             gCtrlHandler.obtainMessage(888888, "init_ids failed.");
@@ -264,12 +264,53 @@ public class Hp22mm {
             regs[REG25_PRINT_ENABLE] = 1;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
 // 内部强制设为1            regs[REG25_PRINT_ENABLE] = 1;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
 
-            if(start(regs) == 0) {
+            if(launchPrint() == 0) {
                 Debug.d(TAG, "Launch print success.");
             } else {
                 Debug.e(TAG, "Launch print failed.");
                 gCtrlHandler.obtainMessage(888888, "Pressurize failed.");
             }
         }
+    }
+
+    public static char[] getSettings() {
+        char[] regs = new char[34];
+
+        SystemConfigFile config = SystemConfigFile.getInstance();
+
+        regs[REG04_32BIT_WORDS_PER_COL] = IMAGE_ROWS / 32;
+        regs[REG05_BYTES_PER_COL] = IMAGE_ROWS / 8;
+// 下发数据时再设           regs[REG06_COLUMNS] = 0;
+        regs[REG07_START_ADD_P0S0_ODD] = 0;
+        regs[REG08_START_ADD_P0S0_EVEN] = 0;
+        regs[REG09_START_ADD_P0S1_ODD] = 0;
+        regs[REG10_START_ADD_P0S1_EVEN] = 0;
+        regs[REG11_START_ADD_P1S0_ODD] = 0;
+        regs[REG12_START_ADD_P1S0_EVEN] = 0;
+        regs[REG13_START_ADD_P1S1_ODD] = 0;
+        regs[REG14_START_ADD_P1S1_EVEN] = 0;
+        regs[REG14_START_ADD_P1S1_EVEN] = 0;
+
+        regs[REG15_INTERNAL_ENC_FREQ] = (char)(config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 0);                 // R15=90M/(C1*24)
+        regs[REG16_INTERNAL_TOF_FREQ] = (char)(config.mParam[6] != 0 ? config.mParam[0] * 90000000 / config.mParam[6] : 0);   // R16=90M/(C7/C1)
+        regs[REG17_ENCODER_SOURCE] = (char)config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
+        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
+                (config.mParam[2] == 0 ? 4 : (config.mParam[2] == 1 ? 2 : (config.mParam[2] == 3 ? 1 : 1)));
+        regs[REG19_TOF_SOURCE] = (char)                                                           // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
+                (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
+        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[1] * 24 + config.mParam[11]);              // R20= C2x24+c12
+        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[1] * 24 + config.mParam[10]);              // R21= C2x24+c11
+        regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
+        regs[REG23_COLUMN_SPACING] = 4;                                                     // 固定数据待定
+        regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定
+        regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
+        regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
+        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
+        regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
+        regs[REG29_COLUMN_ENABLE] = 0x0f;                                                   // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+        regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
+        regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
+
+        return regs;
     }
 }

@@ -201,13 +201,6 @@ public class FpgaGpioOperation {
 //    public static synchronized int writeData(int type, char data[], int len) {
     public static synchronized int writeData(int dataGenre, int type, char data[], int len) {
 // End of H.M.Wang 2020-12-25 追加两个命令
-
-// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-        if(type == FPGA_STATE_OUTPUT) {
-            if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) return Hp22mm.writeData(data, len);
-        }
-// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-
         int fd = open();
         if (fd <= 0) {
             return -1;
@@ -713,6 +706,12 @@ public class FpgaGpioOperation {
         data[25] = 17;
         data[26] = 0;
 */
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+            data = Hp22mm.getSettings();
+        }
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+
         for (int i = 0; i < data.length; i++) {
             Debug.e(TAG, "--->mFPGAParam[" + i + "] = 0x" + Integer.toHexString(data[i]));
         }
@@ -754,13 +753,7 @@ public class FpgaGpioOperation {
      * 启动打印时调用，用于初始化内核轮训线程
      */
     public static void init(Context context) {
-// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
         SystemConfigFile config = SystemConfigFile.getInstance();
-        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            Hp22mm.initPrint();
-            return;
-        }
-// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 
         int fd = open();
         if (fd <= 0) {
@@ -799,7 +792,6 @@ public class FpgaGpioOperation {
         SystemConfigFile config = SystemConfigFile.getInstance();
         if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
             Hp22mm.stopPrint();
-            return;
         }
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 

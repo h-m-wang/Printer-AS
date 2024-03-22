@@ -1,5 +1,0 @@
-config FPGA_SUNXI_GPIO
-	tristate "FPGA gpio sunxi"
-	default n
-	help
-		this is FPGA gpio driver for printer project

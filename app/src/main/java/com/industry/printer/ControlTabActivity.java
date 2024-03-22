@@ -1163,7 +1163,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mPC_FIFO = PC_FIFO.getInstance(mContext);
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
-		Hp22mm.gCtrlHandler = mHandler;
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+        if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+            Hp22mm.gCtrlHandler = mHandler;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Hp22mm.initHp22mm();
+                }
+            }).start();
+        }
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 	}
 
 	public boolean getLevelLow() {
@@ -2061,6 +2071,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
 					mInkManager.checkUID(heads);
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+					SystemConfigFile config = SystemConfigFile.getInstance();
+					if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+						if(Hp22mm.launchPrint() < 0)
+							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
+					}
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
 // H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码

@@ -40,7 +40,10 @@ public class InkManagerFactory {
         } else {
 // H.M.Wang 2022-11-5 追加一个根据hp22mm的img返回Manager的判断
             if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-                return new SmartCardManager(ctx);       // 测试HP22MM，目的是避免访问/dev/ttyS3
+// H.M.Wang 2024-3-19 切换到新的Hp22mmSCManager，停止使用临时的SmartCardManager
+//                return new SmartCardManager(ctx);       // 测试HP22MM，目的是避免访问/dev/ttyS3
+                return new Hp22mmSCManager(ctx);       // 测试HP22MM，目的是避免访问/dev/ttyS3
+// End of H.M.Wang 2024-3-19 切换到新的Hp22mmSCManager，停止使用临时的SmartCardManager
 // End of H.M.Wang 2022-11-5 追加一个根据hp22mm的img返回Manager的判断
             }
 // H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机

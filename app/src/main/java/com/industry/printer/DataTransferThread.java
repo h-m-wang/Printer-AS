@@ -2794,7 +2794,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 //				}
 
 				if (writable == 0) { //timeout
-//					Debug.e(TAG, "--->FPGA timeout");
+					Debug.e(TAG, "--->FPGA timeout");
 //					if (isLanPrint() && pcReset == true) {
 //						buffer = getLanBuffer(index());
 //						FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);

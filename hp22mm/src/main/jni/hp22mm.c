@@ -28,8 +28,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.071"
+#define VERSION_CODE                            "1.0.072"
 
+// 1.0.072 2024-3-22
+//    SPI的访问转移到img的内核层，原来通过应用层spidev的访问取消，临时的修改，还没有全部完成
 // 1.0.071 2024-3-17
 //    修改SPIMessage函数的数据区，从原来的每个字节一个数据结构修改为所有数据使用一个数据结构，这样可以节省为每个字节准备数据结构的时间，也可以节约对内存的使用
 // 1.0.070 2024-3-15
@@ -447,11 +449,6 @@ JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
 }
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 
-JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
-    PDGCancelPrint();
-    return 0;
-}
-
 char *reg_name[] = {
         "",
         "",
@@ -624,41 +621,18 @@ JNIEXPORT jint JNICALL Java_com_WriteImage(JNIEnv *env, jclass arg, int addr, in
     return cols * bytes_per_col;
 }
 
-JNIEXPORT jint JNICALL Java_com_LaunchPrint(JNIEnv *env, jclass arg, jintArray regs) {
-    if (IsPrinting()) {
-        LOGE("ERROR: already printing\n");
-        return 0;
-    }
-
+JNIEXPORT jint JNICALL Java_com_LaunchPrint(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
         LOGE("%s\n", ERR_STRING);
         return -1;
     }
+    return 0;
+}
 
-    int ret = 0;
-    jint *cbuf = (*env)->GetIntArrayElements(env, regs, 0);
-
-    CancelPrint = false;
-    if (PDGWrite(17, cbuf[17]) < 0 ||    // R17 0=internal 1=external encoder
-        PDGWrite(19, cbuf[19]) < 0 ||    // R19 0=internal 1=external TOF
-        PDGWrite(26, cbuf[26]) < 0 ||           // R26 init print count to 0
-        PDGWrite(27, cbuf[27]) < 0 ||       // R27 set print count limit
-        PDGWrite(25, 1) < 0) {            // R25 1 - enable print
-        LOGE("ERROR: triggering print\n");
-        ret = -1;
-    }
-
-    if(ret == 0) {
-        if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
-            PrintThread = (pthread_t)NULL;
-            LOGE("ERROR: pthread_create() of PrintThread failed\n");
-            ret = -1;
-        }
-    }
-
-    (*env)->ReleaseIntArrayElements(env, regs, cbuf, 0);
-
-    return ret;
+JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
+    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx);
+//    PDGCancelPrint();
+    return 0;
 }
 
 JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg) {
@@ -1542,7 +1516,7 @@ static JNINativeMethod gMethods[] = {
         {"readRegisters",	    "()[I",	    (void *)Java_com_ReadRegisters},
         {"writeSettings",	    "([I)I",	    (void *)Java_com_WriteSettins},
         {"writeImage",	    "(III[B)I",	    (void *)Java_com_WriteImage},
-        {"start",	    "([I)I",	    (void *)Java_com_LaunchPrint},
+        {"launchPrint",	    "()I",	    (void *)Java_com_LaunchPrint},
         {"spiTest",	    "()Ljava/lang/String;",	    (void *)Java_com_SpiTest},
         {"mcu2fifo",		            "()I",	                    (void *)Java_com_MCU2FIFO},
         {"fifo2ddr",		            "()I",	                    (void *)Java_com_FIFO2DDR},
