@@ -2748,7 +2748,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 			while(mRunning == true) {
 // H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
-                if(isPurging || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+                if(isPurging) {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
@@ -2794,7 +2794,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 //				}
 
 				if (writable == 0) { //timeout
-					Debug.e(TAG, "--->FPGA timeout");
+//					Debug.e(TAG, "--->FPGA timeout");
 //					if (isLanPrint() && pcReset == true) {
 //						buffer = getLanBuffer(index());
 //						FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);

@@ -209,14 +209,10 @@ public class Paramter {
 // H.M.Wang 2023-9-21 当img为4FIFO的时候，S15，S21，S22，S23用来向FPGA传递位移数据
 		if(PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
 // H.M.Wang 2023-11-18 修改计算公式
-//			mFPGAParam[14] = (6 * param[3] + param[10]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C11 * C3 / 150
-//			mFPGAParam[20] = (6 * param[3] + param[11]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C12 * C3 / 150
-//			mFPGAParam[21] = (6 * param[3] + param[18]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C19 * C3 / 150
-//			mFPGAParam[22] = (6 * param[3] + param[19]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C20 * C3 / 150
-			mFPGAParam[14] = (param[10] + param[3]) * (param[2] + 1);					// (C11 + C4 * 6) * (C3 + 1)
-			mFPGAParam[20] = (param[11] + param[3]) * (param[2] + 1);					// (C12 + C4 * 6) * (C3 + 1)
-			mFPGAParam[21] = (param[18] + param[3]) * (param[2] + 1);					// (C19 + C4 * 6) * (C3 + 1)
-			mFPGAParam[22] = (param[19] + param[3]) * (param[2] + 1);					// (C20 + C4 * 6) * (C3 + 1)
+			mFPGAParam[14] = (6 * param[3] + param[10]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C11 * C3 / 150
+			mFPGAParam[20] = (6 * param[3] + param[11]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C12 * C3 / 150
+			mFPGAParam[21] = (6 * param[3] + param[18]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C19 * C3 / 150
+			mFPGAParam[22] = (6 * param[3] + param[19]) * param[2] / 150;					// 6 * C3 / 150 * C4 + C20 * C3 / 150
 // End of H.M.Wang 2023-11-18 修改计算公式
 		} else {
 			mFPGAParam[14] = param[SystemConfigFile.INDEX_STR];

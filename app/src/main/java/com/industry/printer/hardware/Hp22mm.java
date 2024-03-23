@@ -292,7 +292,7 @@ public class Hp22mm {
         regs[REG14_START_ADD_P1S1_EVEN] = 0;
 
         regs[REG15_INTERNAL_ENC_FREQ] = (char)(config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 0);                 // R15=90M/(C1*24)
-        regs[REG16_INTERNAL_TOF_FREQ] = (char)(config.mParam[6] != 0 ? config.mParam[0] * 90000000 / config.mParam[6] : 0);   // R16=90M/(C7/C1)
+        regs[REG16_INTERNAL_TOF_FREQ] = (char)(config.mParam[6] != 0 ? 90000000 / config.mParam[6] * config.mParam[0] : 0);   // R16=90M/(C7/C1)
         regs[REG17_ENCODER_SOURCE] = (char)config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
                 (config.mParam[2] == 0 ? 4 : (config.mParam[2] == 1 ? 2 : (config.mParam[2] == 3 ? 1 : 1)));
