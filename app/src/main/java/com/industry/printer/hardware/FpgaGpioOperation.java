@@ -67,6 +67,10 @@ public class FpgaGpioOperation {
     public static final int FPGA_CMD_DRVVERSION = 0x0F;
 // End of H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
 
+// H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
+    public static final int FPGA_CMD_READ_HP22MM_REG_VALUE = 0x10;
+// End of H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
+
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -92,6 +96,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
     public static final int FPGA_STATE_UPDATE_FLASH = 0x06;
 // End of H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
+// H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
+    public static final int FPGA_STATE_HP22MM_TEST_PRINT = 0x07;
+// End of H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
 
     public static final String FPGA_DRIVER_FILE = "/dev/fpga-gpio";
     public static int mFd = 0;
@@ -743,6 +750,10 @@ public class FpgaGpioOperation {
             ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
         }
 // End of H.M.Wang 2023-7-15 这个下发， 打印中也会。打印中， 回打印，停止中， 回停止，
+// H.M.Wang 2024-3-25 将设置img的FIFO的大小移到下发参数的地方，以避免原来放在init函数中，则init函数必须在打印的最前端执行，这可能导致打印开始后，FPGA发出中断，但是驱动还没有接收到下发数据，而空跑，4FIFO就出现了第一次不打印的问题
+        Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
+        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
+// End of H.M.Wang 2024-3-25 将设置img的FIFO的大小移到下发参数的地方，以避免原来放在init函数中，则init函数必须在打印的最前端执行，这可能导致打印开始后，FPGA发出中断，但是驱动还没有接收到下发数据，而空跑，4FIFO就出现了第一次不打印的问题
     }
 
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
@@ -752,7 +763,7 @@ public class FpgaGpioOperation {
     /**
      * 启动打印时调用，用于初始化内核轮训线程
      */
-    public static void init(Context context) {
+    public static void init() {
         SystemConfigFile config = SystemConfigFile.getInstance();
 
         int fd = open();
@@ -772,8 +783,8 @@ public class FpgaGpioOperation {
         }
 // End of H.M.Wang 2022-6-6 追加连续打印模式
 */
-        Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
-        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
+//2024-3-25        Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
+//2024-3-25        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
         Debug.d(TAG, "FPGA_CMD_STARTPRINT");
         ioctl(fd, FPGA_CMD_STARTPRINT, 0);
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
@@ -791,7 +802,7 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
         SystemConfigFile config = SystemConfigFile.getInstance();
         if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            Hp22mm.stopPrint();
+            Hp22mm.pdPowerOff();
         }
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 
@@ -948,4 +959,32 @@ public class FpgaGpioOperation {
         return (ret == 0 ? -1 : 0);
     }
 // End of H.M.Wang 2023-7-8 追加写FPGA的Flash的功能
+// H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
+    public static int hp22mmPrintTestPage(byte[] image) {
+        int ret = 0;
+        int fd = open();
+
+        if (fd > 0) {
+            Debug.d(TAG, "FPGA_STATE_HP22MM_TEST_PRINT");
+            ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_HP22MM_TEST_PRINT);
+            char[] cbuf = new char[image.length/2];
+            for(int i=0; i<cbuf.length; i++) {
+                cbuf[i] = (char)(((image[2*i+1] << 8) & 0xff00) + (image[2*i] & 0x00ff));
+            }
+            ret = write(fd, cbuf, cbuf.length*2);
+        }
+        return ret;
+    }
+// End of H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
+// H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
+    public static int hp22mmReadRegister(int reg) {
+        int fd = open();
+        if (fd > 0) {
+            int regVal = ioctl(fd, FPGA_CMD_READ_HP22MM_REG_VALUE, reg);
+            Debug.d(TAG, "Read Reg[" + reg + "] = " + regVal);
+            return regVal;
+        }
+        return 0;
+    }
+// End of H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
 }

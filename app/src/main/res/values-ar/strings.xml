@@ -456,6 +456,26 @@
 <!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 	<string name="str_textview_param71">71.Easy mode</string>
 <!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+<!-- H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!--	<string name="str_textview_param72">72.Reserved</string>-->
+	<string name="str_textview_param72">72.PC FIFO</string>
+<!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!-- H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
+<!--	<string name="str_textview_param73">73.Reserved</string> -->
+	<string name="str_textview_param73">73.LCD Inverse</string>
+<!-- End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
+<!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!--	<string name="str_textview_param74">74.Reserved</string>-->
+	<string name="str_textview_param74">74.AD</string>
+<!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!-- H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
+<!--	<string name="str_textview_param75">75.Reserved</string>-->
+	<string name="str_textview_param75">75.Feedback</string>
+<!-- End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
+<!-- H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
+<!--	<string name="str_textview_param76">76.Reserved</string> -->
+	<string name="str_textview_param76">76.S2-Times</string>
+<!-- End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
 
 	<string name="str_btn_settings_sync">موافق</string>
 

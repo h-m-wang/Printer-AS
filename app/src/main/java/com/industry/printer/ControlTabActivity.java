@@ -2074,7 +2074,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 					SystemConfigFile config = SystemConfigFile.getInstance();
 					if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-						if(Hp22mm.launchPrint() < 0)
+						if(Hp22mm.pdPowerOn() < 0)
 							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
 					}
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
@@ -3944,7 +3944,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //												while(mDTransThread.mNeedUpdate) {
 //													Thread.sleep(10);
 //												}
-												 FpgaGpioOperation.init(mContext);
+												 FpgaGpioOperation.init();
 // H.M.Wang 2020-7-9 取消下发参数设置后重新下发打印缓冲区操作
 //												mDTransThread.resendBufferToFPGA();
 // End of H.M.Wang 2020-7-9 取消下发参数设置后重新下发打印缓冲区操作
@@ -3974,7 +3974,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //											while(mDTransThread.mNeedUpdate) {
 //												Thread.sleep(10);
 //											}
-											 FpgaGpioOperation.init(mContext);
+											 FpgaGpioOperation.init();
 // H.M.Wang 2020-7-9 取消下发参数设置后重新下发打印缓冲区操作
 //												mDTransThread.resendBufferToFPGA();
 // End of H.M.Wang 2020-7-9 取消下发参数设置后重新下发打印缓冲区操作

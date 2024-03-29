@@ -1,11 +1,17 @@
 package com.industry.printer.hardware;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Handler;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PrinterApplication;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.data.DataTask;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Hp22mm {
     public static final String TAG = Hp22mm.class.getSimpleName();
@@ -46,18 +52,15 @@ public class Hp22mm {
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native String startPrint();
-    static public native int stopPrint();
-    static public native String dumpRegisters();
-    static public native int[] readRegisters();
-    static public native int writeSettings(int[] regs);
-    static public native int writeImage(int addr, int cols, int bytes_per_col, byte[] image);
-    static public native int launchPrint();
-    static public native String spiTest();
-    static public native int mcu2fifo();
-    static public native int fifo2ddr();
-    static public native int ddr2fifo();
-    static public native int fifo2mcu();
+    static public native int pdPowerOn();
+    static public native int pdPowerOff();
+//    static public native String startPrint();
+//    static public native String dumpRegisters();
+//    static public native String spiTest();
+//    static public native int mcu2fifo();
+//    static public native int fifo2ddr();
+//    static public native int ddr2fifo();
+//    static public native int fifo2mcu();
 
     private static final int IDS_INDEX = 1;
     private static final int PEN_INDEX = 0;
@@ -97,108 +100,6 @@ public class Hp22mm {
     private static final int REG33_READY = 33;
 
     public static Handler gCtrlHandler = null;
-
-    // Refer to "HP 22mm PDG FPGA Electrical Reference Specification.pdf"
-    private static void updateSettings() {
-        int[] regs = readRegisters();
-
-        for(int i=0; i<regs.length; i++) {
-            Debug.d(TAG, "Read Reg[" + i + "] = " + regs[i] + "(0x" + Integer.toHexString(regs[i]) + ")");
-        }
-
-        if(null != regs) {
-            SystemConfigFile config = SystemConfigFile.getInstance();
-
-            regs[REG04_32BIT_WORDS_PER_COL] = IMAGE_ROWS / 32;
-            regs[REG05_BYTES_PER_COL] = IMAGE_ROWS / 8;
-// 下发数据时再设           regs[REG06_COLUMNS] = 0;
-            regs[REG07_START_ADD_P0S0_ODD] = 0;
-            regs[REG08_START_ADD_P0S0_EVEN] = 0;
-            regs[REG09_START_ADD_P0S1_ODD] = 0;
-            regs[REG10_START_ADD_P0S1_EVEN] = 0;
-            regs[REG11_START_ADD_P1S0_ODD] = 0;
-            regs[REG12_START_ADD_P1S0_EVEN] = 0;
-            regs[REG13_START_ADD_P1S1_ODD] = 0;
-            regs[REG14_START_ADD_P1S1_EVEN] = 0;
-            regs[REG14_START_ADD_P1S1_EVEN] = 0;
-
-/*            regs[REG15_INTERNAL_ENC_FREQ] = 180000;                              // R15=90M/(C1*24)
-            regs[REG16_INTERNAL_TOF_FREQ] = 180000000;     // R16=C7/C1*90M
-            regs[REG17_ENCODER_SOURCE] = 0;                                      // C6 = off  R17=0; C6 = on  R17=1
-            regs[REG18_ENCODER_DIVIDER] = 1;                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
-            regs[REG19_TOF_SOURCE] = 0;                                                           // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
-            regs[REG20_P1_TOF_OFFSET] = 0;              // R20= C2x24+c12
-            regs[REG21_P0_TOF_OFFSET] = 0;              // R21= C2x24+c11
-            regs[REG22_PRINT_DIRECTION] = 0;                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-            regs[REG23_COLUMN_SPACING] = 4;                                                     // 固定数据待定
-            regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定
-            regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
-            regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
-            regs[REG29_COLUMN_ENABLE] = 0x0f;                                                   // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
-
-            if (PDGWrite(15, encoder) < 0 ||    // R15 internal encoder period (divider of clock freq)
-                    PDGWrite(16, tof_freq) < 0 ||   // R16 internal TOF frequency (Hz)
-                    PDGWrite(17, 0) < 0 ||          // R17 0 = internal encoder
-                    PDGWrite(18, 1) < 0 ||          // R18 external encoder divider (2=600 DPI)
-                    PDGWrite(19, 0) < 0 ||          // R19 0 = internal TOF
-                    PDGWrite(20, 0) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
-                    PDGWrite(21, 0) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
-                    PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
-                    PDGWrite(23, 4) < 0 ||          // R23 column-to-column spacing (rows)
-                    PDGWrite(24, 52) < 0 ||         // R24 slot-to-slot spacing (rows)
-                    PDGWrite(25, 0) < 0 ||          // R25 0 - print disabled
-                    PDGWrite(28, 0) < 0 ||          // R28 0 - not reset
-                    PDGWrite(29, col_mask) < 0)     // R29 column enable bits
-*/
-            regs[REG15_INTERNAL_ENC_FREQ] = 90000000 / (config.mParam[0] * 24);                 // R15=90M/(C1*24)
-            regs[REG16_INTERNAL_TOF_FREQ] = 90000000 / (config.mParam[6] / config.mParam[0]);   // R16=90M/(C7/C1)
-            regs[REG17_ENCODER_SOURCE] = config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
-            regs[REG18_ENCODER_DIVIDER] =                                                       // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
-                (config.mParam[2] == 0 ? 4 : (config.mParam[2] == 1 ? 2 : (config.mParam[2] == 3 ? 1 : 1)));
-            regs[REG19_TOF_SOURCE] =                                                            // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
-                (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
-            regs[REG20_P1_TOF_OFFSET] = config.mParam[1] * 24 + config.mParam[11];              // R20= C2x24+c12
-            regs[REG21_P0_TOF_OFFSET] = config.mParam[1] * 24 + config.mParam[10];              // R21= C2x24+c11
-            regs[REG22_PRINT_DIRECTION] = config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-            regs[REG23_COLUMN_SPACING] = 4;                                                     // 固定数据待定
-            regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定
-            regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
-            regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
-            regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
-            regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
-            regs[REG29_COLUMN_ENABLE] = 0x0f;                                                   // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
-            regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
-            regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
-
-            for(int i=0; i<regs.length; i++) {
-                Debug.d(TAG, "Write Reg[" + i + "] = " + regs[i] + "(0x" + Integer.toHexString(regs[i]) + ")");
-            }
-
-            if(writeSettings(regs) == 0) {
-                Debug.d(TAG, "Write settings success.");
-            } else {
-                Debug.e(TAG, "Write settings failed.");
-                gCtrlHandler.obtainMessage(888888, "Write settings failed.");
-            }
-        }
-    }
-
-    public static synchronized int writeData(char data[], int len) {
-        byte[] image = new byte[data.length*2];
-        for(int i=0; i<data.length; i++) {
-            image[i*2] = (byte)(data[i] & 0x0ff);
-            image[i*2+1] = (byte)((data[i] >> 8) & 0x0ff);
-        }
-
-        int ret = writeImage(IMAGE_ADDR, image.length / (IMAGE_ROWS / 8), IMAGE_ROWS / 8, image);
-        if(ret > 0) {
-            updateSettings();
-            triggerPrint();
-        } else {
-            gCtrlHandler.obtainMessage(888888, "Write print data failed.");
-        }
-        return ret;
-    }
 
     public static void initHp22mm() {
         if (0 != Hp22mm.init_ids(IDS_INDEX)) {
@@ -244,35 +145,6 @@ public class Hp22mm {
         }
     }
 
-    private static void triggerPrint() {
-        int[] regs = readRegisters();
-
-        for(int i=0; i<regs.length; i++) {
-            Debug.d(TAG, "Read Reg[" + i + "] = " + regs[i] + "(0x" + Integer.toHexString(regs[i]) + ")");
-        }
-
-        if(null != regs) {
-            SystemConfigFile config = SystemConfigFile.getInstance();
-
-            regs[REG17_ENCODER_SOURCE] = 0;                                      // C6 = off  R17=0; C6 = on  R17=1
-            regs[REG19_TOF_SOURCE] = 0;                                                           // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
-//            regs[REG17_ENCODER_SOURCE] = config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
-//            regs[REG19_TOF_SOURCE] =                                                            // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
-//                    (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
-            regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
-            regs[REG27_MAX_PRINT_COUNT] = 10000;                                                    // R27 最大打印次数 1
-            regs[REG25_PRINT_ENABLE] = 1;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
-// 内部强制设为1            regs[REG25_PRINT_ENABLE] = 1;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
-
-            if(launchPrint() == 0) {
-                Debug.d(TAG, "Launch print success.");
-            } else {
-                Debug.e(TAG, "Launch print failed.");
-                gCtrlHandler.obtainMessage(888888, "Pressurize failed.");
-            }
-        }
-    }
-
     public static char[] getSettings() {
         char[] regs = new char[34];
 
@@ -291,8 +163,10 @@ public class Hp22mm {
         regs[REG14_START_ADD_P1S1_EVEN] = 0;
         regs[REG14_START_ADD_P1S1_EVEN] = 0;
 
-        regs[REG15_INTERNAL_ENC_FREQ] = (char)(config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 0);                 // R15=90M/(C1*24)
-        regs[REG16_INTERNAL_TOF_FREQ] = (char)(config.mParam[6] != 0 ? 90000000 / config.mParam[6] * config.mParam[0] : 0);   // R16=90M/(C7/C1)
+        regs[REG15_INTERNAL_ENC_FREQ] = (char)(config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 1500);           // R15=90M/(C1*24)
+        int tofFreq = (config.mParam[6] != 0 ? 90000000 / config.mParam[6] * config.mParam[0] : 45000000);                   // R16=90M/(C7/C1)
+        regs[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
+        regs[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成
         regs[REG17_ENCODER_SOURCE] = (char)config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
                 (config.mParam[2] == 0 ? 4 : (config.mParam[2] == 1 ? 2 : (config.mParam[2] == 3 ? 1 : 1)));
@@ -311,6 +185,37 @@ public class Hp22mm {
         regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
         regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
 
+        return regs;
+    }
+
+    private final static String IMAGE_FILE = "image.bin";
+    public static int printTestPage() {
+        InputStream is = null;
+        int ret = 0;
+
+        try {
+            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
+            is = assetManager.open(IMAGE_FILE);
+
+            if(null != is) {
+                byte[] image = new byte[is.available()];
+                is.read(image);
+                ret = FpgaGpioOperation.hp22mmPrintTestPage(image);
+            }
+        } catch(Exception e) {
+            Debug.e(TAG, e.getMessage());
+            ret = -1;
+        } finally {
+            try{if(null != is) is.close();}catch(IOException e){}
+        }
+        return ret;
+    }
+
+    public static int[] dumpRegisters(int count) {
+        int[] regs = new int[count];
+        for(int i=0; i<count; i++) {
+            regs[i] = FpgaGpioOperation.hp22mmReadRegister(i+2);
+        }
         return regs;
     }
 }

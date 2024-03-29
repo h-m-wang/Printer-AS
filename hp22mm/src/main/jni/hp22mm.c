@@ -28,8 +28,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.072"
+#define VERSION_CODE                            "1.0.073"
 
+// 1.0.073 2024-3-28
+//    追加打印守护进程，内容为定时（20秒）GetAndProcessInkUse
 // 1.0.072 2024-3-22
 //    SPI的访问转移到img的内核层，原来通过应用层spidev的访问取消，临时的修改，还没有全部完成
 // 1.0.071 2024-3-17
@@ -51,6 +53,10 @@ extern "C"
 static int sIdsIdx = 1;
 static int sPenIdx = 0;
 
+static bool IsPressurized = false;
+void CmdDepressurize();
+int CmdPressurize();
+
 /***********************************************************
  *  Customization
  *f
@@ -71,6 +77,7 @@ void IDSCallback(int ids, int level, const char *message) {
     }
 }
 
+#if 0
 #define SPI_DEV_NAME "/dev/spidev0.0"
 #define SPI_BITS 8
 #define SPI_SPEED 8000000
@@ -90,10 +97,6 @@ uint image_cols = 0;
 #define IMAGE_TOF 1000
 
 #define PRINT_COMPLETE_CHECK_USEC 50000
-
-static bool IsPressurized = false;
-void CmdDepressurize();
-int CmdPressurize();
 
 int PDGInit() {
     if(spidev >= 0 ) return 0;
@@ -150,25 +153,6 @@ int SPIMessage(unsigned char *message, int length) {
         return -1;
     }
 //    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-/*
-    struct spi_ioc_transfer transfer[length];
-
-//    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-    // fill in transfer array for each byte (non-default, non-zero)
-    for (int i=0; i<length; i++) {
-        memset(&(transfer[i]), 0, sizeof(transfer[i]));
-        transfer[i].tx_buf  = (unsigned long)(message+i);
-        transfer[i].rx_buf  = (unsigned long)(message+i);
-        transfer[i].len = sizeof(*(message+i));
-    }
-    // execute message
-    if (ioctl(spidev, SPI_IOC_MESSAGE(length), &transfer) < 0) {
-        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
-        return -1;
-    }
-
-//    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-*/
     return 0;
 }
 
@@ -206,11 +190,6 @@ int PDGWrite(unsigned char reg, uint32_t four_bytes) {
 
     // read and compare after write
     // NOTE: reg 28 cannot be read
-    if (reg == 28) return 0;
-/*    if (PDGRead(reg, &read_bytes) < 0 ||
-        read_bytes != four_bytes)
-        return -1;
-*/
     return 0;
 }
 
@@ -370,8 +349,6 @@ void *_print_thread(void *arg) {
     return (void*)NULL;
 }
 
-extern char ERR_STRING[];
-
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 char *PDGTriggerPrint(int external, int count) {
     if (IsPrinting()) {
@@ -511,128 +488,6 @@ JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
     }
 
     return (*env)->NewStringUTF(env, strTemp);
-}
-
-JNIEXPORT jintArray JNICALL Java_com_ReadRegisters(JNIEnv *env, jclass arg) {
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return NULL;
-    }
-
-    int count = (sizeof(reg_name)/sizeof(reg_name[0]));
-    uint32_t regs[count];
-
-    memset(regs, 0x00, sizeof(uint32_t) * count);
-
-    for (int i=2; i < count; i++) {
-        PDGRead(i, &(regs[i]));
-    }
-
-    jintArray ret_buf = (*env)->NewIntArray(env, count);
-    (*env)->SetIntArrayRegion(env, ret_buf, 0, count, regs);
-    (*env)->ReleaseIntArrayElements(env, ret_buf, regs, JNI_ABORT);
-
-    return ret_buf;
-}
-
-JNIEXPORT jint JNICALL Java_com_WriteSettins(JNIEnv *env, jclass arg, jintArray regs) {
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    int ret = 0;
-    jint *cbuf = (*env)->GetIntArrayElements(env, regs, 0);
-
-    if (PDGWrite(4, cbuf[4]) < 0 ||             // R4 = words/col
-        PDGWrite(5, cbuf[5]) < 0 ||             // R5 = byte memory advance (1 column)
-// 下发数据时再设        PDGWrite(6, cbuf[6]) < 0 ||             // R6 = columns (all cols using same image)
-        PDGWrite(7, cbuf[7]) < 0 ||             // R7 = Start Address P0_S0_odd
-        PDGWrite(8, cbuf[8]) < 0 ||             // R8 = Start Address P0_S0_even
-        PDGWrite(9, cbuf[9]) < 0 ||             // R9 = Start Address P0_S1_odd
-        PDGWrite(10, cbuf[10]) < 0 ||           // R10 = Start Address P0_S1_even
-        PDGWrite(11, cbuf[11]) < 0 ||           // R11 = Start Address P1_S0_odd
-        PDGWrite(12, cbuf[12]) < 0 ||           // R12 = Start Address P1_S0_even
-        PDGWrite(13, cbuf[13]) < 0 ||           // R13 = Start Address P1_S1_odd
-        PDGWrite(14, cbuf[14]) < 0 ||           // R14 = Start Address P1_S1_even
-        PDGWrite(15, cbuf[15]) < 0 ||           // R15 Frequency of the internal encoder pulse generator. The resulting frequency equals 90 MHz divided by the value of this register.
-        PDGWrite(16, cbuf[16]) < 0 ||           // R16 Frequency of the internal top of form (TOF) pulse generator. The resulting frequency equals 90 MHz divided by the value of this register. For example, writing 45000000 to this register results in 2 TOF signals per second.
-        PDGWrite(17, cbuf[17]) < 0 ||           // R17 Source for the encoder signals. 0 = internal encoder, 1=external encoder
-        PDGWrite(18, cbuf[18]) < 0 ||           // R18 External Encoder Divider.
-        PDGWrite(19, cbuf[19]) < 0 ||           // R19 Source for the TOF signals. 0=Internal TOF, 1=External TOF
-        PDGWrite(20, cbuf[20]) < 0 ||           // R20 Number of encoder counts from TOF until printing starts, for Printhead 1
-        PDGWrite(21, cbuf[21]) < 0 ||           // R21 Number of encoder counts from TOF until printing starts, for Printhead 2
-        PDGWrite(22, cbuf[22]) < 0 ||           // R22 0 = forward, 1 = reverse, 2 = no offsets
-        PDGWrite(23, cbuf[23]) < 0 ||           // R23 Spacing between columns in a single slot, in 1/600 of an inch
-        PDGWrite(24, cbuf[24]) < 0 ||           // R24 Spacing between slots in a single printhead, in encoder counts
-        PDGWrite(25, cbuf[25]) < 0 ||           // R25 Enables printing. 1=enable, 0= disable
-        PDGWrite(28, cbuf[28]) < 0 ||           // R28 0 - not reset, 1 = Abort and reset
-        PDGWrite(29, cbuf[29]) < 0) {           // R29 column enable bits
-        ret = -1;
-    }
-
-    (*env)->ReleaseIntArrayElements(env, regs, cbuf, 0);
-
-    return ret;
-}
-
-JNIEXPORT jint JNICALL Java_com_WriteImage(JNIEnv *env, jclass arg, int addr, int cols, int bytes_per_col, jbyteArray image) {
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return 0;
-    }
-
-    jbyte *cbuf = (*env)->GetByteArrayElements(env, image, 0);
-
-    int write_words = bytes_per_col / 4;
-    int buffer_size = bytes_per_col + 3;
-    unsigned char buffer[buffer_size];
-
-    for (int i=0; i < cols; i++) {
-        // read from image file and write to PDG
-        buffer[0] = PDG_WRITE_FIFO;
-        buffer[1] = write_words;
-        memcpy((buffer+2), cbuf+i*bytes_per_col, bytes_per_col);
-        buffer[bytes_per_col+2] = 0;
-        if (SPIMessage(buffer, buffer_size) < 0) return 0;
-        PDGWaitWBuffer(write_words);
-
-        // Generic command (write)
-        buffer[0] = PDG_MEM_TRANS;
-        buffer[1] = (write_words - 1);
-        buffer[2] = FIFO_2_DDR;
-        buffer[3] = (addr >> 24) & 0xff;
-        buffer[4] = (addr >> 16) & 0xff;
-        buffer[5] = (addr >> 8) & 0xff;
-        buffer[6] = addr & 0xff;
-        buffer[7] = 0;
-        if (SPIMessage(buffer, 8) < 0) return 0;
-        PDGWaitWBuffer(0);
-
-        addr += bytes_per_col;
-    }
-
-    PDGWrite(6, cols) < 0 ||             // R6 = columns
-
-    LOGI("Print image (%d rows x %d cols) written to DDR from addr %d\n", bytes_per_col, cols, addr);
-
-    (*env)->ReleaseByteArrayElements(env, image, cbuf, 0);
-
-    return cols * bytes_per_col;
-}
-
-JNIEXPORT jint JNICALL Java_com_LaunchPrint(JNIEnv *env, jclass arg) {
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
-        LOGE("%s\n", ERR_STRING);
-        return -1;
-    }
-    return 0;
-}
-
-JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
-    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx);
-//    PDGCancelPrint();
-    return 0;
 }
 
 JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg) {
@@ -784,6 +639,78 @@ JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
 
     LOGI("Exit %s. R3=%d", __FUNCTION__, ui);
     return ui;
+}
+#endif
+
+pthread_t PrintThread = (pthread_t)NULL;
+static bool CancelPrint = false;
+// INK_POLL_SEC - when pen is On, ink is polled at this frequency for PILS use
+#define INK_POLL_SEC 1
+// SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
+#define SECURE_INK_POLL_SEC 20
+
+void *_print_thread(void *arg) {
+    int secure_sec = 0;
+    float ink_weight;
+
+    LOGD("_print_thread");
+
+    while (!CancelPrint) {
+        // sleep until next poll, then increment time counters
+        sleep(INK_POLL_SEC);
+        secure_sec += INK_POLL_SEC;
+
+        // NON-SECURE ink use (for PILS algorithm)
+        ink_weight = GetInkWeight(sPenIdx);
+        if (ink_weight < 0) {
+            LOGD("GetInkWeight failed.");
+        } else {
+            LOGD("GetInkWeight");
+        }
+
+        // SECURE ink use
+        if (secure_sec >= SECURE_INK_POLL_SEC) {
+            secure_sec = 0;
+            if(GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
+                LOGD("GetAndProcessInkUse failed.");
+            } else {
+                LOGD("GetAndProcessInkUse");
+            }
+        }
+    }
+
+    PrintThread = (pthread_t)NULL;     // (done printing)
+    return (void*)NULL;
+}
+
+
+extern char ERR_STRING[];
+
+JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
+        LOGE("%s\n", ERR_STRING);
+        return -1;
+    }
+
+    CancelPrint = false;
+
+    if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
+        PrintThread = (pthread_t)NULL;
+        LOGE("ERROR: pthread_create() of PrintThread failed\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
+    CancelPrint = true;
+
+    if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
+        LOGE("%s\n", ERR_STRING);
+        return -1;
+    }
+    return 0;
 }
 
 static IdsSysInfo_t ids_sys_info;
@@ -1505,23 +1432,22 @@ static JNINativeMethod gMethods[] = {
         {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
+        {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},
+        {"pdPowerOff",		                "()I",	                    (void *)Java_com_PDPowerOff},
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
+
+/*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"startPrint",		            "()Ljava/lang/String;",	                    (void *)Java_com_StartPrint},
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-        {"stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"dumpRegisters",	    "()Ljava/lang/String;",	    (void *)Java_com_DumpRegisters},
-        {"readRegisters",	    "()[I",	    (void *)Java_com_ReadRegisters},
-        {"writeSettings",	    "([I)I",	    (void *)Java_com_WriteSettins},
-        {"writeImage",	    "(III[B)I",	    (void *)Java_com_WriteImage},
-        {"launchPrint",	    "()I",	    (void *)Java_com_LaunchPrint},
         {"spiTest",	    "()Ljava/lang/String;",	    (void *)Java_com_SpiTest},
         {"mcu2fifo",		            "()I",	                    (void *)Java_com_MCU2FIFO},
         {"fifo2ddr",		            "()I",	                    (void *)Java_com_FIFO2DDR},
         {"ddr2fifo",		            "()I",	                    (void *)Java_com_DDR2FIFO},
-        {"fifo2mcu",		            "()I",	                    (void *)Java_com_FIFO2MCU},
+        {"fifo2mcu",		            "()I",	                    (void *)Java_com_FIFO2MCU},*/
 };
 
 /**

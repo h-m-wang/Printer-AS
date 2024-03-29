@@ -67,22 +67,58 @@ public class TestHp22mm implements ITestOperation {
             "12 -- ids_set_date",
             "13 -- pd_set_date",
             "14 -- ids_set_stall_insert_count[1]",
-            "15 -- Start Print",
-            "16 -- Stop Print",
+//            "15 -- Start Print",
+//            "16 -- Stop Print",
             "17 -- Dump Registers",
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
-            "18 -- SPI Test",
+//            "18 -- SPI Test",
 // End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
-            "19 -- Write FIFO",
-            "20 -- FIFO -> DDR",
-            "21 -- DDR -> FIFO",
-            "22 -- Read FIFO",
+//            "19 -- Write FIFO",
+//            "20 -- FIFO -> DDR",
+//            "21 -- DDR -> FIFO",
+//            "22 -- Read FIFO",
             "23 -- Update PD MCU\nFrom [U-Disk/PD_FW.s19]",
             "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
             "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "26 -- Toggle PI4",
             "27 -- Toggle PI5"
     };
+
+    private String[] Registers = new String[] {
+            "2-Write FIFO(RO)    ",
+            "3-Read FIFO(RO)     ",
+            "4-Words/Col         ",
+            "5-Advance Bytes     ",
+            "6-Image Columns     ",
+            "7-Start P0 S0 Odd   ",
+            "8-Start P0 S0 Even  ",
+            "9-Start P0 S1 Odd   ",
+            "10-Start P0 S1 Even ",
+            "11-Start P1 S0 Odd  ",
+            "12-Start P1 S0 Even ",
+            "13-Start P1 S1 Odd  ",
+            "14-Start P1 S1 Even ",
+            "15-Encoder Freq     ",
+            "16-TOF Freq         ",
+            "17-External Encoder ",
+            "18-Encoder Divider  ",
+            "19-External TOF     ",
+            "20-P0 TOF Offset    ",
+            "21-P1 TOF Offset    ",
+            "22-Print Direction  ",
+            "23-Column Spacing   ",
+            "24-Slot Spacing     ",
+            "25-Enable Print     ",
+            "26-Start Print Count",
+            "27-End Print Count  ",
+            "28-Reset(WR)        ",
+            "29-Column Enable    ",
+            "30-Flash Enable     ",
+            "31-PDG Revision(RO) ",
+            "32-Clock Freq(RO)   ",
+            "33-Ready            ",
+    };
+
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
 
@@ -104,21 +140,21 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_TEST_IDS_SET_DATE                   = 14;
     private final static int HP22MM_TEST_PD_SET_DATE                    = 15;
     private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 16;
-    private final static int HP22MM_TEST_START_PRINT                    = 17;
-    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
-    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
+//    private final static int HP22MM_TEST_START_PRINT                    = 17;
+//    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 17;
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
-    private final static int HP22MM_TEST_SPI_TEST                       = 20;
+//    private final static int HP22MM_TEST_SPI_TEST                       = 20;
 // End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
-    private final static int HP22MM_TEST_MCU2FIFO                       = 21;
-    private final static int HP22MM_TEST_FIFO2DDR                       = 22;
-    private final static int HP22MM_TEST_DDR2FIFO                       = 23;
-    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 25;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 26;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 27;
-    private final static int HP22MM_TOGGLE_PI4                          = 28;
-    private final static int HP22MM_TOGGLE_PI5                          = 29;
+//    private final static int HP22MM_TEST_MCU2FIFO                       = 21;
+//    private final static int HP22MM_TEST_FIFO2DDR                       = 22;
+//    private final static int HP22MM_TEST_DDR2FIFO                       = 23;
+//    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 18;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 19;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 20;
+    private final static int HP22MM_TOGGLE_PI4                          = 21;
+    private final static int HP22MM_TOGGLE_PI5                          = 22;
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -322,13 +358,21 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-                            String errStr = Hp22mm.startPrint();
-                            if (!StringUtil.isEmpty(errStr)) {
-                                mHp22mmTestResult[index] = errStr;
+                            if (0 != Hp22mm.pdPowerOn()) {
+                                mHp22mmTestResult[index] = "PD power on failed";
                                 break;
                             }
-// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
+
+                            if (0 != Hp22mm.printTestPage()) {
+                                mHp22mmTestResult[index] = "Printing test page failed";
+                                break;
+                            }
+
+                            if (0 != Hp22mm.pdPowerOff()) {
+                                mHp22mmTestResult[index] = "PD power off failed";
+                                break;
+                            }
+
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_INIT_IDS:
@@ -444,7 +488,7 @@ public class TestHp22mm implements ITestOperation {
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
-                            break;
+                            break;/*
                         case HP22MM_TEST_START_PRINT:
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
                             errStr = Hp22mm.startPrint();
@@ -461,15 +505,16 @@ public class TestHp22mm implements ITestOperation {
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
-                            break;
+                            break;*/
                         case HP22MM_TEST_DUMP_REGISTERS:
-                            String str = Hp22mm.dumpRegisters();
-                            if (null != str) {
-                                mHp22mmTestResult[index] = "Success\n" + str;
-                            } else {
-                                mHp22mmTestResult[index] = "Failed\nRegister read error";
+                            int[] regs = Hp22mm.dumpRegisters(Registers.length);
+                            StringBuilder sb = new StringBuilder();
+                            for(int i=0; i<Registers.length; i++) {
+                                sb.append(Registers[i] + ": " + regs[i] + "\n");
                             }
+                            mHp22mmTestResult[index] = "Success\n" + sb.toString();
                             break;
+/*
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
                         case HP22MM_TEST_SPI_TEST:
                             str = Hp22mm.spiTest();
@@ -511,7 +556,7 @@ public class TestHp22mm implements ITestOperation {
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
-                            break;
+                            break;*/
                         case HP22MM_TEST_UPDATE_PD_MCU:
                             if (0 == Hp22mm.UpdatePDFW()) {
                                 mHp22mmTestResult[index] = "Success";

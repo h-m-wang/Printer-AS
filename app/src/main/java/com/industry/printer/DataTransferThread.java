@@ -332,7 +332,7 @@ public class DataTransferThread {
 //    				FpgaGpioOperation.updateSettings(mContext, mDataTask.get(mIndex), FpgaGpioOperation.SETTING_TYPE_NORMAL);
 // End of H.M.Wang 2021-3-19 未开始打印前启动purge时，mDataTask为空，会导致崩溃
 // End of H.M.Wang 2022-1-25 使用task设置参数可能会与打印的数据不符，比如打印数据是25.4头的，但是清洗是12.7头的，就会导致每列字节数不同而是恢复打印后的数据产生偏差，以前mDataTask为空的情况可能是还没有加needRestore变量，现在应该不会了，所以恢复原来的实现
-					FpgaGpioOperation.init(mContext);
+					FpgaGpioOperation.init();
 // H.M.Wang 2021-3-5 暂时取消
 //					resendBufferToFPGA();
 // End of H.M.Wang 2021-3-5 暂时取消
@@ -360,13 +360,13 @@ public class DataTransferThread {
 		if(PlatformInfo.getImgUniqueCode().startsWith("GZJ")) {    // GZJ盖章机直接按着清洗数据下发，因为GZJ没有自动打印
 			FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_PURGE, buffer, buffer.length*2);
 		} else {			// 其他的还是按打印数据下发
-			FpgaGpioOperation.init(mContext);
+			FpgaGpioOperation.init();
 			FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
 		}
 // End of H.M.Wang 2022-3-18 在3.5寸老板新屏的设备上，由于不支持自动打印，恢复到原来的清洗模式
 // H.M.Wang 2021-10-22 修改清洗，从特别处理改为按普通打印下发，但是与正常的打印不共存，先停止正常打印，在开始清洗打印，然后在恢复打印
 ////		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_PURGE, buffer, buffer.length*2);
-//		FpgaGpioOperation.init(mContext);
+//		FpgaGpioOperation.init();
 //		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
 // End of H.M.Wang 2021-10-22 修改清洗，从特别处理改为按普通打印下发，但是与正常的打印不共存，先停止正常打印，在开始清洗打印，然后在恢复打印
 		try {
@@ -459,7 +459,7 @@ public class DataTransferThread {
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
 				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE1);
-				FpgaGpioOperation.init(mContext);
+				FpgaGpioOperation.init();
 				for (int i = 0; i < 50; i++) {
 // End of H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 					Debug.e(TAG, "(" + (i+1) + ")--->buffer len: " + buffer.length);
@@ -883,6 +883,10 @@ public class DataTransferThread {
 	}
 // End of H.M.Wang 2020-6-9 追加串口6协议
 
+// H.M.Wang 2024-3-29 追加一个限制打印次数的参数
+	private int mS2Times = 0;
+// End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数
+
 // H.M.Wang 2020-10-30 追加扫描2串口协议
 	public void setScan2DataToDt(final String data) {
 		Debug.d(TAG, "String from Remote = [" + data + "]");
@@ -917,6 +921,7 @@ public class DataTransferThread {
 				}
 			}
 		}
+		mS2Times = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_S2_TIMES);
 		mNeedUpdate = needUpdate;
 	}
 // End of H.M.Wang 2020-10-30 追加扫描2串口协议
@@ -1511,6 +1516,7 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2020-10-30 追加扫描2串口协议
 				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
 					String datastring = new String(data, 0, data.length);
+					mS2Times = 0;
 					setScan2DataToDt(datastring);
 					serialHandler.sendCommandProcessResult(SerialProtocol.ERROR_SUCESS, 1, 0, 0, datastring + " set.");
 // End of H.M.Wang 2020-10-30 追加扫描2串口协议
@@ -1560,6 +1566,7 @@ private void setSerialProtocol9DTs(final String data) {
 				}
 			});
 		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
+			mS2Times = 0;
 			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
 				@Override
 				public void onCodeReceived(String code) {
@@ -2553,7 +2560,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 		public void run() {
 			Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
 
-			FpgaGpioOperation.init(mContext);
+// H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+//			FpgaGpioOperation.init();
+			FpgaGpioOperation.clearFIFO();
+// End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 			Time1 = System.currentTimeMillis();
@@ -2690,6 +2700,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 				if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN || mDataUpdatedForFastLan) &&
 					(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER5 || mDataUpdatedForFastLan) &&
 // End of H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
+// H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
+				    (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER2 ||
+							SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) <= 0) &&
+// End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
 					// 数据源不是网络快速打印，或者如果是网络快速打印，但是数据已经准备好则下发
 					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
 					// 数据源不是扫描协议3
@@ -2734,6 +2748,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 			}
 			last = SystemClock.currentThreadTimeMillis();
+
+// H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+			FpgaGpioOperation.init();
+// End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 			boolean dataSent = false;
@@ -2806,6 +2824,15 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					reportEmpty = true;
 				} else {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
+
+// H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
+						if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) > 0) {
+							if(mS2Times == 0) continue;
+							mS2Times--;
+						}
+					}
+// End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
 
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 					if(TxtDT.getInstance(mContext).isTxtDT()) {

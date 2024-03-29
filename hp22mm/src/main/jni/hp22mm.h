@@ -41,10 +41,7 @@ JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg);
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg);
-JNIEXPORT jintArray JNICALL Java_com_ReadRegisters(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_WriteSettins(JNIEnv *env, jclass arg, jintArray regs);
-JNIEXPORT jint JNICALL Java_com_WriteImage(JNIEnv *env, jclass arg, int addr, int cols, int bytes_per_col, jbyteArray image);
-JNIEXPORT jint JNICALL Java_com_LaunchPrint(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_MCU2FIFO(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_FIFO2DDR(JNIEnv *env, jclass arg);

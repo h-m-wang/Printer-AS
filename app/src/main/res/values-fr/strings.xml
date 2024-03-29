@@ -444,7 +444,10 @@
 <!--	<string name="str_textview_param75">75.Réservé</string>-->
 	<string name="str_textview_param75">75.Feedback</string>
 <!-- End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
-	<string name="str_textview_param76">76.Réservé</string>
+<!-- H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
+<!--	<string name="str_textview_param76">76.Réservé</string>-->
+	<string name="str_textview_param76">76.S2-Times</string>
+<!-- End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
 	<string name="str_textview_param77">77.Réservé</string>
 	<string name="str_textview_param78">78.Réservé</string>
 	<string name="str_textview_param79">79.Réservé</string>

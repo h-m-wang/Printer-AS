@@ -696,7 +696,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端
 		mSettingItems[74] = new ItemOneLine(75, R.string.str_textview_param75, 0);
 // End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端
+// H.M.Wang 2024-3-29 追加一个限制打印次数的参数
 		mSettingItems[75] = new ItemOneLine(76, R.string.str_textview_param76, 0);
+// End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数
 		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0);
 		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, 0);
 		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, 0);

@@ -35,10 +35,7 @@ public class LibUpgrade {
 // H.M.Wang 2024-3-12 将升级ko的方法，从使用USB根目录下的固定.ko文件名，改为使用KKK_xxxxx.ko的可变名称格式
             File srcKoFile = new File(path.substring(0, path.lastIndexOf(".")) + ".ko");
             File srcMD5File = new File(path.substring(0, path.lastIndexOf(".")) + ".txt");
-//            File src = new File(path);
 // End of H.M.Wang 2024-3-12 将升级ko的方法，从使用USB根目录下的固定.ko文件名，改为使用KKK_xxxxx.ko的可变名称格式
-//            Debug.e(TAG, srcKoFile.getAbsolutePath());
-//            Debug.e(TAG, srcMD5File.getAbsolutePath());
 
             if(!srcKoFile.exists() || !srcMD5File.exists()) {
                 Debug.e(TAG, "Source ko or md5 not exists.");
@@ -47,10 +44,8 @@ public class LibUpgrade {
 
             BufferedReader br = new BufferedReader(new FileReader(srcMD5File));
             String srcMD5Read = br.readLine();
-//            Debug.d(TAG, "SrcMD5Read: [" + srcMD5Read + "].");
 
             String srcMD5Cal = CypherUtils.getFileMD5(srcKoFile);
-//            Debug.d(TAG, "SrcMD5Cal: [" + srcMD5Cal + "].");
 
             if(!srcMD5Read.equalsIgnoreCase(srcMD5Cal)) {
                 Debug.e(TAG, "Source md5 not match.");
@@ -58,7 +53,6 @@ public class LibUpgrade {
             }
 
             String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
-//            Debug.d(TAG, "DstMD5: [" + dstMD5 + "].");
             if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
                 FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(srcKoFile));
                 Debug.d(TAG, "/data/camera/" + ko + " written.");
@@ -72,11 +66,6 @@ public class LibUpgrade {
                     return false;
                 }
                 ret = true;
-            } else {
-                File dst = new File("/data/camera/" + ko);
-                if(dst.exists()) {
-                    dst.delete();
-                }
             }
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
