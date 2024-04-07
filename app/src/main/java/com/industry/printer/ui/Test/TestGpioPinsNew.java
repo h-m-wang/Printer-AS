@@ -482,6 +482,33 @@ public class TestGpioPinsNew implements ITestOperation {
             }
         });
 
+        final TextView updateKOs = (TextView) mTestAreaLL.findViewById(R.id.updateKOs);
+        updateKOs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateKOs.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateKOs.setEnabled(false);
+                                updateKOs.setBackgroundColor(Color.GRAY);
+                            }
+                        });
+                        testUpgradeKOs();
+                        updateKOs.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateKOs.setEnabled(true);
+                                updateKOs.setBackgroundColor(Color.GREEN);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        });
+
         final TextView totalBtn = (TextView) mTestAreaLL.findViewById(R.id.total_test_btn);
         totalBtn.setOnClickListener(new View.OnClickListener() {
             @Override

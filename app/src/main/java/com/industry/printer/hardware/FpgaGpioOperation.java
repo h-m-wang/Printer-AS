@@ -754,6 +754,11 @@ public class FpgaGpioOperation {
         Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
         ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
 // End of H.M.Wang 2024-3-25 将设置img的FIFO的大小移到下发参数的地方，以避免原来放在init函数中，则init函数必须在打印的最前端执行，这可能导致打印开始后，FPGA发出中断，但是驱动还没有接收到下发数据，而空跑，4FIFO就出现了第一次不打印的问题
+// H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
+        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+            setMirror(config.getParam(1));
+        }
+// End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
     }
 
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
@@ -802,7 +807,7 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
         SystemConfigFile config = SystemConfigFile.getInstance();
         if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            Hp22mm.pdPowerOff();
+            Hp22mm.stopPrint();
         }
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 
@@ -816,6 +821,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
         ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
 // End of H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
+// H.M.Wang 2024-4-7 对于2024-3-25修改的先下发数据后开始打印的修改，重新开始打印的时候，由于不再清理数据区，因此最好在停止打印的时候清理一下，否则清洗可能会出乱码
+        clearFIFO();
+// End of H.M.Wang 2024-4-7 对于2024-3-25修改的先下发数据后开始打印的修改，重新开始打印的时候，由于不再清理数据区，因此最好在停止打印的时候清理一下，否则清洗可能会出乱码
     }
 
     public static void dispLog() {
@@ -876,17 +884,6 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
-
-// H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
-    public static int getDrvVersion() {
-        int fd = open();
-        if (fd > 0) {
-    //        Debug.d(TAG, "FPGA_CMD_GETVERSION");
-            return ioctl(fd, FPGA_CMD_DRVVERSION, 0);
-        }
-        return 0;
-    }
-// End of H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
 
 // H.M.Wang 2024-1-3 增加一个获取驱动版本号的功能
     public static int getDriverVersion() {

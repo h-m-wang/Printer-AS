@@ -634,6 +634,7 @@ public enum PrinterNozzle {
      */
     public int factor() {
         if(this == MESSAGE_TYPE_9MM) return 1;
+        if(this == MESSAGE_TYPE_22MM) return 1;
         return mHeight / 152;
     }
 

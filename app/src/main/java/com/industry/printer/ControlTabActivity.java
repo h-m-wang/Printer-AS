@@ -1162,18 +1162,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 		mPC_FIFO = PC_FIFO.getInstance(mContext);
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
-
-// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-        if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            Hp22mm.gCtrlHandler = mHandler;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Hp22mm.initHp22mm();
-                }
-            }).start();
-        }
-// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 	}
 
 	public boolean getLevelLow() {
@@ -1759,9 +1747,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			final boolean printNext = msg.getData().getBoolean("printNext", false);
 			switch(msg.what)
 			{
-				case 888888:
-					ToastUtil.show(mContext, "" + msg.obj);
-					break;
 				case MESSAGE_OPEN_PREVIEW:
 					String tlk = msg.getData().getString("file");
 					setMessage(tlk);
@@ -2074,7 +2059,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 					SystemConfigFile config = SystemConfigFile.getInstance();
 					if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-						if(Hp22mm.pdPowerOn() < 0)
+						if(Hp22mm.startPrint() < 0)
 							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
 					}
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置

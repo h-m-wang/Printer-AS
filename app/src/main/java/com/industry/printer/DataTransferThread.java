@@ -2560,10 +2560,16 @@ private void setCounterPrintedNext(DataTask task, int count) {
 		public void run() {
 			Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
 
+// H.M.Wang 2024-4-5 3-25的修改太片面，导致新的apk在旧版的img上面，会出现第一个任务不打印的问题（因为先下发数据，但是旧版的img会忽略掉启动打印前下发的数据），修改为根据img中的驱动的版本，旧的版本还是先启动打印，后下发数据，目的是保持兼容性。新的驱动则执行先下发数据，后启动打印
+			if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
-//			FpgaGpioOperation.init();
-			FpgaGpioOperation.clearFIFO();
+//				FpgaGpioOperation.init();
+//				FpgaGpioOperation.clearFIFO();		// 2024-4-7 由于改为停止打印时清空，因此这里也不需要了
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+			} else {												// 先启动打印，后下发数据的img
+				FpgaGpioOperation.init();
+			}
+// End of H.M.Wang 2024-4-5 3-25的修改太片面，导致新的apk在旧版的img上面，会出现第一个任务不打印的问题（因为先下发数据，但是旧版的img会忽略掉启动打印前下发的数据），修改为根据img中的驱动的版本，旧的版本还是先启动打印，后下发数据，目的是保持兼容性。新的驱动则执行先下发数据，后启动打印
 
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
 			Time1 = System.currentTimeMillis();
@@ -2749,9 +2755,13 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			}
 			last = SystemClock.currentThreadTimeMillis();
 
+// H.M.Wang 2024-4-5 3-25的修改太片面，导致新的apk在旧版的img上面，会出现第一个任务不打印的问题（因为先下发数据，但是旧版的img会忽略掉启动打印前下发的数据），修改为根据img中的驱动的版本，旧的版本还是先启动打印，后下发数据，目的是保持兼容性。新的驱动则执行先下发数据，后启动打印
+			if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
-			FpgaGpioOperation.init();
+				FpgaGpioOperation.init();
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+			}
+// End of H.M.Wang 2024-4-5 3-25的修改太片面，导致新的apk在旧版的img上面，会出现第一个任务不打印的问题（因为先下发数据，但是旧版的img会忽略掉启动打印前下发的数据），修改为根据img中的驱动的版本，旧的版本还是先启动打印，后下发数据，目的是保持兼容性。新的驱动则执行先下发数据，后启动打印
 
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 			boolean dataSent = false;

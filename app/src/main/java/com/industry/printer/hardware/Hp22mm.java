@@ -1,14 +1,10 @@
 package com.industry.printer.hardware;
 
-import android.content.Context;
 import android.content.res.AssetManager;
-import android.os.Handler;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PrinterApplication;
-import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
-import com.industry.printer.data.DataTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,8 +48,8 @@ public class Hp22mm {
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native int pdPowerOn();
-    static public native int pdPowerOff();
+    static public native int _startPrint();
+    static public native int _stopPrint();
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
 //    static public native String spiTest();
@@ -99,50 +95,64 @@ public class Hp22mm {
     private static final int REG32_CLOCK = 32;              // Read Only
     private static final int REG33_READY = 33;
 
-    public static Handler gCtrlHandler = null;
-
-    public static void initHp22mm() {
-        if (0 != Hp22mm.init_ids(IDS_INDEX)) {
+    public static int initHp22mm() {
+        if (0 != init_ids(IDS_INDEX)) {
             Debug.d(TAG, "init_ids failed\n");
-            gCtrlHandler.obtainMessage(888888, "init_ids failed.");
+            return -1;
         } else {
             Debug.d(TAG, "init_ids succeeded\n");
         }
 
-        if (0 != Hp22mm.init_pd(PEN_INDEX)) {
+        if (0 != init_pd(PEN_INDEX)) {
             Debug.d(TAG, "init_pd failed\n");
-            gCtrlHandler.obtainMessage(888888, "init_pd failed.");
+            return -2;
         } else {
             Debug.d(TAG, "init_pd succeeded\n");
         }
 
-        if (0 != Hp22mm.DeletePairing()) {
+        if (0 != ids_get_supply_status()) {
+            Debug.d(TAG, "ids_get_supply_status failed\n");
+            return -3;
+        } else {
+            Debug.d(TAG, "ids_get_supply_status succeeded\n");
+        }
+
+        if (0 != pd_get_print_head_status()) {
+            Debug.d(TAG, "pd_get_print_head_status failed\n");
+            return -4;
+        } else {
+            Debug.d(TAG, "pd_get_print_head_status succeeded\n");
+        }
+
+        if (0 != DeletePairing()) {
             Debug.d(TAG, "DeletePairing failed\n");
-            gCtrlHandler.obtainMessage(888888, "DeletePairing failed.");
+            return -5;
         } else {
             Debug.d(TAG, "DeletePairing succeeded\n");
         }
 
-        if (0 != Hp22mm.DoPairing()) {
+        if (0 != DoPairing()) {
             Debug.d(TAG, "DoPairing failed\n");
-            gCtrlHandler.obtainMessage(888888, "DoPairing failed.");
+            return -6;
         } else {
             Debug.d(TAG, "DoPairing succeeded\n");
         }
 
-        if (0 != Hp22mm.DoOverrides()) {
+        if (0 != DoOverrides()) {
             Debug.d(TAG, "DoOverrides failed\n");
-            gCtrlHandler.obtainMessage(888888, "DoOverrides failed.");
+            return -7;
         } else {
             Debug.d(TAG, "DoOverrides succeeded\n");
         }
 
-        if (0 != Hp22mm.Pressurize()) {
+        if (0 != Pressurize()) {
             Debug.d(TAG, "Pressurize failed\n");
-            gCtrlHandler.obtainMessage(888888, "Pressurize failed.");
+            return -8;
         } else {
             Debug.d(TAG, "Pressurize succeeded\n");
         }
+
+        return 0;
     }
 
     public static char[] getSettings() {
@@ -181,7 +191,7 @@ public class Hp22mm {
         regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
         regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
         regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
-        regs[REG29_COLUMN_ENABLE] = 0x0f;                                                   // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+        regs[REG29_COLUMN_ENABLE] = (char)config.getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
         regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
         regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
 
@@ -217,5 +227,20 @@ public class Hp22mm {
             regs[i] = FpgaGpioOperation.hp22mmReadRegister(i+2);
         }
         return regs;
+    }
+
+    public static int startPrint() {
+        if(_startPrint() < 0) {
+            if(initHp22mm() < 0) {
+                return -1;
+            } else {
+                return _startPrint();
+            }
+        }
+        return 0;
+    }
+
+    public static int stopPrint() {
+        return _stopPrint();
     }
 }

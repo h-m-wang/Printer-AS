@@ -446,7 +446,10 @@
 <!--	<string name="str_textview_param76">76.Reserved</string> -->
 	<string name="str_textview_param76">76.S2-Times</string>
 <!-- End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
-	<string name="str_textview_param77">77.Reserved</string>
+<!-- H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!--	<string name="str_textview_param77">77.Reserved</string>-->
+	<string name="str_textview_param77">77.22MM Nozzle</string>
+<!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
 	<string name="str_textview_param78">78.Reserved</string>
 	<string name="str_textview_param79">79.Reserved</string>
 	<string name="str_textview_param80">80.Reserved</string>
@@ -592,4 +595,31 @@
 	<string name="strTxtDtRpt">Rpt</string>
 	<string name="strTxtDtCir">Cir</string>
 <!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="str_test_main_printer_with_bag">Printer with Bag</string>
+	<string name="str_test_main_bulk_printer">Bulk Printer</string>
+	<string name="str_test_main_al_printer">AL Printer</string>
+	<string name="str_test_main_save_100">Save Test001</string>
+	<string name="str_test_main_ble_module_on">BLE on</string>
+	<string name="str_test_main_m9_test">M9 Test</string>
+	<string name="str_m9_test_gpio">GPIO</string>
+	<string name="str_m9_test_clear_gpio">Clear GPIO</string>
+	<string name="str_m9_test_net">Network</string>
+	<string name="str_m9_test_serial">Serial</string>
+	<string name="str_m9_test_rfid">RFID</string>
+	<string name="str_m9_test_update_fpga">UPD FPGA</string>
+	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_1click_all">Total Test</string>
+	<string name="str_m9_test_init">Init</string>
+	<string name="str_m9_test_import">Import</string>
+	<string name="str_m9_test_counter">Counter</string>
+	<string name="str_m9_test_time">Time</string>
+	<string name="str_m9_test_rfid_0">RFID-0</string>
+	<string name="str_m9_test_rfid_1">RFID-1</string>
+	<string name="str_m9_test_rfid_2">RFID-2</string>
+	<string name="str_m9_test_rfid_3">RFID-3</string>
+	<string name="str_m9_test_m5">M5</string>
+	<string name="str_m9_test_m7">M7</string>
+	<string name="str_m9_test_m9">M9</string>
+	<string name="str_m9_test_makro">MAKRO</string>
+	<string name="str_m9_test_m7bag">M7 BAG</string>
 </resources>

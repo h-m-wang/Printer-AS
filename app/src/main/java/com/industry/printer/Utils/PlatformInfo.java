@@ -171,7 +171,7 @@ public class PlatformInfo {
 // H.M.Wang 2023-11-12 暂时变更4FIFO版本号的取位规则
 		int bank;
 		int code;
-		if (buildID.startsWith("4FIFO")) {
+		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM")) {
 			bank = (int)((fpgaVersion & 0x7FFF0000) >> 25);
 			code = (int)((fpgaVersion & 0x01FF0000) >> 16);
 		} else {

@@ -52,7 +52,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="GPIO"
+                        android:text="@string/str_m9_test_gpio"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -68,7 +68,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="测网速"
+                        android:text="@string/str_m9_test_net"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -84,7 +84,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="测串口"
+                        android:text="@string/str_m9_test_serial"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -107,7 +107,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="清GPIO"
+                        android:text="@string/str_m9_test_clear_gpio"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -123,7 +123,7 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="RFID"
+                        android:text="@string/str_m9_test_rfid"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -139,7 +139,23 @@
                         android:paddingLeft="10dp"
                         android:paddingRight="10dp"
                         android:background="@color/green"
-                        android:text="FPGA"
+                        android:text="@string/str_m9_test_update_fpga"
+                        android:textColor="@color/black"
+                        android:textSize="24sp"
+                        />
+                    <TextView
+                        android:id="@+id/updateKOs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:layout_margin="5dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:background="@color/green"
+                        android:text="@string/str_m9_test_update_kos"
                         android:textColor="@color/black"
                         android:textSize="24sp"
                         />
@@ -161,7 +177,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:background="@color/green"
-                    android:text="一键通测"
+                    android:text="@string/str_m9_test_1click_all"
                     android:textColor="@color/black"
                     android:textSize="24sp"
                     />
@@ -177,7 +193,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
                     android:background="@color/green"
-                    android:text="初始化"
+                    android:text="@string/str_m9_test_init"
                     android:textColor="@color/black"
                     android:textSize="24sp"
                     />
@@ -194,6 +210,7 @@
             android:gravity="center"
             android:textColor="@color/red"
             android:textSize="18sp"
+            android:visibility="gone"
             android:text="AAAAAAAAAAAA" />
         <LinearLayout
             android:layout_width="match_parent"
@@ -209,7 +226,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="导入"
+                android:text="@string/str_m9_test_import"
                 android:textSize="18sp"
                 />
             <TextView
@@ -222,7 +239,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="FPGA"
+                android:text="@string/str_m9_test_update_fpga"
                 android:textSize="18sp"
                 />
             <TextView
@@ -235,7 +252,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="KOs"
+                android:text="@string/str_m9_test_update_kos"
                 android:textSize="18sp"
                 />
             <TextView
@@ -248,7 +265,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="计数器"
+                android:text="@string/str_m9_test_counter"
                 android:textSize="18sp"
                 />
             <TextView
@@ -261,7 +278,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="时间"
+                android:text="@string/str_m9_test_time"
                 android:textSize="18sp"
                 />
             <TextView
@@ -274,7 +291,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="网口"
+                android:text="@string/str_m9_test_net"
                 android:textSize="18sp"
                 />
             <TextView
@@ -287,7 +304,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="串口"
+                android:text="@string/str_m9_test_serial"
                 android:textSize="18sp"
                 />
         </LinearLayout>
@@ -305,7 +322,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="RFID-0"
+                android:text="@string/str_m9_test_rfid_0"
                 android:textSize="18sp"
                 />
             <TextView
@@ -318,7 +335,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="RFID-1"
+                android:text="@string/str_m9_test_rfid_1"
                 android:textSize="18sp"
                 />
             <TextView
@@ -331,7 +348,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="RFID-2"
+                android:text="@string/str_m9_test_rfid_2"
                 android:textSize="18sp"
                 />
             <TextView
@@ -344,7 +361,7 @@
                 android:gravity="center"
                 android:textColor="@color/black"
                 android:background="@color/gray"
-                android:text="RFID-3"
+                android:text="@string/str_m9_test_rfid_3"
                 android:textSize="18sp"
                 />
             <TextView
@@ -368,35 +385,35 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="M5"
+            android:text="@string/str_m9_test_m5"
             android:textColor="@color/black"
             android:textSize="18sp" />
         <CheckBox
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="M7"
+            android:text="@string/str_m9_test_m7"
             android:textColor="@color/black"
             android:textSize="18sp" />
         <CheckBox
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="M9"
+            android:text="@string/str_m9_test_m9"
             android:textColor="@color/black"
             android:textSize="18sp" />
         <CheckBox
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="MAKRO"
+            android:text="@string/str_m9_test_makro"
             android:textColor="@color/black"
             android:textSize="18sp" />
         <CheckBox
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="M7墨袋机"
+            android:text="@string/str_m9_test_m7bag"
             android:textColor="@color/black"
             android:textSize="18sp" />
     </LinearLayout>

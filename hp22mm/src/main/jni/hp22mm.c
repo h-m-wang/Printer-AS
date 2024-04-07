@@ -28,8 +28,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.073"
+#define VERSION_CODE                            "1.0.075"
 
+// 1.0.075 2024-4-3
+//    加压超时改为两分钟（PRESSURIZE_SEC=120）
+// 1.0.074 2024-4-3
+//    修改PDPowerOn和PDPowerOff函数名，改为StartPrint和StopPrint，对应于apk的函数名为_startPrint和_stopPrint
 // 1.0.073 2024-3-28
 //    追加打印守护进程，内容为定时（20秒）GetAndProcessInkUse
 // 1.0.072 2024-3-22
@@ -640,7 +644,7 @@ JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
     LOGI("Exit %s. R3=%d", __FUNCTION__, ui);
     return ui;
 }
-#endif
+#endif // if 0
 
 pthread_t PrintThread = (pthread_t)NULL;
 static bool CancelPrint = false;
@@ -686,7 +690,7 @@ void *_print_thread(void *arg) {
 
 extern char ERR_STRING[];
 
-JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
         LOGE("%s\n", ERR_STRING);
         return -1;
@@ -703,7 +707,7 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
     CancelPrint = true;
 
     if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
@@ -1332,7 +1336,7 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
 }
 
 #define SUPPLY_PRESSURE 6.0
-#define PRESSURIZE_SEC 60
+#define PRESSURIZE_SEC 120  // 两分钟
 
 #define LED_R 0
 #define LED_Y 1
@@ -1432,8 +1436,8 @@ static JNINativeMethod gMethods[] = {
         {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
-        {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},
-        {"pdPowerOff",		                "()I",	                    (void *)Java_com_PDPowerOff},
+        {"_startPrint",	    "()I",	    (void *)Java_com_StartPrint},
+        {"_stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},

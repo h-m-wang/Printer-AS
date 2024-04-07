@@ -237,6 +237,9 @@ public class SystemConfigFile{
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
     public static final int INDEX_S2_TIMES = 75;
 // End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数。二进制一个字节，8个位代表不同的喷嘴 高四位代表喷头2的4个喷嘴，低四位代表喷头1的4个喷嘴。0代表关闭，1代表使用
+	public static final int INDEX_22MM_NOZZLE_SEL = 76;
+// End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数。二进制一个字节，8个位代表不同的喷嘴 高四位代表喷头2的4个喷嘴，低四位代表喷头1的4个喷嘴。0代表关闭，1代表使用
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -859,7 +862,10 @@ public class SystemConfigFile{
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_76)) {
 					mParam[75] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_77)) {
-					mParam[76] = Integer.parseInt(t.getValue());
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+					mParam[76] = checkParam(77, mParam[76]);
+//					mParam[76] = Integer.parseInt(t.getValue());
+// End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_78)) {
 					mParam[77] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_79)) {

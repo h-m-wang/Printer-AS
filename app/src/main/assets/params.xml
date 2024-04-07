@@ -266,5 +266,13 @@
 		<default>0</default>
 	</param>
 <!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小，取值范围0-20 -->
+<!-- H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+	<param>
+		<id>77</id>
+		<min>1</min>
+		<max>255</max>
+		<default>1</default>
+	</param>
+<!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
 
 </Params>

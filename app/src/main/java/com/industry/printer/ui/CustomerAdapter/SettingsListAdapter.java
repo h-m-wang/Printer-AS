@@ -17,6 +17,7 @@ import com.industry.printer.ui.CustomerDialog.CounterEditDialog;
 import com.industry.printer.ui.CustomerDialog.DataSourceSelectDialog;
 import com.industry.printer.ui.CustomerDialog.EncoderPPREditDialog;
 import com.industry.printer.ui.CustomerDialog.HeaderSelectDialog;
+import com.industry.printer.ui.CustomerDialog.Hp22mmNozzleSelectDialog;
 import com.industry.printer.ui.CustomerDialog.PrintRepeatEditDialog;
 import com.industry.printer.ui.CustomerDialog.QRLastEditDialog;
 import com.industry.printer.widget.PopWindowSpiner;
@@ -202,6 +203,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理
 	public static final int MSG_QRLAST_SET = 41;		// QRLast设置
 // End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+	public static final int MSG_HP22MM_NOZZLE_SEL = 42;		// 22MM选择喷嘴
+// End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 
 	public Handler mHandler = new Handler(){
 		@Override
@@ -256,6 +260,12 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // End of H.M.Wang 2022-4-24 如果修改了QRLast值，则重新生成一次打印缓冲区
 				break;
 // End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理
+				case MSG_HP22MM_NOZZLE_SEL:
+					if((msg.arg1 & 0x0F) == 0x00) msg.arg1 |= 0x01;
+					mSettingItems[SystemConfigFile.INDEX_22MM_NOZZLE_SEL].setValue(msg.arg1);
+					mSysconfig.setParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL, msg.arg1);
+					notifyDataSetChanged();
+					break;
 			}
 		}
 	};
@@ -699,7 +709,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数
 		mSettingItems[75] = new ItemOneLine(76, R.string.str_textview_param76, 0);
 // End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数
-		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0);
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0, ItemType.TYPE_DIALOG);
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, 0);
 		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, 0);
 		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
@@ -1029,6 +1041,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 73) { //參數72
 			mSpiner.setAdapter(mParamAD);
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
+		} else if (position == 76) { //參數7
+// H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+			Hp22mmNozzleSelectDialog dialog = new Hp22mmNozzleSelectDialog(mContext, mHandler, mSettingItems[position].getValue());
+			dialog.show();
+			return;
+//			mSpiner.setAdapter(mRepeat);
+// End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

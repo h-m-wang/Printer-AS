@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 
 public class Hp22mmSCManager implements IInkDevice {
     private static final String TAG = Hp22mmSCManager.class.getSimpleName();
@@ -15,11 +16,15 @@ public class Hp22mmSCManager implements IInkDevice {
     private Context mContext;
     private Handler mCallback;
     private boolean mLibInited;
+
+    // 暂时只支持1个打印头，将来如果支持多个打印头的话，需要对这里一系列的参数分头管理
     private int mInkLevel;
+    private boolean mValid;
 
     public Hp22mmSCManager(Context context) {
         mContext = context;
         mInkLevel = 0;
+        mValid = false;
     }
 
     @Override
@@ -27,6 +32,16 @@ public class Hp22mmSCManager implements IInkDevice {
         mCallback = callback;
         mCallback.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_INIT_SUCCESS);
         mInkLevel = MAX_PEN_INK_VOLUME / 2;
+        mValid = true;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//                while(Hp22mm.initHp22mm() != 0) {
+//                    mValid = false;
+//                    try{Thread.sleep(3000);}catch(Exception e){}
+//                }
+            }
+        }).start();
     }
 
     @Override
@@ -47,7 +62,7 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public boolean isValid(int dev) {
-        return true;
+        return mValid;
     }
 
     @Override

@@ -487,7 +487,10 @@
 <!--	<string name="str_textview_param76">76.保留</string>-->
 	<string name="str_textview_param76">76.打印限次</string>
 <!-- End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
-	<string name="str_textview_param77">77.保留</string>
+<!-- H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!--	<string name="str_textview_param77">77.保留</string>-->
+	<string name="str_textview_param77">77.22MM噴嘴</string>
+<!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
 	<string name="str_textview_param78">78.保留</string>
 	<string name="str_textview_param79">79.保留</string>
 	<string name="str_textview_param80">80.保留</string>
@@ -654,4 +657,31 @@
 	<string name="strContinueStartup">保留數據，繼續開機</string>
 	<string name="strStartDlgComment">15秒内如無操作則自動繼續開機</string>
 <!-- End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
+	<string name="str_test_main_printer_with_bag">墨袋機</string>
+	<string name="str_test_main_bulk_printer">連供</string>
+	<string name="str_test_main_al_printer">AL大字機</string>
+	<string name="str_test_main_save_100">Save Test001</string>
+	<string name="str_test_main_ble_module_on">藍牙模塊開啓</string>
+	<string name="str_test_main_m9_test">M9測試</string>
+	<string name="str_m9_test_gpio">測GPIO</string>
+	<string name="str_m9_test_clear_gpio">清GPIO</string>
+	<string name="str_m9_test_net">測網速</string>
+	<string name="str_m9_test_serial">測串口</string>
+	<string name="str_m9_test_rfid">RFID</string>
+	<string name="str_m9_test_update_fpga">升級FPGA</string>
+	<string name="str_m9_test_update_kos">升級KOs</string>
+	<string name="str_m9_test_1click_all">一鍵通測</string>
+	<string name="str_m9_test_init">初始化</string>
+	<string name="str_m9_test_import">導入</string>
+	<string name="str_m9_test_counter">計數器</string>
+	<string name="str_m9_test_time">時間</string>
+	<string name="str_m9_test_rfid_0">RFID-0</string>
+	<string name="str_m9_test_rfid_1">RFID-1</string>
+	<string name="str_m9_test_rfid_2">RFID-2</string>
+	<string name="str_m9_test_rfid_3">RFID-3</string>
+	<string name="str_m9_test_m5">M5</string>
+	<string name="str_m9_test_m7">M7</string>
+	<string name="str_m9_test_m9">M9</string>
+	<string name="str_m9_test_makro">MAKRO</string>
+	<string name="str_m9_test_m7bag">M7墨袋機</string>
 </resources>

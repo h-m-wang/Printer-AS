@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.text.TextUtils;
+import android.util.Printer;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,13 @@ public class TestMain {
     private final String TITLE = "";
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 //    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机"};
-    private final String[] MAIN_TEST_ITEMS = {"墨袋机", "连供", "AL大字机", "Save Test001", "蓝牙模块开启", "M9测试"};
+    private final int[] MAIN_TEST_ITEMS = {
+        R.string.str_test_main_printer_with_bag,
+        R.string.str_test_main_bulk_printer,
+        R.string.str_test_main_al_printer,
+        R.string.str_test_main_save_100,
+        R.string.str_test_main_ble_module_on,
+        R.string.str_test_main_m9_test};
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
     public TestMain(Context ctx) {
@@ -114,7 +121,8 @@ public class TestMain {
                 }
 
                 TextView itemTV = (TextView) convertView.findViewById(R.id.test_main_item);
-                itemTV.setText(position < MAIN_TEST_ITEMS.length ? MAIN_TEST_ITEMS[position] : "");
+                if(position < MAIN_TEST_ITEMS.length) itemTV.setText(MAIN_TEST_ITEMS[position]);
+                else itemTV.setText("");
                 return convertView;
             }
         });
