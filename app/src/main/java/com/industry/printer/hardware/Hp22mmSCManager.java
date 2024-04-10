@@ -36,10 +36,10 @@ public class Hp22mmSCManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-//                while(Hp22mm.initHp22mm() != 0) {
-//                    mValid = false;
-//                    try{Thread.sleep(3000);}catch(Exception e){}
-//                }
+                while(Hp22mm.initHp22mm() != 0) {
+                    mValid = false;
+                    try{Thread.sleep(3000);}catch(Exception e){}
+                }
             }
         }).start();
     }
@@ -57,7 +57,13 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public float getLocalInkPercentage(int head) {
-        return 100.0f * mInkLevel / MAX_PEN_INK_VOLUME;
+        int usableVol = Hp22mm.getUsableVol();
+        if(usableVol > 0)
+            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
+        else {
+            mValid = false;
+            return 0.0f;
+        }
     }
 
     @Override

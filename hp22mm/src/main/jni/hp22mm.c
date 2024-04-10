@@ -28,7 +28,13 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.075"
+#define VERSION_CODE                            "1.0.076"
+
+// 1.0.076 2024-4-8
+//    1. 在_print_thread函数中，增加定期读取supplay的status
+//       ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
+//    2. 增肌两个接口函数Java_com_GetConsumedVol(JNIEnv *env, jclass arg) 和 Java_com_GetUsableVol(JNIEnv *env, jclass arg) {
+//       用来读取IDS的墨水总量和墨水消费量
 
 // 1.0.075 2024-4-3
 //    加压超时改为两分钟（PRESSURIZE_SEC=120）
@@ -653,6 +659,9 @@ static bool CancelPrint = false;
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
+static SupplyStatus_t supply_status;
+static SupplyInfo_t supply_info;
+
 void *_print_thread(void *arg) {
     int secure_sec = 0;
     float ink_weight;
@@ -663,6 +672,8 @@ void *_print_thread(void *arg) {
         // sleep until next poll, then increment time counters
         sleep(INK_POLL_SEC);
         secure_sec += INK_POLL_SEC;
+
+        ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
 
         // NON-SECURE ink use (for PILS algorithm)
         ink_weight = GetInkWeight(sPenIdx);
@@ -715,6 +726,14 @@ JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
         return -1;
     }
     return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg) {
+    return supply_status.consumed_volume;
+}
+
+JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg) {
+    return supply_info.usable_vol;
 }
 
 static IdsSysInfo_t ids_sys_info;
@@ -946,8 +965,6 @@ JNIEXPORT jint JNICALL Java_com_ids_set_stall_insert_count(JNIEnv *env, jclass a
     return 0;
 }
 
-static SupplyStatus_t supply_status;
-static SupplyInfo_t supply_info;
 static SupplyID_t supply_id;
 static char SN[30] = "";
 
@@ -1438,6 +1455,8 @@ static JNINativeMethod gMethods[] = {
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
         {"_startPrint",	    "()I",	    (void *)Java_com_StartPrint},
         {"_stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
+        {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
+        {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},

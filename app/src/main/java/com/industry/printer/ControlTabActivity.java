@@ -1739,7 +1739,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		messageNew = true;
 	}
 
-	public int testdata=0;
 	public Handler mHandler = new Handler(){
 		public void handleMessage(Message msg) {
 			final String pcMsg = msg.getData().getString(Constants.PC_CMD, "");

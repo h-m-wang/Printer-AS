@@ -220,7 +220,7 @@ public class SystemConfigFile{
 	public static final int USER_MODE_NONE 	= 0;		// 不显示用户特色页面
 	public static final int USER_MODE_1 	= 1;		// 显示用户1特色页面
 	public static final int USER_MODE_2 	= 2;		// 显示用户2特色页面
-	public static final int USER_MODE_3 	= 3;		// 显示用户2特色页面
+	public static final int USER_MODE_3 	= 3;		// 显示用户3特色页面
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
@@ -487,16 +487,19 @@ public class SystemConfigFile{
 
 // H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 	private String[] mDTBuffer = new String[] {
-		"#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####"
+		"#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####",
+		"#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####",
+		"#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####", "#####",
+		"#####", "#####"
 	};
 
 	public String getDTBuffer(int index) {
-		if(index < 0 || index > 9) return "";
+		if(index < 0 || index >= mDTBuffer.length) return "";
 		return mDTBuffer[index];
 	}
 
 	public void setDTBuffer(int index, String dtStr) {
-		if(index < 0 || index > 9) return;
+		if(index < 0 || index >= mDTBuffer.length) return;
 		mDTBuffer[index] = dtStr;
 // H.M.Wang 2023-2-19 增加一个错时机制，当DT或者Barcode的动态内容发生变化的时候，不在setDTBuffer或者setBarcodeBuffer中直接写入Prefs，而是设置一个脏标识，待后续线程写入
 		mDirty = true;
@@ -522,7 +525,7 @@ public class SystemConfigFile{
 	}
 
 	public void writeDTPrefs(int index, String pref) {
-		if(index < 0 || index > 9) return;
+		if(index < 0 || index >= mDTBuffer.length) return;
 		try {
 			SharedPreferences sp = mContext.getSharedPreferences(DT_PREFS, Context.MODE_PRIVATE);
 			SharedPreferences.Editor prefEditor = sp.edit();
@@ -540,14 +543,18 @@ public class SystemConfigFile{
 		Debug.d(TAG, "String from Remote = [" + data + "]");
 		String[] recvStrs = data.split(EC_DOD_Protocol.TEXT_SEPERATOR);
 
-		for(int i=0; i<Math.min(recvStrs.length, 10); i++) {
-			setDTBuffer(i, recvStrs[i]);
-		}
+// H.M.Wang 2024-4-9 DT的桶扩容到32个空间，但是接收到的数据第1-10个为DT0-DT9，第11个为条码，第12-32为DT10-DT31
+		for(int i=0; i<recvStrs.length; i++) {
+			if(i < 10)
+				setDTBuffer(i, recvStrs[i]);
 // H.M.Wang 2022-6-15 追加条码内容的保存桶
-		if(recvStrs.length >= 11) {
-			setBarcodeBuffer(recvStrs[10]);
-		}
+			else if(i == 10)
+				setBarcodeBuffer(recvStrs[i]);
 // End of  H.M.Wang 2022-6-15 追加条码内容的保存桶
+			else // i > 10
+				setDTBuffer(i-1, recvStrs[i]);
+		}
+// End of H.M.Wang 2024-4-9 DT的桶扩容到32个空间，但是接收到的数据第1-10个为DT0-DT9，第11个为条码，第12-33为DT10-DT32
 	}
 // End of H.M.Wang 2022-6-13 即使没有开始打印，也能够设置DT
 

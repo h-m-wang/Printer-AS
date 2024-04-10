@@ -530,16 +530,7 @@ public class DataTransferThread {
 
 		boolean needUpdate = false;
 
-// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
-		for(int i=0; i<Math.min(recvStrs.length, 10); i++) {
-			SystemConfigFile.getInstance().setDTBuffer(i, recvStrs[i]);
-		}
-// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
-// H.M.Wang 2022-6-15 追加条码内容的保存桶
-		if(recvStrs.length >= 11) {
-			SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[10]);
-		}
-// End of H.M.Wang 2022-6-15 追加条码内容的保存桶
+		SystemConfigFile.getInstance().setRemoteSeparated(data);
 
 // H.M.Wang 2020-9-10 协议收到的数值对群组也有效
 		for(DataTask dataTask : mDataTask) {
@@ -553,7 +544,7 @@ public class DataTransferThread {
 //						SystemConfigFile.getInstance().setDTBuffer(strIndex, recvStrs[strIndex]);
 //// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 // End of H.M.Wang 2023-2-5 这一段应该不需要，因为前面已经设置了
-						baseObject.setContent(recvStrs[strIndex]);
+						baseObject.setContent(SystemConfigFile.getInstance().getDTBuffer(strIndex));
 						needUpdate = true;
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
@@ -631,6 +622,9 @@ public class DataTransferThread {
 						baseObject.setContent(recvStrs[strIndex]);
 // End of H.M.Wang 2023-5-30 放开这个注释，否则新的DT可能不能及时反映到当前的变量中
 						strIndex++;
+// H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
+						if(strIndex == 10) strIndex++;
+// End of H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
 						needUpdate = true;
 					}
 				} else if(baseObject instanceof BarcodeObject) {
@@ -2406,6 +2400,12 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			}
 			isReady = true;
 
+// H.M.Wang 2024-4-9 如果数据源为FILE2，则直接更新桶的信息
+			if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2) {
+				SystemConfigFile.getInstance().setRemoteSeparated(content);
+			}
+// End of H.M.Wang 2024-4-9 如果数据源为FILE2，则直接更新桶的信息
+
 			recvStrs = content.split(",");
 			strIndex = 0;
 
@@ -2434,8 +2434,12 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							if(strIndex < recvStrs.length) {
 								Debug.d(TAG, "DynamicText[" + strIndex + "]: " + recvStrs[strIndex]);
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
-								SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), recvStrs[strIndex++]);
-								baseObject.setContent(recvStrs[strIndex++]);
+								SystemConfigFile.getInstance().setDTBuffer(((DynamicText)baseObject).getDtIndex(), recvStrs[strIndex]);
+								baseObject.setContent(recvStrs[strIndex]);
+								strIndex++;
+// H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
+								if(strIndex == 10) strIndex++;
+// End of H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 							}
 						}
@@ -2444,10 +2448,8 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							int dtIndex = ((DynamicText)baseObject).getDtIndex();
 							if(dtIndex >= 0 && dtIndex < recvStrs.length) {
 // H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
-								SystemConfigFile.getInstance().setDTBuffer(dtIndex, recvStrs[dtIndex]);
-								baseObject.setContent(recvStrs[dtIndex]);
-//							} else {
-								baseObject.setContent("");
+//								SystemConfigFile.getInstance().setDTBuffer(dtIndex, recvStrs[dtIndex]);
+								baseObject.setContent(SystemConfigFile.getInstance().getDTBuffer(dtIndex));
 							}
 // End of H.M.Wang 2023-3-16 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，因此接收到的数据应该存入桶里，这里是修改遗漏
 						}

@@ -31,8 +31,6 @@ public class Hp22mm {
     static public native int ids_set_stall_insert_count();
     static public native int ids_get_supply_status();
     static public native String ids_get_supply_status_info();
-    //    static public native int ids_get_supply_id();
-//    static public native String ids_get_supply_id_info();
     static public native int pd_get_print_head_status();
     static public native String pd_get_print_head_status_info();
     static public native int pd_sc_get_status();
@@ -50,6 +48,8 @@ public class Hp22mm {
     static public native int UpdateIDSFW();
     static public native int _startPrint();
     static public native int _stopPrint();
+    static public native int getConsumedVol();
+    static public native int getUsableVol();
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
 //    static public native String spiTest();
