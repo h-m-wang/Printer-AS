@@ -655,8 +655,12 @@ public enum PrinterNozzle {
 // End of H.M.Wang 2021-3-6 追加E6X48,E6X50头
 
 // H.M.Wang 2021-8-25 追加E5X48和E5X50头类型
-    public static final int     E5_PRINT_COPY_NUM = 6;
-    public static final int     E5_HEAD_NUM = 5;        // 减锁等等操作按着5个头来计算，但是生成打印缓冲区的时候生成相当于6个头的数据
+// H.M.Wang 2024-4-18 在2024-4-17的修改中，复制方法按E6处理
+//    public static final int     E5_PRINT_COPY_NUM = 6;
+//    public static final int     E5_HEAD_NUM = 5;        // 减锁等等操作按着5个头来计算，但是生成打印缓冲区的时候生成相当于6个头的数据
+    public static final int     E5_PRINT_COPY_NUM = E6_PRINT_COPY_NUM;
+    public static final int     E5_HEAD_NUM = E6_HEAD_NUM;
+// End of H.M.Wang 2024-4-18 在2024-4-17的修改中，复制方法按E6处理
     public static final int     E5X48_MAX_COL_NUM_EACH_UNIT = 48 * 6;
     public static final int     E5X50_MAX_COL_NUM_EACH_UNIT = 50 * 6;
 // End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型

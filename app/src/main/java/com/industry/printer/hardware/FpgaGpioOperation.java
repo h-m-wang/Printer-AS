@@ -70,6 +70,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
     public static final int FPGA_CMD_READ_HP22MM_REG_VALUE = 0x10;
 // End of H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+    public static final int FPGA_CMD_HP22MM_WRITE_BULK_TEST = 0x11;
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
 
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
@@ -234,13 +237,14 @@ public class FpgaGpioOperation {
             //close(fd);
             return -1;
         }
-
+// H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
-        if(type == FPGA_STATE_OUTPUT && mJustStartedPrint) {
-            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
-            mJustStartedPrint = false;
-        }
+//        if(type == FPGA_STATE_OUTPUT && mJustStartedPrint) {
+//            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
+//            mJustStartedPrint = false;
+//        }
 // End of H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
+// End of H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
 
         // close(fd);
         return wlen;
@@ -761,9 +765,11 @@ public class FpgaGpioOperation {
 // End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
     }
 
+// H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
-    private static boolean mJustStartedPrint = false;
+//    private static boolean mJustStartedPrint = false;
 // End of H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
+// End of H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
 
     /**
      * 启动打印时调用，用于初始化内核轮训线程
@@ -792,12 +798,15 @@ public class FpgaGpioOperation {
 //2024-3-25        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
         Debug.d(TAG, "FPGA_CMD_STARTPRINT");
         ioctl(fd, FPGA_CMD_STARTPRINT, 0);
+// H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
 //// H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
 //        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
 //// End of H.M.Wang 2021-12-14 将FPGA的状态设置转移到EXT-GPIO驱动里面，目的是避免这两个驱动（FPGA驱动和EXT-GPIO驱动）都操作PG管脚组，并且无法互斥，而产生互相干扰
-        mJustStartedPrint = true;
+//        mJustStartedPrint = true;
 // End of H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
+        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
+// End of H.M.Wang 2024-4-22 由于2024-3-25将打印顺序从先开始打印，后下发数据改为先下发数据，后开始打印，导致当前这个等待第一次下发数据时设置  FPGA_STATE_OUTPUT失效。因此这里需要修改回来
     }
 
     /**
@@ -984,4 +993,14 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2024-3-25 添加一个读取22mm寄存器值的功能
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+    public static int hp22mmBulkWriteTest() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "Bulk data writing test");
+            return ioctl(fd, FPGA_CMD_HP22MM_WRITE_BULK_TEST, 0);
+        }
+        return -1;
+    }
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
 }

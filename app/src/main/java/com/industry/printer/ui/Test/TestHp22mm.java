@@ -50,6 +50,9 @@ public class TestHp22mm implements ITestOperation {
     // H.M.Wang 2022-10-15 增加Hp22mm库的测试
     private String[] HP22MM_TEST_ITEMS = new String[] {
             "",
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+            "T0 -- Bulk Writing",
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
             "T1 -- Quick Start",
             "----------------------",
             "1 -- Init IDS",
@@ -122,27 +125,30 @@ public class TestHp22mm implements ITestOperation {
 
     private String[] mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
 
-    private final static int HP22MM_TEST_QUICK_START                    = 1;
-    private final static int HP22MM_TEST_NOTHING                        = 2;
-    private final static int HP22MM_TEST_INIT_IDS                       = 3;
-    private final static int HP22MM_TEST_INIT_PD                        = 4;
-    private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 5;
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+    private final static int HP22MM_TEST_BULK_WRITE                    = 1;
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+    private final static int HP22MM_TEST_QUICK_START                    = 2;
+    private final static int HP22MM_TEST_NOTHING                        = 3;
+    private final static int HP22MM_TEST_INIT_IDS                       = 4;
+    private final static int HP22MM_TEST_INIT_PD                        = 5;
+    private final static int HP22MM_TEST_IDS_GET_SUPPLY_STATUS          = 6;
     //    private final static int HP22MM_TEST_IDS_GET_SUPPLY_INFO              = 8;
 //    private final static int HP22MM_TEST_IDS_GET_SUPPLY_ID              = 8;
-    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD_STATUS       = 6;
-    private final static int HP22MM_TEST_PD_SC_GET_STATUS               = 7;
-    private final static int HP22MM_TEST_PD_SC_GET_INFO                 = 8;
-    private final static int HP22MM_TEST_PAIRING                        = 9;
-    private final static int HP22MM_TEST_PRESSURIZE                     = 10;
-    private final static int HP22MM_TEST_DEPRESSURIZE                   = 11;
-    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 12;
-    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 13;
-    private final static int HP22MM_TEST_IDS_SET_DATE                   = 14;
-    private final static int HP22MM_TEST_PD_SET_DATE                    = 15;
-    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 16;
+    private final static int HP22MM_TEST_PD_GET_PRINT_HEAD_STATUS       = 7;
+    private final static int HP22MM_TEST_PD_SC_GET_STATUS               = 8;
+    private final static int HP22MM_TEST_PD_SC_GET_INFO                 = 9;
+    private final static int HP22MM_TEST_PAIRING                        = 10;
+    private final static int HP22MM_TEST_PRESSURIZE                     = 11;
+    private final static int HP22MM_TEST_DEPRESSURIZE                   = 12;
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 13;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 14;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 15;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 16;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 17;
 //    private final static int HP22MM_TEST_START_PRINT                    = 17;
 //    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
-    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 17;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 18;
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
 //    private final static int HP22MM_TEST_SPI_TEST                       = 20;
 // End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
@@ -150,11 +156,11 @@ public class TestHp22mm implements ITestOperation {
 //    private final static int HP22MM_TEST_FIFO2DDR                       = 22;
 //    private final static int HP22MM_TEST_DDR2FIFO                       = 23;
 //    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 18;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 19;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 20;
-    private final static int HP22MM_TOGGLE_PI4                          = 21;
-    private final static int HP22MM_TOGGLE_PI5                          = 22;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 19;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 20;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 21;
+    private final static int HP22MM_TOGGLE_PI4                          = 22;
+    private final static int HP22MM_TOGGLE_PI5                          = 23;
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -325,6 +331,15 @@ public class TestHp22mm implements ITestOperation {
                     mHandler.sendMessage(msg);
 
                     switch (index) {
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+                        case HP22MM_TEST_BULK_WRITE:
+                            if (0 == Hp22mm.hp22mmBulkWriteTest()) {
+                                mHp22mmTestResult[index] = "Success\n";
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\n";
+                            }
+                            break;
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
                         case HP22MM_TEST_QUICK_START:
                             if (0 != Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();

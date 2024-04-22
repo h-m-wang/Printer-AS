@@ -98,56 +98,56 @@ public class Hp22mm {
     public static int initHp22mm() {
         if (0 != init_ids(IDS_INDEX)) {
             Debug.d(TAG, "init_ids failed\n");
-            return -1;
+//            return -1;
         } else {
             Debug.d(TAG, "init_ids succeeded\n");
         }
 
         if (0 != init_pd(PEN_INDEX)) {
             Debug.d(TAG, "init_pd failed\n");
-            return -2;
+//            return -2;
         } else {
             Debug.d(TAG, "init_pd succeeded\n");
         }
 
         if (0 != ids_get_supply_status()) {
             Debug.d(TAG, "ids_get_supply_status failed\n");
-            return -3;
+//            return -3;
         } else {
             Debug.d(TAG, "ids_get_supply_status succeeded\n");
         }
 
         if (0 != pd_get_print_head_status()) {
             Debug.d(TAG, "pd_get_print_head_status failed\n");
-            return -4;
+//            return -4;
         } else {
             Debug.d(TAG, "pd_get_print_head_status succeeded\n");
         }
 
         if (0 != DeletePairing()) {
             Debug.d(TAG, "DeletePairing failed\n");
-            return -5;
+//            return -5;
         } else {
             Debug.d(TAG, "DeletePairing succeeded\n");
         }
 
         if (0 != DoPairing()) {
             Debug.d(TAG, "DoPairing failed\n");
-            return -6;
+//            return -6;
         } else {
             Debug.d(TAG, "DoPairing succeeded\n");
         }
 
         if (0 != DoOverrides()) {
             Debug.d(TAG, "DoOverrides failed\n");
-            return -7;
+//            return -7;
         } else {
             Debug.d(TAG, "DoOverrides succeeded\n");
         }
 
         if (0 != Pressurize()) {
             Debug.d(TAG, "Pressurize failed\n");
-            return -8;
+//            return -8;
         } else {
             Debug.d(TAG, "Pressurize succeeded\n");
         }
@@ -243,4 +243,10 @@ public class Hp22mm {
     public static int stopPrint() {
         return _stopPrint();
     }
+
+// H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+    public static int hp22mmBulkWriteTest() {
+        return FpgaGpioOperation.hp22mmBulkWriteTest();
+    }
+// End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
 }

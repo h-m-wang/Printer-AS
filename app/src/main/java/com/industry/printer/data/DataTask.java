@@ -464,11 +464,32 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2021-4-23 增加根据DPI对列数进行调整
 			maxColNumPerUnit *= Configs.GetDpiVersion();
 // End of H.M.Wang 2021-4-23 增加根据DPI对列数进行调整
+// H.M.Wang 2024-4-17 借用E5X48和E5X50类型，实现新的打印数据构建方法，原有的方法废止。新的类型内容为：
+// 1. 前部加20列竖线
+// 2. 整体后移15mm（相当于15*6=90列）
+// 3. 整体后部相应地切除15mm（相当于15*6=90列）
+// 4. 复制方法按着E6+特殊处理的方法做（2024-4-18追加）
+			char[] fulfill = new char[orgCharsOfHead];
+			Arrays.fill(fulfill, (char)0xFFFF);
+			for(int i=0; i<20; i++) {
+//				for(int j=0; j<PrinterNozzle.E5_HEAD_NUM+1; j++) {  // 生成打印缓冲区的时候，按着6个头的空间生成
+				for(int j=0; j<PrinterNozzle.E5_HEAD_NUM; j++) {    // 2024-4-18 E5按6个头生成
+					caBuf.append(fulfill, 0, orgCharsOfHead);
+				}
+			}
+			for(int i=0; i<90; i++) {
+//				for(int j=0; j<PrinterNozzle.E5_HEAD_NUM+1; j++) {  // 生成打印缓冲区的时候，按着6个头的空间生成
+				for(int j=0; j<PrinterNozzle.E5_HEAD_NUM; j++) {    // 2024-4-18 E5按6个头生成
+					caBuf.append(empty, 0, orgCharsOfHead);
+				}
+			}
+// End of H.M.Wang 2024-4-17 借用E5X48和E5X50类型，实现新的打印数据构建方法，原有的方法废止。新的类型内容为：
 
 			for(int i=0; i<PrinterNozzle.E5_PRINT_COPY_NUM; i++) {
 				for(int k=0; k<maxColNumPerUnit; k++) {
 // H.M.Wang 2021-8-27 E5头在减锁的时候按着5个头计算，但是生成打印缓冲区的时候按6个头生成
-					for(int j=0; j<PrinterNozzle.E5_HEAD_NUM+1; j++) {  // 生成打印缓冲区的时候，按着6个头的空间生成
+//					for(int j=0; j<PrinterNozzle.E5_HEAD_NUM+1; j++) {  // 生成打印缓冲区的时候，按着6个头的空间生成
+					for(int j=0; j<PrinterNozzle.E5_HEAD_NUM; j++) {    // 2024-4-18 E5按6个头生成
 // End of H.M.Wang 2021-8-27 E5头在减锁的时候按着5个头计算，但是生成打印缓冲区的时候按6个头生成
 						if(k >= orgCols) {	// 原始块中宽度不足部分
 							if(i < PrinterNozzle.E5_PRINT_COPY_NUM - 1) {    // 原始块中宽度不足部分
