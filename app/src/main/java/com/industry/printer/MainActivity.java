@@ -298,15 +298,16 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		new Thread() {
 			@Override
 			public void run() {
+// H.M.Wang 2024-5-6 增加开机拉低PE4和PE5
+				ExtGpio.writeGpioTestPin('E', 4, 0);
+				ExtGpio.writeGpioTestPin('E', 5, 0);
+// End of H.M.Wang 2024-5-6 增加开机拉低PE4和PE5
 				ExtGpio.playClick();
 				try{
 					Thread.sleep(500);
 				} catch (Exception e) {
 				}
 				ExtGpio.playClick();
-
-//				ExtGpio.writeGpioTestPin('I', 7, 1);
-//				ExtGpio.writeGpioTestPin('I', 9, 1);
 			}
 		}.start();
 	}

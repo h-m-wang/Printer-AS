@@ -10,15 +10,11 @@ extern "C"
 {
 #endif
 
-#define PAI 3.14159265358979
 #define RED(a) (((a) >> 16) & 0x000000ff)
 #define GREEN(a) (((a) >> 8) & 0x000000ff)
 #define BLUE(a) (((a) >> 0) & 0x000000ff)
-#define ALPHA(a) (((a) >> 24) & 0x000000ff)
-#define ARGB(a, r, g, b) (((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
-#define ABS(a) ((a) > 0 ? (a) : -(a))
 
 static jint *DOTS = new jint[8];
 
@@ -208,56 +204,10 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
             headIndex %= heads;
         }
 
-        if( (srcBuf[i] & 0x0001) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0002) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0004) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0008) != 0x0000) {
-            dots[headIndex]++;
-        }
-
-        if( (srcBuf[i] & 0x0010) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0020) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0040) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0080) != 0x0000) {
-            dots[headIndex]++;
-        }
-
-        if( (srcBuf[i] & 0x0100) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0200) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0400) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x0800) != 0x0000) {
-            dots[headIndex]++;
-        }
-
-        if( (srcBuf[i] & 0x1000) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x2000) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x4000) != 0x0000) {
-            dots[headIndex]++;
-        }
-        if( (srcBuf[i] & 0x8000) != 0x0000) {
-            dots[headIndex]++;
+        for(int j=0; j<16; j++) {
+            if( (srcBuf[i] & (0x0001 << j)) != 0x0000) {
+                dots[headIndex]++;
+            }
         }
     }
 

@@ -73,8 +73,11 @@ public enum PrinterNozzle {
     MESSAGE_TYPE_48_DOT(MessageType.NOZZLE_INDEX_48_DOT, NozzleType.NOZZLE_TYPE_48_DOT, 1, 1),
 // End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
-    MESSAGE_TYPE_22MM(MessageType.NOZZLE_INDEX_22MM, NozzleType.NOZZLE_TYPE_22MM, 1, 1);
+    MESSAGE_TYPE_22MM(MessageType.NOZZLE_INDEX_22MM, NozzleType.NOZZLE_TYPE_22MM, 1, 1),
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型，特点是不允许平移，不允许镜像，不允许反转，只允许旋转，旋转按着标准方法整体旋转
+    MESSAGE_TYPE_64DOTONE(MessageType.NOZZLE_INDEX_64DOTONE, NozzleType.NOZZLE_TYPE_64DOTONE, 1, 1);
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型，特点是不允许平移，不允许镜像，不允许反转，只允许旋转，旋转按着标准方法整体旋转
 
     public final int mIndex;
     public final int mType;
@@ -150,6 +153,14 @@ public enum PrinterNozzle {
                 rotateAble = true;
                 break;
 // End of H.M.Wang 2022-9-1 因为64SN的变形处理是假借有4个头来在正式处理流程里面做的，因此，  mirrorEnable和   reverseEnable也都必须有效，否则不会被处理
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+                reverseEnable = false;
+                shiftEnable = false;
+                mirrorEnable = false;
+                rotateAble = true;
+                break;
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2023-7-29 追加48点头
             case NozzleType.NOZZLE_TYPE_48_DOT:
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -208,6 +219,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 editZoomable = false;
                 buffer8Enable = true;
                 factorScale = 1;
@@ -285,6 +299,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 mHeight = 64;
                 break;
             case NozzleType.NOZZLE_TYPE_1_INCH:
@@ -463,6 +480,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 scaleW = 64f/152;
                 scaleH = 64f/152;
                 break;
@@ -572,6 +592,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 ratio = 64f / 304;
                 break;
             case NozzleType.NOZZLE_TYPE_9MM:
@@ -789,6 +812,10 @@ public enum PrinterNozzle {
             case MessageType.NOZZLE_INDEX_22MM:
                 return MESSAGE_TYPE_22MM;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case MessageType.NOZZLE_INDEX_64DOTONE:
+                return MESSAGE_TYPE_64DOTONE;
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
             default:
                 return MESSAGE_TYPE_12_7;
 
@@ -883,6 +910,10 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_22MM:
                 return MESSAGE_TYPE_22MM;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+                return MESSAGE_TYPE_64DOTONE;
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
             default:
                 return MESSAGE_TYPE_12_7;
         }
@@ -952,6 +983,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
         public static final int NOZZLE_INDEX_22MM = 27;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+        public static final int NOZZLE_INDEX_64DOTONE = 28;
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
     }
 
     public static class NozzleType {
@@ -1012,5 +1046,8 @@ public enum PrinterNozzle {
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
         public static final int NOZZLE_TYPE_22MM = 46;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+        public static final int NOZZLE_TYPE_64DOTONE = 47;
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
     }
 }

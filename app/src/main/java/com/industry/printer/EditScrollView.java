@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 
+@Deprecated
 public class EditScrollView extends View {
 	
 	public static final String TAG="EditScrollView";
@@ -104,6 +105,9 @@ public class EditScrollView extends View {
 // H.M.Wang 2022-10-19 追加64SLANT头
 				case MESSAGE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+				case MESSAGE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2023-7-29 追加48点头
 				case MESSAGE_TYPE_48_DOT:
 // End of H.M.Wang 2023-7-29 追加48点头

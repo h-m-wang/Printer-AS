@@ -371,6 +371,9 @@ public class BaseObject{
 // H.M.Wang 2022-10-19 追加64SLANT头。
 			type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2022-5-27 追加32x2头类型
 			type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -472,6 +475,9 @@ public class BaseObject{
 // H.M.Wang 2022-10-19 追加64SLANT头。
 			head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2021-8-16 追加96DN头
 //			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
@@ -578,6 +584,9 @@ public class BaseObject{
 // H.M.Wang 2022-10-19 追加64SLANT头。
 			head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2021-8-16 追加96DN头
 //			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
@@ -894,14 +903,20 @@ public class BaseObject{
 // H.M.Wang 2020-4-15 追加"5x5"字体
 			if (MessageObject.mDotSizes[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 16;
-			} else if (MessageObject.mDotSizes[1].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDotSizes[1].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDotSizes[1].equalsIgnoreCase(dspH) || MessageObject.mDotSizes[2].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 8 / 16;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
-            } else if (MessageObject.mDotSizes[2].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDotSizes[2].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDotSizes[3].equalsIgnoreCase(dspH) || MessageObject.mDotSizes[4].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
                 mHeight = 152f * 10 / 16;
-            } else if (MessageObject.mDotSizes[3].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDotSizes[5].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 12 / 16;
-            } else if (MessageObject.mDotSizes[4].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDotSizes[6].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 14 / 16;
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			} else {
@@ -918,29 +933,42 @@ public class BaseObject{
 			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_32_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 32;
-			} else if (MessageObject.mDot_32_Size[1].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_32_Size[1].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_32_Size[1].equalsIgnoreCase(dspH) || MessageObject.mDot_32_Size[2].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 8 / 32;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 //			} else if (MessageObject.mDot_32_Size[1].equalsIgnoreCase(dspH)) {
-            } else if (MessageObject.mDot_32_Size[2].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//            } else if (MessageObject.mDot_32_Size[2].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_32_Size[3].equalsIgnoreCase(dspH) || MessageObject.mDot_32_Size[4].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
                 mHeight = 152f * 10 / 32;
-            } else if (MessageObject.mDot_32_Size[3].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDot_32_Size[5].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 12 / 32;
-            } else if (MessageObject.mDot_32_Size[4].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDot_32_Size[6].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 14 / 32;
-            } else if (MessageObject.mDot_32_Size[5].equalsIgnoreCase(dspH) ||
-						MessageObject.mDot_32_Size[6].equalsIgnoreCase(dspH) ||
-						MessageObject.mDot_32_Size[7].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+            } else if (MessageObject.mDot_32_Size[7].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_32_Size[8].equalsIgnoreCase(dspH) ||
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_32_Size[11].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_32_Size[12].equalsIgnoreCase(dspH) ||
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_32_Size[9].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_32_Size[10].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 16 / 32;
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (MessageObject.mDot_32_Size[8].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_32_Size[13].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 19 / 32;
-			} else if (MessageObject.mDot_32_Size[9].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_32_Size[14].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 21 / 32;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 // 2022-11-12 增加24字高
-			} else if (MessageObject.mDot_32_Size[10].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_32_Size[15].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 24 / 32;
 // End of 2022-11-12 增加24字高
 			} else {
@@ -951,35 +979,48 @@ public class BaseObject{
 			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_48_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 48;
-			} else if (MessageObject.mDot_48_Size[1].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_48_Size[1].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[1].equalsIgnoreCase(dspH) || MessageObject.mDot_48_Size[2].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 8 / 48;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
-			} else if (MessageObject.mDot_48_Size[2].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_48_Size[2].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[3].equalsIgnoreCase(dspH) || MessageObject.mDot_48_Size[4].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 10 / 48;
-			} else if (MessageObject.mDot_48_Size[3].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[5].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 12 / 48;
-			} else if (MessageObject.mDot_48_Size[4].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[6].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 14 / 48;
-			} else if (MessageObject.mDot_48_Size[5].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_48_Size[6].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_48_Size[7].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+			} else if (MessageObject.mDot_48_Size[7].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_48_Size[8].equalsIgnoreCase(dspH) ||
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_48_Size[11].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_48_Size[12].equalsIgnoreCase(dspH) ||
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_48_Size[9].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_48_Size[10].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 16 / 48;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (MessageObject.mDot_48_Size[8].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[13].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 19 / 48;
-			} else if (MessageObject.mDot_48_Size[9].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[14].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 21 / 48;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (MessageObject.mDot_48_Size[10].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[15].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 24 / 48;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
-			} else if (MessageObject.mDot_48_Size[11].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[16].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 32 / 48;
-			} else if (MessageObject.mDot_48_Size[12].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_48_Size[17].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 48 / 48;
 			}
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -992,39 +1033,55 @@ public class BaseObject{
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN) {
 // H.M.Wang 2022-10-19 追加64SLANT头。
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+//		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // End of H.M.Wang 2020-8-26 追加64SN打印头
 			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_64_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 64;
-			} else if (MessageObject.mDot_64_Size[1].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_64_Size[1].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[1].equalsIgnoreCase(dspH) || MessageObject.mDot_64_Size[2].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 8 / 64;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
-            } else if (MessageObject.mDot_64_Size[2].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//            } else if (MessageObject.mDot_64_Size[2].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[3].equalsIgnoreCase(dspH) || MessageObject.mDot_64_Size[4].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
                 mHeight = 152f * 10 / 64;
-            } else if (MessageObject.mDot_64_Size[3].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDot_64_Size[5].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 12 / 64;
-            } else if (MessageObject.mDot_64_Size[4].equalsIgnoreCase(dspH)) {
+            } else if (MessageObject.mDot_64_Size[6].equalsIgnoreCase(dspH)) {
                 mHeight = 152f * 14 / 64;
-			} else if (MessageObject.mDot_64_Size[5].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_64_Size[6].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_64_Size[7].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+			} else if (MessageObject.mDot_64_Size[7].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_64_Size[8].equalsIgnoreCase(dspH) ||
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_64_Size[11].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_64_Size[12].equalsIgnoreCase(dspH) ||
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_64_Size[9].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_64_Size[10].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 16 / 64;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (MessageObject.mDot_64_Size[8].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[13].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 19 / 64;
-			} else if (MessageObject.mDot_64_Size[9].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[14].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 21 / 64;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (MessageObject.mDot_64_Size[10].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[15].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 24 / 64;
 // H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
-			} else if (MessageObject.mDot_64_Size[11].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_64_Size[16].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 32 / 64;
 			} else {
@@ -1036,27 +1093,40 @@ public class BaseObject{
 			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_96_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 96;
-			} else if (MessageObject.mDot_96_Size[1].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_96_Size[1].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[1].equalsIgnoreCase(dspH) || MessageObject.mDot_96_Size[2].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 8 / 96;
-			} else if (MessageObject.mDot_96_Size[2].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+//			} else if (MessageObject.mDot_96_Size[2].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[3].equalsIgnoreCase(dspH) || MessageObject.mDot_96_Size[4].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 10 / 96;
-			} else if (MessageObject.mDot_96_Size[3].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[5].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 12 / 96;
-			} else if (MessageObject.mDot_96_Size[4].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[6].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 14 / 96;
-			} else if (MessageObject.mDot_96_Size[5].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_96_Size[6].equalsIgnoreCase(dspH) ||
-					MessageObject.mDot_96_Size[7].equalsIgnoreCase(dspH)) {
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+			} else if (MessageObject.mDot_96_Size[7].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_96_Size[8].equalsIgnoreCase(dspH) ||
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_96_Size[11].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_96_Size[12].equalsIgnoreCase(dspH) ||
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+					MessageObject.mDot_96_Size[9].equalsIgnoreCase(dspH) ||
+					MessageObject.mDot_96_Size[10].equalsIgnoreCase(dspH)) {
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				mHeight = 152f * 16 / 96;
-			} else if (MessageObject.mDot_96_Size[8].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[13].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 19 / 96;
-			} else if (MessageObject.mDot_96_Size[9].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[14].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 21 / 96;
-			} else if (MessageObject.mDot_96_Size[10].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[15].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 24 / 96;
-			} else if (MessageObject.mDot_96_Size[11].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[16].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 32 / 96;
-			} else if (MessageObject.mDot_96_Size[12].equalsIgnoreCase(dspH)) {
+			} else if (MessageObject.mDot_96_Size[17].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 64 / 96;
 			} else {
 				mHeight = 152f * 96 / 96;
@@ -1093,31 +1163,28 @@ public class BaseObject{
 		Debug.d(TAG, "--->getDisplayHeight: " + mHeight);
 //		return mTask.getMsgObject().getDisplayFs(mHeight);
 		String dispString =  mTask.getMsgObject().getDisplayFs(mHeight);
-// H.M.Wang 2020-4-15 追加"5x5"字体
-// H.M.Wang 2021-8-16 追加96DN头
-//		if(dispString.startsWith(MessageObject.mDotSizes[5]) || dispString.startsWith(MessageObject.mDot_32_Size[5]) || dispString.startsWith(MessageObject.mDot_64_Size[5])) {
-		if(dispString.startsWith(MessageObject.mDotSizes[5]) ||
-			dispString.startsWith(MessageObject.mDot_32_Size[5]) ||
-// H.M.Wang 2023-7-29 追加48点头
-			dispString.startsWith(MessageObject.mDot_48_Size[5]) ||
-// End of H.M.Wang 2023-7-29 追加48点头
-			dispString.startsWith(MessageObject.mDot_64_Size[5]) ||
-			dispString.startsWith(MessageObject.mDot_96_Size[5])) {
-// End of H.M.Wang 2021-8-16 追加96DN头
-// End of H.M.Wang 2020-4-15 追加"5x5"字体
-			String[] dispStrings = dispString.split(",");
-			if(null != dispStrings) {
-				if(mFont.equals("7")) {
-					dispString = dispStrings.length > 0 ? dispStrings[0] : "16x12";
-				} else if(mFont.equals("7L")) {
-					dispString = dispStrings.length > 1 ? dispStrings[1] : "16x12";
-				} else if(mFont.equals("7R")) {
-					dispString = dispStrings.length > 2 ? dispStrings[2] : "16x12";
-				} else {
-					dispString = "16x12";
-				}
-			} else {
-				dispString = "16x12";
+
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+		if(dispString.startsWith("7x6") && mFont.equals("4B")) {
+			dispString = "7x6B";
+		}
+		if(dispString.startsWith("10x8") && mFont.equals("10B")) {
+			dispString = "10x8B";
+		}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+		if(dispString.startsWith("16x12")) {
+			if(mFont.equals("7B")) {
+				dispString = "16x12B";
+			} else if(mFont.equals("7L")) {
+				dispString = "16@L";
+			} else if(mFont.equals("7R")) {
+				dispString = "16@R";
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+			} else if(mFont.equals("7LB")) {
+				dispString = "16@LB";
+			} else if(mFont.equals("7RB")) {
+				dispString = "16@RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 			}
 		}
 		return dispString;
@@ -1162,6 +1229,9 @@ public class BaseObject{
 	
 	public void setY(float y)
 	{
+// H.M.Wang 2024-4-30 禁止上下越界
+		if(y < 0 || y+mHeight >= Configs.gDots) return;
+// End of H.M.Wang 2024-4-30 禁止上下越界
 		mYcor = y;
 		mYcor_end = mYcor + mHeight;
 		Debug.d(TAG, "--->height=" + mHeight + "   yEnd= " + mYcor_end);
@@ -1210,7 +1280,6 @@ public class BaseObject{
 		if(mContent!=null && mContent.equals(content))
 			return;
 		mContent = content;
-		Debug.d(TAG, ByteArrayUtils.toHexString(mContent.getBytes()));
 		/*mPaint.setTextSize(getfeed());
 		mWidth = mPaint.measureText(mContent);
 		mXcor_end = mXcor + mWidth;
@@ -1523,10 +1592,20 @@ public class BaseObject{
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 16 + 1) {			// 76
 				font = "4";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("4B")) {
+					font = "4B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
 //			} else {
             } else if(mHeight <= 152f * 10 / 16 + 1){			// 95
                 font = "10";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("10B")) {
+					font = "10B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
             } else if(mHeight <= 152f * 12 / 16 + 1){			// 114
                 font = "12";
             } else if(mHeight <= 152f * 14 / 16 + 1){			// 133
@@ -1536,6 +1615,16 @@ public class BaseObject{
 					font = "7L";
 				} else if (mFont.equals("7R")) {
 					font = "7R";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				} else if (mFont.equals("7B")) {
+					font = "7B";
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+				} else if (mFont.equals("7LB")) {
+					font = "7LB";
+				} else if (mFont.equals("7RB")) {
+					font = "7RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 				} else {
 					font = "7";
 				}
@@ -1554,9 +1643,19 @@ public class BaseObject{
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 32 + 1) {			// 38
 				font = "4";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("4B")) {
+					font = "4B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
             } else if(mHeight <= 152f * 10 / 32 + 1){			// 47.5
                 font = "10";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("10B")) {
+					font = "10B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
             } else if(mHeight <= 152f * 12 / 32 + 1){			// 57
                 font = "12";
             } else if(mHeight <= 152f * 14 / 32 + 1){			// 66.5
@@ -1566,6 +1665,16 @@ public class BaseObject{
 					font = "7L";
 				} else if (mFont.equals("7R")) {
 					font = "7R";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				} else if (mFont.equals("7B")) {
+					font = "7B";
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+				} else if (mFont.equals("7LB")) {
+					font = "7LB";
+				} else if (mFont.equals("7RB")) {
+					font = "7RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 				} else {
 					font = "7";
 				}
@@ -1591,9 +1700,19 @@ public class BaseObject{
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 48 + 1) {
 				font = "4";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("4B")) {
+					font = "4B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
 			} else if(mHeight <= 152f * 10 / 48 + 1){
 				font = "10";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("10B")) {
+					font = "10B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 			} else if(mHeight <= 152f * 12 / 48 + 1){
 				font = "12";
 			} else if(mHeight <= 152f * 14 / 48 + 1){
@@ -1603,6 +1722,16 @@ public class BaseObject{
 					font = "7L";
 				} else if (mFont.equals("7R")) {
 					font = "7R";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				} else if (mFont.equals("7B")) {
+					font = "7B";
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+				} else if (mFont.equals("7LB")) {
+					font = "7LB";
+				} else if (mFont.equals("7RB")) {
+					font = "7RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 				} else {
 					font = "7";
 				}
@@ -1631,7 +1760,10 @@ public class BaseObject{
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN) {
 // H.M.Wang 2022-10-19 追加64SLANT头。
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+//		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // End of H.M.Wang 2020-8-26 追加64SN打印头
@@ -1639,9 +1771,19 @@ public class BaseObject{
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 64 + 1) {			// 19
 				font = "4";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("4B")) {
+					font = "4B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 // H.M.Wang 2020-1-30 追加"10x8", "12x9", "14x10"字体
             } else if(mHeight <= 152f * 10 / 64 + 1){			// 23.75
                 font = "10";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("10B")) {
+					font = "10B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
             } else if(mHeight <= 152f * 12 / 64 + 1){			// 28.5
                 font = "12";
             } else if(mHeight <= 152f * 14 / 64 + 1){			// 33.25
@@ -1651,6 +1793,16 @@ public class BaseObject{
 					font = "7L";
 				} else if (mFont.equals("7R")) {
 					font = "7R";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				} else if (mFont.equals("7B")) {
+					font = "7B";
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+				} else if (mFont.equals("7LB")) {
+					font = "7LB";
+				} else if (mFont.equals("7RB")) {
+					font = "7RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 				} else {
 					font = "7";
 				}
@@ -1676,8 +1828,18 @@ public class BaseObject{
 				font = "5x5";
 			} else if (mHeight <= 152f * 8 / 96 + 1) {
 				font = "4";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("4B")) {
+					font = "4B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 			} else if(mHeight <= 152f * 10 / 96 + 1){
 				font = "10";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				if(mFont.equals("10B")) {
+					font = "10B";
+				}
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 			} else if(mHeight <= 152f * 12 / 96 + 1){
 				font = "12";
 			} else if(mHeight <= 152f * 14 / 96 + 1){
@@ -1687,6 +1849,16 @@ public class BaseObject{
 					font = "7L";
 				} else if (mFont.equals("7R")) {
 					font = "7R";
+// H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+				} else if (mFont.equals("7B")) {
+					font = "7B";
+// End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+				} else if (mFont.equals("7LB")) {
+					font = "7LB";
+				} else if (mFont.equals("7RB")) {
+					font = "7RB";
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 				} else {
 					font = "7";
 				}
@@ -1716,26 +1888,29 @@ public class BaseObject{
 	 * @return
 	 */
 	public boolean fixedFont() {
-		PrinterNozzle type = mTask.getNozzle();
-		boolean isFixed = false;
-		if (type == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
-			isFixed = true;
+		if (mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
+			return true;
 		}
 
-		if (isFixed) {
-			return isFixed;
-		}
 		String  height = getDisplayHeight();
 		if (MessageObject.mDotSizes[0].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[1].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[2].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[3].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[4].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[5].equalsIgnoreCase(height) ||
-				MessageObject.mDotSizes[6].equalsIgnoreCase(height)) {
-			isFixed = true;
+			MessageObject.mDotSizes[1].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[2].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[3].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[4].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[5].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[6].equalsIgnoreCase(height) ||
+// H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+			MessageObject.mDotSizes[7].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[8].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[9].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[10].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[11].equalsIgnoreCase(height) ||
+			MessageObject.mDotSizes[12].equalsIgnoreCase(height)) {
+// End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
+			return true;
 		}
-		return isFixed;
+		return false;
 	}
 
 	/**
@@ -1769,6 +1944,11 @@ public class BaseObject{
 // H.M.Wang 2022-10-19 追加64SLANT头。
 			type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+			type == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+			type == PrinterNozzle.MESSAGE_TYPE_96DN ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			type == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // End of H.M.Wang 2020-7-23 追加32DN打印头
 			return false;

@@ -127,6 +127,9 @@
         <!-- H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
         <item>hp22mm</item>
         <!-- End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
+        <!-- H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
+        <item>64 Dot One</item>
+        <!-- End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
     </string-array>
 
     <string-array name="strFontArray">

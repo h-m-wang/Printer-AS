@@ -364,17 +364,13 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 						mEditLayout.setBackgroundResource(R.drawable.background_2);
 						break;
 					case MESSAGE_TYPE_38_1:
-
 					// H.M.Wang 追加下列一行
 					case MESSAGE_TYPE_1_INCH_TRIPLE:
-
 						mEditLayout.setBackgroundResource(R.drawable.background_3);
 						break;
 					case MESSAGE_TYPE_50_8:
-
 					// H.M.Wang 追加下列一行
 					case MESSAGE_TYPE_1_INCH_FOUR:
-
 						mEditLayout.setBackgroundResource(R.drawable.background_4);
 						break;
 					case MESSAGE_TYPE_16_DOT:
@@ -396,6 +392,9 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 // H.M.Wang 2022-10-19 追加64SLANT头
 					case MESSAGE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+					case MESSAGE_TYPE_64DOTONE:
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 					case MESSAGE_TYPE_9MM:
 // H.M.Wang 2021-3-6 追加E6X48,E6X50头
 					case MESSAGE_TYPE_E6X48:

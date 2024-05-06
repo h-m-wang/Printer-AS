@@ -51,6 +51,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 
+@Deprecated
 public class EditMultiTabActivity extends Fragment implements OnClickListener, OnTouchListener {
 	public static final String TAG="EditMultiTabActivity";
 	

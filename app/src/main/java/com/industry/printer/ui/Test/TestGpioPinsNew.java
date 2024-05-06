@@ -88,6 +88,9 @@ public class TestGpioPinsNew implements ITestOperation {
     private TextView mResTime = null;
     private TextView mResEth = null;
     private TextView mResSerial = null;
+// H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+    private TextView mProgressMsg = null;
+// End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
 
     private Thread mInPinsThread = null;
     private boolean mRunning = false;
@@ -101,6 +104,10 @@ public class TestGpioPinsNew implements ITestOperation {
     private final int MSG_DISP_IN_PINS = 107;
     private final int MSG_DISP_TEST_RESULT = 108;
     private final int MSG_TEST_RESULT_ERROR = 109;
+// H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+    private final int MSG_SHOW_FPGA_UPGRADING_PROGRESS = 119;
+    private final int MSG_HIDE_FPGA_UPGRADING_PROGRESS = 120;
+// End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
 
     private final int TEST_SEC_IMPORT = 0;
     private final int TEST_SEC_WRITE_FPGA = 1;
@@ -152,6 +159,16 @@ public class TestGpioPinsNew implements ITestOperation {
                     }
                     if(msg.arg2 == Color.RED) ExtGpio.playClick();
                     break;
+                case MSG_SHOW_FPGA_UPGRADING_PROGRESS:
+                    mProgressMsg.setVisibility(View.VISIBLE);
+                    int prog = FpgaGpioOperation.getUpgradingProgress();
+                    mProgressMsg.setText("FPGA Upgrading: " + (prog/1000 + 1) + ", " + prog%1000 + "%");
+                    sendMessageDelayed(obtainMessage(MSG_SHOW_FPGA_UPGRADING_PROGRESS), 500);
+                    break;
+                case MSG_HIDE_FPGA_UPGRADING_PROGRESS:
+                    removeMessages(MSG_SHOW_FPGA_UPGRADING_PROGRESS);
+                    mProgressMsg.setVisibility(View.GONE);
+                    break;
             }
         }
     };
@@ -180,11 +197,13 @@ public class TestGpioPinsNew implements ITestOperation {
 
     private void testWriteFPGA() {
         ExtGpio.writeGpioTestPin('I', 7, 0);
+        mHandler.obtainMessage(MSG_SHOW_FPGA_UPGRADING_PROGRESS).sendToTarget();
         if (0 == FpgaGpioOperation.updateFlash()) {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.GREEN).sendToTarget();
         } else {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED).sendToTarget();
         }
+        mHandler.obtainMessage(MSG_HIDE_FPGA_UPGRADING_PROGRESS).sendToTarget();
         ExtGpio.writeGpioTestPin('I', 7, 1);
     }
 
@@ -407,6 +426,11 @@ public class TestGpioPinsNew implements ITestOperation {
         mResTime = (TextView) mTestAreaLL.findViewById(R.id.result_time);;
         mResEth = (TextView) mTestAreaLL.findViewById(R.id.result_eth);;
         mResSerial = (TextView) mTestAreaLL.findViewById(R.id.result_serial);;
+
+// H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+        mProgressMsg = (TextView) mTestAreaLL.findViewById(R.id.progressMsg);
+        mProgressMsg.setVisibility(View.GONE);
+// End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
 
         mInitTest = (TextView) mTestAreaLL.findViewById(R.id.init_test_btn);
         mInitTest.setOnClickListener(new View.OnClickListener() {

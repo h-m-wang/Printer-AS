@@ -697,9 +697,7 @@ public class SmartCardManager implements IInkDevice {
 //    private int mTempAddInkValue = 13800050;
 // End of H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
 
-    private void readLevelValue(int cardIdx) {
-        Debug.d(TAG, "---> enter readLevelValue(" + cardIdx + ")");
-
+    private int readLevelValue(int cardIdx) {
         long readLevels = 0L;
         int readCount = 0;
 
@@ -748,6 +746,13 @@ public class SmartCardManager implements IInkDevice {
         int avgLevel = (readCount == 0 ? 0 : (int)(readLevels / readCount));
         Debug.d(TAG, "Read Level = " + avgLevel);
 
+        return avgLevel;
+    }
+
+    private void updateLevelValue(int cardIdx) {
+        Debug.d(TAG, "---> enter updateLevelValue(" + cardIdx + ")");
+
+        int avgLevel = readLevelValue(cardIdx);
 // H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
 /*        mCards[cardIdx].mRecentLevels.add(mTempAddInkValue--);
         if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {
@@ -832,22 +837,31 @@ public class SmartCardManager implements IInkDevice {
                     if(null != mCallback) mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
 // End of H.M.Wang 2020-11-24 追加加墨10次失败后停止打印
                 } else {
-                    if(!mCards[cardIdx].mInkAdding) {
-//                        mTempAddInkValue = 13800050;
+// H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
+                    if(readLevelValue(cardIdx) < ADD_INK_THRESHOLD) {
+// End of H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
                         mCachedThreadPool.execute(new Runnable() {
                             @Override
                             public void run() {
                                 mCards[cardIdx].mInkAdding = true;
                                 addInkOn(cardIdx);
 
-                                try{Thread.sleep(100);addInkOff(cardIdx);}catch(Exception e){
+                                try {
+                                    Thread.sleep(100);
                                     addInkOff(cardIdx);
-                                };
+                                } catch (Exception e) {
+                                    addInkOff(cardIdx);
+                                }
+                                ;
 
                                 long startTiem = System.currentTimeMillis();
-                                while(true) {
-                                    try{Thread.sleep(100);}catch(Exception e){};
-                                    if(System.currentTimeMillis() - startTiem >= 11500) break;
+                                while (true) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (Exception e) {
+                                    }
+                                    ;
+                                    if (System.currentTimeMillis() - startTiem >= 11500) break;
                                 }
 
                                 Debug.d(TAG, "Clear Adding Block!");
@@ -872,7 +886,7 @@ public class SmartCardManager implements IInkDevice {
             @Override
             public void run() {
                 for(int i=0; i<mPenNum; i++) {
-                    readLevelValue(i);
+                    updateLevelValue(i);
                     levelValueUpdated(i);
                 }
                 mHandler.sendEmptyMessage(MSG_SHOW_LEVEL);

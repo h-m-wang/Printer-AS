@@ -73,6 +73,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
     public static final int FPGA_CMD_HP22MM_WRITE_BULK_TEST = 0x11;
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+// H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+    public static final int FPGA_CMD_UPGRADING_PROGRESS = 0x12;
+// End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
 
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
@@ -352,6 +355,9 @@ public class FpgaGpioOperation {
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2022-10-19 追加64SLANT头。
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2023-7-29 追加48点头
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -419,6 +425,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -444,6 +453,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2022-10-19 追加64SLANT头。
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -1006,4 +1018,15 @@ public class FpgaGpioOperation {
         return -1;
     }
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+
+// H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+    public static int getUpgradingProgress() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "Getting FPGA Upgrading Progress");
+            return ioctl(fd, FPGA_CMD_UPGRADING_PROGRESS, 0);
+        }
+        return -1;
+    }
+// End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
 }

@@ -317,6 +317,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-10-19 追加64SLANT头
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -625,6 +628,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-10-19 追加64SLANT头
 				head != PrinterNozzle.MESSAGE_TYPE_64SLANT &&
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+				head != PrinterNozzle.MESSAGE_TYPE_64DOTONE &&
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2022-5-27 追加32x2头类型
 				head != PrinterNozzle.MESSAGE_TYPE_32X2 &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -662,6 +668,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-10-19 追加64SLANT头
 			nozzle == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			nozzle == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
 // H.M.Wang 2023-7-29 追加48点头
@@ -821,7 +830,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN) {
 // H.M.Wang 2022-10-19 追加64SLANT头
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2) {
-		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+//		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT || headType == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2020-8-26 追加64SN打印头
@@ -879,6 +891,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-10-19 追加64SLANT头
 				(headType != PrinterNozzle.MESSAGE_TYPE_64SLANT) &&
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+				(headType != PrinterNozzle.MESSAGE_TYPE_64DOTONE) &&
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2022-5-27 追加32x2头类型
 				(headType != PrinterNozzle.MESSAGE_TYPE_32X2) &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -1529,6 +1544,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-10-19 追加64SLANT头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
 // End of H.M.Wang 2022-10-19 追加64SLANT头
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2022-5-27 追加32x2头类型
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
