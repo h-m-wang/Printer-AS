@@ -1212,8 +1212,11 @@ public class BaseObject{
 	
 	public void setX(float x)
 	{
+// H.M.Wang 2024-5-6 禁止左侧越界
+		if(x < 0) return;
+// End of H.M.Wang 2024-5-6 禁止左侧越界
 		mXcor=x;
-		mXcor_end = mXcor + mWidth; 
+		mXcor_end = mXcor + mWidth;
 		Debug.d(TAG, "===>setX Content = " + mContent + ", x= " + mXcor + ", mWidth=" + mWidth + ", xend=" + mXcor_end);
 	}
 	
