@@ -157,7 +157,7 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_64DOTONE:
                 reverseEnable = false;
                 shiftEnable = false;
-                mirrorEnable = false;
+                mirrorEnable = true;
                 rotateAble = true;
                 break;
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型

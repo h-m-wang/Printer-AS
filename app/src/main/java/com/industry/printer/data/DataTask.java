@@ -2111,7 +2111,7 @@ public char[] bitShiftFor64SN() {
 		int afterColumns = columns * Configs.CONST_EXPAND + (shift > 0 ? shift * (columnH - 1) : 0);
 		// buffer extend 8 times - a temperary buffer
 		char[] buffer_8 = new char[columns * Configs.CONST_EXPAND * charsPerColumn];
-		
+
 		// the  final extension and shift buffer
 		// mBuffer = new char[afterColumns * charsPerColumn];
 		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
