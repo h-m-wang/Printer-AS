@@ -2142,9 +2142,19 @@ public char[] bitShiftFor64SN() {
 		}
 		int realColumns = afterColumns;
 		for (int i = afterColumns - 1; i > 0; i--) {
-			if (shiftBuffer[charsPerColumn * i] != 0 || shiftBuffer[charsPerColumn *i + 1] != 0) {
-				break;
+// H.M.Wang 2024-5-7 优化切除后部空白的算法，原算法只检测前两个char是否为0，如果64点的话，实际每列是4个char，那么就会错误切掉上部虽然为0，但下部还有数据的部分，导致打印内容后部缺失
+			boolean dirty = false;
+			for(int j=0; j<charsPerColumn; j++) {
+				if(shiftBuffer[charsPerColumn * i+j] != 0) {
+					dirty = true;
+					break;
+				}
 			}
+			if(dirty) break;
+//			if (shiftBuffer[charsPerColumn * i] != 0 || shiftBuffer[charsPerColumn *i + 1] != 0) {
+//				break;
+//			}
+// End of H.M.Wang 2024-5-7 优化切除后部空白的算法，原算法只检测前两个char是否为0，如果64点的话，实际每列是4个char，那么就会错误切掉上部虽然为0，但下部还有数据的部分，导致打印内容后部缺失
 			realColumns--;
 		}
 		if (realColumns + 8 < afterColumns) {
