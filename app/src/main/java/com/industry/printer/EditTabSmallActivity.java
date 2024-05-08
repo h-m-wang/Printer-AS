@@ -1187,20 +1187,14 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 		BaseObject obj = getCurObj();
 		if(obj == null)
 			return;
-		if(obj instanceof RealtimeObject)
-		{
-			((RealtimeObject)obj).setY(obj.getY() - 4);
-// H.M.Wang 2020-2-17 追加HyperText控件
-		} else if(obj instanceof HyperTextObject) {
-			((HyperTextObject)obj).setY(obj.getY() - 4);
-// End of H.M.Wang 2020-2-17 追加HyperText控件
-// H.M.Wang 2020-6-10 追加DynamicText控件
-		} else if(obj instanceof DynamicText) {
-			((DynamicText)obj).setY(obj.getY() - 4);
-// End of H.M.Wang 2020-6-10 追加DynamicText控件
-		}
+
+// H.M.Wang 2024-4-30 禁止上下越界
+		if(obj.getY() - 4 < 0)
+			obj.setY(0);
 		else
 			obj.setY(obj.getY() - 4);
+// End of H.M.Wang 2024-4-30 禁止上下越界
+
 		if (obj instanceof MessageObject) {
 			cursorMove((MessageObject)obj);
 		}
@@ -1229,20 +1223,14 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 		BaseObject obj = getCurObj();
 		if(obj == null)
 			return;
-		if(obj instanceof RealtimeObject)
-		{
-			((RealtimeObject)obj).setY(obj.getY() + 4);
-// H.M.Wang 2020-2-17 追加HyperText控件
-		} else if(obj instanceof HyperTextObject) {
-			((HyperTextObject)obj).setY(obj.getY() + 4);
-// End of H.M.Wang 2020-2-17 追加HyperText控件
-// H.M.Wang 2020-6-10 追加DynamicText控件
-		} else if(obj instanceof DynamicText) {
-			((DynamicText)obj).setY(obj.getY() + 4);
-// End of H.M.Wang 2020-6-10 追加DynamicText控件
-		}
+
+// H.M.Wang 2024-4-30 禁止上下越界
+		if(obj.getY() + 4 + obj.getHeight() > Configs.gDots)
+			obj.setY(Configs.gDots - obj.getHeight());
 		else
 			obj.setY(obj.getY() + 4);
+// End of H.M.Wang 2024-4-30 禁止上下越界
+
 		if (obj instanceof MessageObject) {
 			cursorMove((MessageObject)obj);
 		}

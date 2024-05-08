@@ -1232,14 +1232,9 @@ public class BaseObject{
 	
 	public void setY(float y)
 	{
-// H.M.Wang 2024-4-30 禁止上下越界
-		if(y < 0) mYcor = 0;
-		else if(y > Configs.gDots - mHeight) mYcor = Configs.gDots - mHeight;
-		else mYcor = y;
-//		mYcor = y;
-// End of H.M.Wang 2024-4-30 禁止上下越界
+		mYcor = y;
 		mYcor_end = mYcor + mHeight;
-		Debug.d(TAG, "--->height=" + mHeight + "   yEnd= " + mYcor_end);
+		Debug.d(TAG, "--->y=" + y + "    height=" + mHeight + "   yEnd= " + mYcor_end);
 	}
 	
 	public float getY()
