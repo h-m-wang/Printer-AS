@@ -93,6 +93,9 @@ public class SerialProtocol7 extends SerialProtocol {
     public final static int CMD_START_PRINT_B         = 0x0018;       // B喷头喷印	0x0018
     public final static int CMD_STOP_PRINT_A          = 0x0019;       // A喷印完成	0x0019
     public final static int CMD_STOP_PRINT_B          = 0x0020;       // B喷印完成	0x0020
+// H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
+    public final static int CMD_START_PRINT_X         = 0x0021;       // 启动打印特定编号信息	0x0021
+// End of H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
 
     public final static int ERROR_INVALID_STX         = 0x81000000;   // 起始标识错误
     public final static int ERROR_INVALID_ETX         = 0x82000000;   // 终止标识错误
@@ -305,7 +308,9 @@ public class SerialProtocol7 extends SerialProtocol {
             case CMD_GET_REVERSE:                  // 读取喷头翻转喷印	0x0011
             case CMD_GET_USABLE_IDS:               // 获取当前文件中可用的ID	0x0012
             case CMD_SAVE_CURRENT_INFO:            // 保存当前信息	0x0014
-            case CMD_START_PRINT_A:                // A喷头喷印	0x0017
+// H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
+//            case CMD_START_PRINT_A:                // A喷头喷印	0x0017
+// End of H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
             case CMD_START_PRINT_B:                // B喷头喷印	0x0018
             case CMD_STOP_PRINT_A:                 // A喷印完成	0x0019
             case CMD_STOP_PRINT_B:                 // B喷印完成	0x0020
@@ -319,6 +324,10 @@ public class SerialProtocol7 extends SerialProtocol {
             case CMD_TEXT:                         // 发送一条文本	0x0013
             case CMD_START_PRINT:                  // 启动喷码机开始喷印	0x0015
             case CMD_STOP_PRINT:                   // 停机命令	0x0016
+// H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
+            case CMD_START_PRINT_A:                // A喷头喷印	0x0017
+            case CMD_START_PRINT_X:                // 启动打印特定编号信息	0x0021
+// End of H.M.Wang 2024-5-10 追加清洗和打印特定文件的命令
                 procCommands(cmd, data);
                 break;
             default:

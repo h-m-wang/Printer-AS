@@ -53,7 +53,9 @@ public class LibUpgrade {
             }
 
             String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
-            if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
+// H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
+//            if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
+// End of H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
                 FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(srcKoFile));
                 Debug.d(TAG, "/data/camera/" + ko + " written.");
                 Thread.sleep(100);
@@ -66,7 +68,7 @@ public class LibUpgrade {
                     return false;
                 }
                 ret = true;
-            }
+//            }
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
             e.printStackTrace();
