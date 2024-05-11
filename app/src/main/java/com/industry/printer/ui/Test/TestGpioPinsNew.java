@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.industry.printer.FileFormat.ImExPort;
@@ -77,8 +78,10 @@ public class TestGpioPinsNew implements ITestOperation {
     private TextView mGpioTestBtn = null;
 
     private TextView mInitTest = null;
-    private TextView mEtherTest = null;
-    private TextView mSerialTest = null;
+    private LinearLayout mEtherTest = null;
+    private ProgressBar mEthProgress = null;
+    private LinearLayout mSerialTest = null;
+    private ProgressBar mSerialProgress = null;
     private TextView mRFIDTest = null;
 
     private TextView mResImport = null;
@@ -243,12 +246,14 @@ public class TestGpioPinsNew implements ITestOperation {
             public void run() {
                 mSerialTest.setEnabled(false);
                 mSerialTest.setBackgroundColor(Color.GRAY);
+                mSerialProgress.setVisibility(View.VISIBLE);
             }
         });
         SerialHandler sh = SerialHandler.getInstance();
 
         mSerialRecv = false;
 
+        // 未选通串口时如果动作则为错
         ExtGpio.writeGpioTestPin(OUT_PINS[1].charAt(1), Integer.valueOf(OUT_PINS[1].substring(2)), PIN_DISABLE);
         sh.sendTestString("123456", new SerialHandler.ReadSerialListener() {
             @Override
@@ -268,6 +273,8 @@ public class TestGpioPinsNew implements ITestOperation {
         try{ Thread.sleep(3000);}catch(Exception e){}
 
         mSerialRecv = false;
+
+        // 选通串口时如果不动作则为错
         ExtGpio.writeGpioTestPin(OUT_PINS[1].charAt(1), Integer.valueOf(OUT_PINS[1].substring(2)), PIN_ENABLE);
 
         for(int i=0; i<400 && !mSerialRecv; i++) {
@@ -298,6 +305,7 @@ public class TestGpioPinsNew implements ITestOperation {
             public void run() {
                 mSerialTest.setEnabled(true);
                 mSerialTest.setBackgroundColor(Color.GREEN);
+                mSerialProgress.setVisibility(View.GONE);
             }
         });
     }
@@ -445,7 +453,7 @@ public class TestGpioPinsNew implements ITestOperation {
             }
         });
 
-        mEtherTest = (TextView) mTestAreaLL.findViewById(R.id.eth_test_btn);
+        mEtherTest = (LinearLayout) mTestAreaLL.findViewById(R.id.eth_test_btn);
         mEtherTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -457,8 +465,9 @@ public class TestGpioPinsNew implements ITestOperation {
                 }).start();
             }
         });
+        mEthProgress = (ProgressBar) mTestAreaLL.findViewById(R.id.net_progressing);
 
-        mSerialTest = (TextView) mTestAreaLL.findViewById(R.id.serial_test_btn);
+        mSerialTest = (LinearLayout) mTestAreaLL.findViewById(R.id.serial_test_btn);
         mSerialTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -470,6 +479,7 @@ public class TestGpioPinsNew implements ITestOperation {
                 }).start();
             }
         });
+        mSerialProgress = (ProgressBar) mTestAreaLL.findViewById(R.id.serial_progressing);
 
         mRFIDTest = (TextView) mTestAreaLL.findViewById(R.id.rfid_test_btn);
         mRFIDTest.setOnClickListener(new View.OnClickListener() {
@@ -688,6 +698,7 @@ public class TestGpioPinsNew implements ITestOperation {
             public void run() {
                 mEtherTest.setEnabled(false);
                 mEtherTest.setBackgroundColor(Color.GRAY);
+                mEthProgress.setVisibility(View.VISIBLE);
             }
         });
 
@@ -735,6 +746,7 @@ public class TestGpioPinsNew implements ITestOperation {
             public void run() {
                 mEtherTest.setEnabled(true);
                 mEtherTest.setBackgroundColor(Color.GREEN);
+                mEthProgress.setVisibility(View.GONE);
             }
         });
     }

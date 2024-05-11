@@ -4525,7 +4525,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_7) {
 				final SerialHandler serialHandler = SerialHandler.getInstance(mContext);
 // H.M.Wang 2020-11-18 cmdStatus=2,表示打印完成，msg里面放mCounter
-				serialHandler.sendCommandProcessResult(0, 1, 0, 2, String.valueOf(mCounter));
+// H.M.Wang 2024-5-11 计数器仅保留后四位传递
+				serialHandler.sendCommandProcessResult(0, 1, 0, 2, String.valueOf(mCounter%10000));
+// End of H.M.Wang 2024-5-11 计数器仅保留后四位传递
 // End of H.M.Wang 2020-11-18 cmdStatus=2,表示打印完成，msg里面放mCounter
 			}
 // End of H.M.Wang 2020-8-13 追加串口7协议
