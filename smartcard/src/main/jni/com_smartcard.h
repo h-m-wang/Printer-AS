@@ -77,6 +77,8 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_downLocal(JNIEnv *env, jclass arg, jin
  */
 JNIEXPORT jint JNICALL Java_com_Smartcard_writeOIB(JNIEnv *env, jclass arg, jint card);
 
+JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, jint index);
+
 JNIEXPORT jint JNICALL Java_com_Smartcard_readHX24LC(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, jint value);
 /**

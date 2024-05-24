@@ -1,6 +1,8 @@
 package com.industry.printer.ui.Test;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
@@ -16,6 +18,7 @@ import android.widget.TextView;
 
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.SmartCard;
 
 public class TestSub implements ITestOperation {
     public static final String TAG = TestSub.class.getSimpleName();
@@ -42,6 +45,12 @@ public class TestSub implements ITestOperation {
     private static final int ID_SC_VALVE_ONOFF_TEST = 6;
     private static final int ID_BAGINK_TEST = 7;
     private static final int ID_HP22MM_TEST = 8;
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+    private static final int ID_ADS1115_READING_TEST = 9;
+
+    private AlertDialog mRecvedLevelPromptDlg = null;
+    private boolean mADS1115Reading = false;
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
 
     private class TestItem {
         public String mCaption;
@@ -72,6 +81,9 @@ public class TestSub implements ITestOperation {
             },
             {       // ALBIG
                     new TestItem("GPIO Pin Test", ID_GPIO_PIN_TEST),
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+                    new TestItem("ADS1115 Reading", ID_ADS1115_READING_TEST),
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
             },
     };
 
@@ -146,11 +158,63 @@ public class TestSub implements ITestOperation {
                     case ID_HP22MM_TEST:
                         mIFTestOp = new TestHp22mm(mContext, mSubTestIndex);
                         break;
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+                    case ID_ADS1115_READING_TEST:
+                        if(null == mRecvedLevelPromptDlg) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                            mRecvedLevelPromptDlg = builder.setTitle("ADS1115 读值测试").setMessage("").setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mRecvedLevelPromptDlg.dismiss();
+                                    mRecvedLevelPromptDlg = null;
+                                }
+                            }).create();
+                            mRecvedLevelPromptDlg.show();
+
+                            mADS1115Reading = true;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    int ads1115[] = new int[4];
+                                    while(mADS1115Reading) {
+                                        for(int i=0; i<4; i++) {
+                                            if(!mADS1115Reading) break;
+                                            ads1115[i] = SmartCard.readADS1115(i);
+                                            Debug.d(TAG, "ADS1115[" + i +"] = " + ads1115[i]);
+                                            if(null != mRecvedLevelPromptDlg) {
+                                                final String showStr =
+                                                        "AIN0: " + ads1115[0] + " (0x" + Integer.toHexString(ads1115[0]).toUpperCase() + ")\n" +
+                                                        "AIN1: " + ads1115[1] + " (0x" + Integer.toHexString(ads1115[1]).toUpperCase() + ")\n" +
+                                                        "AIN2: " + ads1115[2] + " (0x" + Integer.toHexString(ads1115[2]).toUpperCase() + ")\n" +
+                                                        "AIN3: " + ads1115[3] + " (0x" + Integer.toHexString(ads1115[3]).toUpperCase() + ")\n";
+                                                mContainer.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        mRecvedLevelPromptDlg.setMessage(showStr);
+                                                    }
+                                                });
+                                            }
+                                            try{Thread.sleep(100L);}catch(Exception e){}
+                                        }
+                                    }
+                                }
+                            }).start();
+                        }
+                        mIFTestOp = null;
+                        break;
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
                     default:
                         mIFTestOp = null;
                         break;
                 }
                 if(null != mIFTestOp) {
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+                    mADS1115Reading = false;
+                    if(null != mRecvedLevelPromptDlg) {
+                        mRecvedLevelPromptDlg.dismiss();
+                        mRecvedLevelPromptDlg = null;
+                    }
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
                     mIFTestOp.show(mContainer);
                     mIFTestOp.setTitle(mTitleTV);
                     mSubMenuLV.setVisibility(View.GONE);
@@ -167,6 +231,13 @@ public class TestSub implements ITestOperation {
 
     @Override
     public boolean quit() {
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+        mADS1115Reading = false;
+        if(null != mRecvedLevelPromptDlg) {
+            mRecvedLevelPromptDlg.dismiss();
+            mRecvedLevelPromptDlg = null;
+        }
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
         if(null != mIFTestOp) {
             if(mIFTestOp.quit()) {
                 mTitleTV.setText(TITLE);

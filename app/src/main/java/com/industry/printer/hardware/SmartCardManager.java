@@ -847,7 +847,7 @@ public class SmartCardManager implements IInkDevice {
                                 addInkOn(cardIdx);
 
                                 try {
-                                    Thread.sleep(100);
+                                    Thread.sleep(1000);
                                     addInkOff(cardIdx);
                                 } catch (Exception e) {
                                     addInkOff(cardIdx);

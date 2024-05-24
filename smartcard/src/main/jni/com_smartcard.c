@@ -25,8 +25,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.393"
+#define VERSION_CODE                            "1.0.394"
 
+// 1.0.394 临时追加一个ADS1115芯片的读数功能
 // 1.0.393 临时取消对ILG的修改
 // 1.0.392
 //    (1) 增加Java_com_Smartcard_readHX24LC中，读取数据SC_I2C_DRIVER_read之前，写入WORD地址
@@ -959,6 +960,54 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeOIB(JNIEnv *env, jclass arg, jint
     return ret;
 }
 
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+#define ADS1115_I2C_ADDRESS      0x48
+
+JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, jint index) {
+    LOGD(">>> Read ADS1115(I2C=0x48, index=%d, addr=0)", index);
+
+    int write_length;
+    int read_length;
+    uint8_t data[2];
+    uint8_t cmd[2] = {0xc4, 0x83};
+
+    switch(index) {
+        case 0:
+            cmd[0] = 0xd4;      // AIN1输出
+            break;
+        case 1:
+            cmd[0] = 0xe4;      // AIN2输出
+            break;
+        case 2:
+            cmd[0] = 0xf4;      // AIN3输出
+            break;
+        default:
+            cmd[0] = 0xc4;      // AIN0输出
+            break;
+    }
+
+    pthread_mutex_lock(&mutex);
+    // 先读当前的数据，然后切换到新的输入口
+    read_length = SC_I2C_DRIVER_read(0x01, ADS1115_I2C_ADDRESS, 0, data, 2);
+    write_length = SC_I2C_DRIVER_write(0x01, ADS1115_I2C_ADDRESS, 1, cmd, 2);
+    pthread_mutex_unlock(&mutex);
+
+    if(write_length < 0) {
+        LOGE("Write command error!");
+        return LEVEL_I2C_FAILED;
+    }
+    if(read_length < 0) {
+        LOGE("Read data error!");
+        return LEVEL_I2C_FAILED;
+    }
+
+    LOGD(">>> ADS1115[%d] data read: 0x%02X%02X", index, data[0], data[1]);
+
+    return data[0] * 256 + data[1];
+}
+
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+
 // H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
 #define HX24LC_I2C_ADDRESS      0x50
 
@@ -1242,6 +1291,7 @@ static JNINativeMethod gMethods[] = {
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
         {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
+        {"readADS1115",	    	    "(I)I",						(void *)Java_com_Smartcard_readADS1115},
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
         {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},
         {"testLevel",		        "(I)I",						(void *)Java_com_Smartcard_testLevel},
