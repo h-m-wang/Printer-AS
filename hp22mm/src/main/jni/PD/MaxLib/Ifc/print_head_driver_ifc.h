@@ -243,6 +243,20 @@ typedef enum
     PD_SC_REORDER_FUSE             = 8,    /**< 1-bit that can be read to determine if REORDER partition is locked */
     PD_SC_REGIONALIZATION_ID       = 9,
     TOTAL_NUMBER_OF_ID             = 10,
+/* H.M.Wang 2024-5-30
+    INK_FORMULATOR_SLOTA           = 10,    // Ink Tree L2, e.g. 5 (Kao Collins), 6 (General)
+    INK_VEHICLE_SLOTA              = 11,    // Ink Tree L3, e.g. 1 (Aqueous)
+    INK_FAMILY_SLOTA               = 12,    // Ink Tree L4, 11 bit numeric field
+    INK_FAMILY_MEMBER_SLOTA        = 13,    // Ink Tree L5, 9 bit numeric field
+    INK_REVISION_SLOTA             = 14,    // 4 bit numeric value
+    INK_FORMULATOR_SLOTB           = 15,    // Ink Tree L2, e.g. 5 (Kao Collins), 6 (General)
+    INK_VEHICLE_SLOTB              = 16,    // Ink Tree L3, e.g. 1 (Aqueous)
+    INK_FAMILY_SLOTB               = 17,    // Ink Tree L4, 11 bit numeric field
+    INK_FAMILY_MEMBER_SLOTB        = 18,    // Ink Tree L5, 9 bit numeric field
+    INK_REVISION_SLOTB             = 19,    // 4 bit numeric value
+
+    LOCK_PARTITION_2               = 20
+ */
 } PDSmartCardOemFieldId_t;
 
 /**
@@ -487,7 +501,10 @@ typedef struct
  * @par Possible Error Codes None
  */
 PDResult_t pd_sc_get_info(int32_t instance, uint8_t ph_id, PDSmartCardInfo_t *sc_info, uint8_t *sc_result);
- 
+
+/* H.M.Wang 2024-5-30
+#define LOCK_PARTITION_2 2
+ */
 /**
  * @brief                   Lock a smart card memory partition. Once the partition
  *                          is locked, the fields in the partition will become read-only.

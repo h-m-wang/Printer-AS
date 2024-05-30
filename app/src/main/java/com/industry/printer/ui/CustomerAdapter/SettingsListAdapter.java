@@ -712,7 +712,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 		mSettingItems[76] = new ItemOneLine(77, R.string.str_textview_param77, 0, ItemType.TYPE_DIALOG);
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
-		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, 0);
+// H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
+		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, R.string.str_unit_kPa);
+// End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
 		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, 0);
 		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
 		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, 0);

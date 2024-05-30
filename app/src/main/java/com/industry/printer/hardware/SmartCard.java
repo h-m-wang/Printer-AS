@@ -70,8 +70,11 @@ public class SmartCard {
 
     static public native int readLevel(int card);
 
+// H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能
+    static public native int writeDAC5571(int value);
+// End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
-    static public native int readADS1115(int value);
+    static public native int readADS1115(int index);
 // End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
 
 // H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值

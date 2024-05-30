@@ -774,6 +774,9 @@ public class FpgaGpioOperation {
             setMirror(config.getParam(1));
         }
 // End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
+// H.M.Wang 2024-5-27 设置参数78为新的压力
+        SmartCard.writeDAC5571((int)((config.getParam(SystemConfigFile.INDEX_PRESURE) + 6.67f) / 66.7f / 3.3f * 255));
+// End of H.M.Wang 2024-5-27 设置参数78为新的压力
     }
 
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换

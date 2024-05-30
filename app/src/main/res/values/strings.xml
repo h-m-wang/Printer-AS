@@ -536,7 +536,10 @@
 <!--	<string name="str_textview_param77">77.Reserved</string>-->
 	<string name="str_textview_param77">77.22MM Nozzle</string>
 <!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
-	<string name="str_textview_param78">78.Reserved</string>
+<!-- H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
+<!--	<string name="str_textview_param78">78.Reserved</string>-->
+	<string name="str_textview_param78">78.Pressure</string>
+<!-- End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
 	<string name="str_textview_param79">79.Reserved</string>
 	<string name="str_textview_param80">80.Reserved</string>
 	<string name="str_textview_param81">81.Reserved</string>
@@ -568,6 +571,7 @@
 	<string name="str_time_unit_us">us</string>
 	<string name="str_time_unit_100us">100us</string>
 	<string name="str_unit_ps">p/s</string>
+	<string name="str_unit_kPa">kPa</string>
 <!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
 	<string name="str_time_unit_min">min</string>
 	<string name="str_temperature">℃</string>

@@ -31,6 +31,7 @@ import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.object.BarcodeObject;
 import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.DynamicText;
@@ -240,7 +241,9 @@ public class SystemConfigFile{
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数。二进制一个字节，8个位代表不同的喷嘴 高四位代表喷头2的4个喷嘴，低四位代表喷头1的4个喷嘴。0代表关闭，1代表使用
 	public static final int INDEX_22MM_NOZZLE_SEL = 76;
 // End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数。二进制一个字节，8个位代表不同的喷嘴 高四位代表喷头2的4个喷嘴，低四位代表喷头1的4个喷嘴。0代表关闭，1代表使用
-
+// H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
+	public static final int INDEX_PRESURE = 77;
+// End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
 	public static final int DATA_SOURCE_BIN 		= 1;		// 数据源使用BIN

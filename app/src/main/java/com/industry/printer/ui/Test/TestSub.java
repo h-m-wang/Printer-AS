@@ -165,6 +165,7 @@ public class TestSub implements ITestOperation {
                             mRecvedLevelPromptDlg = builder.setTitle("ADS1115 读值测试").setMessage("").setPositiveButton("关闭", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    mADS1115Reading = false;
                                     mRecvedLevelPromptDlg.dismiss();
                                     mRecvedLevelPromptDlg = null;
                                 }
@@ -175,27 +176,22 @@ public class TestSub implements ITestOperation {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    int ads1115[] = new int[4];
+                                    int ain0;
                                     while(mADS1115Reading) {
-                                        for(int i=0; i<4; i++) {
-                                            if(!mADS1115Reading) break;
-                                            ads1115[i] = SmartCard.readADS1115(i);
-                                            Debug.d(TAG, "ADS1115[" + i +"] = " + ads1115[i]);
-                                            if(null != mRecvedLevelPromptDlg) {
-                                                final String showStr =
-                                                        "AIN0: " + ads1115[0] + " (0x" + Integer.toHexString(ads1115[0]).toUpperCase() + ")\n" +
-                                                        "AIN1: " + ads1115[1] + " (0x" + Integer.toHexString(ads1115[1]).toUpperCase() + ")\n" +
-                                                        "AIN2: " + ads1115[2] + " (0x" + Integer.toHexString(ads1115[2]).toUpperCase() + ")\n" +
-                                                        "AIN3: " + ads1115[3] + " (0x" + Integer.toHexString(ads1115[3]).toUpperCase() + ")\n";
-                                                mContainer.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        mRecvedLevelPromptDlg.setMessage(showStr);
-                                                    }
-                                                });
-                                            }
-                                            try{Thread.sleep(100L);}catch(Exception e){}
+                                        if(!mADS1115Reading) break;
+                                        ain0 = SmartCard.readADS1115(0);
+                                        Debug.d(TAG, "ADS1115-AIN0 = " + ain0);
+                                        if(null != mRecvedLevelPromptDlg) {
+                                            final String showStr =
+                                                    "AIN0: " + ain0 + " (0x" + Integer.toHexString(ain0).toUpperCase() + ")";
+                                            mContainer.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mRecvedLevelPromptDlg.setMessage(showStr);
+                                                }
+                                            });
                                         }
+                                        try{Thread.sleep(100L);}catch(Exception e){}
                                     }
                                 }
                             }).start();

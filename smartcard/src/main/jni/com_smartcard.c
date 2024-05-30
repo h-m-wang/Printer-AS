@@ -25,8 +25,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.394"
+#define VERSION_CODE                            "1.0.396"
 
+// 1.0.395 1115的地址修改为0x49
+// 1.0.395 临时追加一个DAC5571的设置功能
 // 1.0.394 临时追加一个ADS1115芯片的读数功能
 // 1.0.393 临时取消对ILG的修改
 // 1.0.392
@@ -960,34 +962,42 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeOIB(JNIEnv *env, jclass arg, jint
     return ret;
 }
 
+// H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能
+#define DAC5571_I2C_ADDRESS      0x4C
+JNIEXPORT jint JNICALL Java_com_Smartcard_writeDAC5571(JNIEnv *env, jclass arg, jint value) {
+    LOGD(">>> Write DAC5571(I2C=0x%2x, value=%d)", DAC5571_I2C_ADDRESS, value);
+    int write_length;
+    uint8_t cmd[2];
+
+    cmd[0] = ((value >> 4) & 0x0F);
+    cmd[1] = ((value << 4) & 0xF0);
+
+    pthread_mutex_lock(&mutex);
+    // 似乎没有寄存器的概念: 数据的结构式: 第一个字节：0 0 PD1 PD0 MSB(4bits)。第二个字节：LSB(4bits),后面四个字节随意
+    write_length = SC_I2C_DRIVER_write(0x01, DAC5571_I2C_ADDRESS, cmd[0], &cmd[1], 1);
+    pthread_mutex_unlock(&mutex);
+
+    if(write_length < 0) {
+        LOGE("Write command error!");
+        return LEVEL_I2C_FAILED;
+    }
+    return LEVEL_I2C_OK;
+}
+// End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能
+
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
-#define ADS1115_I2C_ADDRESS      0x48
+#define ADS1115_I2C_ADDRESS      0x49
 
 JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, jint index) {
-    LOGD(">>> Read ADS1115(I2C=0x48, index=%d, addr=0)", index);
+    LOGD(">>> Read ADS1115(I2C=0x%2x, index=%d, addr=0)", ADS1115_I2C_ADDRESS, index);
 
     int write_length;
     int read_length;
     uint8_t data[2];
-    uint8_t cmd[2] = {0xc4, 0x83};
-
-    switch(index) {
-        case 0:
-            cmd[0] = 0xd4;      // AIN1输出
-            break;
-        case 1:
-            cmd[0] = 0xe4;      // AIN2输出
-            break;
-        case 2:
-            cmd[0] = 0xf4;      // AIN3输出
-            break;
-        default:
-            cmd[0] = 0xc4;      // AIN0输出
-            break;
-    }
+    uint8_t cmd[2] = {0xc4, 0x83};      // AIN0
 
     pthread_mutex_lock(&mutex);
-    // 先读当前的数据，然后切换到新的输入口
+    // 先读当前的数据，然后切换到新的输入口。这样，下次读数据时，数据就可以稳定的读到了
     read_length = SC_I2C_DRIVER_read(0x01, ADS1115_I2C_ADDRESS, 0, data, 2);
     write_length = SC_I2C_DRIVER_write(0x01, ADS1115_I2C_ADDRESS, 1, cmd, 2);
     pthread_mutex_unlock(&mutex);
@@ -1291,6 +1301,7 @@ static JNINativeMethod gMethods[] = {
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
         {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
+        {"writeDAC5571",	    	    "(I)I",						(void *)Java_com_Smartcard_writeDAC5571},
         {"readADS1115",	    	    "(I)I",						(void *)Java_com_Smartcard_readADS1115},
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
         {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},

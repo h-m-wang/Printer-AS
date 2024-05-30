@@ -67,6 +67,7 @@ import com.industry.printer.hardware.PI11Monitor;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.RTCDevice;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 import com.industry.printer.hardware.UsbSerial;
 import com.industry.printer.interceptor.ExtendInterceptor;
@@ -440,6 +441,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView		  mTvImport;
 // End of H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 
+// H.M.Wang 2024-5-28 增加气压显示控件
+	private LinearLayout mPresArea;
+	private TextView mPresValue;
+// End of H.M.Wang 2024-5-28 增加气压显示控件
+
 	public ControlTabActivity() {
 		//mMsgTitle = (ExtendMessageTitleFragment)fragment;
 		mCounter = 0;
@@ -734,6 +740,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mInkValues[i].setVisibility(View.GONE);
 		}
 // End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
+
+// H.M.Wang 2024-5-28 增加气压显示控件
+		try {
+			mPresArea = (LinearLayout) getView().findViewById(R.id.pressure_area);
+			mPresValue = (TextView) getView().findViewById(R.id.pressure_value);
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		}
+// End of H.M.Wang 2024-5-28 增加气压显示控件
 
 		mPowerStat = (ImageView) getView().findViewById(R.id.power_value);
 // H.M.Wang 2022-11-15 取消2022-11-5的修改，即对mPower的启用和根据img的类型决定是否显示(电池图标，电压和脉宽全部受控)，而改为如果是M5/M7/M9/BAGINK/22MM/Smartcard的img时，不显示电池图标，电压和脉宽继续显示
@@ -1326,6 +1341,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	private void refreshInk() {
 		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
+
+// H.M.Wang 2024-5-28 增加气压显示控件，借用refreshInk间隔性显示的机制，显示气压数据
+		if(null != mPresArea && null != mPresValue) {
+			if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
+				mPresArea.setVisibility(View.VISIBLE);
+				mPresValue.setText((int)(1.0f * SmartCard.readADS1115(0) / 32767 * 3.3f * 66.67f - 6.67f) + " " + mContext.getString(R.string.str_unit_kPa));
+			} else {
+				mPresArea.setVisibility(View.GONE);
+			}
+		}
+// End of H.M.Wang 2024-5-28 增加气压显示控件
 
 		inkDispInterval = System.currentTimeMillis();
 

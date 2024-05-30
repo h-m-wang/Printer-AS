@@ -82,6 +82,63 @@ typedef struct
 #define REORDER_REGION  15
 #define REORDER_FUSE    16
 
+/* H.M.Wang 2024-5-30
+#define CARTRIDGE_FILL_SN_SITE_ID         17            // 8 bit field (Fill manufacturer location identifier)
+#define CARTRIDGE_FILL_SN_LINE            18            // 5 bit field (Fill manufacturer line identifier)
+#define CARTRIDGE_FILL_SN_YEAR            19            // 5 bit field (Year that supply was filled, offset from 2010)
+#define CARTRIDGE_FILL_SN_WEEK_OF_YEAR    20            // 6 bit field (Week of year that supply was filled)
+#define CARTRIDGE_FILL_SN_DAY_OF_WEEK     21            // 3 bit field (Day of week that supply was filled)
+#define CARTRIDGE_FILL_SN_HOUR_OF_DAY     22            // 5 bit field (Hour of day that supply was filled)
+#define CARTRIDGE_FILL_SN_MINUTE_OF_HOUR  23            // 6 bit field (Minute of hour that supply was filled)
+#define CARTRIDGE_FILL_SN_SEC_OF_MINUTE   24            // 6 bit field (Second of minute that supply was filled)
+#define CARTRIDGE_FILL_SN_PROC_POSITION   25            // 3 bit field (Tooling process position)
+#define INK_DENSITY                       26            // REQUIRED. 10 bit field. (Equation: Ink Density = 0.001 * (Value) + 0.7)
+#define SHELF_LIFE_IN_WEEKS               27            // 8 bit field (Shelf Life in weeks from ink fill)
+#define SHELF_LIFE_IN_DAYS                28            // 3 bit field (Shelf life in days from ink fill
+#define INSTALLED_LIFE_IN_WEEKS           29            // 8 bit field (Installed life in weeks)
+#define INSTALLED_LIFE_IN_DAYS            30            // 3 bit field (Installed life in days)
+#define USABLE_INK_WEIGHT                 31            // REQUIRED. 16 bit field. (Equation: Ink Weight = 0.1 * (Value) in grams)
+#define PRINTHEAD_OVERRIDE_VALID          37            // 1 (If any overrides are used)
+#define OVER_ENERGY_OVERRIDE_PERCENT      42            // 0 (No override / default over energy – 25%)
+                                                        // 1 (10% over energy)
+                                                        // 2 (15% over energy)
+                                                        // 3 (20% over energy)
+                                                        // 4 (25% over energy)
+                                                        // 5 (30% over energy)
+                                                        // 6 (35% over energy)
+                                                        // 7 (40% over energy)
+#define PH_V_OFFSET_OVERRIDE_PERCENT      43            // 0 (No override / default voltage – 29V)
+                                                        // 1 (-10% of default voltage)
+                                                        // 2 (-8% of default voltage)
+                                                        // 3 (-6% of default voltage)
+                                                        // 4 (-4% of default voltage)
+                                                        // 5 (-2% of default voltage)
+                                                        // 6 (+2% of default voltage)
+                                                        // 7 (+4% of default voltage)
+                                                        // 8 (+6% of default voltage)
+                                                        // 9 (+8% of default voltage)
+                                                        // 10 (+10% of default voltage)
+#define PH_OP_TEMPERATURE_OVERRIDE        44            // 0 (Default / No Override – 55C)
+                                                        // 1 (Warming Off)
+                                                        // 2 (30°C)
+                                                        // 3 (35°C)
+                                                        // 4 (40°C)
+                                                        // 5 (45°C)
+                                                        // 6 (50°C)
+                                                        // 7 (55°C)
+                                                        // 8 (60°C)
+                                                        // 9 (65°C)
+#define INK_DROP+WEIGHT_OVERRIDE          48            // Value in nanograms (Program if value deviates 1 or more nanograms from default – 6 ng)
+#define FIELD_LOCK_PARTITION_2            73            // Ink Fill
+#define FIELD_LOCK_PARTITION_3            74            // Ink Tree L2
+#define FIELD_LOCK_PARTITION_4            75            // Ink Tree L3
+#define FIELD_LOCK_PARTITION_5            76            // Ink Tree L4
+#define FIELD_LOCK_PARTITION_6            77            // Ink Tree L5
+#define FIELD_LOCK_PARTITION_7            78            // Overrids 1
+#define FIELD_LOCK_PARTITION_8            79            // Overrids 2, Future
+#define FIELD_LOCK_PARTITION_9            80            // Overrids 3, Future
+*/
+
 /* Smart Card string fields */
 #define STR_TRADEMARK   1
 #define STR_REORDER_PN  2
@@ -89,8 +146,16 @@ typedef struct
 /* Smart Card partitions */
 #define PARTITION_OEM_RW2RO     1
 #define PARTITION_REORDER_RW2RO 2
-
-
+/* H.M.Wang 2024-5-30
+#define LOCK_PARTITION_2        3           // Ink Fill
+#define LOCK_PARTITION_3        4           // Ink Tree L2
+#define LOCK_PARTITION_4        5           // Ink Tree L3
+#define LOCK_PARTITION_5        6           // Ink Tree L4
+#define LOCK_PARTITION_6        7           // Ink Tree L5
+#define LOCK_PARTITION_7        8           // Overrids 1
+#define LOCK_PARTITION_8        9           // Overrids 2, Future
+#define LOCK_PARTITION_9        10          // Overrids 3, Future
+ */
 
 /*! \struct SupplyStatus
  *  Ink Supply Status
