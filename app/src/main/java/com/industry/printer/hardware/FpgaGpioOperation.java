@@ -775,7 +775,11 @@ public class FpgaGpioOperation {
         }
 // End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
 // H.M.Wang 2024-5-27 设置参数78为新的压力
-        SmartCard.writeDAC5571((int)((config.getParam(SystemConfigFile.INDEX_PRESURE) + 6.67f) / 66.7f / 3.3f * 255));
+        if(config.getParam(SystemConfigFile.INDEX_PRESURE) == 0) {
+            SmartCard.writeDAC5571(0);
+        } else {
+            SmartCard.writeDAC5571((int)((config.getParam(SystemConfigFile.INDEX_PRESURE) + 6.67f) / 66.7f / 3.3f * 255));
+        }
 // End of H.M.Wang 2024-5-27 设置参数78为新的压力
     }
 
