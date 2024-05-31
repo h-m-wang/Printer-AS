@@ -1346,7 +1346,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		if(null != mPresArea && null != mPresValue) {
 			if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
 				mPresArea.setVisibility(View.VISIBLE);
-				mPresValue.setText((int)(1.0f * SmartCard.readADS1115(0) / 32767 * 3.3f * 66.67f - 6.67f) + " " + mContext.getString(R.string.str_unit_kPa));
+				mPresValue.setText((int)(1.0f * SmartCard.readADS1115(0) / 32767 * (4.0f * 66.7f + 12) - 6.67f) + " " + mContext.getString(R.string.str_unit_kPa));
 			} else {
 				mPresArea.setVisibility(View.GONE);
 			}

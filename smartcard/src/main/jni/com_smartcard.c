@@ -25,9 +25,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.396"
+#define VERSION_CODE                            "1.0.397"
 
-// 1.0.395 1115的地址修改为0x49
+// 1.0.397 FSR=4.096V
+// 1.0.396 1115的地址修改为0x49
 // 1.0.395 临时追加一个DAC5571的设置功能
 // 1.0.394 临时追加一个ADS1115芯片的读数功能
 // 1.0.393 临时取消对ILG的修改
@@ -994,7 +995,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, j
     int write_length;
     int read_length;
     uint8_t data[2];
-    uint8_t cmd[2] = {0xc4, 0x83};      // AIN0
+    uint8_t cmd[2] = {0xc2, 0x83};      // AIN0, FSR = ±4.096 V
 
     pthread_mutex_lock(&mutex);
     // 先读当前的数据，然后切换到新的输入口。这样，下次读数据时，数据就可以稳定的读到了
