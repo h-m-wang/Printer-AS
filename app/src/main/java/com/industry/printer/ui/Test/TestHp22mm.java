@@ -80,7 +80,7 @@ public class TestHp22mm implements ITestOperation {
 //            "20 -- FIFO -> DDR",
 //            "21 -- DDR -> FIFO",
 //            "22 -- Read FIFO",
-            "23 -- Update PD MCU\nFrom [U-Disk/PD_FW.s19]",
+            "23 -- Update PD MCU\nFrom [U-Disk/PD.s19]",
             "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
             "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "26 -- Toggle PI4",
