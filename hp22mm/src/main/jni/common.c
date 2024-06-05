@@ -134,8 +134,11 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
     }
     return -1;
 }
+
+extern int sPenIdx;
+
 int pd_check(char *function, PDResult_t result) {
-    return pd_check_ph(function, result, -1);
+    return pd_check_ph(function, result, sPenIdx);
 }
 
 #define TIME_STRING_MAX 20

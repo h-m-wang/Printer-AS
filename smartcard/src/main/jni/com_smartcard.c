@@ -31,7 +31,7 @@ extern "C"
 // 1.0.396 1115的地址修改为0x49
 // 1.0.395 临时追加一个DAC5571的设置功能
 // 1.0.394 临时追加一个ADS1115芯片的读数功能
-// 1.0.393 临时取消对ILG的修改
+// 1.0.393 临时取消对ILG的修改（已恢复）
 // 1.0.392
 //    (1) 增加Java_com_Smartcard_readHX24LC中，读取数据SC_I2C_DRIVER_read之前，写入WORD地址
 //          SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);

@@ -1215,7 +1215,7 @@ static PDResult_t _pd_fpga_setreset(int32_t instance, bool highorlow ) {
     return PD_OK;
 }
 
-#define FPGA_FLASH_SIZE (2 * 1024 *1024)
+#define FPGA_FLASH_SIZE (3 * 1024 *1024)
 /*
  *  Reprogram the fpga flash with the given firmware file
  * 
@@ -1295,7 +1295,9 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     	oem_unlock(instance);
     	return pr;
     }
-//    LOGE("fpgaflash status = %d", status);
+
+    LOGE("Status1 = %d", status);
+
 	if(status & FLASH_WP_MASK) {
         LOGI("FPGA flash is write protected. Trying to write enable..\n");
 						
@@ -1315,6 +1317,9 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
                 oem_unlock(instance);
                 return pr;
             }
+
+            LOGE("Status2 = %d", status);
+
             if(status & FLASH_WP_MASK) {
                 if( try >= 3) {
                     LOGE("FPGA flash is write protected. Cannot flash FW.\n");

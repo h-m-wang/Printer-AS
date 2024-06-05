@@ -715,7 +715,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     ur = uart_recv(instance, resp_buf+recvd_size, rsp_data_size+1, /* +1 for crc,(FW is not sending Line break now : +1 for line break)  */
                         &n, _get_response_timeout());
                         
-    LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, n, ','), n);
+    LOGD("UART_Data_buffer: [%s](%d)", toHexString(resp_buf+recvd_size, n, ','), n);
 
     /* Deserialize the frame to structure */
     fr = frame_response_init_data(frame, resp_buf+recvd_size, n); 

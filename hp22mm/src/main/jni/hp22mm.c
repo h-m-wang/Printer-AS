@@ -28,8 +28,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.076"
+#define VERSION_CODE                            "1.0.078"
 
+// 1.0.078 2024-6-4
+// 修改了一些log输出语句
+// 1.0.077 2024-6-1
+// print_head_driver.c 中的 #define FPGA_FLASH_SIZE (2 * 1024 *1024)修改为#define FPGA_FLASH_SIZE (3 * 1024 *1024)
 // 1.0.076 2024-4-8
 //    1. 在_print_thread函数中，增加定期读取supplay的status
 //       ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
@@ -60,8 +64,8 @@ extern "C"
 //    2.放开startPrint中读取正式的image.bin的代码
 // 1.0.067 2024-1-30 追加一个SpiTest
 
-static int sIdsIdx = 1;
-static int sPenIdx = 0;
+int sIdsIdx = 1;
+int sPenIdx = 0;
 
 static bool IsPressurized = false;
 void CmdDepressurize();
@@ -830,7 +834,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint pen
     if (pd_check("pd_init", pd_r)) return -1;
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
-
+/*
     LOGD("PEN%d\nFW Rev = %d.%d\nBootloader Rev = %d.%d\nFPGA Rev = %d.%d\nBlur board Rev = %d\nDriver Board0 = %d, Board1 = %d\nStatus = %d\nBoard ID = %d",
          sPenIdx,
          pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor,
@@ -840,7 +844,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint pen
          pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
          pd_system_status.pd_status,
          pd_system_status.board_id);
-
+*/
 /*
     sleep(2);
 
