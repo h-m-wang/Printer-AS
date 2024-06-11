@@ -330,6 +330,7 @@ PDResult_t pd_init(int32_t instance) {
     pr = _pd_init_head_info( instance, &headcontrolinfo);
 	if(PD_OK != pr) {
         /* do nothing */
+        return PD_ERROR;        // 2024-6-5 增加返回错误
     }
 
     _pd_handle[instance-1].is_initialized = true;

@@ -353,8 +353,8 @@
 
 
     <string-array name="switch_item_entries">
-        <item>Off</item>
-        <item>On</item>
+        <item>Apagado</item>
+        <item>Abierto</item>
     </string-array>
 
     <string-array name="photo_item_entries">

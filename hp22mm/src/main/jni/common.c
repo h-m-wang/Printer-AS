@@ -116,6 +116,8 @@ char ERR_STRING[1024];
 int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
     if(result == PD_OK) return 0;
 
+    LOGE("ERROR: %s() == %d\n", function, result);
+
     if (PenIdx < 0) {
         LOGE("ERROR: %s() failed: %s\n", function, pd_get_error_description(result));
     } else {
@@ -125,7 +127,7 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
         status.print_head_error = -1;
         pd_get_print_head_status(PD_INSTANCE, PenIdx, &status);
 
-        sprintf(ERR_STRING, "ERROR: %s() failed: %s  PH state: %s  PH error: %d %s\n", function,
+        sprintf(ERR_STRING, "ERROR: %s(PenIdx=%d) failed: %s.  PH state: %s  PH error: %d %s\n", function, PenIdx,
                      pd_get_error_description(result),
                      ph_state_description(status.print_head_state),
                      status.print_head_error,
