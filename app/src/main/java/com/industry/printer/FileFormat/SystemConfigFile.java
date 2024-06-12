@@ -359,6 +359,24 @@ public class SystemConfigFile{
 // H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 	public static final int DATA_SOURCE_LAN_GS1_BRACE	= 29;
 // End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+// H.M.Wang 2024-6-12 追加三个GS1条码数据源协议。
+// GS1-1 0104607017595534215BD&Tw931ekW
+// 其中： 0104607017595534 （16位）。01为AI，04607017595534为数据
+// 		 215BD&Tw   （8位）。21为AI，5BD&Tw为数据
+// 		 931ekW（6位）。93为AI，1ekW为数据
+	public static final int DATA_SOURCE_GS1_1	= 30;
+// GS1-2 0104610011892486215("+BsUbSn&ur91EE0992e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=
+// 其中： 0104610011892486  （16位）。01为AI，04610011892486为数据
+//       215("+BsUbSn&ur   （15位）。21为AI，5("+BsUbSn&ur为数据
+//       91EE09           （6位）。91为AI，EE09为数据
+//       92e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=    （46位）。92为AI，e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=为数据
+	public static final int DATA_SOURCE_GS1_2	= 31;
+// GS1-3 01xxxxxxxxxxxxxx\21xxxxx\91xxxx\92xxxxxx
+// 其中： （1）报文被反斜杠(\)分割成为数段；
+//        （2）每段开头为2位数字的AI（其它位数的AI暂不支持）
+//        （3）每个AI后面的字符为对应于该AI的数据，数据的合法性需要用户保证，当数据错误时生成条码失败
+	public static final int DATA_SOURCE_GS1_3	= 32;
+// End of H.M.Wang 2024-6-12 追加三个GS1条码数据源协议。
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。

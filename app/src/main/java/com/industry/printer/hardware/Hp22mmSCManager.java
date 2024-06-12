@@ -36,10 +36,10 @@ public class Hp22mmSCManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-/*                while(Hp22mm.initHp22mm() != 0) {
+                while(Hp22mm.initHp22mm() != 0) {
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
-                }*/
+                }
             }
         }).start();
     }

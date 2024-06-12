@@ -13,6 +13,7 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -2340,6 +2341,121 @@ private void setCounterPrintedNext(DataTask task, int count) {
 }
 // H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
 
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+	protected String parseGS1_1(String recv) {
+		int pos = 0;
+
+		// txt文件有个不可见的文件头，UTF-8的文件头是EF BB BF，在从文件读入的第一行中，这个头会存在，并且以0xfeff的值存在，这个需要跳过
+		if(recv.charAt(pos) == (char)0xfeff) pos++;
+
+		// 例子：0104607017595534215BD&Tw931ekW，总长度需要30个字节
+		if(recv.length() - pos != 30) return recv;
+
+		StringBuilder sb = new StringBuilder();
+
+		// 0104607017595534 (16位)
+		if(recv.charAt(pos) != '0' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+14);
+		pos += 14;
+
+		// 215BD&Tw (8位)
+		if(recv.charAt(pos) != '2' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+6);
+		pos += 6;
+
+		// 931ekW (6位)
+		if(recv.charAt(pos) != '9' || recv.charAt(pos+1) != '3') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+4);
+		pos += 4;
+
+		return sb.toString();
+	}
+
+	protected String parseGS1_2(String recv) {
+		int pos = 0;
+
+		// txt文件有个不可见的文件头，UTF-8的文件头是EF BB BF，在从文件读入的第一行中，这个头会存在，并且以0xfeff的值存在，这个需要跳过
+		if(recv.charAt(pos) == (char)0xfeff) pos++;
+
+		// 例子：0104610011892486215("+BsUbSn&ur91EE0992e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=，总长度需要83个字节
+		if(recv.length() - pos != 83) return recv;
+
+		StringBuilder sb = new StringBuilder();
+
+		// 0104607017595534 (16位)
+		if(recv.charAt(pos) != '0' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+14);
+		pos += 14;
+
+		// 215("+BsUbSn&ur (15位)
+		if(recv.charAt(pos) != '2' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+13);
+		pos += 13;
+
+		// 91EE09 (6位)
+		if(recv.charAt(pos) != '9' || recv.charAt(pos+1) != '1') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+4);
+		pos += 4;
+
+		// 92e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M= (46位)
+		if(recv.charAt(pos) != '9' || recv.charAt(pos+1) != '2') return recv;
+		sb.append('{');
+		sb.append(recv, pos, pos+2);
+		sb.append('}');
+		pos += 2;
+		sb.append(recv, pos, pos+44);
+		pos += 44;
+
+		return sb.toString();
+	}
+
+	protected String parseGS1_3(String recv) {
+		String temp = recv;
+
+		// txt文件有个不可见的文件头，UTF-8的文件头是EF BB BF，在从文件读入的第一行中，这个头会存在，并且以0xfeff的值存在，这个需要跳过
+		if(recv.charAt(0) == (char)0xfeff) {
+			temp = recv.substring(1);
+		}
+
+		StringBuilder sb = new StringBuilder();
+		// 例子： 01xxxxxxxxxxxxxx\21xxxxx\91xxxx\92xxxxxx
+		String[] strs = temp.split(Pattern.quote("\\"));
+		for(String str : strs) {
+			if(str.length() <= 2) return recv;
+			sb.append('{');
+			sb.append(str, 0, 2);
+			sb.append('}');
+			sb.append(str, 2, str.length());
+		}
+
+		return sb.toString();
+	}
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+
 // H.M.Wang 2021-3-3 从QR.txt文件当中读取的变量信息的功能从DataTask类转移至此
 	private boolean isReady = true;
 
@@ -2398,6 +2514,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
 			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
 // End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3 ||
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
 			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2) {
 // End of H.M.Wang 2021-1-4 追加数据源FILE2，也是从QR.txt读取DT0,DT1,...,DT9,BARCODE的信息，但是DT赋值根据DT变量内部的序号匹配
 			QRReader reader = QRReader.getInstance(mContext);
@@ -2431,6 +2552,17 @@ private void setCounterPrintedNext(DataTask task, int count) {
 									recvStrs[0] = parseGS1Brace(recvStrs[0]);
 								}
 // End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+								if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1) {
+									recvStrs[0] = parseGS1_1(recvStrs[0]);
+								}
+								if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2) {
+									recvStrs[0] = parseGS1_2(recvStrs[0]);
+								}
+								if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
+									recvStrs[0] = parseGS1_3(recvStrs[0]);
+								}
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
 								SystemConfigFile.getInstance().setBarcodeBuffer(recvStrs[0]);
 								((BarcodeObject)baseObject).setContent(recvStrs[0]);
 							}

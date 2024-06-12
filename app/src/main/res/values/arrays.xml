@@ -64,6 +64,11 @@
 <!-- H.M.Wang 2024-2-22 追加一个GS1网络协议 -->
         <item>LAN GS1-2</item>
 <!-- End of H.M.Wang 2024-2-22 追加一个GS1网络协议 -->
+<!-- H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能 -->
+        <item>GS1-3</item>
+        <item>GS1-4</item>
+        <item>GS1-5</item>
+<!-- End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能 -->
     </string-array>
 <!-- End of H.M.Wang 2019-12-19 追加数据源名称字符串数组 -->
 
@@ -215,6 +220,7 @@
         <item>YYYY/MM/DD</item>
         <item>MM/DD/YYYY</item>
         <item>DD/MM/YYYY</item>
+        <item>DD.MM.YYYY</item>
         <item>YY-MM-DD</item>
         <item>MM-DD-YY</item>
         <item>DD-MM-YY</item>
