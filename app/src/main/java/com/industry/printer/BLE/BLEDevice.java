@@ -64,26 +64,25 @@ public class BLEDevice {
     private boolean sendATCmd(String cmd) {
         mErrorMsg = "TIMEOUT";
         boolean ret = false;
-        for(int i=0; i<3; i++) {
-            synchronized (RFIDDevice.SERIAL_LOCK) {
-                ExtGpio.writeGpioTestPin('I', 9, 1);
-                mStreamTransport.writeLine(cmd);
-                for(int j=0; j<10; j++) {
-                    if(mStreamTransport.readerReady()) {
-                        String rcv = mStreamTransport.readLine();
-//                        Debug.d(TAG, "RECV: [" + rcv + "]");
-                        if(rcv.startsWith("OK")) {
-                            mErrorMsg = "OK";
-                            ret = true;
-                            break;
-                        } else if(rcv.startsWith("ERROR")) {
-                            mErrorMsg = "ERROR";
-                            break;
-                        }
+        for(int i=0; i<3; i++) {    // 尝试3次，直到成功或者超过次数
+            Debug.d(TAG, "SEND: [" + cmd + "]");
+            mStreamTransport.writeLine(cmd);
+            for(int j=0; j<10; j++) {
+                if(mStreamTransport.readerReady()) {
+                    String rcv = mStreamTransport.readLine();
+                    Debug.d(TAG, "RECV: [" + rcv + "]");
+                    if(rcv.startsWith("OK")) {
+                        mErrorMsg = "OK";
+                        ret = true;
+                        break;
+                    } else if(rcv.startsWith("ERROR")) {
+                        mErrorMsg = "ERROR";
+                        break;
                     }
-                    try {Thread.sleep(100);} catch(Exception e){}
                 }
+                try {Thread.sleep(100);} catch(Exception e){}
             }
+
             if(ret == true) break;
             else try {Thread.sleep(1000);} catch(Exception e){}
         }
@@ -91,37 +90,28 @@ public class BLEDevice {
     }
 
     private void sendString(String data) {
-        synchronized (RFIDDevice.SERIAL_LOCK) {
-            ExtGpio.writeGpioTestPin('I', 9, 1);
-            mStreamTransport.writeLine(data);
-        }
+        mStreamTransport.writeLine(data);
     }
 
     private void waitString(String prompt) {
         while(true) {
-            synchronized (RFIDDevice.SERIAL_LOCK) {
-                String rcv = "";
-                ExtGpio.writeGpioTestPin('I', 9, 1);
-                if (mStreamTransport.readerReady()) {
-                    rcv = mStreamTransport.readLine();
-//                    Debug.d(TAG, "RECV: [" + rcv + "]");
-                }
-                try {Thread.sleep(100);} catch (Exception e) {}
-                if(rcv.startsWith(prompt)) break;
+            String rcv = "";
+            if (mStreamTransport.readerReady()) {
+                rcv = mStreamTransport.readLine();
+                    Debug.d(TAG, "RECV: [" + rcv + "]");
             }
+            try {Thread.sleep(100);} catch (Exception e) {}
+            if(rcv.startsWith(prompt)) break;
         }
     }
 
     private void clearReceivingBuffer() {
         for(int i=0; i<30; i++) {
-            synchronized (RFIDDevice.SERIAL_LOCK) {
-                ExtGpio.writeGpioTestPin('I', 9, 1);
-                if (mStreamTransport.readerReady()) {
-                    String rcv = mStreamTransport.readLine();
+            if (mStreamTransport.readerReady()) {
+                String rcv = mStreamTransport.readLine();
 //                    Debug.d(TAG, "RECV: [" + rcv + "]");
-                }
-                try {Thread.sleep(100);} catch(Exception e){}
             }
+            try {Thread.sleep(100);} catch(Exception e){}
         }
     }
 
@@ -157,13 +147,17 @@ public class BLEDevice {
         mInitialized = false;
         mClientConnected = false;
         mClientMacAddress = "";
-        return (mInitialized =
-            execCmdRST() &&
-            execCmdSetServerMode() &&
-            execCmdCreateGattsService() &&
-            execCmdStartGattsService() &&
-            execCmdSetAdvData() &&
-            execCmdStartAdvertise());
+        synchronized (RFIDDevice.SERIAL_LOCK) {
+            ExtGpio.writeGpioTestPin('I', 9, 1);
+            mInitialized =
+                execCmdRST() &&
+                execCmdSetServerMode() &&
+                execCmdCreateGattsService() &&
+                execCmdStartGattsService() &&
+                execCmdSetAdvData() &&
+                execCmdStartAdvertise();
+        }
+        return mInitialized;
     }
 
     public boolean isClientConnected() {
@@ -177,32 +171,33 @@ public class BLEDevice {
         synchronized (RFIDDevice.SERIAL_LOCK) {
             ExtGpio.writeGpioTestPin('I', 9, 1);
             if(mStreamTransport.readerReady()) {
+                // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
-//                Debug.d(TAG, "RECV: [" + rcvString + "]");
+                Debug.d(TAG, "RECV: [" + rcvString + "]");
             }
-        }
 
-        if(StringUtil.isEmpty(rcvString)) {
-            try{Thread.sleep(100);}catch(Exception e){};
-            return rcvString;
-        }
-
-        if(!mClientConnected) {
-            if(rcvString.startsWith(RECV_CONNECTED)) {
-                mClientConnected = true;
-                mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+3, RECV_CONNECTED.length()+20);
-//                Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
-                waitString(RECV_CONNECTPARAM);
+            if(StringUtil.isEmpty(rcvString)) {
+                try{Thread.sleep(100);}catch(Exception e){};
+                return rcvString;
             }
-        } else {
-            if(rcvString.startsWith(RECV_DISCONNECTED)) {
-                mClientConnected = false;
-//                Debug.d(TAG, "Client [" + mClientMacAddress + "] disconnected.");
-                mClientMacAddress = "";
-            } else if(rcvString.startsWith(RECV_CLIENT_WRITE)) {
-                rcvString = rcvString.substring(RECV_CLIENT_WRITE.length()+8);
-//                Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");
-                return rcvString.substring(rcvString.indexOf(',')+1);
+
+            if(!mClientConnected) {
+                if(rcvString.startsWith(RECV_CONNECTED)) {
+                    mClientConnected = true;
+                    mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+3, RECV_CONNECTED.length()+20);
+                    Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
+                    waitString(RECV_CONNECTPARAM);
+                }
+            } else {
+                if(rcvString.startsWith(RECV_DISCONNECTED)) {
+                    mClientConnected = false;
+                    Debug.d(TAG, "Client [" + mClientMacAddress + "] disconnected.");
+                    mClientMacAddress = "";
+                } else if(rcvString.startsWith(RECV_CLIENT_WRITE)) {
+                    rcvString = rcvString.substring(RECV_CLIENT_WRITE.length()+8);
+                    Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");
+                    return rcvString.substring(rcvString.indexOf(',')+1);
+                }
             }
         }
         return "";

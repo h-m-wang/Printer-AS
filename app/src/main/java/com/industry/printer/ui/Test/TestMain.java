@@ -176,7 +176,21 @@ public class TestMain {
                         @Override
                         public void run() {
                             BLEDevice ble = BLEDevice.getInstance();
-                            if(ble.initServer());
+                            if(ble.initServer()) {
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.show(mContext,"Succeeded!");
+                                    }
+                                });
+                            } else {
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.show(mContext,"Failed!");
+                                    }
+                                });
+                            }
                         }
                     }).start();
                     return;

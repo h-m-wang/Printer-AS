@@ -58,7 +58,7 @@ public class RFIDAsyncTask implements Runnable {
 			for(int i=0; i<3; i++) {
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
-synchronized (RFIDDevice.SERIAL_LOCK) {
+synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	ExtGpio.writeGpioTestPin('I', 9, 0);
 				int writed = RFIDDevice.write(mFd, mCmd.mTransData, mCmd.mTransData.length);
 				for(int j=0; j<5; j++) {
