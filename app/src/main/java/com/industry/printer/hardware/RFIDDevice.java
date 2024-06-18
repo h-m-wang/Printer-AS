@@ -256,8 +256,10 @@ public class RFIDDevice implements RfidCallback{
 		Debug.d(TAG, "--->RFID connect: " + PlatformInfo.getRfidDevice());
 //		mFd = open(PlatformInfo.getRfidDevice());
 		RFIDData data = new RFIDData(RFID_CMD_CONNECT, RFID_DATA_CONNECT);
-		byte[] readin = writeCmd(data);
-		return isCorrect(readin);
+//		byte[] readin = writeCmd(data);
+//		return isCorrect(readin);
+		RFIDAsyncTask.execute(mFd, data, this);
+		return true;
 		// RFIDAsyncTask.execute(mFd, data, this);
 	}
 	/*
@@ -607,11 +609,11 @@ public class RFIDDevice implements RfidCallback{
 	 * write command to RFID model
 	 */
 	private byte[] writeCmd(RFIDData data) {
-		
+		byte[] readin = null;
+
 		openDevice();
 		Debug.print(RFID_DATA_SEND, data.mTransData);
 		
-		byte[] readin = null;
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //		int writed = write(mFd, data.transferData(), data.getLength());
 		int writed = write(mFd, data.mTransData, data.mTransData.length);
@@ -622,12 +624,12 @@ public class RFIDDevice implements RfidCallback{
 		}
 		readin = read(mFd, 64);
 		Debug.print(RFID_DATA_RECV, readin);
+
 		if (readin == null || readin.length == 0) {
 			Debug.e(TAG, "===>read err");
 			closeDevice();
 			return null;
 		}
-		
 		return readin;
 	}
 	

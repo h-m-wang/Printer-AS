@@ -1,5 +1,6 @@
 package com.industry.printer.Rfid;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.hardware.ExtGpio;
@@ -13,7 +14,7 @@ public class RFIDAsyncTask implements Runnable {
 	private RFIDData mCmd;
 	private RfidCallback mCallback;
 	
-	
+
 	public static RFIDAsyncTask execute(int fd, RFIDData data, RfidCallback callback) {
 		if (mInstance == null) {
 			synchronized (RFIDAsyncTask.class) {
@@ -40,8 +41,6 @@ public class RFIDAsyncTask implements Runnable {
 	
 	@Override  
     public void run() {
-
-		Debug.print(RFIDDevice.RFID_DATA_SEND, mCmd.mTransData);
 		byte[] readin = null;
 /*
 		int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
@@ -52,22 +51,21 @@ public class RFIDAsyncTask implements Runnable {
 		} while(null == readin);
 // End of H.M.Wang 2022-4-24 如果操作太快，read函数可能会超时返回null，导致后续处理异常。修改为如果空则一直等待
 */
-
+if(BLEDevice.BLERequiring) return;	// 当BLE正在请求串口操作的时候，暂时不与之争抢
+synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
+	Debug.print(RFIDDevice.RFID_DATA_SEND, mCmd.mTransData);
+	ExtGpio.writeGpioTestPin('I', 9, 0);
 // H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 		try {
 			for(int i=0; i<3; i++) {
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //				int writed = RFIDDevice.write(mFd, mCmd.transferData(), mCmd.getLength());
-synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
-	ExtGpio.writeGpioTestPin('I', 9, 0);
 				int writed = RFIDDevice.write(mFd, mCmd.mTransData, mCmd.mTransData.length);
 				for(int j=0; j<5; j++) {
 					readin = RFIDDevice.read(mFd, 64);
 					if(null != readin) break;
 					Thread.sleep(100);
 				}
-	ExtGpio.writeGpioTestPin('I', 9, 1);
-}
 				if(null != readin) break;
 				Thread.sleep(1000);
 			}
@@ -77,6 +75,8 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 // End of H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 
 		Debug.print(RFIDDevice.RFID_DATA_RECV, readin);
+	ExtGpio.writeGpioTestPin('I', 9, 1);
+}
 		RFIDData response = parseResponse(readin);
 		if (mCallback != null) {
 			mCallback.onFinish(response);

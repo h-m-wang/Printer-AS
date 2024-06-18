@@ -3072,13 +3072,22 @@ private void setCounterPrintedNext(DataTask task, int count) {
 //								if (!mDataTask.get(index()).isReady) {
 							if(((SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE ||
 // H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
-									SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+								SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
 // End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+								SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+								SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+								SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3 ||
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
 								SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_FILE2)) &&
 								!isReady &&
 								mCallback != null) {
 // End of H.M.Wang 2021-3-5 修改判断条件，只有在FILE和FILE2数据源时才判断是否为到了文件末尾而结束
 								mCallback.onFinished(CODE_BARFILE_END);
+// H.M.Wang 2024-6-15 再次取消强制停止打印，恢复为2022-4-8的状态，只是为了避免频繁报警和显示提示，增加一个1秒钟的时间间隔，该时间间隔内静默
+								try { Thread.sleep(1000); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+								continue;
+// End of H.M.Wang 2024-6-15 再次取消强制停止打印，恢复为2022-4-8的状态，只是为了避免频繁报警和显示提示，增加一个1秒钟的时间间隔，该时间间隔内静默
 // H.M.Wang 2022-4-25 补充修改2022-4-8取消停止打印修改的遗漏，如果不停止打印，这里就不要break了
 //								break;
 // End of H.M.Wang 2022-4-25 补充修改2022-4-8取消停止打印修改的遗漏，如果不停止打印，这里就不要break了

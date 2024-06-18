@@ -1,3 +1,27 @@
+2024-6-15 240615-125700001
+==================
+1. 当QR.txt已经到了最后时，再次触发，恢复到2022-4-8 220408-30817版本时的状态，即报警，显示提示，但是不强制停止打印。为了防止过于频繁的报警，在DataTransferThread类中，添加下列代码：
+    try { Thread.sleep(1000); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+    continue;
+以达到不下发数据，并且每隔1秒钟检查一次empty事件，从而达到每隔1秒钟报警一次的效果
+2. SmartCardManager和Hp22mmSCManager类中，当初始化未完成时，getLocalInkPercentage函数中返回50%，避免无意义的报警，也避免100%显得过于好的数值
+3. Hp22mm.java类中的initHp22mm函数中，恢复任何一个步骤失败时返回错误码的操作。
+
+2024-6-15 240615-125600001
+==================
+1. 在Hp22mmSCManager类中追加一个mInitialized变量，用来作为是否初始化成功的标识，如果还没有初始化，则在getLocalInkPercentage函数中返回100%，以避免报警
+2. 在ControlTabActivity类中的refreshInk函数中，当ink值恢复正常的时候（有可能出现报警原因接触后，回复正常的情况，当前没有放弃报警的机制）取消报警。
+				mHandler.removeMessages(MESSAGE_RFID_LOW);
+				mHandler.removeMessages(MESSAGE_RFID_ZERO);
+
+2024-6-15 240615-125500001
+==================
+修改Hp22mmSCManager类的getLocalInkPercentage函数中，当读到的数值为0时，将mValid设为false的操作，因为可能在初期可能会出现读到的是0的情况。
+
+2024-6-14 240614-125400001
+==================
+将img的版本号显示文字，有25sp字号改为22sp字号
+
 2024-6-14 240614-125300001
 ==================
 240612-125100001的两处修改进队arrays.xml的英文版做了修改，此次扩充到其他语言版本

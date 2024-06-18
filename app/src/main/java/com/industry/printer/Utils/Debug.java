@@ -76,6 +76,7 @@ public class Debug {
 	
 	public static void print(String tag, byte[] value) {
 		if (value == null) {
+			Debug.e(TAG, getLineNumber()+ "  " + tag + "[null]");
 			return;
 		}
 		String log = "";

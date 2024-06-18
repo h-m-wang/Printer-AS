@@ -1443,6 +1443,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 			} else {
 				mFlagAlarming = false;
+// H.M.Wang 2024-6-15 当ink值正常时，取消报警
+				mHandler.removeMessages(MESSAGE_RFID_LOW);
+				mHandler.removeMessages(MESSAGE_RFID_ZERO);
+// End of H.M.Wang 2024-6-15 当ink值正常时，取消报警
 			}
 		}
 		if(valid) {
@@ -3491,9 +3495,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	@Override
 	public void onFinished(int code) {
 		Debug.d(TAG, "--->onFinished");
+// H.M.Wang 2024-6-15 再次取消强制停止打印，恢复为2022-4-8的状态，只是为了避免频繁报警和显示提示，增加一个1秒钟的时间间隔，该时间间隔内静默
 // H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 // H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
-		mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 1000);
+//		mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 1000);
 // End of H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
 		ThreadPoolManager.mControlThread.execute(new Runnable() {
 			@Override
@@ -3513,6 +3518,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				ToastUtil.show(mContext, R.string.str_barcode_end);
 			}
 		});
+// End of H.M.Wang 2024-6-15 再次取消强制停止打印，恢复为2022-4-8的状态，只是为了避免频繁报警和显示提示，增加一个1秒钟的时间间隔，该时间间隔内静默
 	}
 
 	private void sendToRemote(String msg) {

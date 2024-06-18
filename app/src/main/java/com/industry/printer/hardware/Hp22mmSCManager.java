@@ -20,11 +20,15 @@ public class Hp22mmSCManager implements IInkDevice {
     // 暂时只支持1个打印头，将来如果支持多个打印头的话，需要对这里一系列的参数分头管理
     private int mInkLevel;
     private boolean mValid;
+// H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
+    private boolean mInitialized;
+// End of H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
 
     public Hp22mmSCManager(Context context) {
         mContext = context;
         mInkLevel = 0;
         mValid = false;
+        mInitialized = false;
     }
 
     @Override
@@ -40,6 +44,7 @@ public class Hp22mmSCManager implements IInkDevice {
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
                 }
+                mInitialized = true;
             }
         }).start();
     }
@@ -60,10 +65,10 @@ public class Hp22mmSCManager implements IInkDevice {
         int usableVol = Hp22mm.getUsableVol();
         if(usableVol > 0)
             return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
-        else {
-            mValid = false;
+        else if(!mInitialized)
+            return 50.0f;           // 在还没有初始化的情况下，返回100以防止报警
+        else
             return 0.0f;
-        }
     }
 
     @Override

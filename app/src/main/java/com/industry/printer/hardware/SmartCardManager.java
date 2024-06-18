@@ -960,7 +960,7 @@ public class SmartCardManager implements IInkDevice {
             if(mCards[cardIdx].mInkLevel != -1) {
                 percentage = (100.0f * mCards[cardIdx].mInkLevel / mCards[cardIdx].mMaxVolume);
             } else {
-                percentage = 100f;     // 在还没有初始化的情况下，返回100以防止报警
+                percentage = 50f;     // 在还没有初始化的情况下，返回100以防止报警
             }
         }
 

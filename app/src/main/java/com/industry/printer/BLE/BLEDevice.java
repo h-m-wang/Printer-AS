@@ -65,12 +65,12 @@ public class BLEDevice {
         mErrorMsg = "TIMEOUT";
         boolean ret = false;
         for(int i=0; i<3; i++) {    // 尝试3次，直到成功或者超过次数
-            Debug.d(TAG, "SEND: [" + cmd + "]");
+            Debug.d(TAG, "RFID-SEND: [" + cmd + "]");
             mStreamTransport.writeLine(cmd);
             for(int j=0; j<10; j++) {
                 if(mStreamTransport.readerReady()) {
                     String rcv = mStreamTransport.readLine();
-                    Debug.d(TAG, "RECV: [" + rcv + "]");
+                    Debug.d(TAG, "RFID-RECV: [" + rcv + "]");
                     if(rcv.startsWith("OK")) {
                         mErrorMsg = "OK";
                         ret = true;
@@ -98,7 +98,7 @@ public class BLEDevice {
             String rcv = "";
             if (mStreamTransport.readerReady()) {
                 rcv = mStreamTransport.readLine();
-                    Debug.d(TAG, "RECV: [" + rcv + "]");
+                    Debug.d(TAG, "RFID-RECV: [" + rcv + "]");
             }
             try {Thread.sleep(100);} catch (Exception e) {}
             if(rcv.startsWith(prompt)) break;
@@ -142,8 +142,10 @@ public class BLEDevice {
     private boolean execCmdStartAdvertise() {
         return sendATCmd(CMD_START_ADVERTISE);
     }
-
+public static boolean BLERequiring = false;
     public boolean initServer() {
+        BLERequiring = true;
+        Debug.d(TAG, "RFID-ENTER");
         mInitialized = false;
         mClientConnected = false;
         mClientMacAddress = "";
@@ -157,6 +159,8 @@ public class BLEDevice {
                 execCmdSetAdvData() &&
                 execCmdStartAdvertise();
         }
+        Debug.d(TAG, "RFID-QUIT");
+        BLERequiring = false;
         return mInitialized;
     }
 
@@ -167,17 +171,19 @@ public class BLEDevice {
     public String readLine() {
         if(!mInitialized) return "";
 
+        try{Thread.sleep(100);}catch(Exception e){};
+
         String rcvString = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
             ExtGpio.writeGpioTestPin('I', 9, 1);
             if(mStreamTransport.readerReady()) {
                 // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
-                Debug.d(TAG, "RECV: [" + rcvString + "]");
+                Debug.d(TAG, "RFID-RECV: [" + rcvString + "]");
+                Debug.d(TAG, "RFID-RECV: [" + ByteArrayUtils.toHexString(rcvString.getBytes()) + "]");
             }
 
             if(StringUtil.isEmpty(rcvString)) {
-                try{Thread.sleep(100);}catch(Exception e){};
                 return rcvString;
             }
 
