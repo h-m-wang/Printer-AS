@@ -256,10 +256,8 @@ public class RFIDDevice implements RfidCallback{
 		Debug.d(TAG, "--->RFID connect: " + PlatformInfo.getRfidDevice());
 //		mFd = open(PlatformInfo.getRfidDevice());
 		RFIDData data = new RFIDData(RFID_CMD_CONNECT, RFID_DATA_CONNECT);
-//		byte[] readin = writeCmd(data);
-//		return isCorrect(readin);
-		RFIDAsyncTask.execute(mFd, data, this);
-		return true;
+		byte[] readin = writeCmd(data);
+		return isCorrect(readin);
 		// RFIDAsyncTask.execute(mFd, data, this);
 	}
 	/*
