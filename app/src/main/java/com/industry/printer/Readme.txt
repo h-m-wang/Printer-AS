@@ -1,3 +1,31 @@
+2024-6-22 240622-126100001
+==================
+由于img在2023-10-15的修改中，将实际的打印计数逻辑做了修改。关键点是，第二次PH14来的时候，才被确认为第一次打印的结束。这样会导致，第一次打印的行为不会被计数。由于客户不方便升级img。因此对apk做了特殊处理：
+在DataTransferThread类中，增加一个变量mPrintedCountAhead，这个变量的主要目的是调整打印计数。
+当在打印伺服线程中检测打印计数的时候，由原来的直接获得打印计数，修改为直接获得打印计数后，进行调整
+//					lastPrintedCount = FpgaGpioOperation.getPrintedCount();
+					lastPrintedCount = FpgaGpioOperation.getPrintedCount() + mPrintedCountAhead;
+主要目的是解决第一次打印不被计数，同时也要避免非必要计数的问题
+然后，在下发数据后，做一下判断
+			if(!PlatformInfo.getImgUniqueCode().startsWith("22MM") && !PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {		// 排除HP22MM和4FIFO，因为这两种img的打印计数机制不同
+				if(FpgaGpioOperation.getDriverVersion() < 3142) {        // 如果是原来的第二个PH14才更新打印计数的img
+					int fifoSize = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE) == 0 ? 1 : SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE);
+					if(mDownWrittenCount == fifoSize + 1) {		// 当FIFO已经填满（如果FIFO个数为多个，则会出现多个empty，导致下发，但这是下发的数量会保存在FIFO中，并没有立即参与打印），正在下发超出FIFO尺寸的第一个任务时，认为第一次打印已经完成
+   						mPrintedCountAhead = 1;
+					}
+				}
+			}
+就是当img不是hp22mm或者4FIFO的时候（这两种img的计数方式不同），并且fpga的驱动的版本在3142以下时（3142对计数方式做了调整），并且放过为了填满FIFO所做的预先下发，遇到第一次实际因为触发了打印才进行的下发，做一个调整计数，1，这个计数用来修正从img获得的打印计数
+这样就可以避免出现，在打印业务中，触发了一次打印，但是打印计数却不被计数的问题
+
+2024-6-21 240621-126000001
+==================
+对240620-125900001版本做了优化
+
+2024-6-20 240620-125900001
+==================
+追加一个22mm通过SPI进行24M速率的写试验。为此，增加命令FPGA_CMD_HP22MM_HI_SPEED_WTEST，同时HP22MM的测试页面中追加相应的菜单选项
+
 2024-6-19 240619-125800001
 ==================
 将RFIDDevice中的connect函数中恢复到调用writeCmd，而不是调用RFIDAsyncTask的execute函数

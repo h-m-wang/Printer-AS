@@ -76,6 +76,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
     public static final int FPGA_CMD_UPGRADING_PROGRESS = 0x12;
 // End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+// H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+    public static final int FPGA_CMD_HP22MM_HI_SPEED_WTEST = 0x13;
+// End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 
     // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
@@ -1025,6 +1028,16 @@ public class FpgaGpioOperation {
         return -1;
     }
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+// H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+    public static int hp22mmHiSpeedWTest() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "HiSpeed write test");
+            return ioctl(fd, FPGA_CMD_HP22MM_HI_SPEED_WTEST, 0);
+        }
+        return -1;
+    }
+// End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 
 // H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
     public static int getUpgradingProgress() {

@@ -249,4 +249,9 @@ public class Hp22mm {
         return FpgaGpioOperation.hp22mmBulkWriteTest();
     }
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
+// H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+    public static int hp22mmHiSpeedWTest() {
+    return FpgaGpioOperation.hp22mmHiSpeedWTest();
+}
+// End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 }

@@ -1675,6 +1675,9 @@ private void setSerialProtocol9DTs(final String data) {
 		mUsingFIFO = (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_FIFO_SIZE) > 1) && (mDataTask.size() == 1);
 		mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 只有在FIFO的size大于1，并且不是群组打印的时候，才启动该标识
+// H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
+		mPrintedCountAhead = 0;
+// End of H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
 // H.M.Wang 2023-10-20 追加下发总数计数
 		mDownWrittenCount = 0;
 		mLastPrintedCount = 0;
@@ -1699,6 +1702,9 @@ private void setSerialProtocol9DTs(final String data) {
 	private boolean mUsingFIFO = false;
 	private int mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 追击是否正在使用FIFO的标识，用来控制当使用计数器的时候，如果FIFO当中还残留未打印的任务，会导致计数器在下次开始打印时跳数
+// H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
+	private int mPrintedCountAhead= 0;
+// End of H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
 
 	public void finish() {
 		mRunning = false;
@@ -2934,7 +2940,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，未采用FIFO时，也需要通过这里的处理调整打印计数
 //				if(mUsingFIFO) {
 // End of H.M.Wang 2023-10-22 由于主界面显示的打印计数已经修改为实际打印的数量，因此，未采用FIFO时，也需要通过这里的处理调整打印计数
-					lastPrintedCount = FpgaGpioOperation.getPrintedCount();
+// H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
+//					lastPrintedCount = FpgaGpioOperation.getPrintedCount();
+					lastPrintedCount = FpgaGpioOperation.getPrintedCount() + mPrintedCountAhead;
+// End of H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
 					if(lastPrintedCount != mPrintedCount) {
 						Debug.d(TAG, "lastPrintedCount = " + lastPrintedCount + "; mPrintedCount = " + mPrintedCount);
 						int printedCount = lastPrintedCount - mPrintedCount;
@@ -3128,6 +3137,16 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2023-10-20 追加下发总数计数
 							mDownWrittenCount++;
 // End of H.M.Wang 2023-10-20 追加下发总数计数
+// H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
+							if(!PlatformInfo.getImgUniqueCode().startsWith("22MM") && !PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {		// 排除HP22MM和4FIFO，因为这两种img的打印计数机制不同
+								if(FpgaGpioOperation.getDriverVersion() < 3142) {        // 如果是原来的第二个PH14才更新打印计数的img
+									int fifoSize = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE) == 0 ? 1 : SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE);
+									if(mDownWrittenCount == fifoSize + 1) {		// 当FIFO已经填满（如果FIFO个数为多个，则会出现多个empty，导致下发，但这是下发的数量会保存在FIFO中，并没有立即参与打印），正在下发超出FIFO尺寸的第一个任务时，认为第一次打印已经完成
+										mPrintedCountAhead = 1;
+									}
+								}
+							}
+// End of H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
 							reportEmpty = true;
 // H.M.Wang 2021-4-20 该函数的调用移到这里。否则在网络快速打印的首发之前，或者SCAN3协议的时候可能需要发送时被错误清除
 							mNeedUpdate = false;

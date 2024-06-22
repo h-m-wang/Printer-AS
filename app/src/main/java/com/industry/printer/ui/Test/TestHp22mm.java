@@ -84,7 +84,8 @@ public class TestHp22mm implements ITestOperation {
             "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
             "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "26 -- Toggle PI4",
-            "27 -- Toggle PI5"
+            "27 -- Toggle PI5",
+            "28 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
     };
 
     private String[] Registers = new String[] {
@@ -161,6 +162,9 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 21;
     private final static int HP22MM_TOGGLE_PI4                          = 22;
     private final static int HP22MM_TOGGLE_PI5                          = 23;
+// H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+    private final static int HP22MM_HISPEED_WTEST                       = 24;
+// End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -315,6 +319,8 @@ public class TestHp22mm implements ITestOperation {
             }
         }
     }
+
+    private static int mRound = 0;
 
     private void doHp22mmTest(final View view, final int index) {
         if(index == 0) return;      // skip select ids/pen line
@@ -605,6 +611,24 @@ public class TestHp22mm implements ITestOperation {
                             int valPI5_1 = ExtGpio.readGpioTestPin('I', 5);
                             mHp22mmTestResult[index] = "Success\n" + valPI5 + " -> " + valPI5_1;
                             break;
+// H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+                        case HP22MM_HISPEED_WTEST:
+                            int ret = Hp22mm.hp22mmHiSpeedWTest();
+                            if (ret >= 0) {
+                                if(mRound == 0) {
+                                    mHp22mmTestResult[index] = "Error Ratio: " + ret + "/128*100 (bytes) at 6M\n";
+                                } else if(mRound == 1) {
+                                    mHp22mmTestResult[index] = "Error Ratio: " + ret + "/128*100 (bytes) at 12M\n";
+                                } else if(mRound == 2) {
+                                    mHp22mmTestResult[index] = "Error Ratio: " + ret + "/128*100 (bytes) at 24M\n";
+                                }
+                                mRound++;
+                                mRound %= 3;
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\n";
+                            }
+                            break;
+// End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;
