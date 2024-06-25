@@ -3139,7 +3139,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2023-10-20 追加下发总数计数
 // H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
 							if(!PlatformInfo.getImgUniqueCode().startsWith("22MM") && !PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {		// 排除HP22MM和4FIFO，因为这两种img的打印计数机制不同
-								if(FpgaGpioOperation.getDriverVersion() < 3142) {        // 如果是原来的第二个PH14才更新打印计数的img
+								if(FpgaGpioOperation.getDriverVersion() < 3142 && FpgaGpioOperation.getDriverVersion() >= 3104) {        // 如果是原来的(从3104版开始修改的)第二个PH14才更新打印计数的img
 									int fifoSize = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE) == 0 ? 1 : SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FIFO_SIZE);
 									if(mDownWrittenCount == fifoSize + 1) {		// 当FIFO已经填满（如果FIFO个数为多个，则会出现多个empty，导致下发，但这是下发的数量会保存在FIFO中，并没有立即参与打印），正在下发超出FIFO尺寸的第一个任务时，认为第一次打印已经完成
 										mPrintedCountAhead = 1;
