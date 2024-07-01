@@ -21,7 +21,7 @@
             android:textColor="@color/white"
             android:background="@drawable/phone_cmds_bg"
             android:gravity="center"
-            android:text="添加无线设备" />
+            android:text="添加无线设备==" />
         <TextView
             android:id="@+id/CmdAddBTDevice0"
             android:layout_width="match_parent"
@@ -32,7 +32,7 @@
             android:textColor="@color/white"
             android:background="@drawable/phone_cmds_bg"
             android:gravity="center"
-            android:text="添加蓝牙设备" />
+            android:text="添加蓝牙设备==" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/ConnectStatusArea"
@@ -55,7 +55,7 @@
                 android:layout_marginRight="10dp"
                 android:textSize="14sp"
                 android:textColor="@drawable/add_cmd_text_color"
-                android:text="添加无线设备" />
+                android:text="添加无线设备--" />
             <TextView
                 android:id="@+id/CmdAddBTDevice"
                 android:layout_width="wrap_content"
@@ -63,7 +63,7 @@
                 android:layout_alignParentRight="true"
                 android:textSize="14sp"
                 android:textColor="@drawable/add_cmd_text_color"
-                android:text="添加蓝牙设备" />
+                android:text="添加蓝牙设备--" />
         </RelativeLayout>
         <ScrollView
             android:id="@+id/ConDevicesScrollView"

@@ -903,7 +903,16 @@ public class DataTransferThread {
 		});
 
 		boolean needUpdate = false;
-		String[] recvStrs = data.split(Scaner2Protocol.TEXT_SEPERATOR);
+// H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+//		String[] recvStrs = data.split(Scaner2Protocol.TEXT_SEPERATOR);
+		String[] recvStrs;
+
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6) {
+			recvStrs = data.split(":");
+		} else {
+			recvStrs = data.split(Scaner2Protocol.TEXT_SEPERATOR);
+		}
+// End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 
 		for(DataTask dataTask : mDataTask) {
 			ArrayList<BaseObject> objList = dataTask.getObjList();
@@ -1515,7 +1524,11 @@ private void setSerialProtocol9DTs(final String data) {
 					setSerialProtocol8DTs(data);
 // End of H.M.Wang 2021-3-6 追加串口协议8
 // H.M.Wang 2020-10-30 追加扫描2串口协议
-				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
+				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
+// H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+		        || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
+// End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+				) {
 					String datastring = new String(data, 0, data.length);
 					mS2Times = 0;
 					setScan2DataToDt(datastring);
@@ -1566,7 +1579,11 @@ private void setSerialProtocol9DTs(final String data) {
 					setScanDataToDt(code);
 				}
 			});
-		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
+		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
+// H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+	        || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
+// End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+		) {
 			mS2Times = 0;
 			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
 				@Override
@@ -2859,6 +2876,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 				    (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER2 ||
 							SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) <= 0) &&
 // End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
+// H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+					(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER6 ||
+							SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) <= 0) &&
+// End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 					// 数据源不是网络快速打印，或者如果是网络快速打印，但是数据已经准备好则下发
 					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
 					// 数据源不是扫描协议3
@@ -2988,7 +3009,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
 
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
-					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2) {
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
+// H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+						|| SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
+// End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+					) {
 						if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) > 0) {
 							if(mS2Times == 0) continue;
 							mS2Times--;

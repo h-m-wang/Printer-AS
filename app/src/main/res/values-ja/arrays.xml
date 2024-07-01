@@ -25,6 +25,9 @@
 <!-- H.M.Wang 2024-1-12 增加一个扫描协议5 -->
         <item>Scaner-5</item>
 <!-- End of H.M.Wang 2024-1-12 增加一个扫描协议5 -->
+<!-- H.M.Wang 2024-7-1 新增加扫描协议6 -->
+        <item>Scaner-6</item>
+<!-- End of H.M.Wang 2024-7-1 新增加扫描协议6 -->
         <item>RS232-1</item>
         <item>RS232-2</item>
         <item>RS232-3</item>

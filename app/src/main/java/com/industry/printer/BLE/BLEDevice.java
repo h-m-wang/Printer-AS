@@ -1,5 +1,6 @@
 package com.industry.printer.BLE;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
@@ -136,7 +137,10 @@ public class BLEDevice {
     }
 
     private boolean execCmdSetAdvData() {
-        return sendATCmd(String.format(CMD_SET_ADV_DATA, BLE_NAME.length()+1, ByteArrayUtils.toHexString(BLE_NAME.getBytes()).replace(" ", "")));
+        String ble_name = "000" + SystemConfigFile.getInstance().getParam(78);
+        ble_name = ble_name.substring(ble_name.length()-3);
+        ble_name = BLE_NAME + ble_name;
+        return sendATCmd(String.format(CMD_SET_ADV_DATA, ble_name.length()+1, ByteArrayUtils.toHexString(ble_name.getBytes()).replace(" ", "")));
     }
 
     private boolean execCmdStartAdvertise() {
@@ -171,8 +175,6 @@ public static boolean BLERequiring = false;
     public String readLine() {
         if(!mInitialized) return "";
 
-        try{Thread.sleep(100);}catch(Exception e){};
-
         String rcvString = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
             ExtGpio.writeGpioTestPin('I', 9, 1);
@@ -184,18 +186,19 @@ public static boolean BLERequiring = false;
             }
 
             if(StringUtil.isEmpty(rcvString)) {
+                try{Thread.sleep(100);}catch(Exception e){};
                 return rcvString;
             }
 
-            if(!mClientConnected) {
+//            if(!mClientConnected) {       // 由于蓝牙与RFID共用一个串口，通过切换时间片来切换，因此，连接事件极有可能在处于RFID通道的时候发生，此时BLE芯片会建立连接，但无法接收到串口的连接通知
                 if(rcvString.startsWith(RECV_CONNECTED)) {
                     mClientConnected = true;
                     mClientMacAddress = rcvString.substring(RECV_CONNECTED.length()+3, RECV_CONNECTED.length()+20);
                     Debug.d(TAG, "Client [" + mClientMacAddress + "] connected.");
                     waitString(RECV_CONNECTPARAM);
                 }
-            } else {
-                if(rcvString.startsWith(RECV_DISCONNECTED)) {
+//            } else {
+                else if(rcvString.startsWith(RECV_DISCONNECTED)) {
                     mClientConnected = false;
                     Debug.d(TAG, "Client [" + mClientMacAddress + "] disconnected.");
                     mClientMacAddress = "";
@@ -204,13 +207,14 @@ public static boolean BLERequiring = false;
                     Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");
                     return rcvString.substring(rcvString.indexOf(',')+1);
                 }
-            }
+//            }
         }
         return "";
     }
 
     public void writeLine(String msg) {
-        if(!mInitialized || !mClientConnected) return;
+//        if(!mInitialized || !mClientConnected) return;
+        if(!mInitialized) return;
 
         if(sendATCmd(CMD_GATTS_INDICATE+msg.length())) {
             sendString(msg);
