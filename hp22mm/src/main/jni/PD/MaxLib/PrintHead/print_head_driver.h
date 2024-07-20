@@ -31,6 +31,6 @@ extern PDHandle_t _pd_handle[NUM_BLUR_INSTANCES];
 
 //#define MUTEX_LOCKINSTANCE_LOCKID(instance)  (&(_pd_handle[instance].lock))
 
-extern bool _is_lib_initialized;
+//extern bool _is_lib_initialized;
 
 #endif

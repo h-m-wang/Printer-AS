@@ -23,6 +23,7 @@
 
 package com.industry.printer.hardware;
 
+import java.io.FileDescriptor;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.apache.http.util.ByteArrayBuffer;
 
 import android.os.SystemClock;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -50,6 +52,7 @@ public class RFIDDevice implements RfidCallback{
 	public static native byte[] read(int fd, int len);
 	public static native int setBaudrate(int fd, int rate);
 	public static native byte[] calKey(byte[] uid);
+	public static native FileDescriptor cnvt2FileDescriptor(int fd);
 
 	public static Object SERIAL_LOCK = new Object();
 
@@ -610,19 +613,23 @@ public class RFIDDevice implements RfidCallback{
 		byte[] readin = null;
 
 		openDevice();
-		Debug.print(RFID_DATA_SEND, data.mTransData);
-		
+if(BLEDevice.BLERequiring) return null;
+synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
+	Debug.print(RFID_DATA_SEND, data.mTransData);
+	ExtGpio.writeGpioTestPin('I', 9, 0);
+
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //		int writed = write(mFd, data.transferData(), data.getLength());
-		int writed = write(mFd, data.mTransData, data.mTransData.length);
+	int writed = write(mFd, data.mTransData, data.mTransData.length);
 
-		try {
-			Thread.sleep(500);
-		}catch (Exception e) {
-		}
-		readin = read(mFd, 64);
-		Debug.print(RFID_DATA_RECV, readin);
-
+	try {
+		Thread.sleep(500);
+	} catch (Exception e) {
+	}
+	readin = read(mFd, 64);
+	Debug.print(RFID_DATA_RECV, readin);
+	ExtGpio.writeGpioTestPin('I', 9, 1);
+}
 		if (readin == null || readin.length == 0) {
 			Debug.e(TAG, "===>read err");
 			closeDevice();

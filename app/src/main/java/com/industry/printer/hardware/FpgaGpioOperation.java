@@ -732,7 +732,7 @@ public class FpgaGpioOperation {
         data[26] = 0;
 */
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+        if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
             data = Hp22mm.getSettings();
         }
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
@@ -838,13 +838,6 @@ public class FpgaGpioOperation {
      * 停止打印时调用，用于停止内核轮训线程
      */
     public static void uninit() {
-// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-        SystemConfigFile config = SystemConfigFile.getInstance();
-        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            Hp22mm.stopPrint();
-        }
-// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-
         int fd = open();
         if (fd <= 0) {
             return;

@@ -117,6 +117,13 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_GPIO_close
  * RFID操作接口定义
  *********************************************/
 
+/*
+ * Class:     Java_com_industry_printer_RFID_cnvt2FileDescriptor
+ * Method:    cnvt2FileDescriptor
+ * Signature: (I)Ljava/io/FileDescriptor;
+ */
+JNIEXPORT jobject Java_com_industry_printer_RFID_cnvt2FileDescriptor(JNIEnv *env, jclass arg, int fd);
+
 /**
  * Class:     com_industry_printer_RFID
  * Method:    open

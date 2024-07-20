@@ -2,12 +2,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape> <!-- 下划线的颜色 -->
-            <solid android:color="#FFDDDDDD" />
+            <solid android:color="#FF0000DD" />
         </shape>
     </item>
     <item android:bottom="1dp">
         <shape> <!-- 背景的颜色 -->
-            <solid android:color="#FFEEEEEE" />
+            <solid android:color="#FFEE0000" />
         </shape>
     </item>
 </layer-list>

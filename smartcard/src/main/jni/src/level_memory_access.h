@@ -123,6 +123,10 @@ typedef enum
     LEVEL_CHANNEL_3
 } LEVEL_CHANNEL_t;
 */
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+int writeMCPH21Byte(int reg, uint8_t *data);
+int readMCPH21Byte(int reg, uint8_t *data);
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 int readChannelData0(uint32_t *data);
 int readChannelData1(uint32_t *data);
 int readChannelData2(uint32_t *data);

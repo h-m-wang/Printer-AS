@@ -37,7 +37,7 @@ Made in U.S.A.
 
 /* Array of print head control handle structure */
 PDHandle_t _pd_handle[NUM_BLUR_INSTANCES];
-bool _is_lib_initialized = false;
+static bool _is_lib_initialized = false;
 Headinfo_t headcontrolinfo = {0,0,0,0,0,false};
 
 /*

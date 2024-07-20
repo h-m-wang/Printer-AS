@@ -1,44 +1,48 @@
 package com.printer.phoneapp.Devices;
 
-import android.widget.LinearLayout;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 
-import com.printer.phoneapp.Sockets.BTSocketThread;
-import com.printer.phoneapp.Sockets.SocketThread;
-import com.printer.phoneapp.Sockets.WIFISocketThread;
+import com.printer.phoneapp.Sockets.BLEDataXfer;
+import com.printer.phoneapp.Sockets.BTDataXfer;
+import com.printer.phoneapp.Sockets.DataXfer;
+import com.printer.phoneapp.Sockets.WifiDataXfer;
 
 /**
  * Created by hmwan on 2021/9/7.
  */
 
 public class ConnectDevice {
+    private static final String TAG = ConnectDevice.class.getSimpleName();
+
     public static final int DEVICE_TYPE_UNKNOWN = 0;
     public static final int DEVICE_TYPE_WIFI = 1;
     public static final int DEVICE_TYPE_BT = 2;
+    public static final int DEVICE_TYPE_BLE = 3;
 
     private String          mName;
     private String          mAddress;
     private int             mType;
-    private SocketThread mSocketThread;
-    private LinearLayout mLinearLayout;
+    private DataXfer        mDataXfer;
     private String          mErrMsg = "";
-    private boolean         mSelected = false;
 
-    public ConnectDevice() {
-        this("", "", DEVICE_TYPE_UNKNOWN, false);
+    public ConnectDevice(Context ctx, BluetoothDevice dev, int type) {
+        mName = dev.getName();
+        mAddress = dev.getAddress();
+        mType = type;
+        if(mType == DEVICE_TYPE_BLE) {
+            mDataXfer = new BLEDataXfer(ctx, dev);
+        } else {
+            mDataXfer = new BTDataXfer(ctx, dev);
+        }
     }
 
-    public ConnectDevice(String name, String address, int type, boolean selected) {
+    public ConnectDevice(Context ctx, String name, String address, int type) {
         mName = name;
         mAddress = address;
         mType = type;
-        if(mType == DEVICE_TYPE_WIFI) {
-            mSocketThread = new WIFISocketThread(this);
-        } else {
-            mSocketThread = new BTSocketThread(this);
-        }
-        mLinearLayout = null;
         mErrMsg = "";
-        mSelected = selected;
+        mDataXfer = new WifiDataXfer(ctx, address);
     }
 
     public String getName() {
@@ -53,20 +57,8 @@ public class ConnectDevice {
         return mType;
     }
 
-    public void setLinearLayout(LinearLayout l) {
-        mLinearLayout = l;
-    }
-
-    public LinearLayout getLinearLayout() {
-        return mLinearLayout;
-    }
-
-    public boolean isSeleted() {
-        return mSelected;
-    }
-
-    public void setSeleted(boolean selected) {
-        mSelected = selected;
+    public boolean isConnected() {
+        return mDataXfer.mConnected;
     }
 
     public void setErrMsg(String errMsg) {
@@ -77,14 +69,16 @@ public class ConnectDevice {
         return mErrMsg;
     }
 
-    public void sendString(String msg, SocketThread.OnSocketStringListener l) {
-        if(null != mSocketThread) {
-            mSocketThread.sendString(msg, l);
-        }
+    public void connect(DataXfer.OnDeviceConnectionListener l) {
+        mDataXfer.setDeviceConnectionListener(l);
+        mDataXfer.connect();
     }
 
-    public interface OnAddDeviceListener {
-        public void onAdd(String address, int type);
+    public void disconnect() {
+        mDataXfer.disconnect();
     }
 
+    public void sendString(String msg, DataXfer.OnDataXferListener l) {
+        mDataXfer.sendString(msg, l);
+    }
 }

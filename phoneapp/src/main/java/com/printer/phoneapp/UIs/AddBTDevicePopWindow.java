@@ -1,6 +1,5 @@
 package com.printer.phoneapp.UIs;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -11,7 +10,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -20,41 +18,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.printer.phoneapp.Devices.ConnectDevice;
-import com.printer.phoneapp.Devices.ConnectDeviceManager;
 import com.printer.phoneapp.PhoneMainActivity;
 import com.printer.phoneapp.R;
-import com.printer.phoneapp.Sockets.BLEManager;
-import com.printer.phoneapp.Sockets.BTManager;
-import com.printer.phoneapp.Sockets.BluetoothManager;
-
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
-import static com.printer.phoneapp.UIs.BarcodeScanPopupWindow.TAG;
+import com.printer.phoneapp.Sockets.BLEDriver;
+import com.printer.phoneapp.Sockets.BTDriver;
+import com.printer.phoneapp.Sockets.NonBLEDriver;
 
 /**
  * Created by hmwan on 2021/9/10.
  */
 
 public class AddBTDevicePopWindow {
-    public static final String TAG = AddBTDevicePopWindow.class.getSimpleName();
+    private static final String TAG = AddBTDevicePopWindow.class.getSimpleName();
 
     private Context mContext = null;
     private PopupWindow mPopupWindow = null;
     private LinearLayout mDevicesList = null;
 
-    private ConnectDeviceManager mConDevManager = null;
-    private BluetoothManager mBluetoothManager = null;
+    private BTDriver mBluetoothManager = null;
 
     public AddBTDevicePopWindow(Context ctx) {
         mContext = ctx;
-        mConDevManager = ConnectDeviceManager.getInstance(ctx);
         if(!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
-            mBluetoothManager = BTManager.getInstance(ctx);
+            mBluetoothManager = NonBLEDriver.getInstance(ctx);
         } else {
             Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
-            mBluetoothManager = BLEManager.getInstance(ctx);
+            mBluetoothManager = BLEDriver.getInstance(ctx);
         }
     }
 
@@ -71,7 +61,7 @@ public class AddBTDevicePopWindow {
         linearLayout.setTag(dev);
 
         final TextView deviceTV = (TextView) linearLayout.findViewById(R.id.idDevice);
-        deviceTV.setText(dev.getName() + "(" + dev.getAddress() + ")");
+        deviceTV.setText(dev.getName());
 
         final ImageView selIV = (ImageView) linearLayout.findViewById(R.id.idSelected);
         selIV.setImageBitmap(null);
@@ -82,18 +72,18 @@ public class AddBTDevicePopWindow {
             public void onClick(View v) {
                 if(!linearLayout.isSelected()) {
                     selIV.setImageResource(R.drawable.check_mark);
-                    mBluetoothManager.connectDevice(dev);
+                    linearLayout.setBackgroundColor(Color.YELLOW);
                 } else {
                     selIV.setImageBitmap(null);
-                    mBluetoothManager.disconnectDevice(dev);
+                    linearLayout.setBackgroundColor(Color.TRANSPARENT);
                 }
                 linearLayout.setSelected(!selIV.isSelected());
             }
         });
     }
 
-    public void show(View v, final ConnectDevice.OnAddDeviceListener l) {
-        if(null == mContext || null == mConDevManager) {
+    public void show(View v, final PhoneMainActivity.OnDeviceSelectListener l) {
+        if(null == mContext) {
             return;
         }
 
@@ -121,11 +111,11 @@ public class AddBTDevicePopWindow {
             searchTV.setEnabled(false);
         }
 
-        final TextView addTV = (TextView)popupView.findViewById(R.id.idAdd);
+        final TextView connectTV = (TextView)popupView.findViewById(R.id.idConnect);
         if(mDevicesList.getChildCount() > 0) {
-            addTV.setEnabled(true);
+            connectTV.setEnabled(true);
         } else {
-            addTV.setEnabled(false);
+            connectTV.setEnabled(false);
         }
         final ProgressBar progressBar = (ProgressBar)popupView.findViewById(R.id.idDiscovering);
 
@@ -137,7 +127,7 @@ public class AddBTDevicePopWindow {
                     return;
                 }
                 clearDeviceView();
-                mBluetoothManager.startDiscovery(new BluetoothManager.OnDiscoveryListener() {
+                mBluetoothManager.startDiscovery(new BTDriver.OnDiscoveryListener() {
                     @Override
                     public void onDiscoveryStarted() {
                         Log.d(TAG, "Discovery started.");
@@ -145,9 +135,8 @@ public class AddBTDevicePopWindow {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-//                                        mDevicesList.removeAllViews();
                                         searchTV.setEnabled(false);
-                                        addTV.setEnabled(false);
+                                        connectTV.setEnabled(false);
                                         progressBar.setVisibility(View.VISIBLE);
                                     }
                                 }
@@ -162,7 +151,7 @@ public class AddBTDevicePopWindow {
                                     @Override
                                     public void run() {
                                         searchTV.setEnabled(true);
-                                        addTV.setEnabled(true);
+                                        connectTV.setEnabled(true);
                                         progressBar.setVisibility(View.GONE);
                                     }
                                 }
@@ -173,24 +162,26 @@ public class AddBTDevicePopWindow {
                     public void onDeviceFound(BluetoothDevice device) {
                         Log.d(TAG, "Device [" + device.getName() + "," + device.getAddress() + "," + device.getType() + "] found.");
                         addDeviceView(device);
-                        addTV.setEnabled(true);
+                        connectTV.setEnabled(true);
                     }
                 });
             }
         });
 
-        addTV.setOnClickListener(new View.OnClickListener() {
+        connectTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(null != l) {
+                    mBluetoothManager.stopDiscovery();
                     for(int i=mDevicesList.getChildCount()-1; i>=0; i--) {
                         View iv = mDevicesList.getChildAt(i);
-                        Log.d(TAG, "iv.isSelected() = " + iv.isSelected());
                         if(iv.isSelected()) {
                             BluetoothDevice dev = (BluetoothDevice)iv.getTag();
-Log.d(TAG, dev.getAddress() + " -> DEVICE_TYPE_BT");
-                            l.onAdd(dev.getAddress(), ConnectDevice.DEVICE_TYPE_BT);
-                            mBluetoothManager.connectDevice(dev);
+                            if(mBluetoothManager instanceof BLEDriver) {
+                                l.onSelected(new ConnectDevice(mContext, dev, ConnectDevice.DEVICE_TYPE_BLE));
+                            } else {
+                                l.onSelected(new ConnectDevice(mContext, dev, ConnectDevice.DEVICE_TYPE_BT));
+                            }
                         }
                     }
                 }

@@ -28,8 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.080"
-
+#define VERSION_CODE                            "1.0.081"
+// 1.0.081 2024-7-8
+// 追加一个接口函数getErrString（内部：Java_com_GetErrorString），用来向apk返回开始、停止打印时发生的错误
 // 1.0.080 2024-6-7
 // 单纯版本更新
 // 1.0.079 2024-6-5
@@ -711,7 +712,7 @@ extern char ERR_STRING[];
 
 JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
-        LOGE("%s\n", ERR_STRING);
+//        LOGE("%s\n", ERR_STRING);
         return -1;
     }
 
@@ -730,10 +731,14 @@ JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
     CancelPrint = true;
 
     if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
-        LOGE("%s\n", ERR_STRING);
+//        LOGE("%s\n", ERR_STRING);
         return -1;
     }
     return 0;
+}
+
+JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
+    return (*env)->NewStringUTF(env, ERR_STRING);
 }
 
 JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg) {
@@ -1463,6 +1468,7 @@ static JNINativeMethod gMethods[] = {
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
         {"_startPrint",	    "()I",	    (void *)Java_com_StartPrint},
         {"_stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
+        {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},

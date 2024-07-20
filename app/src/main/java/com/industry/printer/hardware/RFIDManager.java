@@ -22,7 +22,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 	private static final String TAG = RFIDManager.class.getSimpleName();
 	
 	private static volatile RFIDManager	mInstance=null;
-	private List<RFIDDevice> mRfidDevices = new ArrayList<RFIDDevice>();
+	public List<RFIDDevice> mRfidDevices = new ArrayList<RFIDDevice>();
 	private int mCurrent=0;
 	private int mLiveHeads = 1;
 	private RFIDDevice mDevice;

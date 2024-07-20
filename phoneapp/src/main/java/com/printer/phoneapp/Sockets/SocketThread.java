@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by hmwan on 2021/9/7.
  */
-
+@Deprecated
 abstract public class SocketThread {
     protected ExecutorService mSocketThread = null;
     protected ConnectDevice mDevice = null;

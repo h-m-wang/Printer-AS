@@ -15,7 +15,7 @@ import java.util.List;
  */
 
 public class HTPermission {
-    public static final String TAG = HTPermission.class.getSimpleName();
+    private static final String TAG = HTPermission.class.getSimpleName();
 
     // 23之前，只要你在AndroidManifest中申请了权限，都会给你；在23之后，
     // 需要动态申请权限。权限申请分为两类：第一类是不涉及用户隐私的，

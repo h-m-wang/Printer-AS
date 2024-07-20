@@ -9,6 +9,9 @@
 #include "level_memory_access.h"
 
 #define LEVEL_I2C_ADDRESS       0x2b
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+#define MCP_H21_I2C_ADDRESS     0x7f
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 #define DATA_CHANNEL_0_MSB_ADDR     0x00
 #define DATA_CHANNEL_0_LSB_ADDR     0x01
@@ -131,6 +134,33 @@ static int _read4Bytes(int reg, uint32_t *data) {
 }
 
 // --- Functional Functions ---------------------------------------------------------
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+int writeMCPH21Byte(int reg, uint8_t *data) {
+    int ret;
+
+    ret = SC_I2C_DRIVER_write(0x01, MCP_H21_I2C_ADDRESS, reg, data, 1);
+
+    if(ret < 0) {
+        LOGE("Write data error!");
+        return LEVEL_I2C_FAILED;
+    }
+
+    return LEVEL_I2C_OK;
+}
+
+int readMCPH21Byte(int reg, uint8_t *data) {
+    int read_length;
+
+    read_length = SC_I2C_DRIVER_read(0x01, MCP_H21_I2C_ADDRESS, reg, data, 1);
+
+    if(read_length < 0) {
+        LOGE("Read data error!");
+        return LEVEL_I2C_FAILED;
+    }
+
+    return LEVEL_I2C_OK;
+}
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 int readChannelData0(uint32_t *data) {
     return _read4Bytes(DATA_CHANNEL_0_MSB_ADDR, data);

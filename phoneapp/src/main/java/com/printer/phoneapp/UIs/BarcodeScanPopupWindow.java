@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.ColorDrawable;
@@ -20,7 +19,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
@@ -54,9 +52,10 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
+import com.printer.phoneapp.Data.BarcodeDataProc;
 import com.printer.phoneapp.Devices.ConnectDevice;
-import com.printer.phoneapp.Devices.ConnectDeviceManager;
 import com.printer.phoneapp.R;
+import com.printer.phoneapp.Sockets.DataXfer;
 import com.printer.phoneapp.Sockets.SocketThread;
 
 import java.lang.ref.WeakReference;
@@ -68,13 +67,13 @@ import java.util.Arrays;
  */
 
 public class BarcodeScanPopupWindow {
-    public static final String TAG = BarcodeScanPopupWindow.class.getSimpleName();
+    private static final String TAG = BarcodeScanPopupWindow.class.getSimpleName();
 
     private Context mContext = null;
     private PopupWindow mPopupWindow = null;
 
-    private ConnectDeviceManager mConDevManager = null;
-    private SocketThread.OnSocketStringListener mListener = null;
+    private DataXfer.OnDataXferListener mListener = null;
+    private ConnectDevice mDevice;
 
     private HTNCCameraTextureView mTextureView = null;
     private RectF mClipRect = null;
@@ -115,12 +114,19 @@ public class BarcodeScanPopupWindow {
                     mScanningBar.cancel();
                     mProcessBar.setAnimation(null);
                     mProcessBar.setVisibility(View.GONE);
-                    Toast.makeText(mContext, "" + msg.obj, Toast.LENGTH_LONG).show();
-                    if(null != mConDevManager) {
-                        if(null != mConDevManager) {
-                            mConDevManager.sendString((String)msg.obj, mListener);
+
+                    final String scaned = (String)msg.obj;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final String cmd = BarcodeDataProc.makeup650CmdString(scaned);
+                            if(null == cmd || cmd.isEmpty()) {
+                                if(null != mListener) mListener.onFailed("Data not found.");
+                                return;
+                            }
+                            mDevice.sendString(cmd, mListener);
                         }
-                    }
+                    }).start();
                     mPopupWindow.dismiss();
                     break;
 //                case MSG_UNKNOWN_QRCODE:
@@ -130,9 +136,10 @@ public class BarcodeScanPopupWindow {
         }
     };
 
-    public BarcodeScanPopupWindow(Context ctx) {
+    public BarcodeScanPopupWindow(Context ctx, ConnectDevice dev, DataXfer.OnDataXferListener l) {
         mContext = ctx;
-        mConDevManager = ConnectDeviceManager.getInstance(ctx);
+        mListener = l;
+        mDevice = dev;
     }
 
     public void show(View v) {
@@ -225,10 +232,6 @@ public class BarcodeScanPopupWindow {
         mScanningBar.setRepeatCount(Animation.INFINITE);
 
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
-    }
-
-    public void setSocketListener(SocketThread.OnSocketStringListener l) {
-        mListener = l;
     }
 
     private void beepOnce() {

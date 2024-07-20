@@ -1,6 +1,8 @@
 package com.industry.printer.Rfid;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.RFIDDevice;
 
 public class N_RFIDModuleChecker {
@@ -29,37 +31,22 @@ public class N_RFIDModuleChecker {
     }
 
     private N_RFIDData transfer(byte cmd, byte[] data) {
-        N_RFIDData rfidData = new N_RFIDData();
-synchronized (RFIDDevice.SERIAL_LOCK) {
-        if (0 == mSerialPort.write(rfidData.make(cmd, data))) {
-            mErrorMessage = "COM异常：" + mSerialPort.getErrorMessage();
+        if(null == mSerialPort) {
+            mErrorMessage = "COM未链接";
             Debug.e(TAG, mErrorMessage);
             return null;
         }
-
-        byte[] recvData = mSerialPort.read();
-        if (null == recvData) {
-            mErrorMessage = "COM异常：" + mSerialPort.getErrorMessage();
-            Debug.e(TAG, mErrorMessage);
-            return null;
-        }
-
-        if(!rfidData.parse(recvData)) {
-            mErrorMessage = "数据包异常：" + rfidData.getErrorMessage();
-            Debug.e(TAG, mErrorMessage);
-            return null;
-        }
-}
-        return rfidData;
+        return mSerialPort.transfer(cmd, data);
     }
 
     public int check(String portName) {
-
         if(!mSerialPort.open(portName)) {
             mErrorMessage = "COM异常：" + mSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
             return RFID_MOD_UNKNOWN;
         }
+
+        mSerialPort.setBaudrate(115200);
 
         N_RFIDData rfidData;
 

@@ -20,6 +20,8 @@ import android.widget.Toast;
 import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.MessageTask;
 import com.industry.printer.R;
+import com.industry.printer.Rfid.N_RFIDSerialPort;
+import com.industry.printer.Rfid.RFIDData;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.ConfigPath;
@@ -28,9 +30,15 @@ import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.IInkDevice;
+import com.industry.printer.hardware.InkManagerFactory;
+import com.industry.printer.hardware.N_RFIDDevice;
+import com.industry.printer.hardware.N_RFIDManager;
 import com.industry.printer.hardware.RFIDDevice;
+import com.industry.printer.hardware.RFIDManager;
 
 import java.io.File;
+import java.util.List;
 
 public class TestMain {
     public static final String TAG = TestMain.class.getSimpleName();
@@ -52,12 +60,16 @@ public class TestMain {
         R.string.str_test_main_al_printer,
         R.string.str_test_main_save_100,
         R.string.str_test_main_ble_module_on,
-        R.string.str_test_main_m9_test};
+        R.string.str_test_main_m9_test,
+        R.string.str_m9_test_rfid};
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+
+    private boolean mQuit = false;
 
     public TestMain(Context ctx) {
         mContext = ctx;
         mIFTestOp = null;
+        mQuit = false;
     }
 
     private byte[] rMMM;
@@ -87,6 +99,7 @@ public class TestMain {
                     }
                 } else {
                     mPopupWindow.dismiss();
+                    mQuit = true;
                 }
             }
         });
@@ -141,6 +154,7 @@ public class TestMain {
                             public void run() {
                                 try{
                                     for(int i=0; i<SAVE_COUNT_LIMIT; i++) {
+                                        if(mQuit) break;
                                         final int pos = i+1;
                                         mSaving = true;
                                         mTask.save(new MessageTask.SaveProgressListener() {
@@ -169,40 +183,171 @@ public class TestMain {
                 }
 // End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 // H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
-                if(i == 4) {
-                    ToastUtil.show(mContext,"Starting BLE ...");
-
+                else if(i == 4) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             BLEDevice ble = BLEDevice.getInstance();
-                            if(ble.initServer()) {
-                                mMainMenuLV.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ToastUtil.show(mContext,"Succeeded!");
-                                    }
-                                });
-                            } else {
-                                mMainMenuLV.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ToastUtil.show(mContext,"Failed!");
-                                    }
-                                });
-                            }
+//for(int i=0; i<100; i++) {
+//    if(mQuit) break;
+    mMainMenuLV.post(new Runnable() {
+        @Override
+        public void run() {
+            ToastUtil.show(mContext, "Starting BLE ...!");
+        }
+    });
+    if (ble.initServer()) {
+        mMainMenuLV.post(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.show(mContext, "Succeeded!");
+            }
+        });
+    } else {
+        mMainMenuLV.post(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.show(mContext, "Failed!");
+            }
+        });
+    }
+    try{Thread.sleep(1000);}catch(Exception e){}
+//}
                         }
                     }).start();
                     return;
                 }
 // End of H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
-                if(i == 5) {
+                else if(i == 5) {
                     mIFTestOp = new TestGpioPinsNew(mContext, 0);
                     mIFTestOp.show(mClientAreaFL);
                     mIFTestOp.setTitle(mTitleTV);
                     mMainMenuLV.setVisibility(View.GONE);
                     return;
                 }
+// H.M.Wang 2024-7-10 追加一个RFID读写测试，重复100次
+                else if(i == 6) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            IInkDevice manager = InkManagerFactory.inkManager(mContext);
+                            if (!(manager instanceof RFIDManager)) {
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.show(mContext, "Not RFID Device!");
+                                    }
+                                });
+                                return;
+                            }
+                            while(BLEDevice.BLERequiring) {
+                                try{Thread.sleep(100);}catch(Exception e){}
+                            }
+
+                            synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
+                                BLEDevice.BLERequiring = true;
+                                ExtGpio.writeGpioTestPin('I', 9, 0);
+                                IInkDevice rfidManager = InkManagerFactory.inkManager(mContext);
+                                if (rfidManager instanceof RFIDManager) {
+                                    for (int i = 0; i < 100; i++) {
+                                        if (mQuit) break;
+                                        mMainMenuLV.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ToastUtil.show(mContext, "RFID Access Test ...!");
+                                            }
+                                        });
+                                        List<RFIDDevice> devices = ((RFIDManager)manager).mRfidDevices;
+                                        for(int j=0; j<devices.size(); j++) {
+                                            final int devNo = j;
+                                            byte[] key = devices.get(j).mRFIDKeyA;
+                                            RFIDData[] data = new RFIDData[] {
+                                                    new RFIDData(RFIDDevice.RFID_CMD_SEARCHCARD, RFIDDevice.RFID_DATA_SEARCHCARD_ALL),
+                                                    new RFIDData(RFIDDevice.RFID_CMD_AUTO_SEARCH, RFIDDevice.RFID_DATA_SEARCH_MODE),
+                                                    new RFIDData(RFIDDevice.RFID_CMD_READ_VERIFY, new byte[]{0x00, (byte)(RFIDDevice.SECTOR_INK_MAX*4+RFIDDevice.BLOCK_INK_MAX), key[0], key[1], key[2], key[3], key[4], key[5] }),
+                                                    new RFIDData(RFIDDevice.RFID_CMD_READ_VERIFY, new byte[]{0x00, (byte)(RFIDDevice.SECTOR_FEATURE*4+RFIDDevice.BLOCK_FEATURE), key[0], key[1], key[2], key[3], key[4], key[5] }),
+                                                    new RFIDData(RFIDDevice.RFID_CMD_READ_VERIFY, new byte[]{0x00, (byte)(RFIDDevice.SECTOR_INKLEVEL*4+RFIDDevice.BLOCK_INKLEVEL), key[0], key[1], key[2], key[3], key[4], key[5] }),
+                                                    new RFIDData(RFIDDevice.RFID_CMD_READ_VERIFY, new byte[]{0x00, (byte)(RFIDDevice.SECTOR_COPY_INKLEVEL*4+RFIDDevice.BLOCK_COPY_INKLEVEL), key[0], key[1], key[2], key[3], key[4], key[5] }),
+                                            };
+                                            ExtGpio.rfidSwitch(j);
+                                            try {
+                                                Thread.sleep(100);
+                                            } catch (Exception e) {
+                                            }
+                                            byte[] readin = null;
+                                            for(int k=0; k<data.length; k++) {
+                                                Debug.print(RFIDDevice.RFID_DATA_SEND, data[k].mTransData);
+                                                RFIDDevice.write(RFIDDevice.mFd, data[k].mTransData, data[k].mTransData.length);
+                                                readin = RFIDDevice.read(RFIDDevice.mFd, 64);
+                                                Debug.print(RFIDDevice.RFID_DATA_RECV, readin);
+                                                if(null == readin) break;
+                                            }
+
+                                            if (null != readin) {
+                                                mMainMenuLV.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        ToastUtil.show(mContext, "Rfid[" + devNo + "] Success!");
+                                                    }
+                                                });
+                                            } else {
+                                                mMainMenuLV.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        ToastUtil.show(mContext, "Rfid[" + devNo + "] Failed!");
+                                                    }
+                                                });
+                                            }
+                                            try {Thread.sleep(1000);} catch (Exception e) {}
+                                        }
+                                    }
+                                } else if(rfidManager instanceof N_RFIDManager) {
+                                    for (int i = 0; i < 100; i++) {
+                                        if (mQuit) break;
+                                        mMainMenuLV.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                ToastUtil.show(mContext, "RFID Access Test ...!");
+                                            }
+                                        });
+                                        List<N_RFIDDevice> devices = ((N_RFIDManager)manager).mRfidDevices;
+                                        for(int j=0; j<devices.size(); j++) {
+                                            final int devNo = j;
+                                            ExtGpio.rfidSwitch(j);
+                                            if (devices.get(i).init()) {
+                                                mMainMenuLV.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        ToastUtil.show(mContext, "Rfid[" + devNo + "] Success!");
+                                                    }
+                                                });
+                                            } else {
+                                                mMainMenuLV.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        ToastUtil.show(mContext, "Rfid[" + devNo + "] Failed!");
+                                                    }
+                                                });
+                                            }
+                                            try {Thread.sleep(1000);} catch (Exception e) {}
+                                        }
+                                    }
+                                } else {
+                                    mMainMenuLV.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ToastUtil.show(mContext, "Not supported RFID device!");
+                                        }
+                                    });
+                                }
+                                BLEDevice.BLERequiring = false;
+                                ExtGpio.writeGpioTestPin('I', 9, 1);
+                            }
+                        }
+                    }).start();
+                    return;
+                }
+// End of H.M.Wang 2024-7-10 追加一个RFID读写测试，重复100次
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);

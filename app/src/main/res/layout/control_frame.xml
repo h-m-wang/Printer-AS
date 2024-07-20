@@ -392,6 +392,21 @@
             android:src="@drawable/battery0"
             />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ctrl_hp22mm_result_area"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tv_hp22mm_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:textSize="10sp"
+            android:textColor="#000000"
+            />
+    </LinearLayout>
 
 <!-- H.M.Wang 2023-6-14 追加一个SC版本的监视信息显示 -->
     <RelativeLayout

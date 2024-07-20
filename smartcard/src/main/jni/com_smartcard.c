@@ -25,8 +25,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.397"
+#define VERSION_CODE                            "1.0.398"
 
+// 1.0.398 2024-7-4 暂时追加MCP-H21-xxxxx芯片的读压力值功能
 // 1.0.397 FSR=4.096V
 // 1.0.396 1115的地址修改为0x49
 // 1.0.395 临时追加一个DAC5571的设置功能
@@ -1073,24 +1074,6 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass ar
         chData = 0;
     }
 
-/*    if(chData == 0x0FFFFFFF) {
-        uint16_t config;
-        if(LEVEL_I2C_OK == readConfig(&config)) {
-            config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
-            writeConfig(&config);
-
-            int temp = 0;
-            for(int i=0; i<1000; i++){
-                temp++;
-            }
-
-            config &= CONFIG_ACTIVE_MODE_ENABLE;                // Set to Active mode
-            writeConfig(&config);
-
-            LOGD(">>> Level Restart!");
-        }
-    }
-*/
     LOGD(">>> Level for [BAGINK] data read: 0x%08X", chData);
 
     pthread_mutex_unlock(&mutex);
@@ -1098,6 +1081,45 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass ar
     return chData;
 }
 // End of H.M.Wang 2022-11-1 Add this API for Bagink Use
+
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg) {
+    LOGD(">>> Read MCP-H21 Level");
+
+    pthread_mutex_lock(&mutex);
+
+    uint32_t chData = 0;
+
+    // 写入0x0A 开始单次压力采集模式， 当寄存器值变为0x02 时，单次采集完成；
+    char cmd = 0x0A;
+    writeMCPH21Byte(0x30, &cmd);
+
+    do {
+        usleep(1000);
+        if(LEVEL_I2C_OK != readMCPH21Byte(0x30, &cmd)) break;
+        if(cmd == 0x02) break;
+    } while(1);
+
+    // Code = Data0x06*2^16+ Data0x07*2^8 + Data0x08
+    if(LEVEL_I2C_OK == readMCPH21Byte(0x06, &cmd)) {
+        chData |= ((cmd << 16) & 0x00FF0000);
+    }
+
+    if(LEVEL_I2C_OK == readMCPH21Byte(0x07, &cmd)) {
+        chData |= ((cmd << 8) & 0x0000FF00);
+    }
+
+    if(LEVEL_I2C_OK == readMCPH21Byte(0x08, &cmd)) {
+        chData += ((cmd << 0) & 0x000000FF);
+    }
+
+    LOGD(">>> MCP-H21 Level data read: 0x%008X", chData);
+
+    pthread_mutex_unlock(&mutex);
+
+    return chData;
+}
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 /**
  * 读取Level值
@@ -1302,6 +1324,7 @@ static JNINativeMethod gMethods[] = {
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
         {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
+        {"readMCPH21Level",		    "()I",						(void *)Java_com_Smartcard_readMCPH21Level},
         {"writeDAC5571",	    	    "(I)I",						(void *)Java_com_Smartcard_writeDAC5571},
         {"readADS1115",	    	    "(I)I",						(void *)Java_com_Smartcard_readADS1115},
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},

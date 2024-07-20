@@ -13,7 +13,7 @@ import java.nio.charset.Charset;
 /**
  * Created by hmwan on 2021/9/7.
  */
-
+@Deprecated
 public class WIFISocketThread extends SocketThread {
     public WIFISocketThread(ConnectDevice dev) {
         super(dev);

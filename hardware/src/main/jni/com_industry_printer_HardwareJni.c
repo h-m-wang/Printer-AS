@@ -65,6 +65,7 @@ static JNINativeMethod gRFIDMethods[] = {
 	{"read",		"(II)[B",					(void *)Java_com_industry_printer_RFID_read},
 	{"close",		"(I)I",						(void *)Java_com_industry_printer_RFID_close},
 	{"setBaudrate",	"(II)I",					(void *)Java_com_industry_printer_RFID_setBaudrate},
+	{"cnvt2FileDescriptor",	"(I)Ljava/io/FileDescriptor;",					(void *)Java_com_industry_printer_RFID_cnvt2FileDescriptor},
 	{"calKey", "([B)[B",						(void *)Java_com_industry_printer_RFID_calKey},
 };
 
@@ -133,7 +134,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     JNIEnv* env = NULL;
     jint result = -1;
 
-	ALOGI("Hardware_jni.so 1.0.4 Loaded.");
+	ALOGI("Hardware_jni.so 1.0.5 Loaded.");
 
     if ((*vm)->GetEnv(vm, (void**) &env, JNI_VERSION_1_4) != JNI_OK) {
         //__android_log_print(ANDROID_LOG_INFO, JNI_TAG,"ERROR: GetEnv failed\n");

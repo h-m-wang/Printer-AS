@@ -13,8 +13,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.printer.phoneapp.Devices.ConnectDevice;
-import com.printer.phoneapp.Devices.ConnectDeviceManager;
+import com.printer.phoneapp.PhoneMainActivity;
 import com.printer.phoneapp.R;
+import com.printer.phoneapp.Sockets.BLEDriver;
 
 import java.util.regex.Pattern;
 
@@ -23,19 +24,17 @@ import java.util.regex.Pattern;
  */
 
 public class AddWifiDevicePopWindow {
-    public static final String TAG = AddWifiDevicePopWindow.class.getSimpleName();
+    private static final String TAG = AddWifiDevicePopWindow.class.getSimpleName();
 
     private Context mContext = null;
     private PopupWindow mPopupWindow = null;
-    private ConnectDeviceManager mConDevManager = null;
 
     public AddWifiDevicePopWindow(Context ctx) {
         mContext = ctx;
-        mConDevManager = ConnectDeviceManager.getInstance(ctx);
     }
 
-    public void show(View v, final ConnectDevice.OnAddDeviceListener l) {
-        if(null == mContext || null == mConDevManager) {
+    public void show(View v, final PhoneMainActivity.OnDeviceSelectListener l) {
+        if(null == mContext) {
             return;
         }
 
@@ -71,12 +70,9 @@ public class AddWifiDevicePopWindow {
                 if(!Pattern.matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$", ipET.getText())) {
                     errMsgTV.setText("Invalid IP Address!");
                     errMsgTV.setVisibility(View.VISIBLE);
-                } else if(mConDevManager.hasAdded(ipET.getText().toString())) {
-                    errMsgTV.setText("Address already added!");
-                    errMsgTV.setVisibility(View.VISIBLE);
                 } else {
                     if(null != l) {
-                        l.onAdd(ipET.getText().toString(), ConnectDevice.DEVICE_TYPE_WIFI);
+                        l.onSelected(new ConnectDevice(mContext, ipET.getText().toString(), ipET.getText().toString(), ConnectDevice.DEVICE_TYPE_WIFI));
                     }
                     mPopupWindow.dismiss();
                 }

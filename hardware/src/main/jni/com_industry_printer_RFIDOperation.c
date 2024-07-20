@@ -132,7 +132,25 @@ JNIEXPORT jint Java_com_industry_printer_RFID_setBaudrate(JNIEnv *env, jclass ar
 	return 0;
 }
 
+// H.M.Wang 2024-7-19 增加该函数，目的是将正常打开的文件号转化为FileDescriptor，用在通过流访问串口（有多处相应修改，未一一添加注释）
+/*
+ * Class:     Java_com_industry_printer_RFID_cnvt2FileDescriptor
+ * Method:    cnvt2FileDescriptor
+ * Signature: (I)Ljava/io/FileDescriptor;
+ */
+JNIEXPORT jobject Java_com_industry_printer_RFID_cnvt2FileDescriptor(JNIEnv *env, jclass arg, int fd)
+{
+    jobject fileDescriptor;
 
+    jclass cFileDescriptor = (*env)->FindClass(env, "java/io/FileDescriptor");
+    jmethodID iFileDescriptor = (*env)->GetMethodID(env, cFileDescriptor, "<init>", "()V");
+    jfieldID descriptorID = (*env)->GetFieldID(env, cFileDescriptor, "descriptor", "I");
+    fileDescriptor = (*env)->NewObject(env, cFileDescriptor, iFileDescriptor);
+    (*env)->SetIntField(env, fileDescriptor, descriptorID, (jint)fd);
+
+    return fileDescriptor;
+}
+// End of H.M.Wang 2024-7-19 增加该函数，目的是将正常打开的文件号转化为FileDescriptor，用在通过流访问串口
 
 JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_open
   (JNIEnv *env, jclass arg, jstring dev)

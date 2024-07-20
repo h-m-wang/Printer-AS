@@ -49,7 +49,7 @@
             android:textColor="@color/white"
             android:background="@drawable/phone_cmds_bg" />
         <TextView
-            android:id="@+id/idAdd"
+            android:id="@+id/idConnect"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
             android:padding="10dp"
             android:textSize="18sp"
             android:gravity="center"
-            android:text="Add"
+            android:text="Connect"
             android:textColor="@color/white"
             android:background="@drawable/phone_cmds_bg" />
     </LinearLayout>

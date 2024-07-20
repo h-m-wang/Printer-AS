@@ -1,6 +1,7 @@
 package com.industry.printer.hardware;
 
 import android.content.res.AssetManager;
+import android.os.Handler;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PrinterApplication;
@@ -48,6 +49,7 @@ public class Hp22mm {
     static public native int UpdateIDSFW();
     static public native int _startPrint();
     static public native int _stopPrint();
+    static public native String getErrString();
     static public native int getConsumedVol();
     static public native int getUsableVol();
 //    static public native String startPrint();
@@ -237,6 +239,7 @@ public class Hp22mm {
                 return _startPrint();
             }
         }
+        Debug.d(TAG, "startPrint succeeded\n");
         return 0;
     }
 

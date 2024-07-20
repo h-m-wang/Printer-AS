@@ -2,7 +2,9 @@ package com.industry.printer.hardware;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 
+import com.industry.printer.ControlTabActivity;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 
@@ -24,6 +26,10 @@ public class Hp22mmSCManager implements IInkDevice {
     private boolean mInitialized;
 // End of H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
 
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+    public static final int MSG_HP22MM_ERROR = 23;
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+
     public Hp22mmSCManager(Context context) {
         mContext = context;
         mInkLevel = 0;
@@ -41,9 +47,15 @@ public class Hp22mmSCManager implements IInkDevice {
             @Override
             public void run() {
                 while(Hp22mm.initHp22mm() != 0) {
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+                    mCallback.sendEmptyMessage(MSG_HP22MM_ERROR);
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
                 }
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                 mInitialized = true;
             }
         }).start();
@@ -106,5 +118,29 @@ public class Hp22mmSCManager implements IInkDevice {
     @Override
     public float getMaxRatio(int dev) {
         return 1.0f;
+    }
+
+    public int startPrint() {
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+        int ret = Hp22mm.startPrint();
+        if(ret < 0) {
+            mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+        } else {
+            mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+        }
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+        return ret;
+    }
+
+    public int stopPrint() {
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+        int ret = Hp22mm.stopPrint();
+        if(ret < 0) {
+            mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+        } else {
+            mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+        }
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
+        return ret;
     }
 }

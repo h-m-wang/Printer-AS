@@ -60,6 +60,7 @@ import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.LRADCBattery;
@@ -237,7 +238,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private MessageTask mEditTask;
 	private TextObject mEditObject;
 
-// H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+	private TextView mHp22mmErrTV;
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+
+	// H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 	public TextView mCtrlTitle;
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 //	public TextView mCountdown;
@@ -762,6 +767,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mPower = (RelativeLayout) getView().findViewById(R.id.power);
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
 		mTime = (TextView) getView().findViewById(R.id.time);
+
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+			mHp22mmErrTV = (TextView) getView().findViewById(R.id.tv_hp22mm_result);
+		}
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_NONE && Configs.UI_TYPE == Configs.UI_STANDARD) {
@@ -1363,7 +1374,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 
 		boolean valid = !(null != mDTransThread && mDTransThread.isRunning());
-		for(int i=0; i<heads; i++) {
+// H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
+//		for(int i=0; i<heads; i++) {
+		for(int i=0; i<Math.min(heads, 6); i++) {
+// End of H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
 			float ink = mInkManager.getLocalInkPercentage(i);
 			float count = mInkManager.getLocalInk(i) - 1;
 
@@ -2084,14 +2098,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if (dt != null && dt.size() > 0) {
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
-					mInkManager.checkUID(heads);
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-					SystemConfigFile config = SystemConfigFile.getInstance();
-					if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-						if(Hp22mm.startPrint() < 0)
+					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+						if(((Hp22mmSCManager)mInkManager).startPrint() < 0) {
 							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
+						}
 					}
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+					mInkManager.checkUID(heads);
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
 // H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码
@@ -2100,8 +2114,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //					mInkLevel.setText("" + msg.arg1);
 // End of H.M.Wang 2021-1-7 取消显示错误号，这个是为了调试
 // End of H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码
+					Debug.d(TAG, "--->Smartcard check UUID fail");
+					handleError(R.string.str_toast_ink_error, pcMsg);
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
+						@Override
+						public void run() {
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
+							try{Thread.sleep(50);}catch(Exception e){};
+							ExtGpio.playClick();
+						}
+					});
+					break;
 				case RFIDManager.MSG_RFID_CHECK_FAIL:
-					Debug.d(TAG, "--->Print check UUID fail");
+					Debug.d(TAG, "--->Rfid check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
 					ThreadPoolManager.mControlThread.execute(new Runnable() {
 						@Override
@@ -2270,6 +2297,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //						mDTransThread = null;
 //						initDTThread();
 					}
+
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+						((Hp22mmSCManager)mInkManager).stopPrint();
+					}
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 
 					FpgaGpioOperation.uninit();
 
@@ -2475,6 +2508,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case MSG_IMPORT_DONE:
 					mProgressDialog.dismiss();
+					break;
+				case Hp22mmSCManager.MSG_HP22MM_ERROR:
+// H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+					if(null != mHp22mmErrTV) {
+						mHp22mmErrTV.setText((String)msg.obj);
+					}
+// End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
 				default:
 					break;

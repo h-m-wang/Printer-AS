@@ -13,11 +13,14 @@
 /***********************************************************
  *  Utility Functions
  ***********************************************************/
+char ERR_STRING[1024];
+
 
 int ids_check(char *function, IDSResult_t result)
 {
     if(result == IDS_OK) return 0;
     LOGE("%s() failed: %s\n", function, ids_get_error_description(result));
+    sprintf(ERR_STRING, "IDS ERROR: %s failed: %s.\n", function, ids_get_error_description(result));
     return -1;
 }
 
@@ -111,8 +114,6 @@ char *ph_error_description(int error) {
     return ph_error_string[error];
 }
 
-char ERR_STRING[1024];
-
 int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
     if(result == PD_OK) return 0;
 
@@ -127,7 +128,7 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
         status.print_head_error = -1;
         pd_get_print_head_status(PD_INSTANCE, PenIdx, &status);
 
-        sprintf(ERR_STRING, "ERROR: %s(PenIdx=%d) failed: %s.  PH state: %s  PH error: %d %s\n", function, PenIdx,
+        sprintf(ERR_STRING, "PD ERROR: %s(PenIdx=%d) failed: %s.  PH state: %s  PH error: %d %s\n", function, PenIdx,
                      pd_get_error_description(result),
                      ph_state_description(status.print_head_state),
                      status.print_head_error,

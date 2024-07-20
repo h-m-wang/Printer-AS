@@ -1,6 +1,8 @@
 package com.industry.printer.Rfid;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.RFIDDevice;
 
 public abstract class N_RFIDModule {
@@ -69,13 +71,13 @@ public abstract class N_RFIDModule {
     }
 
     public boolean open(String portName) {
-        boolean success = mRFIDSerialPort.open(portName);
-        if(!success) {
+        if(!mRFIDSerialPort.open(portName)) {
             mErrorMessage = "COM异常：" + mRFIDSerialPort.getErrorMessage();
             Debug.e(TAG, mErrorMessage);
+            return false;
         }
-//        setBaudrate(9600);
-        return success;
+        mRFIDSerialPort.setBaudrate(115200);
+        return true;
     }
 
     protected N_RFIDData transfer(byte cmd, byte[] data) {
@@ -85,61 +87,7 @@ public abstract class N_RFIDModule {
             return null;
         }
 
-        N_RFIDData rfidData = new N_RFIDData();
-
-synchronized (RFIDDevice.SERIAL_LOCK) {
-        if(0 == mRFIDSerialPort.write(rfidData.make(cmd, data))) {
-            mErrorMessage = "COM异常：" + mRFIDSerialPort.getErrorMessage();
-            Debug.e(TAG, mErrorMessage);
-            return null;
-        }
-
-        byte[] recvData = mRFIDSerialPort.read();
-        if(null == recvData) {
-            mErrorMessage = "COM异常：" + mRFIDSerialPort.getErrorMessage();
-            Debug.e(TAG, mErrorMessage);
-            return null;
-        }
-
-        if(!rfidData.parse(recvData)) {
-            mErrorMessage = "数据包异常：" + rfidData.getErrorMessage();
-            Debug.e(TAG, mErrorMessage);
-            return null;
-        }
-}
-        return rfidData;
-    }
-
-    public boolean setBaudrate(int baudrate) {
-        byte[] writeBytes;
-
-        if(baudrate == 9600) {
-            writeBytes = DATA_BITRATE_9600;
-        } else if(baudrate == 19200) {
-            writeBytes = DATA_BITRATE_19200;
-        } else if(baudrate == 115200) {
-            writeBytes = DATA_BITRATE_115200;
-        } else {
-            mErrorMessage = "波特率错误：" + baudrate;
-            Debug.e(TAG, mErrorMessage);
-            return false;
-        }
-
-        N_RFIDData rfidData = transfer(CMD_SET_BAUDRATE, writeBytes);
-
-        if(null != rfidData) {
-            if(rfidData.getResult() == RESULT_OK) {
-                Debug.d(TAG, "波特率设置成功");
-                return mRFIDSerialPort.setBaudrate(baudrate);
-            } else {
-                mErrorMessage = "设备返回失败：" + rfidData.getResult();
-                Debug.e(TAG, mErrorMessage);
-            }
-        }
-
-        Debug.e(TAG, "波特率设置失败");
-
-        return false;
+        return mRFIDSerialPort.transfer(cmd, data);
     }
 
     public byte[] getUID() {

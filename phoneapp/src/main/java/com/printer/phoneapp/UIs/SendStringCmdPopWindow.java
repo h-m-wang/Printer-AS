@@ -11,11 +11,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.printer.phoneapp.Devices.ConnectDevice;
-import com.printer.phoneapp.Devices.ConnectDeviceManager;
 import com.printer.phoneapp.R;
+import com.printer.phoneapp.Sockets.DataXfer;
 import com.printer.phoneapp.Sockets.SocketThread;
 
 /**
@@ -25,23 +24,17 @@ import com.printer.phoneapp.Sockets.SocketThread;
 public class SendStringCmdPopWindow {
     private Context mContext = null;
     private PopupWindow mPopupWindow = null;
-    private ConnectDeviceManager mConDevManager = null;
-    private SocketThread.OnSocketStringListener mListener = null;
+    private DataXfer.OnDataXferListener mListener = null;
+    private ConnectDevice mDevice;
 
-    public void setConDevManager(ConnectDeviceManager conDevManager) {
-        mConDevManager = conDevManager;
-    }
-
-    public void setSocketListener(SocketThread.OnSocketStringListener l) {
-        mListener = l;
-    }
-
-    public SendStringCmdPopWindow(Context ctx) {
+    public SendStringCmdPopWindow(Context ctx, ConnectDevice dev, DataXfer.OnDataXferListener l) {
         mContext = ctx;
+        mListener = l;
+        mDevice = dev;
     }
 
     public void show(View v) {
-        if(null == mContext || null == mConDevManager) {
+        if(null == mContext) {
             return;
         }
 
@@ -67,9 +60,8 @@ public class SendStringCmdPopWindow {
         okTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(null != mConDevManager) {
-                mConDevManager.sendString(msgET.getText().toString(), mListener);
-            }
+                mPopupWindow.dismiss();
+                mDevice.sendString(msgET.getText().toString(), mListener);
             }
         });
 

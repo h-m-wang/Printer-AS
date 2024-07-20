@@ -16,7 +16,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
     private static final String TAG = N_RFIDManager.class.getSimpleName();
 
     private static volatile N_RFIDManager mInstance = null;
-    private List<N_RFIDDevice> mRfidDevices;
+    public List<N_RFIDDevice> mRfidDevices;
     private Handler mCallback;
     private Timer mTimer;
     private int mCurrent;

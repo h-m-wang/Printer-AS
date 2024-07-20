@@ -17,7 +17,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.industry.printer.R;
+import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.SmartCard;
 
 public class TestSub implements ITestOperation {
@@ -47,10 +49,18 @@ public class TestSub implements ITestOperation {
     private static final int ID_HP22MM_TEST = 8;
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
     private static final int ID_ADS1115_READING_TEST = 9;
+// End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+    private static final int ID_MCP_H21XXXX_READING_TEST = 10;
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
+// H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
     private AlertDialog mRecvedLevelPromptDlg = null;
     private boolean mADS1115Reading = false;
 // End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+    private boolean mMCPH21xxxxReading = false;
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
     private class TestItem {
         public String mCaption;
@@ -70,6 +80,9 @@ public class TestSub implements ITestOperation {
                     new TestItem("Bagink Test", ID_BAGINK_TEST),
                     new TestItem("GPIO Pin Test", ID_GPIO_PIN_TEST),
                     new TestItem("Hp22mm Test", ID_HP22MM_TEST),
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+                    new TestItem("MCP-H21xxxx Reading Test", ID_MCP_H21XXXX_READING_TEST),
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
             },
             {       // Smartcard
                     new TestItem("Level ID Test", ID_LEVEL_ID_TEST),
@@ -199,6 +212,49 @@ public class TestSub implements ITestOperation {
                         mIFTestOp = null;
                         break;
 // End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+                    case ID_MCP_H21XXXX_READING_TEST:
+                        if(null == mRecvedLevelPromptDlg) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                            mRecvedLevelPromptDlg = builder.setTitle("MCP-H21xxxx 读值测试").setMessage("").setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mMCPH21xxxxReading = false;
+                                    mRecvedLevelPromptDlg.dismiss();
+                                    mRecvedLevelPromptDlg = null;
+                                }
+                            }).create();
+                            mRecvedLevelPromptDlg.show();
+
+                            mMCPH21xxxxReading = true;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    while(mMCPH21xxxxReading) {
+                                        if(!mMCPH21xxxxReading) break;
+                                        StringBuilder sb = new StringBuilder();
+                                        for(int i=0; i< RfidScheduler.LEVELS.length; i++) {
+                                            ExtGpio.rfidSwitch(RfidScheduler.LEVELS[i]);
+                                            try{Thread.sleep(50);}catch(Exception e){};
+                                            sb.append("Value[" + (i+1) + "] = " + SmartCard.readMCPH21Level() + "\n");
+                                        }
+                                        if(null != mRecvedLevelPromptDlg) {
+                                            final String showStr = sb.toString();
+                                            mContainer.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mRecvedLevelPromptDlg.setMessage(showStr);
+                                                }
+                                            });
+                                        }
+                                        try{Thread.sleep(100L);}catch(Exception e){}
+                                    }
+                                }
+                            }).start();
+                        }
+                        mIFTestOp = null;
+                        break;
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
                     default:
                         mIFTestOp = null;
                         break;

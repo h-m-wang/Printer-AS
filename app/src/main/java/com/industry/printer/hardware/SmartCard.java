@@ -86,6 +86,10 @@ public class SmartCard {
     static public native int readLevelDirect();
 // End of H.M.Wang 2022-11-1 Add this API for Bagink Use
 
+// H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+    static public native int readMCPH21Level();
+// End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+
     static public native int testLevel(int card);
 
     static public native int readManufactureID(int card);

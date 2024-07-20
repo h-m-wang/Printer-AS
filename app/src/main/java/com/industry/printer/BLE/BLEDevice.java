@@ -1,6 +1,7 @@
 package com.industry.printer.BLE;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.Rfid.N_RFIDSerialPort;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
@@ -10,6 +11,10 @@ import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.pccommand.PCCommandManager;
+
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 /**
  * Created by hmwan on 2024/1/27.
@@ -53,8 +58,13 @@ public class BLEDevice {
     }
 
     private BLEDevice() {
-        mSerialPort = new SerialPort();
-        mStreamTransport = mSerialPort.spOpenStream(PlatformInfo.getRfidDevice(), 115200);
+// H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭
+//        mSerialPort = new SerialPort();
+//        mStreamTransport = mSerialPort.spOpenStream(PlatformInfo.getRfidDevice(), 115200);
+        FileDescriptor fd = RFIDDevice.cnvt2FileDescriptor(N_RFIDSerialPort.mFd + RFIDDevice.mFd);  // 两者之间没有被启用的为0，被启用的是一个大于0的值（一个是复旦卡，另一个是23卡）
+        mStreamTransport = new StreamTransport(new FileInputStream(fd), new FileOutputStream(fd));
+// End of H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭
+
         mInitialized = false;
         mClientConnected = false;
         mClientMacAddress = "";
@@ -146,7 +156,8 @@ public class BLEDevice {
     private boolean execCmdStartAdvertise() {
         return sendATCmd(CMD_START_ADVERTISE);
     }
-public static boolean BLERequiring = false;
+
+    public static boolean BLERequiring = false;
     public boolean initServer() {
         BLERequiring = true;
         Debug.d(TAG, "RFID-ENTER");
@@ -162,9 +173,11 @@ public static boolean BLERequiring = false;
                 execCmdStartGattsService() &&
                 execCmdSetAdvData() &&
                 execCmdStartAdvertise();
+            ExtGpio.writeGpioTestPin('I', 9, 0);
         }
         Debug.d(TAG, "RFID-QUIT");
         BLERequiring = false;
+
         return mInitialized;
     }
 
@@ -181,8 +194,7 @@ public static boolean BLERequiring = false;
             if(mStreamTransport.readerReady()) {
                 // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
-                Debug.d(TAG, "RFID-RECV: [" + rcvString + "]");
-                Debug.d(TAG, "RFID-RECV: [" + ByteArrayUtils.toHexString(rcvString.getBytes()) + "]");
+                Debug.d(TAG, "RFID-RECV: [" + rcvString + "]\n[" + ByteArrayUtils.toHexString(rcvString.getBytes()) + "]");
             }
 
             if(StringUtil.isEmpty(rcvString)) {
@@ -216,8 +228,10 @@ public static boolean BLERequiring = false;
 //        if(!mInitialized || !mClientConnected) return;
         if(!mInitialized) return;
 
-        if(sendATCmd(CMD_GATTS_INDICATE+msg.length())) {
-            sendString(msg);
+        synchronized (RFIDDevice.SERIAL_LOCK) {
+            if(sendATCmd(CMD_GATTS_INDICATE+msg.length())) {
+                sendString(msg);
+            }
         }
     }
 
