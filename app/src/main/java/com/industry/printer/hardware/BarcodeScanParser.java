@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ToastUtil;
 
@@ -242,6 +243,12 @@ public class BarcodeScanParser {
             parseCode();
         } else
 // End of H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
+// H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
+//	public static final boolean SCANER2_4_SPECIAL_USE = false;		// 检查字符匹配
+        if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2 && Configs.SCANER2_4_SPECIAL_USE) {
+            parseCode();
+        } else
+// End of H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
         if(mCodes.length() > 2 && mCodes.charAt(1) == mCodes.charAt(mCodes.length()-1)) {          // 最后一位与第二位的值需要一致
             mCodes.deleteCharAt(mCodes.length()-1);
             parseCode();

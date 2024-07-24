@@ -72,6 +72,9 @@
         <item>GS1-4</item>
         <item>GS1-5</item>
 <!-- End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能 -->
+<!-- H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据 -->
+        <item>蓝牙数据</item>
+<!-- End of H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据 -->
     </string-array>
 <!-- End of H.M.Wang 2019-12-19 追加数据源名称字符串数组 -->
 

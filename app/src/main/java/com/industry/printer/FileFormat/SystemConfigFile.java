@@ -380,6 +380,9 @@ public class SystemConfigFile{
 //        （3）每个AI后面的字符为对应于该AI的数据，数据的合法性需要用户保证，当数据错误时生成条码失败
 	public static final int DATA_SOURCE_GS1_3	= 33;
 // End of H.M.Wang 2024-6-12 追加三个GS1条码数据源协议。
+// H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据
+	public static final int DATA_SOURCE_BLUETOOTH 	= 34;		// 数据源使用蓝牙数据
+// End of H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据
 
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。
@@ -894,6 +897,7 @@ public class SystemConfigFile{
 					mParam[75] = Integer.parseInt(t.getValue());
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_77)) {
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+					mParam[76] = Integer.parseInt(t.getValue());
 					mParam[76] = checkParam(77, mParam[76]);
 //					mParam[76] = Integer.parseInt(t.getValue());
 // End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数

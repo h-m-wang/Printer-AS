@@ -13,5 +13,13 @@
         android:textSize="24sp"
         android:textColor="@color/white"
         android:text="@string/app_name"  />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:layout_gravity="center"
+        android:textSize="24sp"
+        android:textColor="@color/white"
+        android:text="20240722-001"  />
 
 </LinearLayout>

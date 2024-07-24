@@ -72,6 +72,7 @@ public class N_RFIDSerialPort {
             if(rfidData.getResult() == RESULT_OK) {
                 Debug.d(TAG, "波特率设置成功");
                 RFIDDevice.setBaudrate(mFd, baudrate);
+                try { Thread.sleep(500);} catch(Exception e){}
                 return true;
             } else {
                 mErrorMessage = "设备返回失败：" + rfidData.getResult();

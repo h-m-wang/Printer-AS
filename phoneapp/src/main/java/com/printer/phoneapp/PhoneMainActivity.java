@@ -74,7 +74,7 @@ public class PhoneMainActivity extends AppCompatActivity {
 
     private void adjustCommandAreaEnability() {
         for(int i=0; i<mCommandArea.getChildCount(); i++) {
-            mCommandArea.getChildAt(i).setEnabled(null != mConDevice ? true : false);
+            mCommandArea.getChildAt(i).setEnabled(null != mConDevice && mConDevice.isConnected() ? true : false);
         }
     }
 
@@ -99,6 +99,7 @@ public class PhoneMainActivity extends AppCompatActivity {
                     mDevState.setText("Closed");
                     mDevState.setTextColor(Color.RED);
                     adjustCommandAreaEnability();
+                    if(null != mConDevice) mConDevice.connect(mOnDeviceConnectionListener);
                 }
             });
         }
@@ -138,7 +139,9 @@ public class PhoneMainActivity extends AppCompatActivity {
         popWindow.show(mAddBTDevice, new OnDeviceSelectListener() {
             @Override
             public void onSelected(ConnectDevice dev) {
-                if(null != mConDevice) mConDevice.disconnect();
+                ConnectDevice cdev = mConDevice;
+                mConDevice = null;
+                if(null != cdev) cdev.disconnect();
                 mDevIcon.setImageResource(R.drawable.bt);
                 mDevIcon.setVisibility(View.VISIBLE);
                 mDevName.setText(dev.getName());
