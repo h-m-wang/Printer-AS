@@ -393,7 +393,6 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "PD power off failed";
                                 break;
                             }
-
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_INIT_IDS:
