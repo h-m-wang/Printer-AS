@@ -2,7 +2,9 @@ package com.printer.phoneapp;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -210,6 +212,18 @@ public class PhoneMainActivity extends AppCompatActivity {
         }
     }
 
+    private class ScanBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO Auto-generated method stub
+            String text = intent.getExtras().getString("code");
+            Log.i(TAG, "ScanBroadcastReceiver code:" + text);
+            Toast.makeText(PhoneMainActivity.this, "ScanBroadcastReceiver code:" + text, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private ScanBroadcastReceiver scanBroadcastReceiver = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -256,6 +270,14 @@ public class PhoneMainActivity extends AppCompatActivity {
         adjustCommandAreaEnability();
 
         checkWriteExternalStoragePermission();
+
+        if(scanBroadcastReceiver==null) {
+            scanBroadcastReceiver = new ScanBroadcastReceiver();
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction("com.scancode.resault");
+            this.registerReceiver(scanBroadcastReceiver, intentFilter);
+        }
+
     }
 
     private void checkWriteExternalStoragePermission() {
