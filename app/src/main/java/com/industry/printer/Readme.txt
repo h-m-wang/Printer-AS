@@ -1,3 +1,18 @@
+2024-7-26 240726-127900001
+==================
+将240720-127500001版本中，在N_RFIDModuleChecker类中open完串口后对波特率的设置取消。因为这里如果设置了115200的话，在RFIDDevice再次打开串口的时候，会自动以19200进行通讯，这样目标与链路的波特率就不匹配了
+
+2024-7-25 240725-127800001
+==================
+hp22mm库升级到1.0.082，对应于hp的新的api代码Demo_05_03.
+具体增加的功能是
+1. New code to set SPI quad-enable bit (NOTE: FOR MACRONIX SPI FLASH ONLY!!)
+    Set the Quad SPI enable bit in the status read from status register
+    主要是在烧写新的FPGA的FW时，设置SPI的属性。需要注意：
+    (1) 需要PD的FW版本先升级到5.3版本，否则可能不动作
+    (2) NOTE: FOR MACRONIX SPI FLASH ONLY!!。如果是其他的芯片可能会出现错误
+2. 增加pd_enable_warming和pd_disable_warming接口及其它相关辅助代码（但是这个API似乎还没有被真正使用）
+
 2024-7-24 240724-127700001
 ==================
 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查

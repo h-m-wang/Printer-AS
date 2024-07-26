@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.printer.phoneapp.Data.BarcodeDataProc;
 import com.printer.phoneapp.Devices.ConnectDevice;
 import com.printer.phoneapp.Sockets.BTDriver;
 import com.printer.phoneapp.Sockets.DataXfer;
@@ -62,6 +65,7 @@ public class PhoneMainActivity extends AppCompatActivity {
     private TextView mDevState = null;
     private TextView mCmdSent = null;
     private TextView mDataRecvd = null;
+    private TextView mScanResult = null;
 
     private LinearLayout mCommandArea = null;
 
@@ -73,6 +77,22 @@ public class PhoneMainActivity extends AppCompatActivity {
     public interface OnDeviceSelectListener {
         public void onSelected(ConnectDevice dev);
     }
+
+    private final static int MSG_DISP_SCANRESULT         = 101;
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_DISP_SCANRESULT:
+                    if(msg.arg1 == 1) {
+                        mScanResult.setTextColor(Color.BLACK);
+                    } else {
+                        mScanResult.setTextColor(Color.RED);
+                    }
+                    mScanResult.setText((String)msg.obj);
+                    mScanResult.setVisibility(View.VISIBLE);
+            }
+        }
+    };
 
     private void adjustCommandAreaEnability() {
         for(int i=0; i<mCommandArea.getChildCount(); i++) {
@@ -216,9 +236,23 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             // TODO Auto-generated method stub
-            String text = intent.getExtras().getString("code");
-            Log.i(TAG, "ScanBroadcastReceiver code:" + text);
-            Toast.makeText(PhoneMainActivity.this, "ScanBroadcastReceiver code:" + text, Toast.LENGTH_LONG).show();
+            final String text = intent.getExtras().getString("code");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final String cmd = BarcodeDataProc.makeup650CmdString(text);
+                    Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
+                    if(null == cmd || cmd.isEmpty()) {
+                        msg.arg1 = 0;
+                        msg.obj = "Data not found.";
+                    } else {
+                        msg.arg1 = 1;
+                        msg.obj = cmd;
+                        if(null != mConDevice) mConDevice.sendString(cmd, new DataXferListener());
+                    }
+                    mHandler.sendMessage(msg);
+                }
+            }).start();
         }
     }
 
@@ -233,6 +267,13 @@ public class PhoneMainActivity extends AppCompatActivity {
         mBluetoothManager.enableBluetooth();
 
         mConnectStatusArea = (LinearLayout) findViewById(R.id.ConnectStatusArea);
+        TextView aaa = (TextView) findViewById(R.id.CmdAAA);
+        aaa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 主要是为了拦截扫码枪的结果
+            }
+        });
         mAddWIFIDevice = (TextView) findViewById(R.id.CmdAddWIFIDevice);
         mAddWIFIDevice.setOnClickListener(AddWIFIDeviceButtonClickListener);
         mAddBTDevice= (TextView) findViewById(R.id.CmdAddBTDevice);
@@ -241,6 +282,8 @@ public class PhoneMainActivity extends AppCompatActivity {
         mDevIcon = (ImageView) findViewById(R.id.DevIcon);
         mDevName = (TextView) findViewById(R.id.DevName);
         mDevState = (TextView) findViewById(R.id.DevState);
+
+        mScanResult = (TextView) findViewById(R.id.ScanResult);
 
         mCommandArea = (LinearLayout) findViewById(R.id.CommandsArea);
         mCmdSent = (TextView) findViewById(R.id.TextSent);

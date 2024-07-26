@@ -102,6 +102,7 @@ char *ph_error_string[] = {
     "DIECONTINUITY",
     "IDSEXPIRED",
     "PARTIALINKSHORT",
+    "TARGETTEMP_NOTREACHED",
 };
 #define ERROR_COUNT 58
 

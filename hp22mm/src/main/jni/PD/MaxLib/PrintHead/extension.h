@@ -50,6 +50,7 @@ Made in U.S.A.
 #define FLASH_BP2_BIT			1<<4
 #define FLASH_WP_MASK			(FLASH_BP0_BIT | FLASH_BP1_BIT | FLASH_BP2_BIT)
 #define FLASH_PAGE_SIZE			256
+#define FLASH_QE_MASK			1<<6
 
 #define EXTENSION_I2CMASTER_ID	3
 #define I2C1					0

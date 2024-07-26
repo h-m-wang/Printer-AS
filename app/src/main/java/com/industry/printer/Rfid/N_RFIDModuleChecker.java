@@ -46,8 +46,6 @@ public class N_RFIDModuleChecker {
             return RFID_MOD_UNKNOWN;
         }
 
-        mSerialPort.setBaudrate(115200);
-
         N_RFIDData rfidData;
 
         // 02 00 00 04 46 52 9C 03

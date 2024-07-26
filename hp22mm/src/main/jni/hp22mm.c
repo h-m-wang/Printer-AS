@@ -28,7 +28,13 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.081"
+#define VERSION_CODE                            "1.0.082"
+// 1.0.082 2024-7-25
+// 升级到新代码Demo_05_03.
+// 1. New code to set SPI quad-enable bit (NOTE: FOR MACRONIX SPI FLASH ONLY!!)
+//    Set the Quad SPI enable bit in the status read from status register
+// 2. 增加pd_enable_warming和pd_disable_warming接口及其它相关辅助代码（但是这个API似乎还没有被真正使用）
+//    service.c, service.h, print_head_driver_ifc.h, extension.h etc
 // 1.0.081 2024-7-8
 // 追加一个接口函数getErrString（内部：Java_com_GetErrorString），用来向apk返回开始、停止打印时发生的错误
 // 1.0.080 2024-6-7

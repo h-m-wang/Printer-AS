@@ -638,7 +638,61 @@ PDResult_t pd_get_print_head_status(int32_t instance, uint8_t ph_id , PrintHeadS
 
     return PD_OK;
 }
- 
+
+PDResult_t pd_enable_warming(int32_t instance, uint8_t ph_id) {
+    LOGI("Enter %s: instance = %d, Pen ID = %d\n", __FUNCTION__, instance, ph_id);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//        LOGE("Invalid Instance!");
+//        return PD_ERROR;
+//    }
+//    if(ph_id >= NUM_SUPPORTED_PH) return PD_ERROR;
+
+    ServiceResult_t sr;
+
+    oem_lock(instance);
+    sr = service_control_heating(instance, &headcontrolinfo, ph_id,true);
+    oem_unlock(instance);
+    if(sr != SERVICE_OK) {
+        return PD_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return PD_OK;
+}
+
+PDResult_t pd_disable_warming(int32_t instance, uint8_t ph_id) {
+    LOGI("Enter %s: instance = %d, Pen ID = %d\n", __FUNCTION__, instance, ph_id);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//        LOGE("Invalid Instance!");
+//        return PD_ERROR;
+//    }
+//    if(ph_id >= NUM_SUPPORTED_PH) return PD_ERROR;
+
+    ServiceResult_t sr;
+
+    oem_lock(instance);
+    sr = service_control_heating(instance, &headcontrolinfo, ph_id,false);
+    oem_unlock(instance);
+    if(sr != SERVICE_OK) {
+        return PD_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return PD_OK;
+}
+
 /*
  * 
  * 
@@ -882,6 +936,34 @@ static PDResult_t _pd_fpgaflash_remove_wp(int32_t instance,Flashinfo_t * info) {
 
     return PD_OK;
 }
+
+static PDResult_t _pd_fpgaflash_set_quad_enable_bit(int32_t instance,Flashinfo_t * info, uint8_t stat_byte) {
+    LOGI("Enter %s", __FUNCTION__);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//		LOGE("Invalid Instance!");
+//		return PD_ERROR;
+//	}
+//    if(info == NULL) return PD_ERROR;
+
+    Response_t res;
+    ServiceResult_t sr =  service_flash_wrenbl(instance, info, &res);
+    if(sr != SERVICE_OK) return PD_ERROR;
+
+    uint8_t statusdata = stat_byte;
+    sr =  service_write_data(instance, info->objects[FLASH_WRSTS].addr+1, &statusdata, sizeof(statusdata));
+    if(sr != SERVICE_OK) return PD_ERROR;
+
+    sr =  service_flash_wrstatus( instance, info, &res);
+    if(sr != SERVICE_OK) return PD_ERROR;
+
+    return PD_OK;
+}
+
 /*
  * 
  *  Data input to this should include 3 bytes of address at the starting.
@@ -1297,8 +1379,6 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     	return pr;
     }
 
-    LOGE("Status1 = %d", status);
-
 	if(status & FLASH_WP_MASK) {
         LOGI("FPGA flash is write protected. Trying to write enable..\n");
 						
@@ -1319,8 +1399,6 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
                 return pr;
             }
 
-            LOGE("Status2 = %d", status);
-
             if(status & FLASH_WP_MASK) {
                 if( try >= 3) {
                     LOGE("FPGA flash is write protected. Cannot flash FW.\n");
@@ -1336,7 +1414,17 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
 	} else {
         LOGI("  FPGA flash is not write protected..\n");
     }
-	
+
+    // New code to set SPI quad-enable bit (NOTE: FOR MACRONIX SPI FLASH ONLY!!)
+    // Set the Quad SPI enable bit in the status read from status register
+    status |= FLASH_QE_MASK;
+    pr = _pd_fpgaflash_set_quad_enable_bit(instance, &fpgaflashinfo, status);
+    if(PD_OK != pr) {
+        LOGE("  Error setting FPGA flash quad-enable.\n");
+        oem_unlock(instance);
+        return pr;
+    }
+
     /* Erase fpga flash */
     pr = _pd_fpgaflash_erase( instance, &fpgaflashinfo);
 	if(PD_OK != pr) {

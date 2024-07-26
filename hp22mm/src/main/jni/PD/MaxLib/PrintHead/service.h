@@ -149,6 +149,7 @@ ServiceResult_t service_get_voltage_override(int32_t instance, Headinfo_t *info,
 ServiceResult_t service_set_voltage_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t voltage);
 ServiceResult_t service_get_over_energy_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);
 ServiceResult_t service_set_over_energy_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, uint8_t energy);
+ServiceResult_t service_control_heating(int32_t instance, Headinfo_t *info, uint8_t ph_id, bool enable);
 
 ServiceResult_t service_get_ph_configuration(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);
 ServiceResult_t service_get_column_spacing(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);

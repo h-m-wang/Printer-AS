@@ -627,6 +627,60 @@ ServiceResult_t service_power_off(int32_t instance, Headinfo_t *info, uint8_t ph
     return SERVICE_OK;
 }
 
+ServiceResult_t service_control_heating(int32_t instance, Headinfo_t *info, uint8_t ph_id, bool enable) {
+    LOGI("Enter %s", __FUNCTION__);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
+    if(ph_id < 0 || ph_id >= NUM_SUPPORTED_PH) {
+        LOGE("Invalid Pen ID [%d]!", ph_id);
+        return SERVICE_ERROR;
+    }
+    if(NULL == info) {
+        LOGE("info NULL!");
+        return SERVICE_ERROR;
+    }
+    if(info->initialized != true) {
+        LOGE("info not initialized!");
+        return SERVICE_ERROR;
+    }
+
+    Frame_t         frame;
+    FrameResult_t   fr;
+
+    if(info->initialized != true) return SERVICE_ERROR;
+    fr = frame_init(&frame, info->first_srvc_id+MULTIHEAD_CONTROL_HEATING_IDX);
+    if(fr != FRAME_OK) {
+        LOGE("service_control_heating(): ERROR: Creating frame. Error code = %d\n", fr);
+        return SERVICE_ERROR;
+    }
+
+    /* Encode PH ID */
+    if(frame_encode8(&frame, ph_id) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode enable/disable */
+    if(frame_encode8(&frame, enable) != FRAME_OK) return SERVICE_ERROR;
+
+    ServiceResult_t sr;
+    uint8_t  rsp_buf[32];
+    uint32_t rsp_size;
+    sr = service_execute( &frame, instance, rsp_buf, sizeof(rsp_buf), &rsp_size);
+    if(sr != SERVICE_OK) {
+        LOGE("service_control_heating(): ERROR: Print head control heating failed. Error code = %d\n", sr);
+        return SERVICE_ERROR;
+    }
+
+    /* check if error bit is set in the response header */
+    if(frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
+        LOGE("service_control_heating(): Cannot be executed \n");
+        return SERVICE_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return SERVICE_OK;
+
+}
+
 /* 
  * Excute the requested service and return the return 
  * the result synchronously. This is a blocking call. internally

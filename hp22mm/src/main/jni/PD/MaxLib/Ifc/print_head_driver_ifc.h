@@ -226,6 +226,29 @@ PDResult_t pd_power_on(int32_t instance, uint8_t ph_id);
  */
 PDResult_t pd_power_off(int32_t instance, uint8_t ph_id);
 
+/**
+ * @brief               Enable pen warming
+ * @param instance      Printhead Driver instance id.(instance should be between 1 and 16)
+ * @param ph_id         Pen id (Valid range 0 to (NUM_SUPPORTED_PH - 1))
+ * @returns             It can return PD_ERROR and PD_OK
+ * @par States
+ *                      It is valid during PhPowerOffState and PhPresentState and PhPowerOnState
+ * @par Possible Error Codes (set by FW for this API)
+ *                      No Error Codes
+ */
+PDResult_t pd_enable_warming(int32_t instance, uint8_t ph_id);
+
+/**
+ * @brief               Disables pen warming
+ * @param instance      Printhead Driver instance id.(instance should be between 1 and 16)
+ * @param ph_id         Pen id (Valid range 0 to (NUM_SUPPORTED_PH - 1))
+ * @returns             It can return PD_ERROR and PD_OK
+ * @par States
+ *                      It is valid during PhPowerOffState and PhPresentState
+ * @par Possible Error Codes (set by FW for this API)
+ *                      No Error Codes
+ */
+PDResult_t pd_disable_warming(int32_t instance, uint8_t ph_id);
 
 /**
  * @brief OEM Smart Card fields.
@@ -773,7 +796,7 @@ typedef enum{
     PRINTHEAD_DIECONTINUITY_ERROR           = 55,  /**<When continuity test is failing */
     PRINTHEAD_IDSEXPIRED_ERROR              = 56,  /**<When IDS status is set as expired in IDS handshake */
     PRINTHEAD_PARTIALINKSHORT_ERROR         = 57,  /**When Partial Ink Short condition is detected */
-    
+	PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR   = 58,  /**When target temp is not reached within given time, during poweron */
 } PrintHeadError;
 
 /*! \struct PrintHeadStatus

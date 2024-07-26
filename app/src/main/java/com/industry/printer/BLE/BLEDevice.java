@@ -36,11 +36,14 @@ public class BLEDevice {
     private final static String CMD_SET_ADV_DATA = "AT+BLEADVDATA=\"020106%02X09%s\"";
     private final static String CMD_START_ADVERTISE = "AT+BLEADVSTART";
     private final static String RECV_CONNECTED = "+BLECONN:";
-    private final static String RECV_CONNECTPARAM = "+BLECONNPARAM";
+    private final static String RECV_CONNECTPARAM = "+BLECONNPARAM";    // BLECONNPARAM:<conn_index>,<min_interval>,<max_interval>,<cur_interval>,<latency>,<timeout>
+                                                                        // 【例】+BLECONNPARAM:0,0,0,6,0,500
     private final static String RECV_DISCONNECTED = "+BLEDISCONN:";
     private final static String RECV_CLIENT_WRITE = "+WRITE";
     private final static String CMD_GATTS_INDICATE = "AT+BLEGATTSIND=0,1,7,";
     private final static String CMD_GATTS_NOTIFY = "AT+BLEGATTSNTFY=0,1,6,";
+    private final static String CMD_SPP_CFG = "AT+BLESPPCFG=1,1,6,1,5";
+    private final static String CMD_SPP = "AT+BLESPP";
 
     private String mErrorMsg = "";
 
@@ -137,13 +140,14 @@ public class BLEDevice {
     private boolean execCmdSetServerMode() {
         return sendATCmd(CMD_INIT_SERVER);
     }
-
     private boolean execCmdCreateGattsService() {
         return sendATCmd(CMD_GATTS_CREATE_SERVICE);
     }
-
     private boolean execCmdStartGattsService() {
         return sendATCmd(CMD_GATTS_START_SERVICE);
+    }
+    private boolean execGattGetChars() {
+        return sendATCmd("AT+BLEGATTSCHAR?");
     }
 
     private boolean execCmdSetAdvData() {
@@ -173,6 +177,7 @@ public class BLEDevice {
                 execCmdStartGattsService() &&
                 execCmdSetAdvData() &&
                 execCmdStartAdvertise();
+            execGattGetChars();
             ExtGpio.writeGpioTestPin('I', 9, 0);
         }
         Debug.d(TAG, "RFID-QUIT");
@@ -214,6 +219,7 @@ public class BLEDevice {
                     mClientConnected = false;
                     Debug.d(TAG, "Client [" + mClientMacAddress + "] disconnected.");
                     mClientMacAddress = "";
+                    execCmdStartAdvertise();
                 } else if(rcvString.startsWith(RECV_CLIENT_WRITE)) {
                     rcvString = rcvString.substring(RECV_CLIENT_WRITE.length()+8);
                     Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");
