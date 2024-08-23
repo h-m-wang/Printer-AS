@@ -85,11 +85,14 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, j
 /**
  * 读取Level值
  */
+// H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
+JNIEXPORT jint JNICALL Java_com_Smartcard_getLevelType(JNIEnv *env, jclass arg, jint index);
+// End of H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
 // H.M.Wang 2022-11-1 Add this API for Bagink Use
-JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg, jint index);
 // End of H.M.Wang 2022-11-1 Add this API for Bagink Use
 // H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
-JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg, jint index);
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card);

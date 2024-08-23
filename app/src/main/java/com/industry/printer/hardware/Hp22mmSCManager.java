@@ -7,6 +7,7 @@ import android.os.Message;
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
+import com.industry.printer.Utils.Debug;
 
 public class Hp22mmSCManager implements IInkDevice {
     private static final String TAG = Hp22mmSCManager.class.getSimpleName();
@@ -53,6 +54,7 @@ public class Hp22mmSCManager implements IInkDevice {
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
                 }
+                mValid = true;
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                 mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能

@@ -244,6 +244,10 @@ public class SystemConfigFile{
 // H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
 	public static final int INDEX_PRESURE = 77;
 // End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+	public static final int INDEX_BLE_ENABLE = 78;
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
 	public static final int DATA_SOURCE_BIN 		= 1;		// 数据源使用BIN

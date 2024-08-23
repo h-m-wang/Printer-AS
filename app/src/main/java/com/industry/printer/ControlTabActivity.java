@@ -32,6 +32,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
@@ -153,7 +154,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public TextView		  mTvOpen;
 	//public Button mGoto;
 	//public EditText mDstline;
-	
+
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+	public TextView		  mBleState;
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+
 	public RelativeLayout	mBtnOpenfile;
 	public LinearLayout mllPreview;
 	public HorizontalScrollView mScrollView;
@@ -535,6 +540,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		if(PlatformInfo.DEVICE_SMARTCARD.equals(PlatformInfo.getInkDevice()) &&	Configs.SMARTCARDMANAGER) {
 			mTvStart.setBackgroundColor(Color.RED);
 		}
+		mBleState = (TextView) getView().findViewById(R.id.ble_state);
 
 		mBtnStop = (RelativeLayout) getView().findViewById(R.id.StopPrint);
 		mBtnStop.setOnClickListener(this);
@@ -1353,6 +1359,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private void refreshInk() {
 		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
 
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+		if(BLEDevice.getInstance().isInitialized()) {
+			mBleState.setVisibility(View.VISIBLE);
+		} else {
+			mBleState.setVisibility(View.GONE);
+		}
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 // H.M.Wang 2024-5-28 增加气压显示控件，借用refreshInk间隔性显示的机制，显示气压数据
 		if(null != mPresArea && null != mPresValue) {
 			if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
@@ -2455,6 +2468,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						refreshCount();
 						mRfidInit = true;
 					}
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							BLEDevice ble = BLEDevice.getInstance();
+							ble.paramsChanged();
+						}
+					}).start();
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 					break;
 				case MESSAGE_RFID_OFF_H7:
 					ExtGpio.writeGpio('h', 7, 0);

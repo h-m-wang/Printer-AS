@@ -132,7 +132,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:padding="5dp"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:background="#44EEEEEE"
         android:visibility="gone"
         android:textColor="@color/black" />
@@ -187,18 +187,20 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:orientation="vertical" >
-        <TextView
+<!--        <TextView
             android:id="@+id/TextSent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:lines="1"
             android:ellipsize="end"
-            android:textColor="@color/black" />
+            android:textColor="@color/black" />-->
         <TextView
             android:id="@+id/TextRecvd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:ellipsize="end"
             android:textColor="@color/black" />
     </LinearLayout>
 </LinearLayout>

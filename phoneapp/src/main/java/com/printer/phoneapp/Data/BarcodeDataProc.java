@@ -77,20 +77,69 @@ public class BarcodeDataProc {
         return params;
     }
 
+    private static String[] getDataFromPowerChinaWeb(String scaned) {
+        if(null == scaned || scaned.isEmpty()) return null;
+        String[] params = new String[4];
+        String startTag = "<div class=\"weui-cell__ft\">";
+        String endTag = "</div>";
+
+        try {
+            URL url = new URL(scaned);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            if(con.getResponseCode() != 200) return null;
+
+            InputStream is = con.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String buf;
+            boolean checkFlag = false;
+            int curInsPos = 0;
+
+            while((buf = br.readLine()) != null) {
+                Log.d("Barcode", buf);
+                int hit_pos1 = buf.indexOf("管片尺寸");
+                int hit_pos2 = buf.indexOf("管片配筋比");
+                int hit_pos3 = buf.indexOf("流水号");
+                int hit_pos4 = buf.indexOf("模具型号");
+                if(hit_pos1 >= 0 || hit_pos2 >= 0 || hit_pos3 >= 0 || hit_pos4 >= 0) {
+                    Log.d("Barcode2", buf);
+                    checkFlag = true;
+                }
+                if(checkFlag) {
+                    int s_index = buf.indexOf(startTag);
+                    int e_index = buf.indexOf(endTag, s_index);
+                    if (s_index >= 0 && e_index >= 0) {
+                        Log.d("Barcode2", buf);
+                        params[curInsPos++] = buf.substring(s_index + startTag.length(), e_index);
+                        checkFlag = false;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return params;
+    }
+
     public static String makeup650CmdString(String scaned) {
         Log.d(TAG, scaned);
 
-        String jsUrl = getBodyJsUrl(scaned);
+/*        String jsUrl = getBodyJsUrl(scaned);
         if(null == jsUrl || jsUrl.isEmpty()) return null;
 
         String[] params = getDataFromJs(jsUrl);
+        if(null == params || params.length == 0) return null;
+*/
+        String[] params = getDataFromPowerChinaWeb(scaned);
         if(null == params || params.length == 0) return null;
 
         StringBuilder sb = new StringBuilder();
         sb.append("000B|0000|650|");
         for(int i=0; i<11; i++) {
             if(i < params.length) {
-                sb.append(params[i]);
+                if(null != params[i]) sb.append(params[i]);
             }
             if(i < 10) sb.append(",");
         }

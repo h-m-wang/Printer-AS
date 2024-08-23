@@ -39,7 +39,7 @@ public class BTDataXfer extends DataXfer {
                             Log.d(TAG, "Socket already opened");
                         }
                         mConnected = true;
-                        if(null != mOnDeviceConnectionListener) mOnDeviceConnectionListener.onConnected();
+                        if(null != mOnDeviceConnectionListener) mOnDeviceConnectionListener.onConnected(mDevice);
                     } else {
                         mConnected = false;
                         if(null != mOnDeviceConnectionListener) mOnDeviceConnectionListener.onDisConnected();
@@ -55,6 +55,7 @@ public class BTDataXfer extends DataXfer {
     @Override
     public void disconnect() {
         try {
+            mNeedRecovery = false;
             if(null != mSocket) {
                 mSocket.close();
             }

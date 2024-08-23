@@ -183,7 +183,6 @@ public class TestSub implements ITestOperation {
                                     mRecvedLevelPromptDlg = null;
                                 }
                             }).create();
-                            mRecvedLevelPromptDlg.show();
 
                             mADS1115Reading = true;
                             new Thread(new Runnable() {
@@ -201,6 +200,11 @@ public class TestSub implements ITestOperation {
                                                 @Override
                                                 public void run() {
                                                     mRecvedLevelPromptDlg.setMessage(showStr);
+                                                    if(!mRecvedLevelPromptDlg.isShowing()) {
+                                                        mMCPH21xxxxReading = false;
+                                                        mRecvedLevelPromptDlg.dismiss();
+                                                        mRecvedLevelPromptDlg = null;
+                                                    }
                                                 }
                                             });
                                         }
@@ -209,6 +213,7 @@ public class TestSub implements ITestOperation {
                                 }
                             }).start();
                         }
+                        mRecvedLevelPromptDlg.show();
                         mIFTestOp = null;
                         break;
 // End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
@@ -224,7 +229,6 @@ public class TestSub implements ITestOperation {
                                     mRecvedLevelPromptDlg = null;
                                 }
                             }).create();
-                            mRecvedLevelPromptDlg.show();
 
                             mMCPH21xxxxReading = true;
                             new Thread(new Runnable() {
@@ -235,8 +239,8 @@ public class TestSub implements ITestOperation {
                                         StringBuilder sb = new StringBuilder();
                                         for(int i=0; i< RfidScheduler.LEVELS.length; i++) {
                                             ExtGpio.rfidSwitch(RfidScheduler.LEVELS[i]);
-                                            try{Thread.sleep(50);}catch(Exception e){};
-                                            sb.append("Value[" + (i+1) + "] = " + SmartCard.readMCPH21Level() + "\n");
+                                            try{Thread.sleep(100);}catch(Exception e){};
+                                            sb.append("Value[" + (i+1) + "] = " + SmartCard.readMCPH21Level(i) + "\n");
                                         }
                                         if(null != mRecvedLevelPromptDlg) {
                                             final String showStr = sb.toString();
@@ -244,6 +248,11 @@ public class TestSub implements ITestOperation {
                                                 @Override
                                                 public void run() {
                                                     mRecvedLevelPromptDlg.setMessage(showStr);
+                                                    if(!mRecvedLevelPromptDlg.isShowing()) {
+                                                        mMCPH21xxxxReading = false;
+                                                        mRecvedLevelPromptDlg.dismiss();
+                                                        mRecvedLevelPromptDlg = null;
+                                                    }
                                                 }
                                             });
                                         }
@@ -252,6 +261,7 @@ public class TestSub implements ITestOperation {
                                 }
                             }).start();
                         }
+                        mRecvedLevelPromptDlg.show();
                         mIFTestOp = null;
                         break;
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能

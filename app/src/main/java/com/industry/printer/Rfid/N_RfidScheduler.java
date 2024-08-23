@@ -115,7 +115,7 @@ public class N_RfidScheduler implements IInkScheduler {
                 synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                     ExtGpio.rfidSwitch(mBaginkLevels[cardIdx].mLevelIndex);
                     try{Thread.sleep(100);}catch(Exception e){};
-                    int level = SmartCard.readLevelDirect();
+                    int level = SmartCard.readLevelDirect(cardIdx);
 //				ExtGpio.rfidSwitch(mCurrent);
                     if ((level & 0xF0000000) == 0x00000000) {
 //					Debug.d(TAG, "Read Level[" + cardIdx + "](" + (readCount + 1) + " times) = " + level);

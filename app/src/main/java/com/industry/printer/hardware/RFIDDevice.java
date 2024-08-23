@@ -946,7 +946,7 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 		if(mFeature == null || index >= mFeature.length) {
 			return 0;
 		} else {
-			return mFeature[index];
+			return (0x0FF & mFeature[index]);
 		}
 	}
 	/**

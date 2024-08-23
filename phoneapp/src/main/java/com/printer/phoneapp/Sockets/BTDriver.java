@@ -191,6 +191,10 @@ public class BTDriver {
         return true;
     }
 
+    public BluetoothDevice getRemoteDevice(String address) {
+        return mBluetoothAdapter.getRemoteDevice(address);
+    }
+
     public void getBondedDevices() {
         if(isEnabled()) {
             Set<BluetoothDevice> mSet = mBluetoothAdapter.getBondedDevices();

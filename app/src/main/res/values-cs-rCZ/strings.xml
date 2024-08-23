@@ -387,7 +387,7 @@
 	<!--	<string name="str_textview_param57">57.Vyhrazeno</string> -->
 	<string name="str_textview_param57">57.Input</string>
 	<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
-	<string name="str_textview_param58">58.IP</string>
+	<string name="str_textview_param58">58.Printer IP</string>
 <!-- H.M.Wang 2022-5-30 增加编码器变倍 -->
 <!--	<string name="str_textview_param59">59.Vyhrazeno</string> -->
 	<string name="str_textview_param59">59.Width Ratio</string>
@@ -458,7 +458,10 @@
 <!--	<string name="str_textview_param78">78.Vyhrazeno</string>-->
 	<string name="str_textview_param78">78.Pressure</string>
 <!-- End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
-	<string name="str_textview_param79">79.Vyhrazeno</string>
+<!-- H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
+<!--	<string name="str_textview_param79">79.Vyhrazeno</string>-->
+	<string name="str_textview_param79">79.BLE Enable</string>
+<!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
 	<string name="str_textview_param80">80.Vyhrazeno</string>
 	<string name="str_textview_param81">81.Vyhrazeno</string>
 	<string name="str_textview_param82">82.Vyhrazeno</string>

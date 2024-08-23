@@ -121,6 +121,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mParamAD;
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+	private PopWindowAdapter mBLEEnableAdapter;
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
 
@@ -433,6 +437,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mParamAD = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+		mBLEEnableAdapter = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -715,7 +723,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
 		mSettingItems[77] = new ItemOneLine(78, R.string.str_textview_param78, R.string.str_unit_kPa);
 // End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255
-		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, 0);
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, R.array.switch_item_entries, 	0, ItemType.TYPE_SWITCH);
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
 		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, 0);
 		mSettingItems[81] = new ItemOneLine(82, R.string.str_textview_param82, 0);
@@ -891,6 +901,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mEncDir.addItem(items[i]);
 		}
 // End of H.M.Wang 2022-11-30 追加ENCDir方向选项
+
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+		items = mContext.getResources().getStringArray(R.array.switch_item_entries);
+		for (int i = 0; i < items.length; i++) {
+			mBLEEnableAdapter.addItem(items[i]);
+		}
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 	}
 
 	private String getEntry(int id,int index) {
@@ -1043,13 +1060,17 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 73) { //參數72
 			mSpiner.setAdapter(mParamAD);
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
-		} else if (position == 76) { //參數7
+		} else if (position == 76) { //參數75
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 			Hp22mmNozzleSelectDialog dialog = new Hp22mmNozzleSelectDialog(mContext, mHandler, mSettingItems[position].getValue());
 			dialog.show();
 			return;
 //			mSpiner.setAdapter(mRepeat);
 // End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+		} else if (position == 78) { //參數79
+			mSpiner.setAdapter(mBLEEnableAdapter);
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

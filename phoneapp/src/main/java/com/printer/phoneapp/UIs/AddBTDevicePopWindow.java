@@ -35,17 +35,11 @@ public class AddBTDevicePopWindow {
     private PopupWindow mPopupWindow = null;
     private LinearLayout mDevicesList = null;
 
-    private BTDriver mBluetoothManager = null;
+    private BTDriver mBluetoothManager;
 
-    public AddBTDevicePopWindow(Context ctx) {
+    public AddBTDevicePopWindow(Context ctx, BTDriver driver) {
         mContext = ctx;
-        if(!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
-            mBluetoothManager = NonBLEDriver.getInstance(ctx);
-        } else {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
-            mBluetoothManager = BLEDriver.getInstance(ctx);
-        }
+        mBluetoothManager = driver;
     }
 
     private void clearDeviceView() {

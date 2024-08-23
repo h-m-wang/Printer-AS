@@ -51,8 +51,8 @@ public class Configs {
 // End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 
 // H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
-//	public static final boolean SCANER2_4_SPECIAL_USE = false;		// 检查字符匹配
-	public static final boolean SCANER2_4_SPECIAL_USE = true;		// 不检查字符匹配
+	public static final boolean SCANER2_4_SPECIAL_USE = false;		// 检查字符匹配
+//	public static final boolean SCANER2_4_SPECIAL_USE = true;		// 不检查字符匹配
 // End of H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
 
 // H.M.Wang 2023-2-15 修改到参数71选择，取消在此的定义

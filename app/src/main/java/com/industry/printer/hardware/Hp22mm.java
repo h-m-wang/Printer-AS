@@ -63,7 +63,9 @@ public class Hp22mm {
     private static final int IDS_INDEX = 1;
     private static final int PEN_INDEX = 0;
 
-    public static final int IMAGE_ROWS = 1056;
+    public static final int DOTS_PER_COL = 1056;
+    public static final int BYTES_PER_COL = DOTS_PER_COL / 8;       // 132
+    public static final int WORDS_PER_COL = BYTES_PER_COL / 4;      // 8
     public static final int IMAGE_ADDR = 0x0000;
 
     private static final int REG04_32BIT_WORDS_PER_COL = 4;
@@ -162,8 +164,8 @@ public class Hp22mm {
 
         SystemConfigFile config = SystemConfigFile.getInstance();
 
-        regs[REG04_32BIT_WORDS_PER_COL] = IMAGE_ROWS / 32;
-        regs[REG05_BYTES_PER_COL] = IMAGE_ROWS / 8;
+        regs[REG04_32BIT_WORDS_PER_COL] = WORDS_PER_COL;
+        regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
         regs[REG07_START_ADD_P0S0_ODD] = 0;
         regs[REG08_START_ADD_P0S0_EVEN] = 0;
@@ -175,7 +177,9 @@ public class Hp22mm {
         regs[REG14_START_ADD_P1S1_EVEN] = 0;
         regs[REG14_START_ADD_P1S1_EVEN] = 0;
 
-        regs[REG15_INTERNAL_ENC_FREQ] = (char)(config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 1500);           // R15=90M/(C1*24)
+        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
+        regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位
+        regs[REG15_INTERNAL_ENC_FREQ] = (char)((char)(encFreq & 0x0ffff));                                                   // Reg15仅保存ENC的低16位，完整整数在img中合成
         int tofFreq = (config.mParam[6] != 0 ? 90000000 / config.mParam[6] * config.mParam[0] : 45000000);                   // R16=90M/(C7/C1)
         regs[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
         regs[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成

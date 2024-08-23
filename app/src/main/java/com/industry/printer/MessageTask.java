@@ -113,8 +113,8 @@ public class MessageTask {
 		if (tlk == null || TextUtils.isEmpty(tlk)) {
 			return;
 		}
-		String tlkPath="";
-		File file = new File(tlk);
+//		String tlkPath="";
+//		File file = new File(tlk);
 		setName(name);
 		TLKFileParser parser = new TLKFileParser(context, mName);
 		parser.setTlk(tlk);

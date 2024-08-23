@@ -25,8 +25,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.398"
+#define VERSION_CODE                            "1.0.400"
 
+// 1.0.400 2024-8-16
+// 修改sLevelChipType的定义，原来是只考虑了一个头，现在是4个头动作，因此需要通过数组进行分别管理
+// 1.0.399 2024-8-6
+//   增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
 // 1.0.398 2024-7-4 暂时追加MCP-H21-xxxxx芯片的读压力值功能
 // 1.0.397 FSR=4.096V
 // 1.0.396 1115的地址修改为0x49
@@ -1035,7 +1039,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readHX24LC(JNIEnv *env, jclass arg) {
 
     if(read_length < 0) {
         LOGE("Read data error!");
-        return LEVEL_I2C_FAILED;
+        data = 0;
     }
 
     LOGD(">>> HX24LC for [BAGINK] data read: 0x%08X", data);
@@ -1062,8 +1066,38 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, j
 }
 // End of H.M.Wang 2022-12-24 追加一个读写HX24LC芯片的功能，用来保存对应Bagink墨位的调整值
 
+// H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
+#define LEVEL_CHIP_TYPE_NONE        0
+#define LEVEL_CHIP_TYPE_1614        1
+#define LEVEL_CHIP_TYPE_MCPH21      2
+static int sLevelChipType[] = {LEVEL_CHIP_TYPE_NONE, LEVEL_CHIP_TYPE_NONE, LEVEL_CHIP_TYPE_NONE, LEVEL_CHIP_TYPE_NONE};
+
+JNIEXPORT jint JNICALL Java_com_Smartcard_getLevelType(JNIEnv *env, jclass arg, jint index) {
+    pthread_mutex_lock(&mutex);
+
+    uint32_t chData;
+    uint8_t cmd;
+
+    if(LEVEL_I2C_OK == readMCPH21Byte(0x30, &cmd)) {
+        sLevelChipType[index] = LEVEL_CHIP_TYPE_MCPH21;
+    } else if(LEVEL_I2C_OK == readChannelData0(&chData)) {
+        sLevelChipType[index] = LEVEL_CHIP_TYPE_1614;
+    }
+
+    pthread_mutex_unlock(&mutex);
+
+    LOGD(">>> Level chip[%d] type: %d", index, sLevelChipType[index]);
+
+    return sLevelChipType[index];
+}
+// End of H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑
+
 // H.M.Wang 2022-11-1 Add this API for Bagink Use
-JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass arg, jint index) {
+// H.M.Wang 2024-8-6 扩充该函数，原来是专供1614芯片使用，现在在apk中为与MCPH21共用，在进入本函数后，根据chip的种类再分开执行
+    if(LEVEL_CHIP_TYPE_MCPH21 == sLevelChipType[index]) return Java_com_Smartcard_readMCPH21Level(env, arg, index);
+// End of H.M.Wang 2024-8-6 扩充该函数，原来是专供1614芯片使用，现在在apk中为与MCPH21共用，在进入本函数后，根据chip的种类再分开执行
+
     LOGD(">>> Read Level Direct for [BAGINK]");
 
     pthread_mutex_lock(&mutex);
@@ -1083,8 +1117,8 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass ar
 // End of H.M.Wang 2022-11-1 Add this API for Bagink Use
 
 // H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
-JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg) {
-    LOGD(">>> Read MCP-H21 Level");
+JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg, jint index) {
+    LOGD(">>> Read MCP-H21 Level[%d]", index);
 
     pthread_mutex_lock(&mutex);
 
@@ -1113,7 +1147,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass ar
         chData += ((cmd << 0) & 0x000000FF);
     }
 
-    LOGD(">>> MCP-H21 Level data read: 0x%008X", chData);
+    LOGD(">>> MCP-H21 Level[%d] data read: 0x%008X", index, chData);
 
     pthread_mutex_unlock(&mutex);
 
@@ -1323,8 +1357,9 @@ static JNINativeMethod gMethods[] = {
         {"downLocal",		        "(I)I",						(void *)Java_com_Smartcard_downLocal},
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
         {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
-        {"readLevelDirect",		    "()I",						(void *)Java_com_Smartcard_readLevelDirect},
-        {"readMCPH21Level",		    "()I",						(void *)Java_com_Smartcard_readMCPH21Level},
+        {"getLevelType",		        "(I)I",						(void *)Java_com_Smartcard_getLevelType},
+        {"readLevelDirect",		    "(I)I",						(void *)Java_com_Smartcard_readLevelDirect},
+        {"readMCPH21Level",		    "(I)I",						(void *)Java_com_Smartcard_readMCPH21Level},
         {"writeDAC5571",	    	    "(I)I",						(void *)Java_com_Smartcard_writeDAC5571},
         {"readADS1115",	    	    "(I)I",						(void *)Java_com_Smartcard_readADS1115},
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},

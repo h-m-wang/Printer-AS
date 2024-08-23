@@ -172,7 +172,7 @@ public class TestBagink implements ITestOperation {
                                     synchronized (TestBagink.this) {
                                         ExtGpio.rfidSwitch(RfidScheduler.LEVELS[index]);
                                         try {Thread.sleep(50);} catch (Exception e) {}
-                                        int level = SmartCard.readLevelDirect();
+                                        int level = SmartCard.readLevelDirect(index);
                                         Debug.d(TAG, "Level[" + index + "] = " + level);
                                         mLevels.add(level);
                                         if(mLevels.size() > 3) {

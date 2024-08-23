@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.*;
 import com.industry.printer.data.DataTask;
@@ -405,6 +406,15 @@ public static final String TAG="SettingsTabActivity";
 					@Override
 					public void onClick() {
 						saveParam();
+// H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								BLEDevice ble = BLEDevice.getInstance();
+								ble.paramsChanged();
+							}
+						}).start();
+// End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 // H.M.Wang 2020-4-25 设置按确认， 所有参数都生效，  下发一次fpga
 						DataTransferThread dt = DataTransferThread.getInstance(mContext);
 						if(null != dt && dt.isRunning()) {

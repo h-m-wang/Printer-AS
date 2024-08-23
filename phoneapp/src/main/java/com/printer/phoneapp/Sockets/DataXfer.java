@@ -1,5 +1,6 @@
 package com.printer.phoneapp.Sockets;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.util.Log;
 
@@ -14,11 +15,12 @@ abstract public class DataXfer {
     protected ExecutorService mSocketThread = null;
 
     public interface OnDeviceConnectionListener {
-        public void onConnected();
+        public void onConnected(BluetoothDevice dev);
         public void onDisConnected();
     }
     protected OnDeviceConnectionListener mOnDeviceConnectionListener;
     public boolean mConnected;
+    protected boolean mNeedRecovery;
 
     public interface OnDataXferListener {
         public void onSent(byte[] sent);
@@ -32,6 +34,7 @@ abstract public class DataXfer {
     public DataXfer(Context ctx) {
         mContext = ctx;
         mConnected = false;
+        mNeedRecovery = true;
         mOnDeviceConnectionListener = null;
         mOnDataXferListener = null;
     }

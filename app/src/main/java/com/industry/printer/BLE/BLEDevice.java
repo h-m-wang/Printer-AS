@@ -1,6 +1,7 @@
 package com.industry.printer.BLE;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.Rfid.N_RFIDModule;
 import com.industry.printer.Rfid.N_RFIDSerialPort;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
@@ -35,6 +36,7 @@ public class BLEDevice {
     private final static String CMD_GATTS_START_SERVICE = "AT+BLEGATTSSRVSTART";
     private final static String CMD_SET_ADV_DATA = "AT+BLEADVDATA=\"020106%02X09%s\"";
     private final static String CMD_START_ADVERTISE = "AT+BLEADVSTART";
+    private final static String CMD_STOP_ADVERTISE = "AT+BLEADVSTOP";
     private final static String RECV_CONNECTED = "+BLECONN:";
     private final static String RECV_CONNECTPARAM = "+BLECONNPARAM";    // BLECONNPARAM:<conn_index>,<min_interval>,<max_interval>,<cur_interval>,<latency>,<timeout>
                                                                         // 【例】+BLECONNPARAM:0,0,0,6,0,500
@@ -50,6 +52,7 @@ public class BLEDevice {
     private boolean mInitialized;
     private boolean mClientConnected;
     private String mClientMacAddress;
+    private int mBLEDeviceNo;
 
     private static BLEDevice mBLEDevice = null;
 
@@ -64,6 +67,10 @@ public class BLEDevice {
 // H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭
 //        mSerialPort = new SerialPort();
 //        mStreamTransport = mSerialPort.spOpenStream(PlatformInfo.getRfidDevice(), 115200);
+        if(N_RFIDSerialPort.mFd + RFIDDevice.mFd == 0) {        // 如果复旦卡模块和23卡模块都没有打开，可能是SC或者22mm版本，也尝试连接串口，支持蓝牙功能
+            N_RFIDSerialPort nsp = N_RFIDSerialPort.getInstance();
+            nsp.open(PlatformInfo.getRfidDevice());
+        }
         FileDescriptor fd = RFIDDevice.cnvt2FileDescriptor(N_RFIDSerialPort.mFd + RFIDDevice.mFd);  // 两者之间没有被启用的为0，被启用的是一个大于0的值（一个是复旦卡，另一个是23卡）
         mStreamTransport = new StreamTransport(new FileInputStream(fd), new FileOutputStream(fd));
 // End of H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭
@@ -73,6 +80,7 @@ public class BLEDevice {
         mClientMacAddress = "";
         mBLEStreamTransport = new BLEStreamTransport(mStreamTransport.getInputStream(), mStreamTransport.getOutputStream(), this);
         PCCommandManager.getInstance().addBLEHandler(mBLEStreamTransport);
+        mBLEDeviceNo = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOCAL_ID);
     }
 
     private boolean sendATCmd(String cmd) {
@@ -101,10 +109,6 @@ public class BLEDevice {
             else try {Thread.sleep(1000);} catch(Exception e){}
         }
         return ret;
-    }
-
-    private void sendString(String data) {
-        mStreamTransport.writeLine(data);
     }
 
     private void waitString(String prompt) {
@@ -151,7 +155,7 @@ public class BLEDevice {
     }
 
     private boolean execCmdSetAdvData() {
-        String ble_name = "000" + SystemConfigFile.getInstance().getParam(78);
+        String ble_name = "000" + mBLEDeviceNo;
         ble_name = ble_name.substring(ble_name.length()-3);
         ble_name = BLE_NAME + ble_name;
         return sendATCmd(String.format(CMD_SET_ADV_DATA, ble_name.length()+1, ByteArrayUtils.toHexString(ble_name.getBytes()).replace(" ", "")));
@@ -159,6 +163,36 @@ public class BLEDevice {
 
     private boolean execCmdStartAdvertise() {
         return sendATCmd(CMD_START_ADVERTISE);
+    }
+
+    private boolean execCmdStopAdvertise() {
+        return sendATCmd(CMD_STOP_ADVERTISE);
+    }
+
+    public void paramsChanged() {
+        int enable = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_BLE_ENABLE);
+        int devno = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOCAL_ID);
+
+        if(enable == 0) {
+            if(mInitialized) {
+                closeServer();
+            }
+        } else {
+            if(devno != mBLEDeviceNo || !mInitialized) {
+                mBLEDeviceNo = devno;
+                initServer();
+            }
+        }
+    }
+
+    public void closeServer() {
+        mInitialized = false;
+        synchronized (RFIDDevice.SERIAL_LOCK) {
+            ExtGpio.writeGpioTestPin('I', 9, 1);
+            execCmdStopAdvertise();
+            ExtGpio.writeGpioTestPin('I', 9, 0);
+        }
+        Debug.d(TAG, "RFID-CLOSED");
     }
 
     public static boolean BLERequiring = false;
@@ -177,7 +211,7 @@ public class BLEDevice {
                 execCmdStartGattsService() &&
                 execCmdSetAdvData() &&
                 execCmdStartAdvertise();
-            execGattGetChars();
+//            execGattGetChars();
             ExtGpio.writeGpioTestPin('I', 9, 0);
         }
         Debug.d(TAG, "RFID-QUIT");
@@ -188,6 +222,10 @@ public class BLEDevice {
 
     public boolean isClientConnected() {
         return mClientConnected;
+    }
+
+    public boolean isInitialized() {
+        return mInitialized;
     }
 
     public String readLine() {
@@ -222,6 +260,10 @@ public class BLEDevice {
                     execCmdStartAdvertise();
                 } else if(rcvString.startsWith(RECV_CLIENT_WRITE)) {
                     rcvString = rcvString.substring(RECV_CLIENT_WRITE.length()+8);
+                    while(!rcvString.endsWith("..|..")) {
+                        rcvString += mStreamTransport.readLine();
+                    }
+                    rcvString = rcvString.substring(0, rcvString.length()-5);
                     Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");
                     return rcvString.substring(rcvString.indexOf(',')+1);
                 }
@@ -235,8 +277,41 @@ public class BLEDevice {
         if(!mInitialized) return;
 
         synchronized (RFIDDevice.SERIAL_LOCK) {
-            if(sendATCmd(CMD_GATTS_INDICATE+msg.length())) {
-                sendString(msg);
+            String str = msg + "..|..";
+            int pos = 0;
+
+            while(pos < str.length()) {
+                int len = Math.min(40, str.length()-pos);
+                String tmp = str.substring(pos, pos+len);
+
+                Debug.d(TAG, "RFID-SEND: [" + CMD_GATTS_INDICATE+tmp.getBytes().length + "]");
+                mStreamTransport.writeLine(CMD_GATTS_INDICATE+tmp.getBytes().length);
+                boolean done = false;
+                long start = System.currentTimeMillis();
+                while(true) {
+                    if(System.currentTimeMillis() - start > 3000) break;        // 一直失败的话，最多尝试3秒后，彻底退出
+                    if(mStreamTransport.readerReady()) {
+                        String rcv = mStreamTransport.readLine();
+                        Debug.d(TAG, "RFID-RECV: [" + rcv + "]");
+                        if(rcv.startsWith("ERROR")) {       // 发生错误时，休眠100ms后重新发送请求
+                            try {Thread.sleep(100);} catch(Exception e){}
+                            Debug.d(TAG, "RFID-SEND: [" + CMD_GATTS_INDICATE+tmp.getBytes().length + "]");
+                            mStreamTransport.writeLine(CMD_GATTS_INDICATE+tmp.getBytes().length);
+                            continue;
+                        } else if(rcv.startsWith(">")) {
+                            Debug.d(TAG, "RFID-SEND: [" + tmp + "]");
+                            mStreamTransport.writeLine(tmp);
+                            pos += len;
+                            done = true;
+                        } else if(rcv.startsWith("OK") && done) {
+                            break;
+                        }
+                    }
+                }
+                if(!done) {
+                    Debug.d(TAG, "RFID-SEND: Error Quit.");
+                    break;
+                }
             }
         }
     }

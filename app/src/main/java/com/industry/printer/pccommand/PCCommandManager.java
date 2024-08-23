@@ -153,8 +153,12 @@ public class PCCommandManager {
     public void addBLEHandler(StreamTransport st) {
         if(null != mBLEHandler) {
             mBLEHandler.close();
+            mBLEHandler = null;
         }
-        mBLEHandler = new PCCommandHandler(mContext, st, mControlTabActivity, mHandler);
-        mBLEHandler.work();
+
+        if(null != st) {
+            mBLEHandler = new PCCommandHandler(mContext, st, mControlTabActivity, mHandler);
+            mBLEHandler.work();
+        }
     }
 }

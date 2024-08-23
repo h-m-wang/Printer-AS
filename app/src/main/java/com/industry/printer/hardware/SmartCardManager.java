@@ -179,6 +179,10 @@ public class SmartCardManager implements IInkDevice {
 //        Debug.d(TAG, "---> enter SmartCardManager() - CARD_TYPE_BULK1(Full)");
         mContext = context;
 
+// H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
+        if(SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL) ADD_INK_THRESHOLD = 28000000;
+// End of H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
+
 // H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
         mInitFailedNum = 0;
         mInitFatalFailedNum = 0;
@@ -758,7 +762,9 @@ public class SmartCardManager implements IInkDevice {
         if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {
             mCards[cardIdx].mRecentLevels.remove(0);
         }*/
-        if(avgLevel >= 12000000 && avgLevel <= 16000000) {
+// H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
+        if(avgLevel >= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 26000000 : 12000000) && avgLevel <= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 30000000 : 16000000)) {
+// End of H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
             mCards[cardIdx].mRecentLevels.add(avgLevel);
             if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {
                 mCards[cardIdx].mRecentLevels.remove(0);
@@ -784,12 +790,12 @@ public class SmartCardManager implements IInkDevice {
         ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);
     }
 
-//    private final int ADD_INK_THRESHOLD = 14000000;
-//    private final int ADD_INK_THRESHOLD = 13900000;
-    private final int ADD_INK_THRESHOLD = 13800000;
-//    private final int ADD_INK_THRESHOLD = 13700000;
-//    private final int ADD_INK_THRESHOLD = 13600000;
-//    private final int ADD_INK_THRESHOLD = 13500000;
+//    private int ADD_INK_THRESHOLD = 14000000;
+//    private int ADD_INK_THRESHOLD = 13900000;
+    private int ADD_INK_THRESHOLD = 13800000;
+//    private int ADD_INK_THRESHOLD = 13700000;
+//    private int ADD_INK_THRESHOLD = 13600000;
+//    private int ADD_INK_THRESHOLD = 13500000;
 
     private void levelValueUpdated(final int cardIdx) {
         Debug.d(TAG, "---> enter levelValueUpdated(" + cardIdx + ")");

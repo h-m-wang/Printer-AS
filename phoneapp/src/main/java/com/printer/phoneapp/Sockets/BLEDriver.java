@@ -44,6 +44,7 @@ public class BLEDriver extends BTDriver {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             BluetoothDevice device = result.getDevice();
+            mBluetoothAdapter.getRemoteDevice(device.getAddress());
 
             if (null != device.getName() &&
                 !device.getName().isEmpty() &&
