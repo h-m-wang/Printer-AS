@@ -61,11 +61,15 @@ public class RfidScheduler implements IInkScheduler {
 	private boolean mLevelReading = false;
 
 // H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
+// 1. RFID 烧94 ， 则在传感器连续读到高于44，加墨
+// 2. 连续读到高于50，报错， 不加墨
+// 3. 连续读到低于38报错， 不加墨
+// 4. 此项目为H21
 	private static int LEVEL_CHIP_TYPE_NONE = 0;
 	private static int LEVEL_CHIP_TYPE_1614 = 1;
 	private static int LEVEL_CHIP_TYPE_MCPH21 = 2;
-	private int VALID_INK_MIN_MCPH21 = 4000000;
-	private int VALID_INK_MAX_MCPH21 = 4600000;
+	private int VALID_INK_MIN_MCPH21 = 3800000;     // H.M.Wang 2024-8-26 4000000 -> 3800000
+	private int VALID_INK_MAX_MCPH21 = 5000000;     // H.M.Wang 2024-8-26 4600000 -> 5000000
 	private int ADD_INK_THRESHOLD_MCPH21 = 4400000;
 // End of H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
 
@@ -282,7 +286,11 @@ public class RfidScheduler implements IInkScheduler {
 
 			// Calculate average level if the count of read data bigger than PROC_LEVEL_NUMS
 			Debug.d(TAG, "mValidLevels[" + cardIdx + "].size() = " + mBaginkLevels[cardIdx].mValidLevels.size());
-			avgLevel = mBaginkLevels[cardIdx].mInkMax;
+			if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[cardIdx].sLevelChipType) {
+				avgLevel = mBaginkLevels[cardIdx].mInkMin;
+			} else {
+				avgLevel = mBaginkLevels[cardIdx].mInkMax;
+			}
 			if(mBaginkLevels[cardIdx].mValidLevels.size() >= PROC_LEVEL_NUMS) {
 				long totalLevel = 0;
 				int count = 0;
@@ -298,7 +306,13 @@ public class RfidScheduler implements IInkScheduler {
 			// Launch add ink if the level less than ADD_INK_THRESHOLD.
 // H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 //			if(avgLevel <= ADD_INK_THRESHOLD) {
-			if(avgLevel <= mBaginkLevels[cardIdx].mAddInkThreshold && mBaginkLevels[cardIdx].mEnableAddInk) {
+			boolean needAdd = false;
+			if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[cardIdx].sLevelChipType) {
+				needAdd = (avgLevel >= mBaginkLevels[cardIdx].mAddInkThreshold);
+			} else {
+				needAdd = (avgLevel <= mBaginkLevels[cardIdx].mAddInkThreshold);
+			}
+			if(needAdd && mBaginkLevels[cardIdx].mEnableAddInk) {
 // End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 				// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
 				if(mBaginkLevels[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
@@ -368,7 +382,7 @@ public class RfidScheduler implements IInkScheduler {
 				mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
 
 				if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[i].sLevelChipType) {
-					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 306) * 10000;
+					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 346) * 10000;
 				} else {
 					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 256) * 100000;
 				}
@@ -488,7 +502,11 @@ public class RfidScheduler implements IInkScheduler {
 //							if (mShowMsgCD == 0) {
 //								mShowMsgCD = 10;
 								StringBuilder sb = new StringBuilder();
-								sb.append("Thres: " + (mManager.getFeature(0,6) + 256) + "\n");
+								if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[0].sLevelChipType) {
+									sb.append("Thres: " + (mManager.getFeature(0,6) + 346) + "\n");
+								} else {
+									sb.append("Thres: " + (mManager.getFeature(0,6) + 256) + "\n");
+								}
 								for (int i = 0; i < mBaginkLevels.length; i++) {
 									sb.append("Level" + (i+1) + "[" + mBaginkLevels[i].mHX24LCValue + "]: ");
 									if(mBaginkLevels[i].mRecentLevels.size() > 0) {

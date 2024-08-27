@@ -8,8 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 17
-        versionCode 128800001          //next: 128900001
-        versionName "240819-128800001"
+        versionCode 129500001          //next: 129600001
+        versionName "240827-129500001"
         // (Prv) 表示内部使用版本，暂时支持 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

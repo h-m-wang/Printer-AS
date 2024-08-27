@@ -971,6 +971,10 @@ public class BaseObject{
 			} else if (MessageObject.mDot_32_Size[15].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 24 / 32;
 // End of 2022-11-12 增加24字高
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (MessageObject.mDot_32_Size[16].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 28 / 32;
+// End of H.M.Wang 2024-8-27 追加28号字体
 			} else {
 				mHeight = 152f * 32 / 32;
 			}
@@ -1016,11 +1020,15 @@ public class BaseObject{
 			} else if (MessageObject.mDot_48_Size[15].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 24 / 48;
-// H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+// H.M.Wang 2024-8-27 追加28号字体
 			} else if (MessageObject.mDot_48_Size[16].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 28 / 48;
+// End of H.M.Wang 2024-8-27 追加28号字体
+// H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+			} else if (MessageObject.mDot_48_Size[17].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 32 / 48;
-			} else if (MessageObject.mDot_48_Size[17].equalsIgnoreCase(dspH)) {
+			} else {
 				mHeight = 152f * 48 / 48;
 			}
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -1080,8 +1088,12 @@ public class BaseObject{
 			} else if (MessageObject.mDot_64_Size[15].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 24 / 64;
-// H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+// H.M.Wang 2024-8-27 追加28号字体
 			} else if (MessageObject.mDot_64_Size[16].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 28 / 64;
+// End of H.M.Wang 2024-8-27 追加28号字体
+// H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
+			} else if (MessageObject.mDot_64_Size[17].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 32 / 64;
 			} else {
@@ -1124,9 +1136,13 @@ public class BaseObject{
 				mHeight = 152f * 21 / 96;
 			} else if (MessageObject.mDot_96_Size[15].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 24 / 96;
+// H.M.Wang 2024-8-27 追加28号字体
 			} else if (MessageObject.mDot_96_Size[16].equalsIgnoreCase(dspH)) {
-				mHeight = 152f * 32 / 96;
+				mHeight = 152f * 28 / 96;
+// End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (MessageObject.mDot_96_Size[17].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 32 / 96;
+			} else if (MessageObject.mDot_96_Size[18].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 64 / 96;
 			} else {
 				mHeight = 152f * 96 / 96;

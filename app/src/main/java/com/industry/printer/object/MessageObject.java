@@ -51,7 +51,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32"
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32"
+// H.M.Wang 2024-8-27 追加28号字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32"
+// End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 	};
@@ -61,7 +64,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32", "48"
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "48"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "48"
+// H.M.Wang 2024-8-27 追加28号字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "48"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48"
+// End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 	};
@@ -73,7 +79,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32", "64"
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "64"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64"
+// H.M.Wang 2024-8-27 追加28号字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64"
+// End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
     };
@@ -87,7 +96,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R", "19x13", "21x14", "24", "32", "64", "96"
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "64", "96"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64", "96"
+// H.M.Wang 2024-8-27 追加28号字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64", "96"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96"
+// End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 	};
@@ -575,6 +587,10 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_32_Size[15])) {
 				h = 12.7f * 24 / 32;
 // End of 2022-11-12 增加24字高
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size.equalsIgnoreCase(mDot_32_Size[16])) {
+				h = 12.7f * 28 / 32;
+// End of H.M.Wang 2024-8-27 追加28号字体
 			} else {
 				h = 12.7f * 32 / 32;
 			}
@@ -613,7 +629,12 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size.equalsIgnoreCase(mDot_48_Size[15])) {
 				h = 12.7f * 24 / 48;
+// H.M.Wang 2024-8-27 追加28号字体
 			} else if (size.equalsIgnoreCase(mDot_48_Size[16])) {
+				h = 12.7f * 28 / 48;
+//			} else if (size.equalsIgnoreCase(mDot_48_Size[16])) {
+			} else if (size.equalsIgnoreCase(mDot_48_Size[17])) {
+// End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 32 / 48;
 			} else {
 				h = 12.7f * 48 / 48;
@@ -670,7 +691,12 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size.equalsIgnoreCase(mDot_64_Size[15])) {
 				h = 12.7f * 24 / 64;
+// H.M.Wang 2024-8-27 追加28号字体
 			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
+				h = 12.7f * 28 / 64;
+//			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[17])) {
+// End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 32 / 64;
             } else {
                 h = 12.7f * 64 / 64;
@@ -711,9 +737,15 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size.equalsIgnoreCase(mDot_96_Size[15])) {
 				h = 12.7f * 24 / 96;
-			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
-				h = 12.7f * 32 / 96;
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
+				h = 12.7f * 28 / 96;
+//			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[17])) {
+				h = 12.7f * 32 / 96;
+//			} else if (size.equalsIgnoreCase(mDot_96_Size[17])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[18])) {
+// End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 64 / 96;
 			} else {
 				h = 12.7f * 96 / 96;
@@ -860,8 +892,12 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 24 / 32 + 1) {
 				return mDot_32_Size[15];
 // End of 2022-11-12 增加24字高
-			} else {
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 32 + 1) {
 				return mDot_32_Size[16];
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else {
+				return mDot_32_Size[17];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			}
 // H.M.Wang 2023-7-29 追加48点头
@@ -888,10 +924,14 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 24 / 48 + 1) {
 				return mDot_48_Size[15];
-			} else if (size <= 152f * 32 / 48 + 1) {
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 48 + 1) {
 				return mDot_48_Size[16];
-			} else {
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 48 + 1) {
 				return mDot_48_Size[17];
+			} else {
+				return mDot_48_Size[18];
 			}
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -932,10 +972,14 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 24 / 64 + 1) {
 				return mDot_64_Size[15];
-			} else if (size <= 152f * 32 / 64 + 1) {
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 64 + 1) {
 				return mDot_64_Size[16];
-            } else {
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 64 + 1) {
 				return mDot_64_Size[17];
+            } else {
+				return mDot_64_Size[18];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
             }
 // End of H.M.Wang 2020-8-8 在每个判断高度得if语句里面，准确计算的数值后面都+1，目的是为了解决在保存时，由于四舍五入会导致数值偏差，再次读入时会发生错误。如：
@@ -960,12 +1004,16 @@ public class MessageObject extends BaseObject {
 				return mDot_96_Size[14];
 			} else if (size <= 152f * 24 / 96 + 1) {
 				return mDot_96_Size[15];
-			} else if (size <= 152f * 32 / 96 + 1) {
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 96 + 1) {
 				return mDot_96_Size[16];
-			} else if (size <= 152f * 64 / 96 + 1) {
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 96 + 1) {
 				return mDot_96_Size[17];
-			} else {
+			} else if (size <= 152f * 64 / 96 + 1) {
 				return mDot_96_Size[18];
+			} else {
+				return mDot_96_Size[19];
 			}
 // End of H.M.Wang 2021-9-16 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
         } else {

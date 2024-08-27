@@ -255,9 +255,13 @@ public class TestSub implements ITestOperation {
                                                     }
                                                 }
                                             });
+                                        } else {
+                                            mMCPH21xxxxReading = false;
+                                            break;
                                         }
                                         try{Thread.sleep(100L);}catch(Exception e){}
                                     }
+                                    Debug.d(TAG, "Quit MCPH21xxxxReading");
                                 }
                             }).start();
                         }
