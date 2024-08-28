@@ -68,7 +68,7 @@ public class RfidScheduler implements IInkScheduler {
 	private static int LEVEL_CHIP_TYPE_NONE = 0;
 	private static int LEVEL_CHIP_TYPE_1614 = 1;
 	private static int LEVEL_CHIP_TYPE_MCPH21 = 2;
-	private int VALID_INK_MIN_MCPH21 = 3800000;     // H.M.Wang 2024-8-26 4000000 -> 3800000
+	private int VALID_INK_MIN_MCPH21 = 3500000;     // H.M.Wang 2024-8-26 4000000 -> 3800000 -> 3500000 (2024-8-28)
 	private int VALID_INK_MAX_MCPH21 = 5000000;     // H.M.Wang 2024-8-26 4600000 -> 5000000
 	private int ADD_INK_THRESHOLD_MCPH21 = 4400000;
 // End of H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
