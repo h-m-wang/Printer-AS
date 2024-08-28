@@ -228,7 +228,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/area_counter"
+            android:layout_alignParentRight="true"
             android:orientation="vertical" >
             <TextView
                 android:id="@+id/powerV"
@@ -465,6 +465,14 @@
                 android:textColor="@color/ctrl_btn_print_selector"
                 android:background="@drawable/bg_big_button"
                 android:text="@string/str_btn_print"
+                />
+            <TextView
+                android:id="@+id/ble_state"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_margin="10dp"
+                android:visibility="gone"
+                android:background="@color/blue"
                 />
         </RelativeLayout>
         <RelativeLayout

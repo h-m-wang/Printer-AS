@@ -331,6 +331,14 @@
                     android:background="@drawable/bg_big_button"
                     android:text="@string/str_btn_print"
                     />
+                <TextView
+                    android:id="@+id/ble_state"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_margin="10dp"
+                    android:visibility="gone"
+                    android:background="@color/blue"
+                    />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/StopPrint"
