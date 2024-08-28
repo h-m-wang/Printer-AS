@@ -194,7 +194,7 @@ public class RfidScheduler implements IInkScheduler {
 				mBaginkLevels[cardIdx].mLevelLowCount = 0;
 			}
 
-			if(mBaginkLevels[cardIdx].mLevelLowCount > 3) {
+			if(mBaginkLevels[cardIdx].mLevelLowCount > 9) {
 				ExtGpio.playClick();
 				Thread.sleep(50);
 				ExtGpio.playClick();
@@ -209,7 +209,7 @@ public class RfidScheduler implements IInkScheduler {
 				mBaginkLevels[cardIdx].mLevelHighCount = 0;
 			}
 
-			if(mBaginkLevels[cardIdx].mLevelHighCount > 3) {
+			if(mBaginkLevels[cardIdx].mLevelHighCount > 9) {
 				ExtGpio.playClick();
 				Thread.sleep(50);
 				ExtGpio.playClick();
