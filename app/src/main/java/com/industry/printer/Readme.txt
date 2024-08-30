@@ -1,3 +1,20 @@
+2024-8-30 240830-130000001
+==================
+1. 在BLEDevice类中，将
+    PCCommandManager.getInstance().addBLEHandler(mBLEStreamTransport);
+    从构造函数中挪到initServer函数中，同时在closeServer函数中，追加
+    PCCommandManager.getInstance().addBLEHandler(null);
+    调用，使得对于蓝牙数据的处理根据蓝牙的启动与否进行开关。同时也避免了初始化BLEDevice时PCCommandManager.getInstance()为空时发生空指针异常
+2. 在DataTask类中，调用expendColumn函数之前，判断列数，如果列数为0（br.getColumnNum()）则不调用，否则会出现除数为0的异常
+
+2024-8-30 240830-129900001
+==================
+1. 在Hp22mm.java类中，生成设置参数时，寄存器7-14的值修改为132
+2. 在DynamicText类中，注释掉以下内容，完全遵照DT桶中的内容，不做任何修改，否则，如果是全部空格，则会由、有取消掉空格后变为空，然后用＃替代的问题
+//        if(cnt.trim().isEmpty()) {
+//            cnt = getContent();
+//        }
+
 2024-8-28 240828-129800001
 ==================
 在RfidSchedule类中，再次修改H21低于最小值或者高于最大值的报警门槛次数，由原来的3次改为10次

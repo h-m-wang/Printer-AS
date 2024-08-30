@@ -167,15 +167,15 @@ public class Hp22mm {
         regs[REG04_32BIT_WORDS_PER_COL] = WORDS_PER_COL;
         regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
-        regs[REG07_START_ADD_P0S0_ODD] = 0;
-        regs[REG08_START_ADD_P0S0_EVEN] = 0;
-        regs[REG09_START_ADD_P0S1_ODD] = 0;
-        regs[REG10_START_ADD_P0S1_EVEN] = 0;
-        regs[REG11_START_ADD_P1S0_ODD] = 0;
-        regs[REG12_START_ADD_P1S0_EVEN] = 0;
-        regs[REG13_START_ADD_P1S1_ODD] = 0;
-        regs[REG14_START_ADD_P1S1_EVEN] = 0;
-        regs[REG14_START_ADD_P1S1_EVEN] = 0;
+        regs[REG07_START_ADD_P0S0_ODD] = 132;
+        regs[REG08_START_ADD_P0S0_EVEN] = 132;
+        regs[REG09_START_ADD_P0S1_ODD] = 132;
+        regs[REG10_START_ADD_P0S1_EVEN] = 132;
+        regs[REG11_START_ADD_P1S0_ODD] = 132;
+        regs[REG12_START_ADD_P1S0_EVEN] = 132;
+        regs[REG13_START_ADD_P1S1_ODD] = 132;
+        regs[REG14_START_ADD_P1S1_EVEN] = 132;
+        regs[REG14_START_ADD_P1S1_EVEN] = 132;
 
         int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
         regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位

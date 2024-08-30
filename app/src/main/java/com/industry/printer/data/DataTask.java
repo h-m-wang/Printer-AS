@@ -1621,12 +1621,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // Slant2用于控制第二喷头倾斜。（原有SLANT  用于控制第一个32 点喷头倾斜）
 // “调整2”“/”ADJ2”参数，  用于调整喷头2的宽度，规则：默认值是0， 设为n, 则展宽为 32+n，
 			if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
-				expendColumn(mBuffer,
+				if(br.getColumnNum() > 0) expendColumn(mBuffer,
 						br.getColumnNum(),
 						new int[] {0, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ADJ2)},
 						new int[] {SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SLANT), SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SLANT2)});
 			} else {
-				expendColumn(mBuffer, br.getColumnNum(), SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_SLANT));
+				if(br.getColumnNum() > 0) expendColumn(mBuffer, br.getColumnNum(), SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_SLANT));
 			}
 		}
 

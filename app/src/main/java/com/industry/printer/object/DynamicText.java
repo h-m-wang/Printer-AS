@@ -177,9 +177,11 @@ public class DynamicText extends BaseObject {
 //        int drawWidth = Math.round(paint.measureText(getContent()) * ratio);
 
         String cnt = getValidString(SystemConfigFile.getInstance().getDTBuffer(mDtIndex));
-        if(cnt.trim().isEmpty()) {
-            cnt = getContent();
-        }
+// H.M.Wang 2024-8-30 完全遵照DT桶中的内容，不做任何修改，否则，如果是全部空格，则会由、有取消掉空格后变为空，然后用＃替代的问题
+//        if(cnt.trim().isEmpty()) {
+//            cnt = getContent();
+//        }
+// End of H.M.Wang 2024-8-30 完全遵照DT桶中的内容，不做任何修改，否则，如果是全部空格，则会由、有取消掉空格后变为空，然后用＃替代的问题
 
         int charWidth = (int)(paint.measureText(cnt));
         int drawWidth = (int)(mWidth / scaledW);

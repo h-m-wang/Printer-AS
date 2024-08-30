@@ -79,7 +79,6 @@ public class BLEDevice {
         mClientConnected = false;
         mClientMacAddress = "";
         mBLEStreamTransport = new BLEStreamTransport(mStreamTransport.getInputStream(), mStreamTransport.getOutputStream(), this);
-        PCCommandManager.getInstance().addBLEHandler(mBLEStreamTransport);
         mBLEDeviceNo = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOCAL_ID);
     }
 
@@ -191,6 +190,9 @@ public class BLEDevice {
             ExtGpio.writeGpioTestPin('I', 9, 1);
             execCmdStopAdvertise();
             ExtGpio.writeGpioTestPin('I', 9, 0);
+            if(null != PCCommandManager.getInstance()) {
+                PCCommandManager.getInstance().addBLEHandler(null);
+            }
         }
         Debug.d(TAG, "RFID-CLOSED");
     }
@@ -213,6 +215,9 @@ public class BLEDevice {
                 execCmdStartAdvertise();
 //            execGattGetChars();
             ExtGpio.writeGpioTestPin('I', 9, 0);
+            if(null != PCCommandManager.getInstance()) {
+                PCCommandManager.getInstance().addBLEHandler(mBLEStreamTransport);
+            }
         }
         Debug.d(TAG, "RFID-QUIT");
         BLERequiring = false;
