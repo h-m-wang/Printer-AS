@@ -25,8 +25,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.400"
-
+#define VERSION_CODE                            "1.0.401"
+// 1.0.401 2024-8-30
+// 1. 调整Java_com_Smartcard_testLevel的读取逻辑，读取5次后，充值Level芯片
+// 2. 调整Java_com_Smartcard_readLevel的重启条件，原来只有0x0FFFFFFF，扩大到0x00000000也重启。再次修改为138加减100以外的值时重启
 // 1.0.400 2024-8-16
 // 修改sLevelChipType的定义，原来是只考虑了一个头，现在是4个头动作，因此需要通过数组进行分别管理
 // 1.0.399 2024-8-6
@@ -1178,7 +1180,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
         chData = 0;
     }
 
-    if(chData == 0x0FFFFFFF) {
+    LOGD(">>> Level data read: 0x%08X", chData);
+
+//    if(chData == 0x0FFFFFFF || chData == 0x00000000) {
+    if(chData < 3800000 || chData > 23800000) {
         uint16_t config;
         if(LEVEL_I2C_OK == readConfig(&config)) {
             config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
@@ -1196,8 +1201,6 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
         }
     }
 
-    LOGD(">>> Level data read: 0x%08X", chData);
-
     pthread_mutex_unlock(&mutex);
 
     return chData;
@@ -1206,8 +1209,8 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
 /**
  * 测试Level值
  */
-static int ppp_1 = 4;
-static int ppp_2 = 4;
+static int ppp_1 = 5;
+static int ppp_2 = 5;
 
 JNIEXPORT jint JNICALL Java_com_Smartcard_testLevel(JNIEnv *env, jclass arg, jint card) {
     LOGD(">>> Test Level(#%d)", card);
@@ -1235,46 +1238,19 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_testLevel(JNIEnv *env, jclass arg, jin
     LOGD(">>> Level data read(For Test Level): 0x%08X", chData);
 
     uint16_t config;
-    if(*p == 0) {
-        if(LEVEL_I2C_OK == readConfig(&config)) {
-            config &= CONFIG_ACTIVE_MODE_ENABLE;                // Set to Active mode
-            writeConfig(&config);
-            LOGD(">>> Level %d Awake!", card);
-        }
-        *p = 5;
-    }
     (*p)--;
     if(*p == 0) {
         if(LEVEL_I2C_OK == readConfig(&config)) {
             config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
             writeConfig(&config);
             LOGD(">>> Level %d Sleep!", card);
-        }
-    }
-/*
-    if((chData & 0x0FFFFFFF) == 0x0FFFFFFF) {
-        uint16_t config;
-        if(LEVEL_I2C_OK == readConfig(&config)) {
-            config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
-            writeConfig(&config);
-
-//        config = 0x0000;
-//        writeReset(config & 0x8000);
-
-            int temp = 0;
-            for(int i=0; i<1000; i++){
-                temp++;
-            }
-
-//        readConfig(&config);
             config &= CONFIG_ACTIVE_MODE_ENABLE;                // Set to Active mode
             writeConfig(&config);
-
-            LOGD(">>> Level Restart!");
+            LOGD(">>> Level %d Awake!", card);
         }
-
+        *p = 5;
     }
-*/
+
     pthread_mutex_unlock(&mutex);
 
     return chData;

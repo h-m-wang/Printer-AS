@@ -43,6 +43,9 @@ public class SmartCardManager implements IInkDevice {
         private int     mInkLevel;
         private int     mMaxVolume;
         private ArrayList<Integer> mRecentLevels;
+// H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+        private ArrayList<Integer> mRecentErrVals;
+// End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
 // H.M.Wang 2022-5-13 追加一个Level的设备ID，从卡中读取，如果中途有读失败，则赋值（-1）
         private int     mLevelDevID;
 // End of H.M.Wang 2022-5-13 追加一个Level的设备ID，从卡中读取，如果中途有读失败，则赋值（-1）
@@ -63,6 +66,9 @@ public class SmartCardManager implements IInkDevice {
             mMaxVolume = maxVolume;
 
             mRecentLevels = new ArrayList<Integer>();
+// H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+            mRecentErrVals = new ArrayList<Integer>();
+// End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
 
 // H.M.Wang 2022-5-13 追加一个Level的设备ID，从卡中读取，如果中途有读失败，则赋值（-1）
             mLevelDevID = 0;
@@ -149,16 +155,29 @@ public class SmartCardManager implements IInkDevice {
                             sb.append("Level - " + (i + 1) + "\n");
 //                            sb.append("Level - " + (i + 1) + " - (" +mCards[i].mLevelDevID + ")\n");
 // End of H.M.Wang 2022-5-13 追加一个Level的设备ID，从卡中读取，如果中途有读失败，则赋值（-1）
-                            for(int j=0; j<mCards[i].mRecentLevels.size(); j++) {
-                                if (j != 0) sb.append(",");
-                                sb.append(mCards[i].mRecentLevels.get(j) / 100000);
+                            if(mCards[i].mRecentLevels.size() > 0) {
+                                sb.append("Lvl: ");
+                                for(int j=0; j<mCards[i].mRecentLevels.size(); j++) {
+                                    if (j != 0) sb.append(",");
+                                    sb.append(mCards[i].mRecentLevels.get(j) / 100000);
+                                }
+                                sb.append("\n");
                             }
-                            sb.append("\n");
                             if (mCards[i].mAddInkFailed) {
                                 sb.append("!!! Adding Ink Failed !!!\n");
                             } else if(mCards[i].mInkAddedTimes > 0) {
-                                sb.append("--- Adding Ink (" + mCards[i].mInkAddedTimes + ") ---\n");
+                                sb.append("--- Adding Ink (" + mCards[i].mInkAddedTimes + " times) ---\n");
                             }
+// H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+                            if(mCards[i].mRecentErrVals.size() > 0) {
+                                sb.append("Err: ");
+                                for(int j=0; j<mCards[i].mRecentErrVals.size(); j++) {
+                                    if (j != 0) sb.append(",");
+                                    sb.append(mCards[i].mRecentErrVals.get(j) / 100000);
+                                }
+                                sb.append("\n");
+                            }
+// End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
                         }
 
                         mRecvedLevelPromptDlg.setTitle("Levels");
@@ -265,6 +284,9 @@ public class SmartCardManager implements IInkDevice {
         mIniting = true;
 
         mCards[index].mRecentLevels.clear();
+// H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+        mCards[index].mRecentErrVals.clear();
+// End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
         if(index < mPenNum) {
             SmartCard.initComponent(mCards[index].mLevelType);
         }
@@ -771,6 +793,14 @@ public class SmartCardManager implements IInkDevice {
             }
         }
 // End of H.M.Wang 2024-1-23 临时增加一个计数器，作为测试开阀打印的控制值
+// H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+        else {
+            mCards[cardIdx].mRecentErrVals.add(avgLevel);
+            if(mCards[cardIdx].mRecentErrVals.size() > PROC_LEVEL_NUMS) {
+                mCards[cardIdx].mRecentErrVals.remove(0);
+            }
+        }
+// End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
     }
 
     public void addInkOn(int cardIdx) {

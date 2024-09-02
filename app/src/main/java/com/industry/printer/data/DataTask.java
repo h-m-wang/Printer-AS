@@ -192,6 +192,9 @@ public class DataTask {
 			if(!notZero) rmCols++;
 		}
 		if(rmCols > 0) {
+// H.M.Wang 2024-8-31 增加如果墨位空白过多时，至少留5列空白
+			if(mBinInfo.mColumn - rmCols < 5) rmCols = mBinInfo.mColumn - 5;
+// End of H.M.Wang 2024-8-31 增加如果墨位空白过多时，至少留5列空白
 			char[] pbuf = new char[mPrintBuffer.length - rmCols * mBinInfo.getCharsFeed()];
 			System.arraycopy(mPrintBuffer, 0, pbuf, 0, pbuf.length);
 			mPrintBuffer = pbuf;
