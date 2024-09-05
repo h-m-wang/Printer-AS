@@ -77,7 +77,7 @@ public class SmartCard {
 
     static public native int writeOIB(int card);
 
-    static public native int readLevel(int card);
+    static public native int readLevel(int card, int min, int max);
 
 // H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能
     static public native int writeDAC5571(int value);

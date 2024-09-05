@@ -25,7 +25,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.401"
+#define VERSION_CODE                            "1.0.402"
+// 1.0.402 2024-9-5
+// readLevel函数中，重启的条件修改为，根据从参数获得最大值和最小值，如果超出100单位则重启（这个最大最小值对应于apk的标准情况下的最大最小值，或者时自由天线小卡的最大最小值）
 // 1.0.401 2024-8-30
 // 1. 调整Java_com_Smartcard_testLevel的读取逻辑，读取5次后，充值Level芯片
 // 2. 调整Java_com_Smartcard_readLevel的重启条件，原来只有0x0FFFFFFF，扩大到0x00000000也重启。再次修改为138加减100以外的值时重启
@@ -1160,7 +1162,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass ar
 /**
  * 读取Level值
  */
-JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card) {
+JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card, jint min, jint max) {
     LOGD(">>> Read Level(#%d)", card);
 
     pthread_mutex_lock(&mutex);
@@ -1183,7 +1185,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
     LOGD(">>> Level data read: 0x%08X", chData);
 
 //    if(chData == 0x0FFFFFFF || chData == 0x00000000) {
-    if(chData < 3800000 || chData > 23800000) {
+    if(chData < min - 10000000 || chData > max + 10000000) {
         uint16_t config;
         if(LEVEL_I2C_OK == readConfig(&config)) {
             config |= CONFIG_SLEEP_MODE_ENABLE;                // Set to Sleep mode
@@ -1332,7 +1334,7 @@ static JNINativeMethod gMethods[] = {
         {"getLocalInk",		        "(I)I",						(void *)Java_com_Smartcard_getLocalInk},
         {"downLocal",		        "(I)I",						(void *)Java_com_Smartcard_downLocal},
         {"writeOIB",		            "(I)I",						(void *)Java_com_Smartcard_writeOIB},
-        {"readLevel",		        "(I)I",						(void *)Java_com_Smartcard_readLevel},
+        {"readLevel",		        "(III)I",					(void *)Java_com_Smartcard_readLevel},
         {"getLevelType",		        "(I)I",						(void *)Java_com_Smartcard_getLevelType},
         {"readLevelDirect",		    "(I)I",						(void *)Java_com_Smartcard_readLevelDirect},
         {"readMCPH21Level",		    "(I)I",						(void *)Java_com_Smartcard_readMCPH21Level},

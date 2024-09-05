@@ -734,7 +734,7 @@ public class SmartCardManager implements IInkDevice {
             } else {
                 synchronized (SmartCardManager.this) {
                     if(mCards[cardIdx].mInitialized && mCards[cardIdx].mValid) {
-                        int level = SmartCard.readLevel(mCards[cardIdx].mLevelType);
+                        int level = SmartCard.readLevel(mCards[cardIdx].mLevelType, (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 26000000 : 12000000), (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 40000000 : 16000000));
                         if ((level & 0xF0000000) == 0x00000000) {
                             Debug.d(TAG, "Read Level " + (readCount + 1) + " times = " + level);
                             readLevels += level;

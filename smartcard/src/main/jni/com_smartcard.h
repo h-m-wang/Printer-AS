@@ -95,7 +95,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass ar
 JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg, jint index);
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
-JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card);
+JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card, jint min, jint max);
 
 /**
  * 测试Level值
