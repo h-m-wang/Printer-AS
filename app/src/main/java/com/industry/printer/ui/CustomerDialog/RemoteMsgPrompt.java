@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,9 +24,20 @@ public class RemoteMsgPrompt extends RelightableDialog {
     private RelativeLayout mTotalView;
     private TextView mMessage;
 
+    private RelativeLayout mEditTotalView;
+    private EditText mEditText;
+    private TextView mOK;
+    private TextView mCancel;
+
+    public interface EditActionListener {
+        public void onOK(String edit);
+    }
+    private EditActionListener mEditActionListener;
+
     public RemoteMsgPrompt(Context context) {
         super(context, R.style.Dialog);
         mContext = context;
+        mEditActionListener = null;
     }
 
     @Override
@@ -44,9 +56,47 @@ public class RemoteMsgPrompt extends RelightableDialog {
                 hide();
             }
         });
+
+        mEditTotalView = (RelativeLayout) findViewById(R.id.EditRemoteMsgTotal);
+        mEditText = (EditText) findViewById(R.id.RemoteMsgEdit);
+        mOK = (TextView) findViewById(R.id.RMOK);
+        mOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(null != mEditActionListener) mEditActionListener.onOK(mEditText.getText().toString());
+                setMessageView();
+                hide();
+            }
+        });
+        mCancel = (TextView) findViewById(R.id.RMCancel);
+        mCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setMessageView();
+                hide();
+            }
+        });
+    }
+
+    public void setEditActionListener(EditActionListener l) {
+        mEditActionListener = l;
+    }
+
+    public void setMessageView() {
+        mTotalView.setVisibility(View.VISIBLE);
+        mEditTotalView.setVisibility(View.GONE);
+    }
+
+    public void setEditView() {
+        mTotalView.setVisibility(View.GONE);
+        mEditTotalView.setVisibility(View.VISIBLE);
     }
 
     public void setMessage(String msg) {
-        mMessage.setText(msg);
+        if(mEditTotalView.getVisibility() == View.VISIBLE) {
+            mEditText.setText(msg);
+        } else {
+            mMessage.setText(msg);
+        }
     }
 }

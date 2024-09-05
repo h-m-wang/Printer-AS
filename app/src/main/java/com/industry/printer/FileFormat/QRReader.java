@@ -129,7 +129,7 @@ public class QRReader {
 			FileReader r = new FileReader(path);
 			mReader = new BufferedReader(r);
 			for (int i = 0; i < mRow; i++) {
-				mReader.readLine();
+				if(null == mReader.readLine()) break;
 			}
 		} catch(Exception e) {
 			mReader = null;

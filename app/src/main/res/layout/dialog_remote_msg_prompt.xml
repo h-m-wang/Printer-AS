@@ -1,44 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RemoteMsgTotal"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:background="@color/black" >
+    android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/RemoteMsgTitle"
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:id="@+id/RemoteMsgTotal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="@string/strRecvedRemote"
-        android:textSize="20sp"
-        android:textColor="@color/white" />
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:background="@color/black" >
+        <TextView
+            android:id="@+id/RemoteMsgTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/strRecvedRemote"
+            android:textSize="20sp"
+            android:textColor="@color/white" />
 
-    <TextView
-        android:id="@+id/RemoteMsgTV"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/RemoteMsgTitle"
-        android:layout_margin="20dp"
-        android:gravity="center"
-        android:textSize="30sp"
-        android:text="@string/strRecvedRemote"
-        android:textColor="@color/white"
-    />
+        <TextView
+            android:id="@+id/RemoteMsgTV"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/RemoteMsgTitle"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:textSize="30sp"
+            android:text="@string/strRecvedRemote"
+            android:textColor="@color/white"
+            />
 
-    <TextView
-        android:id="@+id/RMClose"
-        android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/RMClose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:text="Click to close"
+            android:textSize="20sp"
+            android:textColor="@color/gray" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/EditRemoteMsgTotal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_alignParentBottom="true"
+        android:paddingTop="20dp"
         android:gravity="center"
-        android:text="Click to close"
-        android:textSize="20sp"
-        android:textColor="@color/gray" />
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="gone"
+        android:background="@color/black" >
+
+        <EditText
+            android:id="@+id/RemoteMsgEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:padding="5dp"
+            android:textSize="24sp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/RemoteMsgEdit"
+            android:orientation="horizontal" >
+            <TextView
+                android:id="@+id/RMOK"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="20dp"
+                android:padding="20dp"
+                android:gravity="center"
+                android:text="@string/str_ok"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:background="@color/button_background" />
+            <TextView
+                android:id="@+id/RMCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="20dp"
+                android:padding="20dp"
+                android:gravity="center"
+                android:text="@string/str_btn_cancel"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:background="@color/button_background" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

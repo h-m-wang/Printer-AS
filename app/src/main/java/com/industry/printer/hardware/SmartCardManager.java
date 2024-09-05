@@ -785,7 +785,7 @@ public class SmartCardManager implements IInkDevice {
             mCards[cardIdx].mRecentLevels.remove(0);
         }*/
 // H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
-        if(avgLevel >= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 26000000 : 12000000) && avgLevel <= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 30000000 : 16000000)) {
+        if(avgLevel >= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 26000000 : 12000000) && avgLevel <= (SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL ? 40000000 : 16000000)) {
 // End of H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
             mCards[cardIdx].mRecentLevels.add(avgLevel);
             if(mCards[cardIdx].mRecentLevels.size() > PROC_LEVEL_NUMS) {

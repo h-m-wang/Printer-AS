@@ -177,19 +177,33 @@ public class Hp22mm {
         regs[REG14_START_ADD_P1S1_EVEN] = 132;
         regs[REG14_START_ADD_P1S1_EVEN] = 132;
 
-        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
+// H.M.Wang 2024-9-3 修改R15的计算公式
+//        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
+        int encFreq = (config.mParam[0] != 0 ? 90000000 / (int)(config.mParam[0] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f))) : 150000);  // R15=90M/(C1*(C10*2/(C9*3.14)))
+// End of H.M.Wang 2024-9-3 修改R15的计算公式
         regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位
         regs[REG15_INTERNAL_ENC_FREQ] = (char)((char)(encFreq & 0x0ffff));                                                   // Reg15仅保存ENC的低16位，完整整数在img中合成
-        int tofFreq = (config.mParam[6] != 0 ? 90000000 / config.mParam[6] * config.mParam[0] : 45000000);                   // R16=90M/(C7/C1)
-        regs[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
-        regs[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成
         regs[REG17_ENCODER_SOURCE] = (char)config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
-        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
-                (config.mParam[2] == 0 ? 4 : (config.mParam[2] == 1 ? 2 : (config.mParam[2] == 3 ? 1 : 1)));
         regs[REG19_TOF_SOURCE] = (char)                                                           // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
                 (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
-        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[1] * 24 + config.mParam[11]);              // R20= C2x24+c12
-        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[1] * 24 + config.mParam[10]);              // R21= C2x24+c11
+        int tofFreq = (config.mParam[0] != 0 ? 90000000 / config.mParam[0] * config.mParam[6] : 45000000);                   // R16=90M * C7 / C1
+        if(regs[REG17_ENCODER_SOURCE] == 1 && regs[REG19_TOF_SOURCE] == 0) {
+            tofFreq = config.mParam[6] * 24;                                                                                 // R16=C7 * 24
+        }
+        regs[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
+        regs[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成
+// H.M.Wang 2024-9-3 修改R18的计算公式
+//        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
+//                (config.mParam[2] == 150 ? 4 : (config.mParam[2] == 300 ? 2 : (config.mParam[2] == 600 ? 1 : 1)));
+        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // R18=((C1*2*25.4)/(C9*3.14))/C3
+                (((25.4f * 2 * config.mParam[0]) / (3.14f * config.mParam[8])) / config.mParam[2]);
+// End of H.M.Wang 2024-9-3 修改R18的计算公式
+// H.M.Wang 2024-9-3 修改R20,R21的计算公式
+//        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[11]);              // R20= C4x24+c12
+//        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[10]);              // R21= C4x24+c11
+        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 150 / config.mParam[2]);              // R20=C4*(C10*2/(C9*3.14))+(C12*150/C3)
+        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*2/(C9*3.14))+(C11*150/C3)
+// End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
         regs[REG23_COLUMN_SPACING] = 4;                                                     // 固定数据待定
         regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定

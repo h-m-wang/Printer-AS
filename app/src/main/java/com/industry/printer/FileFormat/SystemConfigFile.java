@@ -289,23 +289,25 @@ public class SystemConfigFile{
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 	public static final int DATA_SOURCE_SCANER6 	= 13;		// 扫描6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
-
-	public static final int DATA_SOURCE_RS232_1 	= 14;		// 数据源使用串口协议1。EC_DOD协议，按位数紧凑填充前面的计数器。位数不足时，后续计数器不填充，位数超出所有计数器的位数总和时，后面的剪切
-	public static final int DATA_SOURCE_RS232_2 	= 15;		// 数据源使用串口协议2。EC_DOD协议，用逗号等分隔符分开各计数器的内容。每个计数器的接收位数大于计数器的预设位数时剪切
-	public static final int DATA_SOURCE_RS232_3 	= 16;		// 数据源使用串口协议3。平文直接填充第一个计数器。超出计数器位数部分剪切
-	public static final int DATA_SOURCE_RS232_4 	= 17;		// 数据源使用串口协议4。XK3190协议
+// H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+	public static final int DATA_SOURCE_SCANER7 	= 14;		// 扫描6
+// End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+	public static final int DATA_SOURCE_RS232_1 	= 15;		// 数据源使用串口协议1。EC_DOD协议，按位数紧凑填充前面的计数器。位数不足时，后续计数器不填充，位数超出所有计数器的位数总和时，后面的剪切
+	public static final int DATA_SOURCE_RS232_2 	= 16;		// 数据源使用串口协议2。EC_DOD协议，用逗号等分隔符分开各计数器的内容。每个计数器的接收位数大于计数器的预设位数时剪切
+	public static final int DATA_SOURCE_RS232_3 	= 17;		// 数据源使用串口协议3。平文直接填充第一个计数器。超出计数器位数部分剪切
+	public static final int DATA_SOURCE_RS232_4 	= 18;		// 数据源使用串口协议4。XK3190协议
 // H.M.Wang 2020-6-9 追加串口6协议
-	public static final int DATA_SOURCE_RS232_6 	= 18;		// 数据源使用串口协议6。接收19位字符串，第8, 9, 10, 11, 13, 14分别设置给DT0-DT5
+	public static final int DATA_SOURCE_RS232_6 	= 19;		// 数据源使用串口协议6。接收19位字符串，第8, 9, 10, 11, 13, 14分别设置给DT0-DT5
 // End of H.M.Wang 2020-6-9 追加串口6协议
 // H.M.Wang 2020-8-13 追加串口协议7
-	public static final int DATA_SOURCE_RS232_7 	= 19;		// 数据源使用串口协议7。与串口协议1一致，仅校验位奇偶校验
+	public static final int DATA_SOURCE_RS232_7 	= 20;		// 数据源使用串口协议7。与串口协议1一致，仅校验位奇偶校验
 // End of H.M.Wang 2020-8-13 追加串口协议7
 // End of H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 // H.M.Wang 2021-3-6 追加串口协议8
-	public static final int DATA_SOURCE_RS232_8 	= 20;		// 数据源使用串口协议8。
+	public static final int DATA_SOURCE_RS232_8 	= 21;		// 数据源使用串口协议8。
 // End of H.M.Wang 2021-3-6 追加串口协议8
 // H.M.Wang 2021-9-24 追加串口协议9
-	public static final int DATA_SOURCE_RS232_9 	= 21;		// 数据源使用串口协议9。具体内容是：
+	public static final int DATA_SOURCE_RS232_9 	= 22;		// 数据源使用串口协议9。具体内容是：
 																// 接收上位机查询指令 "AA 0D 0A"，如处于待机状态（即打印状态）则返回"DD 0D 0A"，如果不是该状态则不返回或返回其他内容，选择"EE 0D 0A"返回
 																// 接收到28位数字字符串 如：2110042290110005265129211009
 																// 其中：Bit1-2 (21) -> DT0
@@ -318,7 +320,7 @@ public class SystemConfigFile{
 																// 		Bit18-28 (65129211009) -> DT7
 // End of H.M.Wang 2021-9-24 追加串口协议9
 // H.M.Wang 2021-9-28 追加串口协议10
-    public static final int DATA_SOURCE_RS232_10 	= 22;		// 数据源使用串口协议10。具体内容是：
+    public static final int DATA_SOURCE_RS232_10 	= 23;		// 数据源使用串口协议10。具体内容是：
                                                                 // 数据总长度是36位，   1-18 位和19-36 完全相同
 
                                                                 // 这是表头传输数据格
@@ -329,11 +331,11 @@ public class SystemConfigFile{
 // End of H.M.Wang 2021-9-28 追加串口协议10
 
 // H.M.Wang 2021-1-30 追加PC命令
-	public static final int DATA_PC_COMMAND 	    = 23;		// PC Command
+	public static final int DATA_PC_COMMAND 	    = 24;		// PC Command
 // End of H.M.Wang 2021-1-30 追加PC命令
 
 // H.M.Wang 2022-4-5 追加串口协议11(341串口)
-	public static final int DATA_SOURCE_RS232_11 	= 24;		// 数据源使用串口协议11。具体内容是：
+	public static final int DATA_SOURCE_RS232_11 	= 25;		// 数据源使用串口协议11。具体内容是：
 	// 走CH341串口（ttyUSB0）
 	// 具体要求参照《341串口协议.doc》文档
 	// 数据格式为
@@ -345,47 +347,47 @@ public class SystemConfigFile{
 	// 	（全文实力）：0x1B, 0x53, 0x31, 0x31, 0x30, 0x30, 0x31, 0x38, 0x2E, 0x32, 0x6B, 0x67, 0xCB, 0x0D, 0x0A
 // End of H.M.Wang 2022-4-5 追加串口协议11(341串口)
 // H.M.Wang 2022-5-16 追加串口协议2无线
-	public static final int DATA_SOURCE_RS232_2_WIFI = 25;      // 串口协议2无线。与串口协议2完全一致，只是走CH341串口（ttyUSB0）
+	public static final int DATA_SOURCE_RS232_2_WIFI = 26;      // 串口协议2无线。与串口协议2完全一致，只是走CH341串口（ttyUSB0）
 // End of H.M.Wang 2022-5-16 追加串口协议2无线
 // H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
-	public static final int DATA_SOURCE_AUTO_DATA = 26;      	// 该数据源的意图是，使得动态条码使用变量本身保存的信息作为生成条码的依据，而不使用桶里的内容，也不影响桶里的内容，此时，本信息的内容主要为超文本
+	public static final int DATA_SOURCE_AUTO_DATA = 27;      	// 该数据源的意图是，使得动态条码使用变量本身保存的信息作为生成条码的依据，而不使用桶里的内容，也不影响桶里的内容，此时，本信息的内容主要为超文本
 // End of H.M.Wang 2022-10-8 追加数据源：变量/Auto-data
 // H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
 // 例如：1E 01 01 00 00 01 01 00 00 01 01 00 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00 01 00。1E代表30个点，01代表点，00代表空格
-	public static final int DATA_SOURCE_DOT_MARKER = 27;
+	public static final int DATA_SOURCE_DOT_MARKER = 28;
 // End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格
 // H.M.Wang 2023-12-13 追加一个串口协议12
-	public static final int DATA_SOURCE_RS232_12 	= 28;		// 报文 [FE 0F 4A 44 41 7C 76 31 3D 20 31 30 33 31 7C 0D 0A]，取 [31 30 33 31]赋值给DT0
+	public static final int DATA_SOURCE_RS232_12 	= 29;		// 报文 [FE 0F 4A 44 41 7C 76 31 3D 20 31 30 33 31 7C 0D 0A]，取 [31 30 33 31]赋值给DT0
 // End of H.M.Wang 2023-12-13 追加一个串口协议12
 // H.M.Wang 2024-2-20 追加一个GS1串口协议。内容为：从串口收到 【0104607017595534215iD&U( 93CV0u】样式的数据，其中
 // 		01, 21和93为GS1的AI，01为固定长度（14个字符），21为可变长度，以空格为结束符，93为自定义AI，可变长度
 // 		AI原本使用方括号或圆括号作为标识，但由于用户数据中包含方括号和圆括号，因此使用花括号作为标识
 // 		将AI用花括号标识标注后，传递给GS1库生成二维码
-	public static final int DATA_SOURCE_GS1_BRACE	= 29;
+	public static final int DATA_SOURCE_GS1_BRACE	= 30;
 // End of H.M.Wang 2024-2-20 追加一个GS1串口协议。内容为：从串口收到 【0104607017595534215iD&U( 93CV0u】样式的数据，其中
 // H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
-	public static final int DATA_SOURCE_LAN_GS1_BRACE	= 30;
+	public static final int DATA_SOURCE_LAN_GS1_BRACE	= 31;
 // End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2024-6-12 追加三个GS1条码数据源协议。
 // GS1-1 0104607017595534215BD&Tw931ekW
 // 其中： 0104607017595534 （16位）。01为AI，04607017595534为数据
 // 		 215BD&Tw   （8位）。21为AI，5BD&Tw为数据
 // 		 931ekW（6位）。93为AI，1ekW为数据
-	public static final int DATA_SOURCE_GS1_1	= 31;
+	public static final int DATA_SOURCE_GS1_1	= 32;
 // GS1-2 0104610011892486215("+BsUbSn&ur91EE0992e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=
 // 其中： 0104610011892486  （16位）。01为AI，04610011892486为数据
 //       215("+BsUbSn&ur   （15位）。21为AI，5("+BsUbSn&ur为数据
 //       91EE09           （6位）。91为AI，EE09为数据
 //       92e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=    （46位）。92为AI，e6koCrc88wLNV2ksh8GoO/e3yhPdJMYyRNqrJz+Wu4M=为数据
-	public static final int DATA_SOURCE_GS1_2	= 32;
+	public static final int DATA_SOURCE_GS1_2	= 33;
 // GS1-3 01xxxxxxxxxxxxxx\21xxxxx\91xxxx\92xxxxxx
 // 其中： （1）报文被反斜杠(\)分割成为数段；
 //        （2）每段开头为2位数字的AI（其它位数的AI暂不支持）
 //        （3）每个AI后面的字符为对应于该AI的数据，数据的合法性需要用户保证，当数据错误时生成条码失败
-	public static final int DATA_SOURCE_GS1_3	= 33;
+	public static final int DATA_SOURCE_GS1_3	= 34;
 // End of H.M.Wang 2024-6-12 追加三个GS1条码数据源协议。
 // H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据
-	public static final int DATA_SOURCE_BLUETOOTH 	= 34;		// 数据源使用蓝牙数据
+	public static final int DATA_SOURCE_BLUETOOTH 	= 35;		// 数据源使用蓝牙数据
 // End of H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据
 
 // H.M.Wang 2021-3-6 追加串口协议8

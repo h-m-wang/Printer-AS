@@ -1428,7 +1428,42 @@ private void setSerialProtocol9DTs(final String data) {
 	}
 // End of H.M.Wang 2023-12-13 追加一个串口协议12
 
-//	private AlertDialog mRemoteRecvedPromptDlg = null;
+// H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+	public void setScan7DataToDt(final String data) {
+		Debug.d(TAG, "String from Remote = [" + data + "]");
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if(null != mRemoteRecvedPromptDlg) {
+					mRemoteRecvedPromptDlg.show();
+					mRemoteRecvedPromptDlg.setEditView();
+					mRemoteRecvedPromptDlg.setMessage(data);
+					mRemoteRecvedPromptDlg.setEditActionListener(new RemoteMsgPrompt.EditActionListener() {
+						@Override
+						public void onOK(String edit) {
+							boolean needUpdate = false;
+
+							for(DataTask dataTask : mDataTask) {
+								ArrayList<BaseObject> objList = dataTask.getObjList();
+								for(BaseObject baseObject: objList) {
+									if(baseObject instanceof DynamicText) {
+										SystemConfigFile.getInstance().setDTBuffer(((DynamicText) baseObject).getDtIndex(), edit);
+										baseObject.setContent(edit);
+										needUpdate = true;
+									}
+								}
+							}
+
+							mNeedUpdate = needUpdate;
+						}
+					});
+				}
+			}
+		});
+	}
+// End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+
+	//	private AlertDialog mRemoteRecvedPromptDlg = null;
 	private RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
 
 	public boolean launch(Context ctx) {
@@ -1629,6 +1664,15 @@ private void setSerialProtocol9DTs(final String data) {
 				}
 			});
 // End of H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
+// H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER7) {
+			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
+				@Override
+				public void onCodeReceived(String code) {
+					setScan7DataToDt(code);
+				}
+			});
+// End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
 		}
 // End of H.M.Wang 2020-10-30 追加数据源判断，启动扫描处理，因为有两个处理从一个扫码枪途径获取数据
 
