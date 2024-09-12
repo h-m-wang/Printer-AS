@@ -179,7 +179,7 @@ public class Hp22mm {
 
 // H.M.Wang 2024-9-3 修改R15的计算公式
 //        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
-        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * config.mParam[9]) * 25: 150000);  // R15=90M * 25 /(C1*C10)   (2024-9-5)
+        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
 // End of H.M.Wang 2024-9-3 修改R15的计算公式
         regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位
         regs[REG15_INTERNAL_ENC_FREQ] = (char)((char)(encFreq & 0x0ffff));                                                   // Reg15仅保存ENC的低16位，完整整数在img中合成

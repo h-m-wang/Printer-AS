@@ -374,6 +374,9 @@ public class BaseObject{
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            type == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 			type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -478,8 +481,10 @@ public class BaseObject{
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2021-8-16 追加96DN头
-//			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
 			head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
@@ -587,8 +592,10 @@ public class BaseObject{
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2021-8-16 追加96DN头
-//			head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 			head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
 			head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
@@ -1043,7 +1050,15 @@ public class BaseObject{
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+//		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+        } else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+                type == PrinterNozzle.MESSAGE_TYPE_64SN ||
+                type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+                type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+                type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+                type == PrinterNozzle.MESSAGE_TYPE_16DOTX4) {
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -1778,7 +1793,15 @@ public class BaseObject{
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2) {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 //		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
-		} else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+//        } else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT || type == PrinterNozzle.MESSAGE_TYPE_64SN || type == PrinterNozzle.MESSAGE_TYPE_32X2 || type == PrinterNozzle.MESSAGE_TYPE_64SLANT || type == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+        } else if (type == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+                type == PrinterNozzle.MESSAGE_TYPE_64SN ||
+                type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+                type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+                type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+                type == PrinterNozzle.MESSAGE_TYPE_16DOTX4) {
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -1962,6 +1985,9 @@ public class BaseObject{
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            type == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 			type == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
 			type == PrinterNozzle.MESSAGE_TYPE_96DN ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型

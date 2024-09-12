@@ -1621,6 +1621,11 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_64DOTONE;
 				break;
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_16DOTX4:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_16DOTX4;
+				break;
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X2:
 				nozzle = PrinterNozzle.MESSAGE_TYPE_32X2;

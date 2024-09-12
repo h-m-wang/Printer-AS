@@ -350,6 +350,9 @@ public class MessageTask {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+					getNozzle() == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -826,6 +829,9 @@ public class MessageTask {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_64DOTONE) ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_16DOTX4) ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2) ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型

@@ -361,6 +361,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2023-7-29 追加48点头
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -431,6 +434,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -459,6 +465,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -772,11 +781,13 @@ public class FpgaGpioOperation {
         Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
         ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
 // End of H.M.Wang 2024-3-25 将设置img的FIFO的大小移到下发参数的地方，以避免原来放在init函数中，则init函数必须在打印的最前端执行，这可能导致打印开始后，FPGA发出中断，但是驱动还没有接收到下发数据，而空跑，4FIFO就出现了第一次不打印的问题
-// H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
-        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
-            setMirror(config.getParam(1));
-        }
-// End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
+// H.M.Wang 2024-9-12 取消设置img的fpga-sunxi驱动中的左右镜像反转。因为这个可以通过在FPGA内部通过设置寄存器实现
+//// H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
+//        if(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+//            setMirror(config.getParam(1));
+//        }
+//// End of H.M.Wang 2024-4-7 如果是22mm的打印头，则根据参数2的值，给img设定打印方向
+// End of H.M.Wang 2024-9-12 取消设置img的fpga-sunxi驱动中的左右镜像反转。因为这个可以通过在FPGA内部通过设置寄存器实现
 // H.M.Wang 2024-5-27 设置参数78为新的压力
         if(config.getParam(SystemConfigFile.INDEX_PRESURE) == 0) {
             SmartCard.writeDAC5571(0);

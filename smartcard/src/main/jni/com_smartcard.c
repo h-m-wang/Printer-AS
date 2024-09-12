@@ -25,7 +25,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.402"
+#define VERSION_CODE                            "1.0.403"
+// 1.0.403 2024-9-6
+// 将 MaxBagInkVolume, MaxPenInkVolume, InkVolOfBagPercentage, InkVolOfPenPercentage的计算，移到一个新的函数initVolumeParams中，并且，该函数在adjustLocalInkValue函数的前面调用，
+// 因为，这些参数会在adjustLocalInkValue中参与计算。原来这些参数是在getMaxVolume函数中被计算，但是getMaxVolume的调用使用apk发起的，晚于adjustLocalInkValue的调用，
+// 这会导致adjustLocalInkValue第一次被调用的时候，上述4个参数使用缺省值，但是在getMaxVolume被调用后，上述4个参数发生变化，再次初始化时，调用adjustLocalInkValue时，上述4个参数发生变化，而使得内部锁值被改写，apk会看到锁值发生大幅度的变化
+// (但是，即使这次修改，如果PEN1和PEN2都是用的话，如果两个的drop_volume的值不同，一个在20-35区间，另外一个不在20-35区间，也会导致上述四个参数横跳)
 // 1.0.402 2024-9-5
 // readLevel函数中，重启的条件修改为，根据从参数获得最大值和最小值，如果超出100单位则重启（这个最大最小值对应于apk的标准情况下的最大最小值，或者时自由天线小卡的最大最小值）
 // 1.0.401 2024-8-30
@@ -142,6 +147,7 @@ HP_SMART_CARD_result_t (*supplyILGReadFunc[4])(HP_SMART_CARD_device_id_t cardId,
 };
 
 static void adjustLocalInkValue(jint card);
+static void initVolumeParams(jint card);
 
 static char* toBinaryString(char* dst, uint32_t src) {
     uint32_t mask = 0x01000000;
@@ -296,6 +302,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
         }
 // H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
 //        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN1);
+        initVolumeParams(card);
         adjustLocalInkValue(card);
 // End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(CARD_SELECT_PEN2 == card) {
@@ -314,6 +321,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
 
 // H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
 //        adjustLocalInkValue(HP_SMART_CARD_DEVICE_PEN2);
+        initVolumeParams(card);
         adjustLocalInkValue(card);
 // End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(CARD_SELECT_BULK1 == card || CARD_SELECT_BULKX == card) {
@@ -347,6 +355,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
 
 // H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
 //        adjustLocalInkValue(HP_SMART_CARD_DEVICE_BULK1);
+        initVolumeParams(card);
         adjustLocalInkValue(card);
 // End of H.M.Wang 2022-9-15 该函数调用的参数传递错误，导致该函数内部没有被执行
     } else if(SELECT_LEVEL1 == card) {
@@ -581,8 +590,38 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_checkConsistency(JNIEnv *env, jclass a
     return SC_SUCCESS;
 }
 
-JNIEXPORT int JNICALL Java_com_Smartcard_getMaxVolume(JNIEnv *env, jclass arg, jint card) {
+static void initVolumeParams(jint card) {
     uint8_t drop_volume = 29;
+
+    if(CARD_SELECT_PEN1 == card) {
+        inkReadTag5DropVolume(HP_SMART_CARD_DEVICE_PEN1, &drop_volume);
+    } else if(CARD_SELECT_PEN2 == card) {
+        inkReadTag5DropVolume(HP_SMART_CARD_DEVICE_PEN2, &drop_volume);
+    } else {
+        LOGD(">>> initVolumeParams::getMaxVolume(#%d) = %d (pre-calculated)", card, MaxBagInkVolume);
+        return;
+    }
+
+    // bulk 计算
+    // DV 29 对应3150
+    // DV x=20-35 ：   3150*(29/X)
+    // DV x < 20  or  X>35:    4700
+
+    if(drop_volume < 20 || drop_volume > 35) {
+        MaxBagInkVolume = MAX_BAG_INK_VOLUME_MAXIMUM;
+    } else {
+        MaxBagInkVolume = MAX_BAG_INK_VOLUME_MINIMUM * 29 / drop_volume;
+    }
+
+    MaxPenInkVolume                      = MaxBagInkVolume * PEN_VS_BAG_RATIO;
+    InkVolOfBagPercentage                = MaxBagInkVolume / 100;
+    InkVolOfPenPercentage                = MaxPenInkVolume / 100;
+
+    LOGD(">>> initVolumeParams::getMaxVolume(#%d) = %d", card, MaxBagInkVolume);
+}
+
+JNIEXPORT int JNICALL Java_com_Smartcard_getMaxVolume(JNIEnv *env, jclass arg, jint card) {
+/*    uint8_t drop_volume = 29;
 
     if(CARD_SELECT_PEN1 == card) {
         inkReadTag5DropVolume(HP_SMART_CARD_DEVICE_PEN1, &drop_volume);
@@ -609,7 +648,7 @@ JNIEXPORT int JNICALL Java_com_Smartcard_getMaxVolume(JNIEnv *env, jclass arg, j
     InkVolOfPenPercentage                = MaxPenInkVolume / 100;
 
     LOGD(">>> getMaxVolume(#%d) = %d", card, MaxBagInkVolume);
-
+*/
     return MaxBagInkVolume;
 }
 

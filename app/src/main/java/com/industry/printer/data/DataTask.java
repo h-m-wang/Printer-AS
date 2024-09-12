@@ -177,29 +177,33 @@ public class DataTask {
 
 // H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
 		int rmCols = 0;
-		boolean notZero = false;
-		while(!notZero) {
-			for(int i=1; i<=mBinInfo.getCharsFeed(); i++) {
-				if(mPrintBuffer.length-rmCols*mBinInfo.getCharsFeed()-i < 0) {
-					notZero = true;
-					break;
+// H.M.Wang 2024-9-7 HP22MM的打印任务，不去掉墨位空位，以保证列数一致
+		if(mTask.getNozzle() != PrinterNozzle.MESSAGE_TYPE_22MM) {
+			boolean notZero = false;
+			while (!notZero) {
+				for (int i = 1; i <= mBinInfo.getCharsFeed(); i++) {
+					if (mPrintBuffer.length - rmCols * mBinInfo.getCharsFeed() - i < 0) {
+						notZero = true;
+						break;
+					}
+					if (mPrintBuffer[mPrintBuffer.length - rmCols * mBinInfo.getCharsFeed() - i] != 0x0000) {
+						notZero = true;
+						break;
+					}
 				}
-				if(mPrintBuffer[mPrintBuffer.length-rmCols*mBinInfo.getCharsFeed()-i] != 0x0000) {
-					notZero = true;
-					break;
-				}
+				if (!notZero) rmCols++;
 			}
-			if(!notZero) rmCols++;
-		}
-		if(rmCols > 0) {
+			if (rmCols > 0) {
 // H.M.Wang 2024-8-31 增加如果墨位空白过多时，至少留5列空白
-			if(mBinInfo.mColumn - rmCols < 5) rmCols = mBinInfo.mColumn - 5;
+				if (mBinInfo.mColumn - rmCols < 5) rmCols = mBinInfo.mColumn - 5;
 // End of H.M.Wang 2024-8-31 增加如果墨位空白过多时，至少留5列空白
-			char[] pbuf = new char[mPrintBuffer.length - rmCols * mBinInfo.getCharsFeed()];
-			System.arraycopy(mPrintBuffer, 0, pbuf, 0, pbuf.length);
-			mPrintBuffer = pbuf;
-			mBinInfo.mColumn -= rmCols;
+				char[] pbuf = new char[mPrintBuffer.length - rmCols * mBinInfo.getCharsFeed()];
+				System.arraycopy(mPrintBuffer, 0, pbuf, 0, pbuf.length);
+				mPrintBuffer = pbuf;
+				mBinInfo.mColumn -= rmCols;
+			}
 		}
+// H.M.Wang 2024-9-7 HP22MM的打印任务，不去掉墨位空位，以保证列数一致
 // End of H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
 
 // H.M.Wang 2020-7-23 追加32DN打印头时的移位处理
@@ -323,6 +327,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN ||
 // H.M.Wang 2023-7-29 追加48点头
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_48_DOT ||
@@ -634,6 +641,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 				head != PrinterNozzle.MESSAGE_TYPE_64DOTONE &&
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                head != PrinterNozzle.MESSAGE_TYPE_16DOTX4 &&
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 				head != PrinterNozzle.MESSAGE_TYPE_32X2 &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -674,6 +684,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			nozzle == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            nozzle == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
 // H.M.Wang 2023-7-29 追加48点头
@@ -807,7 +820,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			scaleH = 0.125f;
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MM) {
-			scaleW /= 1.0f * 1056 / 152;
+//			scaleW /= 1.0f * 1056 / 152;
+			scaleW /= 1.0f * 352 / 152;
 			div = scaleW;
 			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
@@ -835,7 +849,15 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2) {
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT) {
-		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT || headType == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+//		} else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT || headType == PrinterNozzle.MESSAGE_TYPE_64SN || headType == PrinterNozzle.MESSAGE_TYPE_32X2 || headType == PrinterNozzle.MESSAGE_TYPE_64SLANT || headType == PrinterNozzle.MESSAGE_TYPE_64DOTONE) {
+        } else if (headType == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+                headType == PrinterNozzle.MESSAGE_TYPE_64SN ||
+                headType == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+                headType == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+                headType == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+                headType == PrinterNozzle.MESSAGE_TYPE_16DOTX4) {
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // End of H.M.Wang 2022-10-19 追加64SLANT头
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -897,6 +919,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 				(headType != PrinterNozzle.MESSAGE_TYPE_64DOTONE) &&
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                (headType != PrinterNozzle.MESSAGE_TYPE_16DOTX4) &&
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 				(headType != PrinterNozzle.MESSAGE_TYPE_32X2) &&
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -1550,6 +1575,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型
@@ -2099,16 +2127,16 @@ public char[] bitShiftFor64SN() {
 //		}
 // End of H.M.Wang 2021-12-29 将下列判断移到正常打印流程，取消这里的判断，否则清洗时做的slant会因为mTask为null而返回空
 		Debug.d(TAG, "expendColumn---> slant: " + slant);
-		int extension = 0;
+//		int extension = 0;
 		int shift = 0;
 		if (slant >= 100 ) {
-			extension = Configs.CONST_EXPAND;
+//			extension = Configs.CONST_EXPAND;
 			shift = slant - 100;
 		} else {
 			return;
 		}
 		// CharArrayWriter writer = new CharArrayWriter();
-		Debug.d(TAG, "--->extension: " + extension + " shift: " + shift);
+		Debug.d(TAG, "--->extension: " + Configs.CONST_EXPAND + " shift: " + shift);
 		int charsPerColumn = buffer.length/columns;
 		int columnH = charsPerColumn * 16;
 		int afterColumns = columns * Configs.CONST_EXPAND + (shift > 0 ? shift * (columnH - 1) : 0);
@@ -2133,7 +2161,12 @@ public char[] bitShiftFor64SN() {
 		char[] shiftBuffer = new char[afterColumns * charsPerColumn];
 		for (int i = 0; i < columns * Configs.CONST_EXPAND; i++) {
 			for (int j = 0; j < columnH; j++) {
-				int rowShift = shift * j;
+                int rowShift = shift * j;
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，普通的倾斜是按着以shift为步长，每增加一行向后倾斜shift列。但是16DOTX4头的时候，每次倾斜16行后，再归零，从头开始倾斜
+                if(getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16DOTX4) {
+                    rowShift = shift * (j % 16);
+                }
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，普通的倾斜是按着以shift为步长，每增加一行向后倾斜shift列。但是16DOTX4头的时候，每次倾斜16行后，再归零，从头开始倾斜
 				int bit = j%16;
 				char data = buffer_8[i * charsPerColumn + j/16];
 				if ((data & (0x0001<< bit)) != 0) {

@@ -145,6 +145,9 @@
         <!-- H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
         <item>64 Dot One</item>
         <!-- End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
+        <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
+        <item>16 Dot X4</item>
+        <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
     </string-array>
 
     <string-array name="strFontArray">

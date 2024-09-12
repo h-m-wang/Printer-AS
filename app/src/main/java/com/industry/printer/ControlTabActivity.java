@@ -867,11 +867,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mInkManager = InkManagerFactory.inkManager(mContext);
 		mHandler.sendEmptyMessageDelayed(RFIDManager.MSG_RFID_INIT, 1000);
 
-		refreshCount();
 // H.M.Wang 2021-10-30 更新网络命令实现机制
 //// 暂时关闭		SocketBegin();// Beging Socket service start;
 		mPCCommandManager = new PCCommandManager(mContext, this);
 // End of H.M.Wang 2021-10-30 更新网络命令实现机制
+		refreshCount();
+
 		Querydb=new Printer_Database(mContext);
 
 		// H.M.Wang 2019-12-19 修改支持多种协议
@@ -1360,7 +1361,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
 
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
-		if(BLEDevice.getInstance().isInitialized()) {
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
 			mBleState.setVisibility(View.VISIBLE);
 		} else {
 			mBleState.setVisibility(View.GONE);
@@ -2206,6 +2207,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 							head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+                            head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
 // H.M.Wang 2022-5-27 追加32x2头类型
 							head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
 // End of H.M.Wang 2022-5-27 追加32x2头类型

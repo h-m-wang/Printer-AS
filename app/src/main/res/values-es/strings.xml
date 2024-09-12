@@ -538,11 +538,11 @@
 <!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
 <!-- H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
 <!--	<string name="str_textview_param78">78.Reservado</string>-->
-	<string name="str_textview_param78">78.Pressure</string>
+	<string name="str_textview_param78">78.Air pressure</string>
 <!-- End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
 <!-- H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
 <!--	<string name="str_textview_param79">79.Reservado</string>-->
-	<string name="str_textview_param79">79.BLE Enable</string>
+	<string name="str_textview_param79">79.Bluetooth</string>
 <!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
 	<string name="str_textview_param80">80.Reservado</string>
 	<string name="str_textview_param81">81.Reservado</string>
