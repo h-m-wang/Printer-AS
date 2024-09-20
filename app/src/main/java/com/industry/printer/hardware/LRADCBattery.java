@@ -57,9 +57,11 @@ public class LRADCBattery {
 		}
 		
 		try {
-			BufferedReader mReader = new BufferedReader(new FileReader(file));
+			FileReader fr = new FileReader(file);
+			BufferedReader mReader = new BufferedReader(fr);
 			String content = mReader.readLine();
 			mReader.close();
+			fr.close();
 			return content;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

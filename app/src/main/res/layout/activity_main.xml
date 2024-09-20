@@ -103,9 +103,19 @@
                 android:orientation="horizontal"
                 >
                 <!-- H.M.Wang 2020-6-3 这个完全没有必要，仅仅是为了解决扫码枪扫码时，msg_transfer被自动打开的问题 -->
+                <!-- H.M.Wang 2024-9-19 如果二维码文面中包含多个TAB(KeyCode=61)，会产生TAB间的动作行为，导致一层msg_transfer1挡不住，增加msg_transfer2也只能多挡住一层，包含多个TAB键时可能还是会漏 -->
                 <!-- 一定不要将该控件设置为Invisible或者gone，否则无法起到阻挡作用 -->
                 <ImageButton
                     android:id="@+id/msg_transfer1"
+                    android:layout_width="1dp"
+                    android:layout_height="@dimen/top_btn_height"
+                    android:scaleType="centerInside"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginRight="@dimen/space_5dp"
+                    />
+                <ImageButton
+                    android:id="@+id/msg_transfer2"
                     android:layout_width="1dp"
                     android:layout_height="@dimen/top_btn_height"
                     android:scaleType="centerInside"

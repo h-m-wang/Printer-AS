@@ -1649,13 +1649,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 			if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 1) {
 				mPowerStat.setVisibility(View.VISIBLE);
-			} else if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 1) {
+			} else if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 2) {
 				mPowerStat.setVisibility(View.GONE);
 				// 气压的显示算法及方法待定
 			} else if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 0) {
 				String imgUC = PlatformInfo.getImgUniqueCode();
 				if(PlatformInfo.isMImgType(imgUC) || imgUC.startsWith("O7GS")) {
 					mPowerStat.setVisibility(View.GONE);
+					return;
 				} else {
 					mPowerStat.setVisibility(View.VISIBLE);
 				}

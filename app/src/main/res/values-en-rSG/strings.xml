@@ -22,6 +22,10 @@
 	<string name="str_btn_save">حفظ</string>
 	<string name="str_btn_saveprint">حفظ وطباعة</string>
 	<string name="str_btn_cancel">الغاء</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Close</string>
+	<string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
 	<string name="str_ip_add">Ip عنوان</string>
 	<string name="str_device_number">اداة:</string>
 	<string name="str_dialog_surecancel">تحذير:</string>

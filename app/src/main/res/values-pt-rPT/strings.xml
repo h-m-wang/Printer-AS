@@ -526,6 +526,10 @@
 	<string name="str_print_thread_create_err">A criação de tarefas falhou</string>
 	<string name="str_tlk_opening">" Resolvendo o TLK ..."</string>
     <string name="str_btn_cancel">Cancelar</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Close</string>
+	<string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
     <string name="str_ip_add">IP</string>
 	<string name="str_device_number">Dispositivo:</string>
 	<string name="str_dialog_surecancel">Aviso</string>

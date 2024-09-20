@@ -1471,6 +1471,11 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 	}
 // End of H.M.Wang 2022-5-5 将MB的偏移（25.4x10头偏移）单独处理
 
+// H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
+	public static int WorkPens = 0x0f;
+	public static boolean BackWardPrint = false;
+// End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
+
 	/**
 	 * 对buffer进行左右移动变换，生成真正的打印数据
 	 */
@@ -1605,6 +1610,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			shifts[i] *= sysconf.getParam(2) / 150;
 // End of H.M.Wang 2021-2-26 位移量加权bold参数，加重打印时位移量相应提高
 			mirrors[i] = object.getPNozzle().mirrorEnable ? Configs.getMessageDir(i) : SystemConfigFile.DIRECTION_NORMAL;
+// H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
+			if(BackWardPrint) mirrors[i] = SystemConfigFile.DIRECTION_REVERS;
+// End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 		}
 
 		int revert = 0x00;
@@ -1644,6 +1652,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		br.mirror(mirrors)
 		  .shift(shifts)
 		  .reverse(revert);
+// H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
+		if(WorkPens != 0x0f) br.clearHeadData(WorkPens);
+// End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 		mBuffer = br.getCharBuffer();
 // End of H.M.Wang 2020-3-3 修改生成偏移，镜像以及倒置的算法
 

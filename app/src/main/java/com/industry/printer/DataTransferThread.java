@@ -1446,7 +1446,11 @@ private void setSerialProtocol9DTs(final String data) {
 					mRemoteRecvedPromptDlg.setMessage(data);
 					mRemoteRecvedPromptDlg.setEditActionListener(new RemoteMsgPrompt.EditActionListener() {
 						@Override
-						public void onOK(String edit) {
+						public void onOK(String edit, int pens, boolean backward) {
+// H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
+							DataTask.WorkPens = pens;
+							DataTask.BackWardPrint = backward;
+// End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 							boolean needUpdate = false;
 
 							for(DataTask dataTask : mDataTask) {
@@ -3137,16 +3141,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
 					synchronized (DataTransferThread.class) {
-////////////////////////////////////////////////////////
-						IInkDevice scm = InkManagerFactory.inkManager(mContext);
-						if(scm instanceof SmartCardManager) {
-							if(mPrintCount == 0) {
-								mPrintCount = 10;
-								((SmartCardManager) scm).updateLevel();
-							}
-							mPrintCount--;
-						}
-////////////////////////////////////////////////////////
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
 						if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3) {
 // H.M.Wang 2021-4-20 该函数的调用移到这里
@@ -3288,6 +3282,16 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						LogIntercepter.getInstance(mContext).execute(getCurData());
 */
 // End of H.M.Wang 2021-3-8 这一部分的时候修正，应该在实施了打印以后再进行，反在这里的话，如果是扫描3，并且还没有下发数据，这里就会被频繁执行，导致计数频繁增加，提出来作为函数，然后在实施了打印后调用
+////////////////////////////////////////////////////////
+						IInkDevice scm = InkManagerFactory.inkManager(mContext);
+						if(scm instanceof SmartCardManager) {
+							if(mPrintCount == 0) {
+								mPrintCount = 10;
+								((SmartCardManager) scm).updateLevel();
+							}
+							mPrintCount--;
+						}
+////////////////////////////////////////////////////////
 					}
                 }
 

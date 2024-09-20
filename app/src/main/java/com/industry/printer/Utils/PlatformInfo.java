@@ -129,7 +129,7 @@ public class PlatformInfo {
 //				ret = buildID.substring(0,2) + "xx" + verInc.substring(1);
 // H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 //				ret = buildID + verInc + getFPGAVersion(buildID);
-				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%02d", (FpgaGpioOperation.getDriverVersion() % 100));
+				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000));
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 			}
 //			Debug.d(TAG, "===>Img Unique Code: " + ret);

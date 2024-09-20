@@ -30,6 +30,10 @@
 	<string name="str_btn_saveprint">보존및 프린트保存并打印</string>
 	<string name="str_btn_saveas">따로보존</string>
 	<string name="str_btn_cancel">취소</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Close</string>
+	<string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
 	<string name="str_btn_prerecord">위로번지기</string>
 	<string name="str_btn_nextrecord">아래로번지기</string>
 	<string name="str_btn_send">발송</string>

@@ -804,11 +804,17 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 //		return super.onKeyDown(keyCode, event);
 
-		Debug.d(TAG, "Device: " + event.getDeviceId());
+		Debug.d(TAG, "Device: " + event.getDeviceId() + "; KeyCode: " + keyCode);
+// H.M.Wang 2024-9-20 如果条码文面包括TAB，会被编码为61，这回导致不被识别为空格，看到就像空格没有被识别的假象，因此强制变为空格(62)
+		if(keyCode == 61) keyCode = 62;
+// End of H.M.Wang 2024-9-20 如果条码文面包括TAB，会被编码为61，这回导致不被识别为空格，看到就像空格没有被识别的假象，因此强制变为空格(62)
 		BarcodeScanParser.append(keyCode, event.isShiftPressed());
 //		mCode.setText(Global.readCode());
 		if (event.getDeviceId() == 10) return false;
-		return super.onKeyDown(keyCode, event);
+// H.M.Wang 2024-9-19 取消下传后续键盘处理函数，因为有可能包含61，导致误操作，当前可确认的现象是产生将ControlTabActivity类中的上下翻页键点按的效果
+		return true;
+//		return super.onKeyDown(keyCode, event);
+// End of H.M.Wang 2024-9-19 取消下传后续键盘处理函数，因为有可能包含61，导致误操作，当前可确认的现象是产生将ControlTabActivity类中的上下翻页键点按的效果
 	}
 
 	private long mLastClick = 0;

@@ -32,6 +32,10 @@
 	<string name="str_btn_saveprint">保存并打印</string>
 	<string name="str_btn_saveas">另存为</string>
 	<string name="str_btn_cancel">取消</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">关闭</string>
+	<string name="str_btn_backprint">反向\n打印</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
 	<string name="str_btn_prerecord">上翻</string>
 	<string name="str_btn_nextrecord">下翻</string>
 	<string name="str_btn_send">发送</string>

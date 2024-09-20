@@ -27,10 +27,16 @@ public class RemoteMsgPrompt extends RelightableDialog {
     private RelativeLayout mEditTotalView;
     private EditText mEditText;
     private TextView mOK;
-    private TextView mCancel;
+    private TextView mClose;
+
+    private TextView[] mPenBtns;
+    private int[] mPenIds = new int[] {R.id.p1, R.id.p2, R.id.p3, R.id.p4};
+    private TextView mBPBtn;
+    private static int mPrintPens = 0x0f;
+    private static boolean mBackPrint = false;
 
     public interface EditActionListener {
-        public void onOK(String edit);
+        public void onOK(String edit, int pens, boolean backward);
     }
     private EditActionListener mEditActionListener;
 
@@ -63,19 +69,67 @@ public class RemoteMsgPrompt extends RelightableDialog {
         mOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(null != mEditActionListener) mEditActionListener.onOK(mEditText.getText().toString());
-                setMessageView();
-                hide();
+                if(null != mEditActionListener) mEditActionListener.onOK(mEditText.getText().toString(), mPrintPens, mBackPrint);
             }
         });
-        mCancel = (TextView) findViewById(R.id.RMCancel);
-        mCancel.setOnClickListener(new View.OnClickListener() {
+        mClose = (TextView) findViewById(R.id.RMClose);
+        mClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setMessageView();
                 hide();
             }
         });
+
+        mPenBtns = new TextView[mPenIds.length];
+        for(int i=0; i<mPenIds.length; i++) {
+            final int id=i;
+            mPenBtns[id] = (TextView) findViewById(mPenIds[id]);
+            mPenBtns[id].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    togglePrintPen(id);
+                    dispPrintPen(id);
+                }
+            });
+            dispPrintPen(id);
+        }
+
+        mBPBtn = (TextView) findViewById(R.id.mirror);
+        mBPBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mBackPrint = !mBackPrint;
+                dispBPBtn();
+            }
+        });
+        dispBPBtn();
+    }
+
+    private void dispBPBtn() {
+        if(mBackPrint) {
+            mBPBtn.setBackgroundColor(mContext.getResources().getColor(R.color.green));
+        } else {
+            mBPBtn.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
+        }
+    }
+
+    private void togglePrintPen(int pIndex) {
+        int pValue = (0x01 << pIndex);
+        if((mPrintPens & pValue) == pValue) {
+            mPrintPens &= (~(pValue));
+        } else {
+            mPrintPens |= pValue;
+        }
+    }
+
+    private void dispPrintPen(int pIndex) {
+        int pValue = (0x01 << pIndex);
+        if((mPrintPens & pValue) == pValue) {
+            mPenBtns[pIndex].setBackgroundColor(mContext.getResources().getColor(R.color.green));
+        } else {
+            mPenBtns[pIndex].setBackgroundColor(mContext.getResources().getColor(R.color.gray));
+        }
     }
 
     public void setEditActionListener(EditActionListener l) {

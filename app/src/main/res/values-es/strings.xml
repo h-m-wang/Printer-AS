@@ -31,6 +31,10 @@
 	<string name="str_btn_save">Ahorrar</string>
 	<string name="str_btn_saveprint">Guardar e imprimir</string>
 	<string name="str_btn_cancel">Cancelar</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Close</string>
+	<string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
 	<string name="str_ip_add">Ip Addr</string>
 	<string name="str_device_number">Dispositivo:</string>
 	<string name="str_dialog_surecancel">advertencia:</string>

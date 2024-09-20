@@ -563,6 +563,10 @@
     <string name="str_print_thread_create_err">La creazione dell\'attività non è riuscita</string>
     <string name="str_tlk_opening">Risoluzione di TLK ...</string>
     <string name="str_btn_cancel">annullato</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+    <string name="str_btn_close">Close</string>
+    <string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
     <string name="str_ip_add">IP</string>
     <string name="str_device_number">dispositivo:</string>
     <string name="str_dialog_surecancel">avvertimento</string>

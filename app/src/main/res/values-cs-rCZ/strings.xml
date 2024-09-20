@@ -544,6 +544,10 @@
 	<string name="str_remain_ink">Inkoust</string>
 	<string name="str_remain_ptimes">Celkový</string>
 	<string name="str_btn_cancel">Zrušení</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Close</string>
+	<string name="str_btn_backprint">Back\nPrint</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
 	<string name="str_ip_add">IP</string>
 	<string name="str_device_number">Přístroj:</string>
 	<string name="str_dialog_surecancel">Varování:</string>
