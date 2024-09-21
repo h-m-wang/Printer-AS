@@ -246,6 +246,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 	private TextView mHp22mmErrTV;
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+// H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
+	private TextView mDriverState;
+// End of H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 
 	// H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 	public TextView mCtrlTitle;
@@ -779,7 +782,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mHp22mmErrTV = (TextView) getView().findViewById(R.id.tv_hp22mm_result);
 		}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
-
+// H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
+		mDriverState = (TextView) getView().findViewById(R.id.tv_driver_state);
+// End of H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 // H.M.Wang 2023-9-20 追加一个步长细分数值显示的功能
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_NONE && Configs.UI_TYPE == Configs.UI_STANDARD) {
 			mSubStepTV = (TextView) getView().findViewById(R.id.sub_step_tv);
@@ -1359,7 +1364,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	private void refreshInk() {
 		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
-
+// H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
+		int skipNum = (FpgaGpioOperation.getDriverState() & 0x0FF);
+		if(skipNum > 0) {
+			mDriverState.setText("" + skipNum);
+		} else {
+			mDriverState.setText("");
+		}
+// End of H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 		if(mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
 			mBleState.setVisibility(View.VISIBLE);
