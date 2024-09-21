@@ -244,18 +244,21 @@ public class BufferRebuilder {
 
     public BufferRebuilder clearHeadData(int clearHead) {
         try {
-            if(clearHead != 0x0f)  {
+            if(clearHead == 0x0f)  {
                 return this;
             }
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
             int bytesPerBlock = bytesPerColumn / mBlockNum;
+            byte[] zero = new byte[bytesPerBlock];
+            for(int k=0; k<bytesPerBlock; k++) {
+                zero[k] = 0x00;
+            }
+
             for(int i=0; i<mColNum; i++) {
                 for(int j=0; j<mBlockNum; j++) {
                     if (((0x01 << j) & clearHead) == 0x00) {
-                        for(int k=0; k<bytesPerBlock; k++) {
-                            mByteBuffer[i * bytesPerColumn + j * bytesPerBlock + k] = 0x00;
-                        }
+                        System.arraycopy(mByteBuffer, i * bytesPerColumn + j * bytesPerBlock, zero, 0,  bytesPerBlock);
                     }
                 }
             }

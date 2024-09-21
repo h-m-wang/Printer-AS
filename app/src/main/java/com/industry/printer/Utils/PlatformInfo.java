@@ -117,7 +117,6 @@ public class PlatformInfo {
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 	public static String getImgUniqueCode() {
 		try {
-
 			Class<?> mClassType = Class.forName("android.os.SystemProperties");
 			Method mGetMethod = mClassType.getDeclaredMethod("get", String.class);
 			String buildID = (String) mGetMethod.invoke(mClassType, PROPERTY_BUILD_ID);
