@@ -242,15 +242,16 @@ public class BufferRebuilder {
         return this;
     }
 
-    public BufferRebuilder clearHeadData(int clearHead) {
+    public BufferRebuilder clear_then_revert(int clearHead, boolean revert) {
         try {
-            if(clearHead == 0x0f)  {
+            if(clearHead == 0x0f && !revert)  {
                 return this;
             }
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
             int bytesPerBlock = bytesPerColumn / mBlockNum;
             byte[] zero = new byte[bytesPerBlock];
+            byte[] revertBuf = new byte[bytesPerBlock];
             for(int k=0; k<bytesPerBlock; k++) {
                 zero[k] = 0x00;
             }
@@ -259,6 +260,11 @@ public class BufferRebuilder {
                 for(int j=0; j<mBlockNum; j++) {
                     if (((0x01 << j) & clearHead) == 0x00) {
                         System.arraycopy(zero, 0, mByteBuffer, i * bytesPerColumn + j * bytesPerBlock,  bytesPerBlock);
+                    } else {
+                        if(revert) {
+                            System.arraycopy(mByteBuffer, i * bytesPerColumn + j * bytesPerBlock, revertBuf, 0, bytesPerBlock);
+                            System.arraycopy(revert(revertBuf), 0, mByteBuffer, i * bytesPerColumn + j * bytesPerBlock,  bytesPerBlock);
+                        }
                     }
                 }
             }

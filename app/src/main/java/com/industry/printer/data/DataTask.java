@@ -1653,7 +1653,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		  .shift(shifts)
 		  .reverse(revert);
 // H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
-		br.clearHeadData(WorkPens);
+		br.clear_then_revert(WorkPens, BackWardPrint);
 // End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 		mBuffer = br.getCharBuffer();
 // End of H.M.Wang 2020-3-3 修改生成偏移，镜像以及倒置的算法
