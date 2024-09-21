@@ -258,7 +258,7 @@ public class BufferRebuilder {
             for(int i=0; i<mColNum; i++) {
                 for(int j=0; j<mBlockNum; j++) {
                     if (((0x01 << j) & clearHead) == 0x00) {
-                        System.arraycopy(mByteBuffer, i * bytesPerColumn + j * bytesPerBlock, zero, 0,  bytesPerBlock);
+                        System.arraycopy(zero, 0, mByteBuffer, i * bytesPerColumn + j * bytesPerBlock,  bytesPerBlock);
                     }
                 }
             }
