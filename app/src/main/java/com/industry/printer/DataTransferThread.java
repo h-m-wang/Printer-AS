@@ -95,7 +95,7 @@ public class DataTransferThread {
 	
 	private Context mContext;
 	
-	public boolean mNeedUpdate=false;
+	public volatile boolean mNeedUpdate=false;
 	private boolean isBufferReady = false;
 
 // H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
@@ -580,7 +580,7 @@ public class DataTransferThread {
 					}
 // H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {
-					needUpdate = ((HyperTextObject)baseObject).setDTCntByIndex(recvStrs);
+					needUpdate |= ((HyperTextObject)baseObject).setDTCntByIndex(recvStrs);
 // End of H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				}
 			}
@@ -639,6 +639,7 @@ public class DataTransferThread {
 						if(strIndex == 10) strIndex++;
 // End of H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
 						needUpdate = true;
+						Debug.d(TAG, "needUpdate: " + needUpdate);
 					}
 				} else if(baseObject instanceof BarcodeObject) {
 					if(((BarcodeObject)baseObject).isDynamicCode() && recvStrs.length >= 11) {
@@ -655,19 +656,23 @@ public class DataTransferThread {
 						((BarcodeObject)baseObject).setContent(recvStrs[10]);
 // End of H.M.Wang 2023-5-30 放开这个注释，否则新的BC可能不能及时反映到当前的变量中
 						needUpdate = true;
+						Debug.d(TAG, "needUpdate: " + needUpdate);
 // End of H.M.Wang 2024-1-12 静态文本当含有超文本中的可变内容时，重新画
 					} else if(!((BarcodeObject) baseObject).isDynamicCode() && ((BarcodeObject) baseObject).containsDT()) {
 						needUpdate = true;
 					}
 // H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				} else if(baseObject instanceof HyperTextObject) {
-					needUpdate = ((HyperTextObject)baseObject).setDTCntByOrder(recvStrs);
+					needUpdate |= ((HyperTextObject)baseObject).setDTCntByOrder(recvStrs);
+					Debug.d(TAG, "needUpdate: " + needUpdate);
 // End of H.M.Wang 2023-12-30 增加对超文本中的DT的支持。
 				}
 			}
 		}
 // End of H.M.Wang 2020-9-10 协议收到的数值对群组也有效
+		Debug.d(TAG, "needUpdate: " + needUpdate);
 		mNeedUpdate = needUpdate;
+		Debug.d(TAG, "mNeedUpdate: " + mNeedUpdate);
 
 // 2020-7-3 标识网络快速打印状态下数据更新
 // H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
@@ -2712,8 +2717,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	private static int mPrintCount = 10;
 
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
-	public long Time1 = 0;
-	public long Time2 = 0;
+// H.M.Wang 2023-1-7 取消打印时下发参数
+//	public long Time1 = 0;
+//	public long Time2 = 0;
+// End of H.M.Wang 2023-1-7 取消打印时下发参数
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 // H.M.Wang 2023-1-7 取消打印时下发参数，因此该变量已经没有意义(2023-3-10追记)
 //	public int  DataRatio = 0;
@@ -2794,10 +2801,12 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			}
 // End of H.M.Wang 2024-4-5 3-25的修改太片面，导致新的apk在旧版的img上面，会出现第一个任务不打印的问题（因为先下发数据，但是旧版的img会忽略掉启动打印前下发的数据），修改为根据img中的驱动的版本，旧的版本还是先启动打印，后下发数据，目的是保持兼容性。新的驱动则执行先下发数据，后启动打印
 
+// H.M.Wang 2023-1-7 取消打印时下发参数
 // 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
-			Time1 = System.currentTimeMillis();
-			Time2 = System.currentTimeMillis();
+//			Time1 = System.currentTimeMillis();
+//			Time2 = System.currentTimeMillis();
 // End of 2020-6-29 处于打印状态时，如果用户确认设置，需要向FPGA下发设置内容，按一定原则延迟下发
+// End of H.M.Wang 2023-1-7 取消打印时下发参数
 
 // 2020-6-30 网络快速打印的第一次数据生成标识设真
 // H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
@@ -3046,8 +3055,8 @@ private void setCounterPrintedNext(DataTask task, int count) {
 
 				int writable = FpgaGpioOperation.pollState();
 
-//				if(System.currentTimeMillis() - startMillis > 1000) {
-//					Debug.d(TAG, "Running... ");
+//				if(System.currentTimeMillis() - startMillis > 100) {
+//					Debug.d(TAG, "Running... mNeedUpdate = " + mNeedUpdate);
 //					startMillis = System.currentTimeMillis();
 //				}
 
@@ -3106,8 +3115,10 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					}
 // End of 2020-7-3 在网络快速打印状态下，如果没有接收到新的数据，即使触发也不生成新的打印缓冲区下发
 
-					Time1 = Time2;
-					Time2 = System.currentTimeMillis();
+// H.M.Wang 2023-1-7 取消打印时下发参数
+//					Time1 = Time2;
+//					Time2 = System.currentTimeMillis();
+// End of H.M.Wang 2023-1-7 取消打印时下发参数
 // 2023-10-21 PC回送打印完成的操作，
 // H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
 					if(!mUsingFIFO &&
@@ -3304,6 +3315,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-11-13 追加内容是否变化的判断
 
 				if(mNeedUpdate == true) {
+					Debug.d(TAG, "mNeedUpdate: true!!!");
 // H.M.Wang 2020-6-28 修改打印数据缓冲区更新策略，当网络快速打印的时候不再根据数据更新重新生成打印缓冲区
 // H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 //					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN) {

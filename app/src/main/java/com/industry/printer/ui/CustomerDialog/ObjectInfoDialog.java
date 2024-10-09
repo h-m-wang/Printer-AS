@@ -905,7 +905,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					// mDir.setText( ((CounterObject) mObject).getDirection());
 					mCounterStart.setText(String.valueOf(((CounterObject) mObject).getStart()));
 					mCounterEnd.setText(String.valueOf(((CounterObject) mObject).getEnd()));
-					mCntIndex.setText(String.valueOf(((CounterObject)mObject).getmCounterIndex()));
+					mCntIndex.setText(String.valueOf(((CounterObject)mObject).getCounterIndex()));
 					mCntSteplen.setText(String.valueOf(((CounterObject)mObject).getSteplen()));
 				}
 				else if(mObject instanceof BarcodeObject)

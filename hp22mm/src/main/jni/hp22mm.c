@@ -28,7 +28,15 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.082"
+#define VERSION_CODE                            "1.0.085"
+// 1.0.085 2024-10-9
+// 修改bug，GetAndProcessInkUse函数中，当执行失败时，使用的exit函数没有更改为return，导致发生失败时进程整体退出，貌似apk崩溃
+// 1.0.084 2024-9-28
+// 修改了_print_thread打印头监视线程，尽量贴近例子程序的实现方法
+// 1.0.083 2024-9-26
+// 1. apk方面，将原来开始打印时执行pd_power_on，开启打印监视线程，改为初始化时执行。并且，停止打印时也不再pd_power_off，也不关闭打印监视线程
+// 2. 生成监视打印线程时检查线程是否存在，如果存在就不再生成，主要是为了防止多次初始化时会生成多个线程
+// 3. 将原来的_startPrint和_stopPrint函数改名为pdPowerOn和pdPowerOff
 // 1.0.082 2024-7-25
 // 升级到新代码Demo_05_03.
 // 1. New code to set SPI quad-enable bit (NOTE: FOR MACRONIX SPI FLASH ONLY!!)
@@ -669,8 +677,11 @@ JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
 
 pthread_t PrintThread = (pthread_t)NULL;
 static bool CancelPrint = false;
+
+// POLL_SEC - how often the background thread runs
+#define POLL_SEC 1
 // INK_POLL_SEC - when pen is On, ink is polled at this frequency for PILS use
-#define INK_POLL_SEC 1
+#define INK_POLL_SEC 2
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
@@ -678,6 +689,10 @@ static SupplyStatus_t supply_status;
 static SupplyInfo_t supply_info;
 
 void *_print_thread(void *arg) {
+    IDSResult_t ids_r;
+    PDResult_t pd_r;
+    PrintHeadStatus ph_status;
+    int nonsecure_sec = 0;
     int secure_sec = 0;
     float ink_weight;
 
@@ -685,26 +700,64 @@ void *_print_thread(void *arg) {
 
     while (!CancelPrint) {
         // sleep until next poll, then increment time counters
-        sleep(INK_POLL_SEC);
-        secure_sec += INK_POLL_SEC;
+        sleep(POLL_SEC);
+        nonsecure_sec += POLL_SEC;
+        secure_sec += POLL_SEC;
 
-        ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
-
-        // NON-SECURE ink use (for PILS algorithm)
-        ink_weight = GetInkWeight(sPenIdx);
-        if (ink_weight < 0) {
-            LOGD("GetInkWeight failed.");
-        } else {
-            LOGD("GetInkWeight");
+        // update SupplyPresent (and LEDS); look for supply insert
+/*        ids_r = ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
+        if (ids_r == IDS_OK)
+        {
+            bool was_present = SupplyPresent;
+            SupplyPresent = (supply_status.state == SUPPLY_SC_VALID);
+            if (SupplyPresent)
+                IDS_LED_On(SUPPLY_IDX, LED_G);
+            else
+                IDS_LED_Off(SUPPLY_IDX, LED_G);
+            // if supplychanged from not present to present...
+            if (SupplyPresent && !was_present) SupplyInserted();
         }
+        // update ReservePresent (and LEDs) if PRESSURIZE_RESERVE is true
+        if (PRESSURIZE_RESERVE)
+        {
+            int reserve_idx = (SUPPLY_IDX == 0 ? 1 : 0);
+            ids_r = ids_get_supply_status(IDS_INSTANCE, reserve_idx, &supply_status);
+            if (ids_r == IDS_OK)
+            {
+                ReservePresent = (supply_status.state == SUPPLY_SC_VALID);
+                if (ReservePresent)
+                    IDS_LED_On(reserve_idx, LED_G);
+                else
+                    IDS_LED_Off(reserve_idx, LED_G);
+            }
+        }
+*/
+        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &ph_status);
+        if (pd_r == PD_OK) {
+            // if printhead is Powered On, check ink use (if time)
+            if (ph_status.print_head_state == PH_STATE_POWERED_ON) {
+                // NON-SECURE ink use (for PILS algorithm)
+                if (nonsecure_sec >= INK_POLL_SEC) {
+                    nonsecure_sec = 0;
+                    // NON-SECURE ink use (for PILS algorithm)
+                    ink_weight = GetInkWeight(sPenIdx);
+                    if (ink_weight < 0) {
+                        LOGD("GetInkWeight failed.");
+                    } else {
+//                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
+                        LOGD("GetInkWeight");
+                    }
+                }
 
-        // SECURE ink use
-        if (secure_sec >= SECURE_INK_POLL_SEC) {
-            secure_sec = 0;
-            if(GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
-                LOGD("GetAndProcessInkUse failed.");
-            } else {
-                LOGD("GetAndProcessInkUse");
+                // SECURE ink use
+                if (secure_sec >= SECURE_INK_POLL_SEC) {
+                    secure_sec = 0;
+                    if (GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
+                        LOGD("GetAndProcessInkUse failed.");
+                    } else {
+                        LOGD("GetAndProcessInkUse");
+                    }
+                }
             }
         }
     }
@@ -716,7 +769,7 @@ void *_print_thread(void *arg) {
 
 extern char ERR_STRING[];
 
-JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
 //        LOGE("%s\n", ERR_STRING);
         return -1;
@@ -724,22 +777,26 @@ JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
 
     CancelPrint = false;
 
-    if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
-        PrintThread = (pthread_t)NULL;
-        LOGE("ERROR: pthread_create() of PrintThread failed\n");
-        return -1;
+    if(NULL == PrintThread) {
+        if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
+            PrintThread = (pthread_t)NULL;
+            LOGE("ERROR: pthread_create() of PrintThread failed\n");
+            return -1;
+        }
     }
 
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
     CancelPrint = true;
+    PrintThread = (pthread_t)NULL;
 
     if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
 //        LOGE("%s\n", ERR_STRING);
         return -1;
     }
+
     return 0;
 }
 
@@ -1472,8 +1529,8 @@ static JNINativeMethod gMethods[] = {
         {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
-        {"_startPrint",	    "()I",	    (void *)Java_com_StartPrint},
-        {"_stopPrint",		                "()I",	                    (void *)Java_com_StopPrint},
+        {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},
+        {"pdPowerOff",		                "()I",	                    (void *)Java_com_PDPowerOff},
         {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},

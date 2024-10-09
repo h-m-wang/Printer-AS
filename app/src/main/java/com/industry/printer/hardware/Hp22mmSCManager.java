@@ -49,7 +49,7 @@ public class Hp22mmSCManager implements IInkDevice {
             public void run() {
                 while(Hp22mm.initHp22mm() != 0) {
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
-                    mCallback.sendEmptyMessage(MSG_HP22MM_ERROR);
+                    mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
@@ -123,6 +123,8 @@ public class Hp22mmSCManager implements IInkDevice {
     }
 
     public int startPrint() {
+// H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成，同时开启打印件事线程。并且判断Hp22mm类是否初始化成功，如果未成功则返回失败
+/*
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
         int ret = Hp22mm.startPrint();
         if(ret < 0) {
@@ -132,9 +134,14 @@ public class Hp22mmSCManager implements IInkDevice {
         }
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
         return ret;
+*/
+    if(mInitialized) return 0; else return -1;
+// End of H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, 并且判断Hp22mm类是否初始化成功，如果未成功则返回失败
     }
 
     public int stopPrint() {
+// H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
+/*
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
         int ret = Hp22mm.stopPrint();
         if(ret < 0) {
@@ -144,5 +151,8 @@ public class Hp22mmSCManager implements IInkDevice {
         }
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
         return ret;
+*/
+        return 0;
+// End of H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
     }
 }

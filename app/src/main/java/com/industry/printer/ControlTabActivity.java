@@ -2129,6 +2129,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 						if(((Hp22mmSCManager)mInkManager).startPrint() < 0) {
 							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
+							break;
 						}
 					}
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
@@ -2652,7 +2653,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			List<BaseObject> objects = task.getObjList();
 			for (BaseObject object : objects) {
 				if (object instanceof CounterObject) {
-					((CounterObject) object).setValue(config.getParam(SystemConfigFile.INDEX_COUNT_1 + ((CounterObject) object).getmCounterIndex()));
+					((CounterObject) object).setValue(config.getParam(SystemConfigFile.INDEX_COUNT_1 + ((CounterObject) object).getCounterIndex()));
 				}
 			}
 		}

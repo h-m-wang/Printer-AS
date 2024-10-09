@@ -47,8 +47,8 @@ public class Hp22mm {
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native int _startPrint();
-    static public native int _stopPrint();
+    static public native int pdPowerOn();
+    static public native int pdPowerOff();
     static public native String getErrString();
     static public native int getConsumedVol();
     static public native int getUsableVol();
@@ -99,7 +99,12 @@ public class Hp22mm {
     private static final int REG32_CLOCK = 32;              // Read Only
     private static final int REG33_READY = 33;
 
+// H.M.Wang 2024-9-26 在Hp22mm类中，新增加一个mInitialize变量，用来记忆初始化状态。在点按开始打印时，判断Hp22mm.mInitialized是否为true，时则启动打印，否则停止打印
+    public static boolean mInitialized = false;
+// End of H.M.Wang 2024-9-26 在Hp22mm类中，新增加一个mInitialize变量，用来记忆初始化状态。在点按开始打印时，判断Hp22mm.mInitialized是否为true，时则启动打印，否则停止打印
+
     public static int initHp22mm() {
+        mInitialized = false;
         if (0 != init_ids(IDS_INDEX)) {
             Debug.d(TAG, "init_ids failed\n");
             return -1;
@@ -155,6 +160,16 @@ public class Hp22mm {
         } else {
             Debug.d(TAG, "Pressurize succeeded\n");
         }
+// H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
+        if (0 != pdPowerOn()) {
+            Debug.d(TAG, "PD power on failed\n");
+            return -9;
+        } else {
+            Debug.d(TAG, "PD power on succeeded\n");
+        }
+// End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
+
+        mInitialized = true;
 
         return 0;
     }
@@ -250,7 +265,8 @@ public class Hp22mm {
         return regs;
     }
 
-    public static int startPrint() {
+// H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成
+/*    public static int startPrint() {
         if(_startPrint() < 0) {
             if(initHp22mm() < 0) {
                 return -1;
@@ -260,11 +276,14 @@ public class Hp22mm {
         }
         Debug.d(TAG, "startPrint succeeded\n");
         return 0;
-    }
+    }*/
+// End of H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成
 
-    public static int stopPrint() {
+// H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
+/*    public static int stopPrint() {
         return _stopPrint();
-    }
+    }*/
+// End of H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
 
 // H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
     public static int hp22mmBulkWriteTest() {

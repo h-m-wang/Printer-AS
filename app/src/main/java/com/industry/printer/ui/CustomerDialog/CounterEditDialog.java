@@ -97,7 +97,7 @@ public class CounterEditDialog extends RelightableDialog implements android.view
                             ArrayList<BaseObject> objList = dt.mDataTask.get(i).getObjList();
                             for(BaseObject o : objList) {
                                 if(o instanceof CounterObject) {
-                                    if(((CounterObject)o).getmCounterIndex() == mIndex) {
+                                    if(((CounterObject)o).getCounterIndex() == mIndex) {
                                         ((CounterObject)o).setValue(value);
                                         modified = true;
                                     }

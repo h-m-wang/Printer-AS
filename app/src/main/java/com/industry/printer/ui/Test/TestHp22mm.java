@@ -379,7 +379,7 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-                            if (0 != Hp22mm.startPrint()) {
+                            if (0 != Hp22mm.pdPowerOn()) {
                                 mHp22mmTestResult[index] = "PD power on failed";
                                 break;
                             }
@@ -389,7 +389,7 @@ public class TestHp22mm implements ITestOperation {
                                 break;
                             }
 
-                            if (0 != Hp22mm.stopPrint()) {
+                            if (0 != Hp22mm.pdPowerOff()) {
                                 mHp22mmTestResult[index] = "PD power off failed";
                                 break;
                             }

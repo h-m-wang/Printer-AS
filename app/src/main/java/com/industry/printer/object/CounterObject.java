@@ -191,6 +191,11 @@ public class CounterObject extends BaseObject {
 // H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
 //   当前出现的错误是：如：本次任务共打印十次01，十次02，五次03，此时修改计数器当前值为1，设备会继续打印上一组03的计数细分的剩余数量，打印五次01，再接着打印十次02
 // H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
+// H.M.Wang 2024-10-9 当计数器索引为9（即最后一个计数器）时，无论计数细分为何值，均不考虑而直接修改计数
+		if(mCounterIndex == 9) {
+			mSubStepValue = 0;		// 修改本变量的细分计数上限值到0，以避免实际的细分计数操作
+		}
+// End of H.M.Wang 2024-10-9 当计数器索引为9（即最后一个计数器）时，无论计数细分为何值，均不考虑而直接修改计数
 		mSubStepCount = RTCDevice.getInstance(mContext).readSubStep();
 		if(mSubStepCount < 0 || mSubStepCount >= mSubStepValue) mSubStepCount = 0;
 //		mSubStepCount = mSubStepValue;
@@ -216,15 +221,19 @@ public class CounterObject extends BaseObject {
 // H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 // H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
 		mSubStepCount++;
-		RTCDevice.getInstance(mContext).writeSubStep(mSubStepCount);
-		Debug.d(TAG, "Value: " + mValue + "; SubStep: " + mSubStepCount);
-		if(mSubStepCount < mSubStepValue) return;
+// H.M.Wang 2024-10-9 当计数器索引为9（即最后一个计数器）时，无论计数细分为何值，均不考虑而直接修改计数
+		if(mCounterIndex != 9) {		// 忽略细分计数时，不保存修改值，以免影响其它的计数器
+			RTCDevice.getInstance(mContext).writeSubStep(mSubStepCount);
+		}
+// End of H.M.Wang 2024-10-9 当计数器索引为9（即最后一个计数器）时，无论计数细分为何值，均不考虑而直接修改计数
+		Debug.d(TAG, "CounterIndex: " + mCounterIndex + "; Value: " + mValue + "; SubStep: " + mSubStepCount + "/" + mSubStepValue);
+		if (mSubStepCount < mSubStepValue) return;
 // H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮30s
-		if(mSubStepValue > 0 && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_7) {
+		if (mSubStepValue > 0 && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_7) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					try{
+					try {
 						ExtGpio.writeGpio('h', 7, 1);
 						Thread.sleep(30 * 1000);
 						ExtGpio.writeGpio('h', 7, 0);
@@ -280,7 +289,7 @@ public class CounterObject extends BaseObject {
 		Debug.d(TAG, "Set counter index: " + mCounterIndex);
 	}
 
-	public int getmCounterIndex() {
+	public int getCounterIndex() {
 		return mCounterIndex;
 	}
 

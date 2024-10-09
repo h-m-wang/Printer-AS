@@ -104,11 +104,11 @@ char *ph_error_string[] = {
     "PARTIALINKSHORT",
     "TARGETTEMP_NOTREACHED",
 };
-#define ERROR_COUNT 58
+#define ERROR_COUNT 59
 
 char *ph_error_description(int error) {
     if(ERROR_COUNT != sizeof(ph_error_string)/sizeof(char*)) {
-        LOGE("STATE_COUNT != sizeof(ph_state_string)/sizeof(char*)");
+        LOGE("ERROR_COUNT != sizeof(ph_state_string)/sizeof(char*)");
         return "??";
     }
     if (error < 0 || error >= ERROR_COUNT) return "??";
@@ -369,21 +369,21 @@ int GetAndProcessInkUse(int PenIdx, int SupplyIdx) {
     for (slot=0; slot<=1; slot++) {
         // get ink use payload from PD
         pd_r = pd_ink_use(PD_INSTANCE, PenIdx, slot, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
-        if (pd_check_ph("pd_ink_use", pd_r, PenIdx)) exit(-1);
+        if (pd_check_ph("pd_ink_use", pd_r, PenIdx)) return(-1);
         if (status != 0) {
             LOGE("ERROR: pd_ink_use() slot %d failed, status %d\n", slot, status);
             return -1;
         }
         // pass payload to IDS and get status payload
         ids_r = ids_ink_use(IDS_INSTANCE, PD_ID, SupplyIdx, payload, payload_size, &status, &status2, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
-        if (ids_check("ids_ink_use", ids_r)) exit(-1);
+        if (ids_check("ids_ink_use", ids_r)) return(-1);
         if (status != 0) {
             LOGE("ERROR: ids_ink_use() from slot %d failed, status %d\n", slot, status);
             return -1;
         }
         // pass status payload back to PD
         pd_r = pd_supply_status(PD_INSTANCE, PenIdx, slot, payload, payload_size, &status);
-        if (pd_check_ph("pd_supply_status", pd_r, PenIdx)) exit(-1);
+        if (pd_check_ph("pd_supply_status", pd_r, PenIdx)) return(-1);
         if (status != 0) {
             LOGE("ERROR: pd_supply_status() slot %d failed, status %d\n", slot, status);
             return -1;
