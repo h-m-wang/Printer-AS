@@ -66,8 +66,14 @@ public class SubStepDialog  extends RelightableDialog {
             public void afterTextChanged(Editable editable) {
                 try {
                     mCurCount = Integer.valueOf(editable.toString());
-                    if(mCurCount > mMaxValue) mCurCount = mMaxValue;
-                    if(mCurCount < 1) mCurCount = 1;
+                    if(mCurCount >= mMaxValue) {
+                        mCurCount = mMaxValue - 1;
+                        mSubStepEV.setText("" + mCurCount);
+                    }
+                    if(mCurCount < 0) {
+                        mCurCount = 0;
+                        mSubStepEV.setText("" + mCurCount);
+                    }
                 } catch (NumberFormatException e) {
 
                 }
@@ -80,7 +86,7 @@ public class SubStepDialog  extends RelightableDialog {
             @Override
             public void onClick(View view) {
                 mCurCount++;
-                if(mCurCount > mMaxValue) mCurCount = mMaxValue;
+                if(mCurCount >= mMaxValue) mCurCount = mMaxValue - 1;
                 mSubStepEV.setText("" + mCurCount);
             }
         });
@@ -89,7 +95,7 @@ public class SubStepDialog  extends RelightableDialog {
             @Override
             public void onClick(View view) {
                 mCurCount--;
-                if(mCurCount < 1) mCurCount = 1;
+                if(mCurCount < 0) mCurCount = 0;
                 mSubStepEV.setText("" + mCurCount);
             }
         });

@@ -44,6 +44,15 @@ public class CounterObject extends BaseObject {
 	private int mSubStepValue;
 	private int mSubStepCount;
 // End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step。
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法，具体内容如下
+// (1) 	mSubStepValue作为细分计数的总次数，比如设为5，就是同一个计数器值被打印5次再变化，同时作为是否启用细分计数功能的标识，0为不启用，大于0为启用
+// (2) 	mSubStepCount作为细分计数采用的计数值，范围为[0, mSubStepValue)，表示当前计数器的细分计数的当前值。初始值从RTC(0x3c)中获得
+// (3) 	mSubStepPrintedCount作为细分计数已打印的计数值，范围为[0, mSubStepValue)，表示当前计数器的细分计数待打印的最早值。初始值从RTC(0x3c)中获得
+// (4) 	goNext更新维护mSubStepCount， goPrintedNext更新维护mSubStepPrintedCount，RTC(0x3c)中保存mSubStepPrintedCount的值
+// (5)  setCounterIndex的时候，如果是计数器9，则	mSubStepValue， mSubStepCount， mSubStepPrintedCount清零，不支持细分计数
+	private int mSubStepPrintedCount;
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+
 	public CounterObject(Context context, float x) {
 		super(context, BaseObject.OBJECT_TYPE_CNT, x);
 		mBits = 5;
@@ -57,11 +66,22 @@ public class CounterObject extends BaseObject {
 		mContent = "00000";
 // H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 		mSubStepValue = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_SUB_STEP);
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+		if(mSubStepValue > 0) {
+			mSubStepPrintedCount = RTCDevice.getInstance(mContext).readSubStep();
+			if(mSubStepPrintedCount < 0 || mSubStepPrintedCount >= mSubStepValue) mSubStepPrintedCount = 0;
+		} else {
+			mSubStepPrintedCount = 0;
+		}
+		mSubStepCount = mSubStepPrintedCount;
+/*
 // H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 		mSubStepCount = RTCDevice.getInstance(mContext).readSubStep();
 		if(mSubStepCount < 0 || mSubStepCount >= mSubStepValue) mSubStepCount = 0;
 //		mSubStepCount = mSubStepValue;
 // End of H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
+ */
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
 // End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
 	}
 
@@ -187,7 +207,8 @@ public class CounterObject extends BaseObject {
 
 		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mValue);
 		RTCDevice.getInstance(mContext).write(mValue, mCounterIndex);
-
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+/*
 // H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
 //   当前出现的错误是：如：本次任务共打印十次01，十次02，五次03，此时修改计数器当前值为1，设备会继续打印上一组03的计数细分的剩余数量，打印五次01，再接着打印十次02
 // H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
@@ -201,6 +222,8 @@ public class CounterObject extends BaseObject {
 //		mSubStepCount = mSubStepValue;
 // End of H.M.Wang 2023-9-20 步长细分的取值，不再从参数中取最大值，而是从RTC中取上次的保存值
 // End of H.M.Wang 2023-3-14 修改计数器的当前值，则计数细分重置，新计数器值和新计数细分数同时生成
+*/
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
 
 		Debug.d(TAG, "Set value: " + mValue);
 
@@ -219,6 +242,30 @@ public class CounterObject extends BaseObject {
 
 	public void goNext() {
 // H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+		if(mSubStepValue > 0) {
+			mSubStepCount++;
+			Debug.d(TAG, "SubStep Used Status [CounterIndex: " + mCounterIndex + "; Value: " + mValue + "; SubStep: " + mSubStepCount + "/" + mSubStepValue + "]");
+			if (mSubStepCount < mSubStepValue) return;
+// H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮30s
+			if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_7) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							ExtGpio.writeGpio('h', 7, 1);
+							Thread.sleep(30 * 1000);
+							ExtGpio.writeGpio('h', 7, 0);
+						} catch (Exception e) {
+							Debug.e(TAG, e.getMessage());
+						}
+					}
+				}).start();
+			}
+// End of H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮重点的时候， 比如60细分， 到了60次，报警灯亮20s
+			mSubStepCount = 0;
+		}
+/*
 // H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
 		mSubStepCount++;
 // H.M.Wang 2024-10-9 当计数器索引为9（即最后一个计数器）时，无论计数细分为何值，均不考虑而直接修改计数
@@ -249,8 +296,12 @@ public class CounterObject extends BaseObject {
 //		mSubStepCount--;
 //		if(mSubStepCount > 0) return;
 //		mSubStepCount = mSubStepValue;
+*/
 // End of H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+
 // End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step
+
 		int value = (mDirection == Direction.INCREASE ? mValue + mStepLen : mValue - mStepLen);
 // H.M.Wang 2022-2-14 追加在计数器到达end的时候，写OUT4两秒的操作
 		if(mDirection == Direction.INCREASE ? value > mEnd : value < mEnd) {
@@ -264,6 +315,18 @@ public class CounterObject extends BaseObject {
 	}
 
 	public void goPrintedNext() {
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+		if(mSubStepValue > 0) {
+			mSubStepPrintedCount++;
+			Debug.d(TAG, "SubStep Printed Status [CounterIndex: " + mCounterIndex + "; Value: " + mPrintedValue + "; SubStep: " + mSubStepPrintedCount + "/" + mSubStepValue + "]");
+			if(mSubStepPrintedCount < mSubStepValue) {
+				RTCDevice.getInstance(mContext).writeSubStep(mSubStepPrintedCount);
+				return;
+			}
+			mSubStepPrintedCount = 0;
+			RTCDevice.getInstance(mContext).writeSubStep(mSubStepPrintedCount);
+		}
+/*
 // H.M.Wang 2023-3-14 当使用步长细分功能时（即一个计数值会打印多次），这里记忆的是实际打印的次数，需要修改为计数器的实际值。否则，会出现下列奇怪现象：
 //   如：本次任务共打印十次01，十次02，五次03，此时停止打印，系统中计数器0的数值会变成25，再次启动打印后，会从25开始打印五次，再接着打印26
 // H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
@@ -271,6 +334,8 @@ public class CounterObject extends BaseObject {
 //		if(mSubStepCount != mSubStepValue) return;
 // End of H.M.Wang 2023-9-20 为了配合步长细分从RTC当中读写，将mSubStepCount的初值为mSubStepValue，逐次递减，改为初值为0，逐次递增，最大值为mSubStepValue。
 // H.M.Wang 2023-3-14 当使用步长细分功能时（即一个计数值会打印多次），这里记忆的是实际打印的次数，需要修改为计数器的实际值。
+*/
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
 		int value = (mDirection == Direction.INCREASE ? mPrintedValue + mStepLen : mPrintedValue - mStepLen);
 		mPrintedValue = (mDirection == Direction.INCREASE ? (value > mEnd ? mStart : value) : (value < mEnd ? mStart : value));
 
@@ -283,6 +348,15 @@ public class CounterObject extends BaseObject {
 	public void setCounterIndex(int index) {
 		if(index < 0 || index >= 10) return;
 		mCounterIndex = index;
+
+// H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+		if(mCounterIndex == 9) {
+			mSubStepValue = 0;
+			mSubStepCount = 0;
+			mSubStepPrintedCount = 0;
+		}
+// End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
+
 // H.M.Wang 2020-8-4 变更计数器索引之后，用该计数器的值重新设置本地内容
 		setContent("" + SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_COUNT_1 + index));
 // End of H.M.Wang 2020-8-4 变更计数器索引之后，用该计数器的值重新设置本地内容
