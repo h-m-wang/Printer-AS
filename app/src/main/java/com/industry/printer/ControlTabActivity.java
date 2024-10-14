@@ -1022,8 +1022,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
 				mSysconfig.writePrefs();
 // End of H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
+///// 2024-10-14 测试目的，已取消				if(null != mDTransThread && mDTransThread.isRunning()) mDTransThread.setRemoteTextSeparated("ABCEDFGHIJKLMN");
 			}
-		}, 0L, 2000L);
+		}, 0L, 1000L);
 
 // End of H.M.Wang 2020-9-28 追加一个心跳协议
 

@@ -79,6 +79,7 @@ public class BarcodeDataProc {
 
     private static String[] getDataFromPowerChinaWeb(String scaned) {
         if(null == scaned || scaned.isEmpty()) return null;
+        boolean dataFound = false;
         String[] params = new String[4];
         String startTag = "<div class=\"weui-cell__ft\">";
         String endTag = "</div>";
@@ -113,6 +114,7 @@ public class BarcodeDataProc {
                         Log.d("Barcode2", buf);
                         params[curInsPos++] = buf.substring(s_index + startTag.length(), e_index);
                         checkFlag = false;
+                        dataFound = true;
                     }
                 }
             }
@@ -120,7 +122,7 @@ public class BarcodeDataProc {
             e.printStackTrace();
         }
 
-        return params;
+        return (dataFound ? params : null);
     }
 
     public static String makeup650CmdString(String scaned) {

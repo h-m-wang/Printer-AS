@@ -706,6 +706,7 @@
 	<string name="str_m9_test_net">测网速</string>
 	<string name="str_m9_test_serial">测串口</string>
 	<string name="str_m9_test_rfid">RFID</string>
+	<string name="str_m9_test_phoenc">PHO ENC 测试</string>
 	<string name="str_m9_test_update_fpga">升级FPGA</string>
 	<string name="str_m9_test_update_kos">升级KOs</string>
 	<string name="str_m9_test_1click_all">一键通测</string>

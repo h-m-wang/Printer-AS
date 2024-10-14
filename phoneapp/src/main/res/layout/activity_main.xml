@@ -20,6 +20,6 @@
         android:layout_gravity="center"
         android:textSize="24sp"
         android:textColor="@color/white"
-        android:text="202408201421-PC"  />
+        android:text="202410121347-PC"  />
 
 </LinearLayout>

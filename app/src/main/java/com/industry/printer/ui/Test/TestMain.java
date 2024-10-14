@@ -1,8 +1,11 @@
 package com.industry.printer.ui.Test;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Printer;
 import android.view.Gravity;
@@ -30,12 +33,14 @@ import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.N_RFIDDevice;
 import com.industry.printer.hardware.N_RFIDManager;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
+import com.industry.printer.hardware.SmartCardManager;
 
 import java.io.File;
 import java.util.List;
@@ -61,7 +66,11 @@ public class TestMain {
         R.string.str_test_main_save_100,
         R.string.str_test_main_ble_module_on,
         R.string.str_test_main_m9_test,
-        R.string.str_m9_test_rfid};
+        R.string.str_m9_test_rfid,
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+        R.string.str_m9_test_phoenc,
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+};
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
     private boolean mQuit = false;
@@ -92,11 +101,16 @@ public class TestMain {
             @Override
             public void onClick(View v) {
                 if(null != mIFTestOp) {
-                    if(mIFTestOp.quit()) {
+                    if (mIFTestOp.quit()) {
                         mMainMenuLV.setVisibility(View.VISIBLE);
                         mTitleTV.setText(TITLE);
                         mIFTestOp = null;
                     }
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+                } else if(null != mPhoEncTestDlg) {
+                    FpgaGpioOperation.stopPhoEncTest();
+                    mPhoEncTestDlg.dismiss();
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
                 } else {
                     mPopupWindow.dismiss();
                     mQuit = true;
@@ -348,6 +362,12 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2024-7-10 追加一个RFID读写测试，重复100次
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+                else if(i == 7) {
+                    execPhoEncTest();
+                    return;
+                }
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);
@@ -362,4 +382,47 @@ public class TestMain {
     private int SAVE_COUNT_LIMIT = 1000;
     private boolean mSaving;
 // End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
+    private AlertDialog mPhoEncTestDlg = null;
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+    private void execPhoEncTest() {
+        int res = FpgaGpioOperation.startPhoEncTest();
+        if(res == 1) {      // Succeeded.
+            mPhoEncTestDlg = new AlertDialog.Builder(mContext).setTitle("Pho-Enc Test")
+                    .setMessage("")
+                    .setNegativeButton("Stop", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FpgaGpioOperation.stopPhoEncTest();
+                            dialog.dismiss();
+                            mPhoEncTestDlg = null;
+                        }
+                    })
+                    .create();
+            mPhoEncTestDlg.show();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mMainMenuLV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            final int value = FpgaGpioOperation.readPhoEncTest();
+                            mMainMenuLV.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mPhoEncTestDlg.setMessage("Pho: " + ((value >> 16) & 0x0000FFFF) + "; Enc: " + (value & 0x0000FFFF));
+                                }
+                            });
+                        }
+                    });
+                    try{Thread.sleep(1000);}catch(Exception e){}
+                }
+            }).start();
+        } else if(res == -1) {
+            ToastUtil.show(mContext, R.string.str_state_printing);
+        } else {
+            ToastUtil.show(mContext, "Not supported");
+        }
+    }
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
 }

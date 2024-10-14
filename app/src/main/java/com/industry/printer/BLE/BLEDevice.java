@@ -246,7 +246,6 @@ public class BLEDevice {
             }
 
             if(StringUtil.isEmpty(rcvString)) {
-                try{Thread.sleep(100);}catch(Exception e){};
                 return rcvString;
             }
 
@@ -266,7 +265,8 @@ public class BLEDevice {
                 } else if(rcvString.startsWith(RECV_CLIENT_WRITE)) {
                     rcvString = rcvString.substring(RECV_CLIENT_WRITE.length()+8);
                     while(!rcvString.endsWith("..|..")) {
-                        rcvString += mStreamTransport.readLine();
+                        String str = mStreamTransport.readLine();
+                        rcvString += (str == null ? "" : str);
                     }
                     rcvString = rcvString.substring(0, rcvString.length()-5);
                     Debug.d(TAG, "Received Data [" + rcvString.substring(rcvString.indexOf(',')+1) + "].");

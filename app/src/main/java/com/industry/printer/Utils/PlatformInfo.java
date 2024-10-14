@@ -159,7 +159,7 @@ public class PlatformInfo {
 	public static String getFPGAVersion(String buildID) {
 		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
 
-		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
+//		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
 
 		if(fpgaVersion == 0) return "";
 

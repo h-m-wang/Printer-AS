@@ -103,6 +103,7 @@ public class PCCommandHandler {
                         mStreamTransport.close();
                         mWorking = false;
                     }
+                    try{Thread.sleep(10);}catch(Exception e){};
                 }
             }
         }.start();

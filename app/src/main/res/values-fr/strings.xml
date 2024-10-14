@@ -614,6 +614,7 @@
 	<string name="str_m9_test_net">Network</string>
 	<string name="str_m9_test_serial">Serial</string>
 	<string name="str_m9_test_rfid">RFID</string>
+	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
 	<string name="str_m9_test_1click_all">Total Test</string>

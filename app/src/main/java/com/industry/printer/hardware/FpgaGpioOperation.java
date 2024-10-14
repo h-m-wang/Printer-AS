@@ -82,6 +82,10 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-9-21 追加一个获取FPGA驱动状态的命令
     public static final int FPGA_CMD_GET_DRIVER_STATE = 0x14;
 // End of H.M.Wang 2024-9-21 追加一个获取FPGA驱动状态的命令
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+    public static final int FPGA_CMD_EXEC_PHOENC_TEST = 0x15;
+    public static final int FPGA_CMD_READ_PHOENC_TEST = 0x16;
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
 // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -1065,5 +1069,30 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2024-9-21 追加一个获取FPGA驱动状态的命令
-
+// H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+    public static int startPhoEncTest() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "Start PHO-ENC TEST");
+            return ioctl(fd, FPGA_CMD_EXEC_PHOENC_TEST, 1);
+        }
+        return -1;
+    }
+    public static int stopPhoEncTest() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "Stop PHO-ENC TEST");
+            return ioctl(fd, FPGA_CMD_EXEC_PHOENC_TEST, 0);
+        }
+        return 0;
+    }
+    public static int readPhoEncTest() {
+        int fd = open();
+        if (fd > 0) {
+            Debug.d(TAG, "Read PHO-ENC TEST");
+            return ioctl(fd, FPGA_CMD_READ_PHOENC_TEST, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
 }
