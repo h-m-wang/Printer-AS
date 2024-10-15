@@ -35,6 +35,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -45,6 +46,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -291,6 +293,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			}, 500);
 		}
 // End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
+//		Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         BarcodeScanParser.setContext(this);
 

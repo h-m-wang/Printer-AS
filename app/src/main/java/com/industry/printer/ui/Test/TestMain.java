@@ -109,7 +109,9 @@ public class TestMain {
 // H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
                 } else if(null != mPhoEncTestDlg) {
                     FpgaGpioOperation.stopPhoEncTest();
+                    mPhoEncTesting = false;
                     mPhoEncTestDlg.dismiss();
+                    mPhoEncTestDlg = null;
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
                 } else {
                     mPopupWindow.dismiss();
@@ -382,8 +384,10 @@ public class TestMain {
     private int SAVE_COUNT_LIMIT = 1000;
     private boolean mSaving;
 // End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
-    private AlertDialog mPhoEncTestDlg = null;
 // H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+    private AlertDialog mPhoEncTestDlg = null;
+    private boolean mPhoEncTesting = false;
+
     private void execPhoEncTest() {
         int res = FpgaGpioOperation.startPhoEncTest();
         if(res == 1) {      // Succeeded.
@@ -393,29 +397,34 @@ public class TestMain {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             FpgaGpioOperation.stopPhoEncTest();
+                            mPhoEncTesting = false;
                             dialog.dismiss();
                             mPhoEncTestDlg = null;
                         }
                     })
                     .create();
             mPhoEncTestDlg.show();
+            mPhoEncTesting = true;
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    mMainMenuLV.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            final int value = FpgaGpioOperation.readPhoEncTest();
-                            mMainMenuLV.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mPhoEncTestDlg.setMessage("Pho: " + ((value >> 16) & 0x0000FFFF) + "; Enc: " + (value & 0x0000FFFF));
-                                }
-                            });
-                        }
-                    });
-                    try{Thread.sleep(1000);}catch(Exception e){}
+                    while(mPhoEncTesting) {
+                        mMainMenuLV.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                final int value = FpgaGpioOperation.readPhoEncTest();
+                                Debug.d(TAG, "PHO-ENC = " + Integer.toHexString(value));
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mPhoEncTestDlg.setMessage("Pho: " + ((value >> 16) & 0x0000FFFF) + "; Enc: " + (value & 0x0000FFFF));
+                                    }
+                                });
+                            }
+                        });
+                        try{Thread.sleep(100);}catch(Exception e){}
+                    }
                 }
             }).start();
         } else if(res == -1) {
