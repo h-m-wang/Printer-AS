@@ -5,6 +5,7 @@ package com.printer.corelib;
 
 import android.util.Log;
 
+@Deprecated
 public class JarTest {
 	private static final String TAG = JarTest.class.getSimpleName();
 

@@ -43,8 +43,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by hmwan on 2021/9/7.
@@ -92,7 +97,8 @@ public class PhoneMainActivity extends AppCompatActivity {
     }
 
     private final static int MSG_DISP_SCANRESULT         = 101;
-    private final static int MSG_CONNECT_DEVICE          = 102;
+    private final static int MSG_DISP_RESPESULT          = 102;
+    private final static int MSG_CONNECT_DEVICE          = 103;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -105,6 +111,15 @@ public class PhoneMainActivity extends AppCompatActivity {
                     }
                     mScanResult.setText((String)msg.obj);
                     mScanResult.setVisibility(View.VISIBLE);
+                    break;
+                case MSG_DISP_RESPESULT:
+                    if(msg.arg1 == 1) {
+                        mDataRecvd.setTextColor(Color.BLACK);
+                    } else {
+                        mDataRecvd.setTextColor(Color.RED);
+                    }
+                    mDataRecvd.setText((String)msg.obj);
+                    mDataRecvd.setVisibility(View.VISIBLE);
                     break;
                 case MSG_CONNECT_DEVICE:
                     if(mConnectingStatus != CON_STATUS_DISCONNECTED) break;
@@ -135,6 +150,38 @@ public class PhoneMainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private CountDownLatch mCDL;
+    private volatile boolean mGotResp;
+
+    private Thread mMonitorThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            while(true) {
+                mCDL = new CountDownLatch(1);
+                try {
+                    mCDL.await();
+                    mGotResp = false;
+                    long start = System.currentTimeMillis();
+                    while(!mGotResp) {
+                        Thread.sleep(100);
+                        if(System.currentTimeMillis() - start > 3000) {
+                            Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
+                            msg.arg1 = 0;           // Error
+                            msg.obj = "Timeout.";
+                            mHandler.sendMessage(msg);
+                            break;
+                        }
+                    }
+                } catch(InterruptedException e) {
+
+                } finally {
+
+                }
+
+            }
+        }
+    });
 
     private void adjustCommandAreaEnability() {
         for(int i=0; i<mCommandArea.getChildCount(); i++) {
@@ -246,11 +293,12 @@ public class PhoneMainActivity extends AppCompatActivity {
         public void onSent(final String sent) {
             Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
             if(null == sent || sent.isEmpty()) {
-                msg.arg1 = 0;
+                msg.arg1 = 0;           // Error
                 msg.obj = "Data not found.";
             } else {
-                msg.arg1 = 1;
+                msg.arg1 = 1;           // Success
                 msg.obj = sent;
+                mCDL.countDown();
             }
             mHandler.sendMessage(msg);
         }
@@ -262,31 +310,53 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onFailed(final String errMsg) {
             Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
-            msg.arg1 = 0;
+            msg.arg1 = 0;               // Error
             msg.obj = errMsg;
             mHandler.sendMessage(msg);
         }
 
         @Override
         public void onReceived(final String recv) {
+            Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
+            if(null == recv || recv.isEmpty()) {
+                msg.arg1 = 0;           // Error
+                msg.obj = "Data not found.";
+            } else {
+                msg.arg1 = 1;           // Success
+                msg.obj = recv;
+            }
+            mGotResp = true;
+            mHandler.sendMessage(msg);
+/*
             mCommandArea.post(new Runnable() {
                 @Override
                 public void run() {
                 mDataRecvd.setText("Recv: " + recv);
-//                Toast.makeText(PhoneMainActivity.this, "Received: " + recv, Toast.LENGTH_LONG).show();
+                mGotResp = true;
+//                Toast.makeText(PhoneMainActivity.this, "Esclapse Time: " + time, Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
         }
 
         @Override
         public void onReceived(final byte[] recv) {
-            mCommandArea.post(new Runnable() {
+            Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
+            if(recv.length == 0) {
+                msg.arg1 = 0;           // Error
+                msg.obj = "Data not found.";
+            } else {
+                msg.arg1 = 1;           // Success
+                msg.obj = "" + recv.length + " bytes received";
+            }
+            mGotResp = true;
+            mHandler.sendMessage(msg);
+/*            mCommandArea.post(new Runnable() {
                 @Override
                 public void run() {
-                    mDataRecvd.setText("Recv: " + recv);
+                    mDataRecvd.setText("Recv: " + recv.length);
 //                    Toast.makeText(PhoneMainActivity.this, "Received: " + Arrays.toString(recv), Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
         }
     }
 
@@ -304,7 +374,7 @@ public class PhoneMainActivity extends AppCompatActivity {
                         final String cmd = BarcodeDataProc.makeup650CmdString(text);
                         Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
                         if (null == cmd || cmd.isEmpty()) {
-                            msg.arg1 = 0;
+                            msg.arg1 = 0;           // Error
                             msg.obj = "Data not found.";
                         } else {
                             msg.arg1 = 1;
@@ -405,12 +475,13 @@ public class PhoneMainActivity extends AppCompatActivity {
 
         checkWriteExternalStoragePermission();
 
-        if(scanBroadcastReceiver==null) {
+        if(scanBroadcastReceiver == null) {
             scanBroadcastReceiver = new ScanBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("com.scancode.resault");
             this.registerReceiver(scanBroadcastReceiver, intentFilter);
         }
+        mMonitorThread.start();
 
 /*        new Thread(new Runnable() {
             @Override

@@ -1486,20 +1486,38 @@ private void setSerialProtocol9DTs(final String data) {
 // End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 							boolean needUpdate = false;
 
+// H.M.Wang 2024-10-22 增加对编辑内容进行以#为分隔符的分割，分割后的部分分别保存到不同的桶里，应用于相应index的DT中
+							String[] recvStrs = edit.split("#");
+
+							int strIndex = 0;
+
 							synchronized (DataTransferThread.class) {
+// H.M.Wang 2020-9-10 协议收到的数值对群组也有效
 								for (DataTask dataTask : mDataTask) {
 									ArrayList<BaseObject> objList = dataTask.getObjList();
 									for (BaseObject baseObject : objList) {
 										if (baseObject instanceof DynamicText) {
-											SystemConfigFile.getInstance().setDTBuffer(((DynamicText) baseObject).getDtIndex(), edit);
-											baseObject.setContent(edit);
-											needUpdate = true;
+// H.M.Wang 2019-12-15 支持串口文本通过间隔符分割，对于计数器的文本如果超过位数，多余部分切割功能移至计数器Object类，不在这里处理
+											if (strIndex < recvStrs.length) {
+												Debug.d(TAG, "DynamicText[" + strIndex + "]: " + recvStrs[strIndex]);
+// H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+												SystemConfigFile.getInstance().setDTBuffer(((DynamicText) baseObject).getDtIndex(), recvStrs[strIndex]);
+// End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
+// H.M.Wang 2023-5-30 放开这个注释，否则新的DT可能不能及时反映到当前的变量中
+												baseObject.setContent(recvStrs[strIndex]);
+// End of H.M.Wang 2023-5-30 放开这个注释，否则新的DT可能不能及时反映到当前的变量中
+												strIndex++;
+// H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
+												if (strIndex == 10) strIndex++;
+// End of H.M.Wang 2024-4-9 DT桶的容量扩容至32，第11位为条码的位置，因此DT需要避开这个位置
+												needUpdate = true;
+											}
 										}
 									}
 								}
-
 								mNeedUpdate = needUpdate;
 							}
+// End of H.M.Wang 2024-10-22 增加对编辑内容进行以#为分隔符的分割，分割后的部分分别保存到不同的桶里，应用于相应index的DT中
 						}
 					});
 				}

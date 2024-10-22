@@ -2518,6 +2518,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 5000);
 					break;
 				case MESSAGE_RFID_ALARM:
+					Debug.e(TAG, "--->MESSAGE_RFID_ALARM");
 					mFlagAlarming = true;
 					// GPIO版本的img时，PH7是错误指示灯，SPI版本的img的时候，PI8是错误指示灯。但是apk仍然调用PH7，在img里面根据img的版本进行PH7或者PI8的调整
 					ExtGpio.writeGpio('h', 7, 1);

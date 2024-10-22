@@ -209,7 +209,7 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_RFID_write
 //			ALOGD("********line180 read ret=%d,error=%d\n",ret, errno);
 //			return NULL;
 //		}
-	(*env)->ReleaseShortArrayElements(env, buf, buf_utf, 0);
+	(*env)->ReleaseByteArrayElements(env, buf, buf_utf, 0);
 	return ret;
 }
 

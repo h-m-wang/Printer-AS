@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="30dp"
+	android:background="@color/background"
+	>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:orientation="horizontal"
+		android:background="@color/background"
+		>
+		<TextView
+			android:id="@+id/ib_import"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="USB\n↓\nPrinter"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+
+		<TextView
+			android:id="@+id/ib_export"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="Printer\n↓\nUSB"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+
+		<TextView
+			android:id="@+id/ib_flush"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="Reset\n↓\nPrinter"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+
+	</LinearLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="3dp"
+		android:background="@color/white"
+		android:layout_margin="15dp" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:orientation="horizontal"
+		android:background="@color/background"
+		>
+		<TextView
+			android:id="@+id/btn_import_ug"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="UG\n↓\nPrinter"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+
+		<TextView
+			android:id="@+id/btn_log_2usb"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="Log\n↓\nUSB"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text=""
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			android:visibility="invisible"
+			/>
+	</LinearLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+		<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_marginTop="10dp"
+			android:padding="10dp"
+			android:textColor="@color/blue"
+			android:text="@string/strImportUG"
+			android:visibility="invisible"
+			android:textSize="40sp"/>
+		<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
+		<!-- H.M.Wang 2023-9-4 追加一个输出log到U盘的按键 -->
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="10dp"
+			android:padding="10dp"
+			android:textColor="@color/blue"
+			android:text="@string/strExportLog"
+			android:visibility="invisible"
+			android:textSize="40sp"/>
+		<!-- End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键 -->
+		<Button
+			android:id="@+id/btn_cancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:background="@drawable/bg_mid_button"
+			android:layout_marginTop="10dp"
+			android:padding="10dp"
+			android:text="@string/str_btn_cancel"
+			android:textSize="40sp"/>
+	</RelativeLayout>
+</LinearLayout>
