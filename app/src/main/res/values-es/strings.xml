@@ -433,50 +433,50 @@
 	<string name="str_textview_param29">29.Mantener mojado</string>
 	<string name="str_textview_param30">30.Filtrado optoelectrónico</string>
 	<string name="str_textview_param31">31.Tipo</string>
-	<string name="str_textview_param32">32.Cnt Reiniciar</string>
-	<string name="str_textview_param33">33.tamaño de punto</string>
+	<string name="str_textview_param32">32.Cnt restablecer</string>
+	<string name="str_textview_param33">33.Tamaño del punto</string>
 	<string name="str_textview_param34">34.PWML</string>
 	<string name="str_textview_param35">35.STR</string>
-	<string name="str_textview_param36">36.Slant</string>
+	<string name="str_textview_param36">36.Inclinación</string>
 	<string name="str_textview_param37">37.PWMH</string>
 	<string name="str_textview_param38">38.Uno para todos</string>
 <!-- H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
 <!--	<string name="str_textview_param39">39.Reservado</string> -->
-	<string name="str_textview_param39">39.Fuente de datos</string>
+	<string name="str_textview_param39">39.Origen de datos</string>
 <!-- End of H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
-	<string name="str_textview_param40">40.Beep</string>
+	<string name="str_textview_param40">40.Bip</string>
 <!-- H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
 <!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
 <!--	<string name="str_textview_param41">41.Imprimir Com</string> -->
 <!--	<string name="str_textview_param41">41.Reservado</string> -->
-	<string name="str_repeat_times">41.Veces</string>
+	<string name="str_repeat_times">41.Tiempo</string>
 <!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
 <!-- End of H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
 	<string name="str_textview_param42">42.En impresión</string>
-	<string name="str_textview_param43">43.Pens</string>
-	<string name="str_textview_param44">"44.Brightness "</string>
-	<string name="str_textview_param45">45.Encimera0</string>
-	<string name="str_textview_param46">46.Encimera1</string>
-	<string name="str_textview_param47">47.Encimera2</string>
-	<string name="str_textview_param48">48.Encimera3</string>
-	<string name="str_textview_param49">49.Encimera4</string>
-	<string name="str_textview_param50">50.Encimera5</string>
-	<string name="str_textview_param51">51.Encimera6</string>
-	<string name="str_textview_param52">52.Encimera7</string>
-	<string name="str_textview_param53">53.Encimera8</string>
-	<string name="str_textview_param54">54.Encimera9</string>
-	<string name="str_textview_param55">55.QR Index</string>
-	<string name="str_textview_param56">56.FIFO</string>
+	<string name="str_textview_param43">43.Lápices</string>
+	<string name="str_textview_param44">44.Brillo</string>
+	<string name="str_textview_param45">45.Contador0</string>
+	<string name="str_textview_param46">46.Contador1</string>
+	<string name="str_textview_param47">47.Contador2</string>
+	<string name="str_textview_param48">48.Contador3</string>
+	<string name="str_textview_param49">49.Contador4</string>
+	<string name="str_textview_param50">50.Contador5</string>
+	<string name="str_textview_param51">51.Contador6</string>
+	<string name="str_textview_param52">52.Contador7</string>
+	<string name="str_textview_param53">53.Contador8</string>
+	<string name="str_textview_param54">54.Contador9</string>
+	<string name="str_textview_param55">55.Índice QR</string>
+	<string name="str_textview_param56">56.Primero en entrar</string>
 	<!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
 <!--	<string name="str_textview_param57">57.Reservado</string> -->
-	<string name="str_textview_param57">57.Input</string>
+	<string name="str_textview_param57">57.Aporte</string>
 	<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
-	<string name="str_textview_param58">58.Printer IP</string>
+	<string name="str_textview_param58">58.IP</string>
 <!-- H.M.Wang 2022-5-30 增加编码器变倍 -->
 <!--	<string name="str_textview_param59">59.Reservado</string> -->
 	<string name="str_textview_param59">59.Relación de ancho</string>
 <!-- End of H.M.Wang 2022-5-30 增加编码器变倍 -->
-	<string name="str_textview_param60">60.Log</string>
+	<string name="str_textview_param60">60.Registro</string>
 <!-- H.M.Wang 2021-11-19 修改双列支持的名称
 	<string name="str_textview_param61">61.Reservado</string> -->
 	<string name="str_textview_param61">61.Desplazamiento de la boquilla</string>
@@ -486,7 +486,7 @@
 <!-- H.M.Wang 2022-8-25 追加喷嘴加热参数项
 	<string name="str_textview_param62">62.Reservado</string>
 	<string name="str_textview_param62">62.Calentamiento</string> -->
-	<string name="str_textview_param62">62.Límite cálido</string>
+	<string name="str_textview_param62">62.Límite calor</string>
 <!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
 <!--	<string name="str_textview_param63">63.Reservado</string>-->
 	<string name="str_textview_param63">63.Calentamiento</string>
@@ -494,21 +494,21 @@
 
 <!-- H.M.Wang 2022-9-1 追加客户APK启动参数
 	<string name="str_textview_param64">64.Reservado</string>-->
-	<string name="str_textview_param64">64.User APK</string>
+	<string name="str_textview_param64">64.APK de usuario</string>
 <!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
 <!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
-	<string name="str_textview_param65">65.Slant2</string>
+	<string name="str_textview_param65">65.Inclinación2</string>
 	<string name="str_textview_param66">66.ADJ2</string>
 <!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
-	<string name="str_textview_param67">67.ENC Filter</string>
+	<string name="str_textview_param67">67.Filtro ENC</string>
 <!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
 <!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 <!--	<string name="str_textview_param68">68.Reservado</string>-->
-	<string name="str_textview_param68">68.ENC Dir</string>
+	<string name="str_textview_param68">68.Dirección ENC</string>
 <!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
 <!-- H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
 <!--	<string name="str_textview_param69">69.Reservado</string>-->
-	<string name="str_textview_param69">69.Subpaso</string>
+	<string name="str_textview_param69">69.Paso secundario</string>
 <!-- End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
 <!-- H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
 	<string name="str_textview_param70">70.Impresión rápida</string>

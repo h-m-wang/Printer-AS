@@ -10,13 +10,13 @@
 
 <!-- H.M.Wang 2019-12-19 追加数据源名称字符串数组 -->
     <string-array name="strDataSourceArray">
-        <item>Disable</item>
+        <item>Deshabilitar</item>
         <item>Bin</item>
-        <item>File</item>
-        <item>File2</item>
-        <item>Lan Data</item>
-        <item>Fast Lan</item>
-        <item>Lan Heart</item>
+        <item>Archivo</item>
+        <item>Archivo2</item>
+        <item>Datos de Lan</item>
+        <item>Lan Rapida</item>
+        <item>Corazon de Lan</item>
         <item>Scaner-1</item>
         <item>Scaner-1-FIFO</item>
         <item>Scaner-2</item>
@@ -409,9 +409,9 @@
 <!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
 <!-- H.M.Wang 2022-11-30 追加一个ENC DIR -->
     <string-array name="enc_dir_item_entries">
-        <item>None</item>
-        <item>Left</item>
-        <item>Right</item>
+        <item>Ninguna</item>
+        <item>Izquierda</item>
+        <item>Derecha</item>
     </string-array>
 <!-- End of H.M.Wang 2022-11-30 追加一个ENC DIR -->
 <!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
