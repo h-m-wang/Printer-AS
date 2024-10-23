@@ -24,7 +24,7 @@ import com.industry.printer.cache.FontCache;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.R;
-					
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -120,7 +120,7 @@ public class BarcodeObject extends BaseObject {
 
 	private static final int QUIET_ZONE_SIZE = 4;
 	private static final int STROKE_WIDTH = 3;
-	
+
 	public String mFormat;
 	public int mCode;
 	public boolean mShow;
@@ -143,10 +143,10 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 
 //	public Bitmap mBinmap;
-	
+
 	private Map<String, Integer> code_format;
 	private Map<Integer, String> format_code;
-	
+
 	public BarcodeObject(Context context, float x) {
 		super(context, BaseObject.OBJECT_TYPE_BARCODE, x);
 		// TODO Auto-generated constructor stub
@@ -180,7 +180,7 @@ public class BarcodeObject extends BaseObject {
 	}
 	public void setCode(String code)
 	{
-		
+
 		mId = BaseObject.OBJECT_TYPE_BARCODE;
 //		if ("EAN8".equals(code)) {
 		if (BARCODE_FORMAT_EAN8.equals(code)) {
@@ -242,7 +242,7 @@ public class BarcodeObject extends BaseObject {
 		mFormat = code;
 		isNeedRedraw = true;
 	}
-	
+
 	public void setCode(int code)
 	{
 		if (code == CODE_EAN8) {
@@ -297,12 +297,12 @@ public class BarcodeObject extends BaseObject {
 		mId = BaseObject.OBJECT_TYPE_BARCODE;
 		isNeedRedraw = true;
 	}
-	
+
 	public String getCode()
 	{
 		return mFormat;
 	}
-	
+
 	public boolean isQRCode() {
 //		return "QR".equals(mFormat);
 		return BARCODE_FORMAT_QR.equals(mFormat);
@@ -355,7 +355,7 @@ public class BarcodeObject extends BaseObject {
 			isNeedRedraw = true;
 		}
 	}
-	
+
 	public int getTextsize() {
 		return mTextSize;
 	}
@@ -465,7 +465,7 @@ public class BarcodeObject extends BaseObject {
 			mName = mContext.getString(R.string.object_bar);
 		}
 	}
-	
+
 	@Override
 	public String getTitle() {
 		if (is2D()) {
@@ -669,9 +669,9 @@ public class BarcodeObject extends BaseObject {
 			int[] pixels = new int[width * height];
 			for (int y = 0; y < height; y++)
 			{
-				for (int x = 0; x < width; x++) 
+				for (int x = 0; x < width; x++)
 				{
-					if (matrix.get(x, y)) 
+					if (matrix.get(x, y))
 					{
 // H.M.Wang 2022-12-20 追加反白设置
 //						pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
@@ -687,7 +687,7 @@ public class BarcodeObject extends BaseObject {
 			}
 			/* 条码/二维码的四个边缘空出20像素作为白边 */
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-			
+
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
 			// H.M.Wang 修改返回值一行
@@ -1413,15 +1413,15 @@ public class BarcodeObject extends BaseObject {
         tv.setHeight(height);
         tv.setGravity(Gravity.CENTER_HORIZONTAL);
         tv.setWidth(width);
-        tv.setDrawingCacheEnabled(true);  
+        tv.setDrawingCacheEnabled(true);
         tv.setTextColor(Color.BLACK);
-        tv.measure(  
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),  
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));  
-        tv.layout(0, 0, tv.getMeasuredWidth(),  
+        tv.measure(
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        tv.layout(0, 0, tv.getMeasuredWidth(),
         		tv.getMeasuredHeight());
-  
-        tv.buildDrawingCache();  
+
+        tv.buildDrawingCache();
         Bitmap bitmapCode=tv.getDrawingCache();
         Debug.d(TAG, "===>width=" + width + ", bmp width=" + bitmapCode.getWidth(
         return isBin?Bitmap.createScaledBitmap(bitmapCode, (int) (bitmapCode.getWidth()*div), bitmapCode.getHeight(), true) : bitmapCode;
@@ -1431,8 +1431,8 @@ public class BarcodeObject extends BaseObject {
 		if (TextUtils.isEmpty(content)) {
 			return null;
 		}
-		Paint paint = new Paint(); 
-		
+		Paint paint = new Paint();
+
 		paint.setTextSize(height - 5);
 		paint.setTextScaleX(2);
 		paint.setColor(Color.BLACK);
@@ -1459,9 +1459,9 @@ public class BarcodeObject extends BaseObject {
 			BarcodeFormat format = getBarcodeFormat(mFormat);
 			if(is2D())
 			{
-				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();  
+				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
 	            hints.put(EncodeHintType.CHARACTER_SET, CODE);
-	            
+
 				matrix = writer.encode(mContent,
 					                format, (int)mWidth, (int)mHeight, null);
 			} else {
@@ -1496,7 +1496,7 @@ public class BarcodeObject extends BaseObject {
 		}
 		return false;
 	}
-	
+
 	private BarcodeFormat getBarcodeFormat(String format) {
 		int i;
 		if (BARCODE_FORMAT_CODE128.equals(format)) {
@@ -1534,7 +1534,7 @@ public class BarcodeObject extends BaseObject {
 		} else {
 			return BarcodeFormat.CODE_128;
 		}
-		
+
 	}
 	
 /*
@@ -1630,7 +1630,7 @@ public class BarcodeObject extends BaseObject {
 		} else if (mContent.length() > 12) {
 			code = mContent.substring(0, 12);
 		} else {
-			code = mContent; 
+			code = mContent;
 		}
 		Debug.d(TAG, "--->content: " + mContent);
 		mContent = code;
@@ -1669,12 +1669,12 @@ public class BarcodeObject extends BaseObject {
 		} else if (BARCODE_FORMAT_UPC_A.equals(mFormat)) {
 			content = checkLen(11,12);
 		} else {
-			
+
 		}
 		mContent = content;
 		return mContent;
 	}
-	
+
 	/**
 	 * EAN8只支持8位長度
 	 * @return
@@ -1690,7 +1690,7 @@ public class BarcodeObject extends BaseObject {
 		}
 		return mContent;
 	}
-	
+
 	private String checkLen(int min, int max) {
 		int len = mContent.length();
 		if (len < min) {
@@ -1702,12 +1702,12 @@ public class BarcodeObject extends BaseObject {
 		}
 		return mContent;
 	}
-	
+
 	public String toString()
 	{
 		int dots = 152;//SystemConfigFile.getInstance(mContext).getParam(39);
 		float prop = dots/Configs.gDots;
-		
+
 		StringBuilder builder = new StringBuilder(mId);							// Tag 1    对象编号
 		if (BaseObject.OBJECT_TYPE_QR.equalsIgnoreCase(mId)) {
 			builder.append("^")

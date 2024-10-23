@@ -1,2 +1,2 @@
-include ':app', ':app133', ':systemapi', ':corelib', ':hardware', ':zxingcore', ':smartcard', ':hp22mm', ':phoneapp'
+include ':app', ':systemapi', ':corelib', ':hardware', ':zxingcore', ':smartcard', ':hp22mm', ':phoneapp'
 include ':gs1datamatrix'
