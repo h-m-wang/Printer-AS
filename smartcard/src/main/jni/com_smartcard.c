@@ -1036,7 +1036,6 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeDAC5571(JNIEnv *env, jclass arg, 
 
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
 #define ADS1115_I2C_ADDRESS      0x49
-
 JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, jint index) {
     LOGD(">>> Read ADS1115(I2C=0x%2x, index=%d, addr=0)", ADS1115_I2C_ADDRESS, index);
 

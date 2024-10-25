@@ -88,7 +88,7 @@ public class BarcodeObject extends BaseObject {
 	public static final String BARCODE_FORMAT_RSS_AZTEC 		= "AZTEC";
 	/** PDF417 format. */
 	public static final String BARCODE_FORMAT_RSS_PDF_417 		= "PDF_417";
-// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	// H.M.Wang 2023-11-21 追加GS1的QR和DM
 	public static final String BARCODE_FORMAT_GS1128 			= "GS1128";
 	public static final String BARCODE_FORMAT_GS1QR 			= "GS1QR";
 	public static final String BARCODE_FORMAT_GS1DM 			= "GS1DM";
@@ -105,15 +105,15 @@ public class BarcodeObject extends BaseObject {
 	public static final int CODE_EAN13 						= 1;
 	public static final int CODE_EAN128 						= 2;
 	public static final int CODE_CODE128 						= 3;
-// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	// H.M.Wang 2023-11-21 追加GS1的QR和DM
 	public static final int CODE_GS1128 						= 4;
-// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+	// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 	public static final int CODE_CODE39 						= 5;
 	public static final int CODE_UPC_A 						= 6;
 	public static final int CODE_ITF_14 						= 7;
 	public static final int CODE_QR 							= 0;
 	public static final int CODE_DM 							= 1;
-// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	// H.M.Wang 2023-11-21 追加GS1的QR和DM
 	public static final int CODE_GS1QR							= 2;
 	public static final int CODE_GS1DM							= 3;
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
@@ -124,23 +124,29 @@ public class BarcodeObject extends BaseObject {
 	public String mFormat;
 	public int mCode;
 	public boolean mShow;
-// H.M.Wang 2022-12-20 追加反白设置
+	// H.M.Wang 2022-12-20 追加反白设置
 	public boolean mRevert;
-// End of H.M.Wang 2022-12-20 追加反白设置
+	// End of H.M.Wang 2022-12-20 追加反白设置
 	public int mTextSize;
 
-// H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+	// H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 	private boolean mWithFrame;
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 
-// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	// H.M.Wang 2023-2-14 追加QR码的纠错级别
 	private int mErrorCorrectionLevel;
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
-// H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
+	// H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 	private HyperTextObject mHTContent = null;
 	private String mOrgContent = "";
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
+
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+	private final static int DM_TYPE_SQUARE = 0;
+	private final static int DM_TYPE_RECTANGLE = 1;
+	private int mDMType;
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 
 //	public Bitmap mBinmap;
 
@@ -170,6 +176,10 @@ public class BarcodeObject extends BaseObject {
 
 //		mFormat="CODE_128";
 		mFormat = BARCODE_FORMAT_CODE128;
+
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+		mDMType = DM_TYPE_SQUARE;
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 
 		if (mSource == true) {
 			setContent("123456789");
@@ -308,7 +318,7 @@ public class BarcodeObject extends BaseObject {
 		return BARCODE_FORMAT_QR.equals(mFormat);
 	}
 
-// H.M.Wang 2019-12-15 原来判断是否为二维动态二维码的逻辑可能有问题
+	// H.M.Wang 2019-12-15 原来判断是否为二维动态二维码的逻辑可能有问题
 	// H.M.Wang 2019-9-21 二维码有两种QRCode和DynamicQRCode，只有第二种需要隐藏内容编辑窗，为此增加判断动态二维码的函数
 	public boolean isDynamicCode() {
 //		return isQRCode() && mName.equals(mContext.getString(R.string.object_dynamic_qr));
@@ -326,7 +336,7 @@ public class BarcodeObject extends BaseObject {
 		return mShow;
 	}
 
-// H.M.Wang 2022-12-20 追加反白设置
+	// H.M.Wang 2022-12-20 追加反白设置
 	public void setRevert(boolean revert) {
 		mRevert = revert;
 	}
@@ -337,14 +347,23 @@ public class BarcodeObject extends BaseObject {
 
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 	public void setWithFrame(boolean withFrame)
-{
-	mWithFrame = withFrame;
-}
+	{
+		mWithFrame = withFrame;
+	}
 	public boolean getWithFrame()
 	{
 		return mWithFrame;
 	}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+	public void setDMType(int type) {
+		mDMType = type;
+	}
+	public int getDMType()
+	{
+		return mDMType;
+	}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 
 	public void setTextsize(int size) {
 		if (size == mTextSize) {
@@ -360,7 +379,7 @@ public class BarcodeObject extends BaseObject {
 		return mTextSize;
 	}
 
-// H.M.Wang 2023-2-14 追加QR码的纠错级别
+	// H.M.Wang 2023-2-14 追加QR码的纠错级别
 	public void setErrorCorrectionLevel(int level) {
 		mErrorCorrectionLevel = level;
 	}
@@ -370,15 +389,21 @@ public class BarcodeObject extends BaseObject {
 	}
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
-// H.M.Wang 2022-9-7 将根据字数重新计算宽度的操作独立出来，只有在编辑页面保存的时候才会调用，中途内容发生变化的时候，不修改宽度
+	// H.M.Wang 2022-9-7 将根据字数重新计算宽度的操作独立出来，只有在编辑页面保存的时候才会调用，中途内容发生变化的时候，不修改宽度
 	public void calWidth() {
 		if (!is2D()) {
 //			if (mWidth <= 0) {
-				mWidth = mContent.length() * 50 * mRatio * mHeight / 152;
+			mWidth = mContent.length() * 50 * mRatio * mHeight / 152;
 //			}
 		} else {
 //			if (mWidth <= 0) {
-				mWidth = mHeight;
+			mWidth = mHeight;
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+			if(mDMType == DM_TYPE_RECTANGLE) {
+				Debug.d(TAG, "DM_TYPE_RECTANGLE");
+				mWidth = mWidth * 2;
+			}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 //			}
 		}
 		setWidth(mWidth);
@@ -418,12 +443,12 @@ public class BarcodeObject extends BaseObject {
 		isNeedRedraw = true;
 	}
 
-// H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本，所以返回原始内容，而非转化内容
+	// H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本，所以返回原始内容，而非转化内容
 	@Override
 	public String getContent() {
 		return mOrgContent;
 	}
-// End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本，所以返回原始内容，而非转化内容
+	// End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本，所以返回原始内容，而非转化内容
 /*
     // H.M.Wang 修改。取消原来的子元素均等加减1的缩放方法，改为均等缩放
     public void wide() {
@@ -443,7 +468,7 @@ public class BarcodeObject extends BaseObject {
         isNeedRedraw = true;
     }
 */
-    @Override
+	@Override
 	public void setSource(boolean dynamic) {
 		mSource  = dynamic;
 		if (dynamic) {
@@ -489,17 +514,17 @@ public class BarcodeObject extends BaseObject {
 	}
 
 	private static final String CODE = "utf-8";
-/*
-	// H.M.Wang 追加该函数。用来获取初始的横向缩放比例
-	@Override
-	public void setXRatio() {
-		if (!is2D()) {
-			mRatio = (mWidth == 0 ? 1.0f : (mWidth / (mContent.length() * 70)));
-		} else {
-			mRatio = (mWidth == 0 ? 1.0f : (mWidth / 152));
-		}
-	}
-*/
+	/*
+        // H.M.Wang 追加该函数。用来获取初始的横向缩放比例
+        @Override
+        public void setXRatio() {
+            if (!is2D()) {
+                mRatio = (mWidth == 0 ? 1.0f : (mWidth / (mContent.length() * 70)));
+            } else {
+                mRatio = (mWidth == 0 ? 1.0f : (mWidth / 152));
+            }
+        }
+    */
 // H.M.Wang 2019-9-27 追加该函数，用来在条码/二维码设置字号的时候，恢复到原始比例状态，并且根据新的高计算新的宽
 	@Override
 	public void resizeByHeight() {
@@ -507,16 +532,22 @@ public class BarcodeObject extends BaseObject {
 			mWidth = mContent.length() * 50 * mHeight / 152;
 		} else {
 			mWidth = mHeight;
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+			if(mDMType == DM_TYPE_RECTANGLE) {
+				Debug.d(TAG, "DM_TYPE_RECTANGLE");
+				mWidth = mWidth * 2;
+			}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 		}
 	}
 
-// H.M.Wang 2020-7-31 追加超文本的计数器打印后调整
+	// H.M.Wang 2020-7-31 追加超文本的计数器打印后调整
 	public void goNext() {
 		mHTContent.goNext();
 	}
 // End of H.M.Wang 2020-7-31 追加超文本的计数器打印后调整
 
-// H.M.Wang 2021-5-7 追加实际打印数调整函数
+	// H.M.Wang 2021-5-7 追加实际打印数调整函数
 	public void goPrintedNext() {
 		mHTContent.goPrintedNext();
 	}
@@ -549,12 +580,19 @@ public class BarcodeObject extends BaseObject {
 		} else {
 			if (mWidth <= 0) {
 				mWidth = mHeight;
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+				if(mDMType == DM_TYPE_RECTANGLE) {
+					Debug.d(TAG, "DM_TYPE_RECTANGLE");
+					mWidth = mWidth * 2;
+				}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 			}
 //			mWidth = mRatio * 152;
 //			mWidth = mRatio * mHeight;
 //            mWidth = mHeight;
 //			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
+Debug.d(TAG, "Width = " + mWidth);
 				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
@@ -642,22 +680,22 @@ public class BarcodeObject extends BaseObject {
 
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 			switch(mErrorCorrectionLevel) {
-			case 1:
-				Debug.d(TAG, "ECL: M");
-				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
-				break;
-			case 2:
-				Debug.d(TAG, "ECL: Q");
-				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
-				break;
-			case 3:
-				Debug.d(TAG, "ECL: H");
-				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-				break;
-			default:
-				Debug.d(TAG, "ECL: L");
-				hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
-				break;
+				case 1:
+					Debug.d(TAG, "ECL: M");
+					hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M);
+					break;
+				case 2:
+					Debug.d(TAG, "ECL: Q");
+					hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
+					break;
+				case 3:
+					Debug.d(TAG, "ECL: H");
+					hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+					break;
+				default:
+					Debug.d(TAG, "ECL: L");
+					hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+					break;
 			}
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
@@ -705,7 +743,7 @@ public class BarcodeObject extends BaseObject {
 		return null;
 	}
 
-// H.M.Wang 2023-11-21 追加GS1的QR和DM
+	// H.M.Wang 2023-11-21 追加GS1的QR和DM
 	private Bitmap drawOkapiQR(String content, int w, int h) {
 		long startTime = System.nanoTime();
 		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);;
@@ -717,22 +755,22 @@ public class BarcodeObject extends BaseObject {
 			qrcode.setDataType(Symbol.DataType.GS1);
 			qrcode.setSeparatorType(Symbol.SeparatorType.GS);
 			switch(mErrorCorrectionLevel) {
-			case 1:
-				Debug.d(TAG, "ECL: M");
-				qrcode.setPreferredEccLevel(QrCode.EccLevel.M);
-				break;
-			case 2:
-				Debug.d(TAG, "ECL: Q");
-				qrcode.setPreferredEccLevel(QrCode.EccLevel.Q);
-				break;
-			case 3:
-				Debug.d(TAG, "ECL: H");
-				qrcode.setPreferredEccLevel(QrCode.EccLevel.H);
-				break;
-			default:
-				Debug.d(TAG, "ECL: L");
-				qrcode.setPreferredEccLevel(QrCode.EccLevel.L);
-				break;
+				case 1:
+					Debug.d(TAG, "ECL: M");
+					qrcode.setPreferredEccLevel(QrCode.EccLevel.M);
+					break;
+				case 2:
+					Debug.d(TAG, "ECL: Q");
+					qrcode.setPreferredEccLevel(QrCode.EccLevel.Q);
+					break;
+				case 3:
+					Debug.d(TAG, "ECL: H");
+					qrcode.setPreferredEccLevel(QrCode.EccLevel.H);
+					break;
+				default:
+					Debug.d(TAG, "ECL: L");
+					qrcode.setPreferredEccLevel(QrCode.EccLevel.L);
+					break;
 			}
 			qrcode.setContent(content);
 //			Debug.d(TAG, "GS1 QR Height: " + qrcode.getHeight() + "; Bar Height: " + qrcode.getBarHeight());
@@ -805,12 +843,11 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 
 	private Bitmap drawDataMatrix(String content, int w, int h) {
-
 		DataMatrixWriter writer = new DataMatrixWriter();
 
 		// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 		HashMap<EncodeHintType,Object> hints = new HashMap<EncodeHintType, Object>();
-		hints.put(EncodeHintType.DATA_MATRIX_SHAPE, SymbolShapeHint.FORCE_SQUARE);
+		hints.put(EncodeHintType.DATA_MATRIX_SHAPE, (mDMType == DM_TYPE_RECTANGLE ? SymbolShapeHint.FORCE_RECTANGLE : SymbolShapeHint.FORCE_SQUARE));
 		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h, hints);
 //		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h);
 		// End of 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
@@ -819,8 +856,11 @@ public class BarcodeObject extends BaseObject {
 		int height = matrix.getHeight();
 		int[] pixels = new int[width * height];
 
+		Debug.d(TAG, "w: " + w + "; h: " + h + "; Width: " + width + "; Height: " + height);
+//		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height; y++)
 		{
+//			sb.append('\n');
 			for (int x = 0; x < width; x++)
 			{
 				if (matrix.get(x, y))
@@ -829,14 +869,17 @@ public class BarcodeObject extends BaseObject {
 //					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
 					pixels[y * width + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
 // End of H.M.Wang 2022-12-20 追加反白设置
+//					sb.append('#');
 				} else {
 // H.M.Wang 2022-12-20 追加反白设置
 //					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
 					pixels[y * width + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
 // End of H.M.Wang 2022-12-20 追加反白设置
+//					sb.append('.');
 				}
 			}
 		}
+//		Debug.d(TAG, sb.toString());
 		/* 条码/二维码的四个边缘空出20像素作为白边 */
 		Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
 //		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
@@ -865,7 +908,7 @@ public class BarcodeObject extends BaseObject {
 		return pixels;
 	}
 
-// H.M.Wang 2020-6-19 修改EAN-13和EAN-8的图片输出格式
+	// H.M.Wang 2020-6-19 修改EAN-13和EAN-8的图片输出格式
 	private Bitmap drawEAN8(int w, int h) {
 		BitMatrix matrix=null;
 
@@ -937,7 +980,7 @@ public class BarcodeObject extends BaseObject {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
 // H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
-        return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 //		return null;
 // End of H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
 	}
@@ -1015,7 +1058,7 @@ public class BarcodeObject extends BaseObject {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
 // H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
-        return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 //		return null;
 // End of H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
 	}
@@ -1147,67 +1190,67 @@ public class BarcodeObject extends BaseObject {
 	}
 
 	public BitMatrix encode(String contents, int width, int height, Map<EncodeHintType, ?> hints)
-            throws WriterException {
+			throws WriterException {
 
-        if (contents.isEmpty()) {
-            throw new IllegalArgumentException("Found empty contents");
-        }
+		if (contents.isEmpty()) {
+			throw new IllegalArgumentException("Found empty contents");
+		}
 
-        if (width < 0 || height < 0) {
-            throw new IllegalArgumentException("Requested dimensions are too small: " + width + 'x' + height);
-        }
+		if (width < 0 || height < 0) {
+			throw new IllegalArgumentException("Requested dimensions are too small: " + width + 'x' + height);
+		}
 
-        ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.L;
-        int quietZone = QUIET_ZONE_SIZE;
-        if (hints != null) {
-            ErrorCorrectionLevel requestedECLevel = (ErrorCorrectionLevel) hints.get(EncodeHintType.ERROR_CORRECTION);
-            if (requestedECLevel != null) {
-                errorCorrectionLevel = requestedECLevel;
-            }
-            Integer quietZoneInt = (Integer) hints.get(EncodeHintType.MARGIN);
-            if (quietZoneInt != null) {
-                quietZone = quietZoneInt;
-            }
-        }
-        try {
-        	contents = new String(contents.getBytes("UTF-8"), "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
+		ErrorCorrectionLevel errorCorrectionLevel = ErrorCorrectionLevel.L;
+		int quietZone = QUIET_ZONE_SIZE;
+		if (hints != null) {
+			ErrorCorrectionLevel requestedECLevel = (ErrorCorrectionLevel) hints.get(EncodeHintType.ERROR_CORRECTION);
+			if (requestedECLevel != null) {
+				errorCorrectionLevel = requestedECLevel;
+			}
+			Integer quietZoneInt = (Integer) hints.get(EncodeHintType.MARGIN);
+			if (quietZoneInt != null) {
+				quietZone = quietZoneInt;
+			}
+		}
+		try {
+			contents = new String(contents.getBytes("UTF-8"), "ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
 			Debug.d(TAG, "--->e: " + e.getMessage());
 		}
-        QRCode code = Encoder.encode(contents, errorCorrectionLevel, hints);
-        return renderResult(code, width, height, quietZone);
-    }
+		QRCode code = Encoder.encode(contents, errorCorrectionLevel, hints);
+		return renderResult(code, width, height, quietZone);
+	}
 
-    private BitMatrix drasDM() {
+	private BitMatrix drasDM() {
 		return null;
 	}
-    // Note that the input matrix uses 0 == white, 1 == black, while the output
-    // matrix uses
-    // 0 == black, 255 == white (i.e. an 8 bit greyscale bitmap).
-    //修改如下代码
-    private static BitMatrix renderResult(QRCode code, int width, int height, int quietZone) {
-        ByteMatrix input = code.getMatrix();
-        if (input == null) {
-            throw new IllegalStateException();
-        }
-        int inputWidth = input.getWidth();
-        int inputHeight = input.getHeight();
-        int qrWidth = inputWidth ;
-        int qrHeight = inputHeight;
-        int outputWidth = Math.max(width, qrWidth);
-        int outputHeight = Math.max(height, qrHeight);
+	// Note that the input matrix uses 0 == white, 1 == black, while the output
+	// matrix uses
+	// 0 == black, 255 == white (i.e. an 8 bit greyscale bitmap).
+	//修改如下代码
+	private static BitMatrix renderResult(QRCode code, int width, int height, int quietZone) {
+		ByteMatrix input = code.getMatrix();
+		if (input == null) {
+			throw new IllegalStateException();
+		}
+		int inputWidth = input.getWidth();
+		int inputHeight = input.getHeight();
+		int qrWidth = inputWidth ;
+		int qrHeight = inputHeight;
+		int outputWidth = Math.max(width, qrWidth);
+		int outputHeight = Math.max(height, qrHeight);
 
-        int multiple = Math.min(outputWidth / qrWidth, outputHeight / qrHeight);
-        // Padding includes both the quiet zone and the extra white pixels to
-        // accommodate the requested
-        // dimensions. For example, if input is 25x25 the QR will be 33x33
-        // including the quiet zone.
-        // If the requested size is 200x160, the multiple will be 4, for a QR of
-        // 132x132. These will
-        // handle all the padding from 100x100 (the actual QR) up to 200x160.
+		int multiple = Math.min(outputWidth / qrWidth, outputHeight / qrHeight);
+		// Padding includes both the quiet zone and the extra white pixels to
+		// accommodate the requested
+		// dimensions. For example, if input is 25x25 the QR will be 33x33
+		// including the quiet zone.
+		// If the requested size is 200x160, the multiple will be 4, for a QR of
+		// 132x132. These will
+		// handle all the padding from 100x100 (the actual QR) up to 200x160.
 
-        int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;
-        int topPadding = (outputHeight - (inputHeight * multiple)) / 2;
+		int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;
+		int topPadding = (outputHeight - (inputHeight * multiple)) / 2;
 /*
         if(leftPadding >= 0 ) {
             outputWidth = outputWidth - 2 * leftPadding ;
@@ -1218,20 +1261,20 @@ public class BarcodeObject extends BaseObject {
             topPadding = 0;
         }
 */
-        BitMatrix output = new BitMatrix(outputWidth, outputHeight);
+		BitMatrix output = new BitMatrix(outputWidth, outputHeight);
 
-        for (int inputY = 0, outputY = topPadding; inputY < inputHeight; inputY++, outputY += multiple) {
-            // Write the contents of this row of the barcode
-            for (int inputX = 0, outputX = leftPadding; inputX < inputWidth; inputX++, outputX += multiple) {
-                if (input.get(inputX, inputY) == 1) {
-                    output.setRegion(outputX, outputY, multiple, multiple);
-                }
-            }
-        }
-        return output;
-    }
+		for (int inputY = 0, outputY = topPadding; inputY < inputHeight; inputY++, outputY += multiple) {
+			// Write the contents of this row of the barcode
+			for (int inputX = 0, outputX = leftPadding; inputX < inputWidth; inputX++, outputX += multiple) {
+				if (input.get(inputX, inputY) == 1) {
+					output.setRegion(outputX, outputY, multiple, multiple);
+				}
+			}
+		}
+		return output;
+	}
 
-// H.M.Wang 2023-2-1 修改条码生成打印缓冲区的算法，原来的算法的步骤是(1) ZXING生成BitMatrix(21x21) -> 放大到变量的大小(一般152x152） -> 反白处理(152x152) -> (动态二维码）改蓝色处理(152x152) -> 变换为打印尺寸(如，32x32）
+	// H.M.Wang 2023-2-1 修改条码生成打印缓冲区的算法，原来的算法的步骤是(1) ZXING生成BitMatrix(21x21) -> 放大到变量的大小(一般152x152） -> 反白处理(152x152) -> (动态二维码）改蓝色处理(152x152) -> 变换为打印尺寸(如，32x32）
 // 由于经过放大再缩小，即使都是按整数比例放大缩小，仍然会产生变形，导致生成的二维码无法识别(为32点打印头生成123456的二维码即无法识别），这是一个需要解决的问题。
 // 另外，由于中间处理步骤太多，导致耗时严重，自身耗时以外，也会增加被线程调度或者内存清理所裹挟而大幅增加处理时间，这个是第二个要解决的问题
 /*
@@ -1239,7 +1282,7 @@ public class BarcodeObject extends BaseObject {
 //		BitMatrix matrix=null;
 //		Debug.d(TAG, "--->getPrintBitmap : totalW = " + totalW + "  w = " + w);
 //		MultiFormatWriter writer = new MultiFormatWriter();
-//		Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();  
+//		Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
 //        hints.put(EncodeHintType.CHARACTER_SET, CODE);
 //        try {
 //			matrix = writer.encode(mContent,
@@ -1251,11 +1294,11 @@ public class BarcodeObject extends BaseObject {
 //		int width = matrix.getWidth();
 //		int height = matrix.getHeight();
 //		int[] pixels = new int[width * height];
-//		for (int y1 = 0; y1 < height; y1++) 
+//		for (int y1 = 0; y1 < height; y1++)
 //		{
-//			for (int x = 0; x < width; x++) 
+//			for (int x = 0; x < width; x++)
 //			{
-//				if (matrix.get(x, y1)) 
+//				if (matrix.get(x, y1))
 //				{
 //					pixels[y1 * width + x] = 0xff000000;
 //				} else {
@@ -1267,7 +1310,7 @@ public class BarcodeObject extends BaseObject {
 		Bitmap bg = Bitmap.createBitmap(totalW, totalH, Configs.BITMAP_CONFIG);
 		Canvas canvas = new Canvas(bg);
 //		Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-		
+
 //		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 		Debug.d(TAG, "--->mFormat: " + mFormat);
 
@@ -1332,12 +1375,12 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 //				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
 				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
-				    SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
 // End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
 // End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
 					Gs1.AIType = Gs1.AI_TYPE_BRACE;
 					bitmap = drawOkapiQR((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
@@ -1355,12 +1398,12 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 //				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
 				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
 // End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
 // H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
-					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
 // End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
 					Gs1.AIType = Gs1.AI_TYPE_BRACE;
 					bitmap = drawGS1Datamatrix((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
@@ -1396,37 +1439,37 @@ public class BarcodeObject extends BaseObject {
 //						mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR));
 		return dots;
 	}
-/*
-	protected Bitmap createCodeBitmapFromTextView(String contents,int width,int height, boolean isBin) {
-		int heads = mTask.getHeads();
-		if (heads == 0) {
-			heads = 1;
-		}
-		float div = (float) (4.0/heads);
-		Debug.d(TAG, "===>width=" + width);
-		width = (int) (width/div);
-		TextView tv=new TextView(mContext);
-	    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-        tv.setLayoutParams(layoutParams);
-        tv.setText(contents);
-        tv.setTextSize(15);
-        tv.setHeight(height);
-        tv.setGravity(Gravity.CENTER_HORIZONTAL);
-        tv.setWidth(width);
-        tv.setDrawingCacheEnabled(true);
-        tv.setTextColor(Color.BLACK);
-        tv.measure(
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        tv.layout(0, 0, tv.getMeasuredWidth(),
-        		tv.getMeasuredHeight());
+	/*
+        protected Bitmap createCodeBitmapFromTextView(String contents,int width,int height, boolean isBin) {
+            int heads = mTask.getHeads();
+            if (heads == 0) {
+                heads = 1;
+            }
+            float div = (float) (4.0/heads);
+            Debug.d(TAG, "===>width=" + width);
+            width = (int) (width/div);
+            TextView tv=new TextView(mContext);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+            tv.setLayoutParams(layoutParams);
+            tv.setText(contents);
+            tv.setTextSize(15);
+            tv.setHeight(height);
+            tv.setGravity(Gravity.CENTER_HORIZONTAL);
+            tv.setWidth(width);
+            tv.setDrawingCacheEnabled(true);
+            tv.setTextColor(Color.BLACK);
+            tv.measure(
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            tv.layout(0, 0, tv.getMeasuredWidth(),
+                    tv.getMeasuredHeight());
 
-        tv.buildDrawingCache();
-        Bitmap bitmapCode=tv.getDrawingCache();
-        Debug.d(TAG, "===>width=" + width + ", bmp width=" + bitmapCode.getWidth(
-        return isBin?Bitmap.createScaledBitmap(bitmapCode, (int) (bitmapCode.getWidth()*div), bitmapCode.getHeight(), true) : bitmapCode;
-	}
-*/
+            tv.buildDrawingCache();
+            Bitmap bitmapCode=tv.getDrawingCache();
+            Debug.d(TAG, "===>width=" + width + ", bmp width=" + bitmapCode.getWidth(
+            return isBin?Bitmap.createScaledBitmap(bitmapCode, (int) (bitmapCode.getWidth()*div), bitmapCode.getHeight(), true) : bitmapCode;
+        }
+    */
 	protected Bitmap createCodeBitmapFromDraw(String content, int width, int height) {
 		if (TextUtils.isEmpty(content)) {
 			return null;
@@ -1449,36 +1492,36 @@ public class BarcodeObject extends BaseObject {
 		}
 		return bitmap;
 	}
-/* 2020-6-18 这个函数没用到，注释掉
-	public int getBestWidth()
-	{
-		int width=0;
-		BitMatrix matrix=null;
-		try{
-			MultiFormatWriter writer = new MultiFormatWriter();
-			BarcodeFormat format = getBarcodeFormat(mFormat);
-			if(is2D())
-			{
-				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
-	            hints.put(EncodeHintType.CHARACTER_SET, CODE);
+	/* 2020-6-18 这个函数没用到，注释掉
+        public int getBestWidth()
+        {
+            int width=0;
+            BitMatrix matrix=null;
+            try{
+                MultiFormatWriter writer = new MultiFormatWriter();
+                BarcodeFormat format = getBarcodeFormat(mFormat);
+                if(is2D())
+                {
+                    Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+                    hints.put(EncodeHintType.CHARACTER_SET, CODE);
 
-				matrix = writer.encode(mContent,
-					                format, (int)mWidth, (int)mHeight, null);
-			} else {
-				matrix = writer.encode(mContent,
-		                format, (int)mWidth, (int)mHeight);
-			}
-			width = matrix.getWidth();
-			int height = matrix.getHeight();
-			Debug.d(TAG, "mWidth="+mWidth+", width="+width);
-		}
-		catch(Exception e)
-		{
-			Debug.e(TAG, "exception:"+e.getMessage());
-		}
-		return width;
-	}
-*/
+                    matrix = writer.encode(mContent,
+                                        format, (int)mWidth, (int)mHeight, null);
+                } else {
+                    matrix = writer.encode(mContent,
+                            format, (int)mWidth, (int)mHeight);
+                }
+                width = matrix.getWidth();
+                int height = matrix.getHeight();
+                Debug.d(TAG, "mWidth="+mWidth+", width="+width);
+            }
+            catch(Exception e)
+            {
+                Debug.e(TAG, "exception:"+e.getMessage());
+            }
+            return width;
+        }
+    */
 	private boolean is2D() {
 		Debug.d(TAG, "is2D? " + mFormat);
 		if (TextUtils.isEmpty(mFormat)) {
@@ -1536,7 +1579,7 @@ public class BarcodeObject extends BaseObject {
 		}
 
 	}
-	
+
 /*
 	private static BitMatrix deleteWhite(BitMatrix matrix) {
         int[] rec = matrix.getEnclosingRectangle();
@@ -1711,84 +1754,87 @@ public class BarcodeObject extends BaseObject {
 		StringBuilder builder = new StringBuilder(mId);							// Tag 1    对象编号
 		if (BaseObject.OBJECT_TYPE_QR.equalsIgnoreCase(mId)) {
 			builder.append("^")
-				.append(BaseObject.floatToFormatString(getX()*2*prop, 5))		// Tag 2
-				.append("^")
-				.append(BaseObject.floatToFormatString(getY()*2*prop, 5))		// Tag 3
-				.append("^")
-				.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4
-				.append("^")
-				.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5
-				.append("^")
-				.append(BaseObject.intToFormatString(0, 1))		// Tag 6
-				.append("^")
-				.append(BaseObject.boolToFormatString(mDragable, 3))		// Tag 7
-				.append("^")
-				.append("000^")												// Tag 8
+					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))		// Tag 2
+					.append("^")
+					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))		// Tag 3
+					.append("^")
+					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4
+					.append("^")
+					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5
+					.append("^")
+					.append(BaseObject.intToFormatString(0, 1))		// Tag 6
+					.append("^")
+					.append(BaseObject.boolToFormatString(mDragable, 3))		// Tag 7
+					.append("^")
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+					.append("00" + mDMType + "^")												// Tag 8
+//					.append("000^")												// Tag 8
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 //				.append("DM".equalsIgnoreCase(mFormat) ? "001" : "000")		// Tag 9
-				.append(BARCODE_FORMAT_QR.equalsIgnoreCase(mFormat) ? "000" :
-						(BARCODE_FORMAT_DM.equalsIgnoreCase(mFormat) ? "001" :
-						(BARCODE_FORMAT_GS1QR.equalsIgnoreCase(mFormat) ? "002" :
-						(BARCODE_FORMAT_GS1DM.equalsIgnoreCase(mFormat) ? "003" : "000"))))		// Tag 9
+					.append(BARCODE_FORMAT_QR.equalsIgnoreCase(mFormat) ? "000" :
+							(BARCODE_FORMAT_DM.equalsIgnoreCase(mFormat) ? "001" :
+									(BARCODE_FORMAT_GS1QR.equalsIgnoreCase(mFormat) ? "002" :
+											(BARCODE_FORMAT_GS1DM.equalsIgnoreCase(mFormat) ? "003" : "000"))))		// Tag 9
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
-				.append("^000^")											// Tag 10
-				.append(BaseObject.boolToFormatString(mReverse, 3))		// Tag 11
-				.append("^")
-				.append("000")												// Tag 12
-				.append("^")
-				.append(BaseObject.boolToFormatString(mSource, 8))		// Tag 13
-				.append("^")
+					.append("^000^")											// Tag 10
+					.append(BaseObject.boolToFormatString(mReverse, 3))		// Tag 11
+					.append("^")
+					.append("000")												// Tag 12
+					.append("^")
+					.append(BaseObject.boolToFormatString(mSource, 8))		// Tag 13
+					.append("^")
 // H.M.Wang 2022-12-20 追加反白设置
-				.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
+					.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
 // End of H.M.Wang 2022-12-20 追加反白设置
-				.append("^00000000^00000000^00000000^00000000^00000000^00000000^")		// Tag 15-20
+					.append("^00000000^00000000^00000000^00000000^00000000^00000000^")		// Tag 15-20
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 //				.append(mContent);
-				.append(mOrgContent);										// Tag 21
+					.append(mOrgContent);										// Tag 21
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 		} else {
 			builder.append("^")
-			.append(BaseObject.floatToFormatString(getX()*2*prop, 5))			// Tag 2    X开始坐标
-			.append("^")
-			.append(BaseObject.floatToFormatString(getY()*2*prop, 5))			// Tag 3    Y开始坐标
-			.append("^")
-			.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4    X终止坐标
-			.append("^")
-			.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5    Y终止坐标
-			.append("^")
-			.append(BaseObject.intToFormatString(0, 1))							// Tag 6    字符大小
-			.append("^")
-			.append(BaseObject.boolToFormatString(mDragable, 3))				// Tag 7    支持拖拉标识
-			.append("^")
+					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))			// Tag 2    X开始坐标
+					.append("^")
+					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))			// Tag 3    Y开始坐标
+					.append("^")
+					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4    X终止坐标
+					.append("^")
+					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5    Y终止坐标
+					.append("^")
+					.append(BaseObject.intToFormatString(0, 1))							// Tag 6    字符大小
+					.append("^")
+					.append(BaseObject.boolToFormatString(mDragable, 3))				// Tag 7    支持拖拉标识
+					.append("^")
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 //			.append(BaseObject.floatToFormatString(mContent.length(), 3))		// Tag 8    条码字符长度
-			.append(BaseObject.floatToFormatString(mOrgContent.length(), 3))		// Tag 8    条码字符长度
+					.append(BaseObject.floatToFormatString(mOrgContent.length(), 3))		// Tag 8    条码字符长度
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
-			.append("^")
-			.append(mCode)														// Tag 9    条码类型
-			.append("^")
-			.append("000^")														// Tag 10   字符字体大小
-			.append(BaseObject.boolToFormatString(mShow, 3))					// Tag 11   是否显示字符
-			.append("^")
+					.append("^")
+					.append(mCode)														// Tag 9    条码类型
+					.append("^")
+					.append("000^")														// Tag 10   字符字体大小
+					.append(BaseObject.boolToFormatString(mShow, 3))					// Tag 11   是否显示字符
+					.append("^")
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 //			.append(mContent)													// Tag 12   条码字符内容
-			.append(mOrgContent)													// Tag 12   条码字符内容
+					.append(mOrgContent)													// Tag 12   条码字符内容
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
-			.append("^")
-			.append(BaseObject.boolToFormatString(mSource, 8))					// Tag 13   什么源？
-			.append("^")
+					.append("^")
+					.append(BaseObject.boolToFormatString(mSource, 8))					// Tag 13   什么源？
+					.append("^")
 // H.M.Wang 2022-12-20 追加反白设置
-			.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
+					.append(BaseObject.boolToFormatString(mRevert, 3))		// Tag 14
 // End of H.M.Wang 2022-12-20 追加反白设置
-			.append("^00000000^00000000^0000^0000^")					// Tag 15-18
-			.append(mFont)														// Tag 19   字体
+					.append("^00000000^00000000^0000^0000^")					// Tag 15-18
+					.append(mFont)														// Tag 19   字体
 //			.append("^000^")													// Tag 20
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
-			.append("^")														// Tag 20   (新)边框有无
-			.append(BaseObject.boolToFormatString(mWithFrame, 3))				// Tag 20   (新)边框有无
-			.append("^")														// Tag 20   (新)边框有无
+					.append("^")														// Tag 20   (新)边框有无
+					.append(BaseObject.boolToFormatString(mWithFrame, 3))				// Tag 20   (新)边框有无
+					.append("^")														// Tag 20   (新)边框有无
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
-			.append(BaseObject.intToFormatString(mTextSize, 3));				// Tag 21   文本大小？
+					.append(BaseObject.intToFormatString(mTextSize, 3));				// Tag 21   文本大小？
 		}
 
 		String str = builder.toString();

@@ -832,6 +832,10 @@ public class FpgaGpioOperation {
 */
 //2024-3-25        Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
 //2024-3-25        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
+// H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
+        startPhoEncTest();
+        stopPhoEncTest();
+// End of H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
         Debug.d(TAG, "FPGA_CMD_STARTPRINT");
         ioctl(fd, FPGA_CMD_STARTPRINT, 0);
 // H.M.Wang 2024-4-22 根据ko驱动的版本号，如果是3119以后的版本，则是修改到先下发数据，后开始打印的版本，否则按着先开始打印，后下发数据处理

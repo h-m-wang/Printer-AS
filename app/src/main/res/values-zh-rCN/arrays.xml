@@ -432,4 +432,10 @@
         <item>气压</item>
     </string-array>
 <!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!-- H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+    <string-array name="DMType">
+        <item>正方形</item>
+        <item>矩形</item>
+    </string-array>
+<!-- End of H.M.Wang 2024-10-24 追加DM码的种类选择 -->
 </resources>

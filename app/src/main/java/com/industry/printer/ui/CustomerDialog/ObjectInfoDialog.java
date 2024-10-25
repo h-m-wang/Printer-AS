@@ -106,6 +106,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	public TextView mITF14FrameCaption;
 	public CheckBox mITF14Frame;
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+	public TextView mDMTypeCaption;
+	public TextView mDMType;
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 	public TextView mCapECL;
 	public TextView mErrorCorrectionLevel;
@@ -170,6 +174,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	private PopWindowAdapter mDirAdapter;
 	private PopWindowAdapter mHeightAdapter;
 	private PopWindowAdapter mBarFormatAdapter;
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+	private PopWindowAdapter mDMTypeSpinner;
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
+
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 	private String[] mECLs;
 	private PopWindowAdapter mECLAdapter;
@@ -433,6 +441,11 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 				mITF14FrameCaption = (TextView) findViewById(id.captionFrame);
 				mITF14Frame = (CheckBox) findViewById(id.checkFrame);
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+				mDMTypeCaption = (TextView) findViewById(id.DMTypeCaption);
+				mDMType = (TextView) findViewById(id.DMType);
+				mDMType.setOnClickListener(this);
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 			    mShow = (CheckBox) findViewById(R.id.check_Num_show);
 // H.M.Wang 2022-12-20 追加反白设置
 				mRevert = (CheckBox) findViewById(id.check_revert);
@@ -581,6 +594,14 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 						{
 // H.M.Wang 2021-1-4 将Code的设置提前到setContent，否则根据内容计算宽度没有正确的条码参照可参照
 							((BarcodeObject) mObject).setCode(mCode.getText().toString());
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+							for(int i=0; i<mDMTypeSpinner.getCount(); i++) {
+								if(mDMType.getText().equals(mDMTypeSpinner.getItem(i))) {
+									((BarcodeObject) mObject).setDMType(i);
+									break;
+								}
+							}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 
 // H.M.Wang 2021-1-5 取消动态二维码不保存内容的限制，否则宽度不会被重新计算，会沿用初始宽度（这个宽度是根据缺省的一维码的内容计算的），导致动态二维码的宽度被拉伸
 //							if (!mObject.mSource) {
@@ -921,6 +942,16 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 						mITF14Frame.setVisibility(View.GONE);
 					}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+					mDMType.setText((String)mDMTypeSpinner.getItem(((BarcodeObject) mObject).getDMType()));
+					if(BarcodeObject.BARCODE_FORMAT_DM.equals(((BarcodeObject) mObject).getCode())) {
+						mDMTypeCaption.setVisibility(View.VISIBLE);
+						mDMType.setVisibility(View.VISIBLE);
+					} else {
+						mDMTypeCaption.setVisibility(View.GONE);
+						mDMType.setVisibility(View.GONE);
+					}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 					mShow.setChecked(((BarcodeObject) mObject).getShow());
 // H.M.Wang 2022-12-20 追加反白设置
 					mRevert.setChecked(((BarcodeObject) mObject).getRevert());
@@ -1059,17 +1090,20 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		// mDirAdapter = new PopWindowAdapter(mContext, null);
 		mHeightAdapter = new PopWindowAdapter(mContext, null);
 		mBarFormatAdapter = new PopWindowAdapter(mContext, null);
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+		mDMTypeSpinner = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 		mECLAdapter = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 		// String[] heights = mContext.getResources().getStringArray(R.array.strarrayFontSize);
 		if (mObject != null) {
-			Debug.d(TAG, "--->initAdapter: " + mObject);
+//			Debug.d(TAG, "--->initAdapter: " + mObject);
 			MessageObject msg = mObject.getTask().getMsgObject();
 			String[] heights = msg.getDisplayFSList();
 			for (String height : heights) {
-				Debug.d(TAG, "--->height: " + height);
+//				Debug.d(TAG, "--->height: " + height);
 				mHeightAdapter.addItem(height);
 			}
 			
@@ -1109,6 +1143,13 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 			mBarFormatAdapter.addItem(format);
 		}
 
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+		 String[] dmTypes = mContext.getResources().getStringArray(R.array.DMType);
+		 for (String type : dmTypes) {
+			 mDMTypeSpinner.addItem(type);
+		 }
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
+
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 		 mECLs = mContext.getResources().getStringArray(R.array.error_correction_level);
 		 for (String format : mECLs) {
@@ -1140,7 +1181,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		}
 		mSpiner.setAttachedView(v);
 		mSpiner.setWidth(v.getWidth());
-		
+
 		switch (v.getId()) {
 		case R.id.highEdit:
 			// mSpiner.setAdapter(mHeightAdapter);
@@ -1181,6 +1222,12 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 			mSpiner.setAdapter(mBarFormatAdapter);
 			mSpiner.showAsDropUp(v);
 			break;
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+		case R.id.DMType:
+			mSpiner.setAdapter(mDMTypeSpinner);
+			mSpiner.showAsDropUp(v);
+			break;
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 		case R.id.spinErroCorrectionLevel:
 			mSpiner.setAdapter(mECLAdapter);
@@ -1276,6 +1323,15 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 				mITF14Frame.setVisibility(View.GONE);
 			}
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+			if(BarcodeObject.BARCODE_FORMAT_DM.equals(view.getText())) {
+				mDMTypeCaption.setVisibility(View.VISIBLE);
+				mDMType.setVisibility(View.VISIBLE);
+			} else {
+				mDMTypeCaption.setVisibility(View.GONE);
+				mDMType.setVisibility(View.GONE);
+			}
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 // H.M.Wang 2023-2-14 追加QR码的纠错级别
 			if(BarcodeObject.BARCODE_FORMAT_QR.equals(view.getText()) ||
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
@@ -1290,6 +1346,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		} else if (view == mErrorCorrectionLevel) {
 			view.setText((String)mECLAdapter.getItem(index));
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+		} else if (view == mDMType) {
+			view.setText((String)mDMTypeSpinner.getItem(index));
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 		} else {
 			Debug.d(TAG, "--->unknow view");
 		}

@@ -251,6 +251,9 @@ public class TLKFileParser  extends TlkFile{
 			{
 				obj = new BarcodeObject(mContext, 0);
 				if (BaseObject.OBJECT_TYPE_QR.equals(attr[1])) {
+// H.M.Wang 2024-10-24 追加DM码的种类选择
+					((BarcodeObject) obj).setDMType(Integer.parseInt(attr[8]));
+// End of H.M.Wang 2024-10-24 追加DM码的种类选择
 					int code = Integer.parseInt(attr[9]);
 					if (code == BarcodeObject.CODE_QR) {
 						((BarcodeObject) obj).setCode(BarcodeObject.BARCODE_FORMAT_QR);

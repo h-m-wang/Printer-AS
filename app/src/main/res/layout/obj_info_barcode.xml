@@ -53,13 +53,38 @@
 	            android:text="@string/strCode"
 	            android:textColor="#000000"
 	            />
+<!-- H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+			<TextView
+				android:id="@+id/DMType"
+				android:layout_alignLeft="@id/spinCode"
+				android:layout_width="@dimen/settingsItemLength"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/spinCode"
+				android:layout_marginTop="10dp"
+				android:gravity="center_vertical"
+				android:drawableRight="@drawable/spiner_down_btn"
+				android:textSize="@dimen/objinfoTextsize"
+				android:textColor="#000000"
+				android:background="#ffffff"
+				/>
+
+			<TextView android:id="@+id/DMTypeCaption"
+				android:layout_marginLeft="10dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignBaseline="@id/DMType"
+				android:textSize="30sp"
+				android:text="@string/strDMType"
+				android:textColor="#000000"
+				/>
+<!-- End of H.M.Wang 2024-10-24 追加DM码的种类选择 -->
 <!-- H.M.Wang 2020-2-25 追加ITF_14边框有无的设置 -->
 			<CheckBox android:id="@+id/checkFrame"
 				android:layout_alignLeft="@id/spinCode"
 				android:layout_marginTop="10dp"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/spinCode"
+				android:layout_below="@id/DMType"
 				android:paddingLeft="15dp"
 				android:paddingRight="15dp"
 				android:visibility="gone"
