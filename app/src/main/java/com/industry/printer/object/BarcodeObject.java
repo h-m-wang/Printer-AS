@@ -401,7 +401,7 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2024-10-24 追加DM码的种类选择
 			if(mDMType == DM_TYPE_RECTANGLE) {
 				Debug.d(TAG, "DM_TYPE_RECTANGLE");
-				mWidth = mWidth * 2;
+				mWidth = mHeight * 18 / 8;
 			}
 // End of H.M.Wang 2024-10-24 追加DM码的种类选择
 //			}
@@ -535,7 +535,7 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2024-10-24 追加DM码的种类选择
 			if(mDMType == DM_TYPE_RECTANGLE) {
 				Debug.d(TAG, "DM_TYPE_RECTANGLE");
-				mWidth = mWidth * 2;
+				mWidth = mHeight * 18 / 8;
 			}
 // End of H.M.Wang 2024-10-24 追加DM码的种类选择
 		}
@@ -583,7 +583,7 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2024-10-24 追加DM码的种类选择
 				if(mDMType == DM_TYPE_RECTANGLE) {
 					Debug.d(TAG, "DM_TYPE_RECTANGLE");
-					mWidth = mWidth * 2;
+					mWidth = mHeight * 18 / 8;		// 生成的DM码，当高度为8的时候，宽度为18，因此16点的时候，如果简单的以高度的倍数取宽，则32不能满足36个点，因此DM生成时会主动缩小，为避免这个情况，宽度设为*18/2
 				}
 // End of H.M.Wang 2024-10-24 追加DM码的种类选择
 			}
@@ -592,7 +592,6 @@ public class BarcodeObject extends BaseObject {
 //            mWidth = mHeight;
 //			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
-Debug.d(TAG, "Width = " + mWidth);
 				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
