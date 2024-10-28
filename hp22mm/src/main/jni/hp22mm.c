@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.085"
+#define VERSION_CODE                            "1.0.086"
+// 1.0.086 2024-10-28
+// _print_thread中放开ids_get_supply_status函数的调用，否则可能会不能实时更新状态数据，尤其是supply_status的consumed_volume不被更新
 // 1.0.085 2024-10-9
 // 修改bug，GetAndProcessInkUse函数中，当执行失败时，使用的exit函数没有更改为return，导致发生失败时进程整体退出，貌似apk崩溃
 // 1.0.084 2024-9-28
@@ -705,8 +707,8 @@ void *_print_thread(void *arg) {
         secure_sec += POLL_SEC;
 
         // update SupplyPresent (and LEDS); look for supply insert
-/*        ids_r = ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
-        if (ids_r == IDS_OK)
+        ids_r = ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
+/*        if (ids_r == IDS_OK)
         {
             bool was_present = SupplyPresent;
             SupplyPresent = (supply_status.state == SUPPLY_SC_VALID);
@@ -717,6 +719,7 @@ void *_print_thread(void *arg) {
             // if supplychanged from not present to present...
             if (SupplyPresent && !was_present) SupplyInserted();
         }
+
         // update ReservePresent (and LEDs) if PRESSURIZE_RESERVE is true
         if (PRESSURIZE_RESERVE)
         {

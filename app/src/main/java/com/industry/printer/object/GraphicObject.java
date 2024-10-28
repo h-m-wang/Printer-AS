@@ -5,6 +5,8 @@ import java.io.File;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import com.industry.printer.ImageConverter;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -56,6 +58,13 @@ public class GraphicObject  extends BaseObject{
 		Debug.d(TAG, "setImage w= " + mWidth + " h= " + mHeight);
 	}
 
+// H.M.Wang 2024-10-28 增加一个setWidth函数，什么都不做，否则会使用BaseObject的函数修改，会根据content的内容计算宽度，这里会根据路径的字符串计算，因此图片的宽度设置为不可调
+	@Override
+	public void setWidth(float size) {
+		// mWidth 不重新设置，已经根据图片进行了设置
+	}
+// End of H.M.Wang 2024-10-28 增加一个setWidth函数，什么都不做，否则会使用BaseObject的函数修改，会根据content的内容计算宽度，这里会根据路径的字符串计算，因此图片的宽度设置为不可调
+
 	// H.M.Wang 插入图片时宽度缩减一半的问题
 	@Override
 	public void setHeight(String size)
@@ -63,7 +72,7 @@ public class GraphicObject  extends BaseObject{
 		float height = mTask.getMsgObject().getPixels(size);
 
 		Debug.d(TAG, "====> setHeight: mWidth = " + mWidth + "; mHeight = " + mHeight + "; height = " + height);
-		float ratio = height / mHeight;
+		float ratio = 1.0f * height / mHeight;
 //		setHeight(height);
 //		Debug.d(TAG, "====> setHeight: oldHeight = " + oldHeight);
 		setWidth(mWidth * ratio);
