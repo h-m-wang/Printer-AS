@@ -140,8 +140,7 @@ public class HyperTextObject extends BaseObject {
 //        HashMap<String, String> addedMap = new HashMap<String, String>();
 // End of H.M.Wang 2023-12-30 取消对相同变量的排斥，否则一个超文本中只能相同变量只能出现一次
 
-        String testStr = new String(cnt);
-        testStr = testStr.toUpperCase();
+        String testStr = cnt.toUpperCase();
 
         do {
             foundPos = testStr.indexOf(HYPER_TAG, searchStart);

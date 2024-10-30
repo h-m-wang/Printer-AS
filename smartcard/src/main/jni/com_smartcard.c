@@ -25,7 +25,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.403"
+#define VERSION_CODE                            "1.0.405"
+// 1.0.405 2024-10-30
+// 完善9555A的读写试验
+// 1.0.404 2024-10-28
+// 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
 // 1.0.403 2024-9-6
 // 将 MaxBagInkVolume, MaxPenInkVolume, InkVolOfBagPercentage, InkVolOfPenPercentage的计算，移到一个新的函数initVolumeParams中，并且，该函数在adjustLocalInkValue函数的前面调用，
 // 因为，这些参数会在adjustLocalInkValue中参与计算。原来这些参数是在getMaxVolume函数中被计算，但是getMaxVolume的调用使用apk发起的，晚于adjustLocalInkValue的调用，
@@ -1198,6 +1202,70 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass ar
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 // H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg) {
+    LOGD(">>> Read 9555A Test Start");
+
+    int read_length;
+    uint8_t data[20];
+    char outString[100];
+    char hex[4];
+
+    pthread_mutex_lock(&mutex);
+    // DeviceAddr：[0 0 1 0 0 <A1> <A2> <A0>] [<0|1>读写]
+    // Control Register Bits: // DeviceAddr：[ 0 0 0 0 0 <B2> <B1> <B0>]
+    // B2 B1 B0  COMMAND-BYTE(HEX) REGISTER                   PROTOCOL          POWER-UP
+    // 0  0  0   0x00              Input Port 0               Read byte         xxxx xxxx
+    // 0  0  1   0x01              Input Port 1               Read byte         xxxx xxxx
+    // 0  1  0   0x02              Output Port 0              Read/write byte   1111 1111
+    // 0  1  1   0x03              Output Port 1              Read/write byte   1111 1111
+    // 1  0  0   0x04              Polarity Inversion Port 0  Read/write byte   0000 0000
+    // 1  0  1   0x05              Polarity Inversion Port 1  Read/write byte   0000 0000
+    // 1  1  0   0x06              Configuration Port 0       Read/write byte   1111 1111
+    // 1  1  1   0x07              Configuration Port 1       Read/write byte   1111 1111
+
+    uint8_t d = 0x55;
+    SC_I2C_DRIVER_write(0x01, 0x21, 0x02, &d, 1);
+    d = 0xAA;
+    SC_I2C_DRIVER_write(0x01, 0x21, 0x03, &d, 1);
+    char check;
+    int err = 0;
+
+    for(int i=0; i<2500; i++) {
+//        memset(outString, 0x00, 100);
+        read_length = SC_I2C_DRIVER_read(0x01, 0x21, 0x02, data, 20);
+        for(int j=0; j<20; j++) {
+            if(read_length < 0) {
+//                strcat(outString, "XX ");
+                err += 8;
+            } else {
+                if(j%2 == 0) {
+                    check = data[j] ^ 0x55;
+                } else {
+                    check = data[j] ^ 0xAA;
+                }
+                for(int k=0; k<8; k++) {
+                    if(((0x01 << k) & check) != 0) err++;
+                }
+//                sprintf(hex, "%02X ", data[j]);
+//                strcat(outString, hex);
+            }
+            // Device=00100001(0x21), ComandByte=0x01
+/*            read_length = SC_I2C_DRIVER_read(0x01, 0x21, 0x01, &data, 1);
+            if(read_length < 0) {
+                strcat(outString, "XX ");
+            } else {
+                sprintf(hex, "%02X ", data);
+                strcat(outString, hex);
+            }*/
+        }
+//        LOGD("=====> 9555A Read %03d-%03d : %s\n", i*20+1, (i+1)*20, outString);
+    }
+    pthread_mutex_unlock(&mutex);
+
+    LOGD(">>> Read 9555A Test End. Error Count: %d", err);
+
+    return data;
+}
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
 
 /**
@@ -1383,6 +1451,7 @@ static JNINativeMethod gMethods[] = {
         {"readADS1115",	    	    "(I)I",						(void *)Java_com_Smartcard_readADS1115},
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
         {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},
+        {"read9555ATest",	        "()I",						(void *)Java_com_Smartcard_read9555ATest},
         {"testLevel",		        "(I)I",						(void *)Java_com_Smartcard_testLevel},
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
         {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},

@@ -40,6 +40,7 @@ import com.industry.printer.hardware.N_RFIDDevice;
 import com.industry.printer.hardware.N_RFIDManager;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 
 import java.io.File;
@@ -70,6 +71,9 @@ public class TestMain {
 // H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
         R.string.str_m9_test_phoenc,
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+// H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+        R.string.str_m9_test_9555A,
+// End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
 };
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
@@ -370,6 +374,12 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+// H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+                else if(i == 8) {
+                    SmartCard.read9555ATest();
+                    return;
+                }
+// End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);

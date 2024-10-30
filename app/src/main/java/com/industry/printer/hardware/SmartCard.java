@@ -102,6 +102,10 @@ public class SmartCard {
     static public native int readMCPH21Level(int index);
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
+// H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+    static public native int read9555ATest();
+// End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+
     static public native int testLevel(int card);
 
     static public native int readManufactureID(int card);

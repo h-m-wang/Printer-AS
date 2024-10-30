@@ -95,6 +95,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevelDirect(JNIEnv *env, jclass ar
 JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass arg, jint index);
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
+// H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg);
+// End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+
 JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card, jint min, jint max);
 
 /**
