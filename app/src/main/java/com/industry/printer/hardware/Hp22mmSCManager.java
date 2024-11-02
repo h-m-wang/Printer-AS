@@ -47,13 +47,13 @@ public class Hp22mmSCManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-/*                while(Hp22mm.initHp22mm() != 0) {
+                while(Hp22mm.initHp22mm() != 0) {
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                     mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                     mValid = false;
                     try{Thread.sleep(3000);}catch(Exception e){}
-                }*/
+                }
                 mValid = true;
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
                 mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
