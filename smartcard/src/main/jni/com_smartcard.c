@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <drivers/internal_ifc/sc_i2c_driver.h>
+#include <hp_debug_log_internal.h>
 
 #include "hp_host_smart_card.h"
 #include "drivers/internal_ifc/hp_smart_card_gpio_ifc.h"
@@ -25,7 +26,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.405"
+#define VERSION_CODE                            "1.0.406"
+// 1.0.406 2024-11-5
+// 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 // 1.0.405 2024-10-30
 // 完善9555A的读写试验
 // 1.0.404 2024-10-28
@@ -1264,9 +1267,51 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg)
 
     LOGD(">>> Read 9555A Test End. Error Count: %d", err);
 
-    return data;
+    return err;
 }
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+
+// H.M.Wang 2024-11-5 因为A133的RTC没有了sys/class/device_of_i2c的接口，因此必须通过I2C的驱动直接读写
+JNIEXPORT jbyteArray JNICALL Java_com_Smartcard_readRTC(JNIEnv *env, jclass arg, jbyte group, jbyte addr, jbyte reg, jint len) {
+    LOGD(">>> Read RTC %x,%x:%x (len=%d)", group, addr, reg, len);
+
+    int read_length;
+    uint8_t data[len];
+
+    pthread_mutex_lock(&mutex);
+    read_length = SC_I2C_DRIVER_read(group, addr, reg, data, len);
+    pthread_mutex_unlock(&mutex);
+
+    char dst[read_length*5];
+    toHexString(data, dst, read_length, ',');
+    LOGD(">>> Read RTC %x,%x:%x [%s]", group, addr, reg, dst);
+
+    jbyteArray result = (*env)->NewByteArray(env, read_length);
+    (*env)->SetByteArrayRegion(env, result, 0, read_length, data);
+
+    return result;
+}
+
+JNIEXPORT jint JNICALL Java_com_Smartcard_writeRTC(JNIEnv *env, jclass arg, jbyte group, jbyte addr, jbyte reg, jbyteArray data, jint len) {
+    jbyte *cbuf;
+    cbuf = (*env)->GetByteArrayElements(env, data, 0);
+
+    char dst[len*5];
+    toHexString(cbuf, dst, len, ',');
+    LOGD(">>> Write RTC %x,%x:%x (len=%d)", group, addr, reg, len);
+
+    int write_length;
+    pthread_mutex_lock(&mutex);
+    write_length = SC_I2C_DRIVER_write(group, addr, reg, cbuf, len);
+    pthread_mutex_unlock(&mutex);
+
+    LOGD(">>> Read RTC %x,%x:%x (len=%d)", group, addr, reg, write_length);
+
+    (*env)->ReleaseByteArrayElements(env, data, cbuf, 0);
+
+    return write_length;
+}
+// End of H.M.Wang 2024-11-5 因为A133的RTC没有了sys/class/device_of_i2c的接口，因此必须通过I2C的驱动直接读写
 
 /**
  * 读取Level值
@@ -1452,6 +1497,8 @@ static JNINativeMethod gMethods[] = {
         {"readHX24LC",	    	    "()I",						(void *)Java_com_Smartcard_readHX24LC},
         {"writeHX24LC",	    	    "(I)I",						(void *)Java_com_Smartcard_writeHX24LC},
         {"read9555ATest",	        "()I",						(void *)Java_com_Smartcard_read9555ATest},
+        {"readRTC",     	            "(BBBI)[B",					(void *)Java_com_Smartcard_readRTC},
+        {"writeRTC",     	        "(BBB[BI)I",					(void *)Java_com_Smartcard_writeRTC},
         {"testLevel",		        "(I)I",						(void *)Java_com_Smartcard_testLevel},
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
         {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},

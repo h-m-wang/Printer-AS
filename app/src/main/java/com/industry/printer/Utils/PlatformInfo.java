@@ -39,7 +39,12 @@ public class PlatformInfo {
 
 	// H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 	public static final String DEVICE_SMARTCARD = "smartcard";
-	public static final String PRODUCT_SMFY_SUPER3 = "smfy_super3";
+// H.M.Wang 2024-11-3 这个值有误，修改为新值
+	public static final String PRODUCT_SMFY_SUPER3 = "smfy-super3";		// "smfy_super3"
+// End of H.M.Wang 2024-11-3 这个值有误，修改为新值
+// H.M.Wang 2024-11-3 A133 的ro.build.product
+	public static final String PRODUCT_CERES_C3 = "ceres-c3";
+// End H.M.Wang 2024-11-3 A133 的ro.build.product
 	public static final String PRODUCT_3INCH = "3inch";
 	public static final String PRODUCT_7INCH = "7inch";
 	public static final String PRODUCT_FRIENDLY_4412 = "tiny4412";
@@ -51,7 +56,10 @@ public class PlatformInfo {
 	 */
 	private static final String RFID_SERIAL_4412 = "/dev/ttySAC3";
 	private static final String RFID_SERIAL_SMFY = "/dev/ttyS3";
-	
+// H.M.Wang 2024-11-3 A133的rfid串口
+	private static final String RFID_SERIAL_A133 = "/dev/ttyS7";	// 20241103
+// End of H.M.Wang 2024-11-3 A133的rfid串口
+
 	private static final String GRAFT_SERIAL_4412 = "/dev/ttySAC2";
 	private static final String GRAFT_SERIAL_SMFY = "/dev/ttyS2";
 	
@@ -62,7 +70,10 @@ public class PlatformInfo {
 	public static final String USB_MOUNT_PATH_4412 = "/storage/usbdisk";
 	// smfy
 	public static final String USB_MOUNT_PATH_SMFY = "/mnt/usb";
-	
+// H.M.Wang 2024-11-4 A133的USB路径
+	public static final String USB_MOUNT_PATH_A133 = "/mnt/media_rw";		// 目录下直接包含USB的子目录，可以直接listfile来查看
+// End of H.M.Wang 2024-11-4 A133的USB路径
+
 	/* 大屏全編輯 */
 	public static final int LARGE_SCREEN = 1;
 	/* 小屏部分編輯 */
@@ -74,7 +85,10 @@ public class PlatformInfo {
 	public static int DotMatrixType = 0;
 	
 	/* 通过该常量来区分硬件平台 */
-	private static String mProduct = PRODUCT_SMFY_SUPER3;
+// H.M.Wang 2024-11-4 由于增加了A133，因此不能设初始值，必须首先从硬件读取初值
+//	private static String mProduct = PRODUCT_SMFY_SUPER3;
+	private static String mProduct = "";
+// End of H.M.Wang 2024-11-4 由于增加了A133，因此不能设初始值，必须首先从硬件读取初值
 
 	private static String mInkDevice = null;
 
@@ -239,21 +253,28 @@ public class PlatformInfo {
 // H.M.Wang 2020-11-15 修改InkDevice的确定方法，不适用build.prop获取，而是根据SmartCard的初始化错误信息来判断
 
 	public static boolean isFriendlyProduct() {
-		
-		if (PRODUCT_FRIENDLY_4412.equalsIgnoreCase(mProduct)) {
+		if (PRODUCT_FRIENDLY_4412.equalsIgnoreCase(getProduct())) {
 			return true;
 		}
 		return false;
 	}
 	
 	public static boolean isSmfyProduct() {
-		
-		if (PRODUCT_SMFY_SUPER3.equalsIgnoreCase(mProduct)) {
+		if (PRODUCT_SMFY_SUPER3.equalsIgnoreCase(getProduct())) {
 			return true;
 		}
 		return false;
 	}
-	
+
+// H.M.Wang 2024-11-3 A133判断产品平台是否位ceres-c3
+	public static boolean isA133Product() {
+		if (PRODUCT_CERES_C3.equalsIgnoreCase(getProduct())) {
+			return true;
+		}
+		return false;
+	}
+// End of H.M.Wang 2024-11-3 A133判断产品平台是否位ceres-c3
+
 	/**
 	 * RFID device connected Serial Port
 	 */
@@ -262,6 +283,10 @@ public class PlatformInfo {
 			return RFID_SERIAL_4412;
 		} else if (isSmfyProduct()) {
 			return RFID_SERIAL_SMFY;
+// H.M.Wang 2024-11-3 A133获取串口
+		} else if (isA133Product()) {
+			return RFID_SERIAL_A133;
+// End of H.M.Wang 2024-11-3 A133获取串口
 		} else {
 			Debug.d(TAG, "unsupported platform right now");
 		}
@@ -271,6 +296,7 @@ public class PlatformInfo {
 	/**
 	 * Graft device connected Serial Port
 	 */
+	// H.M.Wang 2024-11-3 该函数已经实际上不再使用了
 	public static String getGraftDevice() {
 		if (isFriendlyProduct()) {
 			return GRAFT_SERIAL_4412;
@@ -291,6 +317,10 @@ public class PlatformInfo {
 			return USB_MOUNT_PATH_4412;
 		} else if (isSmfyProduct()) {
 			return USB_MOUNT_PATH_SMFY;
+// H.M.Wang 2024-11-3 A133获取串口
+		} else if (isA133Product()) {
+			return USB_MOUNT_PATH_A133;
+// End of H.M.Wang 2024-11-3 A133获取串口
 		} else {
 			Debug.d(TAG, "unsupported platform right now");
 			Debug.d(TAG, "use 4412 as default");

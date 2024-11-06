@@ -56,14 +56,23 @@ public class LibUpgrade {
 // H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
 //            if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
 // End of H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
-                FileUtil.writeFile("/data/camera/" + ko, new FileInputStream(srcKoFile));
-                Debug.d(TAG, "/data/camera/" + ko + " written.");
+// H.M.Wang 2024-11-6 修改A133平台的临时目录，因为没有camera目录，改用audio_d目录
+                String koPath = "";
+                if(PlatformInfo.isA133Product()) {
+                    koPath = "/data/audio_d/";
+                } else {
+                    koPath = "/data/camera/";
+                }
+// End of H.M.Wang 2024-11-6 修改A133平台的临时目录，因为没有camera目录，改用audio_d目录
+
+                FileUtil.writeFile(koPath + ko, new FileInputStream(srcKoFile));
+                Debug.d(TAG, koPath + ko + " written.");
                 Thread.sleep(100);
 
-                Debug.d(TAG, "chmod 0644 /data/camera/" + ko);
-                os.writeBytes("chmod 0644 /data/camera/" + ko + "\n");
+                Debug.d(TAG, "chmod 0644 " + koPath + ko);
+                os.writeBytes("chmod 0644 " + koPath + ko + "\n");
 
-                if(!srcMD5Cal.equalsIgnoreCase(CypherUtils.getFileMD5("/data/camera/" + ko))) {
+                if(!srcMD5Cal.equalsIgnoreCase(CypherUtils.getFileMD5(koPath + ko))) {
                     Debug.e(TAG, "Copy to temp failed.");
                     return false;
                 }

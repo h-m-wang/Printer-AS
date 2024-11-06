@@ -804,8 +804,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		//mCounter = db.getCount(mContext);
 		RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
 
-		// 濡傛灉鏄涓�娆″惎鍔紝鍚慠TC鐨凬VRAM鍐欏叆0
-		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
+// H.M.Wang 2024-11-5 增加A133平台的判断
+//		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
+		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-11-5 增加A133平台的判断
 			rtcDevice.initSystemTime(mContext);
 			mCounter = rtcDevice.readCounter(mContext);
 			if (mCounter == 0) {
@@ -1658,7 +1660,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	 */
 	private void refreshPower() {
 		Debug.d(TAG, "--->refreshPower");
-		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
+// H.M.Wang 2024-11-5 增加A133平台的判断
+//		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
+		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-11-5 增加A133平台的判断
 // H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
 			if(mSysconfig.getParam(SystemConfigFile.INDEX_AD) == 1) {
 				mPowerStat.setVisibility(View.VISIBLE);

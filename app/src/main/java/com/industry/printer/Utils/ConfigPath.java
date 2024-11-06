@@ -38,25 +38,39 @@ public class ConfigPath {
 		ArrayList<String> mPaths = new ArrayList<String>();
 		Debug.d(TAG, "===>getMountedUsb");
 		try {
-			FileInputStream file = new FileInputStream(Configs.PROC_MOUNT_FILE);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(file));
-			String line = reader.readLine();
-			for(;line != null;) {
-				Debug.d(TAG, "===>getMountUsb: " + line);
-				if (!line.contains(PlatformInfo.getMntPath())) {
+// H.M.Wang 2024-11-5 增加A133平台的USB路径获取功能
+			if(PlatformInfo.isA133Product()) {
+				File file = new File(PlatformInfo.getMntPath());
+				if(null != file) {
+					File[] list = file.listFiles();
+					if(null != list) {
+						for(File f : list) {
+							Debug.d(TAG, "===>getMountUsb: " + f.getAbsolutePath());
+							mPaths.add(f.getAbsolutePath());
+						}
+					}
+				}
+			} else {
+// End of H.M.Wang 2024-11-5 增加A133平台的USB路径获取功能
+				FileInputStream file = new FileInputStream(Configs.PROC_MOUNT_FILE);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(file));
+				String line = reader.readLine();
+				for (; line != null; ) {
+					Debug.d(TAG, "===>getMountUsb: " + line);
+					if (!line.contains(PlatformInfo.getMntPath())) {
+						line = reader.readLine();
+						continue;
+					}
+					String items[] = line.split(" ");
+					if (items == null || items.length < 2) {
+						continue;
+					}
+					mPaths.add(items[1]);
 					line = reader.readLine();
-					continue;
 				}
-				String items[] = line.split(" ");
-				if (items == null || items.length < 2) {
-					continue;
-				}
-				mPaths.add(items[1]);
-				line = reader.readLine();
+				file.close();
+				reader.close();
 			}
-			file.close();
-			reader.close();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

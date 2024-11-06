@@ -133,7 +133,10 @@ public class CalendarDialog extends RelightableDialog {
 		mUpgrade.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+// H.M.Wang 2024-11-5 增加A133平台的判断
+//				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-11-5 增加A133平台的判断
 					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 					boolean ret;
 					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {

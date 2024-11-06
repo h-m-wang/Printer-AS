@@ -8,6 +8,7 @@ import android.graphics.Bitmap.Config;
 
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ReflectCaller;
 import com.industry.printer.Utils.SystemFs;
 
@@ -51,7 +52,10 @@ public class RTCDevice {
 	}
 	
 	public RTCDevice(Context context) {
-		
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+		if(PlatformInfo.isA133Product()) return;
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+
 		SystemFs.writeSysfs(I2C_DEVICE, "1,0x68");
 		// 自动探测RTC的I2C地址
 		String cmdWR = "0x0f,0x55";
@@ -106,54 +110,80 @@ public class RTCDevice {
 	 * 总计数为8位10进制数字，保存在DS1338的NVRAM中的08H～0CH 4个字节中
 	 */
 	public void writeCounter(Context context, int count) {
-		byte byte0 = (byte) (count & 0x0ff);
-		byte byte1 = (byte) ((count >> 8) & 0x0ff);
-		byte byte2 = (byte) ((count >> 16) & 0x0ff);
-		byte byte3 = (byte) ((count >> 24) & 0x0ff);
-		byte checkSum = (byte) ((byte0 + byte1 + byte2 + byte3) & 0x0ff);
-		String cmd = "0x08," + Integer.toHexString(byte0) + ","
-					+ Integer.toHexString(byte1) + "," + Integer.toHexString(byte2) + "," 
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+		if(PlatformInfo.isA133Product()) {
+			byte[] data = new byte[] {
+					(byte) (count & 0x0ff),
+					(byte) ((count >> 8) & 0x0ff),
+					(byte) ((count >> 16) & 0x0ff),
+					(byte) ((count >> 24) & 0x0ff),
+					(byte) 0x00 };
+			data[4] = (byte) ((data[0] + data[1] + data[2] + data[3]) & 0x0ff);
+			SmartCard.writeRTC((byte)0x02, (byte)0x68, (byte)0x08, data, data.length);
+		} else {
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+			byte byte0 = (byte) (count & 0x0ff);
+			byte byte1 = (byte) ((count >> 8) & 0x0ff);
+			byte byte2 = (byte) ((count >> 16) & 0x0ff);
+			byte byte3 = (byte) ((count >> 24) & 0x0ff);
+			byte checkSum = (byte) ((byte0 + byte1 + byte2 + byte3) & 0x0ff);
+			String cmd = "0x08," + Integer.toHexString(byte0) + ","
+					+ Integer.toHexString(byte1) + "," + Integer.toHexString(byte2) + ","
 					+ Integer.toHexString(byte3) + "," + Integer.toHexString(checkSum);
-		SystemFs.writeSysfs(I2C_WRITE, cmd);
+			SystemFs.writeSysfs(I2C_WRITE, cmd);
+		}
 	}
 	
 	/**
 	 * 总计数为8位10进制数字，保存在DS1338的NVRAM中的08H～0CH 4个字节中
 	 */
 	public int readCounter(Context context) {
-		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+		if(PlatformInfo.isA133Product()) {
+			byte[] data = SmartCard.readRTC((byte)0x02, (byte)0x68, (byte)0x08, 5);
+			if(data.length == 5) {
+				int count = (data[0] & 0x0ff) + (data[1] & 0x0ff) * 256 + (data[2] & 0x0ff) * 256 * 256 + (data[3] & 0x0ff) * 256 * 256 * 256;
+				byte checksum = (byte) ((data[0] + data[1] + data[2] + data[3]) & 0x0ff);
+				if (checksum == data[4]) {
+					return count;
+				}
+			}
+		} else {
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 
-		SystemFs.writeSysfs(I2C_READ, "5,0x08");
-		int index=0;
-		String out = SystemFs.readSysfs(I2C_READ);
-		if (out==null) {
-			return 0;
-		}
-		Debug.d(TAG, "--->NVRAM out = " + out);
-		String[] bytes = out.split("/r/n");
-		if (bytes == null || bytes.length < 8) {
-			return 0;
-		}
-		Debug.d(TAG, "---> NVRAM Counter <---");
-		Debug.d(TAG, bytes[3]);
-		Debug.d(TAG, bytes[4]);
-		Debug.d(TAG, bytes[5]);
-		Debug.d(TAG, bytes[6]);
-		Debug.d(TAG, bytes[7]);
-		Debug.d(TAG, "---> NVRAM Counter end<---");
-		index = bytes[3].lastIndexOf("0x");
-		//int byte1 = Integer.parseInt("123", 16);
-		byte byte1 = (byte) Integer.parseInt(bytes[3].substring(index+2), 16);
-		byte byte2 = (byte) Integer.parseInt(bytes[4].substring(index+2), 16);
-		byte byte3 = (byte) Integer.parseInt(bytes[5].substring(index+2), 16);
-		byte byte4 = (byte) Integer.parseInt(bytes[6].substring(index+2), 16);
-		byte byte5 = (byte) Integer.parseInt(bytes[7].substring(index+2), 16);
-		int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
+			SystemFs.writeSysfs(I2C_READ, "5,0x08");
+			int index = 0;
+			String out = SystemFs.readSysfs(I2C_READ);
+			if (out == null) {
+				return 0;
+			}
+			Debug.d(TAG, "--->NVRAM out = " + out);
+			String[] bytes = out.split("/r/n");
+			if (bytes == null || bytes.length < 8) {
+				return 0;
+			}
+			Debug.d(TAG, "---> NVRAM Counter <---");
+			Debug.d(TAG, bytes[3]);
+			Debug.d(TAG, bytes[4]);
+			Debug.d(TAG, bytes[5]);
+			Debug.d(TAG, bytes[6]);
+			Debug.d(TAG, bytes[7]);
+			Debug.d(TAG, "---> NVRAM Counter end<---");
+			index = bytes[3].lastIndexOf("0x");
+			//int byte1 = Integer.parseInt("123", 16);
+			byte byte1 = (byte) Integer.parseInt(bytes[3].substring(index + 2), 16);
+			byte byte2 = (byte) Integer.parseInt(bytes[4].substring(index + 2), 16);
+			byte byte3 = (byte) Integer.parseInt(bytes[5].substring(index + 2), 16);
+			byte byte4 = (byte) Integer.parseInt(bytes[6].substring(index + 2), 16);
+			byte byte5 = (byte) Integer.parseInt(bytes[7].substring(index + 2), 16);
+			int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
 
-		//检查校验和
-		byte checksum = (byte) ((byte1 + byte2 + byte3 + byte4) & 0x0ff);
-		if (checksum == byte5) {
-			return count;
+			//检查校验和
+			byte checksum = (byte) ((byte1 + byte2 + byte3 + byte4) & 0x0ff);
+			if (checksum == byte5) {
+				return count;
+			}
 		}
 		return 0;
 	}
@@ -192,7 +222,7 @@ public class RTCDevice {
 	 * @param count
 	 */
 	public void writeAll(long[] count) {
-		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+//		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 		for (int i = 0; i < count.length; i++) {
 			Debug.d(TAG, "--->NVRAM written count[" + i + " : " + count[i]);
 // H.M.Wang 2023-9-20 函数化读写整形数的功能
@@ -222,7 +252,7 @@ public class RTCDevice {
 
 	public long read(int index) {
 // H.M.Wang 2023-9-20 函数化读写整形数的功能
-		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+//		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 		return (long)((index >= 0 && index < 10) ? readInt(ADDRESS[index]) : 0);
 /*
 		String cmd = "4," + ADDRESS[index];
@@ -287,55 +317,85 @@ public class RTCDevice {
 
 // H.M.Wang 2023-9-20 函数化读写整形数的功能
 	private int readInt(String reg) {
-		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
-
-		String cmd = "4," + reg;
-
-		SystemFs.writeSysfs(I2C_READ, cmd);
-		String out = SystemFs.readSysfs(I2C_READ);
-		if (out == null) {
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+		if(PlatformInfo.isA133Product()) {
+			try {
+				byte[] data = SmartCard.readRTC((byte)0x02, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), 4);
+				if(data.length == 4) {
+					return (data[0] & 0x0ff) + (data[1] & 0x0ff) * 256 + (data[2] & 0x0ff) * 256 * 256 + (data[3] & 0x0ff) * 256 * 256 * 256;
+				}
+			} catch(NumberFormatException e) {
+			} catch(Exception e) {
+			}
 			return 0;
+		} else {
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+
+			String cmd = "4," + reg;
+
+			SystemFs.writeSysfs(I2C_READ, cmd);
+			String out = SystemFs.readSysfs(I2C_READ);
+			if (out == null) {
+				return 0;
+			}
+			Debug.d(TAG, "--->Read 4 int from register " + reg + ": " + out);
+
+			int pos = 0;
+			String[] bytes = out.split("/r/n");
+			if (bytes == null || bytes.length < 7) {
+				return 0;
+			}
+			pos = bytes[3].lastIndexOf("0x");
+			byte byte1 = (byte) Integer.parseInt(bytes[3].substring(pos + 2), 16);
+			byte byte2 = (byte) Integer.parseInt(bytes[4].substring(pos + 2), 16);
+			byte byte3 = (byte) Integer.parseInt(bytes[5].substring(pos + 2), 16);
+			byte byte4 = (byte) Integer.parseInt(bytes[6].substring(pos + 2), 16);
+
+			int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
+
+			Debug.d(TAG, "--->Read int = " + count);
+
+			return count;
 		}
-		Debug.d(TAG, "--->Read 4 int from register " + reg + ": " + out);
-
-		int pos =0;
-		String[] bytes = out.split("/r/n");
-		if (bytes == null || bytes.length < 7) {
-			return 0;
-		}
-		pos = bytes[3].lastIndexOf("0x");
-		byte byte1 = (byte) Integer.parseInt(bytes[3].substring(pos+2), 16);
-		byte byte2 = (byte) Integer.parseInt(bytes[4].substring(pos+2), 16);
-		byte byte3 = (byte) Integer.parseInt(bytes[5].substring(pos+2), 16);
-		byte byte4 = (byte) Integer.parseInt(bytes[6].substring(pos+2), 16);
-
-		int count = (byte1 & 0x0ff) + (byte2 & 0x0ff) * 256 + (byte3 & 0x0ff) * 256 * 256 + (byte4 & 0x0ff) * 256 * 256 * 256;
-
-		Debug.d(TAG, "--->Read int = " + count);
-
-		return count;
 	}
 
 	private void writeInt(String reg, int count) {
-		SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+		if(PlatformInfo.isA133Product()) {
+			try {
+				byte[] data = new byte[] {
+						(byte) (count & 0x0ff),
+						(byte) ((count >> 8) & 0x0ff),
+						(byte) ((count >> 16) & 0x0ff),
+						(byte) ((count >> 24) & 0x0ff)
+				};
+				SmartCard.writeRTC((byte)0x02, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), data,4);
+			} catch(NumberFormatException e) {
+			} catch(Exception e) {
+			}
+		} else {
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 
-		StringBuilder cmd = new StringBuilder(reg);
-		Debug.d(TAG, "--->Writing int(" + count + ") to register " + reg);
+			StringBuilder cmd = new StringBuilder(reg);
+			Debug.d(TAG, "--->Writing int(" + count + ") to register " + reg);
 
-		byte byte0 = (byte) (count & 0x0ff);
-		byte byte1 = (byte) ((count >> 8) & 0x0ff);
-		byte byte2 = (byte) ((count >> 16) & 0x0ff);
-		byte byte3 = (byte) ((count >> 24) & 0x0ff);
-		cmd.append(",");
-		cmd.append("0x" + Integer.toHexString(byte0));
-		cmd.append(",");
-		cmd.append("0x" + Integer.toHexString(byte1));
-		cmd.append(",");
-		cmd.append("0x" + Integer.toHexString(byte2));
-		cmd.append(",");
-		cmd.append("0x" + Integer.toHexString(byte3));
+			byte byte0 = (byte) (count & 0x0ff);
+			byte byte1 = (byte) ((count >> 8) & 0x0ff);
+			byte byte2 = (byte) ((count >> 16) & 0x0ff);
+			byte byte3 = (byte) ((count >> 24) & 0x0ff);
+			cmd.append(",");
+			cmd.append("0x" + Integer.toHexString(byte0));
+			cmd.append(",");
+			cmd.append("0x" + Integer.toHexString(byte1));
+			cmd.append(",");
+			cmd.append("0x" + Integer.toHexString(byte2));
+			cmd.append(",");
+			cmd.append("0x" + Integer.toHexString(byte3));
 
-		SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
+			SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
+		}
 	}
 // End of H.M.Wang 2023-9-20 函数化读写整形数的功能
 }

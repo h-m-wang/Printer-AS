@@ -106,6 +106,10 @@ public class SmartCard {
     static public native int read9555ATest();
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
 
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+    static public native byte[] readRTC(byte group, byte addr, byte reg, int len);
+    static public native int writeRTC(byte group, byte addr, byte reg, byte[] data, int len);
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
     static public native int testLevel(int card);
 
     static public native int readManufactureID(int card);

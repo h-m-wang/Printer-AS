@@ -99,6 +99,11 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readMCPH21Level(JNIEnv *env, jclass ar
 JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg);
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
 
+// H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+JNIEXPORT jbyteArray JNICALL Java_com_Smartcard_readRTC(JNIEnv *env, jclass arg, jbyte group, jbyte addr, jbyte reg, jint len);
+JNIEXPORT jint JNICALL Java_com_Smartcard_writeRTC(JNIEnv *env, jclass arg, jbyte group, jbyte addr, jbyte reg, jbyteArray data, jint len);
+// End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
+
 JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jint card, jint min, jint max);
 
 /**

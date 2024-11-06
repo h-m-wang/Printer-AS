@@ -5,6 +5,7 @@ import android.content.Context;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.pccommand.PCCommandManager;
 
@@ -20,6 +21,9 @@ public class SerialHandler {
     public static String TAG = SerialHandler.class.getSimpleName();
 
     private final String SERIAL_PORT = "/dev/ttyS4";
+// H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
+    private final String SERIAL_PORT_A133 = "/dev/ttyS2";
+// End of H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
 // H.M.Wang 2022-4-4 追加341串口（ttyUSB0）
     private final String SERIAL_CH341_PORT = "/dev/ttyUSB0";
 // End of H.M.Wang 2022-4-4 追加341串口（ttyUSB0）
@@ -67,7 +71,10 @@ public class SerialHandler {
         mSerialPort = new SerialPort();
         if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_PC_COMMAND) {
             Debug.i(TAG, "Open " + SERIAL_PORT);
-            mSerialPort.spOpenStream(SERIAL_PORT, 9600);
+// H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
+//            mSerialPort.spOpenStream(SERIAL_PORT, 9600);
+            mSerialPort.spOpenStream(PlatformInfo.isA133Product() ? SERIAL_PORT_A133 : SERIAL_PORT, 9600);
+// End of H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
             Debug.i(TAG, "Start PCCommand Receiver");
             PCCommandManager pcCmdManager = PCCommandManager.getInstance();
             if(null != pcCmdManager)pcCmdManager.addSerialHandler(mSerialPort);
@@ -81,7 +88,10 @@ public class SerialHandler {
                 mSerialPort.spOpenSerial(SERIAL_CH341_PORT, 9600);
             } else {
                 Debug.i(TAG, "Open " + SERIAL_PORT);
-                mSerialPort.spOpenSerial(SERIAL_PORT, 9600);
+// H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
+//                mSerialPort.spOpenSerial(SERIAL_PORT, 9600);
+                mSerialPort.spOpenSerial(PlatformInfo.isA133Product() ? SERIAL_PORT_A133 : SERIAL_PORT, 9600);
+// End of H.M.Wang 2024-11-5 A133平台的普通串口使用ttyS2
             }
 // End of H.M.Wang 2022-4-4 根据数据源的类型选择串口
             Debug.i(TAG, "Start normal Receiver");

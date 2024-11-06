@@ -2,7 +2,9 @@ package com.industry.printer;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -213,7 +215,10 @@ public class WelcomeActivity extends Activity {
 	}
 	
 	private boolean upgrade() {
-		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+// H.M.Wang 2024-11-5 增加A133平台的判断
+//		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			PackageInstaller installer = PackageInstaller.getInstance(this);
 			if(AVOID_CROSS_UPGRADE) {

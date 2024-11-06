@@ -105,7 +105,8 @@ public static final String TAG="SettingsTabActivity";
 	public TextView mVersion;
 
 	public RelativeLayout		mSave;
-	
+
+	// 2024-11-4 mUpgrade实际上没有被使用到
 	public RelativeLayout		mUpgrade;
 	public RelativeLayout		mSetDate;
 	public RelativeLayout		mSettings;
@@ -213,7 +214,8 @@ public static final String TAG="SettingsTabActivity";
 		});
 
 	}
-	
+
+	// 2024-11-4 由于该函数没有被调用，因此mUpgrade始终是不可视
 	private void setupViews() {
 		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals( PlatformInfo.getProduct())) {
 			mUpgrade.setVisibility(View.GONE);
@@ -485,8 +487,8 @@ public static final String TAG="SettingsTabActivity";
 				startActivity(intent);
 				break;
 			case R.id.btn_setting_upgrade:
-				
 				// ArrayList<String> paths = ConfigPath.getMountedUsb();
+				// 2024-11-4 由于R.id.btn_setting_upgrade对应的变量mUpgrade没有被设置为可视，因此这部分代码不会被执行到
 				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 					PackageInstaller installer = PackageInstaller.getInstance(getActivity());
 					installer.silentUpgrade();

@@ -260,7 +260,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 		initView();
 //		Configs.initConfigs(mContext);
-		String sDev = DeviceInfosr(mContext);
+// H.M.Wang 2024-11-5 为A133修改平台判断方法，取消使用DeviceInfosr函数，查找SoftwinerEvb特征字符串是否存在，而是使用PlatformInfo中的平台判断方法
+/*		String sDev = DeviceInfosr(mContext);
 		if (sDev.indexOf("SoftwinerEvb") <= 0) {
 			Intent intent = new Intent(getApplicationContext(), Socket_Control_Activity.class);
 			startActivityForResult(intent, 0);
@@ -268,6 +269,15 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if (sDev.indexOf("SoftwinerEvb") >= 0) {
 			btn_Other.setVisibility(View.GONE);
 		}
+		String sDev = DeviceInfosr(mContext);
+		if (sDev.indexOf("SoftwinerEvb") <= 0) {*/
+		if(!PlatformInfo.isSmfyProduct() && !PlatformInfo.isA133Product()) {
+			Intent intent = new Intent(getApplicationContext(), Socket_Control_Activity.class);
+			startActivityForResult(intent, 0);
+		} else {
+			btn_Other.setVisibility(View.GONE);
+		}
+// End of H.M.Wang 2024-11-5 为A133修改平台判断方法，取消使用DeviceInfosr函数，查找SoftwinerEvb特征字符串是否存在，而是使用PlatformInfo中的平台判断方法
 
 		 btn_Other.setOnClickListener(new OnClickListener() {
 
@@ -1447,6 +1457,9 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	
 	private void setScreenBrightness(boolean save) {
 		Debug.d(TAG, "--->setScreenBrightness. mScreensaveMode=" + mScreensaveMode + " ;save=" + save);
+// H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
+		if(PlatformInfo.isA133Product()) return;
+// End of H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
 		if (save == false) {
 			Debug.d(TAG, "--->setScreenBrightness. save == false");
 			mHander.removeMessages(ENTER_LOWLIGHT_MODE);

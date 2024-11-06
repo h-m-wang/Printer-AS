@@ -42,7 +42,10 @@ public class PrinterApplication extends Application {
 		try {
 			boolean needReboot = false;
 
-			Process process = Runtime.getRuntime().exec("su");
+// H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
+//			Process process = Runtime.getRuntime().exec("su");
+			Process process = Runtime.getRuntime().exec("remount");
+// End of H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
 			DataOutputStream os = new DataOutputStream(process.getOutputStream());
 			Thread.sleep(100);
 
