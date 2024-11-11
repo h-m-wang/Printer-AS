@@ -28,7 +28,22 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.086"
+#define VERSION_CODE                            "1.0.094"
+// 1.0.094 2024-11-11
+// 升级IDS，PD和FPGA固件时，使守护线程避让
+// 1.0.093 2024-11-11
+// 1.0.092 2024-11-10
+// 大幅修改22MM的PD_Power_On, PD_Power_Off, void CmdDepressurize和CmdPressurize()的操作方法，并且大幅修改了设备状态的管理
+// 1.0.091 2024-11-9
+// 取消1.0.090的修改。将SECURE_INK_POLL_SEC恢复为20，取消对INK_POLL_SEC及SECURE_INK_POLL_SEC的检查，即，每秒都全部执行一遍
+// 1.0.090 2024-11-9
+// 取消1.0.088的修改。将SECURE_INK_POLL_SEC暂时修改为2，增加PD与IDS交换数据的频率
+// 1.0.089 2024-11-7
+// _print_thread当中读ids_get_supply_status后，输出supply_status.consumed_volume, supply_info.usable_vol的log，以便确认
+// 1.0.088 2024-11-7
+// 修改当 守护线程执行pd_get_print_head_status出现超时的时候，尝试另外一个pd的操作和另外一个ids的操作。并且uart中的切换PE4的函数增加一个读取PE4，已确认切换结果的操作
+// 1.0.087 2024-11-6
+// 取消pd_get_print_head_status函数中的严格判断，原设计仅为开机初始化使用，正常运行时调用会导致报错（其实是正确）
 // 1.0.086 2024-10-28
 // _print_thread中放开ids_get_supply_status函数的调用，否则可能会不能实时更新状态数据，尤其是supply_status的consumed_volume不被更新
 // 1.0.085 2024-10-9
@@ -88,10 +103,13 @@ extern "C"
 int sIdsIdx = 1;
 int sPenIdx = 0;
 
-static bool IsPressurized = false;
 void CmdDepressurize();
+#ifdef MOD20241110
+int CmdPressurize(jboolean async);
+#else
 int CmdPressurize();
-
+static bool IsPressurized = false;
+#endif
 /***********************************************************
  *  Customization
  *f
@@ -677,8 +695,29 @@ JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
 }
 #endif // if 0
 
+extern char ERR_STRING[];
+
+#ifdef MOD20241110
+static pthread_t sMonitorThread = (pthread_t)NULL;
+typedef enum {
+    PD_POWER_STATE_OFF           =  0,
+    PD_POWER_STATE_ON            =  1
+} PD_Power_State_t;
+
+typedef enum {
+    AIR_STATE_PUMP_OFF           =  0,
+    AIR_STATE_LAUNCH_PUMP        =  1,
+    AIR_STATE_PUMPING            =  2,
+    AIR_STATE_PUMPED             =  3
+} Air_Pump_State_t;
+
+static PD_Power_State_t PD_Power_State = PD_POWER_STATE_OFF;
+static Air_Pump_State_t Air_Pump_State = AIR_STATE_PUMP_OFF;
+static bool CancelMonitor = false;
+#else
 pthread_t PrintThread = (pthread_t)NULL;
 static bool CancelPrint = false;
+#endif
 
 // POLL_SEC - how often the background thread runs
 #define POLL_SEC 1
@@ -687,20 +726,130 @@ static bool CancelPrint = false;
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
+#define SUPPLY_PRESSURE 6.0
+#define PRESSURIZE_SEC 120  // 两分钟
+
+#define LED_R 0
+#define LED_Y 1
+#define LED_G 2
+#define LED_OFF 0
+#define LED_ON 1
+#define LED_BLINK 2
+
 static SupplyStatus_t supply_status;
 static SupplyInfo_t supply_info;
+static PrintHeadStatus print_head_status;
+static PDSmartCardInfo_t pd_sc_info;
+static PDSmartCardStatus pd_sc_status;
 
+#ifdef MOD20241110
+void *monitorThread(void *arg) {
+#else
 void *_print_thread(void *arg) {
     IDSResult_t ids_r;
     PDResult_t pd_r;
-    PrintHeadStatus ph_status;
+#endif
     int nonsecure_sec = 0;
     int secure_sec = 0;
     float ink_weight;
 
-    LOGD("_print_thread");
+#ifdef MOD20241110
+    int limit_sec;
 
-    while (!CancelPrint) {
+    LOGD("[Async] Monitor thread started.");
+    while (!CancelMonitor) {
+        // sleep until next poll, then increment time counters
+        sleep(POLL_SEC);
+        nonsecure_sec += POLL_SEC;
+        secure_sec += POLL_SEC;
+
+        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
+
+        // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
+        if(Air_Pump_State == AIR_STATE_PUMPED) {
+            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
+                sprintf(ERR_STRING, "WARNING: Air press low\n");
+                LOGE("[Async]WARNING: Air press low\n");
+                Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
+            }
+        }
+        // 正在加压的过程当中监视压力变化，如果超过PRESSURIZE_SEC秒后仍然压力过低，则判断为失败，重新尝试加压。如果压力满足要求，则标注为加压成功
+        if(Air_Pump_State == AIR_STATE_PUMPING) {
+            if(IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
+                if (--limit_sec <= 0) {
+                    sprintf(ERR_STRING, "ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
+                    LOGE("[Async]ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
+                    IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_AIR_PUMP_ALL);     // pump disabled; ink/air valves closed
+                    IDS_MonitorOff(sIdsIdx);
+                    IDS_LED_Off(sIdsIdx, LED_Y);
+                    Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
+                }
+            } else {
+                LOGD("[Async]Opening ink valves...\n");
+                IDS_GPIO_SetBits(sIdsIdx, COMBO_INK_BOTH);        // ink valve On/Hold
+                sleep(1);
+                IDS_GPIO_ClearBits(sIdsIdx, GPIO_O_INK_VALVE_ON); // turn Off ink valve (leave Hold)
+//    IDS_MonitorPILS(sIdsIdx);
+                Air_Pump_State = AIR_STATE_PUMPED;
+            }
+        }
+       // 如果接收到启动加压的命令，则开始加压，将当前状态修改为正在加压，从而监视压力变化
+        if(Air_Pump_State == AIR_STATE_LAUNCH_PUMP) {
+            IDS_MonitorPressure(sIdsIdx);
+            IDS_DAC_SetSetpointPSI(sIdsIdx, SUPPLY_PRESSURE);        // set pressure target
+            IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_BOTH);      // ink Off
+            IDS_GPIO_SetBits(sIdsIdx, COMBO_AIR_PUMP_ALL);    // pump enabled; air valve On/Hold
+            IDS_LED_On(sIdsIdx, LED_Y);
+            LOGD("[Async]Pressurizing Supply %d to %.1f psi...\n", sIdsIdx, SUPPLY_PRESSURE);
+
+            IDS_GPIO_ClearBits(sIdsIdx, GPIO_O_AIR_VALVE_ON); // turn Off air valve (leave Hold)
+            limit_sec = PRESSURIZE_SEC;
+            LOGD("[Async]Waiting on pumps...\n");
+
+            Air_Pump_State = AIR_STATE_PUMPING;
+        }
+
+        // 当已经给PD上点成功的情况下，
+        if(PD_Power_State == PD_POWER_STATE_ON) {
+            // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
+            if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
+                continue;
+            }
+            // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
+            if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx)) {
+                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
+                }
+            }
+            // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
+            if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
+                // NON-SECURE ink use (for PILS algorithm)
+                if (nonsecure_sec >= INK_POLL_SEC) {
+                    nonsecure_sec = 0;
+                    // NON-SECURE ink use (for PILS algorithm)
+                    ink_weight = GetInkWeight(sPenIdx);
+                    if (ink_weight < 0) {
+                        LOGD("GetInkWeight failed.");
+                    } else {
+//                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
+                        LOGD("GetInkWeight = %f", ink_weight);
+                    }
+                }
+
+                // SECURE ink use
+                if (secure_sec >= SECURE_INK_POLL_SEC) {
+                    secure_sec = 0;
+                    if (GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
+                        LOGD("GetAndProcessInkUse failed.");
+                    } else {
+                        LOGD("GetAndProcessInkUse succeeded.");
+                    }
+                }
+            }
+        }
+    }
+#else
+        while (!CancelPrint) {
         // sleep until next poll, then increment time counters
         sleep(POLL_SEC);
         nonsecure_sec += POLL_SEC;
@@ -708,6 +857,9 @@ void *_print_thread(void *arg) {
 
         // update SupplyPresent (and LEDS); look for supply insert
         ids_r = ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
+        if (ids_r == IDS_OK) {
+            LOGD("supply_status.consumed_volume = %d; supply_info.usable_vol = %d\n", supply_status.consumed_volume, supply_info.usable_vol);
+        }
 /*        if (ids_r == IDS_OK)
         {
             bool was_present = SupplyPresent;
@@ -735,10 +887,10 @@ void *_print_thread(void *arg) {
             }
         }
 */
-        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &ph_status);
+        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status);
         if (pd_r == PD_OK) {
             // if printhead is Powered On, check ink use (if time)
-            if (ph_status.print_head_state == PH_STATE_POWERED_ON) {
+            if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
                 // NON-SECURE ink use (for PILS algorithm)
                 if (nonsecure_sec >= INK_POLL_SEC) {
                     nonsecure_sec = 0;
@@ -748,7 +900,7 @@ void *_print_thread(void *arg) {
                         LOGD("GetInkWeight failed.");
                     } else {
 //                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
-                        LOGD("GetInkWeight");
+                        LOGD("GetInkWeight = %d", ink_weight);
                     }
                 }
 
@@ -758,23 +910,49 @@ void *_print_thread(void *arg) {
                     if (GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
                         LOGD("GetAndProcessInkUse failed.");
                     } else {
-                        LOGD("GetAndProcessInkUse");
+                        LOGD("GetAndProcessInkUse succeeded.");
                     }
                 }
             }
+        } else {
+/*            LOGD("=================== try other operation =====================");
+            PDSystemStatus status;
+            pd_r = pd_get_system_status(PD_INSTANCE, &status);
+            IdsSysInfo_t info;
+            ids_r = ids_info(IDS_INSTANCE, &info);
+            LOGD("=================== try other operation end =====================");*/
         }
     }
 
     PrintThread = (pthread_t)NULL;     // (done printing)
+#endif
     return (void*)NULL;
 }
 
+#ifdef MOD20241110
+JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
+    CancelMonitor = false;
 
-extern char ERR_STRING[];
+    if(NULL == sMonitorThread) {
+        if (pthread_create(&sMonitorThread, NULL, monitorThread, NULL)) {
+            sMonitorThread = (pthread_t) NULL;
+            LOGE("ERROR: pthread_create() of monitorThread failed\n");
+            return -1;
+        }
+    }
+    return 0;
+}
+#endif
 
 JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
-//        LOGE("%s\n", ERR_STRING);
+#ifdef MOD20241110
+        PD_Power_State = PD_POWER_STATE_OFF;
+        return -1;
+    } else {
+        PD_Power_State = PD_POWER_STATE_ON;
+    }
+#else
         return -1;
     }
 
@@ -788,10 +966,17 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
         }
     }
 
+#endif
     return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
+#ifdef MOD20241110
+    PD_Power_State = PD_POWER_STATE_OFF;
+    if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
+        return -1;
+    }
+#else
     CancelPrint = true;
     PrintThread = (pthread_t)NULL;
 
@@ -799,7 +984,7 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
 //        LOGE("%s\n", ERR_STRING);
         return -1;
     }
-
+#endif
     return 0;
 }
 
@@ -909,56 +1094,16 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint pen
     if (pd_check("pd_init", pd_r)) return -1;
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
-/*
-    LOGD("PEN%d\nFW Rev = %d.%d\nBootloader Rev = %d.%d\nFPGA Rev = %d.%d\nBlur board Rev = %d\nDriver Board0 = %d, Board1 = %d\nStatus = %d\nBoard ID = %d",
-         sPenIdx,
-         pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor,
-         pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor,
-         pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor,
-         pd_system_status.blur_board_rev,
-         pd_system_status.driver_board0_rev, pd_system_status.driver_board1_rev,
-         pd_system_status.pd_status,
-         pd_system_status.board_id);
-*/
-/*
-    sleep(2);
 
-    // NON-SECURE ink use (for PILS algorithm)
-    LOGD("Ink Weight = %d\n", GetInkWeight(0));
-    GetAndProcessInkUse(0, 1);
+    LOGD("uC FW REV. = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
+    LOGD("Bootloader REV = %d.%d\n", pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor);
+    LOGD("FPGA REV = %d.%d\n", pd_system_status.fpga_rev_major, pd_system_status.fpga_rev_minor);
+    LOGD("BLUR(PD PCA) REV = %d\n", pd_system_status.blur_board_rev);
+    LOGD("BOARD0 REV = %d\n", pd_system_status.driver_board0_rev);
+    LOGD("BOARD1 REV = %d\n", pd_system_status.driver_board1_rev);
+    LOGD("BOARD ID = %d\n", pd_system_status.board_id);
+    LOGD("BOARD STATUS = %d\n", pd_system_status.pd_status);
 
-    LOGD("PD 0 Read/Write Test ________\n");
-
-    uint32_t ui32;
-    uint8_t sc_result;
-    // read OEM RW field 1
-    pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, &ui32, &sc_result);
-    pd_check("pd_sc_read_oem_field", pd_r);
-    LOGD("Read PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
-
-    // write OEM RW field 1
-    pd_r = pd_sc_write_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, ++ui32, &sc_result);
-    pd_check("pd_sc_write_oem_field", pd_r);
-    LOGD("Write PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
-
-    // read OEM RW field 1
-    pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, PD_SC_OEM_RW_FIELD_1, &ui32, &sc_result);
-    pd_check("pd_sc_read_oem_field", pd_r);
-    LOGD("Read PD_SC_OEM_RW_FIELD_1 = %u\n", ui32);
-
-
-    char sc_string[BUFFER_SIZE];
-    snprintf(sc_string, BUFFER_SIZE, "AAAA PD002  ");
-    // write Reorder string (12 characters)
-    LOGD("Write PD_SC_OEM_STR_REORDER_PN = %s\n", sc_string);
-    pd_r = pd_sc_write_oem_string_field(PD_INSTANCE, 0, PD_SC_OEM_STR_REORDER_PN, sc_string);
-    pd_check("pd_sc_write_oem_string_field", pd_r);
-    // read Reorder string (in  SC info)
-    memset((void*)sc_string, 0, BUFFER_SIZE);
-    pd_r = pd_sc_read_oem_string_field(PD_INSTANCE, 0, PD_SC_OEM_STR_REORDER_PN, sc_string, BUFFER_SIZE);
-    pd_check("pd_sc_read_oem_string_field", pd_r);
-    LOGD("Read PD_SC_OEM_STR_REORDER_PN = %s\n", sc_string);
-*/
     return 0;
 }
 
@@ -1134,18 +1279,16 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclas
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-static PrintHeadStatus print_head_status;
-static PDSmartCardInfo_t pd_sc_info;
-static PDSmartCardStatus pd_sc_status;
-
 JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
     if (pd_check("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status))) return (-1);
-    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
-        LOGE("Print head state not valid. print_head_state=%d, print_head_error=%d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
-        return (-1);
-    }
+// H.M.Wang 2024-11-6 取消该判断，这个是为开机时的初始化设计的，正常运行时执行该操作，会得到    print_head_status.print_head_state == PH_STATE_POWERED_ON，所以会报错
+//    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
+//        LOGE("Print head state not valid. print_head_state=%d, print_head_error=%d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
+//        return (-1);
+//    }
+// End of H.M.Wang 2024-11-6 取消该判断，这个是为开机时的初始化设计的，正常运行时执行该操作，会得到    print_head_status.print_head_state == PH_STATE_POWERED_ON，所以会报错
 
     if (print_head_status.print_head_state >= PH_STATE_NOT_PRESENT) {
         LOGE("Print head state[%d]\n", print_head_status.print_head_state);
@@ -1372,8 +1515,13 @@ JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg) {
     return 0;
 }
 
+#ifdef MOD20241110
+JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async) {
+    return CmdPressurize(async);
+#else
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg) {
     return CmdPressurize();
+#endif
 }
 
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg) {
@@ -1392,54 +1540,82 @@ JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
+    Air_Pump_State_t a = Air_Pump_State;
+    PD_Power_State_t p = PD_Power_State;
+
+    Air_Pump_State = AIR_STATE_PUMP_OFF;
+    PD_Power_State = PD_POWER_STATE_OFF;
+
+    sleep(1);
+
     pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
     if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
         pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
         if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
+            Air_Pump_State = a;
+            PD_Power_State = p;
             return (-1);
         }
     }
 
+    Air_Pump_State = a;
+    PD_Power_State = p;
     return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
     PDResult_t pd_r;
 
+    Air_Pump_State_t a = Air_Pump_State;
+    PD_Power_State_t p = PD_Power_State;
+
+    Air_Pump_State = AIR_STATE_PUMP_OFF;
+    PD_Power_State = PD_POWER_STATE_OFF;
+
+    sleep(1);
+
+    pd_init(PD_INSTANCE);
+
     pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
     if (pd_check("pd_fpga_fw_reflash", pd_r)) {
         pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
         if (pd_check("pd_fpga_fw_reflash", pd_r)) {
+            Air_Pump_State = a;
+            PD_Power_State = p;
             return (-1);
         }
     }
 
+    Air_Pump_State = a;
+    PD_Power_State = p;
     return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
     IDSResult_t ids_r;
 
+    Air_Pump_State_t a = Air_Pump_State;
+    PD_Power_State_t p = PD_Power_State;
+
+    Air_Pump_State = AIR_STATE_PUMP_OFF;
+    PD_Power_State = PD_POWER_STATE_OFF;
+
+    sleep(1);
+
     ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
     if (ids_check("ids_micro_fw_reflash", ids_r)) {
         ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
         if (ids_check("ids_micro_fw_reflash", ids_r)) {
+            Air_Pump_State = a;
+            PD_Power_State = p;
             return (-1);
         }
     }
 
+    Air_Pump_State = a;
+    PD_Power_State = p;
     return 0;
 }
-
-#define SUPPLY_PRESSURE 6.0
-#define PRESSURIZE_SEC 120  // 两分钟
-
-#define LED_R 0
-#define LED_Y 1
-#define LED_G 2
-#define LED_OFF 0
-#define LED_ON 1
-#define LED_BLINK 2
 
 int _CmdPressurize(float set_pressure) {
     float pressure;
@@ -1486,23 +1662,40 @@ int _CmdPressurize(float set_pressure) {
     IDS_GPIO_ClearBits(sIdsIdx, GPIO_O_INK_VALVE_ON); // turn Off ink valve (leave Hold)
 //    IDS_MonitorPILS(sIdsIdx);
 
+#ifdef MOD20241110
+#else
     IsPressurized = true;
+#endif
 
     return 0;
 }
 
+#ifdef MOD20241110
+int CmdPressurize(jboolean async) {
+    if (async) {
+        Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
+        return 0;
+    } else {
+        return _CmdPressurize(-1);
+    }
+}
+#else
 int CmdPressurize() {
     return _CmdPressurize(-1);
 }
+#endif
 
 void CmdDepressurize() {
+    LOGD("Depressurizing...\n");
+#ifdef MOD20241110
+    Air_Pump_State = AIR_STATE_PUMP_OFF;
+#else
     IsPressurized = false;
+#endif
 
     IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_AIR_PUMP_ALL);     // pump disabled; ink/air valves closed
     IDS_MonitorOff(sIdsIdx);
     IDS_LED_Off(sIdsIdx, LED_Y);
-
-    LOGD("Depressurizing...\n");
 }
 
 /**
@@ -1529,7 +1722,12 @@ static JNINativeMethod gMethods[] = {
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
+#ifdef MOD20241110
+        {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
+        {"StartMonitor",		                "()I",	                    (void *)Java_com_StartMonitor},
+#else
         {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
+#endif
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
         {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},

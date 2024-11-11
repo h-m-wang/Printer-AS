@@ -41,7 +41,11 @@ public class Hp22mm {
     static public native int DeletePairing();
     static public native int DoPairing();
     static public native int DoOverrides();
-    static public native int Pressurize();
+// H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
+//    static public native int Pressurize();
+    static public native int StartMonitor();
+    static public native int Pressurize(boolean async);
+// End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
     static public native String getPressurizedValue();
     static public native int Depressurize();
     static public native int UpdatePDFW();
@@ -154,12 +158,16 @@ public class Hp22mm {
             Debug.d(TAG, "DoOverrides succeeded\n");
         }
 
-        if (0 != Pressurize()) {
+// H.M.Wang 2024-11-10
+//        if (0 != Pressurize()) {
+        if (0 != Pressurize(true)) {
+// End of H.M.Wang 2024-11-10
             Debug.d(TAG, "Pressurize failed\n");
             return -8;
         } else {
             Debug.d(TAG, "Pressurize succeeded\n");
         }
+
 // H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
         if (0 != pdPowerOn()) {
             Debug.d(TAG, "PD power on failed\n");
@@ -168,6 +176,15 @@ public class Hp22mm {
             Debug.d(TAG, "PD power on succeeded\n");
         }
 // End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
+
+// H.M.Wang 2024-11-10
+        if (0 != StartMonitor()) {
+            Debug.d(TAG, "StartMonitor failed\n");
+            return -7;
+        } else {
+            Debug.d(TAG, "StartMonitor succeeded\n");
+        }
+// End of H.M.Wang 2024-11-10
 
         mInitialized = true;
 
@@ -264,6 +281,28 @@ public class Hp22mm {
         }
         return regs;
     }
+
+// H.M.Wang 2024-11-10
+    public static int startPrint() {
+        if (0 != pdPowerOn()) {
+            Debug.d(TAG, "PD power on failed\n");
+            return -9;
+        } else {
+            Debug.d(TAG, "PD power on succeeded\n");
+        }
+        return 0;
+    }
+
+    public static int stopPrint() {
+        if (0 != pdPowerOff()) {
+            Debug.d(TAG, "PD power off failed\n");
+            return -10;
+        } else {
+            Debug.d(TAG, "PD power off succeeded\n");
+        }
+        return 0;
+    }
+// End of H.M.Wang 2024-11-10
 
 // H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成
 /*    public static int startPrint() {

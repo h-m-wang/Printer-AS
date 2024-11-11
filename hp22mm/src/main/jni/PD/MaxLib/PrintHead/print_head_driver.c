@@ -572,15 +572,6 @@ PDResult_t pd_get_system_status(int32_t instance, PDSystemStatus *pd_system_stat
     pd_system_status->board_id              = board_id;
     pd_system_status->pd_status             = sys_status;
 
-    LOGD("uC FW REV. = %d.%d\n", pd_system_status->fw_rev_major, pd_system_status->fw_rev_minor);
-    LOGD("Bootloader REV = %d.%d\n", pd_system_status->boot_rev_major, pd_system_status->boot_rev_minor);
-    LOGD("FPGA REV = %d.%d\n", pd_system_status->fpga_rev_major, pd_system_status->fpga_rev_minor);
-    LOGD("BLUR(PD PCA) REV = %d\n", pd_system_status->blur_board_rev);
-    LOGD("BOARD0 REV = %d\n", pd_system_status->driver_board0_rev);
-    LOGD("BOARD1 REV = %d\n", pd_system_status->driver_board1_rev);
-    LOGD("BOARD ID = %d\n", pd_system_status->board_id);
-    LOGD("BOARD STATUS = %d\n", pd_system_status->pd_status);
-
     LOGI("%s done", __FUNCTION__);
 
     return PD_OK;

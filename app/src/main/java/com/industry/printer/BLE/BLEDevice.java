@@ -10,6 +10,7 @@ import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.pccommand.PCCommandManager;
 
@@ -67,10 +68,12 @@ public class BLEDevice {
 // H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭
 //        mSerialPort = new SerialPort();
 //        mStreamTransport = mSerialPort.spOpenStream(PlatformInfo.getRfidDevice(), 115200);
-        if(N_RFIDSerialPort.mFd + RFIDDevice.mFd == 0) {        // 如果复旦卡模块和23卡模块都没有打开，可能是SC或者22mm版本，也尝试连接串口，支持蓝牙功能
+// H.M.Wang 2024-11-9 取消这个功能，因为当使用22mm版本的时候，22mm也会用到ttyS3串口，这里如果再次打开的话，会使22mm的串口挂起。因此，22mm的时候无法使用蓝牙功能
+/*        if(N_RFIDSerialPort.mFd + RFIDDevice.mFd == 0) {        // 如果复旦卡模块和23卡模块都没有打开，可能是SC或者22mm版本，也尝试连接串口，支持蓝牙功能
             N_RFIDSerialPort nsp = N_RFIDSerialPort.getInstance();
             nsp.open(PlatformInfo.getRfidDevice());
-        }
+        }*/
+// End of H.M.Wang 2024-11-9 取消这个功能，因为当使用22mm版本的时候，22mm也会用到ttyS3串口，这里如果再次打开的话，会使22mm的串口挂起
         FileDescriptor fd = RFIDDevice.cnvt2FileDescriptor(N_RFIDSerialPort.mFd + RFIDDevice.mFd);  // 两者之间没有被启用的为0，被启用的是一个大于0的值（一个是复旦卡，另一个是23卡）
         mStreamTransport = new StreamTransport(new FileInputStream(fd), new FileOutputStream(fd));
 // End of H.M.Wang 2024-7-19 取消生成新的串口设备，而是使用RFID的串口，但是将标准文件号转化为FileDescriptor来使用，这样可以避免在这里打开新设备时，原来打开的RFID设备会被自动关闭

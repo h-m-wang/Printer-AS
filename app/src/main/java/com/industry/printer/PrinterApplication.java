@@ -7,6 +7,7 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.KZFileObserver;
 import com.industry.printer.Utils.LibUpgrade;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.data.NativeGraphicJni;
 import com.industry.printer.hardware.Hp22mm;
@@ -43,8 +44,11 @@ public class PrinterApplication extends Application {
 			boolean needReboot = false;
 
 // H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
-//			Process process = Runtime.getRuntime().exec("su");
-			Process process = Runtime.getRuntime().exec("remount");
+			Process process;
+			if(PlatformInfo.isA133Product())
+				process = Runtime.getRuntime().exec("remount");
+			else
+				process = Runtime.getRuntime().exec("su");
 // End of H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
 			DataOutputStream os = new DataOutputStream(process.getOutputStream());
 			Thread.sleep(100);

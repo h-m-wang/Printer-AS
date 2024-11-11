@@ -65,6 +65,7 @@ import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.LRADCBattery;
+import com.industry.printer.hardware.N_RFIDManager;
 import com.industry.printer.hardware.PI11Monitor;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
@@ -1376,7 +1377,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 // End of H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
-		if(mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
+		if((mInkManager instanceof RFIDManager || mInkManager instanceof N_RFIDManager) && mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
 			mBleState.setVisibility(View.VISIBLE);
 		} else {
 			mBleState.setVisibility(View.GONE);

@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+#define MOD20241110
+
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint idsIndex);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg);
@@ -30,7 +32,12 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_sc_info_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg);
+#ifdef MOD20241110
+JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async);
+JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);
+#else
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg);
+#endif
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg);

@@ -103,8 +103,10 @@ public class BarcodeDataProc {
                 int hit_pos2 = buf.indexOf("管片配筋比");
                 int hit_pos3 = buf.indexOf("流水号");
                 int hit_pos4 = buf.indexOf("模具型号");
-                if(hit_pos1 >= 0 || hit_pos2 >= 0 || hit_pos3 >= 0 || hit_pos4 >= 0) {
+                int hit_pos5 = buf.indexOf("注浆孔");  // 2024-11-6 增加客户需求，当内容为标准是清空，其余保留
+                if(hit_pos1 >= 0 || hit_pos2 >= 0 || hit_pos3 >= 0 || hit_pos4 >= 0 || hit_pos5 >= 0) {
                     Log.d("Barcode2", buf);
+                    if(hit_pos5 >= 0) buf = buf.replace("标准", "");
                     checkFlag = true;
                 }
                 if(checkFlag) {

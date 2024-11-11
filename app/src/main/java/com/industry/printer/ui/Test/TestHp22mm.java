@@ -351,7 +351,8 @@ public class TestHp22mm implements ITestOperation {
                             break;
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
                         case HP22MM_TEST_QUICK_START:
-                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
+// H.M.Wang 2024-11-10
+/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
                                 break;
                             }
@@ -387,21 +388,27 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "PD power on failed";
                                 break;
                             }
-
+*/
+// End of H.M.Wang 2024-11-10
                             if (0 != Hp22mm.printTestPage()) {
                                 mHp22mmTestResult[index] = "Printing test page failed";
                                 break;
                             }
 
+// H.M.Wang 2024-11-10
+/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
                             if (0 != Hp22mm.pdPowerOff()) {
                                 mHp22mmTestResult[index] = "PD power off failed";
                                 break;
                             }
+*/
+// End of H.M.Wang 2024-11-10
 
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_PD_POWER_ONOFF:
-                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
+// H.M.Wang 2024-11-10
+/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
                                 break;
                             }
@@ -429,6 +436,7 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }
+*/
                             int onErr = 0, offErr = 0;
                             for(int i=0; i<50; i++) {
                                 if (0 != Hp22mm.pdPowerOn()) {
@@ -511,7 +519,10 @@ public class TestHp22mm implements ITestOperation {
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_PRESSURIZE:
-                            if (0 == Hp22mm.Pressurize()) {
+// H.M.Wang 2024-11-10
+//                            if (0 == Hp22mm.Pressurize()) {
+                            if (0 == Hp22mm.Pressurize(false)) {
+// End of H.M.Wang 2024-11-10
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.getPressurizedValue();
                             } else {
                                 mHp22mmTestResult[index] = "Failed";

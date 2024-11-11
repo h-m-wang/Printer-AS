@@ -15,9 +15,9 @@
  ***********************************************************/
 char ERR_STRING[1024];
 
-
 int ids_check(char *function, IDSResult_t result)
 {
+    memset(ERR_STRING, 0x00, 1024);
     if(result == IDS_OK) return 0;
     LOGE("%s() failed: %s\n", function, ids_get_error_description(result));
     sprintf(ERR_STRING, "IDS ERROR: %s failed: %s.\n", function, ids_get_error_description(result));
@@ -116,12 +116,14 @@ char *ph_error_description(int error) {
 }
 
 int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
+    memset(ERR_STRING, 0x00, 1024);
     if(result == PD_OK) return 0;
 
     LOGE("ERROR: %s() == %d\n", function, result);
 
     if (PenIdx < 0) {
-        LOGE("ERROR: %s() failed: %s\n", function, pd_get_error_description(result));
+        sprintf(ERR_STRING, "ERROR: %s() failed: invalid pen index. %s\n", function, pd_get_error_description(result));
+        LOGE("%s\n", ERR_STRING);
     } else {
         // attempt to get print head status to include in error log
         PrintHeadStatus status;
@@ -135,6 +137,7 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
                      status.print_head_error,
                      ph_error_description(status.print_head_error));
         LOGE("%s\n", ERR_STRING);
+        if(status.print_head_state == PH_STATE_POWERED_ON) return 0;        // H.M.Wang 2024-11-8 当PD状态为0的时候，即使报错也认为成功
     }
     return -1;
 }
