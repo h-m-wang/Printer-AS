@@ -136,7 +136,7 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
                      ph_state_description(status.print_head_state),
                      status.print_head_error,
                      ph_error_description(status.print_head_error));
-        LOGE("%s\n", ERR_STRING);
+        LOGE("ERR_STRING: %s", ERR_STRING);
         if(status.print_head_state == PH_STATE_POWERED_ON) return 0;        // H.M.Wang 2024-11-8 当PD状态为0的时候，即使报错也认为成功
     }
     return -1;

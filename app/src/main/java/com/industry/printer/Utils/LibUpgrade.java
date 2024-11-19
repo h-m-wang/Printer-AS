@@ -29,7 +29,7 @@ public class LibUpgrade {
         try {
             String path = ConfigPath.getKoPath(prefix);
             if(StringUtil.isEmpty(path)) {
-                Debug.e(TAG, "Source file[" + prefix + "] not exist.");
+                Debug.e(TAG, "Source file[" + prefix + "] does not exist.");
                 return false;
             }
 // H.M.Wang 2024-3-12 将升级ko的方法，从使用USB根目录下的固定.ko文件名，改为使用KKK_xxxxx.ko的可变名称格式
@@ -86,149 +86,43 @@ public class LibUpgrade {
         return ret;
     }
 
-    public boolean upgradeHardwareSO(DataOutputStream os) {
+    public boolean updateSO(DataOutputStream os, String so) {
         boolean ret = false;
         InputStream is = null;
+        String libPath;
+        if(PlatformInfo.isA133Product()) {
+            libPath = "/product/lib/";
+        } else {
+            libPath = "/system/lib/";
+        }
 
         try {
-            File file = new File("/system/lib/" + Configs.HARDWARE_SO);
+            File file = new File(libPath + so);
             AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.HARDWARE_SO);
+            is = assetManager.open(so);
 
-            Debug.d(TAG, "[HardwareSO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
+            Debug.d(TAG, "Updating [" + so + "] ...");
+            boolean needUpdate = false;
+            if(!file.exists()) {
+                Debug.d(TAG, file.getPath() + " does not exist.");
+                needUpdate = true;
+            } else {
+                Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
+                Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
+                needUpdate = !CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is));
+            }
+            if(needUpdate) {
 // H.M.Wang 2020-12-26 追加硬件库复制功能
-                Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HARDWARE_SO);
-                os.writeBytes("chmod 777 /system/lib/" + Configs.HARDWARE_SO);
+                Debug.d(TAG, "chmod 777 " + libPath + so);
+                os.writeBytes("chmod 777 " + libPath + so);
                 Thread.sleep(100);
 
                 is.reset();
-                FileUtil.writeFile("/system/lib/" + Configs.HARDWARE_SO, is);
+                FileUtil.writeFile(libPath + so, is);
 // End of H.M.Wang 2020-12-26 追加硬件库复制功能
                 ret = true;
-            }
-        } catch(Exception e) {
-            Debug.e(TAG, e.getMessage());
-        } finally {
-            try{if(null != is) is.close();}catch(IOException e){}
-        }
-        return ret;
-    }
-
-    public boolean upgradeNativeGraphicSO(DataOutputStream os) {
-        boolean ret = false;
-        InputStream is = null;
-
-        try {
-            File file = new File("/system/lib/" + Configs.NATIVEGRAPHIC_SO);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.NATIVEGRAPHIC_SO);
-
-            Debug.d(TAG, "[NativeGraphicSO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
-                Debug.d(TAG, "chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
-                os.writeBytes("chmod 777 /system/lib/" + Configs.NATIVEGRAPHIC_SO);
-                Thread.sleep(100);
-
-                is.reset();
-                FileUtil.writeFile("/system/lib/" + Configs.NATIVEGRAPHIC_SO, is);
-                ret = true;
-            }
-        } catch(Exception e) {
-            Debug.e(TAG, e.getMessage());
-        } finally {
-            try{if(null != is) is.close();}catch(IOException e){}
-        }
-        return ret;
-    }
-
-    public boolean upgradeSmartCardSO(DataOutputStream os) {
-        boolean ret = false;
-        InputStream is = null;
-
-        try {
-            File file = new File("/system/lib/" + Configs.SMARTCARD_SO);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.SMARTCARD_SO);
-
-            Debug.d(TAG, "[SmartCardSO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
-                Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
-                os.writeBytes("chmod 777 /system/lib/" + Configs.SMARTCARD_SO);
-                Thread.sleep(100);
-
-                is.reset();
-                FileUtil.writeFile("/system/lib/" + Configs.SMARTCARD_SO, is);
-                ret = true;
-            }
-        } catch(Exception e) {
-            Debug.e(TAG, e.getMessage());
-        } finally {
-            try{if(null != is) is.close();}catch(IOException e){}
-        }
-        return ret;
-    }
-
-    public boolean upgradeSerialSO(DataOutputStream os) {
-        boolean ret = false;
-        InputStream is = null;
-
-        try {
-            File file = new File("/system/lib/" + Configs.SERIAL_SO);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.SERIAL_SO);
-
-            Debug.d(TAG, "[SerialSO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
-                Debug.d(TAG, "chmod 777 /system/lib/" + Configs.SERIAL_SO);
-                os.writeBytes("chmod 777 /system/lib/" + Configs.SERIAL_SO);
-                Thread.sleep(100);
-
-                is.reset();
-                FileUtil.writeFile("/system/lib/" + Configs.SERIAL_SO, is);
-                ret = true;
-            }
-        } catch(Exception e) {
-            Debug.e(TAG, e.getMessage());
-        } finally {
-            try{if(null != is) is.close();}catch(IOException e){}
-        }
-        return ret;
-    }
-
-    public boolean upgradeHp22mmSO(DataOutputStream os) {
-        boolean ret = false;
-        InputStream is = null;
-
-        try {
-            File file = new File("/system/lib/" + Configs.HP22MM_SO);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(Configs.HP22MM_SO);
-
-            Debug.d(TAG, "[Hp22mmSO]");
-            Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-            Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-            is.reset();
-            if(!CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is))) {
-                Debug.d(TAG, "chmod 777 /system/lib/" + Configs.HP22MM_SO);
-                os.writeBytes("chmod 777 /system/lib/" + Configs.HP22MM_SO);
-                Thread.sleep(100);
-
-                is.reset();
-                FileUtil.writeFile("/system/lib/" + Configs.HP22MM_SO, is);
-                ret = true;
+            } else {
+                Debug.d(TAG, "Do not need update");
             }
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());

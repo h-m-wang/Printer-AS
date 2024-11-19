@@ -9,8 +9,8 @@ android {
         applicationId 'com.printer.phoneapp'
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 2411061
-        versionName "202411061540"
+        versionCode 2411182
+        versionName "202411181200"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
 //        ndk {

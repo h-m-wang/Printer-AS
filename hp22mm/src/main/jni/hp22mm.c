@@ -28,7 +28,45 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.094"
+#define VERSION_CODE                            "1.0.113"
+// 1.0.112 2024-11-16
+// 1.0.111增加的enable_warming前再加上set_temperature_override函数
+// 1.0.112 2024-11-15
+// 取消1.0.111的修改，不再设目标温度，取消pd_calibrate_pulsewidth，在守护线程中增加enable_warming和测温函数
+// 1.0.111 2024-11-15
+// 取消1.0.109的修改，添加在power_on时设置目标温度为55度
+// 1.0.110 2024-11-15
+// 取消守护线程中get_print_head_status返回15号错误后的尝试power_on
+// 1.0.109 2024-11-15
+// 取消测温函数，power_on时调用pd_calibrate_pulsewidth
+// 1.0.108 2024-11-15
+// 在守护线程中，增加测温函数
+// 1.0.107 2024-11-14
+// 先判断SlotA和B哪个没清洗，没清洗的清洗
+// 1.0.106 2024-11-14
+// 清洗B两次，清洗A两次
+// 1.0.105 2024-11-14
+// 仅清洗B
+// 1.0.104 2024-11-14
+// 清洗A两次，清洗B两次
+// 1.0.103 2024-11-14
+// 先清洗B，再清洗A
+// 1.0.102 2024-11-14
+// 仅清洗A
+// 1.0.101 2024-11-14
+// 再次暂时不清洗SlotA
+// 1.0.100 2024-11-14
+// 修改PD的purge功能，取消清洗时停止守护线程的做法
+// 1.0.099 2024-11-13
+// 增加PD的purge功能
+// 1.0.098 2024-11-12
+// 再临时取消_pd_fpga_setreset( instance, 1);
+// 1.0.097 2024-11-12
+// 临时取消_pd_fpgaflash_writeprotect
+// 1.0.096 2024-11-12
+// 修改FPGA.s19升级前的初始化流程
+// 1.0.095 2024-11-12
+// 修改守护线程bug
 // 1.0.094 2024-11-11
 // 升级IDS，PD和FPGA固件时，使守护线程避让
 // 1.0.093 2024-11-11
@@ -104,12 +142,7 @@ int sIdsIdx = 1;
 int sPenIdx = 0;
 
 void CmdDepressurize();
-#ifdef MOD20241110
 int CmdPressurize(jboolean async);
-#else
-int CmdPressurize();
-static bool IsPressurized = false;
-#endif
 /***********************************************************
  *  Customization
  *f
@@ -130,574 +163,8 @@ void IDSCallback(int ids, int level, const char *message) {
     }
 }
 
-#if 0
-#define SPI_DEV_NAME "/dev/spidev0.0"
-#define SPI_BITS 8
-#define SPI_SPEED 8000000
-int spidev = -1;
-
-#define IMAGE_FILE "/mnt/sdcard/image.bin"
-uint image_cols = 0;
-#define IMAGE_ROWS 1056
-#define IMAGE_ADDR 0x0000
-
-#define CLOCK_HZ 90000000
-// Encoder frequency (Hz)
-#define ENCODER_FREQ_HZ 20000
-// TOF period (decimal seconds)
-#define TOF_PERIOD_SEC 1.0
-// Image TOF - distance in encoder tics
-#define IMAGE_TOF 1000
-
-#define PRINT_COMPLETE_CHECK_USEC 50000
-
-int PDGInit() {
-    if(spidev >= 0 ) return 0;
-
-    spidev = open(SPI_DEV_NAME, O_RDWR);
-    if (spidev < 0) {
-        LOGE("ERROR: cannot open %s (%d)\n", SPI_DEV_NAME, errno);
-        return -1;
-    }
-
-    unsigned char mode = SPI_MODE_0;
-    if (ioctl(spidev, SPI_IOC_WR_MODE, &mode) < 0 ||
-        ioctl(spidev, SPI_IOC_RD_MODE, &mode) < 0) {
-        LOGE("ERROR: ioctl WR/RD mode failed for %s (%d)\n", SPI_DEV_NAME, errno);
-        return -1;
-    }
-    unsigned int speed = SPI_SPEED;
-    if (ioctl(spidev, SPI_IOC_WR_MAX_SPEED_HZ, &speed) < 0 ||
-        ioctl(spidev, SPI_IOC_RD_MAX_SPEED_HZ, &speed) < 0) {
-        LOGE("ERROR: ioctl WR/RD max speed failed for %s (%d)\n", SPI_DEV_NAME, errno);
-        return -1;
-    }
-    unsigned char bits = SPI_BITS;
-    if (ioctl(spidev, SPI_IOC_WR_BITS_PER_WORD, &bits) < 0 ||
-        ioctl(spidev, SPI_IOC_RD_BITS_PER_WORD, &bits) < 0) {
-        LOGE("ERROR: ioctl WR/RD bits per word failed for %s (%d)\n", SPI_DEV_NAME, errno);
-        return -1;
-    }
-
-    LOGI("PDGInit succeeded\n");
-    return 0;
-}
-
-#define PDG_READ_REG     3
-#define PDG_WRITE_REG    4
-#define PDG_WRITE_FIFO   5
-#define PDG_READ_FIFO    6
-#define PDG_MEM_TRANS    7
-#define FIFO_2_DDR       0
-#define DDR_2_FIFO       1
-
-int SPIMessage(unsigned char *message, int length) {
-    struct spi_ioc_transfer transfer;
-
-//    LOGD("Sent: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-    memset(&(transfer), 0, sizeof(transfer));
-    transfer.tx_buf  = (unsigned long)(message);
-    transfer.rx_buf  = (unsigned long)(message);
-    transfer.len = length;
-
-    // execute message
-    if (ioctl(spidev, SPI_IOC_MESSAGE(1), &transfer) < 0) {
-        LOGE("ERROR: ioctl message failed for %s (%s)\n", SPI_DEV_NAME, strerror(errno));
-        return -1;
-    }
-//    LOGD("Recv: [0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X]", *(message+0), *(message+1), *(message+2), *(message+3), *(message+4), *(message+5), *(message+6));
-    return 0;
-}
-
-#define REG_MSG_LEN 7
-
-int PDGRead(unsigned char reg, uint32_t *four_bytes) {
-    unsigned char bytes[REG_MSG_LEN];
-
-    // Read sequence
-    bytes[0] = PDG_READ_REG;   // Read
-    bytes[1] = reg;
-    for (int i=2; i<REG_MSG_LEN; i++) bytes[i] = 0;
-    // execute read
-    if (SPIMessage(bytes, REG_MSG_LEN) < 0) return -1;
-    // unpack bytes
-    *four_bytes = (bytes[2] << 24) + (bytes[3] << 16) + (bytes[4] << 8) + bytes[5];
-
-    return 0;
-}
-
-int PDGWrite(unsigned char reg, uint32_t four_bytes) {
-    unsigned char bytes[REG_MSG_LEN];
-    uint32_t read_bytes;
-
-    // Write sequence (data is MSB first)
-    bytes[0] = PDG_WRITE_REG;   // Write
-    bytes[1] = reg;
-    bytes[2] = (four_bytes >> 24) & 0xff;
-    bytes[3] = (four_bytes >> 16) & 0xff;
-    bytes[4] = (four_bytes >> 8) & 0xff;
-    bytes[5] = (four_bytes) & 0xff;
-    bytes[6] = 0;
-    // execute write
-    if (SPIMessage(bytes, REG_MSG_LEN) < 0) return -1;
-
-    // read and compare after write
-    // NOTE: reg 28 cannot be read
-    return 0;
-}
-
-void PDGWaitWBuffer(uint32_t wait_for) {
-    int count = 0;
-    uint32_t ui;
-
-    while (true) {
-        if (PDGRead(2, &ui) < 0 ||
-            (ui == wait_for))
-            break;
-        LOGI("Waiting R2 for %u (%d times), ret = %u\n", wait_for, count++, ui);
-        if(count == 5) break;
-
-        usleep(500000);     // 0.5 sec
-    }
-}
-
-void PDGWaitRBuffer(uint32_t wait_for) {
-    int count = 0;
-    uint32_t ui;
-
-    while (true) {
-        if (PDGRead(3, &ui) < 0 ||
-            (ui == wait_for))
-            break;
-        LOGI("Waiting R3 for %u (%d times), ret = %u\n", wait_for, count++, ui);
-        if(count == 5) break;
-
-        usleep(500000);     // 0.5 sec
-    }
-}
-
-int PDGWriteImage() {
-    // get image file size
-    struct stat st;
-    if (stat(IMAGE_FILE, &st) != 0) {
-        LOGE("ERROR: cannot process %s\n", IMAGE_FILE);
-        return -1;
-    }
-    image_cols = (st.st_size * 8 / IMAGE_ROWS);
-
-    // open binary image
-    FILE *file = fopen(IMAGE_FILE, "rb");
-    if (file == NULL) return -1;
-
-    // SLOT IMAGES - rows and increment are fixed
-    // write image DDR using data Mask; Cols determines size
-    unsigned int addr = IMAGE_ADDR;
-    int write_bytes = IMAGE_ROWS / 8;       // column write size in bytes
-    int write_words = write_bytes / 4;
-    int buffer_size = write_bytes + 3;
-    unsigned char buffer[buffer_size];
-    unsigned char buffer2[8];
-
-    for (int col=0; col < image_cols; col++) {
-        // read from image file and write to PDG
-        buffer[0] = PDG_WRITE_FIFO;
-        buffer[1] = write_words;
-        if (fread((buffer+2), 1, write_bytes, file) != write_bytes) {
-            LOGE("ERROR: reading %s\n", IMAGE_FILE);
-            return -1;
-        }
-        buffer[write_bytes+2] = 0;
-        if (SPIMessage(buffer, buffer_size) < 0) return -1;
-        PDGWaitWBuffer(write_words);
-
-        // Generic command (write)
-        buffer2[0] = PDG_MEM_TRANS;
-        buffer2[1] = (write_words - 1);
-        buffer2[2] = FIFO_2_DDR;
-        buffer2[3] = (addr >> 24) & 0xff;
-        buffer2[4] = (addr >> 16) & 0xff;
-        buffer2[5] = (addr >> 8) & 0xff;
-        buffer2[6] = addr & 0xff;
-        buffer2[7] = 0;
-        if (SPIMessage(buffer2, 8) < 0) return -1;
-        PDGWaitWBuffer(0);
-
-        addr += write_bytes;
-    }
-
-    LOGI("%d total image bytes (%d rows x %d cols) written to DDR\n", addr, IMAGE_ROWS, image_cols);
-    return 0;
-}
-
-int PDGPrintSetup() {
-    // SLOT IMAGES
-    // row size and increment are fixed
-    if (PDGWrite(4, IMAGE_ROWS/32) < 0 || // R04 = words/col
-        PDGWrite(5, IMAGE_ROWS/8) < 0 ||   // R5 = byte memory advance (1 column)
-        PDGWrite(6, image_cols) < 0)       // R6 = columns (all cols using same image)
-        return -1;
-    // Image address for each slot - all slots using same image
-//    int reg = 7 + (PEN_IDX * 4);
-    for (int i=0; i<2; i++) {
-        int reg = 7 + (i * 4);  // 7 + (PEN_IDX * 4)
-        for (int col=0; col<4; col++) {
-            if (PDGWrite(reg+col, 0x0000) < 0) return -1; // image address is 0
-        }
-    }
-
-    // calculate encoder and TOF values
-//    int encoder = (int)(CLOCK_HZ / ENCODER_FREQ_HZ);
-//    int tof_freq = (int)(TOF_PERIOD_SEC * CLOCK_HZ);
-    int encoder = 180000;
-    int tof_freq = 180000000;
-
-    // use all 4 columns of selected pen
-    int col_mask = 0xf;
-    if (sPenIdx == 1) col_mask <<= 4;
-
-    if (PDGWrite(15, encoder) < 0 ||    // R15 internal encoder period (divider of clock freq)
-        PDGWrite(16, tof_freq) < 0 ||   // R16 internal TOF frequency (Hz)
-        PDGWrite(17, 0) < 0 ||          // R17 0 = internal encoder
-        PDGWrite(18, 1) < 0 ||          // R18 external encoder divider (2=600 DPI)
-        PDGWrite(19, 0) < 0 ||          // R19 0 = internal TOF
-        PDGWrite(20, 0/*IMAGE_TOF*/) < 0 ||  // R20 pen 0 encoder counts from TOF to start print
-        PDGWrite(21, 0/*IMAGE_TOF*/) < 0 ||  // R21 pen 1 encoder counts from TOF to start print
-        PDGWrite(22, 0) < 0 ||          // R22 0 - print direction forward
-        PDGWrite(23, 4) < 0 ||          // R23 column-to-column spacing (rows)
-        PDGWrite(24, 52) < 0 ||         // R24 slot-to-slot spacing (rows)
-        PDGWrite(25, 0) < 0 ||          // R25 0 - print disabled
-        PDGWrite(28, 0) < 0 ||          // R28 0 - not reset
-        PDGWrite(29, col_mask) < 0)     // R29 column enable bits
-        return -1;
-
-    return 0;
-}
-
-pthread_t PrintThread = (pthread_t)NULL;
-static bool CancelPrint = false;
-
-bool IsPrinting() {
-    return (PrintThread != (pthread_t)NULL);
-}
-
-void *_print_thread(void *arg) {
-    uint32_t ui;
-
-    while (true) {
-        // check for print done (or cancel/error)
-        if (PDGRead(25, &ui) < 0 ||     // (R25 print enable)
-            ui == 0 ||                  // print NOT enabled
-            CancelPrint)                // cancelled by user
-            break;
-
-        // delay before checking again
-        usleep(PRINT_COMPLETE_CHECK_USEC);
-    }
-    LOGI("<<< Printing Complete >>>\n");
-    if (PDGWrite(25, 0) < 0) {          // R25 0 - disable print
-        LOGE("ERROR: cannot disable print\n");
-    }
-    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx);
-    PrintThread = (pthread_t)NULL;     // (done printing)
-    return (void*)NULL;
-}
-
-// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-char *PDGTriggerPrint(int external, int count) {
-    if (IsPrinting()) {
-        LOGE("ERROR: already printing\n");
-        return "ERROR: already printing\n";
-//        return -1;
-    }
-
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
-        LOGE("%s\n", ERR_STRING);
-        return ERR_STRING;
-//        return -1;
-    }
-// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-
-    CancelPrint = false;
-    if (PDGWrite(17, external) < 0 ||    // R17 0=internal 1=external encoder
-        PDGWrite(19, external) < 0 ||    // R19 0=internal 1=external TOF
-        PDGWrite(26, 0) < 0 ||           // R26 init print count to 0
-        PDGWrite(27, count) < 0 ||       // R27 set print count limit
-        PDGWrite(25, 1) < 0) {            // R25 1 - enable print
-        LOGE("ERROR: triggering print\n");
-        return "ERROR: triggering print\n";
-//        return -1;
-    }
-
-    // start the print thread
-    printf("Triggering print from ");
-    printf(external ? "External sensors...\n" : "Internal sensors...\n");
-    if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
-        PrintThread = (pthread_t)NULL;
-        LOGE("ERROR: pthread_create() of PrintThread failed\n");
-        return "ERROR: pthread_create() of PrintThread failed\n";
-//        return -1;
-    }
-
-    return "";
-//    return 0;
-}
-
-void PDGCancelPrint() {
-    CancelPrint = true;
-}
-
-// H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-JNIEXPORT jstring JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
-    if (!IsPressurized) {
-        if (CmdPressurize() != 0) {
-            LOGE("ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized\n");
-            return (*env)->NewStringUTF(env, "ERROR: Java_com_StartPrint() of PrintThread failed. Not Pressurized");
-//            return -1;
-        }
-    }
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return (*env)->NewStringUTF(env, "PDGInit failed");
-//        return -1;
-    }
-
-    if(PDGWriteImage() != 0) {
-        LOGE("ERROR: PDGWriteImage failed\n");
-        return (*env)->NewStringUTF(env, "ERROR: PDGWriteImage failed");
-//        return -1;
-    };
-
-    if(PDGPrintSetup() != 0) {
-        LOGE("ERROR: PDGPrintSetup failed\n");
-        return (*env)->NewStringUTF(env, "ERROR: PDGPrintSetup failed");
-//        return -1;
-    };
-
-    return (*env)->NewStringUTF(env, PDGTriggerPrint(0, 10));
-//    return PDGTriggerPrint(0, 100);
-}
-// End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
-
-char *reg_name[] = {
-        "",
-        "",
-        "2-Write FIFO(RO)    ",
-        "3-Read FIFO(RO)     ",
-        "4-Words/Col         ",
-        "5-Advance Bytes     ",
-        "6-Image Columns     ",
-        "7-Start P0 S0 Odd   ",
-        "8-Start P0 S0 Even  ",
-        "9-Start P0 S1 Odd   ",
-        "10-Start P0 S1 Even ",
-        "11-Start P1 S0 Odd  ",
-        "12-Start P1 S0 Even ",
-        "13-Start P1 S1 Odd  ",
-        "14-Start P1 S1 Even ",
-        "15-Encoder Freq     ",
-        "16-TOF Freq         ",
-        "17-External Encoder ",
-        "18-Encoder Divider  ",
-        "19-External TOF     ",
-        "20-P0 TOF Offset    ",
-        "21-P1 TOF Offset    ",
-        "22-Print Direction  ",
-        "23-Column Spacing   ",
-        "24-Slot Spacing     ",
-        "25-Enable Print     ",
-        "26-Start Print Count",
-        "27-End Print Count  ",
-        "28-Reset(WR)        ",
-        "29-Column Enable    ",
-        "30-Flash Enable     ",
-        "31-PDG Revision(RO) ",
-        "32-Clock Freq(RO)   ",
-        "33-Ready            ",
-//        "   Action Bits P0 S0",
-//        "   Action Bits P0 S1",
-//        "   Action Bits P1 S0",
-//        "   Action Bits P1 S1",
-};
-
-JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg) {
-    uint32_t ui;
-    char strTemp[2048];
-    char str[128];
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return NULL;
-    }
-
-    memset(strTemp, 0x00, 1024);
-    for (int reg=2; reg < (sizeof(reg_name)/sizeof(reg_name[0])); reg++) {
-        if (PDGRead(reg, &ui) < 0) {
-            return NULL;
-        } else {
-            sprintf(str,"%s(R%02d) = 0x%08X\n", reg_name[reg], reg, ui);
-            strcat(strTemp, str);
-        }
-    }
-
-    return (*env)->NewStringUTF(env, strTemp);
-}
-
-JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg) {
-    uint32_t ui;
-    int done_count = 0;
-    char str[128];
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return NULL;
-    }
-
-    for (int i=0; i<100; i++) {
-        if (PDGWrite(6, 10000+i) < 0) {
-            return NULL;
-        }
-        if (PDGRead(6, &ui) < 0) {
-            return NULL;
-        }
-        if(ui == 10000+i) done_count++;
-    }
-    sprintf(str,"Success Rate: %d/%d\n", done_count, 100);
-
-    return (*env)->NewStringUTF(env, str);
-}
-
-static char skip = 0;
-
-JNIEXPORT jint JNICALL Java_com_MCU2FIFO(JNIEnv *env, jclass arg) {
-    LOGI("Enter %s.", __FUNCTION__);
-
-    char sendData[132];
-
-    for(int i=0; i<132; i++) {
-        sendData[i] = skip + i;
-    }
-    skip++;
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    unsigned char buffer[135];
-
-    buffer[0] = PDG_WRITE_FIFO;
-    buffer[1] = 33;
-    memcpy((buffer+2), sendData, 132);
-    buffer[134] = 0;
-    if (SPIMessage(buffer, 135) < 0) return -1;
-
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-    uint32_t ui;
-    if (PDGRead(2, &ui) < 0) {
-        return -1;
-    }
-
-    LOGI("Exit %s. R2=%d", __FUNCTION__, ui);
-    return ui;
-}
-
-JNIEXPORT jint JNICALL Java_com_FIFO2MCU(JNIEnv *env, jclass arg) {
-    LOGI("Enter %s.", __FUNCTION__);
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    unsigned char buffer[135];
-
-    buffer[0] = PDG_READ_FIFO;
-    buffer[1] = 33;
-    memset((buffer+2), 0x00, 132);
-    buffer[134] = 0;
-    if (SPIMessage(buffer, 135) < 0) return -1;
-
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-    uint32_t ui;
-    if (PDGRead(3, &ui) < 0) {
-        return -1;
-    }
-
-    LOGI("Exit %s. R3=%d", __FUNCTION__, ui);
-    return ui;
-}
-
-JNIEXPORT jint JNICALL Java_com_FIFO2DDR(JNIEnv *env, jclass arg) {
-    LOGI("Enter %s.", __FUNCTION__);
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    unsigned char buffer[135];
-
-    buffer[0] = PDG_MEM_TRANS;
-    buffer[1] = 32;
-    buffer[2] = FIFO_2_DDR;         // FIFO -> DDR
-    buffer[3] = 0;                  // To Address:0
-    buffer[4] = 0;
-    buffer[5] = 0;
-    buffer[6] = 0;
-    buffer[7] = 0;
-
-    if (SPIMessage(buffer, 135) < 0) return -1;
-
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-    uint32_t ui;
-    if (PDGRead(2, &ui) < 0) {
-        return -1;
-    }
-
-    LOGI("Exit %s. R2=%d", __FUNCTION__, ui);
-    return ui;
-}
-
-JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg) {
-    LOGI("Enter %s.", __FUNCTION__);
-
-    if (PDGInit()) {
-        LOGE("PDGInit failed\n");
-        return -1;
-    }
-
-    unsigned char buffer[135];
-
-    buffer[0] = PDG_MEM_TRANS;
-    buffer[1] = 32;
-    buffer[2] = DDR_2_FIFO;         // DDR -> FIFO
-    buffer[3] = 0;                  // From Address:0
-    buffer[4] = 0;
-    buffer[5] = 0;
-    buffer[6] = 0;
-    buffer[7] = 0;
-
-    if (SPIMessage(buffer, 135) < 0) return -1;
-
-    usleep(1000);           // Sleep 1ms 等待硬件回暖
-
-    uint32_t ui;
-    if (PDGRead(3, &ui) < 0) {
-        return -1;
-    }
-
-    LOGI("Exit %s. R3=%d", __FUNCTION__, ui);
-    return ui;
-}
-#endif // if 0
-
 extern char ERR_STRING[];
 
-#ifdef MOD20241110
 static pthread_t sMonitorThread = (pthread_t)NULL;
 typedef enum {
     PD_POWER_STATE_OFF           =  0,
@@ -714,10 +181,6 @@ typedef enum {
 static PD_Power_State_t PD_Power_State = PD_POWER_STATE_OFF;
 static Air_Pump_State_t Air_Pump_State = AIR_STATE_PUMP_OFF;
 static bool CancelMonitor = false;
-#else
-pthread_t PrintThread = (pthread_t)NULL;
-static bool CancelPrint = false;
-#endif
 
 // POLL_SEC - how often the background thread runs
 #define POLL_SEC 1
@@ -742,18 +205,11 @@ static PrintHeadStatus print_head_status;
 static PDSmartCardInfo_t pd_sc_info;
 static PDSmartCardStatus pd_sc_status;
 
-#ifdef MOD20241110
 void *monitorThread(void *arg) {
-#else
-void *_print_thread(void *arg) {
-    IDSResult_t ids_r;
-    PDResult_t pd_r;
-#endif
     int nonsecure_sec = 0;
     int secure_sec = 0;
     float ink_weight;
-
-#ifdef MOD20241110
+    int degree_c;
     int limit_sec;
 
     LOGD("[Async] Monitor thread started.");
@@ -763,7 +219,7 @@ void *_print_thread(void *arg) {
         nonsecure_sec += POLL_SEC;
         secure_sec += POLL_SEC;
 
-        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
+//        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
 
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
         if(Air_Pump_State == AIR_STATE_PUMPED) {
@@ -816,11 +272,14 @@ void *_print_thread(void *arg) {
                 continue;
             }
             // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
-            if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx)) {
-                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
-                }
-            }
+            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 6);
+            pd_enable_warming(PD_INSTANCE, sPenIdx);
+            pd_get_temperature(PD_INSTANCE, sPenIdx, &degree_c);
+            pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status);
+//            if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+//                pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
+//            }
+
             // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
             if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
                 // NON-SECURE ink use (for PILS algorithm)
@@ -848,88 +307,9 @@ void *_print_thread(void *arg) {
             }
         }
     }
-#else
-        while (!CancelPrint) {
-        // sleep until next poll, then increment time counters
-        sleep(POLL_SEC);
-        nonsecure_sec += POLL_SEC;
-        secure_sec += POLL_SEC;
-
-        // update SupplyPresent (and LEDS); look for supply insert
-        ids_r = ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status);
-        if (ids_r == IDS_OK) {
-            LOGD("supply_status.consumed_volume = %d; supply_info.usable_vol = %d\n", supply_status.consumed_volume, supply_info.usable_vol);
-        }
-/*        if (ids_r == IDS_OK)
-        {
-            bool was_present = SupplyPresent;
-            SupplyPresent = (supply_status.state == SUPPLY_SC_VALID);
-            if (SupplyPresent)
-                IDS_LED_On(SUPPLY_IDX, LED_G);
-            else
-                IDS_LED_Off(SUPPLY_IDX, LED_G);
-            // if supplychanged from not present to present...
-            if (SupplyPresent && !was_present) SupplyInserted();
-        }
-
-        // update ReservePresent (and LEDs) if PRESSURIZE_RESERVE is true
-        if (PRESSURIZE_RESERVE)
-        {
-            int reserve_idx = (SUPPLY_IDX == 0 ? 1 : 0);
-            ids_r = ids_get_supply_status(IDS_INSTANCE, reserve_idx, &supply_status);
-            if (ids_r == IDS_OK)
-            {
-                ReservePresent = (supply_status.state == SUPPLY_SC_VALID);
-                if (ReservePresent)
-                    IDS_LED_On(reserve_idx, LED_G);
-                else
-                    IDS_LED_Off(reserve_idx, LED_G);
-            }
-        }
-*/
-        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status);
-        if (pd_r == PD_OK) {
-            // if printhead is Powered On, check ink use (if time)
-            if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
-                // NON-SECURE ink use (for PILS algorithm)
-                if (nonsecure_sec >= INK_POLL_SEC) {
-                    nonsecure_sec = 0;
-                    // NON-SECURE ink use (for PILS algorithm)
-                    ink_weight = GetInkWeight(sPenIdx);
-                    if (ink_weight < 0) {
-                        LOGD("GetInkWeight failed.");
-                    } else {
-//                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
-                        LOGD("GetInkWeight = %d", ink_weight);
-                    }
-                }
-
-                // SECURE ink use
-                if (secure_sec >= SECURE_INK_POLL_SEC) {
-                    secure_sec = 0;
-                    if (GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
-                        LOGD("GetAndProcessInkUse failed.");
-                    } else {
-                        LOGD("GetAndProcessInkUse succeeded.");
-                    }
-                }
-            }
-        } else {
-/*            LOGD("=================== try other operation =====================");
-            PDSystemStatus status;
-            pd_r = pd_get_system_status(PD_INSTANCE, &status);
-            IdsSysInfo_t info;
-            ids_r = ids_info(IDS_INSTANCE, &info);
-            LOGD("=================== try other operation end =====================");*/
-        }
-    }
-
-    PrintThread = (pthread_t)NULL;     // (done printing)
-#endif
     return (void*)NULL;
 }
 
-#ifdef MOD20241110
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
     CancelMonitor = false;
 
@@ -942,51 +322,124 @@ JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
     }
     return 0;
 }
-#endif
 
 JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
-#ifdef MOD20241110
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
+//        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 6);
+//        uint32_t b;
+//        pd_check_ph("pd_calibrate_pulsewidth0", pd_calibrate_pulsewidth(PD_INSTANCE, sPenIdx, 0, &b), sPenIdx);
+//        pd_check_ph("pd_calibrate_pulsewidth1", pd_calibrate_pulsewidth(PD_INSTANCE, sPenIdx, 1, &b), sPenIdx);
         PD_Power_State = PD_POWER_STATE_ON;
     }
-#else
-        return -1;
-    }
-
-    CancelPrint = false;
-
-    if(NULL == PrintThread) {
-        if (pthread_create(&PrintThread, NULL, _print_thread, NULL)) {
-            PrintThread = (pthread_t)NULL;
-            LOGE("ERROR: pthread_create() of PrintThread failed\n");
-            return -1;
-        }
-    }
-
-#endif
     return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
-#ifdef MOD20241110
     PD_Power_State = PD_POWER_STATE_OFF;
     if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
         return -1;
     }
-#else
-    CancelPrint = true;
-    PrintThread = (pthread_t)NULL;
-
-    if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
-//        LOGE("%s\n", ERR_STRING);
-        return -1;
-    }
-#endif
     return 0;
 }
+
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg) {
+    jint ret = -1, res = 0;
+    PDSmartCardStatus pd_sc_status;
+    uint8_t sc_result;
+
+    LOGD("print_head_status.print_head_state = %d", print_head_status.print_head_state);
+
+    if(print_head_status.print_head_state != PH_STATE_POWERED_ON) {
+        pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
+    }
+
+    if(print_head_status.print_head_state == PH_STATE_POWERED_ON) {
+        if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+            if(!pd_sc_status.purge_complete_slot_b) {
+                LOGD("Launch purge slot B");
+                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
+                    // Process a secure ink message to clear system
+                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+                    // Check status after
+                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                        LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
+                    }
+                    if(ret == PD_OK) res |= 0x01;
+                }
+                LOGD("Launch purge slot B");
+                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
+                    // Process a secure ink message to clear system
+                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+                    // Check status after
+                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                        LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
+                    }
+                    if(ret == PD_OK) res |= 0x01;
+                }
+            }
+            if(!pd_sc_status.purge_complete_slot_a) {
+                LOGD("Launch purge slot A");
+                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
+                    // Process a secure ink message to clear system
+                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+                    // Check status after
+                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                        LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
+                    }
+                    if(ret == PD_OK) res |= 0x10;
+                }
+                LOGD("Launch purge slot A");
+                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
+                    // Process a secure ink message to clear system
+                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+                    // Check status after
+                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                        LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
+                    }
+                    if(ret == PD_OK) res |= 0x10;
+                }
+            }
+        }
+/*
+        LOGD("Launch purge slot B");
+        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
+            // Process a secure ink message to clear system
+            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+            // Check status after
+            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
+            }
+            if(ret == PD_OK) res |= 0x01;
+        }
+        LOGD("Launch purge slot A");
+        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
+            // Process a secure ink message to clear system
+            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+            // Check status after
+            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
+            }
+            if(ret == PD_OK) res |= 0x10;
+        }
+        LOGD("Launch purge slot A");
+        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
+            // Process a secure ink message to clear system
+            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
+            // Check status after
+            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+                LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
+            }
+            if(ret == PD_OK) res |= 0x10;
+        }*/
+    }
+
+    return res;
+}
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
 
 JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
     return (*env)->NewStringUTF(env, ERR_STRING);
@@ -1028,38 +481,6 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint id
         LOGE("IDS_Init failed\n");
         return -1;
     }
-/*
-    LOGD("Supply 1 Read/Write Test ________\n");
-
-    uint32_t ui32;
-    char sc_string[BUFFER_SIZE];
-
-    // read OEM RW field 1
-    ids_r = ids_read_oem_field(IDS_INSTANCE, 1, OEM_RW_1, &ui32);
-    ids_check("ids_read_oem_field", ids_r);
-    LOGD("Read OEM_RW_1 = %u\n", ui32);
-    // write OEM RW field 1
-    ids_r = ids_write_oem_field(IDS_INSTANCE, 1, OEM_RW_1, ++ui32);
-    ids_check("ids_write_oem_field", ids_r);
-    LOGD("Write OEM_RW_1 = %u\n", ui32);
-    // read OEM RW field 1
-    ids_r = ids_read_oem_field(IDS_INSTANCE, 1, OEM_RW_1, &ui32);
-    ids_check("ids_read_oem_field", ids_r);
-    LOGD("Read OEM_RW_1 after increment = %u\n", ui32);
-
-    // write Reorder string (12 characters)
-    snprintf(sc_string, BUFFER_SIZE, "Test IDS001 ");
-    printf("Writing STR_REORDER_PN = %s\n", sc_string);
-    ids_r = ids_write_oem_string(IDS_INSTANCE, 1, STR_REORDER_PN, strlen(sc_string), (uint8_t*)sc_string);
-    ids_check("ids_write_oem_string", ids_r);
-    LOGD("Write STR_REORDER_PN = %s\n", sc_string);
-
-    // read Reorder string
-    memset((void*)sc_string, 0, BUFFER_SIZE);
-    ids_r = ids_read_oem_string(IDS_INSTANCE, 1, STR_REORDER_PN, BUFFER_SIZE, (uint8_t*)sc_string);
-    ids_check("ids_read_oem_string", ids_r);
-    LOGD("Read STR_REORDER_PN = %s\n", sc_string);
-*/
     return 0;
 }
 
@@ -1515,13 +936,8 @@ JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-#ifdef MOD20241110
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async) {
     return CmdPressurize(async);
-#else
-JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg) {
-    return CmdPressurize();
-#endif
 }
 
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg) {
@@ -1574,7 +990,10 @@ JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
 
     sleep(1);
 
-    pd_init(PD_INSTANCE);
+    pd_r = pd_lib_init();
+    if (pd_check("pd_lib_init", pd_r)) return -1;
+    pd_r = pd_init(PD_INSTANCE);
+    if (pd_check("pd_init", pd_r)) return -1;
 
     pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
     if (pd_check("pd_fpga_fw_reflash", pd_r)) {
@@ -1662,15 +1081,9 @@ int _CmdPressurize(float set_pressure) {
     IDS_GPIO_ClearBits(sIdsIdx, GPIO_O_INK_VALVE_ON); // turn Off ink valve (leave Hold)
 //    IDS_MonitorPILS(sIdsIdx);
 
-#ifdef MOD20241110
-#else
-    IsPressurized = true;
-#endif
-
     return 0;
 }
 
-#ifdef MOD20241110
 int CmdPressurize(jboolean async) {
     if (async) {
         Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
@@ -1679,19 +1092,10 @@ int CmdPressurize(jboolean async) {
         return _CmdPressurize(-1);
     }
 }
-#else
-int CmdPressurize() {
-    return _CmdPressurize(-1);
-}
-#endif
 
 void CmdDepressurize() {
     LOGD("Depressurizing...\n");
-#ifdef MOD20241110
     Air_Pump_State = AIR_STATE_PUMP_OFF;
-#else
-    IsPressurized = false;
-#endif
 
     IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_AIR_PUMP_ALL);     // pump disabled; ink/air valves closed
     IDS_MonitorOff(sIdsIdx);
@@ -1722,16 +1126,15 @@ static JNINativeMethod gMethods[] = {
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
         {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
-#ifdef MOD20241110
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
         {"StartMonitor",		                "()I",	                    (void *)Java_com_StartMonitor},
-#else
-        {"Pressurize",		                "()I",	                    (void *)Java_com_Pressurize},
-#endif
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
         {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},
         {"pdPowerOff",		                "()I",	                    (void *)Java_com_PDPowerOff},
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+        {"pdPurge",		                "()I",	                    (void *)Java_com_purge},
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
         {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},

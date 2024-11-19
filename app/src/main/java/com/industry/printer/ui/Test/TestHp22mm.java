@@ -26,6 +26,7 @@ import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCardManager;
@@ -68,14 +69,17 @@ public class TestHp22mm implements ITestOperation {
             "7 -- Pairing",
             "8 -- Pressurize",
             "9 -- Depressurize",
-            "10 -- ids_set_platform_info",
-            "11 -- pd_set_platform_info",
-            "12 -- ids_set_date",
-            "13 -- pd_set_date",
-            "14 -- ids_set_stall_insert_count[1]",
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+            "10 -- Purge",
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
+            "11 -- ids_set_platform_info",
+            "12 -- pd_set_platform_info",
+            "13 -- ids_set_date",
+            "14 -- pd_set_date",
+            "15 -- ids_set_stall_insert_count[1]",
 //            "15 -- Start Print",
 //            "16 -- Stop Print",
-            "17 -- Dump Registers",
+            "16 -- Dump Registers",
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
 //            "18 -- SPI Test",
 // End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
@@ -83,12 +87,12 @@ public class TestHp22mm implements ITestOperation {
 //            "20 -- FIFO -> DDR",
 //            "21 -- DDR -> FIFO",
 //            "22 -- Read FIFO",
-            "23 -- Update PD MCU\nFrom [U-Disk/PD.s19]",
-            "24 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
-            "25 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
-            "26 -- Toggle PI4",
-            "27 -- Toggle PI5",
-            "28 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+            "17 -- Update PD MCU\nFrom [U-Disk/PD.s19]",
+            "18 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
+            "19 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
+            "20 -- Toggle PI4",
+            "21 -- Toggle PI5",
+            "22 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
     };
 
     private String[] Registers = new String[] {
@@ -146,14 +150,17 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_TEST_PAIRING                        = 11;
     private final static int HP22MM_TEST_PRESSURIZE                     = 12;
     private final static int HP22MM_TEST_DEPRESSURIZE                   = 13;
-    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 14;
-    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 15;
-    private final static int HP22MM_TEST_IDS_SET_DATE                   = 16;
-    private final static int HP22MM_TEST_PD_SET_DATE                    = 17;
-    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 18;
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+    private final static int HP22MM_TEST_PURGE                          = 14;
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
+    private final static int HP22MM_TEST_IDS_SET_PF_INFO                = 15;
+    private final static int HP22MM_TEST_PD_SET_PF_INFO                 = 16;
+    private final static int HP22MM_TEST_IDS_SET_DATE                   = 17;
+    private final static int HP22MM_TEST_PD_SET_DATE                    = 18;
+    private final static int HP22MM_TEST_IDS_SET_STALL_INSERT_COUNT     = 19;
 //    private final static int HP22MM_TEST_START_PRINT                    = 17;
 //    private final static int HP22MM_TEST_STOP_PRINT                     = 18;
-    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 19;
+    private final static int HP22MM_TEST_DUMP_REGISTERS                 = 20;
 // H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
 //    private final static int HP22MM_TEST_SPI_TEST                       = 20;
 // End of H.M.Wang 2024-1-30 增加一个SPI Test项目，就是像一个寄存器写n次，读n次看完成度
@@ -161,13 +168,13 @@ public class TestHp22mm implements ITestOperation {
 //    private final static int HP22MM_TEST_FIFO2DDR                       = 22;
 //    private final static int HP22MM_TEST_DDR2FIFO                       = 23;
 //    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
-    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 20;
-    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 21;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 22;
-    private final static int HP22MM_TOGGLE_PI4                          = 23;
-    private final static int HP22MM_TOGGLE_PI5                          = 24;
+    private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 21;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 22;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 23;
+    private final static int HP22MM_TOGGLE_PI4                          = 24;
+    private final static int HP22MM_TOGGLE_PI5                          = 25;
 // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
-    private final static int HP22MM_HISPEED_WTEST                       = 25;
+    private final static int HP22MM_HISPEED_WTEST                       = 26;
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
@@ -536,6 +543,22 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+                        case HP22MM_TEST_PURGE:
+                            synchronized (Hp22mmSCManager.LockObj) {
+                                int ret = Hp22mm.pdPurge();
+                                if(ret == 0x11) {
+                                    mHp22mmTestResult[index] = "Both slots purged";
+                                } else if (ret == 0x10) {
+                                    mHp22mmTestResult[index] = "Slot A purged";
+                                } else if (ret == 0x01) {
+                                    mHp22mmTestResult[index] = "Slot B purged";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed";
+                                }
+                            }
+                            break;
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
                         case HP22MM_TEST_IDS_SET_PF_INFO:
                             if (0 == Hp22mm.ids_set_platform_info()) {
                                 mHp22mmTestResult[index] = "Success";
@@ -640,24 +663,30 @@ public class TestHp22mm implements ITestOperation {
                             }
                             break;*/
                         case HP22MM_TEST_UPDATE_PD_MCU:
-                            if (0 == Hp22mm.UpdatePDFW()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                            synchronized (Hp22mmSCManager.LockObj) {
+                                if (0 == Hp22mm.UpdatePDFW()) {
+                                    mHp22mmTestResult[index] = "Success";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed";
+                                }
                             }
                             break;
                         case HP22MM_TEST_UPDATE_FPGA_FLASH:
-                            if (0 == Hp22mm.UpdateFPGAFlash()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                            synchronized (Hp22mmSCManager.LockObj) {
+                                if (0 == Hp22mm.UpdateFPGAFlash()) {
+                                    mHp22mmTestResult[index] = "Success";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed";
+                                }
                             }
                             break;
                         case HP22MM_TEST_UPDATE_IDS_MCU:
-                            if (0 == Hp22mm.UpdateIDSFW()) {
-                                mHp22mmTestResult[index] = "Success";
-                            } else {
-                                mHp22mmTestResult[index] = "Failed";
+                            synchronized (Hp22mmSCManager.LockObj) {
+                                if (0 == Hp22mm.UpdateIDSFW()) {
+                                    mHp22mmTestResult[index] = "Success";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed";
+                                }
                             }
                             break;
                         case HP22MM_TOGGLE_PI4:

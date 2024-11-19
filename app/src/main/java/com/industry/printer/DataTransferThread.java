@@ -604,8 +604,6 @@ public class DataTransferThread {
 
 // H.M.Wang 2019-12-19 函数名变更，处理由分隔符分开的字符串，主要满足数据源为以太网和串口协议2的情况
 // H.M.Wang 2019-12-16 将计数器和动态二维码替代部分函数化，以对应串口和网络两方面的需求
-private int c0;
-private int c1;
 	public void setRemoteTextSeparated(final String data) {
 		Debug.d(TAG, "String from Remote = [" + data + "]");
 		mHandler.post(new Runnable() {
@@ -672,8 +670,6 @@ private int c1;
 			}
 // End of H.M.Wang 2020-9-10 协议收到的数值对群组也有效
 			mNeedUpdate = needUpdate;
-			c0++;
-			Debug.d(TAG, "[UpdateTest] <- RS232 (" + mNeedUpdate + ") - " + c0);
 
 // 2020-7-3 标识网络快速打印状态下数据更新
 // H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
@@ -1533,7 +1529,6 @@ private void setSerialProtocol9DTs(final String data) {
 		// H.M.Wang 2019-12-31 设置mContext，以避免因为mContext=null而导致程序崩溃
 		mContext = ctx;
 		// End of H.M.Wang 2019-12-31 设置mContext，以避免因为mContext=null而导致程序崩溃
-		c0=0;c1=0;
 		// H.M.Wang 2019-12-19 支持多种串口协议的修改
 		// H.M.Wang 2019-10-23 串口发送数据支持
 		final SerialHandler serialHandler = SerialHandler.getInstance(mContext);
@@ -3126,7 +3121,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					reportEmpty = true;
 				} else {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
-					Debug.d(TAG, "[UpdateTest] Empty (" + mNeedUpdate + ")");
 
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
@@ -3366,8 +3360,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-11-13 追加内容是否变化的判断
 
 				if(mNeedUpdate == true) {
-					c1++;
-					Debug.d(TAG, "[UpdateTest] -> IMG " + c1);
 // H.M.Wang 2020-6-28 修改打印数据缓冲区更新策略，当网络快速打印的时候不再根据数据更新重新生成打印缓冲区
 // H.M.Wang 2024-1-13 扫描协议5的打印行为，只有接收到扫描数据时才下发，否则不下发
 //					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_FAST_LAN) {

@@ -32,6 +32,10 @@ public class Hp22mmSCManager implements IInkDevice {
     public static final int MSG_HP22MM_ERROR = 23;
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
 
+// H.M.Wang 2024-11-12 追加一个测试页面启动的标识，如果测试页面启动了，就暂停本类中的守护线程运行
+    public static final Object LockObj = new Object();
+// End of H.M.Wang 2024-11-12 追加一个测试页面启动的标识，如果测试页面启动了，就暂停本类中的守护线程运行
+
     public Hp22mmSCManager(Context context) {
         mContext = context;
         mInkLevel = 0;
@@ -50,35 +54,34 @@ public class Hp22mmSCManager implements IInkDevice {
             public void run() {
 // H.M.Wang 2024-11-10
                 while(true) {
-                    if(!mInitialized) {
-                        // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
-                        if (Hp22mm.initHp22mm() != 0) {
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
-                            mValid = false;
-                            try {
-                                Thread.sleep(2000);
-                            } catch (Exception e) {
+                    synchronized (LockObj) {
+                        if (!mInitialized) {
+                            // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
+                            if (Hp22mm.initHp22mm() != 0) {
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+                                mValid = false;
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (Exception e) {
+                                }
+                            } else {
+                                mValid = true;
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+                                mInitialized = true;
                             }
                         } else {
-                            mValid = true;
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
-                            mInitialized = true;
-                        }
-                    } else {
-                        // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常
-                        String errStr = Hp22mm.getErrString();
-                        if(StringUtil.isEmpty(errStr)) {
-                            mValid = true;
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
-                        } else {
-                            mValid = false;
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, errStr).sendToTarget();
+                            // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常
+                            String errStr = Hp22mm.getErrString();
+                            if (StringUtil.isEmpty(errStr)) {
+                                mValid = true;
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+                            } else {
+                                mValid = false;
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, errStr).sendToTarget();
+                            }
                         }
                     }
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e) {
-                    }
+                    try {Thread.sleep(1000);} catch (Exception e) {}
                 }
 /*                while(Hp22mm.initHp22mm() != 0) {
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能

@@ -114,7 +114,8 @@ public class FontSelectDialog extends RelightableDialog implements android.view.
 			for (int i = 0; i < name.length; i++) {
 				Map f = new HashMap<String, String>();
 				f.put(FONT_NAME, name[i]);
-				f.put(FONT_TIPS, name[i] + " font");
+//				f.put(FONT_TIPS, name[i] + " font");
+				f.put(FONT_TIPS, name[i]);
 				Debug.d("XXX", "--->title: " + name[i]);
 				mFonts.add(f);
 			}

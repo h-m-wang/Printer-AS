@@ -54,18 +54,18 @@ public class PrinterApplication extends Application {
 			Thread.sleep(100);
 
 			LibUpgrade libUp = new LibUpgrade();
-			needReboot |= libUp.upgradeHardwareSO(os);
-			needReboot |= libUp.upgradeNativeGraphicSO(os);
-			needReboot |= libUp.upgradeSmartCardSO(os);
-			needReboot |= libUp.upgradeSerialSO(os);
-			needReboot |= libUp.upgradeHp22mmSO(os);
+			needReboot |= libUp.updateSO(os, Configs.HARDWARE_SO);
+			needReboot |= libUp.updateSO(os, Configs.NATIVEGRAPHIC_SO);
+			needReboot |= libUp.updateSO(os, Configs.SMARTCARD_SO);
+			needReboot |= libUp.updateSO(os, Configs.SERIAL_SO);
+			needReboot |= libUp.updateSO(os, Configs.HP22MM_SO);
 
-			if(needReboot) {
-				Debug.e(TAG, "Reboot!!!");
-				os.writeBytes("reboot\n");
-			}
-			os.flush();
-			os.close();
+//			if(needReboot) {
+//				Debug.e(TAG, "Reboot!!!");
+//				os.writeBytes("reboot\n");
+//			}
+//			os.flush();
+//			os.close();
 
 			NativeGraphicJni.loadLibrary();
 			if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();

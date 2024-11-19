@@ -80,7 +80,7 @@ public class BarcodeDataProc {
     private static String[] getDataFromPowerChinaWeb(String scaned) {
         if(null == scaned || scaned.isEmpty()) return null;
         boolean dataFound = false;
-        String[] params = new String[4];
+        String[] params = new String[5];
         String startTag = "<div class=\"weui-cell__ft\">";
         String endTag = "</div>";
 
@@ -94,7 +94,7 @@ public class BarcodeDataProc {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String buf;
-            boolean checkFlag = false;
+            boolean checkFlag = false, rmoveStd = false;
             int curInsPos = 0;
 
             while((buf = br.readLine()) != null) {
@@ -105,16 +105,22 @@ public class BarcodeDataProc {
                 int hit_pos4 = buf.indexOf("模具型号");
                 int hit_pos5 = buf.indexOf("注浆孔");  // 2024-11-6 增加客户需求，当内容为标准是清空，其余保留
                 if(hit_pos1 >= 0 || hit_pos2 >= 0 || hit_pos3 >= 0 || hit_pos4 >= 0 || hit_pos5 >= 0) {
-                    Log.d("Barcode2", buf);
-                    if(hit_pos5 >= 0) buf = buf.replace("标准", "");
+                    Log.d("Barcode20", buf);
                     checkFlag = true;
+                    if(hit_pos5 >= 0) rmoveStd = true; else rmoveStd = false;
                 }
                 if(checkFlag) {
                     int s_index = buf.indexOf(startTag);
                     int e_index = buf.indexOf(endTag, s_index);
                     if (s_index >= 0 && e_index >= 0) {
-                        Log.d("Barcode2", buf);
-                        params[curInsPos++] = buf.substring(s_index + startTag.length(), e_index);
+                        if(curInsPos < 5) {
+                            String str = buf.substring(s_index + startTag.length(), e_index);
+                            Log.d("Barcode21", str);
+                            if(rmoveStd) str = str.replace("标准", "");
+                            params[curInsPos] = str;
+                            Log.d("Barcode22", "[" + params[curInsPos] + "]");
+                            curInsPos++;
+                        }
                         checkFlag = false;
                         dataFound = true;
                     }

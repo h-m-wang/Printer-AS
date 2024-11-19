@@ -18,7 +18,7 @@ public class Hp22mm {
     }
 
     public static void loadLibrary() {
-        Debug.d("hp22mm", "Loading Hp22mm library...");
+        Debug.d(TAG, "Loading Hp22mm library...");
     }
 
     static public native int init_ids(int idsIndex);
@@ -53,6 +53,9 @@ public class Hp22mm {
     static public native int UpdateIDSFW();
     static public native int pdPowerOn();
     static public native int pdPowerOff();
+// H.M.Wang 2024-11-13 追加22mm打印头purge功能
+    static public native int pdPurge();
+// End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
     static public native String getErrString();
     static public native int getConsumedVol();
     static public native int getUsableVol();

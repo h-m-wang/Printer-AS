@@ -1442,14 +1442,16 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     }
 
     LOGI(" Pgmng over.Write protecting fpga flash..\n");
-    
+
+#if 0
 	/* write protect the fpga flash */
 	pr = _pd_fpgaflash_writeprotect( instance,&fpgaflashinfo);
     if(PD_OK != pr) {
         oem_unlock(instance);
         return pr;
     }
-    
+#endif
+
     /* Enable FPGA */
     pr = _pd_fpga_setreset( instance, 1);
     if(PD_OK != pr) {

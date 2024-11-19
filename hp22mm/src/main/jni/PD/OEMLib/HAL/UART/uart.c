@@ -226,6 +226,8 @@ UartResult_t uart_init(int32_t instance) {
         return UART_ERROR;
     }
 
+    if(true == is_uart_initialized) return UART_OK;
+
     // Already initialized, just return.
     //
     // In the dev kit implementation, we only have one physical UART.
@@ -263,8 +265,6 @@ UartResult_t uart_init(int32_t instance) {
     cfsetospeed(&options, UART_BAUD_RATE);
     tcflush(handle->fs, TCIFLUSH);
     tcsetattr(handle->fs, TCSANOW, &options);
-
-    if(true == is_uart_initialized) return UART_OK;
 
     /* Initialize the WiringPi */
 /*    if(wiringPiSetup() == -1)
@@ -481,7 +481,7 @@ UartResult_t uart_recv( int32_t         instance,
     UartHandle_t *handle = &uart_handle;
 
     fd_set          rfds;
-    struct timeval  tv;
+    struct timeval  tv, tv1;
     int             retval;
 
     *recvd_size = 0; /* Initalize received size to "0" */
@@ -497,9 +497,11 @@ UartResult_t uart_recv( int32_t         instance,
     tv.tv_usec  = 0;
     if(timeout_ms > 1000) {
         tv.tv_sec   = timeout_ms / 1000;
-        timeout_ms -= timeout_ms / 1000;
+//        timeout_ms -= timeout_ms / 1000;
+        timeout_ms -= (tv.tv_sec * 1000);
     }
     tv.tv_usec = timeout_ms * 1000;
+    tv1 = tv;
 
     while(1) {
         size_t recieved = 0;
@@ -528,7 +530,7 @@ UartResult_t uart_recv( int32_t         instance,
                 return UART_OK;
             }
         } else { /* = 0 */
-            LOGE("UART_ERROR_TIMEOUT!\n");
+            LOGE("UART_ERROR_TIMEOUT! %ld:%ld, %ld\n", tv1.tv_sec, tv1.tv_usec, timeout_ms);
             return UART_ERROR_TIMEOUT;
         }
     }
