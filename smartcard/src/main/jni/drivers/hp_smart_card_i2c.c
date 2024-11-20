@@ -121,6 +121,9 @@ HP_SMART_CARD_i2c_result_t HP_SMART_CARD_i2c_read(HP_SMART_CARD_device_id_t devi
 //    }
     HP_SMART_CARD_i2c_result_t ret = HP_SMART_CARD_i2c_read_direct(DeviceIDtoAddr(device_id), addr, data, num_bytes_to_read);
 //    SC_GPIO_ADAPTER_select_38_xlater(I2C_BUS_HANGUP);
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
     return ret;
 }
 
@@ -196,6 +199,9 @@ HP_SMART_CARD_i2c_result_t HP_SMART_CARD_i2c_write(HP_SMART_CARD_device_id_t dev
 //    }
     HP_SMART_CARD_i2c_result_t ret = HP_SMART_CARD_i2c_write_direct(DeviceIDtoAddr(device_id), addr, data, num_bytes_to_write);
 //    SC_GPIO_ADAPTER_select_38_xlater(I2C_BUS_HANGUP);
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
     return ret;
 }
 

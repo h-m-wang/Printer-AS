@@ -26,7 +26,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.406"
+#define VERSION_CODE                            "1.0.408"
+// 1.0.408 2024-11-20
+// 所有的I2C访问，完成后均将I2C修正到BULK1(IDS)
+// 1.0.407 2024-11-19
+// 读完Level后，将I2C切换到墨袋上
 // 1.0.406 2024-11-5
 // 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 // 1.0.405 2024-10-30
@@ -382,6 +386,9 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
             return SC_LEVEL_CENSOR_ACCESS_FAILED;
         }
         LOGD(">>> Write config: 0x%04X", config);
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+        SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
     } else if(SELECT_LEVEL2 == card) {
         SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_PEN2);
 
@@ -399,6 +406,9 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_init_comp(JNIEnv *env, jclass arg, jin
             return SC_LEVEL_CENSOR_ACCESS_FAILED;
         }
         LOGD(">>> Write config: 0x%04X", config);
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+        SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
     }
 
     pthread_mutex_unlock(&mutex);
@@ -1357,6 +1367,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readLevel(JNIEnv *env, jclass arg, jin
         }
     }
 
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+
     pthread_mutex_unlock(&mutex);
 
     return chData;
@@ -1407,6 +1421,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_testLevel(JNIEnv *env, jclass arg, jin
         *p = 5;
     }
 
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+
     pthread_mutex_unlock(&mutex);
 
     return chData;
@@ -1437,6 +1455,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readManufactureID(JNIEnv *env, jclass 
 
     LOGD(">>> ManufactureID read: 0x%04X", manID);
 
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+
     pthread_mutex_unlock(&mutex);
 
     return manID;
@@ -1465,6 +1487,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, 
     }
 
     LOGD(">>> DeviceID read: 0x%04X", devID);
+
+// H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
+    SC_GPIO_ADAPTER_select_device(GPIO_DEVICE_BULK1);
+// End of H.M.Wang 2024-10-19 读完Level后，将I2C切换到墨袋上
 
     pthread_mutex_unlock(&mutex);
 
