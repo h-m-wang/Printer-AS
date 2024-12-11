@@ -248,6 +248,10 @@ UserGroup 使用方法说明
 	 */
 	public static final String FONT_16_16 = "/16*16.zk";
 
+// H.M.Wang 2024-12-3 追加一个A133平台的升级专用目录
+	public static final String A133_UPGRADE_DIR = "/Upgrade";
+// End of H.M.Wang 2024-12-3 追加一个A133平台的升级专用目录
+
 	public static final String UPGRADE_APK_FILE = "/Printer.apk";
 
 	// H.M.Wang 添加1行，升级必要的so文件

@@ -67,13 +67,18 @@ public class PackageInstaller {
 	private void install() {
 		//PowerManager manager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
 		// manager.upgrade();
-		ReflectCaller.PowerManagerUpgrade(mContext);
+		if(PlatformInfo.isA133Product()) {
+			LibUpgrade libUp = new LibUpgrade();
+			libUp.copyToTempForA133(Configs.UPGRADE_APK_FILE, "/system/app/Printer");
+		} else {
+			ReflectCaller.PowerManagerUpgrade(mContext);
+		}
 	}
 	
 	public boolean silentUpgrade() {
 		int curVersion = 0;
 		final String pkName = mContext.getPackageName();
-		final String path = ConfigPath.getUpgradePath();
+		final String path = ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE;
 		Debug.d(TAG, "path:" + path);
 
 		/*判断升级包是否存在*/
@@ -176,13 +181,14 @@ public static String ShowString = "";
 public boolean silentUpgrade3() {
 	int curVersion = 0;
 	final String pkName = mContext.getPackageName();
-	final String path = ConfigPath.getUpgradePath();
+	final String path = ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE;
 	Debug.d(TAG, "path:" + path);
 
 	ShowString = "";
 
 	/*判断升级包是否存在*/
 	if (path == null || !new File(path).exists()) {
+		Debug.e(TAG, "===>not exist ");
 		return false;
 	}
 	/*判断版本号*/
@@ -243,6 +249,10 @@ public boolean silentUpgrade3() {
 			}
 
 			try {
+				File dir = new File(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
+				if (!dir.exists()) {
+					dir.mkdirs();
+				}
 				File f2 = new File(Configs.FILE_2);
 				if(f2.exists()) f2.delete();
 				if(newVersion > 100000000 && newVersion < 1000000000) {				// 9位数
@@ -256,6 +266,7 @@ public boolean silentUpgrade3() {
 				Debug.e(TAG, e.getMessage());
 			} catch(IOException e) {
 				Debug.e(TAG, e.getMessage());
+				e.printStackTrace();
 			} catch(Exception e) {
 				Debug.e(TAG, e.getMessage());
 			}

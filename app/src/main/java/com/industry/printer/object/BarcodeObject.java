@@ -847,13 +847,19 @@ public class BarcodeObject extends BaseObject {
 		// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 		HashMap<EncodeHintType,Object> hints = new HashMap<EncodeHintType, Object>();
 		hints.put(EncodeHintType.DATA_MATRIX_SHAPE, (mDMType == DM_TYPE_RECTANGLE ? SymbolShapeHint.FORCE_RECTANGLE : SymbolShapeHint.FORCE_SQUARE));
-		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h, hints);
+// H.M.Wang 2024-12-6 修改DM码的生成方法，在生成DM码时就按四边缩小一个像素的方式生成
+//		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h, hints);
+		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);
+// End of H.M.Wang 2024-12-6 修改DM码的生成方法，在生成DM码时就按四边缩小一个像素的方式生成
 //		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h);
 		// End of 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
-		int[] pixels = new int[width * height];
+// H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
+//		int[] pixels = new int[width * height];
+		int[] pixels = new int[w * h];
+// End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 
 		Debug.d(TAG, "w: " + w + "; h: " + h + "; Width: " + width + "; Height: " + height);
 //		StringBuilder sb = new StringBuilder();
@@ -866,13 +872,19 @@ public class BarcodeObject extends BaseObject {
 				{
 // H.M.Wang 2022-12-20 追加反白设置
 //					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
-					pixels[y * width + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+// H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
+//					pixels[y * w + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+					pixels[(y+1) * w + x+1] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+// End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 // End of H.M.Wang 2022-12-20 追加反白设置
 //					sb.append('#');
 				} else {
 // H.M.Wang 2022-12-20 追加反白设置
 //					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
-					pixels[y * width + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+// H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
+//					pixels[y * w + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+					pixels[(y+1) * w + x+1] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+// End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 // End of H.M.Wang 2022-12-20 追加反白设置
 //					sb.append('.');
 				}
@@ -880,9 +892,9 @@ public class BarcodeObject extends BaseObject {
 		}
 //		Debug.d(TAG, sb.toString());
 		/* 条码/二维码的四个边缘空出20像素作为白边 */
-		Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 //		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
-		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+		bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
 
 		// H.M.Wang 修改返回值一行
 // H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小

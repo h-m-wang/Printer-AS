@@ -14,15 +14,43 @@ public class SmartCard {
 // H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
     public final static int FUNC_TYPE_NORMAL                = 0;
     public final static int FUNC_TYPE_INTERNAL              = 1;
-    public final static int FUNC_TYPE                       = FUNC_TYPE_NORMAL;
+// H.M.Wang 2024-11-25 FUNC_TYPE修改为从参数95获取，而非硬码
+////    public final static int FUNC_TYPE                       = FUNC_TYPE_NORMAL;
+//    public final static int FUNC_TYPE                       = FUNC_TYPE_INTERNAL;
+    public static int FUNC_TYPE                       = FUNC_TYPE_NORMAL;
+// End of H.M.Wang 2024-11-25 FUNC_TYPE修改为从参数95获取，而非硬码
 // End of H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280
+
+// H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值。当FUNC_TYPE=INTERNAL时，加墨阈值修改为从参数96获取，正常时仍为138
+//    public int ADD_INK_THRESHOLD = 14000000;
+//    public int ADD_INK_THRESHOLD = 13900000;
+    public static int ADD_INK_THRESHOLD = 13800000;
+//    public int ADD_INK_THRESHOLD = 13700000;
+//    public int ADD_INK_THRESHOLD = 13600000;
+//    public int ADD_INK_THRESHOLD = 13500000;
+
+    public static void setType(int ftype, int addink) {
+        FUNC_TYPE = ftype;
+        if(FUNC_TYPE == FUNC_TYPE_INTERNAL) {
+            CARD_TYPE_BULK = CARD_TYPE_BULKX;
+            ADD_INK_THRESHOLD = (addink == 0 ? 31000000 : addink * 100000);
+        } else {
+            CARD_TYPE_BULK = CARD_TYPE_BULK1;
+            ADD_INK_THRESHOLD = 13800000;
+        }
+Debug.d("SmartCard", "FUNC_TYPE = " + (FUNC_TYPE == FUNC_TYPE_INTERNAL ? "INTERNAL" : "NORMAL") + "; CARD_TYPE_BULK = " + (FUNC_TYPE == FUNC_TYPE_INTERNAL ? "BULKX" : "BULK1") + "; ADD_INK_THRESHOLD = " + ADD_INK_THRESHOLD);
+    }
+// End of H.M.Wang 2024-11-25 当FUNC_TYPE=INTERNAL时，加墨阈值修改为从参数96获取，正常时仍为138
 
     public final static int CARD_TYPE_PEN1                  = 11;
     public final static int CARD_TYPE_PEN2                  = 12;
     private final static int CARD_TYPE_BULK1                 = 13;               // 真实墨袋
     private final static int CARD_TYPE_BULKX                 = 14;             // 墨盒代替墨袋
-    public static int CARD_TYPE_BULK                 = CARD_TYPE_BULK1;
+// H.M.Wang 2024-11-25 CARD_TYPE_BULK修改为从参数95获取，而非硬码
+////    public static int CARD_TYPE_BULK                 = CARD_TYPE_BULK1;
 //    public static int CARD_TYPE_BULK                 = CARD_TYPE_BULKX;
+    public static int CARD_TYPE_BULK                 = CARD_TYPE_BULK1;
+// End of H.M.Wang 2024-11-25 CARD_TYPE_BULK修改为从参数95获取，而非硬码
     public final static int CARD_TYPE_LEVEL1                = 21;
     public final static int CARD_TYPE_LEVEL2                = 22;
     public final static int SC_FAILED                       = -1;

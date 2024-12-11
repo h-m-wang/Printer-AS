@@ -41,32 +41,10 @@ public class PrinterApplication extends Application {
 		asyncInit();
 
 		try {
-			boolean needReboot = false;
-
-// H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
-			Process process;
-			if(PlatformInfo.isA133Product())
-				process = Runtime.getRuntime().exec("remount");
-			else
-				process = Runtime.getRuntime().exec("su");
-// End of H.M.Wang 2024-11-5 使用su在A133上会死机，改用remount
-			DataOutputStream os = new DataOutputStream(process.getOutputStream());
-			Thread.sleep(100);
-
-			LibUpgrade libUp = new LibUpgrade();
-			needReboot |= libUp.updateSO(os, Configs.HARDWARE_SO);
-			needReboot |= libUp.updateSO(os, Configs.NATIVEGRAPHIC_SO);
-			needReboot |= libUp.updateSO(os, Configs.SMARTCARD_SO);
-			needReboot |= libUp.updateSO(os, Configs.SERIAL_SO);
-			needReboot |= libUp.updateSO(os, Configs.HP22MM_SO);
-
-//			if(needReboot) {
-//				Debug.e(TAG, "Reboot!!!");
-//				os.writeBytes("reboot\n");
-//			}
-//			os.flush();
-//			os.close();
-
+			if(PlatformInfo.isSmfyProduct()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用其他方式升级
+				LibUpgrade libUp = new LibUpgrade();
+				libUp.upgradeSOs();
+			}
 			NativeGraphicJni.loadLibrary();
 			if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
 			SerialPort.loadLibrary();

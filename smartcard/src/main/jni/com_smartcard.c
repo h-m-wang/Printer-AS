@@ -1224,7 +1224,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg)
     char hex[4];
 
     pthread_mutex_lock(&mutex);
-    // DeviceAddr：[0 0 1 0 0 <A1> <A2> <A0>] [<0|1>读写]
+    // DeviceAddr：[0 0 1 0 0 <A2> <A1> <A0>] [<0|1>读写]
     // Control Register Bits: // DeviceAddr：[ 0 0 0 0 0 <B2> <B1> <B0>]
     // B2 B1 B0  COMMAND-BYTE(HEX) REGISTER                   PROTOCOL          POWER-UP
     // 0  0  0   0x00              Input Port 0               Read byte         xxxx xxxx

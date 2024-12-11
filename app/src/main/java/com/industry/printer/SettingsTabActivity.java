@@ -491,13 +491,21 @@ public static final String TAG="SettingsTabActivity";
 				break;
 			case R.id.btn_setting_upgrade:
 				// ArrayList<String> paths = ConfigPath.getMountedUsb();
+// H.M.Wang 2024-11-5 增加A133平台的判断
 				// 2024-11-4 由于R.id.btn_setting_upgrade对应的变量mUpgrade没有被设置为可视，因此这部分代码不会被执行到
-				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+//				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
+				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-11-5 增加A133平台的判断
+					LibUpgrade libUp = new LibUpgrade();
+					libUp.upgradeLibs();
 					PackageInstaller installer = PackageInstaller.getInstance(getActivity());
-					installer.silentUpgrade();
-					
+					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
+						installer.silentUpgrade3();
+					} else {
+						installer.silentUpgrade();
+					}
 				} else {
-					String str = ConfigPath.getUpgradePath();
+					String str = ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE;
 					File file = new File(str);
 					Debug.d(TAG, "===>file:"+file.getPath());
 					if (!file.exists()) {

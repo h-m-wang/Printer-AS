@@ -199,7 +199,9 @@ public class SmartCardManager implements IInkDevice {
         mContext = context;
 
 // H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
-        if(SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL) ADD_INK_THRESHOLD = 28000000;
+// H.M.Wang 2024-11-25 取消，改为由参数设置
+//        if(SmartCard.FUNC_TYPE == SmartCard.FUNC_TYPE_INTERNAL) ADD_INK_THRESHOLD = 28000000;
+// End of H.M.Wang 2024-11-25 取消，改为由参数设置
 // End of H.M.Wang 2024-8-16 内部测试版本特殊功能。(1) 墨盒代替墨袋，(2) 阈值由 138->280 (平时为正常版本)
 
 // H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
@@ -820,17 +822,10 @@ public class SmartCardManager implements IInkDevice {
         ExtGpio.rfidSwitch(ExtGpio.RFID_CARD1);
     }
 
-//    private int ADD_INK_THRESHOLD = 14000000;
-//    private int ADD_INK_THRESHOLD = 13900000;
-    private int ADD_INK_THRESHOLD = 13800000;
-//    private int ADD_INK_THRESHOLD = 13700000;
-//    private int ADD_INK_THRESHOLD = 13600000;
-//    private int ADD_INK_THRESHOLD = 13500000;
-
     private void levelValueUpdated(final int cardIdx) {
         Debug.d(TAG, "---> enter levelValueUpdated(" + cardIdx + ")");
 
-        int avgLevel = ADD_INK_THRESHOLD;
+        int avgLevel = SmartCard.ADD_INK_THRESHOLD;
         if(mCards[cardIdx].mRecentLevels.size() >= PROC_LEVEL_NUMS) {
             long totalLevel = 0;
             for(int i=0; i<PROC_LEVEL_NUMS; i++) {
@@ -840,7 +835,7 @@ public class SmartCardManager implements IInkDevice {
         }
         Debug.d(TAG, "Average Level = " + avgLevel);
 
-        if(avgLevel < ADD_INK_THRESHOLD) {
+        if(avgLevel < SmartCard.ADD_INK_THRESHOLD) {
             if(!mCards[cardIdx].mInkAdding) {
                 if(mCards[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
                     mCards[cardIdx].mAddInkFailed = true;
@@ -874,7 +869,7 @@ public class SmartCardManager implements IInkDevice {
 // End of H.M.Wang 2020-11-24 追加加墨10次失败后停止打印
                 } else {
 // H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
-                    if(readLevelValue(cardIdx) < ADD_INK_THRESHOLD) {
+                    if(readLevelValue(cardIdx) < SmartCard.ADD_INK_THRESHOLD) {
 // End of H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
                         mCachedThreadPool.execute(new Runnable() {
                             @Override

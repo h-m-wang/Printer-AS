@@ -23,7 +23,7 @@ public class LibUpgrade {
 
     }
 
-    public boolean upgradeKOs(DataOutputStream os, String prefix, String ko) {
+    private boolean upgradeKO(DataOutputStream os, String prefix, String ko) {
         boolean ret = false;
 
         try {
@@ -52,8 +52,8 @@ public class LibUpgrade {
                 return false;
             }
 
-            String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
 // H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
+//            String dstMD5 = CypherUtils.getFileMD5(new File("/system/vendor/modules/" + ko));
 //            if(!srcMD5Cal.equalsIgnoreCase(dstMD5)) {
 // End of H.M.Wang 2024-5-10 MD5值相同的文件升级也执行，返回真
 // H.M.Wang 2024-11-6 修改A133平台的临时目录，因为没有camera目录，改用audio_d目录
@@ -86,15 +86,10 @@ public class LibUpgrade {
         return ret;
     }
 
-    public boolean updateSO(DataOutputStream os, String so) {
+    private boolean upgradeSO(DataOutputStream os, String so) {
         boolean ret = false;
         InputStream is = null;
-        String libPath;
-        if(PlatformInfo.isA133Product()) {
-            libPath = "/product/lib/";
-        } else {
-            libPath = "/system/lib/";
-        }
+        String libPath = "/system/lib/";
 
         try {
             File file = new File(libPath + so);
@@ -128,6 +123,93 @@ public class LibUpgrade {
             Debug.e(TAG, e.getMessage());
         } finally {
             try{if(null != is) is.close();}catch(IOException e){}
+        }
+        return ret;
+    }
+
+    public boolean upgradeSOs() {
+        boolean ret = false;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            Thread.sleep(100);
+            if(!PlatformInfo.isA133Product()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用其他方式升级
+                ret |= upgradeSO(os, Configs.HARDWARE_SO);
+                ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO);
+                ret |= upgradeSO(os, Configs.SMARTCARD_SO);
+                ret |= upgradeSO(os, Configs.SERIAL_SO);
+                ret |= upgradeSO(os, Configs.HP22MM_SO);
+            }
+        } catch(IOException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    public boolean upgradeKOs() {
+        boolean ret = false;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            Thread.sleep(100);
+
+            ret |= upgradeKO(os, Configs.PREFIX_FPGA_SUNXI_KO, Configs.FPGA_SUNXI_KO);
+            ret |= upgradeKO(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
+            ret |= upgradeKO(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
+            ret |= upgradeKO(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
+        } catch(IOException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    public boolean copyToTempForA133(String file, String dst) {
+        String tmpPath, srcPath, dstPath;
+        File srcFile;
+
+        try {
+            tmpPath = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            Debug.d(TAG, "Upgrade [" + srcPath + "] -> [" + tmpPath + "] -> [" + dstPath + "]");
+
+            srcFile = new File(srcPath);
+            if(srcFile.exists()) {
+                if(!CypherUtils.getFileMD5(srcFile).equalsIgnoreCase(CypherUtils.getFileMD5(dstPath))) {
+                    FileUtil.writeFile(tmpPath, new FileInputStream(srcFile));
+                    Debug.d(TAG, "Done");
+                    return true;
+                } else {
+                    Debug.d(TAG, "[" + srcPath + "] is same as [" + dstPath + "]");
+                }
+            } else {
+                Debug.d(TAG, "[" + srcPath + "] not exist.");
+            }
+        } catch(Exception e) {
+            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean upgradeLibs() {
+        boolean ret = false;
+        if(PlatformInfo.isA133Product()) {
+            ret |= copyToTempForA133(Configs.FPGA_SUNXI_KO, "/vendor/modules");
+            ret |= copyToTempForA133(Configs.EXT_GPIO_KO, "/vendor/modules");
+            ret |= copyToTempForA133(Configs.HARDWARE_SO, "/system/lib");
+            ret |= copyToTempForA133(Configs.NATIVEGRAPHIC_SO, "/system/lib");
+            ret |= copyToTempForA133(Configs.SMARTCARD_SO, "/system/lib");
+            ret |= copyToTempForA133(Configs.SERIAL_SO, "/system/lib");
+            ret |= copyToTempForA133(Configs.HP22MM_SO, "/system/lib");
         }
         return ret;
     }

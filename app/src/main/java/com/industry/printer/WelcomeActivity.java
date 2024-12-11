@@ -18,9 +18,11 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
+import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
@@ -175,6 +177,8 @@ public class WelcomeActivity extends Activity {
 				}
 			});
 			mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5*1000);
+		} else {
+			ToastUtil.show(mContext, "Upgraded, please restart");
 		}
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
@@ -215,19 +219,23 @@ public class WelcomeActivity extends Activity {
 	}
 	
 	private boolean upgrade() {
+		boolean ret = false;
 // H.M.Wang 2024-11-5 增加A133平台的判断
 //		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
+			LibUpgrade libUp = new LibUpgrade();
+			ret = libUp.upgradeLibs();
+
 			PackageInstaller installer = PackageInstaller.getInstance(this);
 			if(AVOID_CROSS_UPGRADE) {
-				return installer.silentUpgrade3();
+				ret |= installer.silentUpgrade3();
 			} else {
-				return installer.silentUpgrade();
+				ret |= installer.silentUpgrade();
 			}
 		}
-		return false;
+		return ret;
 	}
 
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity

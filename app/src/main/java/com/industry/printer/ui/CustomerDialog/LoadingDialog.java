@@ -5,6 +5,7 @@ import com.industry.printer.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -22,7 +23,9 @@ public class LoadingDialog extends RelightableDialog {
 	private TextView mMessage;
 	
 	private Animation operatingAnim;
-	
+
+	private static LoadingDialog gLoadingDialog = null;
+
 	public LoadingDialog(Context context) {
 		super(context);
 		mContext = context;
@@ -68,11 +71,20 @@ public class LoadingDialog extends RelightableDialog {
 		mMessage.setText(message);
 		mMessage.invalidate();
 	}
-	
+
+	public static LoadingDialog showMessageOnly(Context ctx, String message) {
+		if(null == gLoadingDialog) {
+			gLoadingDialog = show(ctx, message);
+		}
+		gLoadingDialog.mRotationView.setVisibility(View.GONE);
+		if(!gLoadingDialog.isShowing()) gLoadingDialog.show();
+		return gLoadingDialog;
+	}
+
 	public static LoadingDialog show(Context ctx, int message) {
 		String msg = ctx.getString(message);
-		LoadingDialog dialog = show(ctx, msg);
-		return dialog;
+		gLoadingDialog = show(ctx, msg);
+		return gLoadingDialog;
 	}
 	
 	public static LoadingDialog show(Context ctx, CharSequence message) {

@@ -131,6 +131,7 @@ public class ExtGpio {
 	public static int open() {
 		if (mFd <= 0) {
 			mFd = FpgaGpioOperation.open(EXT_GPIO_FILE);
+			Debug.e("ExtGpio", EXT_GPIO_FILE + ": " + mFd);
 		}
 		return mFd;
 	}

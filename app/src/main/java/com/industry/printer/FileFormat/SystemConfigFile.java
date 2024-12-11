@@ -247,6 +247,10 @@ public class SystemConfigFile{
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 	public static final int INDEX_BLE_ENABLE = 78;
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+// H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
+	public static final int INDEX_INTERNAL = 94;
+	public static final int INDEX_INTERNAL_ADDINK = 95;
+// End of H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
 
 // H.M.Wang 11-13 调整各项目的排列顺序，使得相同接近的数据源排在一起。同时调整arrays.xml的数据源排列顺序
 	public static final int DATA_SOURCE_DISABLED 	= 0;		// 数据源禁用
@@ -675,12 +679,16 @@ public class SystemConfigFile{
 		readBarcodePrefs();
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶
 		initParamRange();
-		if(parseSystemCofig())
-			return;
-		//default param
-		for (int i = 0; i < mParam.length; i++) {
-			mParam[i] = checkParam(i+1, mParam[i]);
+		if(!parseSystemCofig()) {
+			//default param
+			for (int i = 0; i < mParam.length; i++) {
+				mParam[i] = checkParam(i+1, mParam[i]);
+			}
 		}
+
+// H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
+		SmartCard.setType(mParam[94], mParam[95]);
+// End of H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
 	}
 	public boolean parseSystemCofig() {
 		Debug.d(TAG, "--->parseSystemCofig");

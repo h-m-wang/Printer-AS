@@ -211,32 +211,13 @@ public class TestGpioPinsNew implements ITestOperation {
     }
 
     private void testUpgradeKOs() {
-        try {
-            boolean needReboot = false;
+        LibUpgrade libUp = new LibUpgrade();
+        boolean ret = libUp.upgradeKOs();
 
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(process.getOutputStream());
-            Thread.sleep(100);
-
-            LibUpgrade libUp = new LibUpgrade();
-            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_FPGA_SUNXI_KO, Configs.FPGA_SUNXI_KO);
-            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
-            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
-            needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
-
-            if(needReboot) {
-                mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.GREEN).sendToTarget();
-            } else {
-                mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.RED).sendToTarget();
-            }
-//            os.flush();
-//            os.close();
-        } catch(IOException e) {
-            Debug.e(TAG, e.getMessage());
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            Debug.e(TAG, e.getMessage());
-            e.printStackTrace();
+        if(ret) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.GREEN).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.RED).sendToTarget();
         }
     }
 

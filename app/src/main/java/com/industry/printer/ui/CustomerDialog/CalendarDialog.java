@@ -137,61 +137,30 @@ public class CalendarDialog extends RelightableDialog {
 //				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
-					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 					boolean ret;
+					LibUpgrade libUp = new LibUpgrade();
+					ret = libUp.upgradeLibs();
+					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
-						ret = installer.silentUpgrade3();
+						ret |= installer.silentUpgrade3();
 					} else {
-						ret = installer.silentUpgrade();
+						ret |= installer.silentUpgrade();
 					}
 					if(ret) {
 						dismiss();
 						LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
-					} else {
-// H.M.Wang 2024-1-3 追加ko的升级功能
-						upgradeKOs();
-// End of H.M.Wang 2024-1-3 追加ko的升级功能
+						mUpgrade.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								LoadingDialog.showMessageOnly(CalendarDialog.super.getContext(), "Please reboot!");
+							}
+						}, 10*1000);
 					}
 				}
 			}
 		});
 	}
 
-// H.M.Wang 2024-1-3 追加ko的升级功能
-	private void upgradeKOs() {
-		try {
-			boolean needReboot = false;
-
-			Process process = Runtime.getRuntime().exec("su");
-			DataOutputStream os = new DataOutputStream(process.getOutputStream());
-			Thread.sleep(100);
-
-			LibUpgrade libUp = new LibUpgrade();
-			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_FPGA_SUNXI_KO, Configs.FPGA_SUNXI_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
-			needReboot |= libUp.upgradeKOs(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
-
-			if(needReboot) {
-				ToastUtil.show(this.getContext(), "Rebooting...");
-				Debug.e(TAG, "Reboot!!!");
-				os.writeBytes("reboot\n");
-			} else {
-				ToastUtil.show(this.getContext(), "Upgrading failed!!!");
-			}
-			os.flush();
-			os.close();
-
-		} catch(IOException e) {
-			Debug.e(TAG, e.getMessage());
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			Debug.e(TAG, e.getMessage());
-			e.printStackTrace();
-		}
-
-	}
-// End of H.M.Wang 2024-1-3 追加ko的升级功能
 	/**
 	 * 验证时间是否有效
 	 */

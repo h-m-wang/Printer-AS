@@ -195,6 +195,7 @@ public class FpgaGpioOperation {
     public static int open() {
         if (mFd <= 0) {
             mFd = open(FPGA_DRIVER_FILE);
+            Debug.e("FpgaGpioOperation", FPGA_DRIVER_FILE + " = " + mFd);
         }
         return mFd;
     }

@@ -38,42 +38,24 @@ public class ConfigPath {
 		ArrayList<String> mPaths = new ArrayList<String>();
 		Debug.d(TAG, "===>getMountedUsb");
 		try {
-// H.M.Wang 2024-11-5 增加A133平台的USB路径获取功能
-			if(PlatformInfo.isA133Product()) {
-				File file = new File(PlatformInfo.getMntPath());
-				if(null != file) {
-					File[] list = file.listFiles();
-					if(null != list) {
-						for(File f : list) {
-							Debug.d(TAG, "===>getMountUsb: " + f.getAbsolutePath());
-							mPaths.add(f.getAbsolutePath());
-						}
-					}
-				}
-			} else {
-// End of H.M.Wang 2024-11-5 增加A133平台的USB路径获取功能
-				FileInputStream file = new FileInputStream(Configs.PROC_MOUNT_FILE);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(file));
-				String line = reader.readLine();
-				for (; line != null; ) {
+			FileInputStream file = new FileInputStream(Configs.PROC_MOUNT_FILE);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(file));
+			String line = reader.readLine();
+			for (; line != null; ) {
+//				Debug.d(TAG, "===>getMountUsb: " + line);
+				String items[] = line.split(" ");
+				if (items != null && items.length >= 2) {
+					if(items[1].startsWith(PlatformInfo.getMntPath())) mPaths.add(items[1]);
 					Debug.d(TAG, "===>getMountUsb: " + line);
-					if (!line.contains(PlatformInfo.getMntPath())) {
-						line = reader.readLine();
-						continue;
-					}
-					String items[] = line.split(" ");
-					if (items == null || items.length < 2) {
-						continue;
-					}
-					mPaths.add(items[1]);
-					line = reader.readLine();
 				}
-				file.close();
-				reader.close();
+				line = reader.readLine();
 			}
+			file.close();
+			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		Debug.d(TAG, "===>mPaths: " + mPaths.toString() + "; Size: " + mPaths.size());
 		mUsbPaths = mPaths;
 		return mPaths;
 	}
@@ -189,7 +171,12 @@ public class ConfigPath {
 		if (paths == null || paths.size() <= 0) {
 			return null;
 		}
-		return paths.get(0) + Configs.UPGRADE_APK_FILE;
+// H.M.Wang 2024-12-3 根据平台返回升级用目录
+		if(PlatformInfo.isA133Product())
+			return paths.get(0) + Configs.A133_UPGRADE_DIR;
+		else
+			return paths.get(0);
+// H.M.Wang 2024-12-3 根据平台返回升级用目录
 	}
 
 // H.M.Wang 2024-1-3 追加ko的升级功能

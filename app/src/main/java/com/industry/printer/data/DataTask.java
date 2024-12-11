@@ -821,7 +821,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MM) {
 //			scaleW /= 1.0f * 1056 / 152;
-			scaleW /= 1.0f * 352 / 152;
+			scaleW /= 1.0f * 264 / 152;
 			div = scaleW;
 			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image

@@ -28,9 +28,20 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.113"
-// 1.0.112 2024-11-16
-// 1.0.111增加的enable_warming前再加上set_temperature_override函数
+#define VERSION_CODE                            "1.0.118"
+// 1.0.118 2024-12-11
+// 墨水最大值的定位原则：由于根据实验，4列同时打印，打印200次的时候，使用了全部775ml中的10ml，因此，最大值设置为15500会与实际情况同步。同时考虑到可能会有1列单独，2列，3列打印的情况，因此将最大值按1列打印为标准设置，乘以4（即15500*4）
+// 当列数大于1时，一次减记要交列数份的值，因此修改downLocal的参数
+// 1.0.117 2024-12-10
+// 内部锁值最大值设为15500，这样会与全部墨量为775克的进度（实测内部打印计数为200时，消耗10g墨水）同步
+// 1.0.116 2024-12-10
+// 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
+// 1.0.115 2024-12-06
+// 在1.0.114的基础上，增加pd_disable_warming，并且将这两个调用同时放在守护线程中调用
+// 1.0.114 2024-12-06
+// 取消1.0.108之后进行的左右尝试，改为在上电（pd_power_on）成功后强制关闭加热功能（pd_set_temperature_override, 暂时不用pd_disable_warming）
+// 1.0.113 2024-11-16
+// 1.0.112增加的enable_warming前再加上set_temperature_override函数
 // 1.0.112 2024-11-15
 // 取消1.0.111的修改，不再设目标温度，取消pd_calibrate_pulsewidth，在守护线程中增加enable_warming和测温函数
 // 1.0.111 2024-11-15
@@ -272,13 +283,14 @@ void *monitorThread(void *arg) {
                 continue;
             }
             // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
-            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 6);
-            pd_enable_warming(PD_INSTANCE, sPenIdx);
-            pd_get_temperature(PD_INSTANCE, sPenIdx, &degree_c);
-            pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status);
-//            if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-//                pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
-//            }
+            if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx)) {
+                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
+                }
+            }
+
+            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
+            pd_disable_warming(PD_INSTANCE, sPenIdx);
 
             // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
             if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
@@ -328,10 +340,8 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
-//        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 6);
-//        uint32_t b;
-//        pd_check_ph("pd_calibrate_pulsewidth0", pd_calibrate_pulsewidth(PD_INSTANCE, sPenIdx, 0, &b), sPenIdx);
-//        pd_check_ph("pd_calibrate_pulsewidth1", pd_calibrate_pulsewidth(PD_INSTANCE, sPenIdx, 1, &b), sPenIdx);
+        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
+        pd_disable_warming(PD_INSTANCE, sPenIdx);
         PD_Power_State = PD_POWER_STATE_ON;
     }
     return 0;
@@ -452,6 +462,39 @@ JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg) {
 JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg) {
     return supply_info.usable_vol;
 }
+
+// H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
+JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg) {
+    uint32_t value;
+    IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+    if (ids_check("ids_read_oem_field", ids_r)) return(-1);
+    LOGD("OEM_RW_1 = %d", value);
+    return value;
+}
+
+#define MAX_BAG_INK_VOLUME_MAXIMUM              (15500 * 4)
+
+JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint count) {
+    uint32_t value;
+    IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+    if (ids_check("ids_read_oem_field", ids_r)) return(-1);
+
+    value += count;
+
+    if(value >= MAX_BAG_INK_VOLUME_MAXIMUM) {
+        ids_r = ids_set_out_of_ink(IDS_INSTANCE, sIdsIdx);
+        if (ids_check("ids_set_out_of_ink", ids_r)) return(-1);
+    }
+
+    ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, value);
+    if (ids_check("ids_write_oem_field", ids_r)) return(-1);
+
+    ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
+    if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
+
+    return 0;
+}
+// End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
 
 static IdsSysInfo_t ids_sys_info;
 
@@ -1138,6 +1181,10 @@ static JNINativeMethod gMethods[] = {
         {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},
+// H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
+        {"getLocalInk",		        "()I",						(void *)Java_com_getLocalInk},
+        {"downLocal",		        "(I)I",						(void *)Java_com_downLocal},
+// End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},

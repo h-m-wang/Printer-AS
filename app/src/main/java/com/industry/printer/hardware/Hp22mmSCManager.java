@@ -10,12 +10,18 @@ import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
 
+import java.util.Vector;
+
 public class Hp22mmSCManager implements IInkDevice {
     private static final String TAG = Hp22mmSCManager.class.getSimpleName();
 
     private final static int PEN_VS_BAG_RATIO           = 3;
-    private static int MAX_BAG_INK_VOLUME         = 3150;
-    private static int MAX_PEN_INK_VOLUME         = MAX_BAG_INK_VOLUME * PEN_VS_BAG_RATIO;
+// H.M.Wang 2024-12-11 墨水最大值的定位原则：由于根据实验，4列同时打印，打印200次的时候，使用了全部775ml中的10ml，因此，最大值设置为15500会与实际情况同步。同时考虑到可能会有1列单独，2列，3列打印的情况，因此将最大值按1列打印为标准设置，乘以4
+// getLocalInk的时候，按着读取的值除以列数，downLocal的时候，按列数减记次数，并且写入OEM_RW
+    private static int MAX_BAG_INK_VOLUME_MAXIMUM       = 15500 * 4;
+//    private static int MAX_BAG_INK_VOLUME         = 3150;
+//    private static int MAX_PEN_INK_VOLUME         = MAX_BAG_INK_VOLUME * PEN_VS_BAG_RATIO;
+// End of H.M.Wang 2024-12-11 墨水最大值
 
     private Context mContext;
     private Handler mCallback;
@@ -38,7 +44,7 @@ public class Hp22mmSCManager implements IInkDevice {
 
     public Hp22mmSCManager(Context context) {
         mContext = context;
-        mInkLevel = 0;
+        mInkLevel = -1;
         mValid = true;
         mInitialized = false;
     }
@@ -47,7 +53,7 @@ public class Hp22mmSCManager implements IInkDevice {
     public void init(Handler callback) {
         mCallback = callback;
         mCallback.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_INIT_SUCCESS);
-        mInkLevel = MAX_PEN_INK_VOLUME / 2;
+//        mInkLevel = MAX_BAG_INK_VOLUME_MAXIMUM / 2;
         mValid = true;
         new Thread(new Runnable() {
             @Override
@@ -107,17 +113,57 @@ public class Hp22mmSCManager implements IInkDevice {
         return true;
     }
 
+    private int getSlotCount() {
+        int slotCount = 1;
+        int ns = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+        if(ns == 0x00 || ns == 0x01 || ns == 0x02 || ns == 0x04 || ns == 0x08) {
+            slotCount = 1;
+        } else
+        if(ns == 0x03 || ns == 0x05 || ns == 0x06 || ns == 0x09 || ns == 0x0A || ns == 0x0C) {
+            slotCount = 2;
+        } else
+        if(ns == 0x07 || ns == 0x0B || ns == 0x0D || ns == 0x0E) {
+            slotCount = 3;
+        } else
+        if(ns == 0x0F) {
+            slotCount = 4;
+        }
+        return slotCount;
+    }
+
     @Override
     public float getLocalInk(int head) {
+// H.M.Wang 2024-12-10 从SC的OEM中读取当前值
+        if(mInitialized && mInkLevel == -1) {
+            int level = Hp22mm.getLocalInk();
+            if(level == -1) {
+                mInkLevel = -1;
+                mValid = false;
+            } else {
+                mInkLevel = MAX_BAG_INK_VOLUME_MAXIMUM - level;
+                mValid = true;
+            }
+        }
+// End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
+// H.M.Wang 2024-12-11 根据列数调整返回值
+        if(mInkLevel != -1) {
+            return 1.0f * mInkLevel / getSlotCount();
+        }
+// End of H.M.Wang 2024-12-11 根据列数调整返回值
         return mInkLevel;
     }
 
     @Override
     public float getLocalInkPercentage(int head) {
-        int usableVol = Hp22mm.getUsableVol();
-        if(usableVol > 0)
-            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
-        else if(!mInitialized)
+// H.M.Wang 2024-12-10 从SC的OEM中读取当前值
+//        int usableVol = Hp22mm.getUsableVol();
+//        if(usableVol > 0)
+//            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
+        if(mInkLevel >= 0) {
+            float ret = (100.0f * mInkLevel / MAX_BAG_INK_VOLUME_MAXIMUM) + 0.01f;
+            return (ret > 100.0f ? 100.0f : ret);
+// End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
+        } else if(!mInitialized)
             return 50.0f;           // 在还没有初始化的情况下，返回100以防止报警
         else
             return 0.0f;
@@ -142,7 +188,13 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public void downLocal(int dev) {
-        mInkLevel--;
+        if(mInkLevel > 0) {
+// H.M.Wang 2024-12-11 根据列数调整减记值
+            int c = getSlotCount();
+            mInkLevel -= c;
+            if(mInitialized) Hp22mm.downLocal(c);
+// End of H.M.Wang 2024-12-11 根据列数调整减记值
+        }
     }
 
     @Override

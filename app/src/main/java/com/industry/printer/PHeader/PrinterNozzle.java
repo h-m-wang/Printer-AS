@@ -539,7 +539,7 @@ public enum PrinterNozzle {
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             case NozzleType.NOZZLE_TYPE_22MM:
 //                scaleW = 1056f/152;
-                scaleW = 352f/152;
+                scaleW = 264f/152;
                 scaleH = 1056f/152;
                 break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image

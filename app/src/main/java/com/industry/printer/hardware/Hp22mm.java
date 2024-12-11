@@ -59,6 +59,10 @@ public class Hp22mm {
     static public native String getErrString();
     static public native int getConsumedVol();
     static public native int getUsableVol();
+// H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
+    static public native int getLocalInk();
+    static public native int downLocal(int count);
+// End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
 //    static public native String spiTest();
