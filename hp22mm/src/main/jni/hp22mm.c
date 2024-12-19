@@ -28,7 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.118"
+#define VERSION_CODE                            "1.0.120"
+// 1.0.120 2024-12-18
+// monitorThread中暂时取消pd_set_temperature_override，可能引起14号错误。pd_power_on成功后也取消该函数
+// 1.0.119 2024-12-18
+// Java_com_pd_get_print_head_status函数中，如果state和error返回错误，但是函数本身没有发挥错误，也给ERR_STRING设置错误信息
 // 1.0.118 2024-12-11
 // 墨水最大值的定位原则：由于根据实验，4列同时打印，打印200次的时候，使用了全部775ml中的10ml，因此，最大值设置为15500会与实际情况同步。同时考虑到可能会有1列单独，2列，3列打印的情况，因此将最大值按1列打印为标准设置，乘以4（即15500*4）
 // 当列数大于1时，一次减记要交列数份的值，因此修改downLocal的参数
@@ -289,7 +293,7 @@ void *monitorThread(void *arg) {
                 }
             }
 
-            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
+//            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
             pd_disable_warming(PD_INSTANCE, sPenIdx);
 
             // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
@@ -340,7 +344,7 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
-        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
+//        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
         pd_disable_warming(PD_INSTANCE, sPenIdx);
         PD_Power_State = PD_POWER_STATE_ON;
     }
@@ -756,11 +760,13 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
 
     if (print_head_status.print_head_state >= PH_STATE_NOT_PRESENT) {
         LOGE("Print head state[%d]\n", print_head_status.print_head_state);
+        sprintf(ERR_STRING, "Print head state[%d]\n", print_head_status.print_head_state);
         return (-1);
     }
 
     if (print_head_status.print_head_error != PH_NO_ERROR) {
         LOGE("Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
+        sprintf(ERR_STRING, "Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
         return (-1);
     }
 

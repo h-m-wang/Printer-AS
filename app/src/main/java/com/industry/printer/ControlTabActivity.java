@@ -1408,8 +1408,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		for(int i=0; i<heads; i++) {
 		for(int i=0; i<Math.min(heads, 6); i++) {
 // End of H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
-			float ink = mInkManager.getLocalInkPercentage(i);
 			float count = mInkManager.getLocalInk(i) - 1;
+			float ink = mInkManager.getLocalInkPercentage(i);
 
 			String down = "";
 			if (mDTransThread != null) {

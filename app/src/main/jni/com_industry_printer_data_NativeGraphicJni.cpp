@@ -42,7 +42,6 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
     jintArray result = env->NewIntArray(length);
     env->SetIntArrayRegion(result, 0, length, rbuf);
     env->ReleaseIntArrayElements(src, cbuf, 0);
-    env->ReleaseIntArrayElements(result, rbuf, JNI_ABORT);
 
     return result;
 }
@@ -90,7 +89,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     jbyteArray result = env->NewByteArray(newSize);
     env->SetByteArrayRegion(result, 0, newSize, rbuf);
     env->ReleaseIntArrayElements(src, cbuf, 0);
-    env->ReleaseByteArrayElements(result, rbuf, JNI_ABORT);
     delete[] rbuf;
 
     return result;
@@ -171,10 +169,10 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
     if(NULL != rCharBuf) {
         result = env->NewCharArray(length/2);
         env->SetCharArrayRegion(result, 0, length/2, rCharBuf);
-        env->ReleaseCharArrayElements(result, rCharBuf, JNI_ABORT);
         delete[] rCharBuf;
     }
 
+    LOGD("GetBgBuffer done");
     return result;
 }
 
@@ -221,7 +219,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.3 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.4 Loaded.");
     return JNI_VERSION_1_4;     //这里很重要，必须返回版本，否则加载会失败。
 }
 

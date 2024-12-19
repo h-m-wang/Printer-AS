@@ -903,9 +903,9 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	}
 
 	public void down() {
-// H.M.Wang 2024-12-11 对于一个特殊用户的特殊处理，当最大值为95678的时候，不做减锁处理，相当于锁值永远有效
-		if(mInkMax == 95678) return;
-// End of H.M.Wang 2024-12-11 对于一个特殊用户的特殊处理，当最大值为95678的时候，不做减锁处理，相当于锁值永远有效
+// H.M.Wang 2024-12-11 对于一个特殊用户的特殊处理，当最大值为91234的时候，不做减锁处理，相当于锁值永远有效
+		if(mInkMax == 91234) return;
+// End of H.M.Wang 2024-12-11 对于一个特殊用户的特殊处理，当最大值为91234的时候，不做减锁处理，相当于锁值永远有效
 		if (mCurInkLevel > 0) {
 			mCurInkLevel = mCurInkLevel -1;
 // H.M.Wang 2020-4-9 修改当值为212+255*n的时候，再减1

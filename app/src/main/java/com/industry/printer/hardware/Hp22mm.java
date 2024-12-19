@@ -71,7 +71,7 @@ public class Hp22mm {
 //    static public native int ddr2fifo();
 //    static public native int fifo2mcu();
 
-    private static final int IDS_INDEX = 1;
+    private static final int IDS_INDEX = 0;     // 临时0
     private static final int PEN_INDEX = 0;
 
     public static final int DOTS_PER_COL = 1056;
