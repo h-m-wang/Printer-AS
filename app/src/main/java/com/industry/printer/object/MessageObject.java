@@ -81,7 +81,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "64"
 // H.M.Wang 2024-8-27 追加28号字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64"
+// H.M.Wang 2024-12-20 增加48点选项
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48", "64"
+// End of H.M.Wang 2024-12-20 增加48点选项
 // End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -717,6 +720,10 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_64_Size[17])) {
 // End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 32 / 64;
+// H.M.Wang 2024-12-20 增加48点选项
+			} else if (size.equalsIgnoreCase(mDot_64_Size[18])) {
+				h = 12.7f * 48 / 64;
+// End of H.M.Wang 2024-12-20 增加48点选项
             } else {
                 h = 12.7f * 64 / 64;
             }
@@ -741,10 +748,10 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[6])) {
 				h = 12.7f * 14 / 96;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
-//			} else if (size.equalsIgnoreCase(mDot_96_Size[5]) || size.equalsIgnoreCase(mDot_64_Size[6]) || size.equalsIgnoreCase(mDot_64_Size[7])) {
+//			} else if (size.equalsIgnoreCase(mDot_96_Size[5]) || size.equalsIgnoreCase(mDot_96_Size[6]) || size.equalsIgnoreCase(mDot_96_Size[7])) {
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
-//			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_64_Size[8]) || size.equalsIgnoreCase(mDot_64_Size[9]) || size.equalsIgnoreCase(mDot_64_Size[10])) {
-			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_64_Size[8]) || size.equalsIgnoreCase(mDot_64_Size[9]) || size.equalsIgnoreCase(mDot_64_Size[10]) || size.equalsIgnoreCase(mDot_64_Size[11]) || size.equalsIgnoreCase(mDot_64_Size[12])) {
+//			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_96_Size[8]) || size.equalsIgnoreCase(mDot_96_Size[9]) || size.equalsIgnoreCase(mDot_96_Size[10])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_96_Size[8]) || size.equalsIgnoreCase(mDot_96_Size[9]) || size.equalsIgnoreCase(mDot_96_Size[10]) || size.equalsIgnoreCase(mDot_96_Size[11]) || size.equalsIgnoreCase(mDot_96_Size[12])) {
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 16 / 96;
@@ -757,7 +764,7 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[15])) {
 				h = 12.7f * 24 / 96;
 // H.M.Wang 2024-8-27 追加28号字体
-			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
 				h = 12.7f * 28 / 96;
 //			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[17])) {
@@ -1005,8 +1012,12 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 64 + 1) {
 				return mDot_64_Size[17];
-            } else {
+// H.M.Wang 2024-12-20 增加48点选项
+			} else if (size <= 152f * 48 / 64 + 1) {
 				return mDot_64_Size[18];
+// End of H.M.Wang 2024-12-20 增加48点选项
+            } else {
+				return mDot_64_Size[19];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
             }
 // End of H.M.Wang 2020-8-8 在每个判断高度得if语句里面，准确计算的数值后面都+1，目的是为了解决在保存时，由于四舍五入会导致数值偏差，再次读入时会发生错误。如：

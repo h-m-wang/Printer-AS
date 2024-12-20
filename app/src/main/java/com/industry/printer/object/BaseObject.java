@@ -1111,6 +1111,10 @@ public class BaseObject{
 			} else if (MessageObject.mDot_64_Size[17].equalsIgnoreCase(dspH)) {
 // End of H.M.Wang 2020-1-31 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 				mHeight = 152f * 32 / 64;
+// H.M.Wang 2024-12-20 增加48点选项
+			} else if (MessageObject.mDot_64_Size[18].equalsIgnoreCase(dspH)) {
+				mHeight = 152f * 48 / 64;
+// End of H.M.Wang 2024-12-20 增加48点选项
 			} else {
 				mHeight = 152f * 64 / 64;
 			}

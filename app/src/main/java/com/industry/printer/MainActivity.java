@@ -552,7 +552,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 	@Override
 	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
-		if(arg1 == true) {
+// H.M.Wang 2024-12-20 A20时，控件被点按时，底层AudioBuzzer接收不到事件，因此在这里发出beep音；A133底层能够收到事件，因此这里就不需要主动发送beep音了，否则会听到两声
+//		if(arg1 == true) {
+		if(arg1 == true && !PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2024-12-20 A20时，控件被点按时，底层AudioBuzzer接收不到事件，因此在这里发出beep音；A133底层能够收到事件，因此这里就不需要主动发送beep音了，否则会听到两声
 			ExtGpio.playClick();
 		}
 		FragmentTransaction fts = getFragmentManager().beginTransaction();
