@@ -270,8 +270,8 @@
 	<param>
 		<id>77</id>
 		<min>1</min>
-		<max>255</max>
-		<default>1</default>
+		<max>4095</max>
+		<default>2305</default>
 	</param>
 <!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
 <!-- H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-200，单位kPa -->

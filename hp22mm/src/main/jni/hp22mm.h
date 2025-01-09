@@ -11,9 +11,9 @@ extern "C" {
 #endif
 
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint idsIndex);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint idsSel);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penIndex);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penSel);
 JNIEXPORT jint JNICALL Java_com_ids_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_pd_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_ids_set_date(JNIEnv *env, jclass arg);

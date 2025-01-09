@@ -530,7 +530,7 @@ UartResult_t uart_recv( int32_t         instance,
                 return UART_OK;
             }
         } else { /* = 0 */
-            LOGE("UART_ERROR_TIMEOUT! %ld:%ld, %ld\n", tv1.tv_sec, tv1.tv_usec, timeout_ms);
+            LOGE("UART_ERROR_TIMEOUT!\n");
             return UART_ERROR_TIMEOUT;
         }
     }

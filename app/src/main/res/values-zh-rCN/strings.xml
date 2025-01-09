@@ -43,6 +43,9 @@
 	<string name="str_btn_get">信息</string>
 	<string name="str_btn_print">打印</string>
 	<string name="str_btn_finish">结束</string>
+	<string name="str_btn_ids0">IDS0</string>
+	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_header0">打印头0</string>
 	<string name="str_btn_header1">打印头1</string>
 	<string name="str_btn_header2">打印头2</string>
 	<string name="str_btn_header3">打印头3</string>
@@ -703,7 +706,7 @@
 	<string name="str_test_main_bulk_printer">连供</string>
 	<string name="str_test_main_al_printer">AL大字机</string>
 	<string name="str_test_main_save_100">Save Test001</string>
-	<string name="str_test_main_ble_module_on">蓝牙模块开启</string>
+	<string name="str_test_print_data_creation">打印数据生成实验</string>
 	<string name="str_test_main_m9_test">M9测试</string>
 	<string name="str_m9_test_gpio">测GPIO</string>
 	<string name="str_m9_test_clear_gpio">清GPIO</string>

@@ -352,6 +352,13 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		super.onResume();
 		mHander.removeMessages(ENTER_LOWLIGHT_MODE);
 		mHander.sendEmptyMessageDelayed(ENTER_LOWLIGHT_MODE, 0*1000);
+// H.M.Wang 2024-12-27 A133版本时，设置屏幕常亮，以避免屏幕休眠后只能重启
+		if(PlatformInfo.isA133Product()) {
+			LinearLayout mFrameView = (LinearLayout)findViewById(R.id.out_frame);
+//			mFrameView.setSystemUiVisibility(mFrameView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+			mFrameView.setKeepScreenOn(true);
+		}
+// End of H.M.Wang 2024-12-27 A133版本时，设置屏幕常亮，以避免屏幕休眠后只能重启
 	}
 
 	public void drawObjects()

@@ -1045,22 +1045,22 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mSpiner.setAdapter(mEncDir);
 // End of H.M.Wang 2022-11-30 追加ENCDir方向选项
 // H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
-		} else if (position == 69) { //參數68
+		} else if (position == 69) { //參數70
 			mSpiner.setAdapter(mFastPrint);
 // End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA
 // H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
-		} else if (position == 70) { //參數68
+		} else if (position == 70) { //參數71
 			mSpiner.setAdapter(mUserMode);
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
 // H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
-		} else if (position == 72) { //參數72
+		} else if (position == 72) { //參數73
 			mSpiner.setAdapter(mLCDInverse);
 // End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换
 // H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
-		} else if (position == 73) { //參數72
+		} else if (position == 73) { //參數74
 			mSpiner.setAdapter(mParamAD);
 // End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定
-		} else if (position == 76) { //參數75
+		} else if (position == 76) { //參數77
 // H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数
 			Hp22mmNozzleSelectDialog dialog = new Hp22mmNozzleSelectDialog(mContext, mHandler, mSettingItems[position].getValue());
 			dialog.show();

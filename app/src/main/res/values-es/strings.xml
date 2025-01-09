@@ -51,6 +51,9 @@
 	<string name="str_btn_get">Texto</string>
 	<string name="str_btn_print">Imprimir</string>
 	<string name="str_btn_finish">Finalizar</string>
+	<string name="str_btn_ids0">IDS0</string>
+	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_header0">Cabezal de impresión0</string>
 	<string name="str_btn_header1">Cabezal de impresión1</string>
 	<string name="str_btn_header2">Cabezal de impresión2</string>
 	<string name="str_btn_header3">Cabezal de impresión3</string>
@@ -740,7 +743,7 @@
 	<string name="str_test_main_bulk_printer">Impresora a granel</string>
 	<string name="str_test_main_al_printer">Impresora AL</string>
 	<string name="str_test_main_save_100">Guardar prueba001</string>
-	<string name="str_test_main_ble_module_on">BLE encendido</string>
+	<string name="str_test_print_data_creation">Print Data Creation Test</string>
 	<string name="str_test_main_m9_test">Prueba M9</string>
 	<string name="str_m9_test_gpio">GPIO</string>
 	<string name="str_m9_test_clear_gpio">Borrar GPIO</string>

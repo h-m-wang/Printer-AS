@@ -313,6 +313,17 @@ public class CounterObject extends BaseObject {
 
 		Debug.d(TAG, "Go Next: " + mValue);
 	}
+// H.M.Wang 2024-12-28 增加显示计数器当前值所需要的接口和达到边界后报警的接口
+	private boolean mReachEdge;
+
+	public int getPrintedValue() {
+		return mPrintedValue;
+	}
+
+	public boolean isReachedEdge() {
+		return mReachEdge;
+	}
+// End of H.M.Wang 2024-12-28 增加显示计数器当前值所需要的接口和达到边界后报警的接口
 
 	public void goPrintedNext() {
 // H.M.Wang 2024-10-11 重新整理步长细分的管理方法
@@ -337,7 +348,24 @@ public class CounterObject extends BaseObject {
 */
 // End of H.M.Wang 2024-10-11 重新整理步长细分的管理方法
 		int value = (mDirection == Direction.INCREASE ? mPrintedValue + mStepLen : mPrintedValue - mStepLen);
-		mPrintedValue = (mDirection == Direction.INCREASE ? (value > mEnd ? mStart : value) : (value < mEnd ? mStart : value));
+
+		if(mDirection == Direction.INCREASE) {
+			if(value > mEnd) {
+				mPrintedValue = mStart;
+				mReachEdge = true;
+			} else {
+				mPrintedValue = value;
+				mReachEdge = false;
+			}
+		} else {
+			if(value < mEnd) {
+				mPrintedValue = mStart;
+				mReachEdge = true;
+			} else {
+				mPrintedValue = value;
+				mReachEdge = false;
+			}
+		}
 
 		SystemConfigFile.getInstance(mContext).setParamBroadcast(mCounterIndex + SystemConfigFile.INDEX_COUNT_1, mPrintedValue);
 		RTCDevice.getInstance(mContext).write(mPrintedValue, mCounterIndex);

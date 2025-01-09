@@ -20,6 +20,7 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.ui.CustomerAdapter.MessageListAdater;
 import com.industry.printer.ui.KZListView.KZListView;
@@ -188,7 +189,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 		mTitles.clear();
 		loadMessages();
 
-		mTitles.add(mCurrentMsg);
+		if(!StringUtil.isEmpty(mCurrentMsg)) mTitles.add(mCurrentMsg);
 		setupViews();
 
 	}
@@ -213,6 +214,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 	}
 
 	private void deleteItem(Integer selected) {
+		if(selected < 0) return;
 		String title = mTotalContents[selected];
 		Debug.d(TAG, "Delete: " + title + "@" + selected);
 		deleteTlkDir(title);

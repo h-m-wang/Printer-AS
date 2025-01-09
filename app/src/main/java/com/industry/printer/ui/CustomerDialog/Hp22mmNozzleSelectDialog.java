@@ -32,14 +32,35 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
 
     private TextView mConfirm;
     private TextView mCancel;
-    private TextView mPen2_7;
-    private TextView mPen2_6;
-    private TextView mPen2_5;
-    private TextView mPen2_4;
-    private TextView mPen1_3;
-    private TextView mPen1_2;
-    private TextView mPen1_1;
-    private TextView mPen1_0;
+
+// H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+    private TextView mIDS1;
+    private TextView mIDS0;
+    private TextView mPen1;
+    private TextView mPen0;
+// End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN
+
+    private TextView mPen1_7;
+    private TextView mPen1_6;
+    private TextView mPen1_5;
+    private TextView mPen1_4;
+    private TextView mPen0_3;
+    private TextView mPen0_2;
+    private TextView mPen0_1;
+    private TextView mPen0_0;
+
+    private final int IDS1_MASK       = 0x00000800;
+    private final int IDS0_MASK       = 0x00000400;
+    private final int PEN1_MASK       = 0x00000200;
+    private final int PEN0_MASK       = 0x00000100;
+    private final int PEN1_SLOT7_MASK = 0x00000080;
+    private final int PEN1_SLOT6_MASK = 0x00000040;
+    private final int PEN1_SLOT5_MASK = 0x00000020;
+    private final int PEN1_SLOT4_MASK = 0x00000010;
+    private final int PEN0_SLOT3_MASK = 0x00000008;
+    private final int PEN0_SLOT2_MASK = 0x00000004;
+    private final int PEN0_SLOT1_MASK = 0x00000002;
+    private final int PEN0_SLOT0_MASK = 0x00000001;
 
     private Handler mHandler;
     private int  mValue;
@@ -54,16 +75,27 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
         mValue = value;
     }
 
-    private void dispComponent(TextView v, int mask) {
+    private void dispState(TextView v, int mask) {
         if((mValue & mask) == mask) {
             v.setBackgroundColor(Color.GREEN);
-            v.setText("1");
+//            v.setText("1");
         } else {
             v.setBackgroundColor(Color.LTGRAY);
-            v.setText("0");
+//            v.setText("0");
         }
     }
 
+    private void toggleState(int mask) {
+        if((mValue & mask) == mask) {
+            mValue &= ~mask;
+        } else {
+            mValue |= mask;
+        }
+    }
+
+    private void clearState(int mask) {
+        mValue &= ~mask;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -79,115 +111,135 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
         getWindow().setAttributes(lp);
 // End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 
-        mPen2_7 = (TextView) findViewById(R.id.pen2_7);
-        dispComponent(mPen2_7, 0x00000080);
-        mPen2_7.setOnClickListener(new View.OnClickListener() {
+        mIDS1 = (TextView) findViewById(R.id.hp22mm_ids1_btn);
+        dispState(mIDS1, IDS1_MASK);
+        mIDS1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000080) == 0x00000080) {
-                    mValue &= 0x0000007F;
-                } else {
-                    mValue |= 0x00000080;
-                }
-                dispComponent(mPen2_7, 0x00000080);
+                toggleState(IDS1_MASK);
+                dispState(mIDS1, IDS1_MASK);
             }
         });
 
-        mPen2_6 = (TextView) findViewById(R.id.pen2_6);
-        dispComponent(mPen2_6, 0x00000040);
-        mPen2_6.setOnClickListener(new View.OnClickListener() {
+        mIDS0 = (TextView) findViewById(R.id.hp22mm_ids0_btn);
+        dispState(mIDS0, IDS0_MASK);
+        mIDS0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000040) == 0x00000040) {
-                    mValue &= 0x000000BF;
-                } else {
-                    mValue |= 0x00000040;
-                }
-                dispComponent(mPen2_6, 0x00000040);
+                toggleState(IDS0_MASK);
+                dispState(mIDS0, IDS0_MASK);
             }
         });
 
-        mPen2_5 = (TextView) findViewById(R.id.pen2_5);
-        dispComponent(mPen2_5, 0x00000020);
-        mPen2_5.setOnClickListener(new View.OnClickListener() {
+        mPen1 = (TextView) findViewById(R.id.hp22mm_pen1_btn);
+        dispState(mPen1, PEN1_MASK);
+        mPen1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000020) == 0x00000020) {
-                    mValue &= 0x000000DF;
-                } else {
-                    mValue |= 0x00000020;
+                toggleState(PEN1_MASK);
+                dispState(mPen1, PEN1_MASK);
+                if((mValue & PEN1_MASK) == 0x00000000) {
+                    clearState(PEN1_SLOT7_MASK);
+                    clearState(PEN1_SLOT6_MASK);
+                    clearState(PEN1_SLOT5_MASK);
+                    clearState(PEN1_SLOT4_MASK);
                 }
-                dispComponent(mPen2_5, 0x00000020);
             }
         });
 
-        mPen2_4 = (TextView) findViewById(R.id.pen2_4);
-        dispComponent(mPen2_4, 0x00000010);
-        mPen2_4.setOnClickListener(new View.OnClickListener() {
+        mPen0 = (TextView) findViewById(R.id.hp22mm_pen0_btn);
+        dispState(mPen0, PEN0_MASK);
+        mPen0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000010) == 0x00000010) {
-                    mValue &= 0x000000EF;
-                } else {
-                    mValue |= 0x00000010;
+                toggleState(PEN0_MASK);
+                dispState(mPen0, PEN0_MASK);
+                if((mValue & PEN1_MASK) == 0x00000000) {
+                    clearState(PEN0_SLOT3_MASK);
+                    clearState(PEN0_SLOT2_MASK);
+                    clearState(PEN0_SLOT1_MASK);
+                    clearState(PEN0_SLOT0_MASK);
                 }
-                dispComponent(mPen2_4, 0x00000010);
             }
         });
 
-        mPen1_3 = (TextView) findViewById(R.id.pen1_3);
-        dispComponent(mPen1_3, 0x00000008);
-        mPen1_3.setOnClickListener(new View.OnClickListener() {
+        mPen1_7 = (TextView) findViewById(R.id.pen1_7);
+        dispState(mPen1_7, PEN1_SLOT7_MASK);
+        mPen1_7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000008) == 0x00000008) {
-                    mValue &= 0x00000007;
-                } else {
-                    mValue |= 0x00000008;
-                }
-                dispComponent(mPen1_3, 0x00000008);
+                toggleState(PEN1_SLOT7_MASK);
+                dispState(mPen1_7, PEN1_SLOT7_MASK);
             }
         });
 
-        mPen1_2 = (TextView) findViewById(R.id.pen1_2);
-        dispComponent(mPen1_2, 0x00000004);
-        mPen1_2.setOnClickListener(new View.OnClickListener() {
+        mPen1_6 = (TextView) findViewById(R.id.pen1_6);
+        dispState(mPen1_6, PEN1_SLOT6_MASK);
+        mPen1_6.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000004) == 0x00000004) {
-                    mValue &= 0x0000000B;
-                } else {
-                    mValue |= 0x00000004;
-                }
-                dispComponent(mPen1_2, 0x00000004);
+                toggleState(PEN1_SLOT6_MASK);
+                dispState(mPen1_6, PEN1_SLOT6_MASK);
             }
         });
 
-        mPen1_1 = (TextView) findViewById(R.id.pen1_1);
-        dispComponent(mPen1_1, 0x00000002);
-        mPen1_1.setOnClickListener(new View.OnClickListener() {
+        mPen1_5 = (TextView) findViewById(R.id.pen1_5);
+        dispState(mPen1_5, PEN1_SLOT5_MASK);
+        mPen1_5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000002) == 0x00000002) {
-                    mValue &= 0x0000000D;
-                } else {
-                    mValue |= 0x00000002;
-                }
-                dispComponent(mPen1_1, 0x00000002);
+                toggleState(PEN1_SLOT5_MASK);
+                dispState(mPen1_5, PEN1_SLOT5_MASK);
             }
         });
 
-        mPen1_0 = (TextView) findViewById(R.id.pen1_0);
-        dispComponent(mPen1_0, 0x00000001);
-        mPen1_0.setOnClickListener(new View.OnClickListener() {
+        mPen1_4 = (TextView) findViewById(R.id.pen1_4);
+        dispState(mPen1_4, PEN1_SLOT4_MASK);
+        mPen1_4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if((mValue & 0x00000001) == 0x00000001) {
-                    mValue &= 0x0000000E;
-                } else {
-                    mValue |= 0x00000001;
-                }
-                dispComponent(mPen1_0, 0x00000001);
+                toggleState(PEN1_SLOT4_MASK);
+                dispState(mPen1_4, PEN1_SLOT4_MASK);
+            }
+        });
+
+        mPen0_3 = (TextView) findViewById(R.id.pen0_3);
+        dispState(mPen0_3, PEN0_SLOT3_MASK);
+        mPen0_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleState(PEN0_SLOT3_MASK);
+                dispState(mPen0_3, PEN0_SLOT3_MASK);
+            }
+        });
+
+        mPen0_2 = (TextView) findViewById(R.id.pen0_2);
+        dispState(mPen0_2, PEN0_SLOT2_MASK);
+        mPen0_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleState(PEN0_SLOT2_MASK);
+                dispState(mPen0_2, PEN0_SLOT2_MASK);
+            }
+        });
+
+        mPen0_1 = (TextView) findViewById(R.id.pen0_1);
+        dispState(mPen0_1, PEN0_SLOT1_MASK);
+        mPen0_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleState(PEN0_SLOT1_MASK);
+                dispState(mPen0_1, PEN0_SLOT1_MASK);
+            }
+        });
+
+        mPen0_0 = (TextView) findViewById(R.id.pen0_0);
+        dispState(mPen0_0, PEN0_SLOT0_MASK);
+        mPen0_0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleState(PEN0_SLOT0_MASK);
+                dispState(mPen0_0, PEN0_SLOT0_MASK);
             }
         });
 

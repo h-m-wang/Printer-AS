@@ -28,7 +28,23 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.120"
+#define VERSION_CODE                            "1.0.128"
+// 1.0.128 2025-1-2
+// 1.0.127的修改，改为8(6%)
+// 1.0.127 2025-1-2
+// pd_set_voltage_override设10（10%）临时改在PowerOn函数中
+// 1.0.126 2024-12-31
+// monitorThread中pd_get_print_head_status返回状态2时，函数本身并不返回错误。因此不能导致尝试重启。修改为忽略函数返回值，只要状态是2（或者1）都尝试上电
+// 1.0.125 2024-12-31
+// 临时取消pd_disable_warming功能
+// 1.0.124 2024-12-31
+// 临时在守护线程中添加读取打印头温度的功能（pd_get_temperature）。并且暂时取消1.0.122和1.0.123版本增加的电压调整的尝试
+// 1.0.123 2024-12-27
+// pd_set_voltage_override设10（10%）
+// 1.0.122 2024-12-27
+// 初始化之后，设置pd_set_voltage_override，暂时为8（+6%），在MonitorThread中读取确认
+// 1.0.121 2024-12-20
+// 在上电之前先检查温度是否到位，否则等待，最多5秒
 // 1.0.120 2024-12-18
 // monitorThread中暂时取消pd_set_temperature_override，可能引起14号错误。pd_power_on成功后也取消该函数
 // 1.0.119 2024-12-18
@@ -287,14 +303,15 @@ void *monitorThread(void *arg) {
                 continue;
             }
             // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
-            if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx)) {
-                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
-                }
+            pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx);
+            if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+                pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
             }
 
-//            pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
-            pd_disable_warming(PD_INSTANCE, sPenIdx);
+            uint8_t v;
+// 暂时取消这个临时错误            pd_check("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, sPenIdx, &v));
+            pd_check("pd_get_temperature", pd_get_temperature(PD_INSTANCE, sPenIdx, &v));
+// 暂时取消            pd_disable_warming(PD_INSTANCE, sPenIdx);
 
             // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
             if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
@@ -340,12 +357,24 @@ JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
 }
 
 JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
+// H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待，最多5秒
+//    PrintHeadStatus status;
+//    PDResult_t pd_r;
+//    for(int i=0; i<5; i++) {
+//        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &status);
+//        if(pd_r == PD_OK && (status.print_head_state == PH_STATE_POWERED_ON || status.print_head_state == PH_STATE_PRESENT) && status.print_head_error == PH_NO_ERROR) break;
+//        sleep(1);
+//    }
+// End of H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待
+
+    pd_check("pd_set_voltage_override", pd_set_voltage_override(PD_INSTANCE, sPenIdx, 8));
+
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
 //        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
-        pd_disable_warming(PD_INSTANCE, sPenIdx);
+//        pd_disable_warming(PD_INSTANCE, sPenIdx);
         PD_Power_State = PD_POWER_STATE_ON;
     }
     return 0;
@@ -562,6 +591,8 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint pen
     if (pd_check("pd_init", pd_r)) return -1;
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
+//暂时取消这个临时措施    pd_r = pd_set_voltage_override(PD_INSTANCE, sPenIdx, 10);
+//暂时取消这个临时措施    if (pd_check("pd_set_voltage_override", pd_r)) return -1;
 
     LOGD("uC FW REV. = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
     LOGD("Bootloader REV = %d.%d\n", pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor);

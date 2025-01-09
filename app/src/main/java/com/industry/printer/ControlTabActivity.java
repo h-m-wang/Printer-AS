@@ -358,6 +358,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	private static final int MSG_IMPORT_DONE = 22;
 
+// H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
+	private static final int MSG_SHOW_COUNTER = 25;
+	private static final int MSG_ALARM_CNT_EDGE = 26;
+// End of H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
+
 	/**
 	 * the bitmap for preview
 	 */
@@ -2564,6 +2569,25 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
+// H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
+				case MSG_SHOW_COUNTER:
+					TextView cntTV = (TextView) getView().findViewById(R.id.counterTV);
+					cntTV.setText((String)msg.obj);
+					break;
+				case MSG_ALARM_CNT_EDGE:
+					ToastUtil.show(mContext, (String.format(mContext.getResources().getString(R.string.strCounterIndex), msg.arg1) + " " + mContext.getResources().getString(R.string.strCounterClear)));
+					ThreadPoolManager.mControlThread.execute(new Runnable() {
+						@Override
+						public void run() {
+						ExtGpio.playClick();
+						try{Thread.sleep(50);}catch(Exception e){};
+						ExtGpio.playClick();
+						try{Thread.sleep(50);}catch(Exception e){};
+						ExtGpio.playClick();
+						}
+					});
+					break;
+// End of H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
 				default:
 					break;
 			}
@@ -4715,6 +4739,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		}
 // End of H.M.Wang 2022-11-10 追加一个打印时错误回调，用于报告错误，可以根据需要决定是否停止打印
+// H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
+		public void onShowCounter(String str) {
+	    	Message msg = mHandler.obtainMessage(MSG_SHOW_COUNTER, str);
+	    	mHandler.sendMessage(msg);
+		}
+		public void onCounterReachEdge(int cntIndex) {
+			Message msg = mHandler.obtainMessage(MSG_ALARM_CNT_EDGE, cntIndex, 0);
+			mHandler.sendMessage(msg);
+		}
+// End of H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
 
 	static char[] sRemoteBin;
 	//Socket________________________________________________________________________________________________________________________________

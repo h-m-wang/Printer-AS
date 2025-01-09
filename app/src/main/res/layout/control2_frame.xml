@@ -403,32 +403,46 @@
             />
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:id="@+id/preview_scroll"
+<!-- H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
+    <RelativeLayout
+        android:id="@+id/preview_scroll_frame"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none"
         android:layout_above="@id/ctrl_stateview"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="#ffffff"
-        >
-        <LinearLayout
-            android:id="@+id/ll_preview"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/control_preview_height"
-            android:orientation="horizontal"
-            android:background="#ffffff"
-            >
-
-        </LinearLayout>
-    </HorizontalScrollView>
+        android:background="#ffffff" >
+        <HorizontalScrollView
+            android:id="@+id/preview_scroll"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none" >
+            <LinearLayout
+                android:id="@+id/ll_preview"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/control_preview_height"
+                android:orientation="horizontal"
+                android:background="#ffffff"
+                >
+            </LinearLayout>
+        </HorizontalScrollView>
+        <TextView
+            android:id="@+id/counterTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/black"
+            android:textSize="24sp" />
+    </RelativeLayout>
+<!-- End of H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
 
     <RelativeLayout
         android:id="@+id/ctrl_msgname"
         android:layout_width="fill_parent"
         android:layout_height="58dp"
-        android:layout_above="@id/preview_scroll"
+        android:layout_above="@id/preview_scroll_frame"
         android:layout_marginTop="5dp" >
 
         <TextView

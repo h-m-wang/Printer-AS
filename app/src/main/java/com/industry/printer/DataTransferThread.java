@@ -51,6 +51,7 @@ import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinCreater;
 import com.industry.printer.data.BufferRebuilder;
@@ -2376,6 +2377,10 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2022-11-10 追加一个中止回调，主要是在RfidScheduler类中如果初始化Bagink的Level时出现Feature6的值不合法，则中止打印的执行。当然，也可以用于其他的中止打印的操作
 		void onError(boolean cancel);
 // End of H.M.Wang 2022-11-10 追加一个中止回调，主要是在RfidScheduler类中如果初始化Bagink的Level时出现Feature6的值不合法，则中止打印的执行
+// H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
+		void onShowCounter(String str);
+		void onCounterReachEdge(int cntIndex);
+// End of H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
 	}
 	
 	public static final int CODE_BARFILE_END = 1;
@@ -2459,10 +2464,23 @@ private void setSerialProtocol9DTs(final String data) {
 private void setCounterPrintedNext(DataTask task, int count) {
 	Debug.d(TAG, "--->setCounterPrintedNext");
 
+// H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
+	StringBuilder sb = new StringBuilder();
+	int cntIdxReachEdge = -1;
+	boolean reachEdge = false;
 	for(int i=0; i<count; i++) {
+		sb.setLength(0);
 		for (BaseObject object : task.getObjList()) {
 			if (object instanceof CounterObject) {
 				((CounterObject) object).goPrintedNext();
+				if(sb.length() == 0) {
+					sb.append(((CounterObject) object).getPrintedValue());
+				} else {
+					sb.append(",");
+					sb.append(((CounterObject) object).getPrintedValue());
+				}
+				reachEdge |= ((CounterObject) object).isReachedEdge();
+				if(((CounterObject) object).isReachedEdge()) cntIdxReachEdge = ((CounterObject) object).getCounterIndex();
 			} else if (object instanceof HyperTextObject) {
 				((HyperTextObject) object).goPrintedNext();
 			} else if (object instanceof BarcodeObject) {
@@ -2470,6 +2488,12 @@ private void setCounterPrintedNext(DataTask task, int count) {
 			}
 		}
 	}
+
+	if(null != mCallback) {
+		mCallback.onShowCounter(sb.toString());
+		if(reachEdge) mCallback.onCounterReachEdge(cntIdxReachEdge);
+	}
+// End of H.M.Wang 2024-12-28 追加两个回调接口，一个是显示计数器的当前值，另一个是计数器到达边界是的报警
 }
 // H.M.Wang 2021-5-7 当在FIFO模式的时候，在这里对实际打印次数进行修正
 

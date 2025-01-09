@@ -225,7 +225,7 @@ public class MessageListAdater extends BaseAdapter {
 	}
 
 	public Integer getSelectedSingle() {
-		return mDispIndex.get(mSelected);
+		return (mSelected >= 0 ? mDispIndex.get(mSelected) : -1);
 	}
 
 ////	public Map<String, Boolean> getSelected() {

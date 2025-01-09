@@ -71,8 +71,8 @@ public class Hp22mm {
 //    static public native int ddr2fifo();
 //    static public native int fifo2mcu();
 
-    private static final int IDS_INDEX = 0;     // 临时0
-    private static final int PEN_INDEX = 0;
+//    private static final int IDS_INDEX = 0;
+//    private static final int PEN_INDEX = 1;
 
     public static final int DOTS_PER_COL = 1056;
     public static final int BYTES_PER_COL = DOTS_PER_COL / 8;       // 132
@@ -116,14 +116,22 @@ public class Hp22mm {
 
     public static int initHp22mm() {
         mInitialized = false;
-        if (0 != init_ids(IDS_INDEX)) {
+// H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+        int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+        int idsIndex = 1;
+        if(((nozzle_sel >> 10) & 0x03) == 0x01) idsIndex = 0;   // IDS0=1时无论IDS1为何值，IDSINDEX=0，其余IDSINDEX=1
+// End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+        if (0 != init_ids(idsIndex)) {
             Debug.d(TAG, "init_ids failed\n");
             return -1;
         } else {
             Debug.d(TAG, "init_ids succeeded\n");
         }
-
-        if (0 != init_pd(PEN_INDEX)) {
+// H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+        int penIndex = 0;
+        if(((nozzle_sel >> 8) & 0x02) == 0x02) penIndex = 1;   // PEN1=1时无论PEN0为何值，PENINDEX=1，其余PENINDEX=0
+// End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+        if (0 != init_pd(penIndex)) {
             Debug.d(TAG, "init_pd failed\n");
             return -2;
         } else {
@@ -207,13 +215,16 @@ public class Hp22mm {
         regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
         regs[REG07_START_ADD_P0S0_ODD] = 132;
-        regs[REG08_START_ADD_P0S0_EVEN] = 132;
+// H.M.Wang 2024-12-29 临时修改为0x7FE084
+//        regs[REG08_START_ADD_P0S0_EVEN] = 132;
+        regs[2] = (char)0x07F;
+        regs[REG08_START_ADD_P0S0_EVEN] = (char)0xE084;
+// End of H.M.Wang 2024-12-29 临时修改为0x7FE084
         regs[REG09_START_ADD_P0S1_ODD] = 132;
         regs[REG10_START_ADD_P0S1_EVEN] = 132;
         regs[REG11_START_ADD_P1S0_ODD] = 132;
         regs[REG12_START_ADD_P1S0_EVEN] = 132;
         regs[REG13_START_ADD_P1S1_ODD] = 132;
-        regs[REG14_START_ADD_P1S1_EVEN] = 132;
         regs[REG14_START_ADD_P1S1_EVEN] = 132;
 
 // H.M.Wang 2024-9-3 修改R15的计算公式
@@ -236,7 +247,7 @@ public class Hp22mm {
 //        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
 //                (config.mParam[2] == 150 ? 4 : (config.mParam[2] == 300 ? 2 : (config.mParam[2] == 600 ? 1 : 1)));
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // R18=((C10*2*25.4)/(C9*3.14))/C3
-                (((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / config.mParam[2]);     // (2024-9-5)
+                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / config.mParam[2]), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)
 // End of H.M.Wang 2024-9-3 修改R18的计算公式
 // H.M.Wang 2024-9-3 修改R20,R21的计算公式
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[11]);              // R20= C4x24+c12
@@ -249,9 +260,13 @@ public class Hp22mm {
         regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定
         regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
         regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
-        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
+// H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
+//        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
+        regs[REG27_MAX_PRINT_COUNT] = (char)(config.mParam[2] / 300);                                                    // R27 最大打印次数 1
+        regs[REG27_MAX_PRINT_COUNT] = (char)(regs[REG27_MAX_PRINT_COUNT] < 1 ? 0 : (regs[REG27_MAX_PRINT_COUNT]-1));
+// End of H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
         regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
-        regs[REG29_COLUMN_ENABLE] = (char)config.getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+        regs[REG29_COLUMN_ENABLE] = (char)(0x0FF & config.getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL));  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
         regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
         regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
 

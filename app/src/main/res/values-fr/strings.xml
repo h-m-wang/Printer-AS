@@ -26,6 +26,9 @@
 	<string name="str_btn_get">Texte</string>
 	<string name="str_btn_print">Impression</string>
 	<string name="str_btn_finish">Ailette</string>
+	<string name="str_btn_ids0">IDS0</string>
+	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_header0">Stylo0</string>
 	<string name="str_btn_header1">Stylo1</string>
 	<string name="str_btn_header2">Stylo2</string>
 	<string name="str_btn_header3">Stylo3</string>
@@ -611,7 +614,7 @@
 	<string name="str_test_main_bulk_printer">Bulk Printer</string>
 	<string name="str_test_main_al_printer">AL Printer</string>
 	<string name="str_test_main_save_100">Save Test001</string>
-	<string name="str_test_main_ble_module_on">BLE on</string>
+	<string name="str_test_print_data_creation">Print Data Creation Test</string>
 	<string name="str_test_main_m9_test">M9 Test</string>
 	<string name="str_m9_test_gpio">GPIO</string>
 	<string name="str_m9_test_clear_gpio">Clear GPIO</string>

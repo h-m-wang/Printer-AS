@@ -3,6 +3,7 @@ package com.industry.printer.ui.Test;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Message;
@@ -32,6 +33,8 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.data.BinFileMaker;
+import com.industry.printer.data.NativeGraphicJni;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
@@ -42,6 +45,7 @@ import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
+import com.industry.printer.object.BarcodeObject;
 
 import java.io.File;
 import java.util.List;
@@ -65,7 +69,7 @@ public class TestMain {
         R.string.str_test_main_bulk_printer,
         R.string.str_test_main_al_printer,
         R.string.str_test_main_save_100,
-        R.string.str_test_main_ble_module_on,
+        R.string.str_test_print_data_creation,
         R.string.str_test_main_m9_test,
         R.string.str_m9_test_rfid,
 // H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
@@ -204,9 +208,11 @@ public class TestMain {
 // End of H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 // H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
                 else if(i == 4) {
-                    new Thread(new Runnable() {
+                    printDataCreationTest();
+/*                    new Thread(new Runnable() {
                         @Override
                         public void run() {
+
                             BLEDevice ble = BLEDevice.getInstance();
 //for(int i=0; i<100; i++) {
 //    if(mQuit) break;
@@ -234,7 +240,7 @@ public class TestMain {
     try{Thread.sleep(1000);}catch(Exception e){}
 //}
                         }
-                    }).start();
+                    }).start();*/
                     return;
                 }
 // End of H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
@@ -380,6 +386,7 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);
                 mIFTestOp.setTitle(mTitleTV);
@@ -444,4 +451,69 @@ public class TestMain {
         }
     }
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+// H.M.Wang 2024-12-22 增加生成数据所用时间测试（可以视为一种性能测试）
+    private AlertDialog mPrintDataCreationTestResultDlg = null;
+    private long mMaxTime, mMinTime, mAvgTime;
+    private int mCount;
+
+    private void printDataCreationTest() {
+        mPrintDataCreationTestResultDlg = new AlertDialog.Builder(mContext).setTitle("Print Data Creation Test")
+                .setMessage("")
+                .setNegativeButton("Stop", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mPhoEncTesting = false;
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        mPrintDataCreationTestResultDlg.show();
+        mPhoEncTesting = true;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mMaxTime = mMinTime = mAvgTime = 0;
+                int sum = 0;
+                mCount = 1;
+
+                for(int i=0; i<100 && mPhoEncTesting; i++, mCount++) {
+                    long s0 = System.currentTimeMillis();
+                    BarcodeObject barObj = new BarcodeObject(mContext, 0);
+                    barObj.setCode(BarcodeObject.BARCODE_FORMAT_QR);
+                    barObj.setContent("1234567890abcdefghojk");
+                    Bitmap bmp = barObj.getPrintBitmap(152*4, 152*4, 152*4, 152*4, 0);
+//                    Debug.d(TAG, "Create Bitmap: " + (System.currentTimeMillis() - s0));
+                    BinFileMaker m = new BinFileMaker(mContext);
+                    m.extract(bmp, 1, false);
+//                    Debug.d(TAG, "Binarize Bitmap: " + (System.currentTimeMillis() - s0));
+                    char[] cBuf = NativeGraphicJni.GetBgBuffer(
+                            m.getBuffer(),
+                            ((19+1)*4)*(152*4),         // 每列补齐后字节数 * 列数
+                            (19+1)*4,         // 每列的补齐后字节数((bytesPerHFeed + (需补齐 ? 1 : 0)) * 头数)
+                            1*(19+1),     // 补齐单数后每个头的字节数
+                            19,         // 实际每个头字节数
+                            (152*4),
+                            4
+                    );
+//                    Debug.d(TAG, "byte[] -> char[]: " + (System.currentTimeMillis() - s0));
+                    long s1 = System.currentTimeMillis();
+                    long eclapseTime = s1 - s0;
+                    Debug.d(TAG, "Round " + mCount + ": " + eclapseTime);
+                    sum += s1 - s0;
+                    if(mMaxTime < eclapseTime) mMaxTime = eclapseTime;
+                    if(mMinTime > eclapseTime || mMinTime == 0) mMinTime = eclapseTime;
+                    mAvgTime = sum / mCount;
+                    mMainMenuLV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPrintDataCreationTestResultDlg.setMessage("(" + mCount + "/100) => Min: " + mMinTime + ";   Avg: " + mAvgTime + ";   Max: " + mMaxTime + "   (ms)");
+                        }
+                    });
+                    try{Thread.sleep(10);}catch(Exception e){}
+                }
+            }
+        }).start();
+    }
+// End of H.M.Wang 2024-12-22 增加生成数据所用时间测试（可以视为一种性能测试）
 }

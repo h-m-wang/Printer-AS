@@ -429,7 +429,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/preview_scroll" >
+        android:layout_above="@+id/preview_scroll_frame" >
         <TextView
             android:id="@+id/sc_monitor_info"
             android:layout_width="wrap_content"
@@ -440,24 +440,39 @@
     </RelativeLayout>
 <!-- End of H.M.Wang 2023-6-14 追加一个SC版本的监视信息显示 -->
 
-    <HorizontalScrollView
-        android:id="@+id/preview_scroll"
+<!-- H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
+    <RelativeLayout
+        android:id="@+id/preview_scroll_frame"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:scrollbars="none"
         android:layout_below="@id/ctrl_msgname"
         android:layout_above="@id/ctrl_stateview"
         android:layout_marginTop="5dp"
-        android:background="#ffffff"
-        >
-        <LinearLayout
-            android:id="@+id/ll_preview"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/control_preview_height"
-            android:orientation="horizontal"
-            android:background="#ffffff"
-            >
-
-        </LinearLayout>
-    </HorizontalScrollView>
+        android:background="#ffffff" >
+        <HorizontalScrollView
+            android:id="@+id/preview_scroll"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scrollbars="none"
+            android:background="#ffffff" >
+            <LinearLayout
+                android:id="@+id/ll_preview"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/control_preview_height"
+                android:orientation="horizontal"
+                android:background="#ffffff"
+                >
+            </LinearLayout>
+        </HorizontalScrollView>
+        <TextView
+            android:id="@+id/counterTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/black"
+            android:textSize="24sp" />
+    </RelativeLayout>
+<!-- End of H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
 </RelativeLayout>
