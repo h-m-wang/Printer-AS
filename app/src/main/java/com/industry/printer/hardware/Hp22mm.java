@@ -23,7 +23,7 @@ public class Hp22mm {
 
     static public native int init_ids(int idsIndex);
     static public native String ids_get_sys_info();
-    static public native int init_pd(int penIndex);
+    static public native int init_pd();
     static public native String pd_get_sys_info();
     static public native int ids_set_platform_info();
     static public native int pd_set_platform_info();
@@ -32,18 +32,18 @@ public class Hp22mm {
     static public native int ids_set_stall_insert_count();
     static public native int ids_get_supply_status();
     static public native String ids_get_supply_status_info();
-    static public native int pd_get_print_head_status();
+    static public native int pd_get_print_head_status(int penIndex);
     static public native String pd_get_print_head_status_info();
-    static public native int pd_sc_get_status();
+    static public native int pd_sc_get_status(int penIndex);
     static public native String pd_sc_get_status_info();
-    static public native int pd_sc_get_info();
+    static public native int pd_sc_get_info(int penIndex);
     static public native String pd_sc_get_info_info();
     static public native int DeletePairing();
-    static public native int DoPairing();
-    static public native int DoOverrides();
+    static public native int DoPairing(int penArg);
+    static public native int DoOverrides(int penArg);
 // H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
 //    static public native int Pressurize();
-    static public native int StartMonitor();
+    static public native int StartMonitor(int arg);
     static public native int Pressurize(boolean async);
 // End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
     static public native String getPressurizedValue();
@@ -51,10 +51,10 @@ public class Hp22mm {
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native int pdPowerOn();
-    static public native int pdPowerOff();
+    static public native int pdPowerOn(int penIndex);
+    static public native int pdPowerOff(int penIndex);
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
-    static public native int pdPurge();
+    static public native int pdPurge(int penIndex);
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
     static public native String getErrString();
     static public native int getConsumedVol();
@@ -127,50 +127,12 @@ public class Hp22mm {
         } else {
             Debug.d(TAG, "init_ids succeeded\n");
         }
-// H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
-        int penIndex = 0;
-        if(((nozzle_sel >> 8) & 0x02) == 0x02) penIndex = 1;   // PEN1=1时无论PEN0为何值，PENINDEX=1，其余PENINDEX=0
-// End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
-        if (0 != init_pd(penIndex)) {
-            Debug.d(TAG, "init_pd failed\n");
-            return -2;
-        } else {
-            Debug.d(TAG, "init_pd succeeded\n");
-        }
 
         if (0 != ids_get_supply_status()) {
             Debug.d(TAG, "ids_get_supply_status failed\n");
             return -3;
         } else {
             Debug.d(TAG, "ids_get_supply_status succeeded\n");
-        }
-
-        if (0 != pd_get_print_head_status()) {
-            Debug.d(TAG, "pd_get_print_head_status failed\n");
-            return -4;
-        } else {
-            Debug.d(TAG, "pd_get_print_head_status succeeded\n");
-        }
-
-        if (0 != DeletePairing()) {
-            Debug.d(TAG, "DeletePairing failed\n");
-            return -5;
-        } else {
-            Debug.d(TAG, "DeletePairing succeeded\n");
-        }
-
-        if (0 != DoPairing()) {
-            Debug.d(TAG, "DoPairing failed\n");
-            return -6;
-        } else {
-            Debug.d(TAG, "DoPairing succeeded\n");
-        }
-
-        if (0 != DoOverrides()) {
-            Debug.d(TAG, "DoOverrides failed\n");
-            return -7;
-        } else {
-            Debug.d(TAG, "DoOverrides succeeded\n");
         }
 
 // H.M.Wang 2024-11-10
@@ -183,17 +145,64 @@ public class Hp22mm {
             Debug.d(TAG, "Pressurize succeeded\n");
         }
 
-// H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
-        if (0 != pdPowerOn()) {
-            Debug.d(TAG, "PD power on failed\n");
-            return -9;
+        int penArg = ((nozzle_sel >> 8) & 0x00000003);
+        int[] penIdxs;
+        if(penArg == 0x01) {
+            penIdxs = new int[] {0};
+        } else if(penArg == 0x02) {
+            penIdxs = new int[]{1};
         } else {
-            Debug.d(TAG, "PD power on succeeded\n");
+            penIdxs = new int[]{0,1};
         }
-// End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
 
-// H.M.Wang 2024-11-10
-        if (0 != StartMonitor()) {
+        if (0 != init_pd()) {
+            Debug.d(TAG, "init_pd failed\n");
+            return -2;
+        } else {
+            Debug.d(TAG, "init_pd succeeded\n");
+        }
+
+        if (0 != DeletePairing()) {
+            Debug.d(TAG, "DeletePairing failed\n");
+            return -5;
+        } else {
+            Debug.d(TAG, "DeletePairing succeeded\n");
+        }
+
+        if (0 != DoPairing(penArg)) {
+            Debug.d(TAG, "DoPairing failed\n");
+            return -6;
+        } else {
+            Debug.d(TAG, "DoPairing succeeded\n");
+        }
+
+        if (0 != DoOverrides(penArg)) {
+            Debug.d(TAG, "DoOverrides failed\n");
+            return -7;
+        } else {
+            Debug.d(TAG, "DoOverrides succeeded\n");
+        }
+
+        for(int i=0; i<penIdxs.length; i++) {
+/*            if (0 != pd_get_print_head_status(penIdxs[i])) {
+                Debug.d(TAG, "pd_get_print_head_status failed\n");
+                return -4;
+            } else {
+                Debug.d(TAG, "pd_get_print_head_status succeeded\n");
+            }
+*/
+// H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
+            if (0 != pdPowerOn(penIdxs[i])) {
+                Debug.d(TAG, "PD power on failed\n");
+                return -9;
+            } else {
+                Debug.d(TAG, "PD power on succeeded\n");
+            }
+// End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
+        }
+
+        // H.M.Wang 2024-11-10
+        if (0 != StartMonitor(penArg)) {
             Debug.d(TAG, "StartMonitor failed\n");
             return -7;
         } else {
@@ -229,7 +238,10 @@ public class Hp22mm {
 
 // H.M.Wang 2024-9-3 修改R15的计算公式
 //        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
-        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
+// H.M.Wang 2025-1-10 config.mParam[0]最小不能小于110来计算
+//        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
+        int encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
+// End of H.M.Wang 2025-1-10 config.mParam[0]最小不能小于110来计算
 // End of H.M.Wang 2024-9-3 修改R15的计算公式
         regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位
         regs[REG15_INTERNAL_ENC_FREQ] = (char)((char)(encFreq & 0x0ffff));                                                   // Reg15仅保存ENC的低16位，完整整数在img中合成
@@ -303,49 +315,6 @@ public class Hp22mm {
         }
         return regs;
     }
-
-// H.M.Wang 2024-11-10
-    public static int startPrint() {
-        if (0 != pdPowerOn()) {
-            Debug.d(TAG, "PD power on failed\n");
-            return -9;
-        } else {
-            Debug.d(TAG, "PD power on succeeded\n");
-        }
-        return 0;
-    }
-
-    public static int stopPrint() {
-        if (0 != pdPowerOff()) {
-            Debug.d(TAG, "PD power off failed\n");
-            return -10;
-        } else {
-            Debug.d(TAG, "PD power off succeeded\n");
-        }
-        return 0;
-    }
-// End of H.M.Wang 2024-11-10
-
-// H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成
-/*    public static int startPrint() {
-        if(_startPrint() < 0) {
-            if(initHp22mm() < 0) {
-                return -1;
-            } else {
-                return _startPrint();
-            }
-        }
-        Debug.d(TAG, "startPrint succeeded\n");
-        return 0;
-    }*/
-// End of H.M.Wang 2024-9-26 取消开始打印时在pd_power_on, pd_power_on改在初始化阶段完成
-
-// H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
-/*    public static int stopPrint() {
-        return _stopPrint();
-    }*/
-// End of H.M.Wang 2024-9-26 取消停止打印时pd_power_off，也不关闭打印监视线程（在so里面）
-
 // H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
     public static int hp22mmBulkWriteTest() {
         return FpgaGpioOperation.hp22mmBulkWriteTest();

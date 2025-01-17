@@ -24,8 +24,8 @@
 	<string name="str_btn_get">Text</string>
 	<string name="str_btn_print">Drucken</string>
 	<string name="str_btn_finish">Fertig</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">Kopf0</string>
 	<string name="str_btn_header1">Kopf1</string>
 	<string name="str_btn_header2">Kopf2</string>

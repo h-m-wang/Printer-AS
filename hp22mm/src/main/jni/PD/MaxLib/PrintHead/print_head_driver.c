@@ -2526,8 +2526,14 @@ PDResult_t pd_start_purging(int32_t instance, uint8_t ph_id, uint8_t slot) {
 //		LOGE("Invalid Instance!");
 //		return PD_ERROR;
 //	}
-//    if(ph_id >= NUM_SUPPORTED_PH) return PD_ERROR;
-//    if(slot >= (NUM_TRENCH_PER_PH + 1)) return PD_ERROR;
+    if(ph_id >= NUM_SUPPORTED_PH) {
+        LOGE("Invalid Pen ID [%d]!", ph_id);
+        return PD_ERROR;
+    }
+    if(slot >= (NUM_TRENCH_PER_PH + 1)) {
+        LOGE("Invalid Slot ID [%d]!", slot);
+        return PD_ERROR;
+    }
 
     ServiceResult_t sr;
 

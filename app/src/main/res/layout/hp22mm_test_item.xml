@@ -61,7 +61,7 @@
                 android:padding="5dp"
                 android:textSize="30sp"
                 android:textColor="@color/black"
-                android:text="@string/str_btn_header1"
+                android:text="@string/str_btn_header2"
                 android:gravity="center" />
             <TextView
                 android:id="@+id/hp22mm_test_pen0_btn"
@@ -72,7 +72,7 @@
                 android:padding="5dp"
                 android:textSize="30sp"
                 android:textColor="@color/black"
-                android:text="@string/str_btn_header0"
+                android:text="@string/str_btn_header1"
                 android:gravity="center" />
         </LinearLayout>
     </LinearLayout>

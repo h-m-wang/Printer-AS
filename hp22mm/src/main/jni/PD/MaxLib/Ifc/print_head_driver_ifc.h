@@ -598,7 +598,13 @@ typedef struct
     bool purge_complete_slot_b;         /**< Shipping fluid Purge complete for slot B. 
                                             0 = Purge not completed, 
                                             1 = Purge completed */
-    bool altered_ph_detected_slot_a;    /**< Altered Printhead detected on slot A. 
+// H.M.Wang Added
+    uint32_t purge_complete_mark_oem;   /**< Purge completion mark written in OEM area.
+                                            01 = Purge for slot A completed,
+                                            10 = Purge for slot B completed,
+                                            11 = Purge completed for both slots completed */
+// End of H.M.Wang Added
+    bool altered_ph_detected_slot_a;    /**< Altered Printhead detected on slot A.
                                             0 = Altered printhead not detected, 
                                             1 = Altered printhead detected */   
     bool altered_ph_detected_slot_b;    /**< Altered Printhead detected on slot B. 

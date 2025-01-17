@@ -28,7 +28,32 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.128"
+#define VERSION_CODE                            "1.0.140"
+// 1.0.140 2025-1-17
+// Java_com_purge修改为，根据PD的SC中系统保存的purge状态和OEM保存的purge状态，当两者有一个为1时，判定为做过purge，不再purge，并且写入OEM区1。当两个Slot都purge过时，不再执行purge返回错误。
+// 执行purge后，无论pd_start_purging函数返回成功还是失败，均按着成功处理，写入OEM，并且返回成功
+// 1.0.139 2025-1-17
+// 修改Java_com_purge的清洗方法，改为两个slot同时清洗
+// 1.0.138 2025-1-16
+// 修改purge_complete_mark_oem的定义，原来错误的定义为bool了，因该是uint32_t型(因为是保存在PD_SC_OEM_RW_FIELD_1中）
+// 1.0.137 2025-1-16
+// 整理Java_com_purge代码，原来的判断成否是看pd_check_ph，这个里面因为要再次执行pd_get_print_head_status，所以当pd_start_purging返回失败的时候，可能反应的结果是pd_get_print_head_status的结果，这个结果可能显示没有问题
+// 1.0.136 2025-1-16
+// 取消1.0.134增加的mutex
+// 1.0.135 2025-1-16
+// 给monitorThread传递的参数，改为通过内部static变量传递，因为使用pthread_create函数传递的参数有时候是错的，原因不明（现在这个方式是否可行也得确认）
+// 1.0.134 2025-1-16
+// 在守护线程和purge操作之间使用mutex进行排斥，以后可能其它的临界处理也需要这么做
+// 1.0.133 2025-1-15
+// 修改PDSmartCardStatus数据结构，增加一个purge_complete_mark_oem数据项，用来反应写在PD的SC卡的OEM区中的purge的执行状态。同时，在hp22mm.c的purge函数中，增加写purge状态到OEM区的功能，在pd_sc_get_status中增加从OEM区读这个状态，并且返回给测试页面的功能
+// 1.0.132 2025-1-15
+// 取消规避ERROR_DEVICE_SEEN_BEFORE错误，恢复原样。同时对DoPairing和DoOverrides函数进行修改，使之支持多个头
+// 1.0.131 2025-1-14
+// 在DoPairing函数中，暂时规避ERROR_DEVICE_SEEN_BEFORE错误
+// 1.0.130 2025-1-13
+// 取消固定一个打印头(sPenIdx)，改为可灵活使用两个打印头
+// 1.0.129 2025-1-11
+// 在守护线程中追加pd_enable_warming，尝试持续加热
 // 1.0.128 2025-1-2
 // 1.0.127的修改，改为8(6%)
 // 1.0.127 2025-1-2
@@ -170,7 +195,11 @@ extern "C"
 // 1.0.067 2024-1-30 追加一个SpiTest
 
 int sIdsIdx = 1;
-int sPenIdx = 0;
+// H.M.Wang 2025-1-13 取消固定一个打印头，改为可灵活使用两个打印头
+//int sPenIdx = 0;
+// End of H.M.Wang 2025-1-13 取消固定一个打印头，改为可灵活使用两个打印头
+
+// static pthread_mutex_t mutex;
 
 void CmdDepressurize();
 int CmdPressurize(jboolean async);
@@ -235,18 +264,44 @@ static SupplyInfo_t supply_info;
 static PrintHeadStatus print_head_status;
 static PDSmartCardInfo_t pd_sc_info;
 static PDSmartCardStatus pd_sc_status;
+static volatile int PenArg;
 
 void *monitorThread(void *arg) {
     int nonsecure_sec = 0;
     int secure_sec = 0;
     float ink_weight;
-    int degree_c;
+//    int degree_c;
     int limit_sec;
 
+//    int pArg = *(jint *)arg;
+    int penNum;
+    if(PenArg == 3) {
+        penNum = 2;
+    } else if(PenArg == 2 || PenArg == 1) {
+        penNum = 1;
+    } else {
+        LOGE("Monitor thread starting failed. Wrong parametres(arg=%d)", PenArg);
+        return (void*)NULL;
+    }
+    int penIndexs[penNum];
+    if(PenArg == 1)
+        penIndexs[0] = 0;
+    else if(PenArg == 2)
+        penIndexs[0] = 1;
+    else if(PenArg >= 3) {
+        penIndexs[0] = 0;
+        penIndexs[1] = 1;
+    }
+
     LOGD("[Async] Monitor thread started.");
+    uint8_t sc_result;
+
     while (!CancelMonitor) {
         // sleep until next poll, then increment time counters
         sleep(POLL_SEC);
+
+//        pthread_mutex_lock(&mutex);
+
         nonsecure_sec += POLL_SEC;
         secure_sec += POLL_SEC;
 
@@ -298,53 +353,58 @@ void *monitorThread(void *arg) {
 
         // 当已经给PD上点成功的情况下，
         if(PD_Power_State == PD_POWER_STATE_ON) {
-            // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
-            if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
-                continue;
-            }
-            // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
-            pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status), sPenIdx);
-            if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-                pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
-            }
-
-            uint8_t v;
-// 暂时取消这个临时错误            pd_check("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, sPenIdx, &v));
-            pd_check("pd_get_temperature", pd_get_temperature(PD_INSTANCE, sPenIdx, &v));
-// 暂时取消            pd_disable_warming(PD_INSTANCE, sPenIdx);
-
-            // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
-            if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
-                // NON-SECURE ink use (for PILS algorithm)
-                if (nonsecure_sec >= INK_POLL_SEC) {
-                    nonsecure_sec = 0;
-                    // NON-SECURE ink use (for PILS algorithm)
-                    ink_weight = GetInkWeight(sPenIdx);
-                    if (ink_weight < 0) {
-                        LOGD("GetInkWeight failed.");
-                    } else {
-//                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
-                        LOGD("GetInkWeight = %f", ink_weight);
-                    }
+            for(int i=0; i<penNum; i++) {
+                // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
+                if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
+                    continue;
+                }
+                // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
+                pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status), penIndexs[i]);
+                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
                 }
 
-                // SECURE ink use
-                if (secure_sec >= SECURE_INK_POLL_SEC) {
-                    secure_sec = 0;
-                    if (GetAndProcessInkUse(sPenIdx, sIdsIdx) < 0) {
-                        LOGD("GetAndProcessInkUse failed.");
-                    } else {
-                        LOGD("GetAndProcessInkUse succeeded.");
+                uint8_t v;
+    // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+
+                // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
+                if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
+                    // NON-SECURE ink use (for PILS algorithm)
+                    if (nonsecure_sec >= INK_POLL_SEC) {
+                        nonsecure_sec = 0;
+                        // NON-SECURE ink use (for PILS algorithm)
+                        ink_weight = GetInkWeight(penIndexs[i]);
+                        if (ink_weight < 0) {
+                            LOGD("GetInkWeight failed.");
+                        } else {
+    //                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
+                            LOGD("GetInkWeight = %f", ink_weight);
+                        }
+                    }
+
+                    // SECURE ink use
+                    if (secure_sec >= SECURE_INK_POLL_SEC) {
+                        secure_sec = 0;
+                        if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
+                            LOGD("GetAndProcessInkUse failed.");
+                        } else {
+                            LOGD("GetAndProcessInkUse succeeded.");
+                        }
                     }
                 }
             }
         }
+
+//        pthread_mutex_unlock(&mutex);
     }
     return (void*)NULL;
 }
 
-JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg, jint penArg) {
     CancelMonitor = false;
+    PenArg = penArg;
 
     if(NULL == sMonitorThread) {
         if (pthread_create(&sMonitorThread, NULL, monitorThread, NULL)) {
@@ -356,129 +416,141 @@ JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex) {
 // H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待，最多5秒
 //    PrintHeadStatus status;
 //    PDResult_t pd_r;
 //    for(int i=0; i<5; i++) {
-//        pd_r = pd_get_print_head_status(PD_INSTANCE, sPenIdx, &status);
+//        pd_r = pd_get_print_head_status(PD_INSTANCE, penIndex, &status);
 //        if(pd_r == PD_OK && (status.print_head_state == PH_STATE_POWERED_ON || status.print_head_state == PH_STATE_PRESENT) && status.print_head_error == PH_NO_ERROR) break;
 //        sleep(1);
 //    }
 // End of H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待
 
-    pd_check("pd_set_voltage_override", pd_set_voltage_override(PD_INSTANCE, sPenIdx, 8));
+    pd_check_ph("pd_set_voltage_override", pd_set_voltage_override(PD_INSTANCE, penIndex, 8), penIndex);
 
-    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx)) {
+    if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex)) {
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
-//        pd_set_temperature_override(PD_INSTANCE, sPenIdx, 0);
-//        pd_disable_warming(PD_INSTANCE, sPenIdx);
+//        pd_set_temperature_override(PD_INSTANCE, penIndex, 0);
+//        pd_disable_warming(PD_INSTANCE, penIndex);
         PD_Power_State = PD_POWER_STATE_ON;
     }
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg, jint penIndex) {
     PD_Power_State = PD_POWER_STATE_OFF;
-    if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, sPenIdx), sPenIdx)) {
+    if (pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, penIndex), penIndex)) {
         return -1;
     }
     return 0;
 }
 
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
-JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg) {
-    jint ret = -1, res = 0;
-    PDSmartCardStatus pd_sc_status;
+JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
+    jint ret = -1, res = 0, slot = 0x03;
+    PDSmartCardStatus __pd_sc_status;
     uint8_t sc_result;
+    PDResult_t pd_r;
 
     LOGD("print_head_status.print_head_state = %d", print_head_status.print_head_state);
 
+//    pthread_mutex_lock(&mutex);
+
     if(print_head_status.print_head_state != PH_STATE_POWERED_ON) {
-        pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, sPenIdx), sPenIdx);
+        pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex);
     }
 
     if(print_head_status.print_head_state == PH_STATE_POWERED_ON) {
-        if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
+        pd_sc_get_status(PD_INSTANCE, penIndex, &__pd_sc_status, &sc_result);
+        pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, &(__pd_sc_status.purge_complete_mark_oem), &sc_result);
+        if(__pd_sc_status.purge_complete_slot_b || (__pd_sc_status.purge_complete_mark_oem & 0x02) {
+            slot &= (~(0x02));
+        }
+        if(__pd_sc_status.purge_complete_slot_a || (__pd_sc_status.purge_complete_mark_oem & 0x01) {
+            slot &= (~(0x01));
+        }
+        if(slot > 0) {
+            LOGD("Pen%d purge slot %d", penIndex, slot);
+            pd_r = pd_start_purging(PD_INSTANCE, penIndex, slot-1);
+            if(PD_OK == pd_r) {
+                LOGD("Pen%d purge done", penIndex);
+            } else {
+                LOGE("Pen%d purge failed", penIndex);
+                pd_check_ph("pd_start_purging", pd_r, penIndex);
+            }
+
+            // Process a secure ink message to clear system
+            GetAndProcessInkUse(penIndex, sIdsIdx);
+
+            // Check status after
+            if (pd_check_ph("pd_sc_get_status",pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
+                LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
+            }
+
+            if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, 3, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", res);
+            }
+        } else {
+            LOGD("Purge already done");
+        }
+
+/*        pd_r = pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result);
+        pd_check_ph("pd_sc_get_status", pd_r, penIndex);
+        if(PD_OK == pd_r) {
             if(!pd_sc_status.purge_complete_slot_b) {
                 LOGD("Launch purge slot B");
-                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
-                    // Process a secure ink message to clear system
-                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-                    // Check status after
-                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                        LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
-                    }
-                    if(ret == PD_OK) res |= 0x01;
+                pd_r = pd_start_purging(PD_INSTANCE, penIndex, 1);
+                pd_check_ph("pd_start_purging", pd_r, penIndex);
+                if(PD_OK == pd_r) {
+                    res |= 0x01;
+                    LOGD("purge slot B done");
+                } else {
+                    LOGD("purge slot B failed");
                 }
-                LOGD("Launch purge slot B");
-                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
-                    // Process a secure ink message to clear system
-                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-                    // Check status after
-                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                        LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
-                    }
-                    if(ret == PD_OK) res |= 0x01;
+
+                // Process a secure ink message to clear system
+                GetAndProcessInkUse(penIndex, sIdsIdx);
+
+                // Check status after
+                if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                    LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
                 }
             }
+
             if(!pd_sc_status.purge_complete_slot_a) {
                 LOGD("Launch purge slot A");
-                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
-                    // Process a secure ink message to clear system
-                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-                    // Check status after
-                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                        LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
-                    }
-                    if(ret == PD_OK) res |= 0x10;
+                pd_r = pd_start_purging(PD_INSTANCE, penIndex, 0);
+
+                pd_check_ph("pd_start_purging", pd_r, penIndex);
+                if(PD_OK == pd_r) {
+                    res |= 0x10;
+                    LOGD("purge slot A done");
+                } else {
+                    LOGD("purge slot A failed");
                 }
-                LOGD("Launch purge slot A");
-                if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
-                    // Process a secure ink message to clear system
-                    ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-                    // Check status after
-                    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                        LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
-                    }
-                    if(ret == PD_OK) res |= 0x10;
+
+                // Process a secure ink message to clear system
+                GetAndProcessInkUse(penIndex, sIdsIdx);
+
+                // Check status after
+                if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                    LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
                 }
             }
         }
-/*
-        LOGD("Launch purge slot B");
-        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 1), sPenIdx) == PD_OK) {
-            // Process a secure ink message to clear system
-            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-            // Check status after
-            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
+
+        if(res) {
+            if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, res, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", res);
             }
-            if(ret == PD_OK) res |= 0x01;
-        }
-        LOGD("Launch purge slot A");
-        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
-            // Process a secure ink message to clear system
-            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-            // Check status after
-            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
-            }
-            if(ret == PD_OK) res |= 0x10;
-        }
-        LOGD("Launch purge slot A");
-        if(pd_check_ph("pd_start_purging", pd_start_purging(PD_INSTANCE, sPenIdx, 0), sPenIdx) == PD_OK) {
-            // Process a secure ink message to clear system
-            ret = GetAndProcessInkUse(sPenIdx, sIdsIdx);
-            // Check status after
-            if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &sc_result)) == PD_OK && sc_result == 0) {
-                LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
-            }
-            if(ret == PD_OK) res |= 0x10;
         }*/
     }
+
+//    pthread_mutex_unlock(&mutex);
 
     return res;
 }
@@ -578,12 +650,12 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg) {
 
 static PDSystemStatus pd_system_status;
 
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penIndex) {
-    LOGI("Initializing PD(PEN%d)....\n", penIndex);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
+    LOGI("Initializing PD....\n");
 
     PDResult_t pd_r;
 
-    sPenIdx = penIndex;
+//    sPenIdx = penIndex;
 
     pd_r = pd_lib_init();
     if (pd_check("pd_lib_init", pd_r)) return -1;
@@ -591,8 +663,8 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint pen
     if (pd_check("pd_init", pd_r)) return -1;
     pd_r = pd_get_system_status(PD_INSTANCE, &pd_system_status);
     if (pd_check("pd_get_system_status", pd_r)) return -1;
-//暂时取消这个临时措施    pd_r = pd_set_voltage_override(PD_INSTANCE, sPenIdx, 10);
-//暂时取消这个临时措施    if (pd_check("pd_set_voltage_override", pd_r)) return -1;
+//暂时取消这个临时措施    pd_r = pd_set_voltage_override(PD_INSTANCE, penIndex, 10);
+//暂时取消这个临时措施    if (pd_check_ph("pd_set_voltage_override", pd_r), penIndex) return -1;
 
     LOGD("uC FW REV. = %d.%d\n", pd_system_status.fw_rev_major, pd_system_status.fw_rev_minor);
     LOGD("Bootloader REV = %d.%d\n", pd_system_status.boot_rev_major, pd_system_status.boot_rev_minor);
@@ -778,10 +850,12 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_supply_status_info(JNIEnv *env, jclas
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg, jint penIndex) {
     PDResult_t pd_r;
 
-    if (pd_check("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, sPenIdx, &print_head_status))) return (-1);
+    LOGI("pd_get_print_head_status PEN(%d) ....\n", penIndex);
+
+    if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status), penIndex)) return (-1);
 // H.M.Wang 2024-11-6 取消该判断，这个是为开机时的初始化设计的，正常运行时执行该操作，会得到    print_head_status.print_head_state == PH_STATE_POWERED_ON，所以会报错
 //    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
 //        LOGE("Print head state not valid. print_head_state=%d, print_head_error=%d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
@@ -833,12 +907,16 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg, jint penIndex) {
     PDResult_t pd_r;
 
     uint8_t pd_sc_result;
-    if (pd_check("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, sPenIdx, &pd_sc_status, &pd_sc_result)) || pd_sc_result != 0) {
+    if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &pd_sc_result), penIndex) || pd_sc_result != 0) {
         LOGE("pd_sc_get_status error\n");
+        return (-1);
+    }
+    if (pd_check_ph("pd_sc_read_oem_field", pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, &(pd_sc_status.purge_complete_mark_oem), &pd_sc_result), penIndex) || pd_sc_result != 0) {
+        LOGE("pd_sc_read_oem_field error\n");
         return (-1);
     }
 
@@ -846,6 +924,7 @@ JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg) {
     LOGD("out_of_ink : %s\n", (pd_sc_status.out_of_ink ? "out of ink" : "Not out of ink"));     /**< Out of ink. Used only in the case of single-use printheads. 0 = Not out of ink, 1 = out of ink */
     LOGD("purge_complete_slot_a : %s\n", (pd_sc_status.purge_complete_slot_a ? "Purge completed" : "Purge not completed")); /**< Shipping fluid Purge complete for slot A. 0 = Purge not complete, 1 = Purge completed */
     LOGD("purge_complete_slot_b : %s\n", (pd_sc_status.purge_complete_slot_b ? "Purge completed" : "Purge not completed")); /**< Shipping fluid Purge complete for slot B. 0 = Purge not complete, 1 = Purge completed */
+    LOGD("purge_complete_mark_oem : %d\n", pd_sc_status.purge_complete_mark_oem); /**< Purge completion mark written in OEM area. 1:SlotA done, 2:SlotB done, 3:Both done */
     LOGD("altered_ph_detected_slot_a : %s\n", (pd_sc_status.altered_ph_detected_slot_a ? "Altered printhead detected" : "Altered printhead not detected")); /**< Altered Printhead detected on slot A. 0 = Altered printhead not detected, 1 = Altered printhead detected */
     LOGD("altered_ph_detected_slot_b : %s\n", (pd_sc_status.altered_ph_detected_slot_b ? "Altered printhead detected" : "Altered printhead not detected")); /**< Altered Printhead detected on slot A. 0 = Altered printhead not detected, 1 = Altered printhead detected */
     LOGD("altered_supply_detected_slot_a : %s\n", (pd_sc_status.altered_supply_detected_slot_a ? "Altered supply detected" : "Altered supply not detected")); /**< Altered supply detected on slot A. 0 = Altered supply not detected, 1 = Altered supply detected */
@@ -865,19 +944,20 @@ JNIEXPORT jstring JNICALL Java_com_pd_sc_get_status_info(JNIEnv *env, jclass arg
     char strTemp[1024];
 
     sprintf(strTemp,
-            "Slot A = %s\nSlot B = %s\nFaulty = %s",
+            "Slot A = %s\nSlot B = %s\nOEM Purge Mark - %d (1:SlotA done; 2:SlotB done; 3:Both done)\nFaulty = %s",
             (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "Not Purged"),
             (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "Not Purged"),
+            pd_sc_status.purge_complete_mark_oem,
             (pd_sc_status.faulty_replace_immediately ? "True" : "False"));
 
     return (*env)->NewStringUTF(env, strTemp);
 }
 
-JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint penIndex) {
     PDResult_t pd_r;
 
     uint8_t pd_sc_result;
-    if (pd_check("pd_sc_get_info", pd_sc_get_info(PD_INSTANCE, sPenIdx, &pd_sc_info, &pd_sc_result)) || pd_sc_result != 0) {
+    if (pd_check_ph("pd_sc_get_info", pd_sc_get_info(PD_INSTANCE, penIndex, &pd_sc_info, &pd_sc_result), penIndex) || pd_sc_result != 0) {
         LOGE("pd_sc_get_info error\n");
         return (-1);
     }
@@ -1000,16 +1080,16 @@ JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg) {
-    if (DoPairing(sIdsIdx, sPenIdx)) {
+JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penArg) {
+    if (DoPairing(sIdsIdx, penArg)) {
         LOGE("DoPairing failed!\n");
         return (-1);
     };
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg) {
-    if (DoOverrides(sIdsIdx, sPenIdx)) {
+JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penArg) {
+    if (DoOverrides(sIdsIdx, penArg)) {
         LOGE("DoOverrides failed!\n");
         return (-1);
     }
@@ -1188,7 +1268,7 @@ void CmdDepressurize() {
 static JNINativeMethod gMethods[] = {
         {"init_ids",				        "(I)I",	                    (void *)Java_com_hp22mm_init_ids},
         {"ids_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_ids_get_sys_info},
-        {"init_pd",				            "(I)I",	                    (void *)Java_com_hp22mm_init_pd},
+        {"init_pd",				            "()I",	                    (void *)Java_com_hp22mm_init_pd},
         {"pd_get_sys_info",	                "()Ljava/lang/String;",	    (void *)Java_com_pd_get_sys_info},
         {"ids_set_platform_info",           "()I",	                    (void *)Java_com_ids_set_platform_info},
         {"pd_set_platform_info",	        "()I",	                    (void *)Java_com_pd_set_platform_info},
@@ -1197,23 +1277,23 @@ static JNINativeMethod gMethods[] = {
         {"ids_set_stall_insert_count",	    "()I",	                    (void *)Java_com_ids_set_stall_insert_count},
         {"ids_get_supply_status",		    "()I",	                    (void *)Java_com_ids_get_supply_status},
         {"ids_get_supply_status_info",	    "()Ljava/lang/String;",	    (void *)Java_com_ids_get_supply_status_info},
-        {"pd_get_print_head_status",		"()I",	                    (void *)Java_com_pd_get_print_head_status},
+        {"pd_get_print_head_status",		"(I)I",	                    (void *)Java_com_pd_get_print_head_status},
         {"pd_get_print_head_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_get_print_head_status_info},
-        {"pd_sc_get_status",		"()I",	                    (void *)Java_com_pd_sc_get_status},
+        {"pd_sc_get_status",		"(I)I",	                    (void *)Java_com_pd_sc_get_status},
         {"pd_sc_get_status_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_status_info},
-        {"pd_sc_get_info",		"()I",	                    (void *)Java_com_pd_sc_get_info},
+        {"pd_sc_get_info",		"(I)I",	                    (void *)Java_com_pd_sc_get_info},
         {"pd_sc_get_info_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_info},
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
-        {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
-        {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
+        {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
+        {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
-        {"StartMonitor",		                "()I",	                    (void *)Java_com_StartMonitor},
+        {"StartMonitor",		                "(I)I",	                    (void *)Java_com_StartMonitor},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
-        {"pdPowerOn",	    "()I",	    (void *)Java_com_PDPowerOn},
-        {"pdPowerOff",		                "()I",	                    (void *)Java_com_PDPowerOff},
+        {"pdPowerOn",	    "(I)I",	    (void *)Java_com_PDPowerOn},
+        {"pdPowerOff",		                "(I)I",	                    (void *)Java_com_PDPowerOff},
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
-        {"pdPurge",		                "()I",	                    (void *)Java_com_purge},
+        {"pdPurge",		                "(I)I",	                    (void *)Java_com_purge},
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
         {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
@@ -1242,6 +1322,10 @@ static JNINativeMethod gMethods[] = {
  * 注册HP22MM操作的JNI方法
  */
 int register_hp22mm(JNIEnv* env) {
+//    if (pthread_mutex_init(&mutex, NULL) != 0){
+//        return JNI_FALSE;
+//    }
+
     const char* kClassPathName = "com/industry/printer/hardware/Hp22mm";
     jclass clazz = (*env)->FindClass(env, kClassPathName);
     if(clazz == NULL) {

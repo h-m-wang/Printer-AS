@@ -142,10 +142,10 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
     return -1;
 }
 
-extern int sPenIdx;
+//extern int sPenIdx;
 
 int pd_check(char *function, PDResult_t result) {
-    return pd_check_ph(function, result, sPenIdx);
+    return pd_check_ph(function, result, 0);
 }
 
 #define TIME_STRING_MAX 20
@@ -271,7 +271,7 @@ int DeletePairing() {
 
 
 // Pair IDS to both slots of PD Pen
-int DoPairing(int SupplyIdx, int PenIdx) {
+int DoPairing(int SupplyIdx, int PenArg) {
     IDSResult_t ids_r;
     PDResult_t pd_r;
     int step;
@@ -300,7 +300,17 @@ int DoPairing(int SupplyIdx, int PenIdx) {
             return -1;
         }
 
-        slotbits = (PenIdx == 1 ? 0x0C : 0x03);    // pair both columns of one pen
+        if(PenArg == 1)
+            slotbits = 0x03;    // pair both columns of one pen
+        else if(PenArg == 2)
+            slotbits = 0x0C;    // pair both columns of one pen
+        else if(PenArg == 3)
+            slotbits = 0x0F;    // pair both columns of one pen
+        else {
+            LOGE("ERROR: Parametre error. (PenArg=%d\n", PenArg);
+            return -1;
+        }
+
         pd_r = pd_pairing(PD_INSTANCE, step, slotbits, IDS_ID, payload, payload_size, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
         if(pd_r != PD_OK) {
             LOGE("ERROR: pd_pairing() step %d failed: %s\n", step, pd_get_error_description(pd_r));
@@ -317,22 +327,44 @@ int DoPairing(int SupplyIdx, int PenIdx) {
 
 
 // Overrides from Supply to Pen (both slots)
-int DoOverrides(int SupplyIdx, int PenIdx) {
+int DoOverrides(int SupplyIdx, int PenArg) {
     IDSResult_t ids_r;
     PDResult_t pd_r;
-    int slot;
+    int slot, i;
     uint8_t payload[PAYLOAD_BUFFER_SIZE];
     int32_t payload_size;
     int32_t status;
 
+    int penNum;
+    if(PenArg == 3) {
+        penNum = 2;
+    } else if(PenArg == 2 || PenArg == 1) {
+        penNum = 1;
+    } else {
+        LOGE("ERROR: DoOverrides() failed, PenArg=%d\n", PenArg);
+        return -1;
+    }
+
+    int penIndexs[penNum];
+    if(PenArg == 1)
+        penIndexs[0] = 0;
+    else if(PenArg == 2)
+        penIndexs[0] = 1;
+    else if(PenArg >= 3) {
+        penIndexs[0] = 0;
+        penIndexs[1] = 1;
+    }
+
     ids_r = ids_get_overrides(IDS_INSTANCE, PD_ID, SupplyIdx, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
     if (ids_check("ids_get_overrides", ids_r)) return -1;
-    for (slot=0; slot<=1; slot++) {
-        pd_r = pd_set_secure_overrides(PD_INSTANCE, PenIdx, slot, payload, payload_size, &status);
-        if (pd_check("pd_set_secure_overrides", pd_r)) return -1;
-        if (status != 0) {
-            LOGE("ERROR: pd_set_secure_overrides() slot %d failed, status %d\n", slot, status);
-            return -1;
+    for(i=0; i<penNum; i++) {
+        for (slot=0; slot<=1; slot++) {
+            pd_r = pd_set_secure_overrides(PD_INSTANCE, penIndexs[i], slot, payload, payload_size, &status);
+            if (pd_check_ph("pd_set_secure_overrides", pd_r, penIndexs[i])) return(-1);
+            if (status != 0) {
+                LOGE("ERROR: pd_set_secure_overrides() slot %d failed, status %d\n", slot, status);
+                return -1;
+            }
         }
     }
     LOGI("Overrides COMPLETE\n");

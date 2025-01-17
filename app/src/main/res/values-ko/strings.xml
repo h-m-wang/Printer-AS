@@ -41,8 +41,8 @@
 	<string name="str_btn_get">메세지</string>
 	<string name="str_btn_print">프린트</string>
 	<string name="str_btn_finish">끝</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">프린트해드0</string>
 	<string name="str_btn_header1">프린트해드1</string>
 	<string name="str_btn_header2">프린트해드2</string>

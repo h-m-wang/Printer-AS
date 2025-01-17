@@ -62,6 +62,9 @@ public class GraphicObject  extends BaseObject{
 	@Override
 	public void setWidth(float size) {
 		// mWidth 不重新设置，已经根据图片进行了设置
+// H.M.Wang 2025-1-17 暂时取消固定宽度不可调的问题，否则图片的宽度不可调。但是如何避免根据路径字符串设置宽度的问题还得再想办法
+		super.setWidth(size);
+// End of H.M.Wang 2025-1-17 暂时取消固定宽度不可调的问题，否则图片的宽度不可调。但是如何避免根据路径字符串设置宽度的问题还得再想办法
 	}
 // End of H.M.Wang 2024-10-28 增加一个setWidth函数，什么都不做，否则会使用BaseObject的函数修改，会根据content的内容计算宽度，这里会根据路径的字符串计算，因此图片的宽度设置为不可调
 

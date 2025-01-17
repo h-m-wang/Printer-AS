@@ -12,15 +12,21 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -44,6 +50,9 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 	private TextView mLog2Usb;
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
+// H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
+	private TextView mHp22mmErrLog;
+// End of H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
 
 	private RelativeLayout mCancel;
 	private Button mBtncl;
@@ -86,6 +95,9 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 		mLog2Usb = (TextView) findViewById(R.id.btn_log_2usb);
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
+// H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
+		mHp22mmErrLog = (TextView) findViewById(R.id.btn_hp22mmlog_2usb);
+// End of H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
 		mBtncl = (Button) findViewById(R.id.btn_cancel);
 
 		mImport.setOnClickListener(this);
@@ -97,6 +109,9 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 // H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
 		mLog2Usb.setOnClickListener(this);
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
+// H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
+		mHp22mmErrLog.setOnClickListener(this);
+// End of H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
 		mBtncl.setOnClickListener(this);
 	}
 
@@ -153,6 +168,40 @@ public class ImportDialog extends RelightableDialog implements android.view.View
 				}).start();
 				break;
 // End of H.M.Wang 2023-9-4 追加一个输出log到U盘的按键
+			case R.id.btn_hp22mmlog_2usb:
+				ExportLog2Usb.exportHp22mmErrLog();
+				View popupView = LayoutInflater.from(getContext()).inflate(R.layout.scroll_textview, null);
+
+				ScrollView scrollView = (ScrollView)popupView.findViewById(R.id.scroll_view);
+				TextView cntTV = (TextView)popupView.findViewById(R.id.cnt_tv);
+				String str = ExportLog2Usb.getFirstLine();
+				while(!str.isEmpty()) {
+					cntTV.append(str);
+					str = ExportLog2Usb.getNextLine();
+				}
+				final PopupWindow popWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+				popWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
+				popWindow.setOutsideTouchable(true);
+				popWindow.setTouchable(true);
+				popWindow.update();
+				popWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
+				TextView quitTV = (TextView)popupView.findViewById(R.id.btn_quit);
+				quitTV.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						popWindow.dismiss();
+					}
+				});
+				scrollView.scrollTo(0,0);
+
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ExportLog2Usb.exportHp22mmErrLog();
+					}
+				}).start();
+				break;
+// End of H.M.Wang 2025-1-11 追加一个显示hp22mm库错误信息的窗口
 			default:
 				break;	
 		}

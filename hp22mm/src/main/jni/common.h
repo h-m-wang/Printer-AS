@@ -79,8 +79,8 @@ extern int InitSystem();
 extern int ShutdownSystem();
 extern int SetInfo();
 extern int DeletePairing();
-extern int DoPairing(int SupplyIdx, int PenIdx);
-extern int DoOverrides(int SupplyIdx, int PenIdx);
+extern int DoPairing(int SupplyIdx, int PenArg);
+extern int DoOverrides(int SupplyIdx, int PenArg);
 extern float GetInkWeight(int PenIdx);
 extern int GetAndProcessInkUse(int PenIdx, int SupplyIdx);
 

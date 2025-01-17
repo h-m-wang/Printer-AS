@@ -26,8 +26,8 @@
 	<string name="str_btn_get">Texte</string>
 	<string name="str_btn_print">Impression</string>
 	<string name="str_btn_finish">Ailette</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">Stylo0</string>
 	<string name="str_btn_header1">Stylo1</string>
 	<string name="str_btn_header2">Stylo2</string>

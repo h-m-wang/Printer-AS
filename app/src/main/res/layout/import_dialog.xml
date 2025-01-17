@@ -55,22 +55,6 @@
 			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
-
-	</LinearLayout>
-
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="3dp"
-		android:background="@color/white"
-		android:layout_margin="15dp" />
-
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:orientation="horizontal"
-		android:background="@color/background"
-		>
 		<TextView
 			android:id="@+id/btn_import_ug"
 			android:layout_width="0dp"
@@ -84,7 +68,37 @@
 			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
 			/>
+	</LinearLayout>
 
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="15dp" >
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="3dp"
+			android:layout_gravity="center"
+			android:background="@color/white"
+			android:layout_margin="15dp" />
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:background="@color/background"
+			android:paddingLeft="30dp"
+			android:paddingRight="30dp"
+			android:textSize="18sp"
+			android:textColor="@color/white"
+			android:text="Advanced" />
+	</FrameLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:orientation="horizontal"
+		android:background="@color/background"
+		>
 		<TextView
 			android:id="@+id/btn_log_2usb"
 			android:layout_width="0dp"
@@ -97,6 +111,32 @@
 			android:textColor="@color/black"
 			android:textSize="28sp"
 			android:background="@drawable/bg_big_button"
+			/>
+		<TextView
+			android:id="@+id/btn_hp22mmlog_2usb"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text="22mm\n↓\nLog"
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			/>
+		<TextView
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:layout_margin="10dp"
+			android:padding="10dp"
+			android:text=""
+			android:gravity="center"
+			android:textColor="@color/black"
+			android:textSize="28sp"
+			android:background="@drawable/bg_big_button"
+			android:visibility="invisible"
 			/>
 		<TextView
 			android:layout_width="0dp"

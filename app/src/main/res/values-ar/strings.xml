@@ -42,8 +42,8 @@
 	<string name="str_btn_get">نص</string>
 	<string name="str_btn_print">اطبع</string>
 	<string name="str_btn_finish">انهاء</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">مدخل0</string>
 	<string name="str_btn_header1">مدخل1</string>
 	<string name="str_btn_header2">مدخل2</string>

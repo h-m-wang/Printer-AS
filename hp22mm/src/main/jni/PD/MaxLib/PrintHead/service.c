@@ -2262,14 +2262,14 @@ ServiceResult_t service_start_purging(int32_t instance, Headinfo_t *info, uint8_
     LOGI("Enter %s", __FUNCTION__);
 
 //    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
-    if(ph_id < 0 || ph_id >= NUM_SUPPORTED_PH) {
+/*    if(ph_id < 0 || ph_id >= NUM_SUPPORTED_PH) {
         LOGE("Invalid Pen ID [%d]!", ph_id);
         return SERVICE_ERROR;
     }
-    if(slot < 0 || slot >= NUM_TRENCH_PER_PH) {
+    if(slot < 0 || slot > NUM_TRENCH_PER_PH) {
         LOGE("Invalid Slot ID [%d]!", slot);
         return SERVICE_ERROR;
-    }
+    }*/
     if(NULL == info) {
         LOGE("info NULL!");
         return SERVICE_ERROR;

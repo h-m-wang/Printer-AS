@@ -24,8 +24,8 @@
 	<string name="str_btn_get">テキスト</string>
 	<string name="str_btn_print">印字</string>
 	<string name="str_btn_finish">終了</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">ペン0</string>
 	<string name="str_btn_header1">ペン1</string>
 	<string name="str_btn_header2">ペン2</string>

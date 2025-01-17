@@ -359,11 +359,11 @@ public class TestHp22mm implements ITestOperation {
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
                         case HP22MM_TEST_QUICK_START:
 // H.M.Wang 2024-11-10
-/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
+                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
                                 break;
                             }
-                            if (0 != Hp22mm.init_pd(mPENIdx)) {
+                            if (0 != Hp22mm.init_pd()) {
                                 mHp22mmTestResult[index] = "init_pd failed\n" + Hp22mm.pd_get_sys_info();
                                 break;
                             }
@@ -371,7 +371,7 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "ids_get_supply_status failed\n" + Hp22mm.ids_get_supply_status_info();
                                 break;
                             }
-                            if (0 != Hp22mm.pd_get_print_head_status()) {
+                            if (0 != Hp22mm.pd_get_print_head_status(mPENIdx)) {
                                 mHp22mmTestResult[index] = "pd_get_print_head_status failed\n" + Hp22mm.pd_get_print_head_status_info();
                                 break;
                             }
@@ -379,80 +379,40 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "DeletePairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoPairing()) {
+                            if (0 != Hp22mm.DoPairing(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "DoPairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoOverrides()) {
+                            if (0 != Hp22mm.DoOverrides(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }
-                            if (0 != Hp22mm.Pressurize()) {
+                            if (0 != Hp22mm.Pressurize(false)) {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-                            if (0 != Hp22mm.pdPowerOn()) {
+                            if (0 != Hp22mm.pdPowerOn(mPENIdx)) {
                                 mHp22mmTestResult[index] = "PD power on failed";
                                 break;
                             }
-*/
+
 // End of H.M.Wang 2024-11-10
                             if (0 != Hp22mm.printTestPage()) {
                                 mHp22mmTestResult[index] = "Printing test page failed";
                                 break;
                             }
-
-// H.M.Wang 2024-11-10
-/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
-                            if (0 != Hp22mm.pdPowerOff()) {
-                                mHp22mmTestResult[index] = "PD power off failed";
-                                break;
-                            }
-*/
-// End of H.M.Wang 2024-11-10
-
                             mHp22mmTestResult[index] = "Success";
                             break;
                         case HP22MM_TEST_PD_POWER_ONOFF:
-// H.M.Wang 2024-11-10
-/*                            if (0 != Hp22mm.init_ids(mIDSIdx)) {
-                                mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.init_pd(mPENIdx)) {
-                                mHp22mmTestResult[index] = "init_pd failed\n" + Hp22mm.pd_get_sys_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.ids_get_supply_status()) {
-                                mHp22mmTestResult[index] = "ids_get_supply_status failed\n" + Hp22mm.ids_get_supply_status_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.pd_get_print_head_status()) {
-                                mHp22mmTestResult[index] = "pd_get_print_head_status failed\n" + Hp22mm.pd_get_print_head_status_info();
-                                break;
-                            }
-                            if (0 != Hp22mm.DeletePairing()) {
-                                mHp22mmTestResult[index] = "DeletePairing failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.DoPairing()) {
-                                mHp22mmTestResult[index] = "DoPairing failed";
-                                break;
-                            }
-                            if (0 != Hp22mm.DoOverrides()) {
-                                mHp22mmTestResult[index] = "DoOverrides failed";
-                                break;
-                            }
-*/
                             int onErr = 0, offErr = 0;
                             for(int i=0; i<50; i++) {
-                                if (0 != Hp22mm.pdPowerOn()) {
+                                if (0 != Hp22mm.pdPowerOn(mPENIdx)) {
                                     onErr++;
                                 }
 
                                 Thread.sleep(1000);
 
-                                if (0 != Hp22mm.pdPowerOff()) {
+                                if (0 != Hp22mm.pdPowerOff(mPENIdx)) {
                                     offErr++;
                                 }
 
@@ -469,7 +429,7 @@ public class TestHp22mm implements ITestOperation {
                             }
                             break;
                         case HP22MM_TEST_INIT_PD:
-                            if (0 == Hp22mm.init_pd(mPENIdx)) {
+                            if (0 == Hp22mm.init_pd()) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_sys_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_sys_info();
@@ -490,21 +450,21 @@ public class TestHp22mm implements ITestOperation {
 //                            }
 //                            break;
                         case HP22MM_TEST_PD_GET_PRINT_HEAD_STATUS:
-                            if (0 == Hp22mm.pd_get_print_head_status()) {
+                            if (0 == Hp22mm.pd_get_print_head_status(mPENIdx)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_print_head_status_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_print_head_status_info();
                             }
                             break;
                         case HP22MM_TEST_PD_SC_GET_STATUS:
-                            if (0 == Hp22mm.pd_sc_get_status()) {
+                            if (0 == Hp22mm.pd_sc_get_status(mPENIdx)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_status_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
                             }
                             break;
                         case HP22MM_TEST_PD_SC_GET_INFO:
-                            if (0 == Hp22mm.pd_sc_get_info()) {
+                            if (0 == Hp22mm.pd_sc_get_info(mPENIdx)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_sc_get_info_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed";
@@ -515,11 +475,11 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "DeletePairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoPairing()) {
+                            if (0 != Hp22mm.DoPairing(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "DoPairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoOverrides()) {
+                            if (0 != Hp22mm.DoOverrides(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }
@@ -546,15 +506,10 @@ public class TestHp22mm implements ITestOperation {
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
                         case HP22MM_TEST_PURGE:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                int ret = Hp22mm.pdPurge();
-                                if(ret == 0x11) {
-                                    mHp22mmTestResult[index] = "Both slots purged";
-                                } else if (ret == 0x10) {
-                                    mHp22mmTestResult[index] = "Slot A purged";
-                                } else if (ret == 0x01) {
-                                    mHp22mmTestResult[index] = "Slot B purged";
-                                } else {
+                                if(0 == Hp22mm.pdPurge(mPENIdx)) {
                                     mHp22mmTestResult[index] = "Failed";
+                                } else {
+                                    mHp22mmTestResult[index] = "Success";
                                 }
                             }
                             break;

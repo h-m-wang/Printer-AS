@@ -49,6 +49,7 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 
+import com.industry.printer.Utils.ExportLog2Usb;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
@@ -113,6 +114,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -2566,6 +2568,19 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					if(null != mHp22mmErrTV) {
 						mHp22mmErrTV.setText((String)msg.obj);
+					}
+					if(!TextUtils.isEmpty((String)msg.obj)) {
+						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
+						ThreadPoolManager.mControlThread.execute(new Runnable() {
+							@Override
+							public void run() {
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+								try{Thread.sleep(50);}catch(Exception e){};
+								ExtGpio.playClick();
+							}
+						});
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;

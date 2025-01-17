@@ -24,8 +24,8 @@
 	<string name="str_btn_get">Texto</string>
 	<string name="str_btn_print">"Impressão"</string>
 	<string name="str_btn_finish">Terminar</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">Pen0</string>
 	<string name="str_btn_header1">Pen1</string>
 	<string name="str_btn_header2">Pen2</string>

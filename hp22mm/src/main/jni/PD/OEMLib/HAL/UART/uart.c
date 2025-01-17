@@ -481,7 +481,7 @@ UartResult_t uart_recv( int32_t         instance,
     UartHandle_t *handle = &uart_handle;
 
     fd_set          rfds;
-    struct timeval  tv, tv1;
+    struct timeval  tv;
     int             retval;
 
     *recvd_size = 0; /* Initalize received size to "0" */
@@ -501,7 +501,6 @@ UartResult_t uart_recv( int32_t         instance,
         timeout_ms -= (tv.tv_sec * 1000);
     }
     tv.tv_usec = timeout_ms * 1000;
-    tv1 = tv;
 
     while(1) {
         size_t recieved = 0;

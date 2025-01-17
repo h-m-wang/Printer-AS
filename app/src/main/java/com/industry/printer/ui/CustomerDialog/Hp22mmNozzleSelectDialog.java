@@ -140,9 +140,13 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
                 dispState(mPen1, PEN1_MASK);
                 if((mValue & PEN1_MASK) == 0x00000000) {
                     clearState(PEN1_SLOT7_MASK);
+                    dispState(mPen1_7, PEN1_SLOT7_MASK);
                     clearState(PEN1_SLOT6_MASK);
+                    dispState(mPen1_6, PEN1_SLOT6_MASK);
                     clearState(PEN1_SLOT5_MASK);
+                    dispState(mPen1_5, PEN1_SLOT5_MASK);
                     clearState(PEN1_SLOT4_MASK);
+                    dispState(mPen1_4, PEN1_SLOT4_MASK);
                 }
             }
         });
@@ -154,11 +158,15 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
             public void onClick(View view) {
                 toggleState(PEN0_MASK);
                 dispState(mPen0, PEN0_MASK);
-                if((mValue & PEN1_MASK) == 0x00000000) {
+                if((mValue & PEN0_MASK) == 0x00000000) {
                     clearState(PEN0_SLOT3_MASK);
+                    dispState(mPen0_3, PEN0_SLOT3_MASK);
                     clearState(PEN0_SLOT2_MASK);
+                    dispState(mPen0_2, PEN0_SLOT2_MASK);
                     clearState(PEN0_SLOT1_MASK);
+                    dispState(mPen0_1, PEN0_SLOT1_MASK);
                     clearState(PEN0_SLOT0_MASK);
+                    dispState(mPen0_0, PEN0_SLOT0_MASK);
                 }
             }
         });

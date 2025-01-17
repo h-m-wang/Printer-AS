@@ -43,8 +43,8 @@
 	<string name="str_btn_get">信息</string>
 	<string name="str_btn_print">打印</string>
 	<string name="str_btn_finish">结束</string>
-	<string name="str_btn_ids0">IDS0</string>
-	<string name="str_btn_ids1">IDS1</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
 	<string name="str_btn_header0">打印头0</string>
 	<string name="str_btn_header1">打印头1</string>
 	<string name="str_btn_header2">打印头2</string>
