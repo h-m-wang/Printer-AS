@@ -466,10 +466,10 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
     if(print_head_status.print_head_state == PH_STATE_POWERED_ON) {
         pd_sc_get_status(PD_INSTANCE, penIndex, &__pd_sc_status, &sc_result);
         pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, &(__pd_sc_status.purge_complete_mark_oem), &sc_result);
-        if(__pd_sc_status.purge_complete_slot_b || (__pd_sc_status.purge_complete_mark_oem & 0x02) {
+        if(__pd_sc_status.purge_complete_slot_b || (__pd_sc_status.purge_complete_mark_oem & 0x02)) {
             slot &= (~(0x02));
         }
-        if(__pd_sc_status.purge_complete_slot_a || (__pd_sc_status.purge_complete_mark_oem & 0x01) {
+        if(__pd_sc_status.purge_complete_slot_a || (__pd_sc_status.purge_complete_mark_oem & 0x01)) {
             slot &= (~(0x01));
         }
         if(slot > 0) {
