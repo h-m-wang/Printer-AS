@@ -497,57 +497,6 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
         } else {
             LOGD("Purge already done");
         }
-
-/*        pd_r = pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result);
-        pd_check_ph("pd_sc_get_status", pd_r, penIndex);
-        if(PD_OK == pd_r) {
-            if(!pd_sc_status.purge_complete_slot_b) {
-                LOGD("Launch purge slot B");
-                pd_r = pd_start_purging(PD_INSTANCE, penIndex, 1);
-                pd_check_ph("pd_start_purging", pd_r, penIndex);
-                if(PD_OK == pd_r) {
-                    res |= 0x01;
-                    LOGD("purge slot B done");
-                } else {
-                    LOGD("purge slot B failed");
-                }
-
-                // Process a secure ink message to clear system
-                GetAndProcessInkUse(penIndex, sIdsIdx);
-
-                // Check status after
-                if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result), penIndex) == PD_OK && sc_result == 0) {
-                    LOGD("Slot B = %s \n", (pd_sc_status.purge_complete_slot_b ? "Purge Complete" : "NOT PURGED"));
-                }
-            }
-
-            if(!pd_sc_status.purge_complete_slot_a) {
-                LOGD("Launch purge slot A");
-                pd_r = pd_start_purging(PD_INSTANCE, penIndex, 0);
-
-                pd_check_ph("pd_start_purging", pd_r, penIndex);
-                if(PD_OK == pd_r) {
-                    res |= 0x10;
-                    LOGD("purge slot A done");
-                } else {
-                    LOGD("purge slot A failed");
-                }
-
-                // Process a secure ink message to clear system
-                GetAndProcessInkUse(penIndex, sIdsIdx);
-
-                // Check status after
-                if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &sc_result), penIndex) == PD_OK && sc_result == 0) {
-                    LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
-                }
-            }
-        }
-
-        if(res) {
-            if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, res, &sc_result), penIndex) == PD_OK && sc_result == 0) {
-                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", res);
-            }
-        }*/
     }
 
 //    pthread_mutex_unlock(&mutex);
