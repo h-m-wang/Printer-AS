@@ -2569,6 +2569,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if(null != mHp22mmErrTV) {
 						mHp22mmErrTV.setText((String)msg.obj);
 					}
+// H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
+					if(!((String)msg.obj).isEmpty()) ToastUtil.show(mContext, (String)msg.obj);
+// End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
 						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
 						ThreadPoolManager.mControlThread.execute(new Runnable() {

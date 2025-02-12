@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
@@ -391,7 +392,7 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "Pressurize failed";
                                 break;
                             }
-                            if (0 != Hp22mm.pdPowerOn(mPENIdx)) {
+                            if (0 != Hp22mm.pdPowerOn(mPENIdx, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
                                 mHp22mmTestResult[index] = "PD power on failed";
                                 break;
                             }
@@ -406,7 +407,7 @@ public class TestHp22mm implements ITestOperation {
                         case HP22MM_TEST_PD_POWER_ONOFF:
                             int onErr = 0, offErr = 0;
                             for(int i=0; i<50; i++) {
-                                if (0 != Hp22mm.pdPowerOn(mPENIdx)) {
+                                if (0 != Hp22mm.pdPowerOn(mPENIdx, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
                                     onErr++;
                                 }
 

@@ -63,17 +63,26 @@ public class Hp22mmSCManager implements IInkDevice {
                     synchronized (LockObj) {
                         if (!mInitialized) {
                             // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
-                            if (Hp22mm.initHp22mm() != 0) {
-                                mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+                            int error = Hp22mm.initHp22mm();
+                            if(error == 0) {
+                                mValid = true;
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+                                mInitialized = true;
+                            } else {
+// H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
+                                if(error == -254) {     // DoPairing failed. 可能是C77指定的头和实际连接打印头不一致
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, "Pairing failed. Please check C77 head setting").sendToTarget();
+                                } else if(error == -255) {      // hp22mm类型却在C77制定了两个打印头
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, "Too many heads indicated in C77").sendToTarget();
+                                } else {    // 其它错误
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+                                }
                                 mValid = false;
                                 try {
                                     Thread.sleep(2000);
                                 } catch (Exception e) {
                                 }
-                            } else {
-                                mValid = true;
-                                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
-                                mInitialized = true;
+// End of H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
                             }
                         } else {
                             // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常

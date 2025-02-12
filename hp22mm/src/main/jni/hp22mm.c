@@ -28,7 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.140"
+#define VERSION_CODE                            "1.0.142"
+// 1.0.141 2025-2-10
+// 增加一个是否加热的控制属性(EnableWarming)和控制函数
+// 1.0.141 2025-2-7
+// 暂时修改PowerOn函数，增加一个设定温度的参数
 // 1.0.140 2025-1-17
 // Java_com_purge修改为，根据PD的SC中系统保存的purge状态和OEM保存的purge状态，当两者有一个为1时，判定为做过purge，不再purge，并且写入OEM区1。当两个Slot都purge过时，不再执行purge返回错误。
 // 执行purge后，无论pd_start_purging函数返回成功还是失败，均按着成功处理，写入OEM，并且返回成功
@@ -265,6 +269,7 @@ static PrintHeadStatus print_head_status;
 static PDSmartCardInfo_t pd_sc_info;
 static PDSmartCardStatus pd_sc_status;
 static volatile int PenArg;
+static volatile int EnableWarming = 1;
 
 void *monitorThread(void *arg) {
     int nonsecure_sec = 0;
@@ -367,7 +372,10 @@ void *monitorThread(void *arg) {
                 uint8_t v;
     // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
                 pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
-                pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+                if(EnableWarming)
+                    pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+                else
+                    pd_check_ph("pd_disable_warming", pd_disable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
 
                 // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
                 if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
@@ -402,6 +410,11 @@ void *monitorThread(void *arg) {
     return (void*)NULL;
 }
 
+JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable) {
+    EnableWarming = enable;
+    return 0;
+}
+
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg, jint penArg) {
     CancelMonitor = false;
     PenArg = penArg;
@@ -416,7 +429,7 @@ JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg, jint penAr
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex) {
+JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex, jint temp) {
 // H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待，最多5秒
 //    PrintHeadStatus status;
 //    PDResult_t pd_r;
@@ -433,7 +446,24 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
-//        pd_set_temperature_override(PD_INSTANCE, penIndex, 0);
+        if(temp < 30)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 0);
+        else if(temp < 35)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 1);
+        else if(temp < 40)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 2);
+        else if(temp < 45)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 3);
+        else if(temp < 50)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 4);
+        else if(temp < 55)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 5);
+        else if(temp < 60)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 6);
+        else if(temp < 65)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 7);
+        else if(temp < 70)
+            pd_set_temperature_override(PD_INSTANCE, penIndex, 8);
 //        pd_disable_warming(PD_INSTANCE, penIndex);
         PD_Power_State = PD_POWER_STATE_ON;
     }
@@ -450,7 +480,7 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg, jint penInde
 
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
 JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
-    jint ret = -1, res = 0, slot = 0x03;
+    jint ret = -1, slot = 0x03;
     PDSmartCardStatus __pd_sc_status;
     uint8_t sc_result;
     PDResult_t pd_r;
@@ -492,7 +522,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
             }
 
             if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, 3, &sc_result), penIndex) == PD_OK && sc_result == 0) {
-                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", res);
+                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", 3);
             }
         } else {
             LOGD("Purge already done");
@@ -501,7 +531,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
 
 //    pthread_mutex_unlock(&mutex);
 
-    return res;
+    return slot;
 }
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
 
@@ -1236,10 +1266,11 @@ static JNINativeMethod gMethods[] = {
         {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
+        {"EnableWarming",		                "(I)I",	                    (void *)Java_com_EnableWarming},
         {"StartMonitor",		                "(I)I",	                    (void *)Java_com_StartMonitor},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
-        {"pdPowerOn",	    "(I)I",	    (void *)Java_com_PDPowerOn},
+        {"pdPowerOn",	    "(II)I",	    (void *)Java_com_PDPowerOn},
         {"pdPowerOff",		                "(I)I",	                    (void *)Java_com_PDPowerOff},
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
         {"pdPurge",		                "(I)I",	                    (void *)Java_com_purge},

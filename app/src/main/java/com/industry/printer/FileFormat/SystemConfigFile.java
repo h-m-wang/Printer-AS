@@ -13,6 +13,7 @@ import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.RTCDevice;
 import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
@@ -1514,7 +1515,7 @@ public class SystemConfigFile{
 					return min;
 				}
 			}
-			
+
 			return def;
 		}
 		
@@ -1685,6 +1686,11 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_22MM;
 				break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_22MMX2:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_22MMX2;
+				break;
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		}
 
 		return nozzle;

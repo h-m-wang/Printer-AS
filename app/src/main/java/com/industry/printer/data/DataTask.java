@@ -178,7 +178,9 @@ public class DataTask {
 // H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
 		int rmCols = 0;
 // H.M.Wang 2024-9-7 HP22MM的打印任务，不去掉墨位空位，以保证列数一致
-		if(mTask.getNozzle() != PrinterNozzle.MESSAGE_TYPE_22MM) {
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		if(mTask.getNozzle() != PrinterNozzle.MESSAGE_TYPE_22MM && mTask.getNozzle() != PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 			boolean notZero = false;
 			while (!notZero) {
 				for (int i = 1; i <= mBinInfo.getCharsFeed(); i++) {
@@ -825,6 +827,13 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			div = scaleW;
 			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MM || headType == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+//			scaleW /= 1.0f * 1056 / 152;
+			scaleW /= 1.0f * 264 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / 2112;
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;
 			scaleW = 152f/16;

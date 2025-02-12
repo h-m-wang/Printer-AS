@@ -61,6 +61,7 @@ import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCardManager;
@@ -237,8 +238,8 @@ public class DataTransferThread {
 
 	public void purge(final Context context) {
 		SystemConfigFile config = SystemConfigFile.getInstance(mContext);
-		final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
-		PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
+		int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
+		final PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
 
 		// H.M.Wang 修改下列两行
 //		final boolean dotHd = (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT);
@@ -302,13 +303,20 @@ public class DataTransferThread {
 					purgeFile = "purge/purge4big.bin";
 				}
 // H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
-				PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
 				if(head == PrinterNozzle.MESSAGE_TYPE_32DN ||
   				   head == PrinterNozzle.MESSAGE_TYPE_32SN ||
 				   head == PrinterNozzle.MESSAGE_TYPE_48_DOT) {
 					purgeFile = "purge/purge32.bin";
 				}
 // End of H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
+
+// H.M.Wang 2025-1-18 增加22mm的清洗功能（走正常打印流程的清洗）
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+					purgeFile = "purge/hp22mm_purge.bin";
+				}
+// End of H.M.Wang 2025-1-18 增加22mm的清洗功能（走正常打印流程的清洗）
 
 				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd);
 
@@ -367,10 +375,41 @@ public class DataTransferThread {
 		if(PlatformInfo.getImgUniqueCode().startsWith("GZJ")) {    // GZJ盖章机直接按着清洗数据下发，因为GZJ没有自动打印
 			FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_PURGE, buffer, buffer.length*2);
 		} else {			// 其他的还是按打印数据下发
-			FpgaGpioOperation.init();
+			if(FpgaGpioOperation.getDriverVersion() < 3119) {		// 先启动打印，后下发数据的img
+				FpgaGpioOperation.init();
+			}
+// H.M.Wang 2025-2-6
 			FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+			if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
+// H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+				FpgaGpioOperation.init();
+// End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+			}
 		}
 // End of H.M.Wang 2022-3-18 在3.5寸老板新屏的设备上，由于不支持自动打印，恢复到原来的清洗模式
+
+// H.M.Wang 2025-2-10 22MM清洗时停止加热
+		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+			Hp22mm.EnableWarming(0);
+		}
+// End of H.M.Wang 2025-2-10 22MM清洗时停止加热
+
+// H.M.Wang 2025-2-7 修改清洗下发数据的逻辑，从下发一次后等待3秒，修改为在开始清洗后的3秒内，每100ms查询一次img是否要数。这是因为现在清洗已经走正常打印通道，img不会自动重复，所以改为定期根据请求下发数据。并且取消原来的方式
+		long startTime = System.currentTimeMillis();
+		while(System.currentTimeMillis() - startTime < 3000) {
+			try {
+				Thread.sleep(5);
+				if(FpgaGpioOperation.pollState() > 0) {
+					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+				}
+			} catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		if(!PlatformInfo.getImgUniqueCode().startsWith("GZJ")) {    // 不是老板新屏标识
+			FpgaGpioOperation.uninit();
+		}
+/*
 // H.M.Wang 2021-10-22 修改清洗，从特别处理改为按普通打印下发，但是与正常的打印不共存，先停止正常打印，在开始清洗打印，然后在恢复打印
 ////		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_PURGE, buffer, buffer.length*2);
 //		FpgaGpioOperation.init();
@@ -390,6 +429,14 @@ public class DataTransferThread {
 // End of H.M.Wang 2022-3-18 在3.5寸老板新屏的设备上，由于不支持自动打印，恢复到原来的清洗模式，这里取消停止打印的操作
 // End of H.M.Wang 2021-10-22 修改清洗，从特别处理改为按普通打印下发，但是与正常的打印不共存，先停止正常打印，在开始清洗打印，然后在恢复打印
 		}
+*/
+// End of H.M.Wang 2025-2-7 修改清洗下发数据的逻辑，从下发一次后等待3秒，修改为在开始清洗后的3秒内，每100ms查询一次img是否要数。这是因为现在清洗已经走正常打印通道，img不会自动重复，所以改为定期根据请求下发数据
+
+// H.M.Wang 2025-2-10 22MM清洗完重开加热
+		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+			Hp22mm.EnableWarming(1);
+		}
+// End of H.M.Wang 2025-2-10 22MM清洗完重开加热
 
 		FpgaGpioOperation.clean();
 	}
@@ -433,6 +480,10 @@ public class DataTransferThread {
 // H.M.Wang 2023-7-29 追加48点头
 			head != PrinterNozzle.MESSAGE_TYPE_48_DOT &&
 // End of H.M.Wang 2023-7-29 追加48点头
+// H.M.Wang 2025-2-7 22mm的打印头类型支持清洗
+			head != PrinterNozzle.MESSAGE_TYPE_22MM &&
+			head != PrinterNozzle.MESSAGE_TYPE_22MMX2 &&
+// End of H.M.Wang 2025-2-7 22mm的打印头类型支持清洗
 // H.M.Wang 2021-8-16 追加96DN头
 			head != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
@@ -466,13 +517,43 @@ public class DataTransferThread {
 					head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // End of H.M.Wang 2020-7-23 追加32DN打印头*/
 				String purgeFile = "purge/purge4big.bin";
+// H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+					purgeFile = "purge/hp22mm_purge.bin";
+				}
+// End of H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
 //				}
 				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
 				
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
 				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE1);
+				if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
+// H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+// End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+				}
 				FpgaGpioOperation.init();
+
+// H.M.Wang 2025-2-10 22MM清洗时停止加热
+				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+					Hp22mm.EnableWarming(0);
+				}
+// End of H.M.Wang 2025-2-10 22MM清洗时停止加热
+
+// H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
+				long startTime = System.currentTimeMillis();
+				while(System.currentTimeMillis() - startTime < 2*60*1000) {
+					try {
+						Thread.sleep(5);
+						if(FpgaGpioOperation.pollState() > 0) {
+							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+						}
+					} catch(InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+/*
 				for (int i = 0; i < 50; i++) {
 // End of H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 					Debug.e(TAG, "(" + (i+1) + ")--->buffer len: " + buffer.length);
@@ -488,7 +569,7 @@ public class DataTransferThread {
 					}
 
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
-/*					FpgaGpioOperation.clean();
+|*					FpgaGpioOperation.clean();
 					FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE2);
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_PURGE, buffer, buffer.length*2);
 					try {
@@ -497,12 +578,20 @@ public class DataTransferThread {
 					} catch (InterruptedException e) {
 						// e.printStackTrace();
 					}
-*/
+*|
 // End of H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				}
+*/
+// End of H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
+
 				FpgaGpioOperation.uninit();
 				FpgaGpioOperation.dispLog();
 				FpgaGpioOperation.clean();
+// H.M.Wang 2025-2-10 22MM清洗完重开加热
+				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+					Hp22mm.EnableWarming(1);
+				}
+// End of H.M.Wang 2025-2-10 22MM清洗完重开加热
 				try {
 					mPurgeLock.unlock();
 				} catch (Exception e) {

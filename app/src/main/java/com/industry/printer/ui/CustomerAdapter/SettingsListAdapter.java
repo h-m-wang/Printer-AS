@@ -1100,6 +1100,11 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		
 		for (int i = 1; i < mSysconfig.getParams().length; i++) {
 			 value = mSysconfig.checkParam(i, mSysconfig.getParam(i-1));
+// H.M.Wang 2025-2-7 对于C63参数，当为22mm的时候，最大值设置为55，非22mm的时候，最大值为40
+			if(!PlatformInfo.getImgUniqueCode().startsWith("22MM") && i == 63) {
+				value = Math.min(40, value);
+			}
+// End of H.M.Wang 2025-2-7 对于C63参数，当为22mm的时候，最大值设置为55，非22mm的时候，最大值为40
 			 if (value != mSysconfig.getParam(i-1)) {
 				 mSysconfig.setParam(i-1, value);
 				 mSettingItems[i-1].mValue = String.valueOf(value);
@@ -1135,7 +1140,13 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 //			Debug.d(TAG, "--->param=" + mSettingItems[pos].getDisplayValue());
 // H.M.Wang 2021-7-23 修改参数设置，如果取值超出范围，则强制修正
 //			mSysconfig.setParam(pos, getValueFromEditText(arg0));
-			mSysconfig.setParam(pos, mSysconfig.checkParam(pos+1, getValueFromEditText(arg0)));
+// H.M.Wang 2025-2-7 对于C63参数，当为22mm的时候，最大值设置为55，非22mm的时候，最大值为40
+			if(!PlatformInfo.getImgUniqueCode().startsWith("22MM") && pos+1 == 63) {
+				mSysconfig.setParam(pos, Math.min(40, mSysconfig.checkParam(pos+1, getValueFromEditText(arg0))));
+			} else {
+				mSysconfig.setParam(pos, mSysconfig.checkParam(pos+1, getValueFromEditText(arg0)));
+			}
+// End of H.M.Wang 2025-2-7 对于C63参数，当为22mm的时候，最大值设置为55，非22mm的时候，最大值为40
 // End of H.M.Wang 2021-7-23 修改参数设置，如果取值超出范围，则强制修正
 		}
 		@Override

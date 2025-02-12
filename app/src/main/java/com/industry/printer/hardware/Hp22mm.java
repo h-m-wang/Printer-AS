@@ -2,8 +2,11 @@ package com.industry.printer.hardware;
 
 import android.content.res.AssetManager;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.util.Printer;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.PrinterApplication;
 import com.industry.printer.Utils.Debug;
 
@@ -46,12 +49,15 @@ public class Hp22mm {
     static public native int StartMonitor(int arg);
     static public native int Pressurize(boolean async);
 // End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
+// H.M.Wang 2025-2-10 追加要给控制是否加热的功能
+    static public native int EnableWarming(int enable);
+// End of H.M.Wang 2025-2-10 追加要给控制是否加热的功能
     static public native String getPressurizedValue();
     static public native int Depressurize();
     static public native int UpdatePDFW();
     static public native int UpdateFPGAFlash();
     static public native int UpdateIDSFW();
-    static public native int pdPowerOn(int penIndex);
+    static public native int pdPowerOn(int penIndex, int temp);
     static public native int pdPowerOff(int penIndex);
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
     static public native int pdPurge(int penIndex);
@@ -146,6 +152,14 @@ public class Hp22mm {
         }
 
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
+// H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+            penArg = 0x03;
+        } else {
+            if(penArg == 0x03) return -255;
+        }
+// End of H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
+
         int[] penIdxs;
         if(penArg == 0x01) {
             penIdxs = new int[] {0};
@@ -171,7 +185,9 @@ public class Hp22mm {
 
         if (0 != DoPairing(penArg)) {
             Debug.d(TAG, "DoPairing failed\n");
-            return -6;
+// H.M.Wang 2025-1-20 虽然C31指定为hp22mm，C77指定了单头，但是两者不匹配，会发生DoPairing错误，此时返回-254错误
+            return -254;
+// End of H.M.Wang 2025-1-20 虽然C31指定为hp22mm，C77指定了单头，但是两者不匹配，会发生DoPairing错误
         } else {
             Debug.d(TAG, "DoPairing succeeded\n");
         }
@@ -192,7 +208,7 @@ public class Hp22mm {
             }
 */
 // H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
-            if (0 != pdPowerOn(penIdxs[i])) {
+            if (0 != pdPowerOn(penIdxs[i], SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
                 Debug.d(TAG, "PD power on failed\n");
                 return -9;
             } else {
@@ -215,33 +231,61 @@ public class Hp22mm {
         return 0;
     }
 
-    public static char[] getSettings() {
+    public static char[] getSettings(int type) {
         char[] regs = new char[34];
-
         SystemConfigFile config = SystemConfigFile.getInstance();
+
+// H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
+        PrinterNozzle nozzle = PrinterNozzle.getInstance(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
+// End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
+
+// H.M.Wang 2025-2-10 取消这个修改，改为在R15和R16处直接根据是否为清洗分别计算设置
+// H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容
+//        int param0 = (type == FpgaGpioOperation.SETTING_TYPE_PURGE1 ? 1000 : config.mParam[0]);
+//        int param6 = (type == FpgaGpioOperation.SETTING_TYPE_PURGE1 ? 200 : config.mParam[6]);
+// End of H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容
+// End of H.M.Wang 2025-2-10 取消这个修改，改为在R15和R16处直接根据是否为清洗分别计算设置
 
         regs[REG04_32BIT_WORDS_PER_COL] = WORDS_PER_COL;
         regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
+// H.M.Wang
+        if(nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+            regs[REG05_BYTES_PER_COL] *= 2;
+        }
+// End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
-        regs[REG07_START_ADD_P0S0_ODD] = 132;
+// H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值, R7-R14的的其它管脚失效
+//        regs[REG07_START_ADD_P0S0_ODD] = 132;
 // H.M.Wang 2024-12-29 临时修改为0x7FE084
 //        regs[REG08_START_ADD_P0S0_EVEN] = 132;
-        regs[2] = (char)0x07F;
-        regs[REG08_START_ADD_P0S0_EVEN] = (char)0xE084;
+//        regs[2] = (char)0x07F;
+//        regs[REG08_START_ADD_P0S0_EVEN] = (char)0xE084;
 // End of H.M.Wang 2024-12-29 临时修改为0x7FE084
-        regs[REG09_START_ADD_P0S1_ODD] = 132;
-        regs[REG10_START_ADD_P0S1_EVEN] = 132;
-        regs[REG11_START_ADD_P1S0_ODD] = 132;
-        regs[REG12_START_ADD_P1S0_EVEN] = 132;
-        regs[REG13_START_ADD_P1S1_ODD] = 132;
-        regs[REG14_START_ADD_P1S1_EVEN] = 132;
+//        regs[REG09_START_ADD_P0S1_ODD] = 132;
+//        regs[REG10_START_ADD_P0S1_EVEN] = 132;
+//        regs[REG11_START_ADD_P1S0_ODD] = 132;
+        regs[REG11_START_ADD_P1S0_ODD] = 0; // 只有一个喷头为0
+        if(nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+            regs[REG11_START_ADD_P1S0_ODD] = 1; // 两个喷头时为1
+        }
+//        regs[REG12_START_ADD_P1S0_EVEN] = 132;
+//        regs[REG13_START_ADD_P1S1_ODD] = 132;
+//        regs[REG14_START_ADD_P1S1_EVEN] = 132;
+// End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值, R7-R14的的其它管脚失效
 
 // H.M.Wang 2024-9-3 修改R15的计算公式
-//        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * 24) : 150000);                                 // R15=90M/(C1*24)
-// H.M.Wang 2025-1-10 config.mParam[0]最小不能小于110来计算
-//        int encFreq = (config.mParam[0] != 0 ? 90000000 / (config.mParam[0] * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
-        int encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
-// End of H.M.Wang 2025-1-10 config.mParam[0]最小不能小于110来计算
+//        int encFreq = (param0 != 0 ? 90000000 / (param0 * 24) : 150000);                                 // R15=90M/(C1*24)
+// H.M.Wang 2025-1-10 param0最小不能小于110来计算
+//        int encFreq = (param0 != 0 ? 90000000 / (param0 * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
+// H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
+        int encFreq;
+        if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
+            encFreq = 3750;
+        } else {
+            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
+        }
+// End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
+// End of H.M.Wang 2025-1-10 param0最小不能小于110来计算
 // End of H.M.Wang 2024-9-3 修改R15的计算公式
         regs[1] = (char)((encFreq >> 16) & 0x0ffff);                                                                         // 借用Reg1来保存ENC的高16位
         regs[REG15_INTERNAL_ENC_FREQ] = (char)((char)(encFreq & 0x0ffff));                                                   // Reg15仅保存ENC的低16位，完整整数在img中合成
@@ -250,9 +294,14 @@ public class Hp22mm {
                 (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
         int tofFreq = (config.mParam[0] != 0 ? 90000000 / config.mParam[0] * config.mParam[6] / 2 : 45000000);                   // R16=90M * C7 / C1 / 2 (2024-9-5)
         if(regs[REG17_ENCODER_SOURCE] == 1 && regs[REG19_TOF_SOURCE] == 0) {
-//            tofFreq = config.mParam[6] * 24;                                                                                 // R16=C7 * 24
+//            tofFreq = param6 * 24;                                                                                 // R16=C7 * 24
             tofFreq = config.mParam[6] * 0;                                                                                 // R16=C7 * 0 (2024-9-5)
         }
+// H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
+        if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
+            tofFreq = 3825000;
+        }
+// End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
         regs[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
         regs[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成
 // H.M.Wang 2024-9-3 修改R18的计算公式
@@ -268,8 +317,8 @@ public class Hp22mm {
         regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*4/(C9*3.14))+(C11*150/C3) (2024-9-5)
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-        regs[REG23_COLUMN_SPACING] = 4;                                                     // 固定数据待定
-        regs[REG24_SLOT_SPACING] = 52;                                                      // 固定数据待定
+        regs[REG23_COLUMN_SPACING] = (char)config.getParam(79);                                                     // 固定数据待定=4
+        regs[REG24_SLOT_SPACING] = (char)config.getParam(81);                                                      // 固定数据待定=52
         regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
         regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
 // H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
@@ -278,7 +327,12 @@ public class Hp22mm {
         regs[REG27_MAX_PRINT_COUNT] = (char)(regs[REG27_MAX_PRINT_COUNT] < 1 ? 0 : (regs[REG27_MAX_PRINT_COUNT]-1));
 // End of H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
         regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
-        regs[REG29_COLUMN_ENABLE] = (char)(0x0FF & config.getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL));  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+// H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容
+        if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1)
+            regs[REG29_COLUMN_ENABLE] = (char)0x0FF;  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+        else
+            regs[REG29_COLUMN_ENABLE] = (char)(0x0FF & config.getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL));  // (sPenIdx == 0) col_mask = 0x0f; (sPenIdx == 1) col_mask = 0xf0
+// End of H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容
         regs[REG30_FLASH_ENABLE] = 0;                                                       // Connects the SPI interface to the EEPROM so that application software can update the configuration
         regs[REG33_READY] = 0;                                                              // Bit 0 returns the status of the Ready input, which should be driven by the Printhead Driver subsystem. Bit 1 overrides the input so that software can force the outputs into a tristate mode.
 

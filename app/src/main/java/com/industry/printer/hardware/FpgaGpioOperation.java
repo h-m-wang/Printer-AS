@@ -749,7 +749,7 @@ public class FpgaGpioOperation {
 */
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
         if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-            data = Hp22mm.getSettings();
+            data = Hp22mm.getSettings(type);
         }
 // End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 
@@ -834,8 +834,12 @@ public class FpgaGpioOperation {
 //2024-3-25        Debug.d(TAG, "FPGA_CMD_BUCKETSIZE -> " + config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
 //2024-3-25        ioctl(fd, FPGA_CMD_BUCKETSIZE, config.getParam(SystemConfigFile.INDEX_FIFO_SIZE));
 // H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
-        startPhoEncTest();
-        stopPhoEncTest();
+// H.M.Wang 2025-2-12 如果是4FIFO不执行该操作
+        if(!PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+            startPhoEncTest();
+            stopPhoEncTest();
+        }
+// End of H.M.Wang 2025-2-12 如果是4FIFO不执行该操作
 // End of H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
         Debug.d(TAG, "FPGA_CMD_STARTPRINT");
         ioctl(fd, FPGA_CMD_STARTPRINT, 0);

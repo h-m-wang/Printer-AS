@@ -580,6 +580,9 @@ public class TLKFileParser  extends TlkFile{
                 break;
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 			case MESSAGE_TYPE_22MM:
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			case MESSAGE_TYPE_22MMX2:
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 				dots = 1056f;
 				mProportion = 1.0f;
 				break;

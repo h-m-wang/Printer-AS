@@ -246,7 +246,7 @@
 	<param>
 		<id>63</id>
 		<min>0</min>
-		<max>40</max>
+		<max>55</max>
 		<default>0</default>
 	</param>
 <!-- End of H.M.Wang 2023-2-4 追加C63 温度/Warming  -->
