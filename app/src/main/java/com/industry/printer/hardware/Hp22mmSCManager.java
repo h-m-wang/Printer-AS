@@ -28,7 +28,11 @@ public class Hp22mmSCManager implements IInkDevice {
     private boolean mLibInited;
 
     // 暂时只支持1个打印头，将来如果支持多个打印头的话，需要对这里一系列的参数分头管理
-    private int mInkLevel;
+// H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
+//    private int mInkLevel;
+    private int mInkLevels[];
+    private int mHeadCount;
+// End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
     private boolean mValid;
 // H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
     private boolean mInitialized;
@@ -44,7 +48,9 @@ public class Hp22mmSCManager implements IInkDevice {
 
     public Hp22mmSCManager(Context context) {
         mContext = context;
-        mInkLevel = -1;
+//        mInkLevel = -1;
+        mInkLevels = new int[] {-1, -1, -1};
+        mHeadCount = PrinterNozzle.getInstance(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE)).mHeads + 1; // 墨盒数+墨袋
         mValid = true;
         mInitialized = false;
     }
@@ -122,9 +128,10 @@ public class Hp22mmSCManager implements IInkDevice {
         return true;
     }
 
-    private int getSlotCount() {
+    private int getSlotCount(int head) {
         int slotCount = 1;
         int ns = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+        if(head == 1) ns = (ns >> 4);
         if(ns == 0x00 || ns == 0x01 || ns == 0x02 || ns == 0x04 || ns == 0x08) {
             slotCount = 1;
         } else
@@ -143,23 +150,18 @@ public class Hp22mmSCManager implements IInkDevice {
     @Override
     public float getLocalInk(int head) {
 // H.M.Wang 2024-12-10 从SC的OEM中读取当前值
-        if(mInitialized && mInkLevel == -1) {
-            int level = Hp22mm.getLocalInk();
+        if(mInitialized && mInkLevels[head] == -1) {
+            int level = Hp22mm.getLocalInk((head+1)%mHeadCount);        // 目的是将IDS的序号变为0，其它的头的序号从1开始计数
             if(level == -1) {
-                mInkLevel = -1;
+                mInkLevels[head] = -1;
                 mValid = false;
             } else {
-                mInkLevel = MAX_BAG_INK_VOLUME_MAXIMUM - level;
+                mInkLevels[head] = ((head == mHeadCount-1) ? 1 : 5) * MAX_BAG_INK_VOLUME_MAXIMUM - level;   // PEN的最大值是IDS的5倍
                 mValid = true;
             }
         }
 // End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
-// H.M.Wang 2024-12-11 根据列数调整返回值
-        if(mInkLevel != -1) {
-            return 1.0f * mInkLevel / getSlotCount();
-        }
-// End of H.M.Wang 2024-12-11 根据列数调整返回值
-        return mInkLevel;
+        return mInkLevels[head];
     }
 
     @Override
@@ -168,8 +170,8 @@ public class Hp22mmSCManager implements IInkDevice {
 //        int usableVol = Hp22mm.getUsableVol();
 //        if(usableVol > 0)
 //            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
-        if(mInkLevel >= 0) {
-            float ret = (100.0f * mInkLevel / MAX_BAG_INK_VOLUME_MAXIMUM) + 0.1f;      // 为了避免只要开始打印就显示99.9%的问题，而是真的打印了0.1%后，才显示99.9%
+        if(mInkLevels[head] >= 0) {
+            float ret = (100.0f * mInkLevels[head] / ((head == mHeadCount -1 ? 1:5) * MAX_BAG_INK_VOLUME_MAXIMUM)) + 0.1f;      // 为了避免只要开始打印就显示99.9%的问题，而是真的打印了0.1%后，才显示99.9%
             return (ret > 100.0f ? 100.0f : ret);
 // End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
         } else if(!mInitialized)
@@ -197,11 +199,14 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public void downLocal(int dev) {
-        if(mInkLevel > 0) {
+        if(mInkLevels[dev] > 0) {
 // H.M.Wang 2024-12-11 根据列数调整减记值
-            int c = getSlotCount();
-            mInkLevel -= c;
-            if(mInitialized) Hp22mm.downLocal(c);
+            int c = getSlotCount(dev);
+            mInkLevels[dev] -= c;
+            if(mInitialized) {
+                Hp22mm.downLocal((dev+1)%mHeadCount, c);    // 减记PENx
+                Hp22mm.downLocal(0, c);                     // 减记IDS
+            }
 // End of H.M.Wang 2024-12-11 根据列数调整减记值
         }
     }
@@ -222,10 +227,24 @@ public class Hp22mmSCManager implements IInkDevice {
     }
 
     public int startPrint() {
-        if(mInitialized) return 0; else return -1;
+        if(mInitialized) {
+// H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+            Hp22mm.EnableWarming(1);
+// End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+            return 0;
+        } else return -1;
     }
 
     public int stopPrint() {
+// H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+        Hp22mm.EnableWarming(0);
+// End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         return 0;
     }
+
+// H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
+    public int getInkCount() {
+        return mHeadCount;
+    }
+// End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 }

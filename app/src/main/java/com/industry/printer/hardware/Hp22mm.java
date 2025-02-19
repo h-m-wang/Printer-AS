@@ -66,8 +66,8 @@ public class Hp22mm {
     static public native int getConsumedVol();
     static public native int getUsableVol();
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
-    static public native int getLocalInk();
-    static public native int downLocal(int count);
+    static public native int getLocalInk(int head);
+    static public native int downLocal(int head, int count);
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
@@ -217,7 +217,11 @@ public class Hp22mm {
 // End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
         }
 
-        // H.M.Wang 2024-11-10
+// H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+        Hp22mm.EnableWarming(0);
+// End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+
+// H.M.Wang 2024-11-10
         if (0 != StartMonitor(penArg)) {
             Debug.d(TAG, "StartMonitor failed\n");
             return -7;
@@ -280,7 +284,7 @@ public class Hp22mm {
 // H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
         int encFreq;
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
-            encFreq = 3750;
+            encFreq = 5000;
         } else {
             encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
         }
@@ -299,6 +303,10 @@ public class Hp22mm {
         }
 // H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
+// H.M.Wang 2025-2-17 修改当清洗时R17和R19都设0
+            regs[REG17_ENCODER_SOURCE] = 0;
+            regs[REG19_TOF_SOURCE] = 0;
+// End of H.M.Wang 2025-2-17 修改当清洗时R17和R19都设0
             tofFreq = 3825000;
         }
 // End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
@@ -313,9 +321,14 @@ public class Hp22mm {
 // H.M.Wang 2024-9-3 修改R20,R21的计算公式
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[11]);              // R20= C4x24+c12
 //        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[10]);              // R21= C4x24+c11
-        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 150 / config.mParam[2]);              // R20=C4*(C10*4/(C9*3.14))+(C12*150/C3) (2024-9-5)
-        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*4/(C9*3.14))+(C11*150/C3) (2024-9-5)
+// H.M.Wang 2025-2-17 修改R20，R21计算公式为：R20= C4x(C10x2/(C9x3.14*4))/+(c11*24/6)； R21= C4x(C10x2/(C9x3.14*4))/+(c12*24/6)
+//        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 150 / config.mParam[2]);              // R20=C4*(C10*4/(C9*3.14))+(C12*150/C3) (2024-9-5)
+//        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*4/(C9*3.14))+(C11*150/C3) (2024-9-5)
+        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 24 / 6);
+        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 24 / 6);
+// End of H.M.Wang 2025-2-17 修改R20，R21计算公式为：R20= C4x(C10x2/(C9x3.14*4))/+(c11*24/6)； R21= C4x(C10x2/(C9x3.14*4))/+(c12*24/6)
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
+
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
         regs[REG23_COLUMN_SPACING] = (char)config.getParam(79);                                                     // 固定数据待定=4
         regs[REG24_SLOT_SPACING] = (char)config.getParam(81);                                                      // 固定数据待定=52
@@ -325,6 +338,12 @@ public class Hp22mm {
 //        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
         regs[REG27_MAX_PRINT_COUNT] = (char)(config.mParam[2] / 300);                                                    // R27 最大打印次数 1
         regs[REG27_MAX_PRINT_COUNT] = (char)(regs[REG27_MAX_PRINT_COUNT] < 1 ? 0 : (regs[REG27_MAX_PRINT_COUNT]-1));
+// H.M.Wang 2025-2-17 R27[3] = 1 双头倒置
+        if(config.getParam(14) > 0)
+            regs[REG27_MAX_PRINT_COUNT] |= 0x08;
+        else
+            regs[REG27_MAX_PRINT_COUNT] &= ~0x08;
+// End of H.M.Wang 2025-2-17 R27[3] = 1 双头倒置
 // End of H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
         regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
 // H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容

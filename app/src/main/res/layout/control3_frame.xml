@@ -436,6 +436,31 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ctrl_hp22mm_result_area"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_driver_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:textSize="10sp"
+            android:textColor="#000000"
+            />
+        <TextView
+            android:id="@+id/tv_hp22mm_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginLeft="10dp"
+            android:textSize="10sp"
+            android:textColor="#000000"
+            />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/ctrl_btn_layout"
         android:layout_width="fill_parent"
         android:layout_height="90dp"
@@ -561,19 +586,6 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/txt_preview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/ctrl_msgname"
-        android:layout_above="@id/ctrl_btn_layout"
-        android:layout_marginTop="5dp"
-        android:background="#ffffff"
-        android:textColor="@color/black"
-        android:lines="3"
-        android:visibility="gone"
-        />
-
 <!-- H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -582,12 +594,23 @@
         android:layout_above="@id/ctrl_btn_layout"
         android:layout_marginTop="5dp"
         android:background="#ffffff" >
+        <TextView
+            android:id="@+id/txt_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:background="#ffffff"
+            android:textColor="@color/black"
+            android:lines="3"
+            android:visibility="gone" />
+
         <HorizontalScrollView
             android:id="@+id/preview_scroll"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:scrollbars="none"
-            android:background="#ffffff" >
+            android:background="#ffffff"
+            android:visibility="gone" >
             <LinearLayout
                 android:id="@+id/ll_preview"
                 android:layout_width="match_parent"

@@ -264,12 +264,12 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // End of H.M.Wang 2022-4-24 如果修改了QRLast值，则重新生成一次打印缓冲区
 				break;
 // End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理
-				case MSG_HP22MM_NOZZLE_SEL:
-					if((msg.arg1 & 0x0F) == 0x00) msg.arg1 |= 0x01;
-					mSettingItems[SystemConfigFile.INDEX_22MM_NOZZLE_SEL].setValue(msg.arg1);
-					mSysconfig.setParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL, msg.arg1);
-					notifyDataSetChanged();
-					break;
+			case MSG_HP22MM_NOZZLE_SEL:
+				if((msg.arg1 & 0x0F) == 0x00) msg.arg1 |= 0x01;
+				mSettingItems[SystemConfigFile.INDEX_22MM_NOZZLE_SEL].setValue(msg.arg1);
+				mSysconfig.setParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL, msg.arg1);
+				notifyDataSetChanged();
+				break;
 			}
 		}
 	};

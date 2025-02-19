@@ -1657,6 +1657,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			}
 		}
 // End of H.M.Wang 2022-10-19 对于64SLANT头做特殊处理。。。
+// H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+			if(sysconf.getParam(14) > 0) revert = 0xf0;
+		}
+// End of H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+
 		BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mBinInfo.getCharsFeed(), heads);
 		br.mirror(mirrors)
 		  .shift(shifts)
@@ -2002,12 +2008,19 @@ public char[] bitShiftFor64SN() {
 	 * 用於清洗的buffer
 	 * @return
 	 */
-	public char[] preparePurgeBuffer(String bin, boolean isDZJ) {
+// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+//	public char[] preparePurgeBuffer(String bin, boolean isDZJ) {
+	public char[] preparePurgeBuffer(String bin, boolean isDZJ, boolean isHp22mm) {
+// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 		InputStream stream;
 		try {
 			stream = mContext.getAssets().open(bin);
 			mBinInfo = new BinInfo(stream, 1);
 			char[] buffer = mBinInfo.getBgBuffer();
+
+// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+			if(isHp22mm) return buffer;
+// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 
 // H.M.Wang 2022-1-3 使用直接的bin（purge4big.bin)，不再做扩充的操作
 

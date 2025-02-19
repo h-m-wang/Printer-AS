@@ -46,9 +46,9 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head);
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
-JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint count);
+JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count);
 JNIEXPORT jstring JNICALL Java_com_DumpRegisters(JNIEnv *env, jclass arg);
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
 JNIEXPORT jstring JNICALL Java_com_SpiTest(JNIEnv *env, jclass arg);

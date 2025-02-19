@@ -17,7 +17,7 @@
 	<string name="str_btn_clean">Чистка</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">Подтвердить очистку</string>
-	<string name="str_clean_confirm">Очистка займет 5 минут, продолжить</string>
+	<string name="str_clean_confirm">Очистка займет 2 минут, продолжить</string>
 	<string name="str_under_purging">Прочистка, попробуйте позже</string>
 <!-- End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_under_printing">Please stop print then try again.</string>

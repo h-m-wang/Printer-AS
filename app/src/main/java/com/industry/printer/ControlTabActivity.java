@@ -784,7 +784,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mPower = (RelativeLayout) getView().findViewById(R.id.power);
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
 		mTime = (TextView) getView().findViewById(R.id.time);
-
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 			mHp22mmErrTV = (TextView) getView().findViewById(R.id.tv_hp22mm_result);
@@ -1409,6 +1408,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
 			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
 		}
+// H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
+        if(mInkManager instanceof Hp22mmSCManager) {		// 当初始化这些显示控件的时候，还没有初始化SmartCardManager，因此还无法获得正确的heads，因此在这里再根据实际SC的头数调节控件的显示属性
+            heads = ((Hp22mmSCManager)mInkManager).getInkCount();
+            if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
+            if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
+        }
+// End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 
 		boolean valid = !(null != mDTransThread && mDTransThread.isRunning());
 // H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
@@ -1425,8 +1431,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 
 			String level = "";
-			if(mInkManager instanceof SmartCardManager) {
-				level = (i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
+            if(mInkManager instanceof SmartCardManager) {
+				level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+// H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
+			} else if(mInkManager instanceof Hp22mmSCManager) {
+				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+// End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 			} else {
 				level = "P" + (i + 1) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
 			}

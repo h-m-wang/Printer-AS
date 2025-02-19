@@ -728,7 +728,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     
     LOGD("Service Request : %d\n", frame->service);
 
-    LOGD("UART_Send_buffer: [%s](%d)", toHexString(buf, data_size, ','), data_size);
+//    LOGD("UART_Send_buffer: [%s](%d)", toHexString(buf, data_size, ','), data_size);
                             
     /* Send the command to uart */
     UartResult_t ur = UART_OK;
@@ -749,7 +749,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
         return SERVICE_ERROR;
     }
     
-    LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, recvd_size, ','), recvd_size);
+//    LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, recvd_size, ','), recvd_size);
 
     fr = frame_response_init(frame, resp_buf, recvd_size);
     if(fr != FRAME_OK) {
@@ -769,7 +769,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     ur = uart_recv(instance, resp_buf+recvd_size, rsp_data_size+1, /* +1 for crc,(FW is not sending Line break now : +1 for line break)  */
                         &n, _get_response_timeout());
                         
-    LOGD("UART_Data_buffer: [%s](%d)", toHexString(resp_buf+recvd_size, n, ','), n);
+//    LOGD("UART_Data_buffer: [%s](%d)", toHexString(resp_buf+recvd_size, n, ','), n);
 
     /* Deserialize the frame to structure */
     fr = frame_response_init_data(frame, resp_buf+recvd_size, n); 

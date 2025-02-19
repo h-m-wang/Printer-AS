@@ -28,8 +28,15 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.142"
-// 1.0.141 2025-2-10
+#define VERSION_CODE                            "1.0.144"
+// 1.0.144 2025-2-19
+// 为getLocalInk和downLocal函数追加head参数，当head==0时，代表ids，当head>=1时，代表pen0,...
+// 1.0.143 2025-2-18
+// 注释掉ids.c中的注释，已经service.c中有关UART的注释，以减少log输出量。修改守护线程的休眠时间
+// #define POLL_SEC 1 -> 2
+// #define INK_POLL_SEC 2 -> 4
+
+// 1.0.142 2025-2-10
 // 增加一个是否加热的控制属性(EnableWarming)和控制函数
 // 1.0.141 2025-2-7
 // 暂时修改PowerOn函数，增加一个设定温度的参数
@@ -247,9 +254,9 @@ static Air_Pump_State_t Air_Pump_State = AIR_STATE_PUMP_OFF;
 static bool CancelMonitor = false;
 
 // POLL_SEC - how often the background thread runs
-#define POLL_SEC 1
+#define POLL_SEC 2
 // INK_POLL_SEC - when pen is On, ink is polled at this frequency for PILS use
-#define INK_POLL_SEC 2
+#define INK_POLL_SEC 4
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
@@ -548,33 +555,52 @@ JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg) {
 }
 
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
-JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) {
     uint32_t value;
-    IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
-    if (ids_check("ids_read_oem_field", ids_r)) return(-1);
-    LOGD("OEM_RW_1 = %d", value);
+    if(head == 0) {
+        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+        if (ids_check("ids_read_oem_field", ids_r)) return(-1);
+        LOGD("IDS_OEM_RW_1 = %d", value);
+    } else {
+        uint8_t pd_sc_result;
+        PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
+        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+        LOGD("PD_OEM_RW_1[%d] = %d", head-1, value);
+    }
     return value;
 }
 
 #define MAX_BAG_INK_VOLUME_MAXIMUM              (15500 * 4)
 
-JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint count) {
+JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count) {
     uint32_t value;
-    IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
-    if (ids_check("ids_read_oem_field", ids_r)) return(-1);
 
-    value += count;
+    if(head == 0) {
+        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+        if (ids_check("ids_read_oem_field", ids_r)) return(-1);
 
-    if(value >= MAX_BAG_INK_VOLUME_MAXIMUM) {
-        ids_r = ids_set_out_of_ink(IDS_INSTANCE, sIdsIdx);
-        if (ids_check("ids_set_out_of_ink", ids_r)) return(-1);
+        value += count;
+
+        if(value >= MAX_BAG_INK_VOLUME_MAXIMUM) {
+            ids_r = ids_set_out_of_ink(IDS_INSTANCE, sIdsIdx);
+            if (ids_check("ids_set_out_of_ink", ids_r)) return(-1);
+        }
+
+        ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, value);
+        if (ids_check("ids_write_oem_field", ids_r)) return(-1);
+
+        ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
+        if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
+    } else {
+        uint8_t pd_sc_result;
+        PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
+        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+
+        value += count;
+
+        pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, value, &pd_sc_result);
+        if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
     }
-
-    ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, value);
-    if (ids_check("ids_write_oem_field", ids_r)) return(-1);
-
-    ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
-    if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
 
     return 0;
 }
@@ -1279,8 +1305,8 @@ static JNINativeMethod gMethods[] = {
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
-        {"getLocalInk",		        "()I",						(void *)Java_com_getLocalInk},
-        {"downLocal",		        "(I)I",						(void *)Java_com_downLocal},
+        {"getLocalInk",		        "(I)I",						(void *)Java_com_getLocalInk},
+        {"downLocal",		        "(II)I",						(void *)Java_com_downLocal},
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},

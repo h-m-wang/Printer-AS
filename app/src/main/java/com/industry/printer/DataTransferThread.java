@@ -314,11 +314,14 @@ public class DataTransferThread {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
-					purgeFile = "purge/hp22mm_purge.bin";
+					purgeFile = "purge/hp22mm_purge_short.bin";
 				}
 // End of H.M.Wang 2025-1-18 增加22mm的清洗功能（走正常打印流程的清洗）
 
-				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd);
+// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+//				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd);
+				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd, head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2);
+// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 
 // H.M.Wang 2020-8-21 取消大字机清洗后直接退出，该恢复打印的还是应该恢复打印
 //				if (dotHd) {
@@ -523,8 +526,11 @@ public class DataTransferThread {
 				}
 // End of H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
 //				}
-				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
-				
+// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+//				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
+				char[] buffer = task.preparePurgeBuffer(purgeFile, true, false);
+// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
 				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE1);
@@ -543,7 +549,7 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
 				long startTime = System.currentTimeMillis();
-				while(System.currentTimeMillis() - startTime < 2*60*1000) {
+				while(System.currentTimeMillis() - startTime < 120*1000) {
 					try {
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {

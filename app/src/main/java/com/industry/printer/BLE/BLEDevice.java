@@ -371,4 +371,81 @@ public class BLEDevice {
         }
         return recv;
     }
+
+// H.M.Wang RTL8723DU 尝试开发
+/*
+    public void ssssss() {
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        BluetoothGattServer gattServer = bluetoothManager.openGattServer(this, gattServerCallback);
+
+        BluetoothGattService service = new BluetoothGattService(
+                UUID.fromString("0000180D-0000-1000-8000-00805F9B34FB"), // 服务 UUID
+                BluetoothGattService.SERVICE_TYPE_PRIMARY);
+        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(
+                UUID.fromString("00002A37-0000-1000-8000-00805F9B34FB"), // 特征值 UUID
+                BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
+        service.addCharacteristic(characteristic);
+        gattServer.addService(service);
+
+        BluetoothLeAdvertiser advertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
+        AdvertiseSettings settings = new AdvertiseSettings.Builder()
+                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
+                .setConnectable(true)
+                .build();
+
+        AdvertiseData data = new AdvertiseData.Builder()
+                .setIncludeDeviceName(true)
+                .addServiceUuid(new ParcelUuid(UUID.fromString("0000180D-0000-1000-8000-00805F9B34FB")))
+                .build();
+
+        advertiser.startAdvertising(settings, data, new AdvertiseCallback() {
+            @Override
+            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
+                Log.d("Advertise", "广告启动成功");
+            }
+
+            @Override
+            public void onStartFailure(int errorCode) {
+                Log.e("Advertise", "广告启动失败，错误码: " + errorCode);
+            }
+        });
+
+        gattServer.close();
+    }
+
+    BluetoothGattServerCallback gattServerCallback = new BluetoothGattServerCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
+            super.onConnectionStateChange(device, status, newState);
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.d("GattServer", "设备已连接: " + device.getName());
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.d("GattServer", "设备已断开: " + device.getName());
+            }
+        }
+
+        @Override
+        public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
+            Log.d("GattServer", "收到读取请求: " + characteristic.getUuid());
+            // 响应读取请求
+            gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+        }
+
+        @Override
+        public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
+            super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
+            Log.d("GattServer", "收到写入请求: " + characteristic.getUuid());
+            // 更新特征值
+            characteristic.setValue(value);
+            if (responseNeeded) {
+                gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
+            }
+        }
+    };*/
+// End of H.M.Wang RTL8723DU 尝试开发
 }
