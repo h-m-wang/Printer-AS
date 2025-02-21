@@ -403,7 +403,7 @@ public class FpgaGpioOperation {
         if (type != SETTING_TYPE_NORMAL) {
             data[1] = 4;
             data[3] = 100 * 4;
-            data[4] = 1000;
+            data[4] = 600;
 // H.M.Wang 2021-10-22 修改清洗，重复打印设置改为2000ms，这样防止在清洗完成后还连续产生PH14
 //            data[5] = 100 * 4;
             data[5] = 500 * 4;
@@ -454,6 +454,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2021-12-31 将data[15]原来强制设为8改为2（其实2是对应于300dpi的，150dpi应该是1
                 data[15] = 2;
 // End of H.M.Wang 2021-12-31 将data[15]原来强制设为8改为2（其实2是对应于300dpi的，150dpi应该是1
+// H.M.Wang 2025-2-21 修改清洗时的S5=2400
+                data[4] = 2400;
+// End of H.M.Wang 2025-2-21 修改清洗时的S5=2400
             }
 // End of H.M.Wang 2021-4-1 当清洗时，将bold设为头数，以避免清洗变淡
 // H.M.Wang 2021-4-22 如果打印头的类型是打字机，则取消加重的设置。如果img为300dpi的话，强制设置为300dpi，如果img为150dpi的话，设置为150dpi
@@ -570,7 +573,7 @@ public class FpgaGpioOperation {
 //                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN) {
 //                data[4] = 50;
 //            } else {
-                data[4] = 600;
+//                data[4] = 600;
 //            }
 // End of H.M.Wang 2023-8-11 32SN/DN的S5不在特殊处理，改为标准的600
 // End of H.M.Wang 2023-5-31 data[4]在喷头为32SN和32DN的时候，不设为200x3，反倒设为200/4

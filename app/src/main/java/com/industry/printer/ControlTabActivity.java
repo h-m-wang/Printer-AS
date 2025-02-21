@@ -1450,7 +1450,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if (!mInkManager.isValid(i)) {
 				mInkValues[i].setBackgroundColor(Color.RED);
 				if(mInkManager instanceof SmartCardManager) {
-					level = (i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-INVALID";
+					level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-INVALID";
+				} else if(mInkManager instanceof Hp22mmSCManager) {
+						level = (i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-INVALID";
 				} else {
 					level = "P" + (i + 1) + "-INVALID";
 				}

@@ -324,8 +324,8 @@ public class Hp22mm {
 // H.M.Wang 2025-2-17 修改R20，R21计算公式为：R20= C4x(C10x2/(C9x3.14*4))/+(c11*24/6)； R21= C4x(C10x2/(C9x3.14*4))/+(c12*24/6)
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 150 / config.mParam[2]);              // R20=C4*(C10*4/(C9*3.14))+(C12*150/C3) (2024-9-5)
 //        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*4/(C9*3.14))+(C11*150/C3) (2024-9-5)
-        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 24 / 6);
-        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 24 / 6);
+        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[10] * 12 / 6);
+        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[11] * 12 / 6);
 // End of H.M.Wang 2025-2-17 修改R20，R21计算公式为：R20= C4x(C10x2/(C9x3.14*4))/+(c11*24/6)； R21= C4x(C10x2/(C9x3.14*4))/+(c12*24/6)
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
 

@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.144"
+#define VERSION_CODE                            "1.0.145"
+// 1.0.144 2025-2-20
+// 给几处调用pd_sc_read_oem_field的函数入口增加了log输出，确认导致pd_sc_read_oem_field执行时发生14号错误的原因是什么
 // 1.0.144 2025-2-19
 // 为getLocalInk和downLocal函数追加head参数，当head==0时，代表ids，当head>=1时，代表pen0,...
 // 1.0.143 2025-2-18
@@ -556,6 +558,8 @@ JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg) {
 
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
 JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) {
+    LOGI("Enter %s (head = %d)", __FUNCTION__, head);
+
     uint32_t value;
     if(head == 0) {
         IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
@@ -573,6 +577,7 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
 #define MAX_BAG_INK_VOLUME_MAXIMUM              (15500 * 4)
 
 JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count) {
+    LOGI("Enter %s (head = %d, value = %d)", __FUNCTION__, head, count);
     uint32_t value;
 
     if(head == 0) {
@@ -913,7 +918,7 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jc
 }
 
 JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg, jint penIndex) {
-    PDResult_t pd_r;
+    LOGI("Enter %s (head = %d)", __FUNCTION__, penIndex);
 
     uint8_t pd_sc_result;
     if (pd_check_ph("pd_sc_get_status", pd_sc_get_status(PD_INSTANCE, penIndex, &pd_sc_status, &pd_sc_result), penIndex) || pd_sc_result != 0) {

@@ -302,6 +302,16 @@ public class DataTransferThread {
 				if (dotHd) {
 					purgeFile = "purge/purge4big.bin";
 				}
+
+// H.M.Wang 2025-2-21 短清洗也根据打印头类型使用noslant
+				if(!(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+					head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+					head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+					head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+					head == PrinterNozzle.MESSAGE_TYPE_64DOTONE)) {
+					purgeFile = "purge/noslant.bin";
+				}
+/*
 // H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
 				if(head == PrinterNozzle.MESSAGE_TYPE_32DN ||
   				   head == PrinterNozzle.MESSAGE_TYPE_32SN ||
@@ -309,6 +319,8 @@ public class DataTransferThread {
 					purgeFile = "purge/purge32.bin";
 				}
 // End of H.M.Wang 2023-8-11 32SN/DN, 48点的使用新的purge32.bin
+*/
+// End of H.M.Wang 2025-2-21 短清洗也根据打印头类型使用noslant
 
 // H.M.Wang 2025-1-18 增加22mm的清洗功能（走正常打印流程的清洗）
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
@@ -520,6 +532,15 @@ public class DataTransferThread {
 					head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // End of H.M.Wang 2020-7-23 追加32DN打印头*/
 				String purgeFile = "purge/purge4big.bin";
+// H.M.Wang 2025-2-20 根据打字机打印头的类型使用不同的bin文件，主要区别是有旋转还是没有旋转
+				if(!(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+					head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+					head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+					head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+					head == PrinterNozzle.MESSAGE_TYPE_64DOTONE)) {
+					purgeFile = "purge/noslant.bin";
+				}
+// End of H.M.Wang 2025-2-20 根据打字机打印头的类型使用不同的bin文件，主要区别是有旋转还是没有旋转
 // H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
 				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 					purgeFile = "purge/hp22mm_purge.bin";
@@ -541,15 +562,17 @@ public class DataTransferThread {
 				}
 				FpgaGpioOperation.init();
 
+				int remainTime = 120*1000;
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+					remainTime *= 2.17;
 					Hp22mm.EnableWarming(0);
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
 
 // H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
 				long startTime = System.currentTimeMillis();
-				while(System.currentTimeMillis() - startTime < 120*1000) {
+				while(System.currentTimeMillis() - startTime < remainTime) {
 					try {
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {

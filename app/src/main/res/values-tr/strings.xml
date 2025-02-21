@@ -20,7 +20,7 @@
 	<string name="str_btn_sclean">Temizle</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">Temizlemeyi onaylayın</string>
-	<string name="str_clean_confirm">Bu temizlik yaklaşık 2 dakika sürecek, devam edecek mi?</string>
+	<string name="str_clean_confirm">Bu temizlik yaklaşık 5 dakika sürecek, devam edecek mi?</string>
 	<string name="str_under_purging">Temizliyorum, lütfen sonra deneyin.</string>
 <!-- End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_under_printing">Lütfen bastırıp tekrar deneyin.</string>

@@ -2018,14 +2018,15 @@ public char[] bitShiftFor64SN() {
 			mBinInfo = new BinInfo(stream, 1);
 			char[] buffer = mBinInfo.getBgBuffer();
 
-// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
-			if(isHp22mm) return buffer;
-// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
-
 // H.M.Wang 2022-1-3 使用直接的bin（purge4big.bin)，不再做扩充的操作
 
 //            BinCreater.saveBin("/mnt/sdcard/purge1.bin", buffer, 32);
 			stream.close();
+
+// H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+			if(isHp22mm) return buffer;
+// End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
+
 // H.M.Wang 2023-8-10 大字机的数据复制2倍
 // H.M.Wang 2022-4-1 如果是大字机，则恢复回原来的12倍(暂时测试4倍）；如果是惠普则保持36倍
 			char[] rb = new char[buffer.length * (isDZJ ? 2 : 36)];

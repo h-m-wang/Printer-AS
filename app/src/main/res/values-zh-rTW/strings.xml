@@ -20,7 +20,7 @@
 	<string name="str_btn_sclean">短\n清洗</string>
 <!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_purge_confirm">點擊OK開始清洗</string>
-	<string name="str_clean_confirm">長清洗將持續大約2分鐘，繼續嗎？</string>
+	<string name="str_clean_confirm">長清洗將持續大約5分鐘，繼續嗎？</string>
 	<string name="str_under_purging">正在清洗，請稍後再試</string>
 <!-- End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
 	<string name="str_under_printing">正在打印，請先停止打印再進行長清洗.</string>
