@@ -58,7 +58,14 @@
 #define PAYLOAD_BUFFER_SIZE 1000
 #define BUFFER_SIZE 100
 
-
+// H.M.Wang 2025-2-23 增加分别管理个Pen和IDS错误状态的功能
+extern int RunningState[3];             // [0]: IDS状态； [1]: PEN0状态； [2]: PEN1状态
+#define IDS_STATE      0
+#define PEN0_STATE     1
+#define PEN1_STATE     2
+#define STATE_VALID    1
+#define STATE_INVALID  0
+// End of H.M.Wang 2025-2-23
 
 /***********************************************************
  *  Common Functions

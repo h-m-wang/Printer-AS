@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BluetoothServer;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
@@ -1435,7 +1436,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
 // H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 			} else if(mInkManager instanceof Hp22mmSCManager) {
-				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
 // End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 			} else {
 				level = "P" + (i + 1) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
@@ -1452,7 +1453,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				if(mInkManager instanceof SmartCardManager) {
 					level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-INVALID";
 				} else if(mInkManager instanceof Hp22mmSCManager) {
-						level = (i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "-INVALID";
+						level = (i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-INVALID";
 				} else {
 					level = "P" + (i + 1) + "-INVALID";
 				}
@@ -1478,6 +1479,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 				mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
 			} else if (mInkManager instanceof SmartCardManager && ink >= 5.0f ||
+					mInkManager instanceof Hp22mmSCManager && ink >= 5.0f ||
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
 				mInkValues[i].setBackgroundColor(mContext.getResources().getColor(R.color.transparent));
 				mInkValues[i].setText(level);
@@ -2518,6 +2520,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						public void run() {
 							BLEDevice ble = BLEDevice.getInstance();
 							ble.paramsChanged();
+//							BluetoothServer bs = new BluetoothServer();
+//							bs.startServer();
 						}
 					}).start();
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能

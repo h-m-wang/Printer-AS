@@ -12,9 +12,12 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +55,9 @@ public class SmartCardManager implements IInkDevice {
         private volatile boolean mInkAdding;
         private int mInkAddedTimes;
         private boolean mAddInkFailed;
-
+// H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分。最多收录20次的加墨记录
+        private volatile String mInkAddRecords;
+// End of H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分。最多收录20次的加墨记录
 
         public _device_status(int cardType, int levelType, int maxVolume) {
             mInitialized = false;
@@ -77,6 +82,9 @@ public class SmartCardManager implements IInkDevice {
             mInkAdding = false;
             mInkAddedTimes = 0;
             mAddInkFailed = false;
+// H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
+            mInkAddRecords = "";
+// End of H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
         }
     };
 
@@ -178,6 +186,12 @@ public class SmartCardManager implements IInkDevice {
                                 sb.append("\n");
                             }
 // End of H.M.Wang 2024-8-31 增加一个错误值统计和显示的功能
+// H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
+                            if(!mCards[i].mInkAddRecords.isEmpty()) {
+                                sb.append(mCards[i].mInkAddRecords);
+                                sb.append("\n");
+                            }
+// End of H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
                         }
 
                         mRecvedLevelPromptDlg.setTitle("Levels");
@@ -871,11 +885,25 @@ public class SmartCardManager implements IInkDevice {
 // H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
                     if(readLevelValue(cardIdx) < SmartCard.ADD_INK_THRESHOLD) {
 // End of H.M.Wang 2024-4-24 在执行加墨之前再次读取一次Level的值，如果确实缺墨再加，否则不加。目的是防止欧洲用户有加墨过多的问题
-                        mCachedThreadPool.execute(new Runnable() {
+                        new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 mCards[cardIdx].mInkAdding = true;
+// H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
+                                if(PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode())) {
+                                    mCards[cardIdx].mInkAddRecords += (ExtGpio.readGpioTestPin('E', (cardIdx == 0 ? 5 : 4)) != 0 ? "1" : "0");
+                                }
+// End of H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
                                 addInkOn(cardIdx);
+// H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
+                                if(PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode())) {
+                                    mCards[cardIdx].mInkAddRecords += (ExtGpio.readGpioTestPin('E', (cardIdx == 0 ? 5 : 4)) != 0 ? "1" : "0");
+                                }
+// End of H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
+// H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("HHmm");
+                                mCards[cardIdx].mInkAddRecords += "" + (cardIdx+1) + dateFormat.format(new Date());
+// End of H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
 
                                 try {
                                     Thread.sleep(1000);
@@ -883,7 +911,15 @@ public class SmartCardManager implements IInkDevice {
                                 } catch (Exception e) {
                                     addInkOff(cardIdx);
                                 }
-                                ;
+// H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
+                                if(PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode())) {
+                                    mCards[cardIdx].mInkAddRecords += (ExtGpio.readGpioTestPin('E', (cardIdx == 0 ? 5 : 4)) != 0 ? "1" : "0");
+                                }
+// End of H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
+// H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
+                                mCards[cardIdx].mInkAddRecords += ",";
+                                if(mCards[cardIdx].mInkAddRecords.length() > 180) mCards[cardIdx].mInkAddRecords = mCards[cardIdx].mInkAddRecords.substring(9);
+// End of H.M.Wang 2025-3-12 追加一个喷头加墨的记录，格式为[NHHMM,]，其中N代表头号(1,2,...)，HHMM为启动加墨的时分
 
                                 long startTiem = System.currentTimeMillis();
                                 while (true) {
@@ -900,7 +936,7 @@ public class SmartCardManager implements IInkDevice {
 
                                 mCards[cardIdx].mInkAddedTimes++;
                             }
-                        });
+                        }).start();
                     }
                 }
             }

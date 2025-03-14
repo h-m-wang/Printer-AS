@@ -40,19 +40,36 @@ public class RealtimeSecond extends BaseObject {
         return mFormat;
     }
 
+// H.M.Wang 2025-3-12 扩大2020-11-13的修改，将秒是否变化也纳入检查范围
+    @Override
+    public boolean contentChanged() {
+        Time t = new Time();
+
+        t.set(System.currentTimeMillis());
+
+        if(!mContent.equals(BaseObject.intToFormatString(t.second, 2))) {
+            Debug.d(TAG, "Minute changed.");
+        }
+
+        return !mContent.equals(BaseObject.intToFormatString(t.second, 2));
+    }
+// End of H.M.Wang 2025-3-12 扩大2020-11-13的修改，将秒是否变化也纳入检查范围
+
     @Override
     public String getContent()
     {
-//        Time t = new Time();
-//        t.set(System.currentTimeMillis());
-//        setContent(BaseObject.intToFormatString(t.second, 2));
-//        Debug.d(TAG, ">>getContent: " + mContent);
-//        return mContent;
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("ss");
-        setContent(dateFormat.format(new Date()));
+// H.M.Wang 2025-3-12 修改秒的取值方法
+        Time t = new Time();
+        t.set(System.currentTimeMillis());
+        setContent(BaseObject.intToFormatString(t.second, 2));
         Debug.d(TAG, ">>getContent: " + mContent);
         return mContent;
+
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("ss");
+//        setContent(dateFormat.format(new Date()));
+//        Debug.d(TAG, ">>getContent: " + mContent);
+//        return mContent;
+// End of H.M.Wang 2025-3-12 修改秒的取值方法
     }
 
     @Override

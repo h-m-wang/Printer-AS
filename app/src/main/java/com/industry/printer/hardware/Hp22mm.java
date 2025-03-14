@@ -26,7 +26,7 @@ public class Hp22mm {
 
     static public native int init_ids(int idsIndex);
     static public native String ids_get_sys_info();
-    static public native int init_pd();
+    static public native int init_pd(int penArg);
     static public native String pd_get_sys_info();
     static public native int ids_set_platform_info();
     static public native int pd_set_platform_info();
@@ -42,11 +42,11 @@ public class Hp22mm {
     static public native int pd_sc_get_info(int penIndex);
     static public native String pd_sc_get_info_info();
     static public native int DeletePairing();
-    static public native int DoPairing(int penArg);
-    static public native int DoOverrides(int penArg);
+    static public native int DoPairing();
+    static public native int DoOverrides();
 // H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
 //    static public native int Pressurize();
-    static public native int StartMonitor(int arg);
+    static public native int StartMonitor();
     static public native int Pressurize(boolean async);
 // End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
 // H.M.Wang 2025-2-10 追加要给控制是否加热的功能
@@ -63,6 +63,7 @@ public class Hp22mm {
     static public native int pdPurge(int penIndex);
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
     static public native String getErrString();
+    static public native int getRunningState(int index);
     static public native int getConsumedVol();
     static public native int getUsableVol();
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
@@ -116,47 +117,73 @@ public class Hp22mm {
     private static final int REG32_CLOCK = 32;              // Read Only
     private static final int REG33_READY = 33;
 
-// H.M.Wang 2024-9-26 在Hp22mm类中，新增加一个mInitialize变量，用来记忆初始化状态。在点按开始打印时，判断Hp22mm.mInitialized是否为true，时则启动打印，否则停止打印
-    public static boolean mInitialized = false;
-// End of H.M.Wang 2024-9-26 在Hp22mm类中，新增加一个mInitialize变量，用来记忆初始化状态。在点按开始打印时，判断Hp22mm.mInitialized是否为true，时则启动打印，否则停止打印
+    private static boolean mIDSInitialized = false;
 
-    public static int initHp22mm() {
-        mInitialized = false;
+    public static int initHp22mm(int nozzle_sel) {
 // H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
-        int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+//        int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
         int idsIndex = 1;
         if(((nozzle_sel >> 10) & 0x03) == 0x01) idsIndex = 0;   // IDS0=1时无论IDS1为何值，IDSINDEX=0，其余IDSINDEX=1
 // End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
-        if (0 != init_ids(idsIndex)) {
-            Debug.d(TAG, "init_ids failed\n");
-            return -1;
-        } else {
-            Debug.d(TAG, "init_ids succeeded\n");
-        }
 
-        if (0 != ids_get_supply_status()) {
-            Debug.d(TAG, "ids_get_supply_status failed\n");
-            return -3;
-        } else {
-            Debug.d(TAG, "ids_get_supply_status succeeded\n");
-        }
+        if(!mIDSInitialized) {
+            if (0 != init_ids(idsIndex)) {
+                Debug.d(TAG, "init_ids failed\n");
+                return -1;
+            } else {
+                Debug.d(TAG, "init_ids succeeded\n");
+            }
+
+            if (0 != ids_get_supply_status()) {
+                Debug.d(TAG, "ids_get_supply_status failed\n");
+                return -3;
+            } else {
+                Debug.d(TAG, "ids_get_supply_status succeeded\n");
+            }
+
+// H.M.Wang 2024-11-10
+            if (0 != StartMonitor()) {
+                Debug.d(TAG, "StartMonitor failed\n");
+                return -7;
+            } else {
+                Debug.d(TAG, "StartMonitor succeeded\n");
+            }
+// End of H.M.Wang 2024-11-10
 
 // H.M.Wang 2024-11-10
 //        if (0 != Pressurize()) {
-        if (0 != Pressurize(true)) {
+            if (0 != Pressurize(true)) {
 // End of H.M.Wang 2024-11-10
-            Debug.d(TAG, "Pressurize failed\n");
-            return -8;
-        } else {
-            Debug.d(TAG, "Pressurize succeeded\n");
+                Debug.d(TAG, "Pressurize failed\n");
+                return -8;
+            } else {
+                Debug.d(TAG, "Pressurize succeeded\n");
+            }
+            mIDSInitialized = true;
         }
 
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
+
 // H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-            penArg = 0x03;
-        } else {
-            if(penArg == 0x03) return -255;
+            if(penArg != 3) {
+                return -253;    // 22MMx2的头，但是实际头没有两个，报错，头太少
+            }
+// H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
+        } else if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM) {
+            if(penArg == 3) {
+                if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) != 12) {
+                    return -255;    // 22MM的头，实际头有两个，当没有设置一带二，报错，头太多
+                }
+            } else {
+                if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12) {
+                    return -253;    // 22MM的头，实际头没有两个，却设置了一带二，报错，头太少
+                }
+                if(penArg != 1 && penArg != 2) {
+                    return -253;    // 22MM的头，实际头既不是1头也不是2头，当前就是没有设置头，报错，头太少
+                }
+            }
+// End of H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
         }
 // End of H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
 
@@ -169,7 +196,7 @@ public class Hp22mm {
             penIdxs = new int[]{0,1};
         }
 
-        if (0 != init_pd()) {
+        if (0 != init_pd(penArg)) {
             Debug.d(TAG, "init_pd failed\n");
             return -2;
         } else {
@@ -183,7 +210,7 @@ public class Hp22mm {
             Debug.d(TAG, "DeletePairing succeeded\n");
         }
 
-        if (0 != DoPairing(penArg)) {
+        if (0 != DoPairing()) {
             Debug.d(TAG, "DoPairing failed\n");
 // H.M.Wang 2025-1-20 虽然C31指定为hp22mm，C77指定了单头，但是两者不匹配，会发生DoPairing错误，此时返回-254错误
             return -254;
@@ -192,7 +219,7 @@ public class Hp22mm {
             Debug.d(TAG, "DoPairing succeeded\n");
         }
 
-        if (0 != DoOverrides(penArg)) {
+        if (0 != DoOverrides()) {
             Debug.d(TAG, "DoOverrides failed\n");
             return -7;
         } else {
@@ -218,26 +245,65 @@ public class Hp22mm {
         }
 
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
-        Hp22mm.EnableWarming(0);
+        EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
-
-// H.M.Wang 2024-11-10
-        if (0 != StartMonitor(penArg)) {
-            Debug.d(TAG, "StartMonitor failed\n");
-            return -7;
-        } else {
-            Debug.d(TAG, "StartMonitor succeeded\n");
-        }
-// End of H.M.Wang 2024-11-10
-
-        mInitialized = true;
 
         return 0;
     }
 
+    public static boolean CleanHeads[] = new boolean[] {true, true};
+
+// H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
+    private static char[] getPurgeSettings() {
+        char[] regs = new char[34];
+
+        regs[0] = 0x3a;
+        regs[1] = 0x0;
+        regs[2] = 0x0;
+        regs[3] = 0x0;
+        regs[4] = 0x21;
+//            regs[5] = 0x108;
+            regs[5] = 0x84;
+        regs[6] = 0x0;
+        regs[7] = 0x0;
+        regs[8] = 0x0;
+        regs[9] = 0x0;
+        regs[10] = 0x0;
+        regs[11] = 0x1;
+        regs[12] = 0x0;
+        regs[13] = 0x0;
+        regs[14] = 0x0;
+        regs[15] = 0x1388;
+        regs[16] = 0x5d68;
+        regs[17] = 0x0;
+        regs[18] = 0x4;
+        regs[19] = 0x0;
+        regs[20] = 0x0;
+        regs[21] = 0x0;
+        regs[22] = 0x0;
+        regs[23] = 0x0;
+        regs[24] = 0x0;
+        regs[25] = 0x0;
+        regs[26] = 0x0;
+        regs[27] = 0x0;
+        regs[28] = 0x0;
+            regs[29] = (char)(0x00 | (CleanHeads[0] ? 0x0f : 0x00) | (CleanHeads[1] ? 0xf0 : 0x00));
+        regs[30] = 0x0;
+        regs[31] = 0x0;
+        regs[32] = 0x0;
+        regs[33] = 0x0;
+
+        return regs;
+    }
+// End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
+
     public static char[] getSettings(int type) {
         char[] regs = new char[34];
         SystemConfigFile config = SystemConfigFile.getInstance();
+
+// H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
+        if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) return getPurgeSettings();
+// End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
 
 // H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
         PrinterNozzle nozzle = PrinterNozzle.getInstance(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
@@ -252,8 +318,10 @@ public class Hp22mm {
 
         regs[REG04_32BIT_WORDS_PER_COL] = WORDS_PER_COL;
         regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
-// H.M.Wang
-        if(nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+// H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
+        if((nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) ||
+           (nozzle == PrinterNozzle.MESSAGE_TYPE_22MM &&  config.getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)) {
+// End of H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
             regs[REG05_BYTES_PER_COL] *= 2;
         }
 // End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值

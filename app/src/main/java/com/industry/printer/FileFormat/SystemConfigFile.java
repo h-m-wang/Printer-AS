@@ -688,7 +688,7 @@ public class SystemConfigFile{
 		}
 
 // H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
-		SmartCard.setType(mParam[94], mParam[95]);
+		SmartCard.setType(mParam[INDEX_INTERNAL], mParam[INDEX_INTERNAL_ADDINK]);
 // End of H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
 	}
 	public boolean parseSystemCofig() {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/transparent"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/str_clean_confirm" />
+    <LinearLayout
+        android:id="@+id/pen_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal" >
+        <CheckBox
+            android:id="@+id/clean_pen1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/str_btn_header1" />
+        <CheckBox
+            android:id="@+id/clean_pen2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/str_btn_header2" />
+    </LinearLayout>
+</LinearLayout>

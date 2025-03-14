@@ -13,6 +13,7 @@ import com.industry.printer.Utils.*;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.N_RFIDManager;
 import com.industry.printer.hardware.RFIDManager;
@@ -49,6 +50,9 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -541,8 +545,10 @@ public static final String TAG="SettingsTabActivity";
 
 // H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-				builder.setTitle(R.string.str_btn_clean)
-						.setMessage(R.string.str_clean_confirm)
+				View alertView = (View)LayoutInflater.from(mContext).inflate(R.layout.clean_alert, null);
+				builder.setTitle(R.string.str_setting_clean)
+//						.setMessage(R.string.str_clean_confirm)
+						.setView(alertView)
 						.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
@@ -560,9 +566,30 @@ public static final String TAG="SettingsTabActivity";
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
 							}
-						})
-						.create()
-						.show();
+						});
+// H.M.Wang 2025-3-6 追加Hp22mm类型的打印头询问清洗哪个头的功能
+				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+					LinearLayout penSelectV = (LinearLayout) alertView.findViewById(R.id.pen_select);
+					penSelectV.setVisibility(View.VISIBLE);
+					CheckBox pen1 = (CheckBox) penSelectV.findViewById(R.id.clean_pen1);
+					pen1.setChecked(Hp22mm.CleanHeads[0]);
+					pen1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+						@Override
+						public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+							Hp22mm.CleanHeads[0] = b;
+						}
+					});
+					CheckBox pen2 = (CheckBox) penSelectV.findViewById(R.id.clean_pen2);
+					pen2.setChecked(Hp22mm.CleanHeads[1]);
+					pen2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+						@Override
+						public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+							Hp22mm.CleanHeads[1] = b;
+						}
+					});
+				}
+// End of H.M.Wang 2025-3-6 追加Hp22mm类型的打印头询问清洗哪个头的功能
+				builder.create().show();
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
 			default :

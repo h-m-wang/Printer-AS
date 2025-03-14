@@ -1602,7 +1602,10 @@ private void setSerialProtocol9DTs(final String data) {
 							boolean needUpdate = false;
 
 // H.M.Wang 2024-10-22 增加对编辑内容进行以#为分隔符的分割，分割后的部分分别保存到不同的桶里，应用于相应index的DT中
-							String[] recvStrs = edit.split("#");
+// H.M.Wang 2025-3-12 修改分隔符为$
+//							String[] recvStrs = edit.split("#");
+							String[] recvStrs = edit.split("\\$");
+// End of H.M.Wang 2025-3-12 修改分隔符为$
 
 							int strIndex = 0;
 

@@ -364,7 +364,7 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "init_ids failed\n" + Hp22mm.ids_get_sys_info();
                                 break;
                             }
-                            if (0 != Hp22mm.init_pd()) {
+                            if (0 != Hp22mm.init_pd(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "init_pd failed\n" + Hp22mm.pd_get_sys_info();
                                 break;
                             }
@@ -380,11 +380,11 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "DeletePairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoPairing(mPENIdx+1)) {
+                            if (0 != Hp22mm.DoPairing()) {
                                 mHp22mmTestResult[index] = "DoPairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoOverrides(mPENIdx+1)) {
+                            if (0 != Hp22mm.DoOverrides()) {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }
@@ -430,7 +430,7 @@ public class TestHp22mm implements ITestOperation {
                             }
                             break;
                         case HP22MM_TEST_INIT_PD:
-                            if (0 == Hp22mm.init_pd()) {
+                            if (0 == Hp22mm.init_pd(mPENIdx+1)) {
                                 mHp22mmTestResult[index] = "Success\n" + Hp22mm.pd_get_sys_info();
                             } else {
                                 mHp22mmTestResult[index] = "Failed\n" + Hp22mm.pd_get_sys_info();
@@ -476,11 +476,11 @@ public class TestHp22mm implements ITestOperation {
                                 mHp22mmTestResult[index] = "DeletePairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoPairing(mPENIdx+1)) {
+                            if (0 != Hp22mm.DoPairing()) {
                                 mHp22mmTestResult[index] = "DoPairing failed";
                                 break;
                             }
-                            if (0 != Hp22mm.DoOverrides(mPENIdx+1)) {
+                            if (0 != Hp22mm.DoOverrides()) {
                                 mHp22mmTestResult[index] = "DoOverrides failed";
                                 break;
                             }

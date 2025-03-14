@@ -28,8 +28,16 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.145"
-// 1.0.144 2025-2-20
+#define VERSION_CODE                            "1.0.146"
+// 1.0.146 2025-2-24
+// 大幅修改分头的有效性管理，具体内容包括：
+// 1. 增加一个分别保存头有效性的数据变量
+//      int RunningState[3];             // [0]: IDS状态； [1]: PEN0状态； [2]: PEN1状态
+//    当相应的打印头出现错误时，标记相应的状态为false
+// 2. 增加一个上传接口，getRunningState共apk调用取得相应状态
+// 3. 修改PenArg参数的传入机制，由initPd函数传入，作为一个全局变量保存，取消分别由DoPairing，DoOverrid和StartMonitor函数传入
+// 4. 增加一个StopMonitor接口，用来停止守护线程，这个实际上可以用来实现apk在不重新开机的情况下重新初始化，但单枪并未支持，更换打印头的配置必须重新启动
+// 1.0.145 2025-2-20
 // 给几处调用pd_sc_read_oem_field的函数入口增加了log输出，确认导致pd_sc_read_oem_field执行时发生14号错误的原因是什么
 // 1.0.144 2025-2-19
 // 为getLocalInk和downLocal函数追加head参数，当head==0时，代表ids，当head>=1时，代表pen0,...
@@ -253,7 +261,7 @@ typedef enum {
 
 static PD_Power_State_t PD_Power_State = PD_POWER_STATE_OFF;
 static Air_Pump_State_t Air_Pump_State = AIR_STATE_PUMP_OFF;
-static bool CancelMonitor = false;
+static bool CancelMonitor = true;
 
 // POLL_SEC - how often the background thread runs
 #define POLL_SEC 2
@@ -277,7 +285,18 @@ static SupplyInfo_t supply_info;
 static PrintHeadStatus print_head_status;
 static PDSmartCardInfo_t pd_sc_info;
 static PDSmartCardStatus pd_sc_status;
-static volatile int PenArg;
+static volatile int PenArg;             // 装载打印头的状态。=1:仅装载Pen0， =2:仅装载Pen1， =3:两个均装载
+#define PEN0_INSTALLED 1
+#define PEN1_INSTALLED 2
+#define BOTH_PEN_INSTALLED 3
+// H.M.Wang 2025-2-23 增加分别管理个Pen和IDS错误状态的功能
+int RunningState[3];             // [0]: IDS状态； [1]: PEN0状态； [2]: PEN1状态
+#define IDS_STATE      0
+#define PEN0_STATE     1
+#define PEN1_STATE     2
+#define STATE_VALID    1
+#define STATE_INVALID  0
+// End of H.M.Wang 2025-2-23
 static volatile int EnableWarming = 1;
 
 void *monitorThread(void *arg) {
@@ -286,26 +305,6 @@ void *monitorThread(void *arg) {
     float ink_weight;
 //    int degree_c;
     int limit_sec;
-
-//    int pArg = *(jint *)arg;
-    int penNum;
-    if(PenArg == 3) {
-        penNum = 2;
-    } else if(PenArg == 2 || PenArg == 1) {
-        penNum = 1;
-    } else {
-        LOGE("Monitor thread starting failed. Wrong parametres(arg=%d)", PenArg);
-        return (void*)NULL;
-    }
-    int penIndexs[penNum];
-    if(PenArg == 1)
-        penIndexs[0] = 0;
-    else if(PenArg == 2)
-        penIndexs[0] = 1;
-    else if(PenArg >= 3) {
-        penIndexs[0] = 0;
-        penIndexs[1] = 1;
-    }
 
     LOGD("[Async] Monitor thread started.");
     uint8_t sc_result;
@@ -322,10 +321,12 @@ void *monitorThread(void *arg) {
 //        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
 
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
+        RunningState[IDS_STATE] = STATE_VALID;
         if(Air_Pump_State == AIR_STATE_PUMPED) {
             if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
                 sprintf(ERR_STRING, "WARNING: Air press low\n");
                 LOGE("[Async]WARNING: Air press low\n");
+                RunningState[IDS_STATE] = STATE_INVALID;
                 Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
             }
         }
@@ -335,6 +336,7 @@ void *monitorThread(void *arg) {
                 if (--limit_sec <= 0) {
                     sprintf(ERR_STRING, "ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
                     LOGE("[Async]ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
+                    RunningState[IDS_STATE] = STATE_INVALID;
                     IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_AIR_PUMP_ALL);     // pump disabled; ink/air valves closed
                     IDS_MonitorOff(sIdsIdx);
                     IDS_LED_Off(sIdsIdx, LED_Y);
@@ -365,13 +367,35 @@ void *monitorThread(void *arg) {
             Air_Pump_State = AIR_STATE_PUMPING;
         }
 
+        // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
+        if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
+            continue;
+        }
+
         // 当已经给PD上点成功的情况下，
         if(PD_Power_State == PD_POWER_STATE_ON) {
+            int penNum;
+            if(PenArg == BOTH_PEN_INSTALLED) {
+                penNum = 2;
+            } else if(PenArg == PEN0_INSTALLED || PenArg == PEN1_INSTALLED) {
+                penNum = 1;
+            } else {
+                LOGE("Monitor thread starting failed. Wrong parametres(arg=%d)", PenArg);
+                continue;
+            }
+
+            int penIndexs[penNum];
+            if(PenArg == PEN0_INSTALLED)
+                penIndexs[0] = 0;
+            else if(PenArg == PEN1_INSTALLED)
+                penIndexs[0] = 1;
+            else if(PenArg >= BOTH_PEN_INSTALLED) {
+                penIndexs[0] = 0;
+                penIndexs[1] = 1;
+            }
+
             for(int i=0; i<penNum; i++) {
-                // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
-                if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
-                    continue;
-                }
+                RunningState[PEN0_STATE+i] = STATE_VALID;
                 // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
                 pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status), penIndexs[i]);
                 if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
@@ -413,7 +437,6 @@ void *monitorThread(void *arg) {
                 }
             }
         }
-
 //        pthread_mutex_unlock(&mutex);
     }
     return (void*)NULL;
@@ -424,9 +447,8 @@ JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enab
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg, jint penArg) {
+JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
     CancelMonitor = false;
-    PenArg = penArg;
 
     if(NULL == sMonitorThread) {
         if (pthread_create(&sMonitorThread, NULL, monitorThread, NULL)) {
@@ -548,6 +570,13 @@ JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
     return (*env)->NewStringUTF(env, ERR_STRING);
 }
 
+JNIEXPORT jint JNICALL Java_com_GetRunningState(JNIEnv *env, jclass arg, jint index) {
+    if(index >= IDS_STATE && index <= PEN1_STATE) {
+        return RunningState[index];
+    }
+    return 0;
+}
+
 JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg) {
     return supply_status.consumed_volume;
 }
@@ -620,6 +649,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint id
 
     sIdsIdx = idsIndex;
 
+    RunningState[IDS_STATE] = STATE_INVALID;
     ids_r = ids_lib_init();
     if (ids_check("ids_lib_init", ids_r)) return -1;
     ids_r = ids_init(IDS_INSTANCE);
@@ -639,6 +669,7 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint id
         LOGE("IDS_Init failed\n");
         return -1;
     }
+    RunningState[IDS_STATE] = STATE_VALID;
     return 0;
 }
 
@@ -660,11 +691,12 @@ JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg) {
 
 static PDSystemStatus pd_system_status;
 
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg) {
-    LOGI("Initializing PD....\n");
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penArg) {
+    LOGI("Initializing PD(PenArg=%d)....\n", penArg);
 
     PDResult_t pd_r;
 
+    PenArg = penArg;
 //    sPenIdx = penIndex;
 
     pd_r = pd_lib_init();
@@ -873,15 +905,18 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
 //    }
 // End of H.M.Wang 2024-11-6 取消该判断，这个是为开机时的初始化设计的，正常运行时执行该操作，会得到    print_head_status.print_head_state == PH_STATE_POWERED_ON，所以会报错
 
+    RunningState[PEN0_STATE+penIndex] = STATE_VALID;
     if (print_head_status.print_head_state >= PH_STATE_NOT_PRESENT) {
         LOGE("Print head state[%d]\n", print_head_status.print_head_state);
         sprintf(ERR_STRING, "Print head state[%d]\n", print_head_status.print_head_state);
+        RunningState[PEN0_STATE+penIndex] = STATE_INVALID;
         return (-1);
     }
 
     if (print_head_status.print_head_error != PH_NO_ERROR) {
         LOGE("Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
         sprintf(ERR_STRING, "Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
+        RunningState[PEN0_STATE+penIndex] = STATE_INVALID;
         return (-1);
     }
 
@@ -1090,16 +1125,16 @@ JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penArg) {
-    if (DoPairing(sIdsIdx, penArg)) {
+JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg) {
+    if (DoPairing(sIdsIdx, PenArg)) {
         LOGE("DoPairing failed!\n");
         return (-1);
     };
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penArg) {
-    if (DoOverrides(sIdsIdx, penArg)) {
+JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg) {
+    if (DoOverrides(sIdsIdx, PenArg)) {
         LOGE("DoOverrides failed!\n");
         return (-1);
     }
@@ -1238,6 +1273,7 @@ int _CmdPressurize(float set_pressure) {
         if (--limit_sec <= 0) {
             LOGE("ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
             CmdDepressurize();
+            RunningState[IDS_STATE] = STATE_INVALID;
             return -1;
         }
     } while (!pressurized);
@@ -1251,12 +1287,13 @@ int _CmdPressurize(float set_pressure) {
     IDS_GPIO_ClearBits(sIdsIdx, GPIO_O_INK_VALVE_ON); // turn Off ink valve (leave Hold)
 //    IDS_MonitorPILS(sIdsIdx);
 
+    RunningState[IDS_STATE] = STATE_VALID;
     return 0;
 }
 
 int CmdPressurize(jboolean async) {
     if (async) {
-        Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
+        if(Air_Pump_State == AIR_STATE_PUMP_OFF) Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
         return 0;
     } else {
         return _CmdPressurize(-1);
@@ -1278,7 +1315,7 @@ void CmdDepressurize() {
 static JNINativeMethod gMethods[] = {
         {"init_ids",				        "(I)I",	                    (void *)Java_com_hp22mm_init_ids},
         {"ids_get_sys_info",	            "()Ljava/lang/String;",	    (void *)Java_com_ids_get_sys_info},
-        {"init_pd",				            "()I",	                    (void *)Java_com_hp22mm_init_pd},
+        {"init_pd",				            "(I)I",	                    (void *)Java_com_hp22mm_init_pd},
         {"pd_get_sys_info",	                "()Ljava/lang/String;",	    (void *)Java_com_pd_get_sys_info},
         {"ids_set_platform_info",           "()I",	                    (void *)Java_com_ids_set_platform_info},
         {"pd_set_platform_info",	        "()I",	                    (void *)Java_com_pd_set_platform_info},
@@ -1294,11 +1331,11 @@ static JNINativeMethod gMethods[] = {
         {"pd_sc_get_info",		"(I)I",	                    (void *)Java_com_pd_sc_get_info},
         {"pd_sc_get_info_info",   "()Ljava/lang/String;",     (void *)Java_com_pd_sc_get_info_info},
         {"DeletePairing",		            "()I",	                    (void *)Java_com_DeletePairing},
-        {"DoPairing",		                "(I)I",	                    (void *)Java_com_DoPairing},
-        {"DoOverrides",		                "(I)I",	                    (void *)Java_com_DoOverrides},
+        {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
+        {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
         {"EnableWarming",		                "(I)I",	                    (void *)Java_com_EnableWarming},
-        {"StartMonitor",		                "(I)I",	                    (void *)Java_com_StartMonitor},
+        {"StartMonitor",		                "()I",	                    (void *)Java_com_StartMonitor},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
         {"pdPowerOn",	    "(II)I",	    (void *)Java_com_PDPowerOn},
@@ -1307,6 +1344,7 @@ static JNINativeMethod gMethods[] = {
         {"pdPurge",		                "(I)I",	                    (void *)Java_com_purge},
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
         {"getErrString",		            "()Ljava/lang/String;",	                    (void *)Java_com_GetErrorString},
+        {"getRunningState",				            "(I)I",	                    (void *)Java_com_GetRunningState},
         {"getConsumedVol",		                "()I",	                    (void *)Java_com_GetConsumedVol},
         {"getUsableVol",		                "()I",	                    (void *)Java_com_GetUsableVol},
 // H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域

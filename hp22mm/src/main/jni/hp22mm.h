@@ -13,7 +13,7 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_com_ids_get_sys_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_hp22mm_init_ids(JNIEnv *env, jclass arg, jint idsSel);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sys_info(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_hp22mm_init_pd(JNIEnv *env, jclass arg, jint penArg);
 JNIEXPORT jint JNICALL Java_com_ids_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_pd_set_platform_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_ids_set_date(JNIEnv *env, jclass arg);
@@ -28,11 +28,11 @@ JNIEXPORT jstring JNICALL Java_com_pd_get_sc_status_info(JNIEnv *env, jclass arg
 JNIEXPORT jint JNICALL Java_com_pd_get_sc_info(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jstring JNICALL Java_com_pd_get_sc_info_info(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg, jint penArg);
-JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg, jint penArg);
+JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async);
-JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint penArg);
-JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg, jint penArg);
+JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable);
+JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg);
@@ -44,6 +44,7 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
 JNIEXPORT jint JNICALL Java_com_PDPowerOff(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex);
 JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_GetRunningState(JNIEnv *env, jclass arg, jint index);
 JNIEXPORT jint JNICALL Java_com_GetConsumedVol(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_GetUsableVol(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head);

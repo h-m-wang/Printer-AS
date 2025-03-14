@@ -3,7 +3,9 @@ package com.industry.printer.interceptor;
 import android.content.Context;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 
 
 /**
@@ -102,7 +104,15 @@ public class ExtendInterceptor {
             if (this.equals(NONE)) {
                 return 1;
             } else {
-            	Debug.d("ExtendStat", "--->target: " + target +  "   source: " + source);
+// H.M.Wang 2025-2-27 增加一带二的判断。当22MM的时候，只有C31=HP22MM时才允许一带二，否则不允许
+                if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+                    if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)
+                        return target/source;  // 仅支持22MM时，打印头类型为MESSAGE_TYPE_22MM时的一带二，其它打印头类型或者其它的n带m都不支持
+                    else
+                        return 1;
+                }
+// End H.M.Wang 2025-2-27 增加一带二的判断。当22MM的时候，只有C31=HP22MM时才允许一带二，否则不允许
+//            	Debug.d("ExtendStat", "--->target: " + target +  "   source: " + source);
                 return target/source;
             }
         }

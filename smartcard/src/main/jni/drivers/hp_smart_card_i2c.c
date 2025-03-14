@@ -33,6 +33,8 @@
 // #define MAX_DATA_SIZE    255
 // Removed by H.M.Wang 2019-10-17 end
 
+int I2CGroupId = 1;
+
 /***********************************************
 * Implementation of APIs
 ***********************************************/
@@ -144,7 +146,7 @@ static HP_SMART_CARD_i2c_result_t HP_SMART_CARD_i2c_read_direct(uint8_t i2c_addr
 //        return HP_SMART_CARD_I2C_FAILED;
 //    }
 
-    read_length = SC_I2C_DRIVER_read(0x01, i2c_addr, addr, data, num_bytes_to_read);
+    read_length = SC_I2C_DRIVER_read(I2CGroupId, i2c_addr, addr, data, num_bytes_to_read);
 
     if(read_length < 0) {
         return HP_SMART_CARD_I2C_FAILED;
@@ -215,7 +217,7 @@ static HP_SMART_CARD_i2c_result_t HP_SMART_CARD_i2c_write_direct(uint8_t i2c_add
         return HP_SMART_CARD_I2C_FAILED;
     }
 
-    ret = SC_I2C_DRIVER_write(0x01, i2c_addr, addr, data, num_bytes_to_write);
+    ret = SC_I2C_DRIVER_write(I2CGroupId, i2c_addr, addr, data, num_bytes_to_write);
 
     if(ret < 0) {
         return HP_SMART_CARD_I2C_FAILED;

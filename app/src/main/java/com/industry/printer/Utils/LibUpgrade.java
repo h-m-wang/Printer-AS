@@ -133,7 +133,9 @@ public class LibUpgrade {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
             Thread.sleep(100);
-            if(!PlatformInfo.isA133Product()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用其他方式升级
+            if(!PlatformInfo.isA133Product()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用upgradeLibs函数，从U盘的Upgrade目录升级，与apk的升级同方法
+                // 之所以A133不在这里升级so，是因为A133无法直接将so复制到system/lib目录，而是要利用/data/audio_d，这个目录在下次系统启动时会有内部脚本文件自动复制到system/lib，然后删除该文件，这样，就会导致每次都会启动apk都会将so复制到中间目录，然后下次重启再复制到目标目录，
+                // 导致每次重启机器都会做这个复制的无意义操作
                 ret |= upgradeSO(os, Configs.HARDWARE_SO);
                 ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO);
                 ret |= upgradeSO(os, Configs.SMARTCARD_SO);

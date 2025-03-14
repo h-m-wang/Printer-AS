@@ -21,6 +21,7 @@ int ids_check(char *function, IDSResult_t result)
     if(result == IDS_OK) return 0;
     LOGE("%s() failed: %s\n", function, ids_get_error_description(result));
     sprintf(ERR_STRING, "IDS ERROR: %s failed: %s.\n", function, ids_get_error_description(result));
+    RunningState[IDS_STATE] = STATE_INVALID;
     return -1;
 }
 
@@ -137,6 +138,7 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
                      status.print_head_error,
                      ph_error_description(status.print_head_error));
         LOGE("ERR_STRING: %s", ERR_STRING);
+        RunningState[PEN0_STATE+PenIdx] = STATE_INVALID;
         if(status.print_head_state == PH_STATE_POWERED_ON) return 0;        // H.M.Wang 2024-11-8 当PD状态为0的时候，即使报错也认为成功
     }
     return -1;
@@ -287,6 +289,17 @@ int DoPairing(int SupplyIdx, int PenArg) {
             return -1;
     }
 
+    if(PenArg == 1)
+        slotbits = 0x03;    // pair both slots of pen0
+    else if(PenArg == 2)
+        slotbits = 0x0C;    // pair both slots of pen1
+    else if(PenArg == 3)
+        slotbits = 0x0F;    // pair both slots of both pens
+    else {
+        LOGE("ERROR: Parametre error. (PenArg=%d\n", PenArg);
+        return -1;
+    }
+
     // step through the pairing steps
     payload_size = 0;
     for (step=1; step<=3; step++) {
@@ -297,17 +310,6 @@ int DoPairing(int SupplyIdx, int PenArg) {
         }
         if (status != KEY_NEGOTIATION_SESSION_OK && status != KEY_NEGOTIATION_SESSION_COMPLETE) {
             LOGE("ERROR: ids_pairing() step %d failed, status %d\n", step, status);
-            return -1;
-        }
-
-        if(PenArg == 1)
-            slotbits = 0x03;    // pair both columns of one pen
-        else if(PenArg == 2)
-            slotbits = 0x0C;    // pair both columns of one pen
-        else if(PenArg == 3)
-            slotbits = 0x0F;    // pair both columns of one pen
-        else {
-            LOGE("ERROR: Parametre error. (PenArg=%d\n", PenArg);
             return -1;
         }
 

@@ -57,7 +57,7 @@ public class TestGpioPinsNew implements ITestOperation {
     };
 
     private static final String[] OUT_PIN_TITLES = new String[] {
-            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "ValveOut1", "ValveOut2", ""
+            "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "ValveOut2", "ValveOut1", ""
     };
 
     private static final String[] IN_PIN_TITLES = new String[] {

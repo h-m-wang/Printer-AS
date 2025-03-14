@@ -399,13 +399,13 @@ public class PhoneMainActivity extends AppCompatActivity {
         mCachedThreadPool = Executors.newCachedThreadPool();
         mConnectingStatus = CON_STATUS_DISCONNECTED;
 
-        if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+//        if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
             mBluetoothManager = NonBLEDriver.getInstance(this);
-        } else {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
-            mBluetoothManager = BLEDriver.getInstance(this);
-        }
+//        } else {
+//            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
+//            mBluetoothManager = BLEDriver.getInstance(this);
+//        }
         mBluetoothManager.enableBluetooth();
 
         Message msg = mHandler.obtainMessage(MSG_CONNECT_DEVICE);

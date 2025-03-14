@@ -26,7 +26,14 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.408"
+#define VERSION_CODE                            "1.0.410"
+// 1.0.410 2025-3-13
+// 修改Java_com_Smartcard_exist参数，增加一个I2CGroupID的参数，用来区分是CB2(I2CGroupID=1)，还是CB10(I2CGroupID=2)
+// 在hp_smart_card_i2c.c中追加一个全局变量I2CGroupId，用来记忆I2C的GroupID
+// 1.0.409 2025-2-24
+// 修改为A133设置的读取RTC内容函数Java_com_Smartcard_readRTC中的bug，读取失败后
+//      read_length = SC_I2C_DRIVER_read(group, addr, reg, data, len)
+// 为-1，需要错误返回
 // 1.0.408 2024-11-20
 // 所有的I2C访问，完成后均将I2C修正到BULK1(IDS)
 // 1.0.407 2024-11-19
@@ -127,6 +134,8 @@ static int InkVolOfPenPercentage                = INK_VOL_OF_PEN_PERCENTAGE;
 
 static pthread_mutex_t mutex;
 
+extern int I2CGroupId;
+
 //#define DATA_SEPERATER                          100000      // 这之上是墨盒的减记次数（减记300次），这之下是墨盒/墨袋的减锁次数(MAX_INK_VOLUME)，
 
 HP_SMART_CARD_result_t (*inkILGWriteFunc[4])(HP_SMART_CARD_device_id_t cardId, uint32_t ilg_bit) = {
@@ -217,8 +226,10 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_shutdown(JNIEnv *env, jclass arg) {
 }
 
 // imgtype==1 : M5, M7, M9 系列; 否则为非M5, M7, M9系列。GPIO的管脚使用不同
-JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint imgtype) {
-    LOGI("Checking smart card existence....\n");
+JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint imgtype, jint i2cgroupid) {
+    LOGI("Checking smart card existence....ImgType=%d, I2CGroupId=%d\n", imgtype, i2cgroupid);
+
+    I2CGroupId = i2cgroupid;
 
     HP_SMART_CARD_gpio_init();
     HP_SMART_CARD_i2c_init();
@@ -226,7 +237,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_exist(JNIEnv *env, jclass arg, jint im
     LIB_HP_SMART_CARD_init();
 
     gMImgType = imgtype;
-    LOGE(">>> （M9,M7,M5) Image Type? : %d.", gMImgType);
+//    LOGE(">>> （M9,M7,M5) Image Type? : %d.", gMImgType);
 
     if (HP_SMART_CARD_OK != LIB_HP_SMART_CARD_device_present(HP_SMART_CARD_DEVICE_HOST)) {
         LOGE(">>> LIB_HP_SMART_CARD_device_present(HP_SMART_CARD_DEVICE_HOST): NOT PRESENT.  ");
@@ -1040,7 +1051,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeDAC5571(JNIEnv *env, jclass arg, 
 
     pthread_mutex_lock(&mutex);
     // 似乎没有寄存器的概念: 数据的结构式: 第一个字节：0 0 PD1 PD0 MSB(4bits)。第二个字节：LSB(4bits),后面四个字节随意
-    write_length = SC_I2C_DRIVER_write(0x01, DAC5571_I2C_ADDRESS, cmd[0], &cmd[1], 1);
+    write_length = SC_I2C_DRIVER_write(I2CGroupId, DAC5571_I2C_ADDRESS, cmd[0], &cmd[1], 1);
     pthread_mutex_unlock(&mutex);
 
     if(write_length < 0) {
@@ -1063,8 +1074,8 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readADS1115(JNIEnv *env, jclass arg, j
 
     pthread_mutex_lock(&mutex);
     // 先读当前的数据，然后切换到新的输入口。这样，下次读数据时，数据就可以稳定的读到了
-    read_length = SC_I2C_DRIVER_read(0x01, ADS1115_I2C_ADDRESS, 0, data, 2);
-    write_length = SC_I2C_DRIVER_write(0x01, ADS1115_I2C_ADDRESS, 1, cmd, 2);
+    read_length = SC_I2C_DRIVER_read(I2CGroupId, ADS1115_I2C_ADDRESS, 0, data, 2);
+    write_length = SC_I2C_DRIVER_write(I2CGroupId, ADS1115_I2C_ADDRESS, 1, cmd, 2);
     pthread_mutex_unlock(&mutex);
 
     if(write_length < 0) {
@@ -1093,7 +1104,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readHX24LC(JNIEnv *env, jclass arg) {
     uint8_t data;
 
     pthread_mutex_lock(&mutex);
-    read_length = SC_I2C_DRIVER_read(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+    read_length = SC_I2C_DRIVER_read(I2CGroupId, HX24LC_I2C_ADDRESS, 0, &data, 1);
     pthread_mutex_unlock(&mutex);
 
     if(read_length < 0) {
@@ -1113,7 +1124,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_writeHX24LC(JNIEnv *env, jclass arg, j
     uint8_t data = (value & 0x0FF);
 
     pthread_mutex_lock(&mutex);
-    write_length = SC_I2C_DRIVER_write(0x01, HX24LC_I2C_ADDRESS, 0, &data, 1);
+    write_length = SC_I2C_DRIVER_write(I2CGroupId, HX24LC_I2C_ADDRESS, 0, &data, 1);
     pthread_mutex_unlock(&mutex);
 
     if(write_length < 0) {
@@ -1237,15 +1248,15 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg)
     // 1  1  1   0x07              Configuration Port 1       Read/write byte   1111 1111
 
     uint8_t d = 0x55;
-    SC_I2C_DRIVER_write(0x01, 0x21, 0x02, &d, 1);
+    SC_I2C_DRIVER_write(I2CGroupId, 0x21, 0x02, &d, 1);
     d = 0xAA;
-    SC_I2C_DRIVER_write(0x01, 0x21, 0x03, &d, 1);
+    SC_I2C_DRIVER_write(I2CGroupId, 0x21, 0x03, &d, 1);
     char check;
     int err = 0;
 
     for(int i=0; i<2500; i++) {
 //        memset(outString, 0x00, 100);
-        read_length = SC_I2C_DRIVER_read(0x01, 0x21, 0x02, data, 20);
+        read_length = SC_I2C_DRIVER_read(I2CGroupId, 0x21, 0x02, data, 20);
         for(int j=0; j<20; j++) {
             if(read_length < 0) {
 //                strcat(outString, "XX ");
@@ -1263,7 +1274,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_read9555ATest(JNIEnv *env, jclass arg)
 //                strcat(outString, hex);
             }
             // Device=00100001(0x21), ComandByte=0x01
-/*            read_length = SC_I2C_DRIVER_read(0x01, 0x21, 0x01, &data, 1);
+/*            read_length = SC_I2C_DRIVER_read(I2CGroupId, 0x21, 0x01, &data, 1);
             if(read_length < 0) {
                 strcat(outString, "XX ");
             } else {
@@ -1291,6 +1302,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_Smartcard_readRTC(JNIEnv *env, jclass arg,
     pthread_mutex_lock(&mutex);
     read_length = SC_I2C_DRIVER_read(group, addr, reg, data, len);
     pthread_mutex_unlock(&mutex);
+
+    if(read_length < 0) {
+        LOGE("Read data error!");
+        return NULL;
+    }
 
     char dst[read_length*5];
     toHexString(data, dst, read_length, ',');
@@ -1501,7 +1517,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, 
  * RTC操作jni接口
  */
 static JNINativeMethod gMethods[] = {
-        {"exist",					"(I)I",	                    (void *)Java_com_Smartcard_exist},
+        {"exist",					"(II)I",	                    (void *)Java_com_Smartcard_exist},
         {"init",					    "()I",	                    (void *)Java_com_Smartcard_init},
         {"initComponent",			"(I)I",	                    (void *)Java_com_Smartcard_init_comp},
         {"initLevelDirect",			"()I",	                    (void *)Java_com_Smartcard_init_level_direct},

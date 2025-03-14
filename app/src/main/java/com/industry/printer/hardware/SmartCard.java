@@ -77,7 +77,7 @@ Debug.d("SmartCard", "FUNC_TYPE = " + (FUNC_TYPE == FUNC_TYPE_INTERNAL ? "INTERN
     /**
      * SmartCard JNI APIs
      **/
-    static public native int exist(int imgtype);
+    static public native int exist(int imgtype, int i2cgroupid);
 
     static public native int init();
 

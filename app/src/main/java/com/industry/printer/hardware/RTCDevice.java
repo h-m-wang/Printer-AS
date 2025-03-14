@@ -141,7 +141,7 @@ public class RTCDevice {
 // H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 		if(PlatformInfo.isA133Product()) {
 			byte[] data = SmartCard.readRTC((byte)0x02, (byte)0x68, (byte)0x08, 5);
-			if(data.length == 5) {
+			if(null != data && data.length == 5) {
 				int count = (data[0] & 0x0ff) + (data[1] & 0x0ff) * 256 + (data[2] & 0x0ff) * 256 * 256 + (data[3] & 0x0ff) * 256 * 256 * 256;
 				byte checksum = (byte) ((data[0] + data[1] + data[2] + data[3]) & 0x0ff);
 				if (checksum == data[4]) {

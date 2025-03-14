@@ -45,13 +45,16 @@ public class TestSub implements ITestOperation {
     private static final int ID_READ_LEVEL_TEST = 4;
     private static final int ID_BAG_REDUCTION_TEST = 5;
     private static final int ID_SC_VALVE_ONOFF_TEST = 6;
-    private static final int ID_BAGINK_TEST = 7;
-    private static final int ID_HP22MM_TEST = 8;
+// H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
+    private static final int ID_SC_AUTO_VALVE_ONOFF_TEST = 7;
+// End of H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
+    private static final int ID_BAGINK_TEST = 8;
+    private static final int ID_HP22MM_TEST = 9;
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
-    private static final int ID_ADS1115_READING_TEST = 9;
+    private static final int ID_ADS1115_READING_TEST = 10;
 // End of H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
 // H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
-    private static final int ID_MCP_H21XXXX_READING_TEST = 10;
+    private static final int ID_MCP_H21XXXX_READING_TEST = 11;
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
 
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
@@ -90,7 +93,9 @@ public class TestSub implements ITestOperation {
                     new TestItem("Bag Reduction Test", ID_BAG_REDUCTION_TEST),
                     new TestItem("Smartcard Init Test", ID_SC_INIT_TEST),
                     new TestItem("SmartCard Valve On/Off Test", ID_SC_VALVE_ONOFF_TEST),
-
+// H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
+                    new TestItem("Auto SmartCard Valve On/Off Test", ID_SC_AUTO_VALVE_ONOFF_TEST),
+// End of H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
             },
             {       // ALBIG
                     new TestItem("GPIO Pin Test", ID_GPIO_PIN_TEST),
@@ -165,6 +170,11 @@ public class TestSub implements ITestOperation {
                     case ID_SC_VALVE_ONOFF_TEST:
                         mIFTestOp = new TestValveOnOff(mContext, mSubTestIndex);
                         break;
+// H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
+                    case ID_SC_AUTO_VALVE_ONOFF_TEST:
+                        mIFTestOp = new TestAutoValveOnOff(mContext, mSubTestIndex);
+                        break;
+// End of H.M.Wang 2025-3-7 追加一个自动开关阀试验，每隔10s开阀1次，持续1秒后关闭
                     case ID_BAGINK_TEST:
                         mIFTestOp = new TestBagink(mContext, mSubTestIndex);
                         break;
