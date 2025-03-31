@@ -56,10 +56,8 @@ public class AddBTDevicePopWindow {
         deviceTV.setText(dev.getName());
         if(dev.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
             deviceTV.setTextColor(Color.RED);
-        } else if(dev.getType() == BluetoothDevice.DEVICE_TYPE_CLASSIC) {
-            deviceTV.setTextColor(Color.BLACK);
         } else {
-            deviceTV.setTextColor(Color.BLUE);
+            deviceTV.setTextColor(Color.BLACK);
         }
 
         final ImageView selIV = (ImageView) linearLayout.findViewById(R.id.idSelected);
