@@ -56,6 +56,7 @@
 	<string name="str_btn_shift">Shift</string>
 	<string name="str_btn_second">Segundo</string>
 	<string name="str_btn_upgrade">Atualizar</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">Definir data</string>
 	<string name="str_btn_setTime">Definir hora</string>
 	<string name="str_btn_image">Logo</string>

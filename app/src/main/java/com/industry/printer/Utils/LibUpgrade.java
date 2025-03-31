@@ -179,6 +179,7 @@ public class LibUpgrade {
 
         try {
             tmpPath = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            if(ConfigPath.getUpgradePath() == null) return false;
             srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "" : File.separator) + file;
             dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
             Debug.d(TAG, "Upgrade [" + srcPath + "] -> [" + tmpPath + "] -> [" + dstPath + "]");

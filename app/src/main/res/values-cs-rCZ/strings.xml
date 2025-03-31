@@ -58,6 +58,7 @@
 	<string name="str_btn_second">Sekunda</string>
 	
 	<string name="str_btn_upgrade">Upgrade</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">Nastavit datum</string>
 	<string name="str_btn_setTime">Nastavit čas</string>
 	<string name="str_btn_image">Logo</string>

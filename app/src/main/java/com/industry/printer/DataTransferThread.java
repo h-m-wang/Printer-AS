@@ -2128,13 +2128,17 @@ private void setSerialProtocol9DTs(final String data) {
 //				mcountdown[i] = 0;
 //			}
 		}
-
 		// H.M.Wang 初始化0的部分移到外部，这样更全面
 		for (int i = 0; i < mcountdown.length; i++) {
-			mcountdown[i] = 0;
+// H.M.Wang 2025-3-29 将mcountdown的初值从设为0改为threshold，同时根据上次打印的剩余次数占比来调整本次打印的剩余次数
+//			mcountdown[i] = 0;
+			float remainRatio = (mThresHolds[i] == 0 ? 1.0f : mcountdown[i]  / mThresHolds[i]);
+			mThresHolds[i] = 0;
+			mcountdown[i] = (mDataTask == null ? 0 : getInkThreshold(i) * remainRatio);
+// End of H.M.Wang 2025-3-29 将mcountdown的初值从设为0改为threshold，同时根据上次打印的剩余次数占比来调整本次打印的剩余次数
 		}
 
-		Arrays.fill(mThresHolds, 0);
+//		Arrays.fill(mThresHolds, 0);
 		// H.M.Wang 2019-10-10 注释掉添加初值的部分，如果初值为0，则表示该处置还没有初始化，待后续计算后添加
 //		for (int i = 0; i < mcountdown.length; i++) {
 //			mcountdown[i] = getInkThreshold(i);
@@ -2152,7 +2156,11 @@ private void setSerialProtocol9DTs(final String data) {
 		}
 
 		for (int i = 0; i < mcountdown.length; i++) {
-			mcountdown[i] = getInkThreshold(i);
+// H.M.Wang 2025-3-29 根据上次打印的剩余次数占比来调整本次打印的剩余次数
+//			mcountdown[i] = getInkThreshold(i);
+			float remainRatio = (mThresHolds[i] == 0 ? 1.0f : mcountdown[i]  / mThresHolds[i]);
+			mcountdown[i] = (mDataTask == null ? 0 : getInkThreshold(i) * remainRatio);
+// End od H.M.Wang 2025-3-29 根据上次打印的剩余次数占比来调整本次打印的剩余次数
 			//Debug.d(TAG, "--->initCount countdown[" + i + "] = " + mcountdown[i]);
 		}
 	}
@@ -2212,10 +2220,10 @@ private void setSerialProtocol9DTs(final String data) {
 //	public int getCount(int head) {
 	public float getCount(int head) {
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
-		if (mcountdown == null) {
-			initCount();
+		if (mcountdown != null) {
+			return mcountdown[head];
 		}
-		return mcountdown[head];
+		return 0f;
 	}
 
 // H.M.Wang 2020-10-23 修改计算Threshold的算法，改为以打印群组的所有任务的点数为准，单独任务作为一个元素的特殊群组

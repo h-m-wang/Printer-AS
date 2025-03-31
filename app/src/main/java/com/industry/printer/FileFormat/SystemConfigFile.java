@@ -248,6 +248,9 @@ public class SystemConfigFile{
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 	public static final int INDEX_BLE_ENABLE = 78;
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+// H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
+	public static final int INDEX_RFID_SC_SWITCH = 93;
+// End of H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
 // H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
 	public static final int INDEX_INTERNAL = 94;
 	public static final int INDEX_INTERNAL_ADDINK = 95;

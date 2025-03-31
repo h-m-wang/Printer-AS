@@ -39,20 +39,20 @@ public class BLEDataXfer extends DataXfer {
             if(newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
                 Log.d(TAG, gatt.getDevice().getName() + " connected to GATT server.");
-                mConnected = true;
+                mConnectState = STATE_CONNECTED;
                 mNeedRecovery = true;
                 mGatt = gatt;
                 if(null != mOnDeviceConnectionListener) mOnDeviceConnectionListener.onConnected(gatt.getDevice());
             } else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, gatt.getDevice().getName() + " disconnected from GATT server.");
-                mConnected = false;
+                mConnectState = STATE_DISCONNECTED;
                 if(null != mOnDeviceConnectionListener) mOnDeviceConnectionListener.onDisConnected();
                 final BluetoothGatt gatt_buf = gatt;
                 if(mNeedRecovery) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            while(!mConnected) {
+                            while(mConnectState == STATE_DISCONNECTED) {
                                 gatt_buf.connect();
                                 try{Thread.sleep(1000);} catch (Exception e) {}
                             }
@@ -153,6 +153,9 @@ public class BLEDataXfer extends DataXfer {
 
     @Override
     public void connect() {
+        if(mConnectState == STATE_CONNECTING) return;
+        mConnectState = STATE_CONNECTING;
+
         Log.d(TAG, "Connect to BLE Server.");
         mGatt = mDevice.connectGatt(mContext, true, mGattCallback);
 

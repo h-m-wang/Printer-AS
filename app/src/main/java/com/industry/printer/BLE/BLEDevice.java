@@ -22,10 +22,11 @@ import java.io.FileOutputStream;
  * Created by hmwan on 2024/1/27.
  */
 
+@Deprecated
 public class BLEDevice {
     private static String TAG = BLEDevice.class.getSimpleName();
 
-    private SerialPort mSerialPort;
+//    private SerialPort mSerialPort;
     private StreamTransport mStreamTransport;
     private BLEStreamTransport mBLEStreamTransport;
 

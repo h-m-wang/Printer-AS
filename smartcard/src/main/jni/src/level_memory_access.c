@@ -56,10 +56,12 @@
 #define MANUFACTURE_ID_ADDR     0x7E        // Default 0x5449
 #define DEVICE_ID_ADDR          0x7F        // Default 0x3055（12,373）
 
+extern int I2CGroupId;
+
 static int _writeI2Cdata(uint8_t reg, uint8_t *data, int length) {
     int ret;
 
-    ret = SC_I2C_DRIVER_write(0x01, LEVEL_I2C_ADDRESS, reg, data, length);
+    ret = SC_I2C_DRIVER_write(I2CGroupId, LEVEL_I2C_ADDRESS, reg, data, length);
 
     if(ret < 0) {
         LOGE("Write data error!");
@@ -72,7 +74,7 @@ static int _writeI2Cdata(uint8_t reg, uint8_t *data, int length) {
 static int _readI2Cdata(int reg, uint8_t *data, int length) {
     int read_length;
 
-    read_length = SC_I2C_DRIVER_read(0x01, LEVEL_I2C_ADDRESS, reg, data, length);
+    read_length = SC_I2C_DRIVER_read(I2CGroupId, LEVEL_I2C_ADDRESS, reg, data, length);
 
     if(read_length < 0) {
         LOGE("Read data error!");

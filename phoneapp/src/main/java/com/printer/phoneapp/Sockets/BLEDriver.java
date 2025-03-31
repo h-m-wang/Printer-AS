@@ -21,16 +21,16 @@ import java.util.Arrays;
  * Created by hmwan on 2021/9/8.
  */
 
-public class BLEDriver extends BTDriver {
+public class BLEDriver extends BluetoothDriver {
     private static final String TAG = BLEDriver.class.getSimpleName();
 
     private BluetoothLeScanner mBLEScanner;
 
-    public static BTDriver getInstance(Context ctx) {
-        if(null == mBTDriver) {
-            mBTDriver = new BLEDriver(ctx);
+    public static BluetoothDriver getInstance(Context ctx) {
+        if(null == mBluetoothDriver) {
+            mBluetoothDriver = new BLEDriver(ctx);
         }
-        return mBTDriver;
+        return mBluetoothDriver;
     }
 
     private BLEDriver(Context ctx) {

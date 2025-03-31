@@ -15,22 +15,17 @@ import com.printer.phoneapp.Sockets.WifiDataXfer;
 public class ConnectDevice {
     private static final String TAG = ConnectDevice.class.getSimpleName();
 
-    public static final int DEVICE_TYPE_UNKNOWN = 0;
-    public static final int DEVICE_TYPE_WIFI = 1;
-    public static final int DEVICE_TYPE_BT = 2;
-    public static final int DEVICE_TYPE_BLE = 3;
-
     private String          mName;
     private String          mAddress;
     private int             mType;
     private DataXfer        mDataXfer;
     private String          mErrMsg = "";
 
-    public ConnectDevice(Context ctx, BluetoothDevice dev, int type) {
+    public ConnectDevice(Context ctx, BluetoothDevice dev) {
         mName = dev.getName();
         mAddress = dev.getAddress();
-        mType = type;
-        if(mType == DEVICE_TYPE_BLE) {
+        mType = dev.getType();
+        if(mType == BluetoothDevice.DEVICE_TYPE_LE) {
             mDataXfer = new BLEDataXfer(ctx, dev);
         } else {
             mDataXfer = new BTDataXfer(ctx, dev);
@@ -40,7 +35,7 @@ public class ConnectDevice {
     public ConnectDevice(Context ctx, String name, String address, int type) {
         mName = name;
         mAddress = address;
-        mType = type;
+        mType = type;   // -1: WIFI
         mErrMsg = "";
         mDataXfer = new WifiDataXfer(ctx, address);
     }
@@ -61,7 +56,7 @@ public class ConnectDevice {
     }
 
     public boolean isConnected() {
-        return mDataXfer.mConnected;
+        return (mDataXfer.mConnectState == DataXfer.STATE_CONNECTED);
     }
 
     public void setErrMsg(String errMsg) {

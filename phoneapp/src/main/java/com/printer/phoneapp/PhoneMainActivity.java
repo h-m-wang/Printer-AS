@@ -22,11 +22,9 @@ import android.widget.Toast;
 
 import com.printer.phoneapp.Data.BarcodeDataProc;
 import com.printer.phoneapp.Devices.ConnectDevice;
-import com.printer.phoneapp.Sockets.BLEDriver;
-import com.printer.phoneapp.Sockets.BTDriver;
+import com.printer.phoneapp.Sockets.BluetoothDriver;
 import com.printer.phoneapp.Sockets.DataXfer;
-import com.printer.phoneapp.Sockets.NonBLEDriver;
-import com.printer.phoneapp.Sockets.SocketThread;
+import com.printer.phoneapp.Sockets.BTDriver;
 import com.printer.phoneapp.UIs.AddBTDevicePopWindow;
 import com.printer.phoneapp.UIs.AddWifiDevicePopWindow;
 import com.printer.phoneapp.UIs.BarcodeScanPopupWindow;
@@ -34,22 +32,9 @@ import com.printer.phoneapp.UIs.SendStringCmdPopWindow;
 import com.printer.phoneapp.Utils.HTPermission;
 import com.printer.phoneapp.Utils.MySharedPreferences;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by hmwan on 2021/9/7.
@@ -83,7 +68,7 @@ public class PhoneMainActivity extends AppCompatActivity {
     private TextView mSendStringCmd = null;
     private TextView mScanBarcodeCmd = null;
 
-    private BTDriver mBluetoothManager;
+    private BluetoothDriver mBluetoothDriver;
     private ConnectDevice mConDevice = null;
 
     ExecutorService mCachedThreadPool = null;
@@ -135,14 +120,10 @@ public class PhoneMainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             synchronized (PhoneMainActivity.this) {
-                                BluetoothDevice btDevice = mBluetoothManager.getRemoteDevice(address);
-                                ConnectDevice dev = new ConnectDevice(PhoneMainActivity.this, btDevice, type);
+                                BluetoothDevice btDevice = mBluetoothDriver.getRemoteDevice(address);
+                                ConnectDevice dev = new ConnectDevice(PhoneMainActivity.this, btDevice);
                                 dev.connect(mOnDeviceConnectionListener);
                                 mConDevice = dev;
-                                Message msg = mHandler.obtainMessage(MSG_CONNECT_DEVICE);
-                                msg.arg1 = type;
-                                msg.obj = address;
-                                mHandler.sendMessageDelayed(msg, 1000);
                             }
                         }
                     });
@@ -194,6 +175,8 @@ public class PhoneMainActivity extends AppCompatActivity {
         public void onConnected(BluetoothDevice dev) {
             MySharedPreferences.saveDeviceAddr(PhoneMainActivity.this, (null != dev ? dev.getAddress() : ""));
             MySharedPreferences.saveDeviceName(PhoneMainActivity.this, (null != dev ? dev.getName() : ""));
+            MySharedPreferences.saveDeviceType(PhoneMainActivity.this, (null != dev ? dev.getType() : BluetoothDevice.DEVICE_TYPE_UNKNOWN));
+
             mHandler.removeMessages(MSG_CONNECT_DEVICE);
             mDevState.post(new Runnable() {
                 @Override
@@ -208,8 +191,8 @@ public class PhoneMainActivity extends AppCompatActivity {
 
         @Override
         public void onDisConnected() {
-            MySharedPreferences.saveDeviceAddr(PhoneMainActivity.this, "");
-            MySharedPreferences.saveDeviceName(PhoneMainActivity.this, "");
+//            MySharedPreferences.saveDeviceAddr(PhoneMainActivity.this, "");
+//            MySharedPreferences.saveDeviceName(PhoneMainActivity.this, "");
             mDevState.post(new Runnable() {
                 @Override
                 public void run() {
@@ -229,6 +212,7 @@ public class PhoneMainActivity extends AppCompatActivity {
             popWindow.show(mAddWIFIDevice, new OnDeviceSelectListener() {
                 @Override
                 public void onSelected(final ConnectDevice dev) {
+                    mHandler.removeMessages(MSG_CONNECT_DEVICE);
                     mDevIcon.setImageResource(R.drawable.wifi);
                     mDevIcon.setVisibility(View.VISIBLE);
                     mDevName.setText(dev.getName());
@@ -238,10 +222,11 @@ public class PhoneMainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             synchronized (PhoneMainActivity.this) {
+                                if (null != mConDevice) {
+                                    mConDevice.disconnect();
+                                    mConDevice = null;
+                                }
                                 mConnectingStatus = CON_STATUS_CONNECTING;
-                                ConnectDevice cdev = mConDevice;
-                                mConDevice = null;
-                                if (null != cdev) cdev.disconnect();
                                 dev.connect(mOnDeviceConnectionListener);
                                 mConDevice = dev;
                             }
@@ -262,10 +247,12 @@ public class PhoneMainActivity extends AppCompatActivity {
     };
 
     private void launchAddBluetoothDevices() {
-        AddBTDevicePopWindow popWindow = new AddBTDevicePopWindow(PhoneMainActivity.this, mBluetoothManager);
+        AddBTDevicePopWindow popWindow = new AddBTDevicePopWindow(PhoneMainActivity.this, mBluetoothDriver);
         popWindow.show(mAddBTDevice, new OnDeviceSelectListener() {
             @Override
             public void onSelected(final ConnectDevice dev) {
+                Log.d(TAG, "正在连接..." + dev.getName() + "[" + dev.getAddress() + "]");
+                mHandler.removeMessages(MSG_CONNECT_DEVICE);
                 mDevIcon.setImageResource(R.drawable.bt);
                 mDevIcon.setVisibility(View.VISIBLE);
                 mDevName.setText(dev.getName());
@@ -275,10 +262,14 @@ public class PhoneMainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         synchronized (PhoneMainActivity.this) {
+                            if (null != mConDevice) {
+                                mConDevice.disconnect();
+                                while(mConnectingStatus != CON_STATUS_DISCONNECTED) {
+                                    try{Thread.sleep(100);}catch(Exception e){}
+                                }
+                                mConDevice = null;
+                            }
                             mConnectingStatus = CON_STATUS_CONNECTING;
-                            ConnectDevice cdev = mConDevice;
-                            mConDevice = null;
-                            if (null != cdev) cdev.disconnect();
                             dev.connect(mOnDeviceConnectionListener);
                             mConDevice = dev;
                         }
@@ -305,6 +296,16 @@ public class PhoneMainActivity extends AppCompatActivity {
 
         @Override
         public void onSent(final byte[] sent) {
+            Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
+            if(null == sent || sent.length <= 0) {
+                msg.arg1 = 0;           // Error
+                msg.obj = "Data not found.";
+            } else {
+                msg.arg1 = 1;           // Success
+                msg.obj = new String(sent);
+                mCDL.countDown();
+            }
+            mHandler.sendMessage(msg);
         }
 
         @Override
@@ -320,7 +321,7 @@ public class PhoneMainActivity extends AppCompatActivity {
             Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
             if(null == recv || recv.isEmpty()) {
                 msg.arg1 = 0;           // Error
-                msg.obj = "Data not found.";
+                msg.obj = "Data not received.";
             } else {
                 msg.arg1 = 1;           // Success
                 msg.obj = recv;
@@ -341,12 +342,12 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onReceived(final byte[] recv) {
             Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
-            if(recv.length == 0) {
+            if(recv == null || recv.length == 0) {
                 msg.arg1 = 0;           // Error
-                msg.obj = "Data not found.";
+                msg.obj = "Data not received.";
             } else {
                 msg.arg1 = 1;           // Success
-                msg.obj = "" + recv.length + " bytes received";
+                msg.obj = new String(recv);
             }
             mGotResp = true;
             mHandler.sendMessage(msg);
@@ -399,17 +400,11 @@ public class PhoneMainActivity extends AppCompatActivity {
         mCachedThreadPool = Executors.newCachedThreadPool();
         mConnectingStatus = CON_STATUS_DISCONNECTED;
 
-//        if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Log.d(TAG, "FEATURE_BLUETOOTH_LE not supported");
-            mBluetoothManager = NonBLEDriver.getInstance(this);
-//        } else {
-//            Log.d(TAG, "FEATURE_BLUETOOTH_LE supported");
-//            mBluetoothManager = BLEDriver.getInstance(this);
-//        }
-        mBluetoothManager.enableBluetooth();
+        mBluetoothDriver = BTDriver.getInstance(this);
+        mBluetoothDriver.enableBluetooth();
 
         Message msg = mHandler.obtainMessage(MSG_CONNECT_DEVICE);
-        msg.arg1 = mBluetoothManager instanceof BLEDriver ? ConnectDevice.DEVICE_TYPE_BLE : ConnectDevice.DEVICE_TYPE_BT;
+        msg.arg1 = MySharedPreferences.readDeviceType(PhoneMainActivity.this);
         msg.obj = MySharedPreferences.readDeviceAddr(PhoneMainActivity.this);
         mHandler.sendMessageDelayed(msg,1000);
 
@@ -434,10 +429,11 @@ public class PhoneMainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(null != mConDevice) {
                     mDevState.setTextColor(Color.GRAY);
-                    mDevState.setText("...");
                     if(mConDevice.isConnected()) {
+                        mDevState.setText("正在断开...");
                         mConDevice.disconnect();
                     } else {
+                        mDevState.setText("正在连接...");
                         mConDevice.connect(mOnDeviceConnectionListener);
                     }
                 }
@@ -546,9 +542,9 @@ public class PhoneMainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO Auto-generated method stub
-        if(requestCode == BTDriver.REQUEST_ENBLE_BT){
+        if(requestCode == BluetoothDriver.REQUEST_ENBLE_BT){
             Log.d(TAG, "onActivityResult resultCode = " + resultCode);
-            mBluetoothManager.setEnablingResult(resultCode);
+            mBluetoothDriver.setEnablingResult(resultCode);
         }
     }
 }

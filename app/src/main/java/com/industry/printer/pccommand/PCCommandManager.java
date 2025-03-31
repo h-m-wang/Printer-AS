@@ -161,4 +161,6 @@ public class PCCommandManager {
             mBLEHandler.work();
         }
     }
+
+    public PCCommandHandler getBLEHandler() {return mBLEHandler;}
 }

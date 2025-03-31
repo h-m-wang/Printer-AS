@@ -32,8 +32,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.industry.printer.BLE.BLEDevice;
-import com.industry.printer.Bluetooth.BluetoothServer;
+import com.industry.printer.Bluetooth.BluetoothServerManager;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
@@ -62,7 +61,6 @@ import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
-import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
@@ -132,9 +130,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import junit.framework.Test;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	private static final String TAG = ControlTabActivity.class.getSimpleName();
@@ -1384,7 +1379,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 // End of H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
-		if((mInkManager instanceof RFIDManager || mInkManager instanceof N_RFIDManager) && mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
+//		if((mInkManager instanceof RFIDManager || mInkManager instanceof N_RFIDManager) && mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BLEDevice.getInstance().isInitialized()) {
+		if((mInkManager instanceof RFIDManager || mInkManager instanceof N_RFIDManager) && mSysconfig.getParam(SystemConfigFile.INDEX_BLE_ENABLE) == 1 && BluetoothServerManager.getInstance().isInitialized()) {
 			mBleState.setVisibility(View.VISIBLE);
 		} else {
 			mBleState.setVisibility(View.GONE);
@@ -2518,10 +2514,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							BLEDevice ble = BLEDevice.getInstance();
-							ble.paramsChanged();
-//							BluetoothServer bs = new BluetoothServer();
-//							bs.startServer();
+//							BLEDevice ble = BLEDevice.getInstance();
+//							ble.paramsChanged();
+							BluetoothServerManager bsm = BluetoothServerManager.getInstance();
+							bsm.paramsChanged();
 						}
 					}).start();
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
@@ -3216,7 +3212,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		p.edit().putBoolean(PreferenceConstants.LOADING_BEFORE_CRASH, false).commit();
 		Debug.d(TAG, "===>dismissProgressDialog");
 	}
-	
+
 	public int currentRfid = 0;
 	@Override
 	public void onClick(View v) {

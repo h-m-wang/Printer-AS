@@ -114,6 +114,8 @@ public class PCCommandHandler {
         mWorking = false;
     }
 
+    public boolean isWorking() {return mWorking;}
+
     public void sendmsg(String msg) {
         mStreamTransport.writeLine(msg);
     }
@@ -141,7 +143,16 @@ public class PCCommandHandler {
         }
     }
 
-    public void handle(String msg) {
+    public void handle(final String msg) {
+// H.M.Wang 2025-3-24 增加只要收到网络数据就Toast显示出来，便于调试
+        myHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
+            }
+        });
+// End of H.M.Wang 2025-3-24 增加只要收到网络数据就Toast显示出来，便于调试
+
         Debug.i(TAG, "--->fromPc: " + msg);
         PCCommand cmd = PCCommand.fromString(msg);
         if(null == cmd) return;

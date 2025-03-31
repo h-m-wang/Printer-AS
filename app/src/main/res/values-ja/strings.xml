@@ -57,6 +57,7 @@
 	<string name="str_btn_second">Second</string>
 	
 	<string name="str_btn_upgrade">アップグレード</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">日付設定</string>
 	<string name="str_btn_setTime">時刻設定</string>
 	<string name="str_btn_image">画像</string>

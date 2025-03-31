@@ -87,6 +87,7 @@
 	<string name="str_btn_second">İkinci</string>
 	
 	<string name="str_btn_upgrade">Yükselt</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">Tarihi ayarla</string>
 	<string name="str_btn_setTime">Zamanı ayarla</string>
 	<string name="str_btn_image">Logo</string>

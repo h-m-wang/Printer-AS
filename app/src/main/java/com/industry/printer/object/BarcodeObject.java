@@ -1487,19 +1487,20 @@ public class BarcodeObject extends BaseObject {
 		}
 		Paint paint = new Paint();
 
-		paint.setTextSize(height - 5);
-		paint.setTextScaleX(2);
+		paint.setTextSize(height-2*paint.getFontMetrics().descent);
+// H.M.Wang 2025-3-24 修改倍率的计算方法，根据字数计算
+//		paint.setTextScaleX(2);
+		paint.setTextScaleX(1.8f * width / height / content.length());
+// End of H.M.Wang 2025-3-24 修改倍率的计算方法，根据字数计算
 		paint.setColor(Color.BLACK);
 		Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
 		Canvas canvas = new Canvas(bitmap);
 		//每个字符占的宽度
 		int perPix = width/content.length();
 		//字符本身的宽度
-		float numWid = paint.measureText("0");
-		int left = (int) ((perPix - numWid)/2);
 		for (int i = 0; i < content.length(); i++) {
 			String n = content.substring(i, i+1);
-			canvas.drawText(n, i*perPix + left, paint.getTextSize(), paint);
+			canvas.drawText(n, i*perPix + (int) ((perPix - paint.measureText(n))/2), height-paint.getFontMetrics().descent, paint);
 		}
 		return bitmap;
 	}

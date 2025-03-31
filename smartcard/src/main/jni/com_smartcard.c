@@ -26,7 +26,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.410"
+#define VERSION_CODE                            "1.0.411"
+// 1.0.411 2025-3-19
+// 修改 1.0.410 在 level_memory_access.c中的修改遗漏
 // 1.0.410 2025-3-13
 // 修改Java_com_Smartcard_exist参数，增加一个I2CGroupID的参数，用来区分是CB2(I2CGroupID=1)，还是CB10(I2CGroupID=2)
 // 在hp_smart_card_i2c.c中追加一个全局变量I2CGroupId，用来记忆I2C的GroupID

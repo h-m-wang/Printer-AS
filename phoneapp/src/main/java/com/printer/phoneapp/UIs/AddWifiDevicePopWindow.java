@@ -72,7 +72,7 @@ public class AddWifiDevicePopWindow {
                     errMsgTV.setVisibility(View.VISIBLE);
                 } else {
                     if(null != l) {
-                        l.onSelected(new ConnectDevice(mContext, ipET.getText().toString(), ipET.getText().toString(), ConnectDevice.DEVICE_TYPE_WIFI));
+                        l.onSelected(new ConnectDevice(mContext, ipET.getText().toString(), ipET.getText().toString(), -1));
                     }
                     mPopupWindow.dismiss();
                 }

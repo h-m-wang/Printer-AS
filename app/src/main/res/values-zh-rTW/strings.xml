@@ -77,6 +77,7 @@
 	<string name="str_btn_shift">班次</string>
 	<string name="str_btn_second">秒</string>
 	<string name="str_btn_upgrade">升級</string>
+	<string name="str_urge2restart">升級已完成, 請重啓</string>
 	<string name="str_btn_setDate">日期設置</string>
 	<string name="str_btn_setTime">時間設置</string>
 	<string name="str_btn_image">圖形</string>

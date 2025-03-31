@@ -76,6 +76,7 @@
 	<string name="str_btn_second">ثانية</string>
 
 	<string name="str_btn_upgrade">تحديث</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">ضبط التاريخ</string>
 	<string name="str_btn_setTime">ضبط الوقت</string>
 	<string name="str_btn_image">شعار</string>

@@ -74,6 +74,7 @@
 	<string name="str_btn_shift">롯뜨</string>
 	<string name="str_btn_second">초</string>
 	<string name="str_btn_upgrade">업그레이드</string>
+	<string name="str_urge2restart">Upgraded, please restart</string>
 	<string name="str_btn_setDate">날짜설치</string>
 	<string name="str_btn_setTime">시간설치</string>
 	<string name="str_btn_image">도안</string>

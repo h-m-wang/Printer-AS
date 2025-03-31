@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 
+@Deprecated
 public class BLEStreamTransport extends StreamTransport {
     private static String TAG = BLEStreamTransport.class.getSimpleName();
 

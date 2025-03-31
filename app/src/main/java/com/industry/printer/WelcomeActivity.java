@@ -27,6 +27,7 @@ import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -178,7 +179,8 @@ public class WelcomeActivity extends Activity {
 			});
 			mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5*1000);
 		} else {
-			ToastUtil.show(mContext, "Upgraded, please restart");
+			new AlertDialog.Builder(this).setMessage(R.string.str_urge2restart).create().show();
+//			ToastUtil.show(mContext, R.string.str_urge2restart);
 		}
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity

@@ -1,24 +1,16 @@
 package com.industry.printer;
 
 import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
-import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BluetoothServerManager;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.*;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
-import com.industry.printer.hardware.InkManagerFactory;
-import com.industry.printer.hardware.N_RFIDManager;
-import com.industry.printer.hardware.RFIDManager;
-import com.industry.printer.hardware.RTCDevice;
-import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
 import com.industry.printer.ui.CustomerAdapter.SettingsListAdapter;
 import com.industry.printer.ui.CustomerDialog.CalendarDialog;
@@ -26,7 +18,6 @@ import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnPositiveListe
 import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnNagitiveListener;;
 import com.industry.printer.ui.CustomerDialog.PasswordDialog;
 
-import android.R.integer;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -39,7 +30,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PowerManager;
 //import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -49,7 +39,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -57,7 +46,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class SettingsTabActivity extends Fragment implements OnClickListener, OnTouchListener {
 public static final String TAG="SettingsTabActivity";
@@ -419,8 +407,10 @@ public static final String TAG="SettingsTabActivity";
 						new Thread(new Runnable() {
 							@Override
 							public void run() {
-								BLEDevice ble = BLEDevice.getInstance();
-								ble.paramsChanged();
+//								BLEDevice ble = BLEDevice.getInstance();
+//								ble.paramsChanged();
+								BluetoothServerManager bsm = BluetoothServerManager.getInstance();
+								bsm.paramsChanged();
 							}
 						}).start();
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能

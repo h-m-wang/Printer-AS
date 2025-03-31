@@ -1,115 +1,46 @@
 package com.industry.printer.Bluetooth;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
-
 import com.industry.printer.FileFormat.SystemConfigFile;
-import com.industry.printer.Utils.Debug;
-import com.industry.printer.hardware.Hp22mmSCManager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Set;
-import java.util.UUID;
+/**
+ * Created by hmwan on 2025/3/15.
+ */
 
-public class BluetoothServer {
+abstract public class BluetoothServer {
     private static final String TAG = BluetoothServer.class.getSimpleName();
 
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothServerSocket serverSocket;
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    protected final static String SERVER_PREFIX_NAME = "Printer";
+    protected boolean mInitialized;
+    protected int mDeviceNo;
+    protected String mServerName;
 
     public BluetoothServer() {
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mInitialized = false;
+        mServerName = "";
+        mDeviceNo = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOCAL_ID);
     }
 
-    public void startServer() {
-        if (bluetoothAdapter == null) {
-            Debug.e(TAG, "蓝牙不可用. " + bluetoothAdapter);
-            return;
-        }
+    abstract public void closeServer();
+    abstract public void initServer(int devno);
 
-        if(!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable();
-            Debug.e(TAG, "蓝牙未启用. " + bluetoothAdapter.isEnabled());
-        }
+    protected String createServerName(int devno) {
+        String ble_name = "000" + devno;
+        mServerName = SERVER_PREFIX_NAME + ble_name.substring(ble_name.length()-3);
+        return mServerName;
+    }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        if(!bluetoothAdapter.isEnabled()) {
-                            bluetoothAdapter.enable();
-                            Debug.e(TAG, "蓝牙未启用. " + bluetoothAdapter.isEnabled());
-                        }
-                        bluetoothAdapter.setName("Printer" + SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOCAL_ID));
-                        serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("MyBluetoothServer", MY_UUID);
-                        Debug.d(TAG, "服务器已启动，等待客户端连接...");
-
-                        BluetoothSocket socket = serverSocket.accept();
-                        Debug.d(TAG, "客户端已连接: " + socket.getRemoteDevice().getName());
-
-                        manageConnectedSocket(socket);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (serverSocket != null) {
-                                serverSocket.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    try{Thread.sleep(3000);}catch(Exception e){}
+    public void paramsChanged(int enable, int devno) {
+        if(enable == 0) {
+            if(mInitialized) {
+                closeServer();
+            }
+        } else {
+            if(devno != mDeviceNo || !mInitialized) {    // 如果蓝牙设备号发生变化，或者还没有初始化，则执行初始化
+                initServer(devno);
+                if(mInitialized) {
+                    mDeviceNo = devno;
                 }
             }
-        }).start();
-    }
-
-    private void manageConnectedSocket(BluetoothSocket socket) {
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
-
-        try {
-            inputStream = socket.getInputStream();
-            outputStream = socket.getOutputStream();
-
-            byte[] buffer = new byte[1024];
-            int bytes;
-            while (true) {
-                bytes = inputStream.read(buffer);
-                String receivedMessage = new String(buffer, 0, bytes);
-                Debug.d(TAG, "收到消息: " + receivedMessage);
-
-                String response = "服务器已收到: " + receivedMessage;
-                outputStream.write(response.getBytes());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (inputStream != null) inputStream.close();
-                if (outputStream != null) outputStream.close();
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void stopServer() {
-        try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
-

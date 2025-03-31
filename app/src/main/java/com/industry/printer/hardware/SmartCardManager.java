@@ -888,6 +888,7 @@ public class SmartCardManager implements IInkDevice {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                if(mCards[cardIdx].mInkAdding) return;
                                 mCards[cardIdx].mInkAdding = true;
 // H.M.Wang 2025-3-14 对于M*类型的img，检查一下gpio是否设置成功，Pen1对应PE5，Pen2对应PE4
                                 if(PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode())) {

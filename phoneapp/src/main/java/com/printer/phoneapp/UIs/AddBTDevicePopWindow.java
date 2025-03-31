@@ -20,9 +20,7 @@ import android.widget.Toast;
 import com.printer.phoneapp.Devices.ConnectDevice;
 import com.printer.phoneapp.PhoneMainActivity;
 import com.printer.phoneapp.R;
-import com.printer.phoneapp.Sockets.BLEDriver;
-import com.printer.phoneapp.Sockets.BTDriver;
-import com.printer.phoneapp.Sockets.NonBLEDriver;
+import com.printer.phoneapp.Sockets.BluetoothDriver;
 
 /**
  * Created by hmwan on 2021/9/10.
@@ -35,11 +33,11 @@ public class AddBTDevicePopWindow {
     private PopupWindow mPopupWindow = null;
     private LinearLayout mDevicesList = null;
 
-    private BTDriver mBluetoothManager;
+    private BluetoothDriver mBluetoothDriver;
 
-    public AddBTDevicePopWindow(Context ctx, BTDriver driver) {
+    public AddBTDevicePopWindow(Context ctx, BluetoothDriver driver) {
         mContext = ctx;
-        mBluetoothManager = driver;
+        mBluetoothDriver = driver;
     }
 
     private void clearDeviceView() {
@@ -56,6 +54,13 @@ public class AddBTDevicePopWindow {
 
         final TextView deviceTV = (TextView) linearLayout.findViewById(R.id.idDevice);
         deviceTV.setText(dev.getName());
+        if(dev.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
+            deviceTV.setTextColor(Color.RED);
+        } else if(dev.getType() == BluetoothDevice.DEVICE_TYPE_CLASSIC) {
+            deviceTV.setTextColor(Color.BLACK);
+        } else {
+            deviceTV.setTextColor(Color.BLUE);
+        }
 
         final ImageView selIV = (ImageView) linearLayout.findViewById(R.id.idSelected);
         selIV.setImageBitmap(null);
@@ -99,7 +104,7 @@ public class AddBTDevicePopWindow {
         mDevicesList = (LinearLayout) popupView.findViewById(R.id.idDevicesList);
 
         final TextView searchTV = (TextView)popupView.findViewById(R.id.idDiscovery);
-        if(mBluetoothManager.isEnabled()) {
+        if(mBluetoothDriver.isEnabled()) {
             searchTV.setEnabled(true);
         } else {
             searchTV.setEnabled(false);
@@ -116,49 +121,49 @@ public class AddBTDevicePopWindow {
         searchTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!mBluetoothManager.isEnabled()) {
+                if(!mBluetoothDriver.isEnabled()) {
                     Toast.makeText(mContext, "Bluetooth not enabled.", Toast.LENGTH_LONG).show();
-                    return;
+                } else {
+                    clearDeviceView();
+                    mBluetoothDriver.startDiscovery(new BluetoothDriver.OnDiscoveryListener() {
+                        @Override
+                        public void onDiscoveryStarted() {
+                            Log.d(TAG, "Discovery started.");
+                            searchTV.post(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            searchTV.setEnabled(false);
+                                            connectTV.setEnabled(false);
+                                            progressBar.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                            );
+                        }
+
+                        @Override
+                        public void onDiscoveryFinished() {
+                            Log.d(TAG, "Discovery finished.");
+                            searchTV.post(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            searchTV.setEnabled(true);
+                                            connectTV.setEnabled(true);
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                    }
+                            );
+                        }
+
+                        @Override
+                        public void onDeviceFound(BluetoothDevice device) {
+                            Log.d(TAG, "Device [" + device.getName() + "," + device.getAddress() + "," + device.getType() + "] found.");
+                            addDeviceView(device);
+                            connectTV.setEnabled(true);
+                        }
+                    });
                 }
-                clearDeviceView();
-                mBluetoothManager.startDiscovery(new BTDriver.OnDiscoveryListener() {
-                    @Override
-                    public void onDiscoveryStarted() {
-                        Log.d(TAG, "Discovery started.");
-                        searchTV.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        searchTV.setEnabled(false);
-                                        connectTV.setEnabled(false);
-                                        progressBar.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onDiscoveryFinished() {
-                        Log.d(TAG, "Discovery finished.");
-                        searchTV.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        searchTV.setEnabled(true);
-                                        connectTV.setEnabled(true);
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                }
-                        );
-                    }
-
-                    @Override
-                    public void onDeviceFound(BluetoothDevice device) {
-                        Log.d(TAG, "Device [" + device.getName() + "," + device.getAddress() + "," + device.getType() + "] found.");
-                        addDeviceView(device);
-                        connectTV.setEnabled(true);
-                    }
-                });
             }
         });
 
@@ -166,16 +171,12 @@ public class AddBTDevicePopWindow {
             @Override
             public void onClick(View v) {
                 if(null != l) {
-                    mBluetoothManager.stopDiscovery();
+                    mBluetoothDriver.stopDiscovery();
                     for(int i=mDevicesList.getChildCount()-1; i>=0; i--) {
                         View iv = mDevicesList.getChildAt(i);
                         if(iv.isSelected()) {
                             BluetoothDevice dev = (BluetoothDevice)iv.getTag();
-                            if(mBluetoothManager instanceof BLEDriver) {
-                                l.onSelected(new ConnectDevice(mContext, dev, ConnectDevice.DEVICE_TYPE_BLE));
-                            } else {
-                                l.onSelected(new ConnectDevice(mContext, dev, ConnectDevice.DEVICE_TYPE_BT));
-                            }
+                            l.onSelected(new ConnectDevice(mContext, dev));
                         }
                     }
                 }

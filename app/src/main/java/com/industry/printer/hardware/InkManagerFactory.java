@@ -2,6 +2,7 @@ package com.industry.printer.hardware;
 
 import android.content.Context;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Rfid.N_RFIDModuleChecker;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -46,6 +47,16 @@ public class InkManagerFactory {
 // End of H.M.Wang 2024-3-19 切换到新的Hp22mmSCManager，停止使用临时的SmartCardManager
 // End of H.M.Wang 2022-11-5 追加一个根据hp22mm的img返回Manager的判断
             }
+
+// H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
+            if(SystemConfigFile.getInstance(ctx).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 1) {
+                return new RFIDManager(ctx);
+            } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 2) {
+                SmartCard.exist((PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode()) ? 1 : 0), (PlatformInfo.isA133Product() ? 2 : 1));
+                return new SmartCardManager(ctx);
+            }
+// End of H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
+
 // H.M.Wang 2022-4-12 追加try，以避免旧so里面没有这个函数导致死机
             try {
 // H.M.Wang 2022-1-20 根据SmartCard是否连接来判断走SC还是RFID

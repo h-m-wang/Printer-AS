@@ -19,7 +19,12 @@ abstract public class DataXfer {
         public void onDisConnected();
     }
     protected OnDeviceConnectionListener mOnDeviceConnectionListener;
-    public boolean mConnected;
+
+    public static final int STATE_DISCONNECTED = 0;
+    public static final int STATE_CONNECTING = 1;
+    public static final int STATE_CONNECTED = 2;
+
+    public int mConnectState;
     protected boolean mNeedRecovery;
 
     public interface OnDataXferListener {
@@ -33,8 +38,8 @@ abstract public class DataXfer {
 
     public DataXfer(Context ctx) {
         mContext = ctx;
-        mConnected = false;
-        mNeedRecovery = true;
+        mConnectState = STATE_DISCONNECTED;
+        mNeedRecovery = false;
         mOnDeviceConnectionListener = null;
         mOnDataXferListener = null;
     }
