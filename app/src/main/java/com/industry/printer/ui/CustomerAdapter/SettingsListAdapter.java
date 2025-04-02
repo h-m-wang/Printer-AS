@@ -570,7 +570,7 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			if(!mHolder.mValueREt.isEnabled()) mHolder.mValueREt.setEnabled(true);
 			if(2*position + 1 == 43) {
 				String info = PlatformInfo.getImgUniqueCode();
-				if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2")) {
+				if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3")) {
 					mHolder.mValueREt.setEnabled(false);
 					mHolder.mValueREt.setText("50");
 				}

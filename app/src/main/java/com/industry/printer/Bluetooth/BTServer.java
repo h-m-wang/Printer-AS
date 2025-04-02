@@ -113,7 +113,7 @@ public class BTServer extends BluetoothServer {
                             PCCommandHandler pcCH = pcCM.getBLEHandler();
                             if(pcCH != null && pcCH.isWorking()) continue;
 
-                            Debug.d(TAG, "BTServer Starting...");
+//                            Debug.d(TAG, "BTServer Starting...");
                             setServerDiscoverableConnectable();
                             mBluetoothAdapter.setName(mServerName);
                             mServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("MyBluetoothServer", MY_UUID);

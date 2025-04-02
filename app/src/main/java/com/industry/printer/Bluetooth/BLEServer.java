@@ -191,10 +191,6 @@ public class BLEServer extends BluetoothServer {
         return mClientConnected;
     }
 
-    public boolean isInitialized() {
-        return mInitialized;
-    }
-
     public String readLine() {
         if(!mInitialized) return "";
 

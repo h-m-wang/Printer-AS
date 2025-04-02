@@ -43,4 +43,8 @@ abstract public class BluetoothServer {
             }
         }
     }
+
+    public boolean isInitialized() {
+        return mInitialized;
+    }
 }

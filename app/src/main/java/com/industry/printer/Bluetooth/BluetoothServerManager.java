@@ -33,7 +33,7 @@ public class BluetoothServerManager {
 
     public boolean isInitialized() {
         for(BluetoothServer server : mServers) {
-            if(server.mInitialized) return true;
+            if(server.isInitialized()) return true;
         }
         return false;
     }

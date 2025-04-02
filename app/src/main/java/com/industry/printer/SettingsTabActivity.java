@@ -453,7 +453,7 @@ public static final String TAG="SettingsTabActivity";
 						} else {
 // H.M.Wang 2024-10-15 翻转屏幕仅限3.5寸屏，因为7寸屏反转好像是以1920*1080为展面操作的，但是7寸屏的大小是1024*600，导致反转后大部分内容跑到了屏幕外面
 							String info = PlatformInfo.getImgUniqueCode();
-							if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2")) {
+							if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3")) {
 								Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
 							}
 // End of H.M.Wang 2024-10-15 翻转屏幕仅限3.5寸屏，因为7寸屏反转好像是以1920*1080为展面操作的，但是7寸屏的大小是1024*600，导致反转后大部分内容跑到了屏幕外面
