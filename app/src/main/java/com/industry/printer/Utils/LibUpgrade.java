@@ -89,10 +89,14 @@ public class LibUpgrade {
     private boolean upgradeSO(DataOutputStream os, String so) {
         boolean ret = false;
         InputStream is = null;
-        String libPath = "/system/lib/";
+        String dstPath = "/system/lib/";
+        String midPath = dstPath;
 
         try {
-            File file = new File(libPath + so);
+            if(PlatformInfo.isA133Product()) {
+                midPath = "/data/audio_d/"; // A133无法直接将文件复制到system/lib目录中，需要通过/data/audio_d中转
+            }
+            File file = new File(dstPath + so);
             AssetManager assetManager = PrinterApplication.getInstance().getAssets();
             is = assetManager.open(so);
 
@@ -102,18 +106,20 @@ public class LibUpgrade {
                 Debug.d(TAG, file.getPath() + " does not exist.");
                 needUpdate = true;
             } else {
-                Debug.d(TAG, "FileMD5: [" + CypherUtils.getFileMD5(file) + "].");
-                Debug.d(TAG, "AssetMD5: [" + CypherUtils.getStreamMD5(is) + "].");
-                needUpdate = !CypherUtils.getFileMD5(file).equalsIgnoreCase(CypherUtils.getStreamMD5(is));
+                String fileMD5 = CypherUtils.getFileMD5(file);
+                String isMD5 = CypherUtils.getStreamMD5(is);
+                Debug.d(TAG, "FileMD5: [" + fileMD5 + "].");
+                Debug.d(TAG, "AssetMD5: [" + isMD5 + "].");
+                needUpdate = !(fileMD5.equalsIgnoreCase(isMD5));
             }
             if(needUpdate) {
 // H.M.Wang 2020-12-26 追加硬件库复制功能
-                Debug.d(TAG, "chmod 777 " + libPath + so);
-                os.writeBytes("chmod 777 " + libPath + so);
+                Debug.d(TAG, "chmod 777 " + dstPath + so);
+                os.writeBytes("chmod 777 " + dstPath + so);
                 Thread.sleep(100);
 
                 is.reset();
-                FileUtil.writeFile(libPath + so, is);
+                FileUtil.writeFile(midPath + so, is);       // 对于A20相当于直接复制到目的地，对于A133复制到中转站
 // End of H.M.Wang 2020-12-26 追加硬件库复制功能
                 ret = true;
             } else {
@@ -133,15 +139,12 @@ public class LibUpgrade {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
             Thread.sleep(100);
-            if(!PlatformInfo.isA133Product()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用upgradeLibs函数，从U盘的Upgrade目录升级，与apk的升级同方法
-                // 之所以A133不在这里升级so，是因为A133无法直接将so复制到system/lib目录，而是要利用/data/audio_d，这个目录在下次系统启动时会有内部脚本文件自动复制到system/lib，然后删除该文件，这样，就会导致每次都会启动apk都会将so复制到中间目录，然后下次重启再复制到目标目录，
-                // 导致每次重启机器都会做这个复制的无意义操作
-                ret |= upgradeSO(os, Configs.HARDWARE_SO);
-                ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO);
-                ret |= upgradeSO(os, Configs.SMARTCARD_SO);
-                ret |= upgradeSO(os, Configs.SERIAL_SO);
-                ret |= upgradeSO(os, Configs.HP22MM_SO);
-            }
+            ret |= upgradeSO(os, Configs.HARDWARE_SO);
+            ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO);
+            ret |= upgradeSO(os, Configs.SMARTCARD_SO);
+            ret |= upgradeSO(os, Configs.SERIAL_SO);
+            ret |= upgradeSO(os, Configs.HP22MM_SO);
+
         } catch(IOException e) {
             Debug.e(TAG, e.getMessage());
             e.printStackTrace();
@@ -204,16 +207,9 @@ public class LibUpgrade {
     }
 
     public boolean upgradeLibs() {
-        boolean ret = false;
         if(PlatformInfo.isA133Product()) {
-            ret |= copyToTempForA133(Configs.FPGA_SUNXI_KO, "/vendor/modules");
-            ret |= copyToTempForA133(Configs.EXT_GPIO_KO, "/vendor/modules");
-            ret |= copyToTempForA133(Configs.HARDWARE_SO, "/system/lib");
-            ret |= copyToTempForA133(Configs.NATIVEGRAPHIC_SO, "/system/lib");
-            ret |= copyToTempForA133(Configs.SMARTCARD_SO, "/system/lib");
-            ret |= copyToTempForA133(Configs.SERIAL_SO, "/system/lib");
-            ret |= copyToTempForA133(Configs.HP22MM_SO, "/system/lib");
+            return upgradeSOs();
         }
-        return ret;
+        return false;
     }
 }

@@ -3274,6 +3274,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 					reportEmpty = true;
 				} else {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
+					long emptyEventTime = System.currentTimeMillis();
 
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
@@ -3419,8 +3420,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							if(sDirectionCmd > 0) doDirrectionCmd();
 							if(sInverseCmd > 0) doInverseCmd();
 // End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
+							long procTime = System.currentTimeMillis() - emptyEventTime;
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
-							Debug.d(TAG, "--->FPGA data sent!");
+							Debug.d(TAG, "--->FPGA data sent! (" + procTime + ")ms");
 // H.M.Wang 2023-10-20 追加下发总数计数
 							mDownWrittenCount++;
 // End of H.M.Wang 2023-10-20 追加下发总数计数

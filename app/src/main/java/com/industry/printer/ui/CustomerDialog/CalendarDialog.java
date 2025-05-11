@@ -138,13 +138,11 @@ public class CalendarDialog extends RelightableDialog {
 				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 					boolean ret;
-					LibUpgrade libUp = new LibUpgrade();
-					ret = libUp.upgradeLibs();
 					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
-						ret |= installer.silentUpgrade3();
+						ret = installer.silentUpgrade3();
 					} else {
-						ret |= installer.silentUpgrade();
+						ret = installer.silentUpgrade();
 					}
 					if(ret) {
 						dismiss();

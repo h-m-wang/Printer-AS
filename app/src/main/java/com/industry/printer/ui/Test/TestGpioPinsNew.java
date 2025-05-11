@@ -388,6 +388,84 @@ public class TestGpioPinsNew implements ITestOperation {
             mInPins[i] = tv;
         }
 
+// H.M.Wang 2025-4-3 追加PG589的测试按键
+        TextView pg5 = (TextView) mTestAreaLL.findViewById(R.id.test_pg5);
+        if(ExtGpio.readGpioTestPin('G', 5) == 0) {
+            pg5.setBackgroundColor(COLOR_DISABLED);
+            pg5.setTag(0);
+        } else {
+            pg5.setBackgroundColor(COLOR_ENABLED);
+            pg5.setTag(1);
+        }
+        pg5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if((Integer) (view.getTag()) == 0) {
+                    ExtGpio.writeGpioTestPin('G', 5, 1);
+                } else {
+                    ExtGpio.writeGpioTestPin('G', 5, 0);
+                }
+                if(ExtGpio.readGpioTestPin('G', 5) == 0) {
+                    view.setBackgroundColor(COLOR_DISABLED);
+                    view.setTag(0);
+                } else {
+                    view.setBackgroundColor(COLOR_ENABLED);
+                    view.setTag(1);
+                }
+            }
+        });
+        TextView pg8 = (TextView) mTestAreaLL.findViewById(R.id.test_pg8);
+        if(ExtGpio.readGpioTestPin('G', 8) == 0) {
+            pg8.setBackgroundColor(COLOR_DISABLED);
+            pg8.setTag(0);
+        } else {
+            pg8.setBackgroundColor(COLOR_ENABLED);
+            pg8.setTag(1);
+        }
+        pg8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if((Integer) (view.getTag()) == 0) {
+                    ExtGpio.writeGpioTestPin('G', 8, 1);
+                } else {
+                    ExtGpio.writeGpioTestPin('G', 8, 0);
+                }
+                if(ExtGpio.readGpioTestPin('G', 8) == 0) {
+                    view.setBackgroundColor(COLOR_DISABLED);
+                    view.setTag(0);
+                } else {
+                    view.setBackgroundColor(COLOR_ENABLED);
+                    view.setTag(1);
+                }
+            }
+        });
+        TextView pg9 = (TextView) mTestAreaLL.findViewById(R.id.test_pg9);
+        if(ExtGpio.readGpioTestPin('G', 9) == 0) {
+            pg9.setBackgroundColor(COLOR_DISABLED);
+            pg9.setTag(0);
+        } else {
+            pg9.setBackgroundColor(COLOR_ENABLED);
+            pg9.setTag(1);
+        }
+        pg9.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if((Integer) (view.getTag()) == 0) {
+                    ExtGpio.writeGpioTestPin('G', 9, 1);
+                } else {
+                    ExtGpio.writeGpioTestPin('G', 9, 0);
+                }
+                if(ExtGpio.readGpioTestPin('G', 9) == 0) {
+                    view.setBackgroundColor(COLOR_DISABLED);
+                    view.setTag(0);
+                } else {
+                    view.setBackgroundColor(COLOR_ENABLED);
+                    view.setTag(1);
+                }
+            }
+        });
+// End of H.M.Wang 2025-4-3 追加PG589的测试按键
+
         mGpioTestBtn = (TextView) mTestAreaLL.findViewById(R.id.gpio_test_btn);
         mGpioTestBtn.setOnClickListener(new View.OnClickListener() {
             @Override

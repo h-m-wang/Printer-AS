@@ -171,12 +171,7 @@ public class ConfigPath {
 		if (paths == null || paths.size() <= 0) {
 			return null;
 		}
-// H.M.Wang 2024-12-3 根据平台返回升级用目录
-		if(PlatformInfo.isA133Product())
-			return paths.get(0) + Configs.A133_UPGRADE_DIR;
-		else
-			return paths.get(0);
-// H.M.Wang 2024-12-3 根据平台返回升级用目录
+		return paths.get(0);
 	}
 
 // H.M.Wang 2024-1-3 追加ko的升级功能

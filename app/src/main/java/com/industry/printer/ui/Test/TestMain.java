@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BLEServer;
 import com.industry.printer.MessageTask;
 import com.industry.printer.R;
 import com.industry.printer.Rfid.N_RFIDSerialPort;
@@ -266,12 +267,12 @@ public class TestMain {
                                 });
                                 return;
                             }
-                            while(BLEDevice.BLERequiring) {
+                            while(BLEServer.BLERequiring) {
                                 try{Thread.sleep(100);}catch(Exception e){}
                             }
 
                             synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
-                                BLEDevice.BLERequiring = true;
+                                BLEServer.BLERequiring = true;
                                 ExtGpio.writeGpioTestPin('I', 9, 0);
                                 IInkDevice rfidManager = InkManagerFactory.inkManager(mContext);
                                 if (rfidManager instanceof RFIDManager) {
@@ -366,7 +367,7 @@ public class TestMain {
                                         }
                                     });
                                 }
-                                BLEDevice.BLERequiring = false;
+                                BLEServer.BLERequiring = false;
                                 ExtGpio.writeGpioTestPin('I', 9, 1);
                             }
                         }

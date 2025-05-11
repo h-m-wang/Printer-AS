@@ -60,6 +60,7 @@ public class SendStringCmdPopWindow {
         okTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(msgET.getText().toString().isEmpty()) return;
                 mPopupWindow.dismiss();
                 mDevice.sendString(msgET.getText().toString(), mListener);
             }

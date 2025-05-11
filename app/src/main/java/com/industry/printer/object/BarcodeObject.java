@@ -20,7 +20,6 @@ import com.google.zxing.qrcode.encoder.QRCode;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
-import com.industry.printer.cache.FontCache;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.R;
@@ -30,15 +29,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.View.MeasureSpec;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import uk.org.okapibarcode.backend.Code128;
 import uk.org.okapibarcode.backend.DataMatrix;
@@ -672,6 +663,7 @@ public class BarcodeObject extends BaseObject {
 	private Bitmap drawQR(String content, int w, int h) {
 		try {
 			Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h);
+
 			HashMap<EncodeHintType, Object> hints = new HashMap<EncodeHintType, Object>();
 			if(h == 32) {			// 32点头，强制使用版本3，因为版本3是29x29，最接近32点的尺寸，外边空白最小
 				hints.put(EncodeHintType.QR_VERSION, 3);		// 强制生成一个29x29的QR码，但是如果要生成的QR码大于29x29，那么这个设置可能失效或者错误
@@ -722,7 +714,7 @@ public class BarcodeObject extends BaseObject {
 					}
 				}
 			}
-			/* 条码/二维码的四个边缘空出20像素作为白边 */
+			// 条码/二维码的四个边缘空出20像素作为白边
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
 
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
@@ -734,8 +726,8 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //			return bitmap;
-		} catch (WriterException e) {
-			Debug.e(TAG, e.getMessage());
+//		} catch (WriterException e) {
+//			Debug.e(TAG, e.getMessage());
 		} catch (Exception e) {
 			Debug.e(TAG, e.getMessage());
 		}
@@ -891,7 +883,7 @@ public class BarcodeObject extends BaseObject {
 			}
 		}
 //		Debug.d(TAG, sb.toString());
-		/* 条码/二维码的四个边缘空出20像素作为白边 */
+		// 条码/二维码的四个边缘空出20像素作为白边
 		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 //		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 		bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
@@ -1545,8 +1537,8 @@ public class BarcodeObject extends BaseObject {
 				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)
 				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
-				|| mFormat.equalsIgnoreCase("AZTEC")
-				|| mFormat.equalsIgnoreCase("PDF_417")) {
+				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_RSS_AZTEC)
+				|| mFormat.equalsIgnoreCase(BARCODE_FORMAT_RSS_PDF_417)) {
 			return true;
 		}
 		return false;
@@ -1560,7 +1552,7 @@ public class BarcodeObject extends BaseObject {
 			return BarcodeFormat.CODE_39;
 		} else if (BARCODE_FORMAT_CODE93.equals(format)) {
 			return BarcodeFormat.CODE_93;
-		} else if ("CODABAR".equals(format)) {
+		} else if (BARCODE_FORMAT_CODABAR.equals(format)) {
 			return BarcodeFormat.CODABAR;
 		} else if (BARCODE_FORMAT_EAN8.equals(format)) {
 			return BarcodeFormat.EAN_8;

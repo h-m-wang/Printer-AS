@@ -54,6 +54,7 @@ import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.Utils.PrinterDBHelper;
+import com.industry.printer.Utils.SystemFs;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.data.DataTask;
@@ -3254,6 +3255,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2022-1-12 延时1秒下发打印命令
 				mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
 // End of H.M.Wang 2022-1-12 延时1秒下发打印命令
+				if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
 				break;
 			case R.id.StopPrint:
 // H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
@@ -3265,6 +3267,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
 				// mHandler.removeMessages(MESSAGE_PAOMADENG_TEST);
 				mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+				if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "schedutil");
 				break;
 			/*娓呮礂鎵撳嵃澶达紙涓�涓壒娈婄殑鎵撳嵃浠诲姟锛夛紝闇�瑕佸崟鐙殑璁剧疆锛氬弬鏁�2蹇呴』涓� 4锛屽弬鏁�4涓�200锛� 鍙傛暟5涓�20锛�*/
 			case R.id.btnFlush:

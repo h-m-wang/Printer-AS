@@ -46,6 +46,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -84,6 +85,8 @@ import com.industry.printer.Utils.ZipUtil;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.RFIDDevice;
+import com.industry.printer.hardware.RTCDevice;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -173,6 +176,9 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		//setLocale();
+		FpgaGpioOperation.mFd = 0;
+		RFIDDevice.mFd = 0;
+		ExtGpio.mFd = 0;
 
 // H.M.Wang 2023-6-25 新的用户定制界面
 		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
@@ -322,7 +328,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				ExtGpio.playClick();
 // H.M.Wang 2024-10-15 增加7寸屏的强制恢复正常显示，因为当前设置了反转之后，屏幕显示不正确
 				String info = PlatformInfo.getImgUniqueCode();
-				if(!info.startsWith("NNG3") && !info.startsWith("ONG3") && !info.startsWith("GZJ") && !info.startsWith("NSM2") && !info.startsWith("FNG3")) {
+				if(!info.startsWith("NNG3") && !info.startsWith("ONG3") && !info.startsWith("GZJ") && !info.startsWith("NSM2") && !info.startsWith("FNG3") && !info.startsWith("FGZJ") && !info.startsWith("FNSM")) {
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LCD_INVERSE) != 0) {
 						Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 						SystemConfigFile.getInstance(mContext).setParam(SystemConfigFile.INDEX_LCD_INVERSE, 0);
@@ -1424,6 +1430,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			@Override
 			public void call() {
 				Debug.d(TAG, "--->complete");
+				try{Thread.sleep(10000);}catch(Exception e){}
 				mProgressDialog.dismiss();
 //				ToastUtil.show(mContext, "finished!!!");
 			}
@@ -1488,7 +1495,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		float percent = config.getParam(SystemConfigFile.INDEX_LIGHTNESS) / 100.0f;
 // H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
 		String info = PlatformInfo.getImgUniqueCode();
-		if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3")) {
+		if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3") || info.startsWith("FGZJ") || info.startsWith("FNSM")) {
 			percent = 0.5f;
 		}
 // End of H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变

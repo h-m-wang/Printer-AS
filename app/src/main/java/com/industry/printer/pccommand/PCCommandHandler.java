@@ -711,14 +711,14 @@ public class PCCommandHandler {
 
             fos = new FileOutputStream(savePath, false);
 
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[length];
             int totalReceived = 0;
 
             while (totalReceived < length) {
                 int readBytes = 0;
 
                 readBytes = mStreamTransport.read(buffer);
-                if(readBytes == -1) break;
+                if(readBytes == -1) Constants.pcErr(msg);
                 fos.write(buffer, 0, readBytes);
                 totalReceived += readBytes;
                 Debug.d(TAG, "--->read: " + totalReceived);

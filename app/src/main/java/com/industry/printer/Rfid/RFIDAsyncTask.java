@@ -1,6 +1,7 @@
 package com.industry.printer.Rfid;
 
 import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BLEServer;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.hardware.ExtGpio;
@@ -51,7 +52,7 @@ public class RFIDAsyncTask implements Runnable {
 		} while(null == readin);
 // End of H.M.Wang 2022-4-24 如果操作太快，read函数可能会超时返回null，导致后续处理异常。修改为如果空则一直等待
 */
-while(BLEDevice.BLERequiring) {
+while(BLEServer.BLERequiring) {
 	try{Thread.sleep(100);}catch(Exception e){}
 }
 synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加

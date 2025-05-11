@@ -839,6 +839,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
 // H.M.Wang 2025-2-12 如果是4FIFO不执行该操作
         if(!PlatformInfo.getImgUniqueCode().startsWith("4FIFO")) {
+// H.M.Wang 2025-4-28 为A133平台专门设置一个讲状态从11改为10的操作，否则清理PhoEnc似乎无效，CB2没有这个问题
+//            if(PlatformInfo.isA133Product()) ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
+// End of H.M.Wang 2025-4-28 为A133平台专门设置一个讲状态从11改为10的操作，否则清理PhoEnc似乎无效，CB2没有这个问题
             startPhoEncTest();
             stopPhoEncTest();
         }

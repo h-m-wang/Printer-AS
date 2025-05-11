@@ -125,6 +125,7 @@ public class StreamTransport {
             Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
+            return -1;
         }
         return recv;
     }

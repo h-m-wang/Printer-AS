@@ -383,8 +383,9 @@ public class Hp22mm {
 // H.M.Wang 2024-9-3 修改R18的计算公式
 //        regs[REG18_ENCODER_DIVIDER] = (char)                                                      // C3=150  R18=4; C3=300  R18=2; C3=600  R18=1
 //                (config.mParam[2] == 150 ? 4 : (config.mParam[2] == 300 ? 2 : (config.mParam[2] == 600 ? 1 : 1)));
+        int C3A = Math.max(config.mParam[2]/300, 1) * 300;
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // R18=((C10*2*25.4)/(C9*3.14))/C3
-                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / config.mParam[2]), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)
+                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
 // End of H.M.Wang 2024-9-3 修改R18的计算公式
 // H.M.Wang 2024-9-3 修改R20,R21的计算公式
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[11]);              // R20= C4x24+c12

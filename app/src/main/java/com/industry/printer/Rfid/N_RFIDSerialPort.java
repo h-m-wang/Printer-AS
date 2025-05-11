@@ -1,6 +1,7 @@
 package com.industry.printer.Rfid;
 
 import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BLEServer;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.ExtGpio;
@@ -161,7 +162,7 @@ public class N_RFIDSerialPort {
 
     protected N_RFIDData transfer(byte cmd, byte[] data) {
         N_RFIDData rfidData = new N_RFIDData();
-        while(BLEDevice.BLERequiring) {
+        while(BLEServer.BLERequiring) {
             try{Thread.sleep(100);}catch(Exception e){}
         }
 synchronized (RFIDDevice.SERIAL_LOCK) {

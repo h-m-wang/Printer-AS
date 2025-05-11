@@ -70,7 +70,7 @@ public class FileUtil {
     	Debug.d(TAG, "--->copyDirectory src: " + sourceDir + "  target: " + targetDir);
     	
     	File src = new File(sourceDir);
-// 取消这个判断会产生一个空（目标）目录，空目录没事， 只要没有里面图片就行        if(!src.exists()) return;
+        if(!src.exists()) return;
     	if (src.isFile()) {
 			copyFile(sourceDir, targetDir);
 			return;

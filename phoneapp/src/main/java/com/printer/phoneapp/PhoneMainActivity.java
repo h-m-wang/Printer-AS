@@ -7,10 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,6 +35,9 @@ import com.printer.phoneapp.UIs.SendStringCmdPopWindow;
 import com.printer.phoneapp.Utils.HTPermission;
 import com.printer.phoneapp.Utils.MySharedPreferences;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,9 +49,9 @@ import java.util.concurrent.Executors;
 public class PhoneMainActivity extends AppCompatActivity {
     private static final String TAG = PhoneMainActivity.class.getSimpleName();
 
-    public static final int PERMISSION_REQUEST_STORAGE      = 17101;
-    public static final int PERMISSION_REQUEST_CAMERA       = 17102;
-    public static final int PERMISSION_REQUEST_BLUETOOTH    = 17103;
+    public static final int PERMISSION_REQUEST_STORAGE = 17101;
+    public static final int PERMISSION_REQUEST_CAMERA = 17102;
+    public static final int PERMISSION_REQUEST_BLUETOOTH = 17103;
 
 //    private LinearLayout mDeviceAddingArea = null;
 //    private TextView mAddWIFIDevice0 = null;
@@ -54,19 +60,21 @@ public class PhoneMainActivity extends AppCompatActivity {
     private LinearLayout mConnectStatusArea = null;
     private TextView mAddWIFIDevice = null;
     private TextView mAddBTDevice = null;
-//    private ScrollView mDeviceScrollView = null;
+    //    private ScrollView mDeviceScrollView = null;
 //    private LinearLayout mDevicesList = null;
     private ImageView mDevIcon = null;
     private TextView mDevName = null;
     private TextView mDevState = null;
-//    private TextView mCmdSent = null;
+    //    private TextView mCmdSent = null;
     private TextView mDataRecvd = null;
     private TextView mScanResult = null;
 
     private LinearLayout mCommandArea = null;
 
-    private TextView mSendStringCmd = null;
     private TextView mScanBarcodeCmd = null;
+    private TextView mSendStringCmd = null;
+    private TextView mSendFileCmd = null;
+    private TextView mSendBinCmd = null;
 
     private BluetoothDriver mBluetoothDriver;
     private ConnectDevice mConDevice = null;
@@ -77,39 +85,41 @@ public class PhoneMainActivity extends AppCompatActivity {
     private final static int CON_STATUS_CONNECTING = 1;
     private final static int CON_STATUS_CONNECTED = 2;
 
+    private int FILE_SELECT_CODE = 17653;
+
     public interface OnDeviceSelectListener {
         public void onSelected(ConnectDevice dev);
     }
 
-    private final static int MSG_DISP_SCANRESULT         = 101;
-    private final static int MSG_DISP_RESPESULT          = 102;
-    private final static int MSG_CONNECT_DEVICE          = 103;
+    private final static int MSG_DISP_SCANRESULT = 101;
+    private final static int MSG_DISP_RESPESULT = 102;
+    private final static int MSG_CONNECT_DEVICE = 103;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DISP_SCANRESULT:
-                    if(msg.arg1 == 1) {
+                    if (msg.arg1 == 1) {
                         mScanResult.setTextColor(Color.BLACK);
                     } else {
                         mScanResult.setTextColor(Color.RED);
                     }
-                    mScanResult.setText((String)msg.obj);
+                    mScanResult.setText((String) msg.obj);
                     mScanResult.setVisibility(View.VISIBLE);
                     break;
                 case MSG_DISP_RESPESULT:
-                    if(msg.arg1 == 1) {
+                    if (msg.arg1 == 1) {
                         mDataRecvd.setTextColor(Color.BLACK);
                     } else {
                         mDataRecvd.setTextColor(Color.RED);
                     }
-                    mDataRecvd.setText((String)msg.obj);
+                    mDataRecvd.setText((String) msg.obj);
                     mDataRecvd.setVisibility(View.VISIBLE);
                     break;
                 case MSG_CONNECT_DEVICE:
-                    if(mConnectingStatus != CON_STATUS_DISCONNECTED) break;
-                    final String address = (String)msg.obj;
-                    if(address.isEmpty()) break;
+                    if (mConnectingStatus != CON_STATUS_DISCONNECTED) break;
+                    final String address = (String) msg.obj;
+                    if (address.isEmpty()) break;
                     final int type = msg.arg1;
                     mDevIcon.setImageResource(R.drawable.bt);
                     mDevIcon.setVisibility(View.VISIBLE);
@@ -138,15 +148,15 @@ public class PhoneMainActivity extends AppCompatActivity {
     private Thread mMonitorThread = new Thread(new Runnable() {
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 mCDL = new CountDownLatch(1);
                 try {
                     mCDL.await();
                     mGotResp = false;
                     long start = System.currentTimeMillis();
-                    while(!mGotResp) {
+                    while (!mGotResp) {
                         Thread.sleep(100);
-                        if(System.currentTimeMillis() - start > 3000) {
+                        if (System.currentTimeMillis() - start > 3000) {
                             Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
                             msg.arg1 = 0;           // Error
                             msg.obj = "Timeout.";
@@ -154,7 +164,7 @@ public class PhoneMainActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                } catch(InterruptedException e) {
+                } catch (InterruptedException e) {
 
                 } finally {
 
@@ -165,7 +175,7 @@ public class PhoneMainActivity extends AppCompatActivity {
     });
 
     private void adjustCommandAreaEnability() {
-        for(int i=0; i<mCommandArea.getChildCount(); i++) {
+        for (int i = 0; i < mCommandArea.getChildCount(); i++) {
             mCommandArea.getChildAt(i).setEnabled(null != mConDevice && mConDevice.isConnected() ? true : false);
         }
     }
@@ -240,7 +250,7 @@ public class PhoneMainActivity extends AppCompatActivity {
     private View.OnClickListener AddBluetoothDeviceButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(checkBluetoothAccessPermission() == 0) {
+            if (checkBluetoothAccessPermission() == 0) {
                 launchAddBluetoothDevices();
             }
         }
@@ -264,8 +274,11 @@ public class PhoneMainActivity extends AppCompatActivity {
                         synchronized (PhoneMainActivity.this) {
                             if (null != mConDevice) {
                                 mConDevice.disconnect();
-                                while(mConnectingStatus != CON_STATUS_DISCONNECTED) {
-                                    try{Thread.sleep(100);}catch(Exception e){}
+                                while (mConnectingStatus != CON_STATUS_DISCONNECTED) {
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (Exception e) {
+                                    }
                                 }
                                 mConDevice = null;
                             }
@@ -283,7 +296,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onSent(final String sent) {
             Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
-            if(null == sent || sent.isEmpty()) {
+            if (null == sent || sent.isEmpty()) {
                 msg.arg1 = 0;           // Error
                 msg.obj = "Data not found.";
             } else {
@@ -297,7 +310,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onSent(final byte[] sent) {
             Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
-            if(null == sent || sent.length <= 0) {
+            if (null == sent || sent.length <= 0) {
                 msg.arg1 = 0;           // Error
                 msg.obj = "Data not found.";
             } else {
@@ -319,7 +332,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onReceived(final String recv) {
             Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
-            if(null == recv || recv.isEmpty()) {
+            if (null == recv || recv.isEmpty()) {
                 msg.arg1 = 0;           // Error
                 msg.obj = "Data not received.";
             } else {
@@ -342,7 +355,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         @Override
         public void onReceived(final byte[] recv) {
             Message msg = mHandler.obtainMessage(MSG_DISP_RESPESULT);
-            if(recv == null || recv.length == 0) {
+            if (recv == null || recv.length == 0) {
                 msg.arg1 = 0;           // Error
                 msg.obj = "Data not received.";
             } else {
@@ -371,7 +384,7 @@ public class PhoneMainActivity extends AppCompatActivity {
             mCachedThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    synchronized(PhoneMainActivity.this) {
+                    synchronized (PhoneMainActivity.this) {
                         final String cmd = BarcodeDataProc.makeup650CmdString(text);
                         Message msg = mHandler.obtainMessage(MSG_DISP_SCANRESULT);
                         if (null == cmd || cmd.isEmpty()) {
@@ -406,7 +419,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         Message msg = mHandler.obtainMessage(MSG_CONNECT_DEVICE);
         msg.arg1 = MySharedPreferences.readDeviceType(PhoneMainActivity.this);
         msg.obj = MySharedPreferences.readDeviceAddr(PhoneMainActivity.this);
-        mHandler.sendMessageDelayed(msg,1000);
+        mHandler.sendMessageDelayed(msg, 1000);
 
         mConnectStatusArea = (LinearLayout) findViewById(R.id.ConnectStatusArea);
         TextView aaa = (TextView) findViewById(R.id.CmdAAA);
@@ -418,7 +431,7 @@ public class PhoneMainActivity extends AppCompatActivity {
         });
         mAddWIFIDevice = (TextView) findViewById(R.id.CmdAddWIFIDevice);
         mAddWIFIDevice.setOnClickListener(AddWIFIDeviceButtonClickListener);
-        mAddBTDevice= (TextView) findViewById(R.id.CmdAddBTDevice);
+        mAddBTDevice = (TextView) findViewById(R.id.CmdAddBTDevice);
         mAddBTDevice.setOnClickListener(AddBluetoothDeviceButtonClickListener);
 
         mDevIcon = (ImageView) findViewById(R.id.DevIcon);
@@ -427,9 +440,9 @@ public class PhoneMainActivity extends AppCompatActivity {
         mDevState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(null != mConDevice) {
+                if (null != mConDevice) {
                     mDevState.setTextColor(Color.GRAY);
-                    if(mConDevice.isConnected()) {
+                    if (mConDevice.isConnected()) {
                         mDevState.setText("正在断开...");
                         mConDevice.disconnect();
                     } else {
@@ -467,11 +480,38 @@ public class PhoneMainActivity extends AppCompatActivity {
             }
         });
 
+        mSendFileCmd = (TextView) findViewById(R.id.CmdSendFile);
+        mSendFileCmd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                mDataRecvd.setText("");
+//                SendFileCmdPopWindow popWindow = new SendFileCmdPopWindow(PhoneMainActivity.this, mConDevice, new DataXferListener());
+//                popWindow.show(mSendFileCmd);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*"); // 设置文件类型，*/* 表示所有类型
+                startActivityForResult(Intent.createChooser(intent, "选择文件"), FILE_SELECT_CODE);
+//                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                intent.setType("*/*"); // 设置文件类型
+//                startActivityForResult(intent, FILE_SELECT_CODE);
+            }
+        });
+
+        mSendBinCmd = (TextView) findViewById(R.id.CmdSendBin);
+        mSendBinCmd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                mDataRecvd.setText("");
+//                SendBinCmdPopWindow popWindow = new SendBinCmdPopWindow(PhoneMainActivity.this, mConDevice, new DataXferListener());
+//                popWindow.show(mSendBinCmd);
+            }
+        });
+
         adjustCommandAreaEnability();
 
         checkWriteExternalStoragePermission();
 
-        if(scanBroadcastReceiver == null) {
+        if (scanBroadcastReceiver == null) {
             scanBroadcastReceiver = new ScanBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("com.scancode.resault");
@@ -489,21 +529,21 @@ public class PhoneMainActivity extends AppCompatActivity {
 
     private void checkWriteExternalStoragePermission() {
         HTPermission mPermission = new HTPermission(PhoneMainActivity.this, PERMISSION_REQUEST_STORAGE);
-        if(!mPermission.isPermissionGuaranteed(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!mPermission.isPermissionGuaranteed(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             mPermission.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
 
     private void launchScanBarcodeProcess() {
         HTPermission mPermission = new HTPermission(PhoneMainActivity.this, PERMISSION_REQUEST_CAMERA);
-        if(mPermission.requestPermission(Manifest.permission.CAMERA) == 0) {
+        if (mPermission.requestPermission(Manifest.permission.CAMERA) == 0) {
             BarcodeScanPopupWindow popWindow = new BarcodeScanPopupWindow(PhoneMainActivity.this, mConDevice, new DataXferListener());
             popWindow.show(mScanBarcodeCmd);
         }
     }
 
     public int checkBluetoothAccessPermission() {
-        String[] needPermissions = new String[] {
+        String[] needPermissions = new String[]{
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -517,16 +557,16 @@ public class PhoneMainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult requestCode = " + requestCode);
         int grantResult = PackageManager.PERMISSION_DENIED;
-        for(int i=0; i<grantResults.length; i++) {
-            Log.d(TAG, permissions[i] +": " + grantResults[i]);
+        for (int i = 0; i < grantResults.length; i++) {
+            Log.d(TAG, permissions[i] + ": " + grantResults[i]);
             grantResult = grantResults[i];
-            if(grantResult != PackageManager.PERMISSION_GRANTED) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED) {
                 break;
             }
         }
 
-        if(grantResult == PackageManager.PERMISSION_GRANTED) {
-            switch(requestCode) {
+        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
                 case PERMISSION_REQUEST_STORAGE:
                     break;
                 case PERMISSION_REQUEST_CAMERA:
@@ -541,10 +581,22 @@ public class PhoneMainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Auto-generated method stub
-        if(requestCode == BluetoothDriver.REQUEST_ENBLE_BT){
-            Log.d(TAG, "onActivityResult resultCode = " + resultCode);
-            mBluetoothDriver.setEnablingResult(resultCode);
+        Log.d(TAG, "resultCode = " + resultCode + "; requestCode = " + requestCode);
+        if(resultCode == RESULT_OK) {
+            if (requestCode == BluetoothDriver.REQUEST_ENBLE_BT) {
+                mBluetoothDriver.setEnablingResult(resultCode);
+            }
+            if (requestCode == FILE_SELECT_CODE && data != null && data.getData() != null) {
+                Uri uri = data.getData();
+                int pos = uri.getPath().lastIndexOf(":");
+                Log.d(TAG, uri.getPath().substring(pos+1));
+                try {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(uri)));
+                    Log.d(TAG, br.readLine());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

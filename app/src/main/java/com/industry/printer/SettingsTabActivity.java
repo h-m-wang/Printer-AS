@@ -248,6 +248,9 @@ public static final String TAG="SettingsTabActivity";
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if(mAdapter != null) {
+			mAdapter.destroy();
+		}
 		Debug.d(TAG, "--->onDestroy");
 	}
 
@@ -453,7 +456,7 @@ public static final String TAG="SettingsTabActivity";
 						} else {
 // H.M.Wang 2024-10-15 翻转屏幕仅限3.5寸屏，因为7寸屏反转好像是以1920*1080为展面操作的，但是7寸屏的大小是1024*600，导致反转后大部分内容跑到了屏幕外面
 							String info = PlatformInfo.getImgUniqueCode();
-							if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3")) {
+							if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3") || info.startsWith("FGZJ") || info.startsWith("FNSM")) {
 								Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
 							}
 // End of H.M.Wang 2024-10-15 翻转屏幕仅限3.5寸屏，因为7寸屏反转好像是以1920*1080为展面操作的，但是7寸屏的大小是1024*600，导致反转后大部分内容跑到了屏幕外面
@@ -490,8 +493,6 @@ public static final String TAG="SettingsTabActivity";
 //				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
-					LibUpgrade libUp = new LibUpgrade();
-					libUp.upgradeLibs();
 					PackageInstaller installer = PackageInstaller.getInstance(getActivity());
 					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
 						installer.silentUpgrade3();

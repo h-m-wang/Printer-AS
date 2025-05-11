@@ -33,6 +33,7 @@ import org.apache.http.util.ByteArrayBuffer;
 import android.os.SystemClock;
 
 import com.industry.printer.BLE.BLEDevice;
+import com.industry.printer.Bluetooth.BLEServer;
 import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -613,7 +614,7 @@ public class RFIDDevice implements RfidCallback{
 		byte[] readin = null;
 
 		openDevice();
-if(BLEDevice.BLERequiring) return null;
+if(BLEServer.BLERequiring) return null;
 synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	Debug.print(RFID_DATA_SEND, data.mTransData);
 	ExtGpio.writeGpioTestPin('I', 9, 0);
