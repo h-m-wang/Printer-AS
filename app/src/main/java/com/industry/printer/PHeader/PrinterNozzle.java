@@ -367,12 +367,12 @@ public enum PrinterNozzle {
 // End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             case NozzleType.NOZZLE_TYPE_22MM:
-                mHeight = 1056;
+                mHeight = 528;
                 break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
             case NozzleType.NOZZLE_TYPE_22MMX2:
-                mHeight = 2112;
+                mHeight = 1056;
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
         }
@@ -555,14 +555,14 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_22MM:
 //                scaleW = 1056f/152;
                 scaleW = 264f/152;
-                scaleH = 1056f/152;
+                scaleH = 528f/152;
                 break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
             case NozzleType.NOZZLE_TYPE_22MMX2:
 //                scaleW = 1056f/152;
                 scaleW = 264f/152;
-                scaleH = 2112f/152;
+                scaleH = 1056f/152;
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
             default:

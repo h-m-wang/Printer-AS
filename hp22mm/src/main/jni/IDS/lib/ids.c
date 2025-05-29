@@ -32,6 +32,7 @@
 
 // Customization for hardware
 #define I2C_DEVICE "/dev/i2c-1"
+#define I2C_DEVICE_A133 "/dev/i2c-2"
 #define MUX_ADDR 0xE0
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -234,10 +235,18 @@ int I2CInit(void) {
     // open the device
     I2C_File = open(I2C_DEVICE, O_RDWR);
     if (I2C_File < 0) {
-		LOGE("I2CInit: open errno: %d\n", errno);
-        return -1;          // failure
+		LOGE("I2CInit: open %s errno: %d\n", I2C_DEVICE, errno);
+		I2C_File = open(I2C_DEVICE_A133, O_RDWR);
+		if (I2C_File < 0) {
+			LOGE("I2CInit: open %s errno: %d\n", I2C_DEVICE_A133, errno);
+			return -1;          // failure
+		} else {
+			LOGE("I2CInit: open %s succeeded\n", I2C_DEVICE_A133);
+		}
+	} else {
+		LOGE("I2CInit: open %s succeeded\n", I2C_DEVICE);
     }
-     
+
     // Initialized
     I2C_Initialized = true;
 

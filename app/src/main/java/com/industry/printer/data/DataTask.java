@@ -610,6 +610,26 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
 		mBinInfo.mColumn += rmCols;
 // End of H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
+// H.M.Wang 2025-5-16 临时填0
+		if(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+			CharArrayBuffer caBuf = new CharArrayBuffer(0);
+			int orgCharsOfHead = mBinInfo.mCharsPerHFeed * mTask.getNozzle().mHeads;
+			int orgCols = mBuffer.length / orgCharsOfHead;
+			char[] zero = new char[orgCharsOfHead];
+			Arrays.fill(zero, (char)0x0000);
+
+			for(int i=0; i<orgCols; i++) {
+				caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
+				caBuf.append(zero, 0, orgCharsOfHead);
+			}
+
+			mBuffer = caBuf.toCharArray();
+
+			if(bSave) {
+				FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
+				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
+			}
+		}
 
 		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
 
@@ -825,14 +845,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			scaleW /= 1.0f * 1056 / 152;
 			scaleW /= 1.0f * 264 / 152;
 			div = scaleW;
-			scaleH = 1.0f * 152 / 1056;
+			scaleH = 1.0f * 152 / 528;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 //			scaleW /= 1.0f * 1056 / 152;
 			scaleW /= 1.0f * 264 / 152;
 			div = scaleW;
-			scaleH = 1.0f * 152 / 2112;
+			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;

@@ -189,5 +189,4 @@ synchronized (RFIDDevice.SERIAL_LOCK) {
 }
         return rfidData;
     }
-
 }

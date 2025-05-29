@@ -228,7 +228,7 @@ public class BarcodeScanParser {
             }
         }
 
-        Debug.i(TAG, "Code: [" + sb.toString() + "]");
+        Debug.i(TAG, "Code: [" + sb.toString() + "] to " + mCodeListener);
 
         if(null != mCodeListener) {
             mCodeListener.onCodeReceived(sb.toString());

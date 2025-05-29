@@ -1644,6 +1644,32 @@ private void setSerialProtocol9DTs(final String data) {
 	}
 // End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
 
+// H.M.Wang 2025-5-28 新增加扫描协议8
+	public void setScan8DataToDt(final String data) {
+		Debug.d(TAG, "String from Remote = [" + data + "]");
+
+		int pos = data.indexOf("No.:");
+		if (pos < 0) return;
+
+		int startPos = pos + "No.:".length();
+		final String dt0Str = data.substring(startPos, startPos+13);
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if(null != mRemoteRecvedPromptDlg) {
+					mRemoteRecvedPromptDlg.show();
+//					mRemoteRecvedPromptDlg.show();
+					mRemoteRecvedPromptDlg.setMessage(dt0Str);
+				}
+			}
+		});
+
+		SystemConfigFile.getInstance().setDTBuffer(0, dt0Str);
+		mNeedUpdate = true;
+	}
+// End of H.M.Wang 2025-5-28 新增加扫描协议8
+
 	//	private AlertDialog mRemoteRecvedPromptDlg = null;
 	private RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
 
@@ -1857,6 +1883,15 @@ private void setSerialProtocol9DTs(final String data) {
 				}
 			});
 // End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
+// H.M.Wang 2025-5-28 新增加扫描协议8
+		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER8) {
+			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
+				@Override
+				public void onCodeReceived(String code) {
+					setScan8DataToDt(code);
+				}
+			});
+// End of H.M.Wang 2025-5-28 新增加扫描协议8
 		}
 // End of H.M.Wang 2020-10-30 追加数据源判断，启动扫描处理，因为有两个处理从一个扫码枪途径获取数据
 
@@ -1964,8 +1999,6 @@ private void setSerialProtocol9DTs(final String data) {
 		SerialHandler serialHandler =  SerialHandler.getInstance(mContext);
 		serialHandler.setPrintCommandListener(null);
 		// End --------------------
-
-		BarcodeScanParser.setListener(null);
 
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 		if(TxtDT.getInstance(mContext).isTxtDT()) {
@@ -2984,7 +3017,19 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	}
 
 // End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
-
+/*
+public class PrintTask extends Thread {
+	@Override
+	public void run() {
+		Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+		FpgaGpioOperation.init();
+		while (mRunning == true) {
+			mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
+			try {Thread.sleep(3);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+		}
+	}
+}
+*/
 	public class PrintTask extends Thread {
 		@Override
 		public void run() {

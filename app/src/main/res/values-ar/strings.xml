@@ -497,6 +497,7 @@
 	<string name="str_length_unit_6_1mm">1/6mm</string>
 	<string name="str_time_unit_mm">ms</string>
 	<string name="str_time_unit_ms">ms</string>
+	<string name="str_time_unit_s">s</string>
 	<string name="str_time_unit_mm_s">mm/s</string>
 	<string name="str_time_unit_0_1us">0.1us</string>
 	<string name="str_time_unit_us">us</string>

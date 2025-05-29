@@ -60,8 +60,10 @@ import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.data.TxtDT;
+import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
@@ -85,6 +87,7 @@ import com.industry.printer.pccommand.PCCommandManager;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.MessageGroupsortDialog;
+import com.industry.printer.ui.CustomerDialog.RemoteMsgPrompt;
 import com.industry.printer.ui.CustomerDialog.SubStepDialog;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
 import com.industry.printer.ui.CustomerAdapter.PreviewAdapter;
@@ -993,6 +996,61 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		});
 
+// H.M.Wang 2025-5-28 新增加扫描协议8
+		if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER9) {
+			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
+				@Override
+				public void onCodeReceived(final String code) {
+					Debug.d(TAG, "String from Remote = [" + code + "]");
+
+					mHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							RemoteMsgPrompt rmp = new RemoteMsgPrompt(mContext);
+							rmp.show();
+							rmp.setMessage(code);
+						}
+					});
+
+					String[] recvStrs = code.split("#");
+					if(recvStrs.length < 2) return;
+					try {
+						int dataNo = Integer.parseInt(recvStrs[0]);
+						String data = "";
+						if(dataNo >= 10 && dataNo <=39) {
+							data = "" + dataNo;
+						} else if(dataNo <=99) {
+							data = Configs.GROUP_PREFIX + dataNo;
+						} else return;
+
+						if(null != mDTransThread && mDTransThread.isRunning()) {
+							mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+						} else if (mDTransThread.isPurging) {
+							ToastUtil.show(mContext, R.string.str_under_purging);
+							return;
+						}
+
+						for(int i=1; i<Math.min(recvStrs.length, 4); i++) {
+							SystemConfigFile.getInstance().setDTBuffer(i-1, recvStrs[i]);
+						}
+
+						Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
+						Bundle bundle = new Bundle();
+						bundle.putString("file", data);
+						msg.setData(bundle);
+
+						mHandler.sendMessageDelayed(msg, 1000);
+
+						mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
+						if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
+					} catch(NumberFormatException e) {
+						Debug.e(TAG, e.getMessage());
+					}
+				}
+			});
+		}
+// End of H.M.Wang 2025-5-28 新增加扫描协议8
+
 // H.M.Wang 2021-3-1 移到延时线程里面
 //		if(SystemConfigFile.getInstance().getParam(41) == 1) {
 //			Toast.makeText(mContext, "Launching Print...", Toast.LENGTH_SHORT).show();
@@ -1047,16 +1105,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
 							if(null == mDTransThread) {
 								mBtnStart.performClick();
-							} else
+							} else {
 // End of H.M.Wang 2022-12-15 因此修改为如果已经有实例则根据原来的逻辑处理，如果没有，则模拟开始按键按下
-								if(mDTransThread.isPurging) {
+								if (mDTransThread.isPurging) {
 									ToastUtil.show(mContext, R.string.str_under_purging);
 //												return;
 								} else {
-									if(!mBtnStart.isClickable()) {
+									if (!mBtnStart.isClickable()) {
 //									ToastUtil.show(mContext, "Not executable");
 //												return;
-									} else if(mDTransThread.isRunning()) {
+									} else if (mDTransThread.isRunning()) {
 //									ToastUtil.show(mContext, "Already in printing");
 //												return;
 									} else {
@@ -1065,6 +1123,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 										mBtnStart.performClick();
 									}
 								}
+							}
 						}
 					});
 				}
@@ -2150,14 +2209,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if (dt != null && dt.size() > 0) {
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
-// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
-					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-						if(((Hp22mmSCManager)mInkManager).startPrint() < 0) {
-							mHandler.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_CHECK_FAILED);
-							break;
-						}
-					}
-// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 					mInkManager.checkUID(heads);
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
@@ -2321,6 +2372,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					switchState(STATE_PRINTING);
 					FpgaGpioOperation.clean();
 					Debug.d(TAG, "--->update settings");
+// H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
+					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+						((Hp22mmSCManager)mInkManager).startPrint();
+// H.M.Wang 2025-3-19 追加一个循环功能
+						Hp22mm.hp22mmCirculation();
+// End of H.M.Wang 2025-3-19 追加一个循环功能
+					}
+// End of H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
 					FpgaGpioOperation.updateSettings(mContext, task, FpgaGpioOperation.SETTING_TYPE_NORMAL);
 					Debug.d(TAG, "--->launch thread");
 

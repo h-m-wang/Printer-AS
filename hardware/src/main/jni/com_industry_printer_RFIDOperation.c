@@ -354,7 +354,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_RFID_calKey
 	(*env)->ReleaseByteArrayElements(env, uid, cbuf, 0);
 	jbyteArray result = (*env)->NewByteArray(env, 4);
 	(*env)->SetByteArrayRegion(env, result, 0, 4, rBuf);
-	(*env)->ReleaseByteArrayElements(env, result, rBuf, JNI_ABORT);
+//	(*env)->ReleaseByteArrayElements(env, result, rBuf, JNI_ABORT);
 
 	return result;
 }

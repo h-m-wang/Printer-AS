@@ -31,6 +31,10 @@
 <!-- H.M.Wang 2024-9-4 新增加扫描协议7 -->
         <item>Scaner-7</item>
 <!-- End of H.M.Wang 2024-9-4 新增加扫描协议7 -->
+<!-- H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
+        <item>Scaner-8</item>
+        <item>Scaner-9</item>
+<!-- End of H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
         <item>RS232-1</item>
         <item>RS232-2</item>
         <item>RS232-3</item>

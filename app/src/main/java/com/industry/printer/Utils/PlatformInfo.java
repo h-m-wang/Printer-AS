@@ -57,8 +57,11 @@ public class PlatformInfo {
 	private static final String RFID_SERIAL_4412 = "/dev/ttySAC3";
 	private static final String RFID_SERIAL_SMFY = "/dev/ttyS3";
 // H.M.Wang 2024-11-3 A133的rfid串口
-	private static final String RFID_SERIAL_A133 = "/dev/ttyS7";	// 20241103
+	private static final String RFID_SERIAL_A133 = "/dev/ttyS7";
 // End of H.M.Wang 2024-11-3 A133的rfid串口
+// H.M.Wang 2025-5-17 A133-M2004的rfid串口
+	private static final String RFID_SERIAL_A133M2 = "/dev/ttyS2";
+// End of H.M.Wang 2025-5-17 A133-M2004的rfid串口
 
 	private static final String GRAFT_SERIAL_4412 = "/dev/ttySAC2";
 	private static final String GRAFT_SERIAL_SMFY = "/dev/ttyS2";
@@ -285,6 +288,11 @@ public class PlatformInfo {
 			return RFID_SERIAL_SMFY;
 // H.M.Wang 2024-11-3 A133获取串口
 		} else if (isA133Product()) {
+// H.M.Wang 2025-5-17 A133-M2004的rfid串口
+			if(PlatformInfo.getImgUniqueCode().startsWith("M204A") || PlatformInfo.getImgUniqueCode().startsWith("FM2A")) {
+				return RFID_SERIAL_A133M2;
+			}
+// End of H.M.Wang 2025-5-17 A133-M2004的rfid串口
 			return RFID_SERIAL_A133;
 // End of H.M.Wang 2024-11-3 A133获取串口
 		} else {

@@ -83,7 +83,7 @@ public class Hp22mm {
 
     public static final int DOTS_PER_COL = 1056;
     public static final int BYTES_PER_COL = DOTS_PER_COL / 8;       // 132
-    public static final int WORDS_PER_COL = BYTES_PER_COL / 4;      // 8
+    public static final int WORDS_PER_COL = BYTES_PER_COL / 4;      // 33
     public static final int IMAGE_ADDR = 0x0000;
 
     private static final int REG04_32BIT_WORDS_PER_COL = 4;
@@ -227,13 +227,6 @@ public class Hp22mm {
         }
 
         for(int i=0; i<penIdxs.length; i++) {
-/*            if (0 != pd_get_print_head_status(penIdxs[i])) {
-                Debug.d(TAG, "pd_get_print_head_status failed\n");
-                return -4;
-            } else {
-                Debug.d(TAG, "pd_get_print_head_status succeeded\n");
-            }
-*/
 // H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
             if (0 != pdPowerOn(penIdxs[i], SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
                 Debug.d(TAG, "PD power on failed\n");
@@ -405,9 +398,16 @@ public class Hp22mm {
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
 
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-        regs[REG23_COLUMN_SPACING] = (char)config.getParam(79);                                                     // 固定数据待定=4
-        regs[REG24_SLOT_SPACING] = (char)config.getParam(81);                                                      // 固定数据待定=52
-        regs[REG25_PRINT_ENABLE] = 0;                                                       // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
+        regs[REG23_COLUMN_SPACING] = (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
+        regs[REG24_SLOT_SPACING] = (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
+// H.M.Wang 2025-5-19 修改Reg25的值，Circulation/循环间隔设置为Reg25[15:2]
+//        regs[REG25_PRINT_ENABLE] = 0;                                                  // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
+// H.M.Wang 2025-5-24 扩充REG25到32bit
+        regs[2] = (char)(0x00);        // Bit[18] = 1（Recycle) or 0 (Normal)
+        regs[2] |= (char)(0x03 & (config.getParam(SystemConfigFile.INDEX_CIRCULATION) >> 14));        // Bit[17:2] = Recycle Index(P81[15:0])
+        regs[REG25_PRINT_ENABLE] = (char)(0xFFFC & (config.getParam(SystemConfigFile.INDEX_CIRCULATION) << 2));  // Bit[1:0] = 00(停止打印； 11（开始打印）
+// End of H.M.Wang 2025-5-24 扩充REG25到32bit
+// End of H.M.Wang 2025-5-19 修改Reg25的值，Circulation/循环间隔设置为Reg25[15:2]
         regs[REG26_PRINT_COUNT] = 0;                                                        // R26 打印次数计数 1
 // H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
 //        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
@@ -470,7 +470,26 @@ public class Hp22mm {
 // End of H.M.Wang 2024-4-19 增加一个写入大块数据的测试项目
 // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
     public static int hp22mmHiSpeedWTest() {
-    return FpgaGpioOperation.hp22mmHiSpeedWTest();
-}
+        return FpgaGpioOperation.hp22mmHiSpeedWTest();
+    }
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+// H.M.Wang 2025-3-19 追加一个循环功能
+    public static void hp22mmCirculation() {
+        SystemConfigFile config = SystemConfigFile.getInstance();
+        char[] settings = getSettings(FpgaGpioOperation.SETTING_TYPE_PURGE1);
+        int tofFreq = 1000000000;                   // 循环时按1000M
+        settings[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
+        settings[REG16_INTERNAL_TOF_FREQ] = (char)((char)(tofFreq & 0x0ffff));                                                   // Reg16仅保存TOF的低16位，完整整数在img中合成
+        settings[2] = (char)(0x04);
+        settings[REG25_PRINT_ENABLE] = (char)(0x07);  // 循环时R25=0x00040007（固定值，b18=1, b[17:2]=1, b[1:0]=3）
+        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
+        FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_SETTING, settings, settings.length * 2);
+
+        try{Thread.sleep(10000);}catch(Exception e){}
+        settings[REG25_PRINT_ENABLE] &= (char)0x00;
+
+        ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
+        FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_SETTING, settings, settings.length * 2);
+    }
+// End of H.M.Wang 2025-3-19 追加一个循环功能
 }

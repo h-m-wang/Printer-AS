@@ -681,6 +681,121 @@ ServiceResult_t service_control_heating(int32_t instance, Headinfo_t *info, uint
 
 }
 
+ServiceResult_t service_set_recirc_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t which, uint8_t recirc_override_idx) {
+    LOGI("Enter %s", __FUNCTION__);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
+    if(ph_id < 0 || ph_id >= NUM_SUPPORTED_PH) {
+        LOGE("Invalid Pen ID [%d]!", ph_id);
+        return SERVICE_ERROR;
+    }
+    if(NULL == info) {
+        LOGE("info NULL!");
+        return SERVICE_ERROR;
+    }
+    if(info->initialized != true) {
+        LOGE("info not initialized!");
+        return SERVICE_ERROR;
+    }
+
+    Frame_t frame;
+    FrameResult_t fr;
+
+    fr = frame_init(&frame, info->first_srvc_id + MULTIHEAD_GET_SET_RECIRC_OVERRIDE_IDX);
+    if (fr != FRAME_OK) {
+        LOGE("service_set_recirc_override(): ERROR: Creating frame. Error code = %d\n", fr);
+        return SERVICE_ERROR;
+    }
+
+    /* Encode PH ID */
+    if(frame_encode8(&frame, ph_id) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode get/set */
+    if(frame_encode8(&frame, MULTIHEAD_RECIRC_OVERRIDE_SET) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode (recirc==0) vs (between_pages==1) */
+    // (which==0):recovery; (which==1):between_pages
+    /* Encode get/set */
+    if(frame_encode8(&frame, which) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode the recirc override idx */
+    if(frame_encode8(&frame, recirc_override_idx) != FRAME_OK) return SERVICE_ERROR;
+
+    ServiceResult_t sr;
+    uint8_t rsp_buf[32];
+    uint32_t rsp_size;
+    sr = service_execute(&frame, instance, rsp_buf, sizeof(rsp_buf), &rsp_size);
+    if (sr != SERVICE_OK) {
+        LOGE("service_set_recirc_override(): ERROR: Failed to set recirc override. Error code = %d\n", sr);
+        return SERVICE_ERROR;
+    }
+
+    /* check if error bit is set in the response header */
+    if (frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
+        LOGE("service_set_recirc_override(): Cannot be executed.\n");
+        return SERVICE_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return SERVICE_OK;
+}
+
+ServiceResult_t service_get_recirc_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t which, Response_t *response) {
+    LOGI("Enter %s", __FUNCTION__);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
+    if(ph_id < 0 || ph_id >= NUM_SUPPORTED_PH) {
+        LOGE("Invalid Pen ID [%d]!", ph_id);
+        return SERVICE_ERROR;
+    }
+    if(NULL == info) {
+        LOGE("info NULL!");
+        return SERVICE_ERROR;
+    }
+    if(info->initialized != true) {
+        LOGE("info not initialized!");
+        return SERVICE_ERROR;
+    }
+
+    Frame_t frame;
+    FrameResult_t fr;
+
+    fr = frame_init(&frame, info->first_srvc_id + MULTIHEAD_GET_SET_RECIRC_OVERRIDE_IDX);
+    if (fr != FRAME_OK) {
+        LOGE("service_get_recirc_override(): ERROR: Creating frame. Error code = %d\n", fr);
+        return SERVICE_ERROR;
+    }
+
+    /* Encode PH ID */
+    if(frame_encode8(&frame, ph_id) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode get/set */
+    if(frame_encode8(&frame, MULTIHEAD_RECIRC_OVERRIDE_GET) != FRAME_OK) return SERVICE_ERROR;
+
+    /* Encode (recirc==0) vs (between_pages==1) */
+    // (which==0):recovery; (which==1):between_pages
+    /* Encode get/set */
+    if(frame_encode8(&frame, which) != FRAME_OK) return SERVICE_ERROR;
+
+    ServiceResult_t sr;
+    sr = service_execute(&frame, instance, response->data, sizeof(response->data), &response->res_size);
+    if (sr != SERVICE_OK) {
+        LOGE("service_get_recirc_override(): ERROR: Failed to set recirc override. Error code = %d\n", sr);
+        return SERVICE_ERROR;
+    }
+
+    /* check if error bit is set in the response header */
+    if (frame.ctrl & RESP_HEADER_ERROR_BITMASK) {
+        LOGE("service_get_recirc_override(): Cannot be executed.\n");
+        return SERVICE_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return SERVICE_OK;
+}
+
 /* 
  * Excute the requested service and return the return 
  * the result synchronously. This is a blocking call. internally
@@ -1214,6 +1329,53 @@ ServiceResult_t service_fpga_set_chipreset(int32_t instance, bool highlow) {
 
     return SERVICE_OK;
 }
+
+// H.M.Wang 2025-5-21 SS功能追加的函数
+/*
+ *  Change the PD serial baud rate
+ *
+ *
+ *
+ */
+/*ServiceResult_t service_change_baud(int32_t instance, uint32_t baud_rate) {
+    LOGI("Enter %s", __FUNCTION__);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) return SERVICE_ERROR;
+
+    Frame_t frame;
+    FrameResult_t fr;
+
+    // For now, only accept baud rates of 115200 or 230400
+    if (!((baud_rate == 115200) || (baud_rate == 230400))) {
+        LOGE("service_change_baud(): ERROR: Invalid baud rate: %d\n", baud_rate);
+        return SERVICE_ERROR;
+    }
+
+    fr = frame_init(&frame, SERVICE_CHANGE_BAUD);
+    if (fr != FRAME_OK) {
+        LOGE("service_change_baud(): ERROR: Creating frame. Error code = %d\n", fr);
+        return SERVICE_ERROR;
+    }
+
+    fr = frame_encode32(&frame, baud_rate);
+    if (fr != FRAME_OK) {
+        LOGE("service_change_baud(): ERROR: Frame encode. Error code = %d\n", fr);
+        return SERVICE_ERROR;
+    }
+
+    uint8_t rsp_buf[32];
+    uint32_t rsp_size;
+    ServiceResult_t sr = service_execute_change_baud(&frame, instance, rsp_buf, sizeof(rsp_buf), &rsp_size, baud_rate);
+    if (sr != SERVICE_OK) {
+        LOGE("service_change_baud(): ERROR: Service execution failed. Error code = %d\n", sr);
+        return SERVICE_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return SERVICE_OK;
+}*/
+// End of H.M.Wang 2025-5-21 SS功能追加的函数
 
 ServiceResult_t service_head_count(int32_t instance, Headinfo_t *info, Response_t * response) {
     LOGI("Enter %s", __FUNCTION__);

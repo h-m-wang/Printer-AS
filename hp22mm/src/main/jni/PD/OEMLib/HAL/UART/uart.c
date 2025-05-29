@@ -31,7 +31,8 @@ Made in U.S.A.
 #define UART_MUX_SEL_PIN    7       /* Wiring Pi = 7, BCM = 4 */
 
 #ifndef UART_DEVICE_NAME
-#define UART_DEVICE_NAME    "/dev/ttyS3"                  // "/dev/serial0"
+#define UART_DEVICE_NAME_A20    "/dev/ttyS3"                  // "/dev/serial0"
+#define UART_DEVICE_NAME_A133    "/dev/ttyS7"                  // "/dev/serial0"
 #define UART_SWITCH_DEVICE_NAME    "/dev/ext-gpio"
 #endif
 
@@ -236,15 +237,26 @@ UartResult_t uart_init(int32_t instance) {
 
     UartHandle_t *handle = &uart_handle;
 
-    handle->fs = open(UART_DEVICE_NAME, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
-    handle->switch_fd = open(UART_SWITCH_DEVICE_NAME, O_RDWR);
-
+    handle->fs = open(UART_DEVICE_NAME_A20, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
     if (handle->fs == -1) {
-        /* Failed to open UART */
-        char msg[MSG_SIZE];
-        snprintf(msg, MSG_SIZE, "uart_init() : Unable to open UART device : %s : ", UART_DEVICE_NAME);
-        perror(msg);
+        LOGE("uart_init() : Unable to open UART device : %s", UART_DEVICE_NAME_A20);
+        handle->fs = open(UART_DEVICE_NAME_A133, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
+        if (handle->fs == -1) {
+            LOGE("uart_init() : Unable to open UART device : %s", UART_DEVICE_NAME_A133);
+            return UART_ERROR_NO_DEVICE;
+        } else {
+            LOGI("uart_init() : UART device : %s opened as %d", UART_DEVICE_NAME_A133, handle->fs);
+        }
+    } else {
+        LOGI("uart_init() : UART device : %s opened as %d", UART_DEVICE_NAME_A20, handle->fs);
+    }
+
+    handle->switch_fd = open(UART_SWITCH_DEVICE_NAME, O_RDWR);
+    if (handle->switch_fd == -1) {
+        LOGE("uart_init() : Unable to open device : %s", UART_SWITCH_DEVICE_NAME);
         return UART_ERROR_NO_DEVICE;
+    } else {
+        LOGI("uart_init() : Device : %s opened", UART_SWITCH_DEVICE_NAME);
     }
 //    LOGI("Opened serial port [%s] as [%d]", UART_DEVICE_NAME, handle->fs);
 //    LOGI("Opened IDS/PD switcher [%s] as [%d]", UART_SWITCH_DEVICE_NAME, handle->switch_fd);
@@ -328,7 +340,6 @@ UartResult_t uart_select_mux(int32_t instance) {
 
     if(instance == 2)   ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 1)); /* Select IDS */
     else                ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 0));  /* Select PD  */
-
     return UART_OK;
 }
 
@@ -381,7 +392,6 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
         /* send the data */
         transmitted = write(handle->fs, data, size);
         if(transmitted != size) {
-//            LOGE("Bytes transmitted = %d\n", transmitted);
             return UART_ERROR;
         }
     } else {
@@ -398,7 +408,6 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
 //            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
-//                LOGE("Bytes transmitted = %d\n", transmitted);
                 return UART_ERROR;
             }
             usleep(50*1000);//50ms delay
@@ -414,7 +423,6 @@ UartResult_t uart_send(int32_t instance, uint8_t *data, size_t size) {
 //            LOGD("Bytes transmitted = %d\n", transmitted);
             if(transmitted != splitsize) {
                 //            UART_DEBUG_LOG(DEBUG_LEVEL_DEBUG, "Bytes transmitted = %d\n", transmitted);
-//                LOGE("Bytes transmitted = %d\n", transmitted);
                 return UART_ERROR;
             }
         }
@@ -495,7 +503,7 @@ UartResult_t uart_recv( int32_t         instance,
      */
     tv.tv_sec   = 0;
     tv.tv_usec  = 0;
-    if(timeout_ms > 1000) {
+    if(timeout_ms >= 1000) {
         tv.tv_sec   = timeout_ms / 1000;
 //        timeout_ms -= timeout_ms / 1000;
         timeout_ms -= (tv.tv_sec * 1000);
@@ -511,7 +519,7 @@ UartResult_t uart_recv( int32_t         instance,
              * call select() again.
              */
             if(errno == EINTR)  continue;
-            else return UART_ERROR;
+            return UART_ERROR;
         }
         else if (retval) {
             /* data is available to read */

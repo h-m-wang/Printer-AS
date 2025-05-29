@@ -1158,6 +1158,79 @@ PDResult_t pd_set_date(int32_t instance, uint16_t year, uint8_t month, uint8_t d
  */
 PDResult_t pd_set_platform_info(int32_t instance, PlatformInfo_t *platform_info);
 
+/**
+ * @brief                   Set the recirc override idx.
+ * @param instance          PD instance id.
+ * @param ph_id             Printhead id (Valid range 0 to (NUM_SUPPORTED_PH - 1))
+ * @param which             recovery(0), between_pages(1)
+ * @param recirc_idx        Recirc override idx % as in below table.
+ * @par
+ *          | recirc_idx |   Recirc Override %            |
+ *          |------------|--------------------------------|
+ *          |          0 |  75% less pumping than default |
+ *          |          1 |  50% less pumping than default |
+ *          |          2 |  25% less pumping than default |
+ *          |          3 |  10% less pumping than default |
+ *          |          4 |   0% default                   |
+ *          |          5 |  10% more pumping than default |
+ *          |          6 |  25% more pumping than default |
+ *          |          7 |  50% more pumping than default |
+ *          |          8 |  75% more pumping than default |
+ *          |          9 | 100% more pumping than default |
+ *          |         10 | 125% more pumping than default |
+ *          |         11 | 150% more pumping than default |
+ *          |         12 | 175% more pumping than default |
+ *          |         13 | 200% more pumping than default |
+ *          |         14 | 225% more pumping than default |
+ *          |         15 | 250% more pumping than default |
+ *          |         16 | 275% more pumping than default |
+ *          |         17 | 300% more pumping than default |
+ *
+ * @returns                 It can return PD_ERROR and PD_OK
+ * @par States
+ *                          It is valid during PhPowerOnState, PhPowerOffState and PhPresentState
+ * @par Possible Error Codes (set by FW for this API)
+ *                          No Error Codes
+ */
+PDResult_t pd_set_recirc_override(int32_t instance, uint8_t ph_id, uint8_t which, uint8_t recirc_override);
+
+/**
+ * @brief                   Get the recirc override idx.
+ * @param instance          PD instance id.
+ * @param ph_id             Printhead id (Valid range 0 to (NUM_SUPPORTED_PH - 1))
+ * @param which             recovery(0), between_pages(1)
+ * @param recirc_override   Recirc override idx % as in below table.
+ *                          Caller need to allocate memory.
+ * @par
+ *          | recirc_idx |   Recirc Override %            |
+ *          |------------|--------------------------------|
+ *          |          0 |  75% less pumping than default |
+ *          |          1 |  50% less pumping than default |
+ *          |          2 |  25% less pumping than default |
+ *          |          3 |  10% less pumping than default |
+ *          |          4 |   0% default                   |
+ *          |          5 |  10% more pumping than default |
+ *          |          6 |  25% more pumping than default |
+ *          |          7 |  50% more pumping than default |
+ *          |          8 |  75% more pumping than default |
+ *          |          9 | 100% more pumping than default |
+ *          |         10 | 125% more pumping than default |
+ *          |         11 | 150% more pumping than default |
+ *          |         12 | 175% more pumping than default |
+ *          |         13 | 200% more pumping than default |
+ *          |         14 | 225% more pumping than default |
+ *          |         15 | 250% more pumping than default |
+ *          |         16 | 275% more pumping than default |
+ *          |         17 | 300% more pumping than default |
+ *
+ * @returns                 It can return PD_ERROR and PD_OK
+ * @par States
+ *                          It is valid during PhPowerOnState, PhPowerOffState and PhPresentState
+ * @par Possible Error Codes (set by FW for this API)
+ *                          No Error Codes
+ */
+PDResult_t pd_get_recirc_override(int32_t instance, uint8_t ph_id, uint8_t which, uint8_t *recirc_override);
+
 PDResult_t pd_pairing_delete(int32_t instance);
 
 PDResult_t pd_terminate_session(int32_t instance);

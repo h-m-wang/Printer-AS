@@ -466,9 +466,12 @@
 <!--	<string name="str_textview_param79">79.Reserved</string>-->
 	<string name="str_textview_param79">79.Bluetooth</string>
 <!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
-	<string name="str_textview_param80">80.Reserved</string>
-	<string name="str_textview_param81">81.Reserved</string>
-	<string name="str_textview_param82">82.Reserved</string>
+	<string name="str_textview_param80">80.Col Space</string>
+<!-- H.M.Wang 2025-5-19 22mm设置循环参数 -->
+<!--	<string name="str_textview_param80">81.Reserved</string>-->
+	<string name="str_textview_param81">81.Circulation</string>
+<!-- End of H.M.Wang 2025-5-19 22mm设置循环参数 -->
+	<string name="str_textview_param82">82.Slt Space</string>
 	<string name="str_textview_param83">83.Reserved</string>
 	<string name="str_textview_param84">84.Reserved</string>
 	<string name="str_textview_param85">85.Reserved</string>
@@ -490,6 +493,7 @@
 	<string name="str_length_unit_mm">mm</string>
 	<string name="str_time_unit_mm">ms</string>
 	<string name="str_time_unit_ms">ms</string>
+	<string name="str_time_unit_s">s</string>
 	<string name="str_time_unit_mm_s">mm/s</string>
 	<string name="str_time_unit_0_1us">0.1us</string>
 	<string name="str_time_unit_us">us</string>

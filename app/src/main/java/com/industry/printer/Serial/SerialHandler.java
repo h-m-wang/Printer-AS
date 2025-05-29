@@ -68,6 +68,13 @@ public class SerialHandler {
     }
 
     private void init() {
+// H.M.Wang 2025-5-17 A133-M2004的rfid串口。（M2版型不支持通用串口）
+        if(PlatformInfo.isA133Product()) {
+            if(PlatformInfo.getImgUniqueCode().startsWith("M204A") || PlatformInfo.getImgUniqueCode().startsWith("FM2A")) {
+                return;
+            }
+        }
+// End of H.M.Wang 2025-5-17 A133-M2004的rfid串口。（M2版型不支持通用串口）
         mSerialPort = new SerialPort();
         if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_PC_COMMAND) {
             Debug.i(TAG, "Open " + SERIAL_PORT);

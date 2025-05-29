@@ -37,7 +37,6 @@ public class ReflectCaller {
 			hw.setAccessible(true);
 			AlarmManager aManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 			hw.invoke(aManager, (Object[])null);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

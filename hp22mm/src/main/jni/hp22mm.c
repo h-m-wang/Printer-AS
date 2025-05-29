@@ -28,7 +28,38 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.146"
+#define VERSION_CODE                            "1.0.162"
+// 1.0.162 2025-5-27
+// ids.c中的i2c设备，A20是i2c-1，A133应该是i2c-2
+// 1.0.161 2025-5-27
+// 修改uart.c的bug，在uart_recv函数中，设置timeout值的时候，tv_usec不能大于1秒(1000000)，原来的判断在等于1秒的时候会出现这种情况
+// 1.0.160 2025-5-27
+// 查找uart.c中select发挥22号错误的原因
+// 1.0.159 2025-5-27
+// 1.0.158 2025-5-27
+// uart.c增加一些log输出
+// 1.0.157 2025-5-27
+// 修改uart.c打开串口的逻辑，因为A20是ttyS3，但是A133是ttyS7，所以不能只考虑A20了，需要考虑A133
+// 1.0.156 2025-5-26
+// pd_set_temperature_override改在上电之前设置
+// 1.0.155 2025-5-23
+// 取消 monitorThread 中 pd_set_recirc_override 的调用
+// 1.0.154 2025-5-23
+// 增加max_freq, recovery_time, between_pages_time值的输出
+// 1.0.153 2025-5-22
+// 在 monitorThread 中增加 pd_set_recirc_override调用，设为recovery，200%
+// 1.0.152 2025-5-22
+// 取消 monitorThread 中的 pd_set_temperature_override 调用
+// 1.0.151 2025-5-22
+// 在monitorThread函数中追加pd_set_over_energy_override的地方，换成pd_set_temperature_override，设置35度，看看能否执行成功
+// 1.0.150 2025-5-20
+// 在monitorThread函数中追加pd_set_over_energy_override
+// 1.0.149 2025-5-20
+// 暂时关闭所有set_temperature_override
+// 1.0.148 2025-5-20
+// 在monitorThread中，追加一个 pd_set_temperature_override 调用，以确认该调用是否每次都会被拒绝执行
+// 1.0.147 2025-5-20
+// 在monitorThread中，追加一个 pd_get_temperature_override 调用，以确认设置的目标温度
 // 1.0.146 2025-2-24
 // 大幅修改分头的有效性管理，具体内容包括：
 // 1. 增加一个分别保存头有效性的数据变量
@@ -405,6 +436,9 @@ void *monitorThread(void *arg) {
                 uint8_t v;
     // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
                 pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+//                pd_set_recirc_override(PD_INSTANCE, penIndexs[i], 0, 13);
+
                 if(EnableWarming)
                     pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
                 else
@@ -472,30 +506,29 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
 // End of H.M.Wang 2024-12-20 在上电之前先检查温度是否到位，否则等待
 
     pd_check_ph("pd_set_voltage_override", pd_set_voltage_override(PD_INSTANCE, penIndex, 8), penIndex);
+    if(temp < 30)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 0);
+    else if(temp < 35)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 1);
+    else if(temp < 40)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 2);
+    else if(temp < 45)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 3);
+    else if(temp < 50)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 4);
+    else if(temp < 55)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 5);
+    else if(temp < 60)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 6);
+    else if(temp < 65)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 7);
+    else if(temp < 70)
+        pd_set_temperature_override(PD_INSTANCE, penIndex, 8);
 
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex)) {
         PD_Power_State = PD_POWER_STATE_OFF;
         return -1;
     } else {
-        if(temp < 30)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 0);
-        else if(temp < 35)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 1);
-        else if(temp < 40)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 2);
-        else if(temp < 45)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 3);
-        else if(temp < 50)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 4);
-        else if(temp < 55)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 5);
-        else if(temp < 60)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 6);
-        else if(temp < 65)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 7);
-        else if(temp < 70)
-            pd_set_temperature_override(PD_INSTANCE, penIndex, 8);
-//        pd_disable_warming(PD_INSTANCE, penIndex);
         PD_Power_State = PD_POWER_STATE_ON;
     }
     return 0;

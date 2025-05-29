@@ -55,15 +55,14 @@ typedef enum
 
     /* Blur specific commands */
 
+    SERVICE_GET_FPGA_LOG           = 136,
     SERVICE_SYSTEM_INFO		       =  137,
     SERVICE_SETORCLEAR_FPGA_RESET  =  138,
-    
-    SERVICE_GET_FPGA_LOG            = 136,
-    
-    BLUR_SERVICE_IDS_STATUS_UPDATE  = 139,
-    BLUR_SERVICE_HANDSHAKE_REQ      = 140,
+    BLUR_SERVICE_IDS_STATUS_UPDATE = 139,
+    BLUR_SERVICE_HANDSHAKE_REQ     = 140,
     BLUR_SERVICE_SET_SECURE_OVERRIDES=141,
-    BLUR_TERMINATE_SESSION           = 155,    
+    SERVICE_CHANGE_BAUD            = 143,
+    BLUR_TERMINATE_SESSION         = 155,
     /* Leave this as the last value */
     SERVICE_MAX                    = 255 
 } Service_t;
@@ -150,6 +149,8 @@ ServiceResult_t service_set_voltage_override(int32_t instance, Headinfo_t *info,
 ServiceResult_t service_get_over_energy_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);
 ServiceResult_t service_set_over_energy_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, uint8_t energy);
 ServiceResult_t service_control_heating(int32_t instance, Headinfo_t *info, uint8_t ph_id, bool enable);
+ServiceResult_t service_set_recirc_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t which, uint8_t recirc_override_idx);
+ServiceResult_t service_get_recirc_override(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t which, Response_t  *response);
 
 ServiceResult_t service_get_ph_configuration(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);
 ServiceResult_t service_get_column_spacing(int32_t instance, Headinfo_t *info, uint8_t ph_id, uint8_t slot, Response_t * response);

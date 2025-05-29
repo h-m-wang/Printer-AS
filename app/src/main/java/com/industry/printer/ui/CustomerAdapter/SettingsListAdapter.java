@@ -730,8 +730,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 		mSettingItems[78] = new ItemOneLine(79, R.string.str_textview_param79, R.array.switch_item_entries, 	0, ItemType.TYPE_SWITCH);
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+// H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
-		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, 0);
+// End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
+		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, R.string.str_time_unit_s);
 		mSettingItems[81] = new ItemOneLine(82, R.string.str_textview_param82, 0);
 		mSettingItems[82] = new ItemOneLine(83, R.string.str_textview_param83, 0);
 		mSettingItems[83] = new ItemOneLine(84, R.string.str_textview_param84, 0);

@@ -26,7 +26,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.411"
+#define VERSION_CODE                            "1.0.412"
+// 1.0.412 2025-5-15
+// 暂时修改cycling对应的功能，当前只修改print_head_driver.c中的pd_get_print_head_status函数中的系统服务调用返回值处理
 // 1.0.411 2025-3-19
 // 修改 1.0.410 在 level_memory_access.c中的修改遗漏
 // 1.0.410 2025-3-13

@@ -31,6 +31,10 @@
 <!-- H.M.Wang 2024-9-4 新增加扫描协议7 -->
         <item>掃描7</item>
 <!-- End of H.M.Wang 2024-9-4 新增加扫描协议7 -->
+<!-- H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
+        <item>掃描-8</item>
+        <item>掃描-9</item>
+<!-- End of H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
         <item>串口協議1</item>
         <item>串口協議2</item>
         <item>串口協議3</item>

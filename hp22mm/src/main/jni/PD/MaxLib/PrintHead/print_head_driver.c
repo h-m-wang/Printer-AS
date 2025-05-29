@@ -101,6 +101,27 @@ PDResult_t pd_supply_status(int32_t instance, uint8_t ph_id, uint8_t slot_id, ui
     return PD_OK;
 }
 
+// H.M.Wang 2025-5-21 SS功能追加的函数
+/*
+PDResult_t pd_change_baud(int32_t instance, uint32_t baud_rate) {
+    LOGI("Enter %s. baud_rate=%lu", __FUNCTION__, baud_rate);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+
+    oem_lock(instance);
+    ServiceResult_t sr = service_change_baud(instance, baud_rate);
+    oem_unlock(instance);
+    if (sr != SERVICE_OK) { return PD_ERROR; }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return PD_OK;
+}*/
+// End of H.M.Wang 2025-5-21 SS功能追加的函数
+
 // (param1=slot_bits, param2=ids_id for PD uC)
 PDResult_t pd_pairing(int32_t instance, int32_t step, int32_t param1, int32_t param2, uint8_t *in, int32_t in_size, int32_t *status, uint8_t *out, int32_t *out_size, int32_t out_buffer_size) {
     LOGI("Enter %s", __FUNCTION__);
@@ -604,10 +625,20 @@ PDResult_t pd_get_print_head_status(int32_t instance, uint8_t ph_id , PrintHeadS
     oem_unlock(instance);
 
     if(sr != SERVICE_OK) return PD_ERROR;
-    
-    if(res.res_size != 0 && res.res_size == 8) {
-        phstatus = _pd_getResponseData32(&res,0);
-        pherrorstate = _pd_getResponseData32(&res,4);
+    uint32_t max_freq;
+    uint16_t recovery_time;
+    uint16_t between_pages_time;
+
+    if(res.res_size != 0 && res.res_size == 16) {
+        phstatus = _pd_getResponseData32(&res, 0);
+        pherrorstate = _pd_getResponseData32(&res, 4);
+        max_freq           = _pd_getResponseData32(&res,8);
+        recovery_time      = _pd_getResponseData16(&res,12);
+        between_pages_time = _pd_getResponseData16(&res,14);
+        LOGD("pd_get_print_head_status() : max_freq = %d, recovery_time = %d. between_pages_time = %d\n", max_freq, recovery_time, between_pages_time);
+    } else if ((res.res_size != 0) && (res.res_size == 8)) {
+        phstatus           = _pd_getResponseData32(&res,0);
+        pherrorstate       = _pd_getResponseData32(&res,4);
     } else {
         LOGE("%s: res_size error\n", __FUNCTION__);
         return PD_ERROR;
@@ -678,6 +709,72 @@ PDResult_t pd_disable_warming(int32_t instance, uint8_t ph_id) {
     if(sr != SERVICE_OK) {
         return PD_ERROR;
     }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return PD_OK;
+}
+
+PDResult_t pd_set_recirc_override(int32_t instance, uint8_t ph_id, uint8_t which, uint8_t recirc_override) {
+    LOGI("Enter %s: instance = %d, Pen ID = %d, which = %d, recirc_override = %d\n", __FUNCTION__, instance, ph_id, which, recirc_override);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//        LOGE("Invalid Instance!");
+//        return PD_ERROR;
+//    }
+//    if(ph_id >= NUM_SUPPORTED_PH) return PD_ERROR;
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+
+    ServiceResult_t sr;
+
+    oem_lock(instance);
+    sr = service_set_recirc_override(instance, &headcontrolinfo, ph_id, which, recirc_override);
+    oem_unlock(instance);
+    if (sr != SERVICE_OK) {
+        return PD_ERROR;
+    }
+
+    LOGI("%s done", __FUNCTION__);
+
+    return PD_OK;
+}
+
+PDResult_t pd_get_recirc_override(int32_t instance, uint8_t ph_id, uint8_t which, uint8_t *recirc_override) {
+    LOGI("Enter %s: instance = %d, Pen ID = %d, which = %d\n", __FUNCTION__, instance, ph_id, which);
+
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//        LOGE("Invalid Instance!");
+//        return PD_ERROR;
+//    }
+//    if(ph_id >= NUM_SUPPORTED_PH) return PD_ERROR;
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+
+    ServiceResult_t sr;
+
+    oem_lock(instance);
+    Response_t res;
+    sr = service_get_recirc_override(instance, &headcontrolinfo, ph_id, which, &res);
+    oem_unlock(instance);
+    if (sr != SERVICE_OK) {
+        return PD_ERROR;
+    }
+
+    if (res.res_size != 0 && res.res_size >= 1) {
+        *recirc_override = _pd_getResponseData16(&res, 0);
+    } else {
+        LOGE("ERROR: Invalid Return Size %d\n",  res.res_size);
+        return PD_ERROR;
+    }
+
+    LOGD("SUCCESS: recirc override index = %d\n",  *recirc_override);
 
     LOGI("%s done", __FUNCTION__);
 

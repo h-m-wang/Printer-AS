@@ -535,9 +535,12 @@
 <!--	<string name="str_textview_param79">79.保留</string>-->
 	<string name="str_textview_param79">79.蓝牙开关</string>
 <!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
-	<string name="str_textview_param80">80.保留</string>
-	<string name="str_textview_param81">81.保留</string>
-	<string name="str_textview_param82">82.保留</string>
+	<string name="str_textview_param80">80.列间隔</string>
+<!-- H.M.Wang 2025-5-19 22mm设置循环参数 -->
+<!--	<string name="str_textview_param80">81.保留</string>-->
+	<string name="str_textview_param81">81.Circulation</string>
+<!-- End of H.M.Wang 2025-5-19 22mm设置循环参数 -->
+	<string name="str_textview_param82">82.槽间隔</string>
 	<string name="str_textview_param83">83.保留</string>
 	<string name="str_textview_param84">84.保留</string>
 	<string name="str_textview_param85">85.保留</string>
@@ -558,6 +561,7 @@
         <string name="str_length_unit_mm">毫米</string>
         <string name="str_length_unit_6_1mm">1/6毫米</string>
         <string name="str_time_unit_ms">毫秒</string>
+	<string name="str_time_unit_s">秒</string>
         <string name="str_time_unit_mm_s">毫米/秒</string>
         <string name="str_time_unit_us">微秒</string>
         <string name="str_time_unit_0_1us">0.1us</string>
