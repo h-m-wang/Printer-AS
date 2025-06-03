@@ -118,6 +118,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -496,6 +497,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2023-6-26 增加一个用户定义界面模式
 		return inflater.inflate(R.layout.control_frame, container, false);
 	}
+	private RemoteMsgPrompt mScanPromptDlg;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {	
@@ -998,6 +1000,22 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2025-5-28 新增加扫描协议8
 		if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER9) {
+			mScanPromptDlg = new RemoteMsgPrompt(mContext);
+			mScanPromptDlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+					if(mScanPromptDlg.isShowing()) mScanPromptDlg.hide();
+					if(event.getAction() == KeyEvent.ACTION_DOWN) {
+						if(keyCode == KeyEvent.KEYCODE_ENTER) {
+							return true;
+						} else {
+							Debug.d(TAG, "----");
+							BarcodeScanParser.append(keyCode, event.isShiftPressed());
+						}
+					}
+					return false;
+				}
+			});
 			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
 				@Override
 				public void onCodeReceived(final String code) {
@@ -1006,9 +1024,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mHandler.post(new Runnable() {
 						@Override
 						public void run() {
-							RemoteMsgPrompt rmp = new RemoteMsgPrompt(mContext);
-							rmp.show();
-							rmp.setMessage(code);
+							mScanPromptDlg.show();
+							mScanPromptDlg.setMessage(code);
 						}
 					});
 
@@ -1025,6 +1042,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 						if(null != mDTransThread && mDTransThread.isRunning()) {
 							mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+							while(mDTransThread.isRunning()) {
+								Thread.sleep(10);
+							}
 						} else if (mDTransThread.isPurging) {
 							ToastUtil.show(mContext, R.string.str_under_purging);
 							return;
@@ -1044,6 +1064,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
 						if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
 					} catch(NumberFormatException e) {
+						Debug.e(TAG, e.getMessage());
+					} catch(Exception e) {
 						Debug.e(TAG, e.getMessage());
 					}
 				}

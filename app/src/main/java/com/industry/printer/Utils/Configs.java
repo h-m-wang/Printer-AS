@@ -350,7 +350,8 @@ UserGroup 使用方法说明
 	public static final String FONT_DIR = CONFIG_PATH_FLASH + "/fonts";
 
 	public static final String FONT_PATH = "fonts";
-	
+	public static final String FONT_PATH1 = "/fonts";
+
 	public static final String FONT_ZIP_FILE = "Well.Ftt";
 	
 	public static final String FONT_DIR_USB = "/ft";

@@ -3025,7 +3025,7 @@ public class PrintTask extends Thread {
 		FpgaGpioOperation.init();
 		while (mRunning == true) {
 			mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
-			try {Thread.sleep(3);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+			try {System.gc(); Thread.sleep(15);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
 		}
 	}
 }

@@ -32,7 +32,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -166,6 +168,12 @@ public class WelcomeActivity extends Activity {
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 		if (!upgrade()) {
 			mLoading1s = (ImageView) findViewById(R.id.image1s);
+			try {
+				File f = new File(Configs.CONFIG_PATH_FLASH + Configs.FONT_PATH1 + "/load1s.jpg");
+				mLoading1s.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(f)));
+			} catch(Exception e) {
+				Debug.e(TAG, e.getMessage());
+			}
 			mClickView = (View) findViewById(R.id.clickView);
 			mClickView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override

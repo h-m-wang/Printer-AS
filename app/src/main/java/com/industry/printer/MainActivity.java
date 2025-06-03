@@ -1143,7 +1143,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mProgressDialog = LoadingDialog.show(this, R.string.strCopying);
 		
 // H.M.Wang 2020-12-17 取消该文件的访问		FileUtil.deleteFolder(Configs.QR_LAST);
-		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.QR_DIR, Configs.FONT_DIR)
+// H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
+//		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.QR_DIR, Configs.FONT_DIR)
+		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.QR_DIR, Configs.FONT_PATH1)
+// End of H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
 				.flatMap(new Func1<String, Observable<Map<String, String>>>() {
 
 					@Override
@@ -1163,10 +1166,15 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 							src.put("dest", Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR + Configs.QR_DIR);
 							src.put("tips", MainActivity.this.getString(R.string.tips_import_sysconf));
 						}
-						else if (Configs.FONT_DIR.equals(arg0)) {
-							src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
-							src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+// H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
+//						else if (Configs.FONT_DIR.equals(arg0)) {
+//							src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
+//							src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+						else if (Configs.FONT_PATH1.equals(arg0)) {
+							src.put("source",usbs.get(0) + arg0);
+							src.put("dest", Configs.CONFIG_PATH_FLASH + Configs.FONT_PATH1);
 							src.put("tips", MainActivity.this.getString(R.string.tips_import_font));
+// End of H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
 						}
 						Debug.d(TAG, "--->flatMap");
 						return Observable.just(src);
@@ -1247,9 +1255,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			return;
 		}
 		mProgressDialog = LoadingDialog.show(this, R.string.strCopying);
-		
-		
-		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_DIR)
+
+
+// H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
+//		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_DIR)
+		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_PATH1)
+// End of H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
 		.flatMap(new Func1<String, Observable<Map<String, String>>>() {
 
 			@Override
@@ -1269,9 +1280,14 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					src.put("dest", Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
 					src.put("tips", MainActivity.this.getString(R.string.tips_import_sysconf));
 				}
-				else if (Configs.FONT_DIR.equals(arg0)) {
-					src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
-					src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+// H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
+//				else if (Configs.FONT_DIR.equals(arg0)) {
+//					src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
+//					src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+				else if (Configs.FONT_PATH1.equals(arg0)) {
+					src.put("source",usbs.get(0) + arg0);
+					src.put("dest", Configs.CONFIG_PATH_FLASH + Configs.FONT_PATH1);
+// End of H.M.Wang 2025-6-3 取消复制Well.Ftt，改为直接复制目录
 					src.put("tips", MainActivity.this.getString(R.string.tips_import_font));
 				}
 				Debug.d(TAG, "--->flatMap: " + src.get("tips"));

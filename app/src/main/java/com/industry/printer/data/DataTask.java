@@ -145,7 +145,7 @@ public class DataTask {
 // End of H.M.Wang 2020-6-16 追加是否保存print.bin标记，以控制保存行为
 
 	private char[] getPrintBuffer(boolean isPreview, boolean bSave) {
-		Debug.d(TAG, "--->getPrintBuffer");
+		Debug.d(TAG, "--->getPrintBuffer.");
 		long startTime = System.currentTimeMillis();
 
 		if (mBgBuffer == null) {
@@ -631,7 +631,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			}
 		}
 
-		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
+//		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
 
 		return mBuffer;
 	}

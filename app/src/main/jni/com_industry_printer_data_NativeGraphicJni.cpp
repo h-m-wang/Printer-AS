@@ -26,7 +26,7 @@ static jint *DOTS = new jint[8];
 JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_ShiftImage
   (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, jint head, jint orgLines, jint tarLines) {
 
-    LOGD("ShiftImage: [%d, %d], head=%d, orgLines=%d, tarLines=%d", width, height, head, orgLines, tarLines);
+//    LOGD("ShiftImage: [%d, %d], head=%d, orgLines=%d, tarLines=%d", width, height, head, orgLines, tarLines);
 
     jint *cbuf;
     cbuf = env->GetIntArrayElements(src, 0);
@@ -54,7 +54,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
 JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Binarize
         (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, int head, jint value) {
 
-    LOGD("Binarize: [%d, %d], head=%d, value=%d", width, height, head, value);
+//    LOGD("Binarize: [%d, %d], head=%d, value=%d", width, height, head, value);
 
     jint *cbuf;
     cbuf = env->GetIntArrayElements(src, 0);
@@ -102,7 +102,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetDots
   (JNIEnv *env, jclass thiz) {
 
-    LOGD("GetDots");
+//    LOGD("GetDots");
 
     jintArray result = env->NewIntArray(8);
     env->SetIntArrayRegion(result, 0, 8, DOTS);
@@ -126,7 +126,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetD
 JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetBgBuffer
         (JNIEnv *env, jclass thiz, jbyteArray src, jint length, jint bytesFeed, jint bytesPerHFeed, jint bytesPerH, jint column, jint type) {
 
-    LOGD("GetBgBuffer length=%d, bytesFeed=%d, bytesPerHFeed=%d, bytesPerH=%d, column=%d, type=%d", length, bytesFeed, bytesPerHFeed, bytesPerH, column, type);
+//    LOGD("GetBgBuffer length=%d, bytesFeed=%d, bytesPerHFeed=%d, bytesPerH=%d, column=%d, type=%d", length, bytesFeed, bytesPerHFeed, bytesPerH, column, type);
 
     jbyte *cbuf;
     cbuf = env->GetByteArrayElements(src, 0);
@@ -190,9 +190,10 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 
     jchar *srcBuf = env->GetCharArrayElements(src, 0);
 
-    LOGD("GetPrintDots length=%d, charsPerHFeed=%d, heads=%d", length, charsPerHFeed, heads);
+//    LOGD("GetPrintDots- length=%d, charsPerHFeed=%d, heads=%d", length, charsPerHFeed, heads);
 
-    jint *dots = new jint[8];
+//    jint *dots = new jint[8];
+    jint dots[8];
     memset(dots, 0x00, 8 * sizeof(jint));
 
     int headIndex = -1;      // 当前数据所属打印头。初值为-1，为进入循环处理做准备
@@ -209,17 +210,17 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
         }
     }
 
-    env->ReleaseCharArrayElements(src, srcBuf, 0);
+    env->ReleaseCharArrayElements(src, srcBuf, JNI_ABORT);
 
     jintArray result = env->NewIntArray(8);
     env->SetIntArrayRegion(result, 0, 8, dots);
-    delete[] dots;
+//    delete[] dots;
 
     return result;
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.4 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.5 Loaded.");
     return JNI_VERSION_1_4;     //这里很重要，必须返回版本，否则加载会失败。
 }
 
