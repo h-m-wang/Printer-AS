@@ -112,6 +112,10 @@ extern "C"
 // 1.0.378
 //   readDeviceID函数内，执行一次重启一次Level设备
 
+// H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+char gOutputLog = 1;
+// End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+
 #define SC_SUCCESS                              0
 #define SC_INIT_HOST_CARD_NOT_PRESENT           100
 #define SC_INIT_PRNT_CTRG_NOT_PRESENT           110
@@ -1517,6 +1521,11 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, 
     return devID;
 }
 
+JNIEXPORT jint JNICALL Java_com_Smartcard_setLogOutput(JNIEnv *env, jclass arg, jint output) {
+    gOutputLog = output;
+    return gOutputLog;
+}
+
 /**
  * RTC操作jni接口
  */
@@ -1549,6 +1558,7 @@ static JNINativeMethod gMethods[] = {
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
         {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},
         {"shutdown",				    "()I",	                    (void *)Java_com_Smartcard_shutdown},
+        {"enableLog",	    	    "(I)I",						(void *)Java_com_Smartcard_setLogOutput},
 };
 
 /**

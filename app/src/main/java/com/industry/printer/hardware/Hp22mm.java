@@ -70,6 +70,9 @@ public class Hp22mm {
     static public native int getLocalInk(int head);
     static public native int downLocal(int head, int count);
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
+// H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+    static public native int enableLog(int output);
+// End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
 //    static public native String spiTest();

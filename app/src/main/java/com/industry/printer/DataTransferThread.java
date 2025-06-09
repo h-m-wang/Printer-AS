@@ -1669,6 +1669,28 @@ private void setSerialProtocol9DTs(final String data) {
 		mNeedUpdate = true;
 	}
 // End of H.M.Wang 2025-5-28 新增加扫描协议8
+// H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0
+	public void setScan10DataToDt(final String data) {
+		Debug.d(TAG, "String from Remote = [" + data + "]");
+
+		final String recvs[] = data.split("\\$");
+		if (recvs.length == 0) return;
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if(null != mRemoteRecvedPromptDlg) {
+					mRemoteRecvedPromptDlg.show();
+	//					mRemoteRecvedPromptDlg.show();
+					mRemoteRecvedPromptDlg.setMessage(recvs[0]);
+				}
+			}
+		});
+
+		SystemConfigFile.getInstance().setDTBuffer(0, recvs[0]);
+		mNeedUpdate = true;
+	}
+// End of H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0
 
 	//	private AlertDialog mRemoteRecvedPromptDlg = null;
 	private RemoteMsgPrompt mRemoteRecvedPromptDlg = null;
@@ -1892,6 +1914,15 @@ private void setSerialProtocol9DTs(final String data) {
 				}
 			});
 // End of H.M.Wang 2025-5-28 新增加扫描协议8
+// H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0
+		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER10) {
+			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
+				@Override
+				public void onCodeReceived(String code) {
+					setScan10DataToDt(code);
+				}
+			});
+// End of H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0
 		}
 // End of H.M.Wang 2020-10-30 追加数据源判断，启动扫描处理，因为有两个处理从一个扫码枪途径获取数据
 
@@ -3022,10 +3053,11 @@ public class PrintTask extends Thread {
 	@Override
 	public void run() {
 		Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-		FpgaGpioOperation.init();
 		while (mRunning == true) {
 			mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
-			try {System.gc(); Thread.sleep(15);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+			mPrintedCount++;
+			if (mCallback != null) mInkListener.onCountChanged();
+			try {Thread.sleep(15);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
 		}
 	}
 }

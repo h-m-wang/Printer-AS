@@ -172,7 +172,7 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
         delete[] rCharBuf;
     }
 
-    LOGD("GetBgBuffer done");
+//    LOGD("GetBgBuffer done");
     return result;
 }
 

@@ -35,6 +35,9 @@
         <item>Scaner-8</item>
         <item>Scaner-9</item>
 <!-- End of H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
+<!-- H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
+        <item>Scaner-10</item>
+<!-- End of H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
         <item>RS232-1</item>
         <item>RS232-2</item>
         <item>RS232-3</item>
@@ -47,6 +50,9 @@
         <!--  H.M.Wang 2021-9-24 追加串口9 -->
         <item>RS232-9</item>
         <!--  End of H.M.Wang 2021-9-24 追加串口9 -->
+        <!-- H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
+        <item>Scaner-10</item>
+        <!-- End of H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
         <!--  H.M.Wang 2021-9-28 追加串口10 -->
         <item>RS232-10</item>
         <!--  End of H.M.Wang 2021-9-28 追加串口10 -->

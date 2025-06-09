@@ -18,11 +18,14 @@ import com.google.zxing.qrcode.encoder.ByteMatrix;
 import com.google.zxing.qrcode.encoder.Encoder;
 import com.google.zxing.qrcode.encoder.QRCode;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.MainActivity;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.data.BarcodeGeneratorJNI;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.R;
+import com.industry.printer.data.ZIntSymbol;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -30,6 +33,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextUtils;
+import android.util.Log;
 
 import uk.org.okapibarcode.backend.Code128;
 import uk.org.okapibarcode.backend.DataMatrix;
@@ -658,6 +662,37 @@ public class BarcodeObject extends BaseObject {
 		} else {
 			return draw(content, ctW, ctH);
 		}
+	}
+
+	private Bitmap drawLcfQR(String strContent, int w, int h) {
+		Debug.d(TAG, "drawLcfQR Content: " + strContent);
+		try {
+			if (w <= 0) {
+				Debug.d(TAG, "drawLcfQR Width = 0");
+				w = Math.round(mWidth);
+			}
+			if (h <= 0) {
+				Debug.d(TAG, "drawLcfQR Height = 0");
+				h = Math.round(mHeight);
+			}
+
+			ZIntSymbol zIntSymbol = new ZIntSymbol();
+			zIntSymbol.text = strContent;
+			zIntSymbol.symbology = 58;
+			zIntSymbol.show_hrt = 0;
+
+			zIntSymbol = BarcodeGeneratorJNI.generateBarcode(zIntSymbol, strContent, 0);
+
+			Bitmap bmp = Bitmap.createBitmap(zIntSymbol.bitmap_width, zIntSymbol.bitmap_height, Configs.BITMAP_CONFIG);
+			bmp.setPixels(zIntSymbol.pixels, 0, zIntSymbol.bitmap_width, 0, 0, zIntSymbol.bitmap_width, zIntSymbol.bitmap_height);
+			return Bitmap.createScaledBitmap(bmp, w, h, false);
+		} catch (Exception e) {
+			Log.d(TAG, "--->exception: " + e.getMessage());
+			if (mContext instanceof MainActivity) {
+				((MainActivity) mContext).mControlTab.sendMsg("Wrong Command: " + e.getMessage());
+			}
+		}
+		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
 	}
 
 	private Bitmap drawQR(String content, int w, int h) {
@@ -1419,6 +1454,7 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
 				bitmap = drawQR(mContent, w, h);
+//				mBitmap = drawLcfQR(content, (int) mHeight, (int) mWidth);
 			}
 		}
 

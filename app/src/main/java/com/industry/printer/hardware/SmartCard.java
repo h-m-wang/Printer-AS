@@ -146,4 +146,8 @@ Debug.d("SmartCard", "FUNC_TYPE = " + (FUNC_TYPE == FUNC_TYPE_INTERNAL ? "INTERN
 
     static public native int shutdown();
 
+// H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+    static public native int enableLog(int output);
+// End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+
 }

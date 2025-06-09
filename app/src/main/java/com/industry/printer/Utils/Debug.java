@@ -95,5 +95,4 @@ public class Debug {
 		String file = trace[2].getFileName();
 		return file + ":" + line;
 	}
-	
 }

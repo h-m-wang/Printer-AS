@@ -179,7 +179,7 @@ public class WelcomeActivity extends Activity {
 			});
 			mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5*1000);
 		} else {
-			try {Thread.sleep(3000);} catch(Exception e) {}
+			try {Thread.sleep(10000);} catch(Exception e) {}
 			new AlertDialog.Builder(this).setMessage(R.string.str_urge2restart).create().show();
 //			ToastUtil.show(mContext, R.string.str_urge2restart);
 		}

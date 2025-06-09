@@ -57,6 +57,7 @@ JNIEXPORT jint JNICALL Java_com_MCU2FIFO(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_FIFO2DDR(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_FIFO2MCU(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_setLogOutput(JNIEnv *env, jclass arg, jint output);
 
 #ifdef __cplusplus
 }

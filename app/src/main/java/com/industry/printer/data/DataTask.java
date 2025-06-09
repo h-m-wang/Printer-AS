@@ -348,7 +348,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2021-8-20 由于复制操作移到了倾斜操作之前，所以不需要这个SLANT的判断了
 			}
 
-			Debug.d(TAG, "maxColNumPerUnit = " + maxColNumPerUnit + "; mBinInfo.getBytesFeed() / 2 = " + mBinInfo.getBytesFeed() / 2);
+//			Debug.d(TAG, "maxColNumPerUnit = " + maxColNumPerUnit + "; mBinInfo.getBytesFeed() / 2 = " + mBinInfo.getBytesFeed() / 2);
 			if(maxColNumPerUnit != 0) {
 				CharArrayBuffer caBuf = new CharArrayBuffer(0);
 				int emptyChars = (maxColNumPerUnit - mBinInfo.mColumn) * mBinInfo.getBytesFeed() / 2;	// 不能用mBinInfo.mCharsPerColumn，因为这个变量是基于没有做过调整的mBytesPerColumn算的，如果mBytesPerColumn少一个字节，那么就会少一个字
@@ -356,7 +356,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				char[] empty = new char[emptyChars];
 				Arrays.fill(empty, (char)0x0000);
 
-				Debug.d(TAG, "emptyChars = " + emptyChars);
+//				Debug.d(TAG, "emptyChars = " + emptyChars);
 				for(int i=0; i<sysconf.getParam(SystemConfigFile.INDEX_PRINT_TIMES); i++) {
 					if(i != 0) {
 						caBuf.append(empty, 0, emptyChars);
@@ -631,7 +631,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			}
 		}
 
-//		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
+		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
 
 		return mBuffer;
 	}
@@ -1047,7 +1047,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 */
 // End of H.M.Wang 2021-3-3 由于从QR.txt文件当中读取的变量信息要对群组有效，在这里会导致每个任务都会读取一行，所以需要移植DataTransferThread类处理
 				// Bitmap bmp = o.getScaledBitmap(mContext);
-				Debug.d(TAG,"--->cover barcode w = " + o.getWidth() + "  h = " + o.getHeight() + " total=" + (mBinInfo.getBytesFeed()*8) + " " + (o.getWidth()/scaleW) + " " + (o.getHeight()/scaleH));
+//				Debug.d(TAG,"--->cover barcode w = " + o.getWidth() + "  h = " + o.getHeight() + " total=" + (mBinInfo.getBytesFeed()*8) + " " + (o.getWidth()/scaleW) + " " + (o.getHeight()/scaleH));
 
 // H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
 				float wx = 1.0f, hx=1.0f;
@@ -1080,7 +1080,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				continue;
 // H.M.Wang 2020-5-22 串口数据启用DynamicText，取消代用CounterObject
             } else if(o instanceof DynamicText) {
-				Debug.d(TAG, "--->object index=" + o.getIndex() + "; headType = " + headType);
+//				Debug.d(TAG, "--->object index=" + o.getIndex() + "; headType = " + headType);
 
 // H.M.Wang 2021-3-3 由于从QR.txt文件当中读取的变量信息要对群组有效，在这里会导致每个任务都会读取一行，所以需要移植DataTransferThread类处理
 /*
@@ -1306,7 +1306,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 					BinInfo.overlap(mPrintBuffer, var, (int) (htObj.getX() / div), info.getCharsFeed() * stat.getScale());
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					Debug.d(TAG, "--->content = " + substr + "; real x=" + htObj.getX() / div);
+//					Debug.d(TAG, "--->content = " + substr + "; real x=" + htObj.getX() / div);
 //					BinCreater.saveBin("/sdcard/" + o.getIndex() + substr + ".bin", var, info.getCharsFeed() * stat.getScale() * 16);
 				}
 // End of H.M.Wang 2020-2-17 追加HyperText控件
@@ -1319,7 +1319,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
 					mVarBinList.put(o, varbin);
 				}
-				Debug.d(TAG, "--->real x=" + o.getX()+ ", div-x=" + o.getX()/div );
+//				Debug.d(TAG, "--->real x=" + o.getX()+ ", div-x=" + o.getX()/div );
 				var = varbin.getVarBuffer(vString, false, false);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
@@ -1329,7 +1329,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				/*班次變量特殊處理，生成v.bin時固定爲兩位有效位，如果shift的bit爲1，那前面補0，
 				 *所以，shift變量的v.bin固定爲8位，如果bit=1，需要跳過前面的0*/
 				int shift = ((ShiftObject)o).getShiftIndex();
-				Debug.d(TAG, "--->shift ******: " + shift);
+//				Debug.d(TAG, "--->shift ******: " + shift);
 				BinInfo varbin= mVarBinList.get(o);
 				if (varbin == null) {
 					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
@@ -2180,7 +2180,7 @@ public char[] bitShiftFor64SN() {
 //			return;
 //		}
 // End of H.M.Wang 2021-12-29 将下列判断移到正常打印流程，取消这里的判断，否则清洗时做的slant会因为mTask为null而返回空
-		Debug.d(TAG, "expendColumn---> slant: " + slant);
+//		Debug.d(TAG, "expendColumn---> slant: " + slant);
 //		int extension = 0;
 		int shift = 0;
 		if (slant >= 100 ) {
@@ -2190,7 +2190,7 @@ public char[] bitShiftFor64SN() {
 			return;
 		}
 		// CharArrayWriter writer = new CharArrayWriter();
-		Debug.d(TAG, "--->extension: " + Configs.CONST_EXPAND + " shift: " + shift);
+//		Debug.d(TAG, "--->extension: " + Configs.CONST_EXPAND + " shift: " + shift);
 		int charsPerColumn = buffer.length/columns;
 		int columnH = charsPerColumn * 16;
 		int afterColumns = columns * Configs.CONST_EXPAND + (shift > 0 ? shift * (columnH - 1) : 0);
@@ -2199,7 +2199,7 @@ public char[] bitShiftFor64SN() {
 
 		// the  final extension and shift buffer
 		// mBuffer = new char[afterColumns * charsPerColumn];
-		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
+//		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
 		// 8 times extension buffer
 		for (int i = 0; i < buffer.length/charsPerColumn; i++) {
 			for (int j = 0; j < charsPerColumn; j++) {
@@ -2264,7 +2264,7 @@ public char[] bitShiftFor64SN() {
 		d.	增加 “调整2”“/”ADJ2”参数，  用于调整喷头2的宽度，规则：默认值是0， 设为n, 则展宽为 32+n,
 */
 	public void expendColumn(char[] buffer, int columns, int[] adj, int[] slant) {
-		Debug.d(TAG, "expendColumn---> adj: " + adj[0] + ", " + adj[1] + "; slant: " + slant[0] + ", " + slant[1]);
+//		Debug.d(TAG, "expendColumn---> adj: " + adj[0] + ", " + adj[1] + "; slant: " + slant[0] + ", " + slant[1]);
 		int[] extension = new int[2];
 		float[] shift = new float[2];
 
@@ -2282,7 +2282,7 @@ public char[] bitShiftFor64SN() {
 			shift[1] = slant[1] >= 10000 ? 1.0f * slant[1] / 100 - 100 : slant[1] - 100;
 		}
 		// CharArrayWriter writer = new CharArrayWriter();
-		Debug.d(TAG, "--->extension: " + extension[0] + ", " + extension[1] + "; shift: " +  + shift[0] + ", " + shift[1]);
+//		Debug.d(TAG, "--->extension: " + extension[0] + ", " + extension[1] + "; shift: " +  + shift[0] + ", " + shift[1]);
 		int charsPerColumn = buffer.length/columns;
 		int columnH = charsPerColumn * 16;
 		int afterColumns = columns * Math.max(extension[0], extension[1]) + (int)Math.max((shift[0] > 0 ? (shift[0]+1) * (columnH/2 - 1) : 0), (shift[1] > 0 ? (shift[1]+1) * (columnH/2 - 1) : 0));
@@ -2290,7 +2290,7 @@ public char[] bitShiftFor64SN() {
 
 		// the  final extension and shift buffer
 		// mBuffer = new char[afterColumns * charsPerColumn];
-		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
+//		Debug.d(TAG, "--->charsPerColumn: " + charsPerColumn + "  columnH: " + columnH + "  afterColumns: " + afterColumns + "  buffer.len: " + buffer_8.length);
 		// 8 times extension buffer
 		for (int i = 0; i < columns; i++) {
 			for (int j = 0; j < charsPerColumn; j++) {
@@ -2331,5 +2331,4 @@ public char[] bitShiftFor64SN() {
 
 		mBuffer = Arrays.copyOf(shiftBuffer, realColumns * charsPerColumn);
 	}
-
 }

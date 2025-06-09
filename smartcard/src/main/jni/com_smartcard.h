@@ -119,6 +119,7 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readManufactureID(JNIEnv *env, jclass 
  */
 JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, jint card);
 
+JNIEXPORT jint JNICALL Java_com_Smartcard_setLogOutput(JNIEnv *env, jclass arg, jint output);
 
 #ifdef __cplusplus
 }

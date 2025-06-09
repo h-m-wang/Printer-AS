@@ -252,6 +252,9 @@ int sIdsIdx = 1;
 // End of H.M.Wang 2025-1-13 取消固定一个打印头，改为可灵活使用两个打印头
 
 // static pthread_mutex_t mutex;
+// H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+char gOutputLog = 1;
+// End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
 
 void CmdDepressurize();
 int CmdPressurize(jboolean async);
@@ -1342,6 +1345,11 @@ void CmdDepressurize() {
     IDS_LED_Off(sIdsIdx, LED_Y);
 }
 
+JNIEXPORT jint JNICALL Java_com_setLogOutput(JNIEnv *env, jclass arg, jint output) {
+    gOutputLog = output;
+    return gOutputLog;
+}
+
 /**
  * HP22MM操作jni接口
  */
@@ -1387,6 +1395,7 @@ static JNINativeMethod gMethods[] = {
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
         {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
+        {"enableLog",	    	    "(I)I",						(void *)Java_com_setLogOutput},
 
 /*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容

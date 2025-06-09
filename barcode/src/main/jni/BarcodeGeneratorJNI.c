@@ -44,7 +44,7 @@ void cleanupSymbolPool() {
 JNIEXPORT jobject JNICALL Java_com_industry_printer_data_BarcodeGeneratorJNI_generateBarcode(
         JNIEnv *env, jobject object, jobject obj, jstring strText, jint rotateAngle) {
 
-    LOGI("generateBarcode entered", VERSION_CODE);
+//    LOGI("generateBarcode entered", VERSION_CODE);
 
     pthread_mutex_lock(&symbolPool.mutex);
 
@@ -58,7 +58,7 @@ JNIEXPORT jobject JNICALL Java_com_industry_printer_data_BarcodeGeneratorJNI_gen
             LOGE("Failed to create ZBarcode symbol", VERSION_CODE);
             return NULL;
         }
-        LOGI("Created new ZBarcode symbol", VERSION_CODE);
+//        LOGI("Created new ZBarcode symbol", VERSION_CODE);
     }
     pthread_mutex_unlock(&symbolPool.mutex);
 

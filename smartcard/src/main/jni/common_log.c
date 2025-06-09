@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "common_log.h"
+#include "../../../../hp22mm/src/main/jni/IDS/lib/ids.h"
 
 #define LOG_TAG "SmartCard"
 
+/*
 void __log_print(android_LogPriority lvl, const char *file, uint32_t line, ...) {
     char buf[1024];
 
@@ -17,3 +19,4 @@ void __log_print(android_LogPriority lvl, const char *file, uint32_t line, ...) 
 
     __android_log_print(lvl, buf, __VA_ARGS__);
 }
+*/
