@@ -32,8 +32,11 @@
         <item>Scaner-7</item>
 <!-- End of H.M.Wang 2024-9-4 新增加扫描协议7 -->
 <!-- H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
+<!-- H.M.Wang 2025-6-9 暂时取消该协议，待后续重新启动
         <item>Scaner-8</item>
-        <item>Scaner-9</item>
+        <item>Scaner-9</item> -->
+        <item>Reserved</item>
+        <item>Reserved</item>
 <!-- End of H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
 <!-- H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
         <item>Scaner-10</item>

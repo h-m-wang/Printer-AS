@@ -307,7 +307,7 @@ public class SystemConfigFile{
 	public static final int DATA_SOURCE_SCANER7 	= 14;		// 扫描6
 // End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
 // H.M.Wang 2025-5-28 增加一个扫描协议8。扫描客户的二维码，将[No.:]对应的13位字符赋给DT0
-	public static final int DATA_SOURCE_SCANER8 	= 15;
+	public static final int DATA_SOURCE_SCANER8 	= 14;		//15;		 暂时修改到扫描协议7，即不支持正常功能，待后续恢复
 // End of H.M.Wang 2025-5-28 增加一个扫描协议8。扫描客户的二维码，将[No.:]对应的13位字符赋给DT0
 // H.M.Wang 2025-5-28 增加一个扫描协议9。扫描客户的二维码，分以下情况处理：
 //		（1） 二维码格式：信息名#DTO （如：10#HC15519900200）
@@ -316,7 +316,7 @@ public class SystemConfigFile{
 //			把内容赋给DT0,DT1,DT2,DT3……，并切换文件名为40的群组信息到首页，启动打印。指针处于群组中第一条信息。此处群组信息名约定从40到99，即G_40，G_41……
 //		（3） 二维码格式：信息名#DTO#DT1#DT2 （如：70#HC15513904600#Q24G#2*1245）
 //			把内容赋给DT0,DT1,DT2,DT3……，并切换文件名为40的群组信息到首页，启动打印。指针处于群组中第一条信息。此处群组信息名约定从40到99，即G_40，G_41……
-	public static final int DATA_SOURCE_SCANER9 	= 16;
+	public static final int DATA_SOURCE_SCANER9 	= 14;			//16;		暂时修改到扫描协议7，即不支持正常功能，待后续恢复
 // End of H.M.Wang 2025-5-28 增加一个扫描协议8。扫描客户的二维码，将[No.:]对应的13位字符赋给DT0
 // H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0
 	public static final int DATA_SOURCE_SCANER10 	= 17;

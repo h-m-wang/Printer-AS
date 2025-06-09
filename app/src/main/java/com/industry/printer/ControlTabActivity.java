@@ -998,7 +998,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		});
 
-// H.M.Wang 2025-5-28 新增加扫描协议8
+// H.M.Wang 2025-5-28 新增加扫描协议9
 		if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER9) {
 			mScanPromptDlg = new RemoteMsgPrompt(mContext);
 			mScanPromptDlg.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -1071,7 +1071,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 			});
 		}
-// End of H.M.Wang 2025-5-28 新增加扫描协议8
+// End of H.M.Wang 2025-5-28 新增加扫描协议9
 
 // H.M.Wang 2021-3-1 移到延时线程里面
 //		if(SystemConfigFile.getInstance().getParam(41) == 1) {
