@@ -8,8 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 17
-        versionCode 162200001          //next: 162300001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
-        versionName "250607-162200001"
+        versionCode 163000001          //next: 163100001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
+        versionName "250619-163000001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -65,4 +65,7 @@ dependencies {
     //    androidTestImplementation 'com.android.support.test:runner:1.0.1'
     //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 //    compileOnly project(':systemapi')
+//    implementation 'org.apache.poi:poi:5.2.2'
+//    implementation 'org.apache.poi:poi-ooxml:5.2.2'
+    implementation 'net.sourceforge.jexcelapi:jxl:2.6.12'
 }

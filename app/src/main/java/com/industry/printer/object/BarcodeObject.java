@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Dimension;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -874,6 +875,7 @@ public class BarcodeObject extends BaseObject {
 		// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 		HashMap<EncodeHintType,Object> hints = new HashMap<EncodeHintType, Object>();
 		hints.put(EncodeHintType.DATA_MATRIX_SHAPE, (mDMType == DM_TYPE_RECTANGLE ? SymbolShapeHint.FORCE_RECTANGLE : SymbolShapeHint.FORCE_SQUARE));
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H); // 设置纠错等级（可选）
 // H.M.Wang 2024-12-6 修改DM码的生成方法，在生成DM码时就按四边缩小一个像素的方式生成
 //		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h, hints);
 		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);

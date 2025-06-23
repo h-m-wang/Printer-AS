@@ -26,7 +26,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.412"
+#define VERSION_CODE                            "1.0.413"
+// 1.0.413 2025-6-11
+// 修改为log可设置为输出和不输出
 // 1.0.412 2025-5-15
 // 暂时修改cycling对应的功能，当前只修改print_head_driver.c中的pd_get_print_head_status函数中的系统服务调用返回值处理
 // 1.0.411 2025-3-19
@@ -1521,10 +1523,12 @@ JNIEXPORT jint JNICALL Java_com_Smartcard_readDeviceID(JNIEnv *env, jclass arg, 
     return devID;
 }
 
-JNIEXPORT jint JNICALL Java_com_Smartcard_setLogOutput(JNIEnv *env, jclass arg, jint output) {
+// H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
+JNIEXPORT jint JNICALL Java_com_Smartcard_enableLogOutput(JNIEnv *env, jclass arg, jint output) {
     gOutputLog = output;
     return gOutputLog;
 }
+// End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 
 /**
  * RTC操作jni接口
@@ -1558,7 +1562,9 @@ static JNINativeMethod gMethods[] = {
         {"readManufactureID",	    "(I)I",						(void *)Java_com_Smartcard_readManufactureID},
         {"readDeviceID",	            "(I)I",						(void *)Java_com_Smartcard_readDeviceID},
         {"shutdown",				    "()I",	                    (void *)Java_com_Smartcard_shutdown},
-        {"enableLog",	    	    "(I)I",						(void *)Java_com_Smartcard_setLogOutput},
+// H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
+        {"enableLog",	    	    "(I)I",						(void *)Java_com_Smartcard_enableLogOutput},
+// End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 };
 
 /**

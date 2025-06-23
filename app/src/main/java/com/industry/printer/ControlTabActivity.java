@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 
 import com.industry.printer.Bluetooth.BluetoothServerManager;
 import com.industry.printer.Constants.Constants;
+import com.industry.printer.ExcelDataProc.ExcelMainWindow;
 import com.industry.printer.FileFormat.DotMatrixFont;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -3383,7 +3384,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
 			case R.id.btnBinfile:
-                MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
+				ExcelMainWindow emw = new ExcelMainWindow(mContext);
+				emw.show(mTvOpen);
+/*                MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
 				dialog.setOnPositiveClickedListener(new OnPositiveListener() {
 					
 					@Override
@@ -3392,7 +3395,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						if (f==null || f.size() == 0) {
 							return;
 						}
-						/** 如果选择内容为多个，表示需要新建组 */
+						// 如果选择内容为多个，表示需要新建组
 						Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
 						Bundle bundle = new Bundle();
 						if (f.size() > 1) {
@@ -3419,7 +3422,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 					
 				});
-				dialog.show();
+				dialog.show();*/
 				break;
 			case R.id.btn_page_forward:
 				mScrollView.smoothScrollBy(-400, 0);

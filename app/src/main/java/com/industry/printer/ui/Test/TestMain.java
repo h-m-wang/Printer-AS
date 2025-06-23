@@ -90,8 +90,6 @@ public class TestMain {
         mQuit = false;
     }
 
-    private byte[] rMMM;
-
     public void show(final View v) {
         if (null == mContext) {
             return;
@@ -210,38 +208,6 @@ public class TestMain {
 // H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）
                 else if(i == 4) {
                     printDataCreationTest();
-/*                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            BLEDevice ble = BLEDevice.getInstance();
-//for(int i=0; i<100; i++) {
-//    if(mQuit) break;
-    mMainMenuLV.post(new Runnable() {
-        @Override
-        public void run() {
-            ToastUtil.show(mContext, "Starting BLE ...!");
-        }
-    });
-    if (ble.initServer()) {
-        mMainMenuLV.post(new Runnable() {
-            @Override
-            public void run() {
-                ToastUtil.show(mContext, "Succeeded!");
-            }
-        });
-    } else {
-        mMainMenuLV.post(new Runnable() {
-            @Override
-            public void run() {
-                ToastUtil.show(mContext, "Failed!");
-            }
-        });
-    }
-    try{Thread.sleep(1000);}catch(Exception e){}
-//}
-                        }
-                    }).start();*/
                     return;
                 }
 // End of H.M.Wang 2024-1-17 临时增加一个蓝牙模块测试功能（后续再优化）

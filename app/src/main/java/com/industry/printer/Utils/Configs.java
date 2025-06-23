@@ -23,7 +23,7 @@ import com.industry.printer.object.BaseObject;
 
 public class Configs {
 
-	public static final boolean DEBUG=true;
+	public static boolean DEBUG=true;
 
 // H.M.Wang 2020-9-15 追加Smart卡管理员标志，当该标志为真，并且工作于Smart卡模式的时候，启动写入Smart卡验证码工作模式
 	public static final boolean SMARTCARDMANAGER = false;

@@ -253,6 +253,14 @@ public class RFIDDevice implements RfidCallback{
 		new Exception().printStackTrace();
 		return mCallbacks;
 	}
+
+// H.M.Wang 2025-6-19 增加一个使rfid停止发射信号的功能
+	public void disableRfid() {
+		writeCmd(new RFIDData((byte)0x05, new byte[]{0x00}));
+		writeCmd(new RFIDData((byte)0x29, new byte[]{}));
+	}
+// End of H.M.Wang 2025-6-19 增加一个使rfid停止发射信号的功能
+
 	/*
 	 * 端口连接
 	 */

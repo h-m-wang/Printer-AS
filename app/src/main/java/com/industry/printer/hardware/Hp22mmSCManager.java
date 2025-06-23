@@ -95,6 +95,10 @@ public class Hp22mmSCManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
+// H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
+                RFIDDevice rf = RFIDDevice.getInstance();
+                rf.disableRfid();
+// End of H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
                 while(true) {
                     synchronized (LockObj) {
                         if (!mInitialized) {

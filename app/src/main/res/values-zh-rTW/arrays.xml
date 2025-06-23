@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-<!-- H.M.Wang 2020-2-4 追加班次(Shift)位数数组 -->
+<!-- H.M.Wang 2020-2-4 追加班次(Shift)位數數組 -->
     <string-array name="strShiftBitsArray">
         <item>1位</item>
         <item>2位</item>
     </string-array>
-<!-- End of H.M.Wang 2020-2-4 追加班次(Shift)位数数组 -->
+<!-- End of H.M.Wang 2020-2-4 追加班次(Shift)位數數組 -->
 
-<!-- H.M.Wang 2019-12-19 追加数据源名称字符串数组 -->
+<!-- H.M.Wang 2019-12-19 追加數據源名稱字符串數組 -->
     <string-array name="strDataSourceArray">
         <item>禁用</item>
         <item>BIN</item>
         <item>文件</item>
         <item>文件2</item>
-        <item>以太網數據</item>
+        <item>乙太網數據</item>
         <item>快速網路打印</item>
-        <item>網路心跳</item>
+        <item>網路心率</item>
         <item>掃描1</item>
         <item>掃描1-FIFO</item>
         <item>掃描2</item>
         <item>掃描3</item>
         <item>掃描4</item>
-<!-- H.M.Wang 2024-1-12 增加一个扫描协议5 -->
+<!-- H.M.Wang 2024-1-12 增加一個掃描協議5 -->
         <item>掃描5</item>
-<!-- End of H.M.Wang 2024-1-12 增加一个扫描协议5 -->
-<!-- H.M.Wang 2024-7-1 新增加扫描协议6 -->
+<!-- End of H.M.Wang 2024-1-12 增加一個掃描協議5 -->
+<!-- H.M.Wang 2024-7-1 新增加掃描協議6 -->
         <item>掃描6</item>
-<!-- End of H.M.Wang 2024-7-1 新增加扫描协议6 -->
-<!-- H.M.Wang 2024-9-4 新增加扫描协议7 -->
+<!-- End of H.M.Wang 2024-7-1 新增加掃描協議6 -->
+<!-- H.M.Wang 2024-9-4 新增加掃描協議7 -->
         <item>掃描7</item>
-<!-- End of H.M.Wang 2024-9-4 新增加扫描协议7 -->
-<!-- H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
-<!-- H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
-<!-- H.M.Wang 2025-6-9 暂时取消该协议，待后续重新启动
+<!-- End of H.M.Wang 2024-9-4 新增加掃描協議7 -->
+<!-- H.M.Wang 2025-5-28 新增加掃描協議8和9 -->
+<!-- H.M.Wang 2025-5-28 新增加掃描協議8和9 -->
+<!-- H.M.Wang 2025-6-9 暫時取消該協議，待後續重新啟動
         <item>掃描-8</item>
         <item>掃描-9</item> -->
         <item>保留</item>
         <item>保留</item>
-<!-- End of H.M.Wang 2025-5-28 新增加扫描协议8和9 -->
-<!-- H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
+<!-- End of H.M.Wang 2025-5-28 新增加掃描協議8和9 -->
+<!-- H.M.Wang 2025-6-6 增加一個掃描協議10，掃描客戶二維碼，將 $ 符號前面的內容賦給DT0 -->
         <item>掃描-10</item>
-<!-- End of H.M.Wang 2025-6-6 增加一个扫描协议10，扫描客户二维码，将 $ 符号前面的内容赋给DT0 -->
+<!-- End of H.M.Wang 2025-6-6 增加一個掃描協議10，掃描客戶二維碼，將 $ 符號前面的內容賦給DT0 -->
         <item>串口協議1</item>
         <item>串口協議2</item>
         <item>串口協議3</item>
@@ -63,34 +63,34 @@
         <!--  H.M.Wang 2022-4-5 追加PC命令 -->
         <item>串口協議11</item>
         <!--  End of H.M.Wang 2022-4-5 追加PC命令 -->
-        <!-- H.M.Wang 2022-5-16 追加串口协议2无线 -->
-        <item>串口協議2無綫</item>
-        <!-- End of H.M.Wang 2022-5-16 追加串口协议2无线 -->
-        <!-- H.M.Wang 2022-10-8 追加数据源：变量/Auto-data -->
+        <!-- H.M.Wang 2022-5-16 追加串口協議2無線 -->
+        <item>串口協議2無線</item>
+        <!-- End of H.M.Wang 2022-5-16 追加串口協議2無線 -->
+        <!-- H.M.Wang 2022-10-8 追加數據源：變量/Auto-data -->
         <item>變量</item>
-        <!-- End of H.M.Wang 2022-10-8 追加数据源：变量/Auto-data -->
-<!--  H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格 -->
+        <!-- End of H.M.Wang 2022-10-8 追加數據源：變量/Auto-data -->
+<!--  H.M.Wang 2022-12-19 追加一個串口，根據《單點機通訊.doc》定義。從串口接收到的數據格式為：第一字節為點數，第二字節以後為相應個數的字節，字節為0x01時，表示為一點，0x00時表示為空格 -->
         <item>RS232單點</item>
-<!--  End of H.M.Wang 2022-12-19 追加一个串口，根据《单点机通讯.doc》定义。从串口接收到的数据格式为：第一字节为点数，第二字节以后为相应个数的字节，字节为0x01时，表示为一点，0x00时表示为空格 -->
-<!-- H.M.Wang 2023-12-13 追加一个串口协议12 -->
+<!--  End of H.M.Wang 2022-12-19 追加一個串口，根據《單點機通訊.doc》定義。從串口接收到的數據格式為：第一字節為點數，第二字節以後為相應個數的字節，字節為0x01時，表示為一點，0x00時表示為空格 -->
+<!-- H.M.Wang 2023-12-13 追加一個串口協議12 -->
         <item>串口協議12</item>
-<!-- H.M.Wang 2023-12-13 追加一个串口协议12 -->
-<!-- H.M.Wang 2024-2-20 追加一个GS1串口协议 -->
+<!-- H.M.Wang 2023-12-13 追加一個串口協議12 -->
+<!-- H.M.Wang 2024-2-20 追加一個GS1串口協議 -->
         <item>GS1-2</item>
-<!-- End of H.M.Wang 2024-2-20 追加一个GS1串口协议 -->
-<!-- H.M.Wang 2024-2-22 追加一个GS1网络协议 -->
+<!-- End of H.M.Wang 2024-2-20 追加一個GS1串口協議 -->
+<!-- H.M.Wang 2024-2-22 追加一個GS1網路協議 -->
         <item>LAN GS1-2</item>
-<!-- End of H.M.Wang 2024-2-22 追加一个GS1网络协议 -->
-<!-- H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能 -->
+<!-- End of H.M.Wang 2024-2-22 追加一個GS1網路協議 -->
+<!-- H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的條碼解析功能 -->
         <item>GS1-3</item>
         <item>GS1-4</item>
         <item>GS1-5</item>
-<!-- End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能 -->
-<!-- H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据 -->
+<!-- End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的條碼解析功能 -->
+<!-- H.M.Wang 2024-7-20 追加一個數據源，用來接收藍牙數據 -->
         <item>藍牙數據</item>
-<!-- End of H.M.Wang 2024-7-20 追加一个数据源，用来接收蓝牙数据 -->
+<!-- End of H.M.Wang 2024-7-20 追加一個數據源，用來接收藍牙數據 -->
     </string-array>
-<!-- End of H.M.Wang 2019-12-19 追加数据源名称字符串数组 -->
+<!-- End of H.M.Wang 2019-12-19 追加數據源名稱字符串數組 -->
 
     <string-array name="strPrinterArray">
         <item>12.7 </item>
@@ -107,61 +107,61 @@
         <!--  H.M.Wang 追加下列一行 -->
         <item>64 dot</item>
 
-        <!--  H.M.Wang 2020-4-16 追加追加12.7R5头类型 -->
-        <!-- H.M.Wang 2020-5-21 12.7R5头改为RX48，追加RX50头 -->
+        <!--  H.M.Wang 2020-4-16 追加追加12.7R5頭類型 -->
+        <!-- H.M.Wang 2020-5-21 12.7R5頭改為RX48，追加RX50頭 -->
         <!--<item>12.7 R5</item>-->
         <item>R6X48</item>
         <item>R6X50</item>
-        <!-- End of H.M.Wang 2020-5-21 12.7R5头改为RX48，追加RX50头 -->
+        <!-- End of H.M.Wang 2020-5-21 12.7R5頭改為RX48，追加RX50頭 -->
 
-        <!-- H.M.Wang 2020-7-23 追加32DN打印头 -->
+        <!-- H.M.Wang 2020-7-23 追加32DN打印頭 -->
         <item>32DN</item>
-        <!-- End of H.M.Wang 2020-7-23 追加32DN打印头 -->
+        <!-- End of H.M.Wang 2020-7-23 追加32DN打印頭 -->
 
-        <!-- H.M.Wang 2020-8-18 追加32SN打印头 -->
+        <!-- H.M.Wang 2020-8-18 追加32SN打印頭 -->
         <item>32SN</item>
-        <!-- End of H.M.Wang 2020-8-18 追加32SN打印头 -->
+        <!-- End of H.M.Wang 2020-8-18 追加32SN打印頭 -->
 
-        <!-- H.M.Wang 2020-8-26 追加64SN打印头 -->
+        <!-- H.M.Wang 2020-8-26 追加64SN打印頭 -->
         <item>64SN</item>
-        <!-- End of H.M.Wang 2020-8-26 追加64SN打印头 -->
+        <!-- End of H.M.Wang 2020-8-26 追加64SN打印頭 -->
         <item>9MM</item>
-        <!--  H.M.Wang 2021-3-6 追加E6X48,E6X50头 -->
+        <!--  H.M.Wang 2021-3-6 追加E6X48,E6X50頭 -->
         <item>E6X48</item>
         <item>E6X50</item>
-        <!--  End of H.M.Wang 2021-3-6 追加E6X48,E6X50头 -->
+        <!--  End of H.M.Wang 2021-3-6 追加E6X48,E6X50頭 -->
         <item>E6X1</item>
-        <!-- H.M.Wang 2021-8-16 追加96DN头 -->
+        <!-- H.M.Wang 2021-8-16 追加96DN頭 -->
         <item>96DN</item>
-        <!-- End of H.M.Wang 2021-8-16 追加96DN头 -->
-        <!-- H.M.Wang 2021-8-25 追加E5X48和E5X50头类型 -->
+        <!-- End of H.M.Wang 2021-8-16 追加96DN頭 -->
+        <!-- H.M.Wang 2021-8-25 追加E5X48和E5X50頭類型 -->
         <item>E5X48</item>
         <item>E5X50</item>
-        <!-- End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型 -->
-        <!-- H.M.Wang 2022-4-29 追加25.4x10头 -->
+        <!-- End of H.M.Wang 2021-8-25 追加E5X48和E5X50頭類型 -->
+        <!-- H.M.Wang 2022-4-29 追加25.4x10頭 -->
         <item>25.4x10</item>
-        <!-- End of H.M.Wang 2022-4-29 追加25.4x10头 -->
-        <!-- H.M.Wang 2022-5-27 追加32x2头类型 -->
+        <!-- End of H.M.Wang 2022-4-29 追加25.4x10頭 -->
+        <!-- H.M.Wang 2022-5-27 追加32x2頭類型 -->
         <item>32x2</item>
-        <!-- End of H.M.Wang 2022-5-27 追加32x2头类型 -->
-        <!-- H.M.Wang 2022-10-19 追加64SLANT头 -->
+        <!-- End of H.M.Wang 2022-5-27 追加32x2頭類型 -->
+        <!-- H.M.Wang 2022-10-19 追加64SLANT頭 -->
         <item>64SLANT</item>
-        <!-- End of H.M.Wang 2022-10-19 追加64SLANT头 -->
-        <!-- H.M.Wang 2023-7-29 追加48点头 -->
+        <!-- End of H.M.Wang 2022-10-19 追加64SLANT頭 -->
+        <!-- H.M.Wang 2023-7-29 追加48點頭 -->
         <item>48 dot</item>
-        <!-- End of H.M.Wang 2023-7-29 追加48点头 -->
-        <!-- H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
+        <!-- End of H.M.Wang 2023-7-29 追加48點頭 -->
+        <!-- H.M.Wang 2024-3-11 追加hp22mm打印頭，以生成1056點高的打印image -->
         <item>hp22mm</item>
-        <!-- End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image -->
-        <!-- H.M.Wang 2025-1-19 增加22mmx2打印头类型 -->
+        <!-- End of H.M.Wang 2024-3-11 追加hp22mm打印頭，以生成1056點高的打印image -->
+        <!-- H.M.Wang 2025-1-19 增加22mmx2打印頭類型 -->
         <item>hp22mmx2</item>
-        <!-- End of H.M.Wang 2025-1-19 增加22mmx2打印头类型 -->
-        <!-- H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
+        <!-- End of H.M.Wang 2025-1-19 增加22mmx2打印頭類型 -->
+        <!-- H.M.Wang 2024-4-29 追加64_DOT_ONE噴頭類型 -->
         <item>64 Dot One</item>
-        <!-- End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
-        <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
+        <!-- End of H.M.Wang 2024-4-29 追加64_DOT_ONE噴頭類型 -->
+        <!-- H.M.Wang 2024-9-10 增加一個16DOTX4頭類型 -->
         <item>16 Dot X4</item>
-        <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
+        <!-- H.M.Wang 2024-9-10 增加一個16DOTX4頭類型 -->
     </string-array>
 
     <string-array name="strFontArray">
@@ -283,8 +283,8 @@
     </string-array>
 
     <string-array name="trigger_mode_name">
-        <item>开</item>
-        <item>关</item>
+        <item>開</item>
+        <item>關</item>
     </string-array>
 
     <string-array name="trigger_mode_value">
@@ -360,7 +360,7 @@
         <item>450</item>
         <item>600</item>
         <item>750</item>
-        <!-- 2021-5-22 增加加重权值 -->
+        <!-- 2021-5-22 增加加重權值 -->
         <item>900</item>
         <item>1200</item>
         <item>1800</item>
@@ -405,7 +405,7 @@
         <item>6</item>
     </string-array>
 
-<!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!-- H.M.Wang 2021-9-24 追加輸入設置參數(參數57) -->
     <string-array name="input_proc_item_entries">
         <item>協議-1</item>
         <item>協議-2</item>
@@ -415,41 +415,41 @@
         <item>協議-6</item>
         <item>協議-7</item>
     </string-array>
-<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
-<!-- H.M.Wang 2022-11-30 追加一个ENC DIR -->
+<!-- End of H.M.Wang 2021-9-24 追加輸入設置參數(參數57) -->
+<!-- H.M.Wang 2022-11-30 追加一個ENC DIR -->
     <string-array name="enc_dir_item_entries">
         <item>None</item>
         <item>Left</item>
         <item>Right</item>
     </string-array>
-<!-- End of H.M.Wang 2022-11-30 追加一个ENC DIR -->
-<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+<!-- End of H.M.Wang 2022-11-30 追加一個ENC DIR -->
+<!-- H.M.Wang 2023-2-14 追加QR碼的糾錯級別 -->
     <string-array name="error_correction_level">
         <item>L (7%)</item>
         <item>M (15%)</item>
         <item>Q (25%)</item>
         <item>H (30%)</item>
     </string-array>
-<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
-<!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+<!-- End of H.M.Wang 2023-2-14 追加QR碼的糾錯級別 -->
+<!-- H.M.Wang 2023-2-15 增加一個快捷模式/Easy mode的參數。用來區分啓動哪個用戶界面 -->
     <string-array name="user_mode">
         <item>無</item>
         <item>模式1</item>
         <item>模式2</item>
         <item>模式3</item>
     </string-array>
-<!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
-<!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!-- End of H.M.Wang 2023-2-15 增加一個快捷模式/Easy mode的參數。用來區分啓動哪個用戶界面 -->
+<!-- H.M.Wang 2023-10-13 增加一個AD參數，當AD=0時，按原有策略(根據img的類型顯示電池圖標）；當AD=1時，無條件顯示電池圖標；當AD=2時，顯示氣壓參數，具體方法待定 -->
     <string-array name="param_ad">
         <item>標準</item>
         <item>電池</item>
         <item>氣壓</item>
     </string-array>
-<!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
-<!-- H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+<!-- End of H.M.Wang 2023-10-13 增加一個AD參數，當AD=0時，按原有策略(根據img的類型顯示電池圖標）；當AD=1時，無條件顯示電池圖標；當AD=2時，顯示氣壓參數，具體方法待定 -->
+<!-- H.M.Wang 2024-10-24 追加DM碼的種類選擇 -->
     <string-array name="DMType">
         <item>正方形</item>
         <item>矩形</item>
     </string-array>
-<!-- End of H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+<!-- End of H.M.Wang 2024-10-24 追加DM碼的種類選擇 -->
 </resources>

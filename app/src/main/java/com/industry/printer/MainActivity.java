@@ -22,7 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
+import jxl.Sheet;
+import jxl.Workbook;
 import rx.Observable;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -50,6 +55,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Xml;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -95,6 +101,9 @@ import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
 import com.industry.printer.ui.Test.TestMain;
 import com.printer.corelib.JarTest;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class MainActivity extends Activity implements OnCheckedChangeListener, OnTouchListener, OnClickListener {
 
@@ -1607,5 +1616,4 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 		return sDeviceInfor;
 	}
-
 }

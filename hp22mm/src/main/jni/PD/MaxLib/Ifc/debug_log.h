@@ -19,9 +19,9 @@ Made in U.S.A.
 #include <android/log.h>
 #include "max_common_types.h"
 
-// H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+// H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 extern char gOutputLog;
-// End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+// End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 
 #define LOG_TAG "hp22mm"
 

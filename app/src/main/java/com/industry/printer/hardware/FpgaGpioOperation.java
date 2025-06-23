@@ -886,13 +886,13 @@ public class FpgaGpioOperation {
     }
 
     public static void dispLog() {
-/*        int fd = open();
+        int fd = open();
         if (fd <= 0) {
             return;
         }
 
         Debug.d(TAG, "FPGA_CMD_DISPLOG");
-        ioctl(fd, FPGA_CMD_DISPLOG, 0);*/
+        ioctl(fd, FPGA_CMD_DISPLOG, 0);
     }
 
     public static void softPho() {
