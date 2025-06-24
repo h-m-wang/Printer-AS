@@ -3384,9 +3384,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
 			case R.id.btnBinfile:
-				ExcelMainWindow emw = new ExcelMainWindow(mContext);
-				emw.show(mTvOpen);
-/*                MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
+//				ExcelMainWindow emw = new ExcelMainWindow(mContext);
+//				emw.show(mTvOpen);
+                MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
 				dialog.setOnPositiveClickedListener(new OnPositiveListener() {
 					
 					@Override
@@ -3422,7 +3422,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 					
 				});
-				dialog.show();*/
+				dialog.show();
 				break;
 			case R.id.btn_page_forward:
 				mScrollView.smoothScrollBy(-400, 0);
