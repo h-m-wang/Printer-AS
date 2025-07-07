@@ -1,30 +1,54 @@
 package com.industry.printer.ExcelDataProc;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.industry.printer.DataTransferThread;
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
+import com.industry.printer.Utils.ToastUtil;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ExcelMainWindow {
     public static final String TAG = ExcelMainWindow.class.getSimpleName();
 
     private Context mContext = null;
+    private Handler mCallback;
     private PopupWindow mPopupWindow = null;
 
     private ListView mExcelDataLV = null;
-
+    private ProgressBar mProcessing;
     private TextView mImportExcel = null;
     private TextView mClearData = null;
     private TextView mDeleteData = null;
@@ -34,6 +58,7 @@ public class ExcelMainWindow {
     private TextView mExportRecord = null;
     private TextView mSelectTemplete = null;
     private TextView mSearch = null;
+    private ExeclPrintRecord mPrintRecordProc;
 
     private EditText mSearchCnt = null;
     private EditText mLine1 = null;
@@ -42,8 +67,38 @@ public class ExcelMainWindow {
     private EditText mLine4 = null;
     private ImageView mLogoView = null;
 
-    public ExcelMainWindow(Context ctx) {
+    List<String[]> mData = null;
+    private int mSelectedItemNo = -1;
+
+    private BaseAdapter mExcelDataLVAdapter = null;
+
+    public ExcelMainWindow(Context ctx, Handler callback) {
         mContext = ctx;
+        mCallback = callback;
+    }
+
+    public static Bitmap LOGO_BITMAP = null;
+
+    private void selectPosition(int pos) {
+        if(pos >= 0 && pos <mData.size()) {
+            mSelectedItemNo = pos;
+            mExcelDataLVAdapter.notifyDataSetChanged();
+            mLine1.setText(mData.get(mSelectedItemNo)[1]);
+            mLine2.setText(mData.get(mSelectedItemNo)[2]);
+            mLine3.setText(mData.get(mSelectedItemNo)[3]);
+            mLine4.setText(mData.get(mSelectedItemNo)[4]);
+
+            if(mData.get(mSelectedItemNo)[0].equalsIgnoreCase("金元素厂标")) {
+                mLogoView.setImageResource(R.drawable.logo1);
+                LOGO_BITMAP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.logo1);
+            } else if(mData.get(mSelectedItemNo)[0].equalsIgnoreCase("南钢厂标")) {
+                mLogoView.setImageResource(R.drawable.logo2);
+                LOGO_BITMAP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.logo2);
+            } else if(mData.get(mSelectedItemNo)[0].equalsIgnoreCase("船级社图标")) {
+                mLogoView.setImageResource(R.drawable.logo3);
+                LOGO_BITMAP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.logo3);
+            }
+        }
     }
 
     public void show(final View v) {
@@ -60,15 +115,15 @@ public class ExcelMainWindow {
         mPopupWindow.update();
 
         mExcelDataLV = (ListView) popupView.findViewById(R.id.xl_data_list);
-        mExcelDataLV.setAdapter(new BaseAdapter() {
+        mExcelDataLVAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
-                return 30;
+                return mData == null ? 0 : mData.size();
             }
 
             @Override
             public Object getItem(int i) {
-                return i;
+                return mData == null ? 0 : mData.get(i);
             }
 
             @Override
@@ -81,82 +136,189 @@ public class ExcelMainWindow {
                 if(null == convertView) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.excel_data_list_item, null);
                 }
-
-                TextView searchIDTV = (TextView) convertView.findViewById(R.id.search_id);
-                searchIDTV.setText("SerID." + position);
+                if(mSelectedItemNo == position) {
+                    convertView.setBackgroundColor(Color.YELLOW);
+                } else {
+                    convertView.setBackgroundColor(Color.TRANSPARENT);
+                }
+//                TextView searchIDTV = (TextView) convertView.findViewById(R.id.search_id);
+//                searchIDTV.setText(mData.get(position)[1]);
                 TextView line1 = (TextView) convertView.findViewById(R.id.line_1);
-                line1.setText("Line " + position + ".1");
+                line1.setText(mData.get(position)[1]);
                 TextView line2 = (TextView) convertView.findViewById(R.id.line_2);
-                line2.setText("Line " + position + ".2");
+                line2.setText(mData.get(position)[2]);
                 TextView line3 = (TextView) convertView.findViewById(R.id.line_3);
-                line3.setText("Line " + position + ".3");
+                line3.setText(mData.get(position)[3]);
                 TextView line4 = (TextView) convertView.findViewById(R.id.line_4);
-                line4.setText("Line " + position + ".4");
+                line4.setText(mData.get(position)[4]);
                 return convertView;
             }
+        };
+        mSelectedItemNo = -1;
+
+        mExcelDataLV.setAdapter(mExcelDataLVAdapter);
+        mExcelDataLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                selectPosition(i);
+            }
         });
+
+        mProcessing = (ProgressBar) popupView.findViewById(R.id.processing);
+        mProcessing.setVisibility(View.GONE);
+
+        ImageView cancel = (ImageView) popupView.findViewById(R.id.cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPopupWindow.dismiss();
+            }
+        });
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(!(new File("/mnt/sdcard/execldata.txt").exists())) return;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("/mnt/sdcard/execldata.txt"), "UTF-8"));
+                    String line;
+                    mData = new ArrayList<String[]>();
+                    while((line = br.readLine()) != null) {
+                        String[] data = line.split(",");
+                        mData.add(data);
+                    }
+                    br.close();
+                    mExcelDataLV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectPosition(0);
+                            mExcelDataLV.setSelection(0);
+                        }
+                    });
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         mImportExcel = (TextView) popupView.findViewById(R.id.btn_import_file);
         mImportExcel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mImportExcel", Toast.LENGTH_LONG).show();
+                ExeclFile ecf = new ExeclFile(mContext);
+                ecf.pickupFile(v, new ExeclFile.ExeclFileSelect() {
+                    @Override
+                    public void onFileSelected(final String path) {
+                        mProcessing.setVisibility(View.VISIBLE);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ImportExcelData ied = new ImportExcelData();
+                                List<String[]> data = ied.importExcel(path);
+                                if(null != data) {
+                                    mData = data;
+                                    mImportExcel.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mProcessing.setVisibility(View.GONE);
+                                            selectPosition(0);
+                                            mExcelDataLV.setSelection(0);
+                                        }
+                                    });
+                                }
+                            }
+                        }).start();
+                    }
+                });
             }
         });
         mClearData = (TextView) popupView.findViewById(R.id.btn_clear);
         mClearData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mClearData", Toast.LENGTH_LONG).show();
+                mData.clear();
+                mExcelDataLVAdapter.notifyDataSetChanged();
             }
         });
         mDeleteData = (TextView) popupView.findViewById(R.id.btn_delete);
         mDeleteData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mDeleteData", Toast.LENGTH_LONG).show();
+                mData.remove(mSelectedItemNo);
+                selectPosition(Math.min(mSelectedItemNo, mData.size()-1));
+                mExcelDataLV.setSelection(mSelectedItemNo);
             }
         });
         mSaveData = (TextView) popupView.findViewById(R.id.btn_save);
         mSaveData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mSaveData", Toast.LENGTH_LONG).show();
+                try {
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/mnt/sdcard/execldata.txt"), "UTF-8"));
+                    for(int i=0; i<mData.size(); i++) {
+                        bw.write(mData.get(i)[0] + "," + mData.get(i)[1] + "," + mData.get(i)[2] + "," + mData.get(i)[3] + "," + mData.get(i)[4] + "\n");
+                    }
+                    bw.close();
+                    ToastUtil.show(mContext, "Data saved");
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         mConfirm = (TextView) popupView.findViewById(R.id.btn_confirm);
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mConfirm: " + mLine1.getText().toString() + ", " + mLine2.getText().toString() + ", " + mLine3.getText().toString() + ", " + mLine4.getText().toString(), Toast.LENGTH_LONG).show();
+                if(mSelectedItemNo >= 0) {
+                    mData.get(mSelectedItemNo)[1] = mLine1.getText().toString();
+                    mData.get(mSelectedItemNo)[2] = mLine2.getText().toString();
+                    mData.get(mSelectedItemNo)[3] = mLine3.getText().toString();
+                    mData.get(mSelectedItemNo)[4] = mLine4.getText().toString();
+
+                    SystemConfigFile.getInstance(mContext).setDTBuffer(0, mData.get(mSelectedItemNo)[1]);
+                    SystemConfigFile.getInstance(mContext).setDTBuffer(1, mData.get(mSelectedItemNo)[2]);
+                    SystemConfigFile.getInstance(mContext).setDTBuffer(2, mData.get(mSelectedItemNo)[3]);
+                    SystemConfigFile.getInstance(mContext).setDTBuffer(3, mData.get(mSelectedItemNo)[4]);
+
+                    DataTransferThread dTransThread = DataTransferThread.getInstance(mContext);
+                    if (dTransThread != null && dTransThread.isRunning()) {
+                        dTransThread.mNeedUpdate = true;
+                        mPrintRecordProc.appendRecord(mData.get(mSelectedItemNo));
+                    }
+                }
             }
         });
+
         mPrintRecord = (TextView) popupView.findViewById(R.id.btn_record);
         mPrintRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mPrintRecord", Toast.LENGTH_LONG).show();
+                mPrintRecordProc.showPrintRecord(v);
             }
         });
         mExportRecord = (TextView) popupView.findViewById(R.id.btn_export);
         mExportRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mExportRecord", Toast.LENGTH_LONG).show();
+                mPrintRecordProc.exportPrintRecord();
             }
         });
-        mSelectTemplete = (TextView) popupView.findViewById(R.id.btn_select);
-        mSelectTemplete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, "mSelectTemplete", Toast.LENGTH_LONG).show();
-            }
-        });
+
         mSearch = (TextView) popupView.findViewById(R.id.search);
         mSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, "mSearch: " + mSearchCnt.getText().toString(), Toast.LENGTH_LONG).show();
+                mProcessing.setVisibility(View.VISIBLE);
+                for(int i=0; i<mData.size(); i++) {
+                    if(mData.get(i)[1].equalsIgnoreCase(mSearchCnt.getText().toString().trim())) {
+                        selectPosition(i);
+                        mExcelDataLV.setSelection(i);
+                        mProcessing.setVisibility(View.GONE);
+                        return;
+                    }
+                }
+                mProcessing.setVisibility(View.GONE);
+                ToastUtil.show(mContext, "Not found");
             }
         });
 
@@ -166,12 +328,8 @@ public class ExcelMainWindow {
         mLine3 = (EditText) popupView.findViewById(R.id.line3);
         mLine4 = (EditText) popupView.findViewById(R.id.line4);
         mLogoView = (ImageView) popupView.findViewById(R.id.logo);
-        mLogoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, "mLogoView", Toast.LENGTH_LONG).show();
-            }
-        });
+
+        mPrintRecordProc = new ExeclPrintRecord(mContext);
 
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
     }

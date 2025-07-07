@@ -6,7 +6,7 @@
     <string name="app_version">Version:</string>
     <string name="system_time">Heure:</string>
     <string name="app_name">Imprimante</string>
-    <string name="action_settings">Ensemble</string>
+    <string name="action_settings">Texte</string>
     <string name="hello_world">Bonjour le monde!</string>
 	<string name="ControlTab">Contrôle</string>
 	<string name="manualCtrlTab">Contrôle manuelle</string>
@@ -16,13 +16,13 @@
 	<string name="str_btn_stop">Stop</string>
 	<string name="str_btn_clean">Purge</string>
 	<string name="str_btn_open">Ouvrir</string>
-	<string name="str_btn_new">New</string>
-	<string name="str_btn_save">Save</string>
-	<string name="str_btn_saveas">Save ss</string>
+	<string name="str_btn_new">Nouveau</string>
+	<string name="str_btn_save">Enregistrer</string>
+	<string name="str_btn_saveas">Enregistrer sous</string>
 	<string name="str_btn_prerecord">Haut</string>
 	<string name="str_btn_nextrecord">Bas</string>
 	<string name="str_btn_send">Envoyer</string>
-	<string name="str_btn_set">Ensemble</string>
+	<string name="str_btn_set">Texte</string>
 	<string name="str_btn_get">Texte</string>
 	<string name="str_btn_print">Impression</string>
 	<string name="str_btn_finish">Ailette</string>
@@ -534,7 +534,7 @@
 	<string name="str_filename_no">Nouveau</string>
 	<string name="str_btn_back">Arrière</string>
 	<string name="str_btn_up">Up</string>
-	<string name="str_btn_detail">Ensemble</string>
+	<string name="str_btn_detail">Texte</string>
 	<string name="cursor">Curseur</string>
 <!-- 树莓派3  -->
 	<string name="str_dialog_msgnote">请选择信息行数：</string>
@@ -596,7 +596,7 @@
 	<string name="str_net_device_ink">Encre</string>
 	<string name="str_net_device">Appareil:</string>
 	<string name="str_net_device_times">Times:</string>
-	<string name="str_btn_saveprint">SavePrint</string>
+	<string name="str_btn_saveprint">Enregistrer et imprimer</string>
 	<string name="str_net_error">Erreur de configuration du réseau</string>
 <!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
 	<string name="strNotice">Notice</string>

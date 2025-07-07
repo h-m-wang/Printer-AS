@@ -21,6 +21,7 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.LibUpgrade;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
@@ -48,13 +49,31 @@ public class TestGpioPinsNew implements ITestOperation {
     private FrameLayout mContainer = null;
     private LinearLayout mTestAreaLL = null;
 
-    private static final String[] IN_PINS = new String[] {
+// H.M.Wang 2025-7-3 区分标准版本img和hp22mm版本img的输入输出管脚
+/*    private static final String[] IN_PINS = new String[] {
             "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
 
     private static final String[] OUT_PINS = new String[] {
             "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", ""
+    };*/
+    private static final String[] IN_PINS_STD = new String[] {
+            "PG0", "PI5", "PI6", "PE7", "PE8", "PE9", "PE10", "PE11"
     };
+
+    private static final String[] OUT_PINS_STD = new String[] {
+            "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", ""
+    };
+    private static final String[] IN_PINS_HP22MM = new String[] {
+            "PI7", "PG1", "PG5", "PG2", "PG8", "PG9", "PE8", "PE9"
+    };
+
+    private static final String[] OUT_PINS_HP22MM = new String[] {
+            "PI8", "PB11", "PG4", "PI9", "PG0", "", "", ""
+    };
+    private String[] IN_PINS;
+    private String[] OUT_PINS;
+// End of H.M.Wang 2025-7-3 区分标准版本img和hp22mm版本img的输入输出管脚
 
     private static final String[] OUT_PIN_TITLES = new String[] {
             "OUT-1", "OUT-2", "OUT-3", "OUT-4", "OUT-5", "ValveOut2", "ValveOut1", ""
@@ -178,6 +197,15 @@ public class TestGpioPinsNew implements ITestOperation {
 
     public TestGpioPinsNew(Context ctx, int index) {
         mContext = ctx;
+// H.M.Wang 2025-7-3 区分标准版本img和hp22mm版本img的输入输出管脚
+        if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+            IN_PINS = IN_PINS_HP22MM;
+            OUT_PINS = OUT_PINS_HP22MM;
+        } else {
+            IN_PINS = IN_PINS_STD;
+            OUT_PINS = OUT_PINS_STD;
+        }
+// End of H.M.Wang 2025-7-3 区分标准版本img和hp22mm版本img的输入输出管脚
     }
 
     private boolean mSerialRecv = false;

@@ -225,6 +225,9 @@ public class SystemConfigFile{
 	public static final int USER_MODE_2 	= 2;		// 显示用户2特色页面
 	public static final int USER_MODE_3 	= 3;		// 显示用户3特色页面
 // End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面
+// H.M.Wang 2025-6-27 增加一个从Execl文件导入数据的功能，这个一个特殊用户的需求
+	public static final int USER_MODE_4 	= 4;
+// End of H.M.Wang 2025-6-27 增加一个从Execl文件导入数据的功能，这个一个特殊用户的需求
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小

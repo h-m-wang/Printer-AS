@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.industry.printer.BinInfo;
+import com.industry.printer.ExcelDataProc.ExcelMainWindow;
 import com.industry.printer.MessageTask;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -31,6 +32,7 @@ import com.industry.printer.object.BarcodeObject;
 import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.DynamicText;
+import com.industry.printer.object.GraphicObject;
 import com.industry.printer.object.HyperTextObject;
 import com.industry.printer.object.JulianDayObject;
 import com.industry.printer.object.LetterHourObject;
@@ -395,7 +397,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 ///./...		Debug.d(TAG, "--->buffer = " + mBuffer.length);
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
-        if(bSave) {
+        if(true) {
             FileUtil.deleteFolder("/mnt/sdcard/print.bin");
 			BinCreater.saveBin("/mnt/sdcard/print.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads);
         }
@@ -1078,6 +1080,15 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
 // End of H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 				continue;
+// H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
+			} else if(o instanceof GraphicObject) {
+				if(config.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_4) {
+					if(ExcelMainWindow.LOGO_BITMAP != null) {
+						BinInfo info = new BinInfo(mContext, Bitmap.createScaledBitmap(ExcelMainWindow.LOGO_BITMAP, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false), mTask.getHeads(), mExtendStat);
+						BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+					}
+				}
+// End of H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
 // H.M.Wang 2020-5-22 串口数据启用DynamicText，取消代用CounterObject
             } else if(o instanceof DynamicText) {
 //				Debug.d(TAG, "--->object index=" + o.getIndex() + "; headType = " + headType);
@@ -1444,6 +1455,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					|| (o instanceof LetterHourObject)
 					|| (o instanceof WeekOfYearObject)
 					|| (o instanceof WeekDayObject)
+// H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
+					|| (o instanceof GraphicObject && SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_4)
+// End of H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
 					|| o.getSource())
 			{
 				return true;

@@ -3338,6 +3338,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mHandler.sendEmptyMessageDelayed(MESSAGE_OPEN_TLKFILE, 1000);
 // End of H.M.Wang 2022-1-12 延时1秒下发打印命令
 				if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
+				if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_4) {
+					ExcelMainWindow emw = new ExcelMainWindow(mContext, mHandler);
+					emw.show(mTvOpen);
+				}
 				break;
 			case R.id.StopPrint:
 // H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
@@ -3384,8 +3388,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
 			case R.id.btnBinfile:
-//				ExcelMainWindow emw = new ExcelMainWindow(mContext);
-//				emw.show(mTvOpen);
                 MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
 				dialog.setOnPositiveClickedListener(new OnPositiveListener() {
 					

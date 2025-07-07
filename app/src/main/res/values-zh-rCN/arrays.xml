@@ -436,6 +436,7 @@
         <item>模式1</item>
         <item>模式2</item>
         <item>模式3</item>
+        <item>模式4</item>
     </string-array>
 <!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
 <!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->

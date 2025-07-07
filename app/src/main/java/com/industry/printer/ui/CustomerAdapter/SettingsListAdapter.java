@@ -265,7 +265,6 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 				break;
 // End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理
 			case MSG_HP22MM_NOZZLE_SEL:
-				if((msg.arg1 & 0x0F) == 0x00) msg.arg1 |= 0x01;
 				mSettingItems[SystemConfigFile.INDEX_22MM_NOZZLE_SEL].setValue(msg.arg1);
 				mSysconfig.setParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL, msg.arg1);
 				notifyDataSetChanged();

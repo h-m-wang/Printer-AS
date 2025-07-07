@@ -1199,8 +1199,8 @@ public class BarcodeObject extends BaseObject {
 					paint.setStrokeWidth(STROKE_WIDTH * 2);
 					cvs.drawLine(/* top */  0, STROKE_WIDTH, barBmp.getWidth(), STROKE_WIDTH, paint);
 					cvs.drawLine(/* left */ STROKE_WIDTH, 0, STROKE_WIDTH, barBmp.getHeight(), paint);
-					cvs.drawLine(/* right */barBmp.getWidth() - STROKE_WIDTH, 0, barBmp.getWidth() - STROKE_WIDTH, barBmp.getHeight(), paint);
-					cvs.drawLine(/* bottom*/0, barBmp.getHeight() - STROKE_WIDTH,barBmp.getWidth(), barBmp.getHeight() - STROKE_WIDTH, paint);
+					cvs.drawLine(/* right */barBmp.getWidth() - STROKE_WIDTH*2, 0, barBmp.getWidth() - STROKE_WIDTH*2, barBmp.getHeight(), paint);
+					cvs.drawLine(/* bottom*/0, barBmp.getHeight() - STROKE_WIDTH *2, barBmp.getWidth(), barBmp.getHeight() - STROKE_WIDTH*2, paint);
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
 				}
 			}
