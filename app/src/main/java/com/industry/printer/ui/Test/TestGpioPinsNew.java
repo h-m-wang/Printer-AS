@@ -65,7 +65,7 @@ public class TestGpioPinsNew implements ITestOperation {
             "PI8", "PB11", "PG4", "PH26", "PH27", "PE4", "PE5", ""
     };
     private static final String[] IN_PINS_HP22MM = new String[] {
-            "PI7", "PG1", "PG5", "PG2", "PG8", "PG9", "PE8", "PE9"
+            "PI7", "PG1", "PH26", "PG2", "PG8", "PG9", "PE8", "PE9"
     };
 
     private static final String[] OUT_PINS_HP22MM = new String[] {
@@ -227,7 +227,11 @@ public class TestGpioPinsNew implements ITestOperation {
     }
 
     private void testWriteFPGA() {
-        ExtGpio.writeGpioTestPin('I', 7, 0);
+// H.M.Wang 2025-7-14 A133的22mm机型无PI7的切换
+        if(!PlatformInfo.isA133Product() || !PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+            ExtGpio.writeGpioTestPin('I', 7, 0);
+        }
+// End of H.M.Wang 2025-7-14 A133的22mm机型无PI7的切换
         mHandler.obtainMessage(MSG_SHOW_FPGA_UPGRADING_PROGRESS).sendToTarget();
         if (0 == FpgaGpioOperation.updateFlash()) {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.GREEN).sendToTarget();
@@ -235,7 +239,11 @@ public class TestGpioPinsNew implements ITestOperation {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED).sendToTarget();
         }
         mHandler.obtainMessage(MSG_HIDE_FPGA_UPGRADING_PROGRESS).sendToTarget();
-        ExtGpio.writeGpioTestPin('I', 7, 1);
+// H.M.Wang 2025-7-14 A133的22mm机型无PI7的切换
+        if(!PlatformInfo.isA133Product() || !PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+            ExtGpio.writeGpioTestPin('I', 7, 1);
+        }
+// End of H.M.Wang 2025-7-14 A133的22mm机型无PI7的切换
     }
 
     private void testUpgradeKOs() {

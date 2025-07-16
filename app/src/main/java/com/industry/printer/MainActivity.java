@@ -78,6 +78,7 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.ConfigPath;
@@ -91,8 +92,10 @@ import com.industry.printer.Utils.ZipUtil;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RTCDevice;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -188,6 +191,18 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		FpgaGpioOperation.mFd = 0;
 		RFIDDevice.mFd = 0;
 		ExtGpio.mFd = 0;
+
+// H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOG_ENABLE) == Constants.LOG_OUTPUT_ENABLE) {
+			Configs.DEBUG = true;
+			SmartCard.enableLog(1);
+			Hp22mm.enableLog(1);
+		} else {
+			Configs.DEBUG = false;
+			SmartCard.enableLog(0);
+			Hp22mm.enableLog(0);
+		}
+// End of H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
 
 // H.M.Wang 2023-6-25 新的用户定制界面
 		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {

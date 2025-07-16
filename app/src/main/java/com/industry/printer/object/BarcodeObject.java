@@ -647,6 +647,10 @@ public class BarcodeObject extends BaseObject {
 
 	@Override
 	public Bitmap makeBinBitmap(Context ctx, String content, int ctW, int ctH, String font) {
+// H.M.Wang 2025-7-10 修改当内容为动态条码或者是静态条码中包含超文本时，不生成，直接返回空
+		if(getSource() || needRedraw()) return null;
+// End of H.M.Wang 2025-7-10 修改当内容为动态条码或者是静态条码中包含超文本时，不生成，直接返回空
+
 		if (is2D()) {
 //			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
@@ -890,7 +894,7 @@ public class BarcodeObject extends BaseObject {
 		int[] pixels = new int[w * h];
 // End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 
-		Debug.d(TAG, "w: " + w + "; h: " + h + "; Width: " + width + "; Height: " + height);
+		Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h + "; Width: " + width + "; Height: " + height);
 //		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height; y++)
 		{

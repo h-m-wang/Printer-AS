@@ -124,6 +124,7 @@ void ids_callback(int ids, int level, const char *message) {
     if (NULL != _ids_callback_func)
 		(*_ids_callback_func)(ids, level, message);
 }
+int ConfigADCForPressure(int IDS);
 
 // #####################################################################
 // # IDS General
@@ -165,6 +166,9 @@ int IDS_Init(int ids, void (*ids_callback_func)(int ids, int level, const char *
 	}
 		
    	// @@@ Start background monitoring thread @@@
+
+    IDS_MonitorPressure(ids);
+    ConfigADCForPressure(ids);
 
 	if (MonitorInit() < 0) {
 		LOGE("IDS_Init cannot init monitor thread");

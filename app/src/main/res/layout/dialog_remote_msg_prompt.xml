@@ -165,6 +165,22 @@
                 android:textColor="@color/black"
                 android:background="@color/button_background" />
         </LinearLayout>
+        <ProgressBar
+            android:id="@+id/procBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            style="@android:style/Widget.Holo.ProgressBar.Large" />
+        <TextView
+            android:id="@+id/countDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:textColor="@color/gray"
+            android:textSize="28sp"
+            />
     </RelativeLayout>
 
 </RelativeLayout>

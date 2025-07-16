@@ -397,7 +397,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 ///./...		Debug.d(TAG, "--->buffer = " + mBuffer.length);
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
-        if(true) {
+        if(bSave) {
             FileUtil.deleteFolder("/mnt/sdcard/print.bin");
 			BinCreater.saveBin("/mnt/sdcard/print.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads);
         }
@@ -1073,10 +1073,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 // H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 // 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
-// 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式试着可能会重叠，改为覆盖
-//				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
-				BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
-// End of 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式试着可能会重叠，改为覆盖
+// H.M.Wang 2025-7-10 取消覆盖，恢复到合并。原来因为原来修改为覆盖是哪位可能在静态二维码中包含超文本而带来内容的修改，此时如果不覆盖，会有1.bin中内容的留存。现在的处理办法是在生成1.bin时，此种情况不保存图案
+// 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式可能会重叠，改为覆盖
+				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+//				BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// End of 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式可能会重叠，改为覆盖
+// End end H.M.Wang 2025-7-10 取消覆盖，恢复到合并。原来因为原来修改为覆盖是哪位可能在静态二维码中包含超文本而带来内容的修改，此时如果不覆盖，会有1.bin中内容的留存
 // End of 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
 // End of H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 				continue;

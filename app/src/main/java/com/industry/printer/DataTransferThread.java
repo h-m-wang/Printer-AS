@@ -3287,7 +3287,6 @@ public class PrintTask extends Thread {
 			mStopped = false;
 //			long startMillis = System.currentTimeMillis();
 			int lastPrintedCount = 0;
-			long lastSentDataTime = 0;
 
 			while(mRunning == true) {
 // H.M.Wang 2021-12-30 当正在打印的时候，如果开始清洗，则暂停打印进程
@@ -3355,13 +3354,6 @@ public class PrintTask extends Thread {
 					if(reportEmpty) Debug.d(TAG, "--->FPGA buffer is empty");
 					long emptyEventTime = System.currentTimeMillis();
 
-// H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
-					if(emptyEventTime - lastSentDataTime < 100) {	// 当上次下发数据后到本次底层申请数之间的时间间隔小于100ms的时候，认为是打印频率比较高，取消log输出以节省时间，避免过多的输出log，导致logd进程挂起，出现内存泄漏
-						Configs.DEBUG = false;
-						SmartCard.enableLog(0);
-						Hp22mm.enableLog(0);
-					}
-// End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 // H.M.Wang 2024-3-29 追加一个限制打印次数的参数，该参数在数据源为扫描2时起作用。数值=0时，不限制打印次数，数值>0时，对于新的扫描数据限制打印次数不超过该值。如果打印次数超限，则不下发打印数据，如果打印次数不足限制值时接收到新数据，则使用新的数据，并且更新为新的次数限制
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
@@ -3708,11 +3700,6 @@ public class PrintTask extends Thread {
 			}
 //            Debug.d(TAG, "Running...Quit! ");
 			mStopped = true;
-// H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
-			Configs.DEBUG = true;
-			SmartCard.enableLog(1);
-			Hp22mm.enableLog(1);
-// End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 
 // H.M.Wang 2020-7-2 由于调整计数器增量策略，在打印完成时调整，因此无需rollback
 //			rollback();

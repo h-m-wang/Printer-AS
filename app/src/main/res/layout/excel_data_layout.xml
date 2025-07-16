@@ -59,8 +59,9 @@
                     android:layout_margin="2dp"
                     android:padding="5dp"
                     android:textSize="24sp"
+                    android:hint="搜索"
                     android:textColor="@color/black" />
-                <TextView
+ <!--               <TextView
                     android:id="@+id/search"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -70,7 +71,7 @@
                     android:background="@drawable/btn_response_bgd"
                     android:textSize="24sp"
                     android:text="搜索"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black" />-->
             </LinearLayout>
 <!--            <TextView
                 android:layout_width="wrap_content"

@@ -307,7 +307,7 @@ public class SystemConfigFile{
 	public static final int DATA_SOURCE_SCANER6 	= 13;		// 扫描6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 // H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
-	public static final int DATA_SOURCE_SCANER7 	= 14;		// 扫描6
+	public static final int DATA_SOURCE_SCANER7 	= 14;		// 扫描7
 // End of H.M.Wang 2024-9-4 增加一个扫描协议，扫描后，扫描内容作为初始内容显示编辑窗，用户可以手动编辑，确定后，作为打印内容可以直接打印
 // H.M.Wang 2025-5-28 增加一个扫描协议8。扫描客户的二维码，将[No.:]对应的13位字符赋给DT0
 	public static final int DATA_SOURCE_SCANER8 	= 14;		//15;		 暂时修改到扫描协议7，即不支持正常功能，待后续恢复

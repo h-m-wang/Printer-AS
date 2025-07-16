@@ -5,12 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import com.industry.printer.Bluetooth.BluetoothServerManager;
+import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.*;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
 import com.industry.printer.ui.CustomerAdapter.SettingsListAdapter;
 import com.industry.printer.ui.CustomerDialog.CalendarDialog;
@@ -406,6 +408,18 @@ public static final String TAG="SettingsTabActivity";
 					@Override
 					public void onClick() {
 						saveParam();
+// H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
+						if(mSysconfig.getParam(SystemConfigFile.INDEX_LOG_ENABLE) == Constants.LOG_OUTPUT_ENABLE) {
+							Configs.DEBUG = true;
+							SmartCard.enableLog(1);
+							Hp22mm.enableLog(1);
+						} else {
+							Configs.DEBUG = false;
+							SmartCard.enableLog(0);
+							Hp22mm.enableLog(0);
+						}
+// End of H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
+
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 						new Thread(new Runnable() {
 							@Override

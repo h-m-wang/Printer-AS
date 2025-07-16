@@ -3,16 +3,21 @@ package com.industry.printer.ui.CustomerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.industry.printer.Constants.Constants;
 import com.industry.printer.R;
+import com.industry.printer.Utils.Debug;
 
 /**
  * Created by hmwan on 2020/11/4.
@@ -31,6 +36,9 @@ public class RemoteMsgPrompt extends RelightableDialog {
     private EditText mEditText;
     private TextView mOK;
     private TextView mClose;
+    private ProgressBar mProcBar;
+    private TextView mCountDown;
+    private int mDownwardCnt;
 
     private TextView[] mPenBtns;
     private int[] mPenIds = new int[] {R.id.p1, R.id.p2, R.id.p3, R.id.p4};
@@ -42,6 +50,25 @@ public class RemoteMsgPrompt extends RelightableDialog {
         public void onOK(String edit, int pens, boolean backward);
     }
     private EditActionListener mEditActionListener;
+
+    public static final int MESSAGE_COUNTDOWN = 100;
+    public Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case MESSAGE_COUNTDOWN:
+                mCountDown.setText("" + mDownwardCnt);
+                if(mDownwardCnt == 0) {
+                    mProcBar.setVisibility(View.GONE);
+                    mCountDown.setVisibility(View.GONE);
+                } else {
+                    mDownwardCnt--;
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(MESSAGE_COUNTDOWN), 1000);
+                }
+                Debug.d("SCANER7", "" + mDownwardCnt);
+                break;
+            }
+        }
+    };
 
     public RemoteMsgPrompt(Context context) {
         super(context, R.style.Dialog);
@@ -80,7 +107,13 @@ public class RemoteMsgPrompt extends RelightableDialog {
         mOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(null != mEditActionListener) mEditActionListener.onOK(mEditText.getText().toString(), mPrintPens, mBackPrint);
+                if(null != mEditActionListener) {
+                    mEditActionListener.onOK(mEditText.getText().toString(), mPrintPens, mBackPrint);
+                    mProcBar.setVisibility(View.VISIBLE);
+                    mCountDown.setVisibility(View.VISIBLE);
+                    mDownwardCnt = 3;
+                    mHandler.obtainMessage(MESSAGE_COUNTDOWN).sendToTarget();
+                }
             }
         });
         mClose = (TextView) findViewById(R.id.RMClose);
@@ -91,6 +124,8 @@ public class RemoteMsgPrompt extends RelightableDialog {
                 hide();
             }
         });
+        mProcBar = (ProgressBar) findViewById(R.id.procBar);
+        mCountDown = (TextView) findViewById(R.id.countDown);
 
         mPenBtns = new TextView[mPenIds.length];
         for(int i=0; i<mPenIds.length; i++) {

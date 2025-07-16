@@ -28,7 +28,16 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.163"
+#define VERSION_CODE                            "1.0.166"
+// 1.0.166 2025-7-11
+// 在IDS_Init函数中，开启ADC的压力监测模式工作
+// 1.0.165 2025-7-11
+// 1.0.164 2025-7-11
+// 1. 修改 SUPPLY_PRESSURE 值由 6 改为 4
+// 2. 取消压力是否合格的判定标准使用
+//     if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
+// 改为使用
+//     if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) {
 // 1.0.163 2025-6-11
 // 修改为log可设置为输出和不输出
 // 1.0.162 2025-5-27
@@ -306,7 +315,8 @@ static bool CancelMonitor = true;
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
-#define SUPPLY_PRESSURE 6.0
+#define SUPPLY_PRESSURE 4.0
+#define PRESSURE_OK_LINE 3.0
 #define PRESSURIZE_SEC 120  // 两分钟
 
 #define LED_R 0
@@ -359,7 +369,8 @@ void *monitorThread(void *arg) {
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
         RunningState[IDS_STATE] = STATE_VALID;
         if(Air_Pump_State == AIR_STATE_PUMPED) {
-            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
+            if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) {
+//            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
                 sprintf(ERR_STRING, "WARNING: Air press low\n");
                 LOGE("[Async]WARNING: Air press low\n");
                 RunningState[IDS_STATE] = STATE_INVALID;
@@ -368,7 +379,8 @@ void *monitorThread(void *arg) {
         }
         // 正在加压的过程当中监视压力变化，如果超过PRESSURIZE_SEC秒后仍然压力过低，则判断为失败，重新尝试加压。如果压力满足要求，则标注为加压成功
         if(Air_Pump_State == AIR_STATE_PUMPING) {
-            if(IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
+            if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) {
+//            if(IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
                 if (--limit_sec <= 0) {
                     sprintf(ERR_STRING, "ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
                     LOGE("[Async]ERROR: Supply not pressurized in %d seconds\n", PRESSURIZE_SEC);
@@ -1305,7 +1317,8 @@ int _CmdPressurize(float set_pressure) {
         sleep(1);   // delay 1 sec
 
         pressurized = true;
-        if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) pressurized = false;
+        if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) pressurized = false;
+//        if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) pressurized = false;
 
         // check for timeout
         if (--limit_sec <= 0) {

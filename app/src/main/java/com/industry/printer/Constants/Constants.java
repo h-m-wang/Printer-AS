@@ -25,5 +25,7 @@ public class Constants {
 
 
     public static final int LOG_ENABLE = 1234;
-
+// H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
+    public static final int LOG_OUTPUT_ENABLE = 5678;
+// End of H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
 }
