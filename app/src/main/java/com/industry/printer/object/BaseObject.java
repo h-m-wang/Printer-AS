@@ -862,7 +862,7 @@ public class BaseObject{
 	public void setHeight(float size)
 	{
 		if (this instanceof BarcodeObject && size < 4.0*MessageObject.PIXELS_PER_MM) {
-			size = 4.0f * MessageObject.PIXELS_PER_MM;
+//			size = 4.0f * MessageObject.PIXELS_PER_MM;
 		}/* else if (size < MessageObject.mBaseList[0] * MessageObject.PIXELS_PER_MM) {
 			size = MessageObject.mBaseList[0] * MessageObject.PIXELS_PER_MM;
 		}*/ else if (size > 152) {

@@ -1341,11 +1341,13 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 //				}
 					mValid = checkFeatureCode();
 
-// H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
-					if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mFeature[6] < 64 || mFeature[6] >= 164)) {
-						mValid = false;
-					}
-// End of H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
+// H.M.Wang 2025-7-17 永久取消64-164的区间限制
+//// H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
+//					if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mFeature[6] < 64 || mFeature[6] >= 164)) {
+//						mValid = false;
+//					}
+//// End of H.M.Wang 2023-5-18 追加一个，当为Bagink的时候，如果特征值6的值不是64-164之间的值，则禁止打印
+// End of H.M.Wang 2025-7-17 永久取消64-164的区间限制
 
 					mState = STATE_RFID_FEATURE_READY;
 				} else if (mState == STATE_RFID_VALUE_READING) {

@@ -36,7 +36,6 @@ public class RemoteMsgPrompt extends RelightableDialog {
     private EditText mEditText;
     private TextView mOK;
     private TextView mClose;
-    private ProgressBar mProcBar;
     private TextView mCountDown;
     private int mDownwardCnt;
 
@@ -58,13 +57,11 @@ public class RemoteMsgPrompt extends RelightableDialog {
             case MESSAGE_COUNTDOWN:
                 mCountDown.setText("" + mDownwardCnt);
                 if(mDownwardCnt == 0) {
-                    mProcBar.setVisibility(View.GONE);
                     mCountDown.setVisibility(View.GONE);
                 } else {
                     mDownwardCnt--;
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(MESSAGE_COUNTDOWN), 1000);
                 }
-                Debug.d("SCANER7", "" + mDownwardCnt);
                 break;
             }
         }
@@ -109,7 +106,6 @@ public class RemoteMsgPrompt extends RelightableDialog {
             public void onClick(View view) {
                 if(null != mEditActionListener) {
                     mEditActionListener.onOK(mEditText.getText().toString(), mPrintPens, mBackPrint);
-                    mProcBar.setVisibility(View.VISIBLE);
                     mCountDown.setVisibility(View.VISIBLE);
                     mDownwardCnt = 3;
                     mHandler.obtainMessage(MESSAGE_COUNTDOWN).sendToTarget();
@@ -124,7 +120,6 @@ public class RemoteMsgPrompt extends RelightableDialog {
                 hide();
             }
         });
-        mProcBar = (ProgressBar) findViewById(R.id.procBar);
         mCountDown = (TextView) findViewById(R.id.countDown);
 
         mPenBtns = new TextView[mPenIds.length];
