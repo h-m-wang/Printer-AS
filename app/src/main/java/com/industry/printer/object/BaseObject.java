@@ -862,7 +862,9 @@ public class BaseObject{
 	public void setHeight(float size)
 	{
 		if (this instanceof BarcodeObject && size < 4.0*MessageObject.PIXELS_PER_MM) {
+// H.M.Wang 2025-7-17 取消对高度的限制，但是用户设置高度小于4.0的时候，可能会出现预览图，编辑图甚至实际打印图高度不够而无法生成的问题
 //			size = 4.0f * MessageObject.PIXELS_PER_MM;
+// End of H.M.Wang 2025-7-17 取消对高度的限制，但是用户设置高度小于4.0的时候，可能会出现预览图，编辑图甚至实际打印图高度不够而无法生成的问题
 		}/* else if (size < MessageObject.mBaseList[0] * MessageObject.PIXELS_PER_MM) {
 			size = MessageObject.mBaseList[0] * MessageObject.PIXELS_PER_MM;
 		}*/ else if (size > 152) {

@@ -1609,7 +1609,10 @@ private void setSerialProtocol9DTs(final String data) {
 // End of H.M.Wang 2025-3-12 修改分隔符为$
 
 							int strIndex = 0;
-
+// H.M.Wang 2025-7-17 扫描协议7在用户点按了确认之后，先下发4K的空白数据，待真实数据生成完成后，再下发真实数据
+							Arrays.fill(mPrintBuffer, (char)0x0000);
+							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, 1024 * 4);
+// End of H.M.Wang 2025-7-17 扫描协议7在用户点按了确认之后，先下发4K的空白数据，待真实数据生成完成后，再下发真实数据
 							synchronized (DataTransferThread.class) {
 // H.M.Wang 2020-9-10 协议收到的数值对群组也有效
 								for (DataTask dataTask : mDataTask) {
