@@ -561,7 +561,7 @@ public enum PrinterNozzle {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
             case NozzleType.NOZZLE_TYPE_22MMX2:
 //                scaleW = 1056f/152;
-                scaleW = 264f/152;
+                scaleW = 528f/152;
                 scaleH = 1056f/152;
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型

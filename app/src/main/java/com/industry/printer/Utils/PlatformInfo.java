@@ -4,10 +4,13 @@ import java.lang.reflect.Method;
 import java.security.PublicKey;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.provider.Settings;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.SmartCard;
 
@@ -129,6 +132,18 @@ public class PlatformInfo {
 
 	public static boolean isMImgType(String imgUC) {
 		return (imgUC.startsWith("M9") || imgUC.startsWith("M7") || imgUC.startsWith("M5") || imgUC.startsWith("4FIFO") || imgUC.startsWith("BAGINK") || imgUC.startsWith("22MM"));
+	}
+
+	public static boolean is3InchType() {
+		String info = getImgUniqueCode();
+		return
+			info.startsWith("NNG3") ||		// A20 新板新屏GPIO版本
+			info.startsWith("ONG3") ||		// A20 旧板新屏GPIO版本
+			info.startsWith("GZJ") ||		// A20 基于旧板新屏GPIO版本的盖章机
+			info.startsWith("NSM2") || 		// A20 基于新板新屏SPI版本的M2
+			info.startsWith("FNG3") || 		// A20 基于新板新屏GPIO版本的F屏版本
+			info.startsWith("FGZJ") ||		// A20 基于盖章机的F屏版本
+			info.startsWith("FNSM");		// A20 基于M2的F屏版本
 	}
 
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示

@@ -351,8 +351,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				}
 				ExtGpio.playClick();
 // H.M.Wang 2024-10-15 增加7寸屏的强制恢复正常显示，因为当前设置了反转之后，屏幕显示不正确
-				String info = PlatformInfo.getImgUniqueCode();
-				if(!info.startsWith("NNG3") && !info.startsWith("ONG3") && !info.startsWith("GZJ") && !info.startsWith("NSM2") && !info.startsWith("FNG3") && !info.startsWith("FGZJ") && !info.startsWith("FNSM")) {
+				if(!PlatformInfo.is3InchType()) {
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LCD_INVERSE) != 0) {
 						Settings.System.putInt(mContext.getContentResolver(), "rotate_screen", ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 						SystemConfigFile.getInstance(mContext).setParam(SystemConfigFile.INDEX_LCD_INVERSE, 0);
@@ -1518,8 +1517,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		SystemConfigFile config = SystemConfigFile.getInstance(mContext);
 		float percent = config.getParam(SystemConfigFile.INDEX_LIGHTNESS) / 100.0f;
 // H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
-		String info = PlatformInfo.getImgUniqueCode();
-		if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3") || info.startsWith("FGZJ") || info.startsWith("FNSM")) {
+		if(PlatformInfo.is3InchType()) {
 			percent = 0.5f;
 		}
 // End of H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变

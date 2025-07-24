@@ -572,8 +572,7 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 // H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
 			if(!mHolder.mValueREt.isEnabled()) mHolder.mValueREt.setEnabled(true);
 			if(2*position + 1 == 43) {
-				String info = PlatformInfo.getImgUniqueCode();
-				if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3") || info.startsWith("FGZJ") || info.startsWith("FNSM")) {
+				if(PlatformInfo.is3InchType()) {
 					mHolder.mValueREt.setEnabled(false);
 					mHolder.mValueREt.setText("50");
 				}

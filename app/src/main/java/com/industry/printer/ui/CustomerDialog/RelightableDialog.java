@@ -63,8 +63,7 @@ public class RelightableDialog extends Dialog {
         SystemConfigFile config = SystemConfigFile.getInstance(mContext);
         float percent = config.getParam(SystemConfigFile.INDEX_LIGHTNESS) / 100.0f;
 // H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变
-        String info = PlatformInfo.getImgUniqueCode();
-        if(info.startsWith("NNG3") || info.startsWith("ONG3") || info.startsWith("GZJ") || info.startsWith("NSM2") || info.startsWith("FNG3") || info.startsWith("FGZJ") || info.startsWith("FNSM")) {
+        if(PlatformInfo.is3InchType()) {
             percent = 0.5f;
         }
 // End of H.M.Wang 2023-7-17 3.5寸盘亮度固定为50，其余不变

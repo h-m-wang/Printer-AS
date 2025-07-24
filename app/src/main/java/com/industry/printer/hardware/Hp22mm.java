@@ -318,7 +318,7 @@ public class Hp22mm {
         if((nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) ||
            (nozzle == PrinterNozzle.MESSAGE_TYPE_22MM &&  config.getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)) {
 // End of H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
-            regs[REG05_BYTES_PER_COL] *= 2;
+            regs[REG05_BYTES_PER_COL] *= 1;
         }
 // End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
@@ -478,7 +478,6 @@ public class Hp22mm {
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 // H.M.Wang 2025-3-19 追加一个循环功能
     public static void hp22mmCirculation() {
-        SystemConfigFile config = SystemConfigFile.getInstance();
         char[] settings = getSettings(FpgaGpioOperation.SETTING_TYPE_PURGE1);
         int tofFreq = 1000000000;                   // 循环时按1000M
         settings[0] = (char)((tofFreq >> 16) & 0x0ffff);                                                                         // 借用Reg0来保存TOF的高16位
@@ -488,7 +487,7 @@ public class Hp22mm {
         ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
         FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_IGNORE, FpgaGpioOperation.FPGA_STATE_SETTING, settings, settings.length * 2);
 
-        try{Thread.sleep(10000);}catch(Exception e){}
+        try{Thread.sleep(2000);}catch(Exception e){}
         settings[REG25_PRINT_ENABLE] &= (char)0x00;
 
         ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);

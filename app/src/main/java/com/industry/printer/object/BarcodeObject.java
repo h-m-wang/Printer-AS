@@ -20,6 +20,7 @@ import com.google.zxing.qrcode.encoder.Encoder;
 import com.google.zxing.qrcode.encoder.QRCode;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MainActivity;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.data.BarcodeGeneratorJNI;
@@ -730,8 +731,17 @@ public class BarcodeObject extends BaseObject {
 			}
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
-			BitMatrix matrix = encode(content, w, h, hints);
-			int tl[] = matrix.getTopLeftOnBit();
+// H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+			BitMatrix matrix;
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) && w != h) {
+				matrix = encode(content, Math.min(w, h), Math.min(w, h), hints);
+			} else {
+				matrix = encode(content, w, h, hints);
+			}
+//			BitMatrix matrix = encode(content, w, h, hints);
+// End of H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+
+//			int tl[] = matrix.getTopLeftOnBit();
 			int width = matrix.getWidth();
 			int height = matrix.getHeight();
 			Debug.d("BarcodeObject", "mWidth="+ w +", width="+width + "   height=" + height);
@@ -761,9 +771,15 @@ public class BarcodeObject extends BaseObject {
 
 			// H.M.Wang 修改返回值一行
 // H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
+// H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+					(width != w || height != h)) {
+				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+			}
+// End of H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+// End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 			return bitmap;
 //			return Bitmap.createScaledBitmap(bitmap, w, h, false);
-// End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
 //			return bitmap;
 //		} catch (WriterException e) {
@@ -777,7 +793,16 @@ public class BarcodeObject extends BaseObject {
 	// H.M.Wang 2023-11-21 追加GS1的QR和DM
 	private Bitmap drawOkapiQR(String content, int w, int h) {
 		long startTime = System.nanoTime();
-		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);;
+
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+        int drawW = w, drawH = h;
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+            drawW = Math.min(w, h);
+            drawH = drawW;
+        }
+//		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);;
+        Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 
 //		Debug.d(TAG, "GS1 QR: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
 
@@ -806,8 +831,10 @@ public class BarcodeObject extends BaseObject {
 			qrcode.setContent(content);
 //			Debug.d(TAG, "GS1 QR Height: " + qrcode.getHeight() + "; Bar Height: " + qrcode.getBarHeight());
 
-			if(qrcode.getHeight() <= h) {
-				Java2DRenderer renderer = new Java2DRenderer(h/qrcode.getHeight(), Color.WHITE, Color.BLACK);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+			if(qrcode.getHeight() <= drawH) {       // 生成位图，同时如果生成的QR码比容器小，需要调整（按比例缩放）
+				Java2DRenderer renderer = new Java2DRenderer(drawH/qrcode.getHeight(), Color.WHITE, Color.BLACK);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				renderer.setReverse(mRevert);
 				if (isDynamicCode() || needRedraw()) {
 					renderer.setInk(0xff0000ff);
@@ -816,7 +843,9 @@ public class BarcodeObject extends BaseObject {
 //				Debug.d(TAG, "GS1 QR width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
 
 				Canvas canvas = new Canvas(outBmp);
-				canvas.drawBitmap(bitmap, (w - bitmap.getWidth())/2, (h - bitmap.getHeight())/2, new Paint());
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+				canvas.drawBitmap(bitmap, (drawW - bitmap.getWidth())/2, (drawH - bitmap.getHeight())/2, new Paint());  // 将bitmap画在中央
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				bitmap.recycle();
 			}
 		} catch (OkapiException e) {
@@ -826,12 +855,26 @@ public class BarcodeObject extends BaseObject {
 		}
 
 		Debug.d(TAG, "GS1 QR spent time: " + ((System.nanoTime() - startTime) / 1000000));
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+            (w != drawW || h != drawH)) {
+            return Bitmap.createScaledBitmap(outBmp, w, h, false);
+        }
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 		return outBmp;
 	}
 
 	private Bitmap drawGS1Datamatrix(String content, int w, int h) {
 		long startTime = System.nanoTime();
-		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+        int drawW = w, drawH = h;
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+            drawW = Math.min(w, h);
+            drawH = drawW;
+        }
+//        Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+        Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 
 //		Debug.d(TAG, "GS1 DM: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
 
@@ -844,8 +887,10 @@ public class BarcodeObject extends BaseObject {
 			dataMatrix.setContent(content);
 //			Debug.d(TAG, "GS1 DM Height: " + dataMatrix.getHeight() + "; Actual Height: " + dataMatrix.getActualHeight() + "; Bar Height: " + dataMatrix.getBarHeight());
 
-			if(dataMatrix.getHeight() <= h) {
-				Java2DRenderer renderer = new Java2DRenderer(h/dataMatrix.getHeight(), Color.WHITE, Color.BLACK);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+			if(dataMatrix.getHeight() <= drawH) {
+				Java2DRenderer renderer = new Java2DRenderer(drawH/dataMatrix.getHeight(), Color.WHITE, Color.BLACK);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				renderer.setReverse(mRevert);
 				if (isDynamicCode() || needRedraw()) {
 					renderer.setInk(0xff0000ff);
@@ -854,7 +899,9 @@ public class BarcodeObject extends BaseObject {
 //				Debug.d(TAG, "GS1 DM width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
 
 				Canvas canvas = new Canvas(outBmp);
-				canvas.drawBitmap(bitmap, (w - bitmap.getWidth())/2, (h - bitmap.getHeight())/2, new Paint());
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+				canvas.drawBitmap(bitmap, (drawW - bitmap.getWidth())/2, (drawH - bitmap.getHeight())/2, new Paint());
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				bitmap.recycle();
 			}
 		} catch (Exception e) {
@@ -869,6 +916,12 @@ public class BarcodeObject extends BaseObject {
 		}
 
 		Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+                (w != drawW || h != drawH)) {
+            return Bitmap.createScaledBitmap(outBmp, w, h, false);
+        }
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 		return outBmp;
 	}
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
@@ -876,25 +929,44 @@ public class BarcodeObject extends BaseObject {
 	private Bitmap drawDataMatrix(String content, int w, int h) {
 		DataMatrixWriter writer = new DataMatrixWriter();
 
-		// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
+// H.M.Wang 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 		HashMap<EncodeHintType,Object> hints = new HashMap<EncodeHintType, Object>();
 		hints.put(EncodeHintType.DATA_MATRIX_SHAPE, (mDMType == DM_TYPE_RECTANGLE ? SymbolShapeHint.FORCE_RECTANGLE : SymbolShapeHint.FORCE_SQUARE));
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H); // 设置纠错等级（可选）
 // H.M.Wang 2024-12-6 修改DM码的生成方法，在生成DM码时就按四边缩小一个像素的方式生成
 //		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h, hints);
-		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//        BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);
+        int drawW = w, drawH = h;
+        BitMatrix matrix;
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2)) {
+            if(mDMType == DM_TYPE_RECTANGLE) {
+                drawH = Math.min(w*8, h*18)/18;
+                drawW = drawH*18/8;
+            } else {
+                drawH = Math.min(w, h);
+                drawW = drawH;
+            }
+        }
+        matrix = writer.encode(content, getBarcodeFormat(mFormat), drawW-2, drawH-2, hints);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//			BitMatrix matrix = encode(content, w, h, hints);
+// End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 // End of H.M.Wang 2024-12-6 修改DM码的生成方法，在生成DM码时就按四边缩小一个像素的方式生成
 //		BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w, h);
-		// End of 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
+// End of 2019-12-21 修改DM生成器的调用方法，设置生成的DM码为正方形
 
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
 // H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 //		int[] pixels = new int[width * height];
-		int[] pixels = new int[w * h];
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//		int[] pixels = new int[w * h];
+        int[] pixels = new int[drawW * drawH];
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 // End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 
-		Debug.d(TAG, "Content: " + content + "; w: " + w + "; h: " + h + "; Width: " + width + "; Height: " + height);
+		Debug.d(TAG, "Content: " + content + "; drawW: " + drawW + "; drawH: " + drawH + "; Width: " + width + "; Height: " + height);
 //		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height; y++)
 		{
@@ -907,7 +979,10 @@ public class BarcodeObject extends BaseObject {
 //					pixels[y * width + x] = mReverse ? 0xffffffff : 0xff000000;
 // H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 //					pixels[y * w + x] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
-					pixels[(y+1) * w + x+1] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//                    pixels[(y+1) * w + x+1] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+					pixels[(y+1) * drawW + x+1] = mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 // End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 // End of H.M.Wang 2022-12-20 追加反白设置
 //					sb.append('#');
@@ -916,7 +991,10 @@ public class BarcodeObject extends BaseObject {
 //					pixels[y * width + x] = mReverse ? 0xff000000 : 0xffffffff;
 // H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 //					pixels[y * w + x] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
-					pixels[(y+1) * w + x+1] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//                    pixels[(y+1) * w + x+1] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+					pixels[(y+1) * drawW + x+1] = mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff;
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 // End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 // End of H.M.Wang 2022-12-20 追加反白设置
 //					sb.append('.');
@@ -925,12 +1003,24 @@ public class BarcodeObject extends BaseObject {
 		}
 //		Debug.d(TAG, sb.toString());
 		// 条码/二维码的四个边缘空出20像素作为白边
-		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//        Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		Bitmap bitmap = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 //		Bitmap bitmap = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
-		bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+//        bitmap.setPixels(pixels, 0, w, 0, 0, w, h);
+		bitmap.setPixels(pixels, 0, drawW, 0, 0, drawW, drawH);
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 
 		// H.M.Wang 修改返回值一行
 // H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
+// H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+            (drawW != w || drawH != h)) {
+            return Bitmap.createScaledBitmap(bitmap, w, h, false);
+        }
+// End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 		return bitmap;
 //		return Bitmap.createScaledBitmap(bitmap, w, h, false);
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
