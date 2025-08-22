@@ -148,17 +148,17 @@ public class MessageDisplayManager implements View.OnTouchListener {
             return;
         }
         ViewGroup view = mImageMap.get(object);
-//        mImageMap.remove(object);
-//        mContainer.removeView(view);
-//
-//        draw(object);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
+        mImageMap.remove(object);
+        mContainer.removeView(view);
+
+        draw(object);
+/*        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
         params.width = (int)object.getWidth();
         params.height = (int)object.getHeight();
         params.topMargin = (int) object.getY();
         params.leftMargin = (int) object.getX();
         view.setLayoutParams(params);
-
+*/
         // H.M.Wang修改，以显示当前对象的选择框
 //        showSelectRect(params.leftMargin, params.topMargin, params.width, params.height);
         if(object.mIsSelected) {

@@ -18,11 +18,16 @@ import java.util.regex.Pattern;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 import android.os.SystemClock;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -1734,7 +1739,7 @@ private void setSerialProtocol9DTs(final String data) {
 //						}
 // End of H.M.Wang 2021-5-21 修改动态文本内容获取逻辑，从预留的10个盆子里面获取，编辑页面显示#####
 
-						String datastring = new String(data, 7, data.length - 7);
+						String datastring = new String(data, 7, data.length - 7);	// 跳过开头的7个0x00
 						if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_1) {
 							setRemoteTextFitCounter(datastring);
 						} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_RS232_2 ||
@@ -2084,7 +2089,10 @@ private void setSerialProtocol9DTs(final String data) {
 				case MESSAGE_SHOW_LEVEL:
 					if (null != mRecvedLevelPromptDlg) {
 						mRecvedLevelPromptDlg.setTitle("Levels");
-						mRecvedLevelPromptDlg.setMessage((String)msg.obj);
+						SpannableString message = new SpannableString((String)msg.obj);
+						message.setSpan(new AbsoluteSizeSpan(14, true), 0, message.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+						mRecvedLevelPromptDlg.setMessage(message);
+//						mRecvedLevelPromptDlg.setMessage((String)msg.obj);
 						mRecvedLevelPromptDlg.show();
 						mRecvedLevelPromptDlg.show();
 					}
@@ -2133,10 +2141,15 @@ private void setSerialProtocol9DTs(final String data) {
 		int headIndex = configFile.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 		int heads = PrinterNozzle.getInstance(headIndex).mHeads;
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
-		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof RfidScheduler)) {
+//		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof RfidScheduler)) {
+		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0) && (mScheduler instanceof RfidScheduler)) {
+// End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 			((RfidScheduler) mScheduler).setCallbackHandler(mHandler);
 		}
-		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof N_RfidScheduler)) {
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+//		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof N_RfidScheduler)) {
+		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0) && (mScheduler instanceof N_RfidScheduler)) {
+// End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 			((N_RfidScheduler) mScheduler).setCallbackHandler(mHandler);
 		}
 // End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框

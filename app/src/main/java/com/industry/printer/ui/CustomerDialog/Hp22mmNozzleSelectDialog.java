@@ -49,8 +49,8 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
     private TextView mPen0_1;
     private TextView mPen0_0;
 
-    private final int IDS1_MASK       = 0x00000800;
-    private final int IDS0_MASK       = 0x00000400;
+    private final int IDS1_MASK       = 0x00000400;     // 2025-7-26 0x00000800 -> 0x00000400
+    private final int IDS0_MASK       = 0x00000800;     // 2025-7-26 0x00000400 -> 0x00000800
     private final int PEN1_MASK       = 0x00000200;
     private final int PEN0_MASK       = 0x00000100;
     private final int PEN1_SLOT7_MASK = 0x00000080;

@@ -57,7 +57,7 @@ while(BLEServer.BLERequiring) {
 }
 synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	Debug.print(RFIDDevice.RFID_DATA_SEND, mCmd.mTransData);
-	ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 0);
 // H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 		try {
 			for(int i=0; i<3; i++) {
@@ -78,7 +78,7 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 // End of H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 
 		Debug.print(RFIDDevice.RFID_DATA_RECV, readin);
-	ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 1);
 }
 		RFIDData response = parseResponse(readin);
 		if (mCallback != null) {

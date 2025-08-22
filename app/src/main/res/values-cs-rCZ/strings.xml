@@ -470,12 +470,12 @@
 <!--	<string name="str_textview_param79">79.Vyhrazeno</string>-->
 	<string name="str_textview_param79">79.Bluetooth</string>
 <!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
-	<string name="str_textview_param80">80.Col Space</string>
+	<string name="str_textview_param80">80.PumpCircu</string>
 <!-- H.M.Wang 2025-5-19 22mm设置循环参数 -->
 <!--	<string name="str_textview_param80">81.Vyhrazeno</string>-->
 	<string name="str_textview_param81">81.Circulation</string>
 <!-- End of H.M.Wang 2025-5-19 22mm设置循环参数 -->
-	<string name="str_textview_param82">82.Slt Space</string>
+	<string name="str_textview_param82">82.Vyhrazeno</string>
 	<string name="str_textview_param83">83.Vyhrazeno</string>
 	<string name="str_textview_param84">84.Vyhrazeno</string>
 	<string name="str_textview_param85">85.Vyhrazeno</string>

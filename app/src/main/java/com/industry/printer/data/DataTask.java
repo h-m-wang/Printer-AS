@@ -613,9 +613,15 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		mBinInfo.mColumn += rmCols;
 // End of H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
 // H.M.Wang 2025-5-16 临时填0
-		if(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM) {
+		if(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM ||
+// H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
+			sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MMX2) {
+// End of H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
 			CharArrayBuffer caBuf = new CharArrayBuffer(0);
-			int orgCharsOfHead = mBinInfo.mCharsPerHFeed * mTask.getNozzle().mHeads;
+// H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
+//			int orgCharsOfHead = mBinInfo.mCharsPerHFeed * mTask.getNozzle().mHeads;
+			int orgCharsOfHead = mBinInfo.mCharsPerHFeed;
+// End of H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
 			int orgCols = mBuffer.length / orgCharsOfHead;
 			char[] zero = new char[orgCharsOfHead];
 			Arrays.fill(zero, (char)0x0000);
@@ -627,10 +633,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 			mBuffer = caBuf.toCharArray();
 
-			if(bSave) {
-				FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
-				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
-			}
+//			if(bSave) {
+//				FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
+//				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
+//			}
 		}
 
 		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));

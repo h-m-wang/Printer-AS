@@ -42,6 +42,9 @@ public class ExtGpio {
 	private static final int GPIO_SET_VALVE3 = 0x13;
 	private static final int GPIO_SET_VALVE4 = 0x14;
 // End of H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
+// H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
+	private static final int GPIO_GET_DRVVER = 0x15;
+// End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 
 	public static final int FPGA_STATE_OUTPUT = 0x00;
 	public static final int FPGA_STATE_SETTING = 0x04;
@@ -186,4 +189,14 @@ public class ExtGpio {
 		FpgaGpioOperation.ioctl(fd, GPIO_SET_VALVE1 + index, arg);
 	}
 // End of H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
+
+// H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
+	public static int getDriverVersion() {
+		int fd = open();
+		if (fd > 0) {
+			return FpgaGpioOperation.ioctl(fd, GPIO_GET_DRVVER, 0);
+		}
+		return 0;
+	}
+// End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 }

@@ -318,7 +318,7 @@ public class Hp22mm {
         if((nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) ||
            (nozzle == PrinterNozzle.MESSAGE_TYPE_22MM &&  config.getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)) {
 // End of H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
-            regs[REG05_BYTES_PER_COL] *= 1;
+            regs[REG05_BYTES_PER_COL] *= 2;
         }
 // End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;
@@ -401,8 +401,8 @@ public class Hp22mm {
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
 
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-        regs[REG23_COLUMN_SPACING] = (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
-        regs[REG24_SLOT_SPACING] = (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
+        regs[REG23_COLUMN_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
+        regs[REG24_SLOT_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
 // H.M.Wang 2025-5-19 修改Reg25的值，Circulation/循环间隔设置为Reg25[15:2]
 //        regs[REG25_PRINT_ENABLE] = 0;                                                  // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
 // H.M.Wang 2025-5-24 扩充REG25到32bit

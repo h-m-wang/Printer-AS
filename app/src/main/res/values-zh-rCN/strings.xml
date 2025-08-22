@@ -535,12 +535,12 @@
 <!--	<string name="str_textview_param79">79.保留</string>-->
 	<string name="str_textview_param79">79.蓝牙开关</string>
 <!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
-	<string name="str_textview_param80">80.列间隔</string>
+	<string name="str_textview_param80">80.泵压循环</string>
 <!-- H.M.Wang 2025-5-19 22mm设置循环参数 -->
 <!--	<string name="str_textview_param80">81.保留</string>-->
 	<string name="str_textview_param81">81.循环间隔</string>
 <!-- End of H.M.Wang 2025-5-19 22mm设置循环参数 -->
-	<string name="str_textview_param82">82.槽间隔</string>
+	<string name="str_textview_param82">82.保留</string>
 	<string name="str_textview_param83">83.保留</string>
 	<string name="str_textview_param84">84.保留</string>
 	<string name="str_textview_param85">85.保留</string>

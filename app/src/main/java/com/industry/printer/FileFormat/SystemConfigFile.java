@@ -252,12 +252,12 @@ public class SystemConfigFile{
 // H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 	public static final int INDEX_BLE_ENABLE = 78;
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
-	public static final int INDEX_COLUMN_SPACING = 79;
+	public static final int INDEX_PUMP_CIRCU = 79;		// 2025-7-26 修改为泵压循环
 // H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 	public static final int INDEX_CIRCULATION = 80;
 // End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 // H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
-	public static final int INDEX_SLOT_SPACING = 81;
+// 2025-7-26 取消该参数	public static final int INDEX_SLOT_SPACING = 81;
 	public static final int INDEX_RFID_SC_SWITCH = 93;
 // End of H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
 // H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
@@ -718,6 +718,224 @@ public class SystemConfigFile{
 		SmartCard.setType(mParam[INDEX_INTERNAL], mParam[INDEX_INTERNAL_ADDINK]);
 // End of H.M.Wang 2024-11-25 增加两个参数，参数95=小卡自有天线模式启动标识，0=正常模式；1=小卡自有天线模式。参数96=小卡自由天线模式加墨阈值，缺省0=310；其余值=实际值
 	}
+
+	public int[] readConfig() {
+		FileReader reader=null;
+		BufferedReader br = null;
+		String tag;
+
+		XmlInputStream inStream = new XmlInputStream(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_XML);
+		List<XmlTag> list = inStream.read();
+		if (list == null) {
+			Debug.d(TAG, "--->read system_config file fail");
+			return null;
+		}
+		int[] ret = new int[96];
+
+		for (XmlTag t : list) {
+			try {
+				tag = t.getKey();
+				if (tag.equalsIgnoreCase(PH_SETTING_ENCODER)) {
+					ret[0] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_TRIGER_MODE)) {
+					ret[1] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_HIGH_DELAY)) {
+					ret[2] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_LOW_DELAY)) {
+					ret[3] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_PHOOUTPUT_PERIOD)) {
+					ret[4] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_TIMED_PERIOD)) {
+					ret[5] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_TRIGER_PULSE)) {
+					ret[6] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_LENFIXED_PULSE)) {
+					ret[7] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_DELAY_PULSE)) {
+					ret[8] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_HIGH_LEN)) {
+					ret[9] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_11)) {
+					ret[10] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_12)) {
+					ret[11] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_13)) {
+					ret[12] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_14)) {
+					ret[13] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_15)) {
+					ret[14] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_16)) {
+					ret[15] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_17)) {
+					ret[16] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_18)) {
+					ret[17] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_19)) {
+					ret[18] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_20)) {
+					ret[19] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_21)) {
+					ret[20] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_22)) {
+					ret[21] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_23)) {
+					ret[22] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_24)) {
+					ret[23] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_25)) {
+					ret[24] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_26)) {
+					ret[25] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_27)) {
+					ret[26] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_28)) {
+					ret[27] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_29)) {
+					ret[28] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_30)) {
+					ret[29] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_31)) {
+					ret[30] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_32)) {
+					ret[31] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_33)) {
+					ret[32] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_34)) {
+					ret[33] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_35)) {
+					ret[34] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_36)) {
+					ret[35] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_37)) {
+					ret[36] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_38)) {
+					ret[37] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_39)) {
+					ret[38] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_40)) {
+					ret[39] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_41)) {
+					ret[40] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_42)) {
+					ret[41] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_43)) {
+					ret[42] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_44)) {
+					ret[43] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_45)) {
+					ret[44] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_46)) {
+					ret[45] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_47)) {
+					ret[46] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_48)) {
+					ret[47] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_49)) {
+					ret[48] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_50)) {
+					ret[49] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_51)) {
+					ret[50] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_52)) {
+					ret[51] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_53)) {
+					ret[52] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_54)) {
+					ret[53] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_55)) {
+					ret[54] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_56)) {
+					ret[55] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_57)) {
+					ret[56] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_58)) {
+					ret[57] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_59)) {
+					ret[58] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_60)) {
+					ret[59] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_61)) {
+					ret[60] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_62)) {
+					ret[61] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_63)) {
+					ret[62] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_64)) {
+					ret[63] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_65)) {
+					ret[64] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_66)) {
+					ret[65] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_67)) {
+					ret[66] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_68)) {
+					ret[67] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_69)) {
+					ret[68] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_70)) {
+					ret[69] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_71)) {
+					ret[70] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_72)) {
+					ret[71] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_73)) {
+					ret[72] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_74)) {
+					ret[73] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_75)) {
+					ret[74] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_76)) {
+					ret[75] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_77)) {
+					ret[76] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_78)) {
+					ret[77] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_79)) {
+					ret[78] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_80)) {
+					ret[79] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_81)) {
+					ret[80] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_82)) {
+					ret[81] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_83)) {
+					ret[82] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_84)) {
+					ret[83] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_85)) {
+					ret[84] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_86)) {
+					ret[85] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_87)) {
+					ret[86] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_88)) {
+					ret[87] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_89)) {
+					ret[88] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_90)) {
+					ret[89] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_91)) {
+					ret[90] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_92)) {
+					ret[91] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_93)) {
+					ret[92] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_94)) {
+					ret[93] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_95)) {
+					ret[94] = Integer.parseInt(t.getValue());
+				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_96)) {
+					ret[95] = Integer.parseInt(t.getValue());
+				}
+			} catch ( Exception e) {
+				continue;
+			}
+		}
+		inStream.close();
+		return ret;
+	}
+
 	public boolean parseSystemCofig() {
 		Debug.d(TAG, "--->parseSystemCofig");
 		FileReader reader=null;
@@ -1319,6 +1537,7 @@ public class SystemConfigFile{
 		XmlOutputStream stream = new XmlOutputStream(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_XML);
 		stream.write(list);
 		stream.close();
+		try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
 
 		long[] counters = new long[10];
 		for (int i = INDEX_COUNT_1; i <= INDEX_COUNT_10; i++) {

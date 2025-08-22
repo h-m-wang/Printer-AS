@@ -136,9 +136,9 @@ public class BLEServer extends BluetoothServer {
     public void closeServer() {
         mInitialized = false;
         synchronized (RFIDDevice.SERIAL_LOCK) {
-            ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
             execCmdStopAdvertise();
-            ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 0);
             PCCommandManager pcCM = PCCommandManager.getInstance();
             if(null != pcCM) {
                 PCCommandHandler pcCH = pcCM.getBLEHandler();
@@ -166,7 +166,7 @@ public class BLEServer extends BluetoothServer {
                 mClientConnected = false;
                 mClientMacAddress = "";
                 synchronized (RFIDDevice.SERIAL_LOCK) {
-                    ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                    ExtGpio.writeGpioTestPin('I', 9, 1);
                     mInitialized =
                             execCmdRST() &&
                                     execCmdSetServerMode() &&
@@ -175,7 +175,7 @@ public class BLEServer extends BluetoothServer {
                                     execCmdSetAdvData() &&
                                     execCmdStartAdvertise();
 //            execGattGetChars();
-                    ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                    ExtGpio.writeGpioTestPin('I', 9, 0);
                     PCCommandManager pcCM = PCCommandManager.getInstance();
                     if(null != pcCM && mInitialized) {
                         pcCM.addBLEHandler(new BLEStreamTransport(mStreamTransport.getInputStream(), mStreamTransport.getOutputStream(), BLEServer.this));
@@ -196,7 +196,7 @@ public class BLEServer extends BluetoothServer {
 
         String rcvString = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
-            ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
             if(mStreamTransport.readerReady()) {
                 // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
@@ -283,7 +283,7 @@ public class BLEServer extends BluetoothServer {
         int recv = 0;
 
         synchronized (RFIDDevice.SERIAL_LOCK) {
-            ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
 
             byte[] temp = new byte[RECV_CLIENT_WRITE.length()+8];
 

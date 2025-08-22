@@ -83,6 +83,7 @@ import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
+import com.industry.printer.Utils.CypherUtils;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.KZFileObserver;
@@ -929,6 +930,30 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			break;
 		case R.id.msg_transfer:
 //			Debug.e(TAG, "Transfer Clicked!");
+/* 升级apk疲劳测试			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						String tmpPath = "/data/audio_d/aaa.apk";
+						String srcPath = ConfigPath.getUpgradePath() + "/Printer_1.apk";
+						Debug.d(TAG, "[UPGRADE_TEST] " + srcPath + " -> " + tmpPath);
+						String srcMD5 = CypherUtils.getFileMD5(srcPath);
+
+						for(int i=0; i<100; i++) {
+							Debug.d(TAG, "[UPGRADE_TEST] " + i);
+							FileUtil.writeFile(tmpPath, new FileInputStream(new File(srcPath)));
+							try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
+							try {Thread.sleep(1000);} catch(Exception e) {}
+							if(!CypherUtils.getFileMD5(tmpPath).equalsIgnoreCase(srcMD5)) {
+								Debug.d(TAG, "[UPGRADE_TEST] failed at " + i);
+							}
+						}
+						Debug.d(TAG, "[UPGRADE_TEST] done");
+					} catch(Exception e) {
+						Debug.e(TAG, "[UPGRADE_TEST] " + e.getMessage());
+					}
+				}
+			}).start();*/
 			showImportDialog();
 //			divAAATxt();
 			// setScreenBrightness(50);

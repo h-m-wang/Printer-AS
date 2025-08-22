@@ -511,12 +511,12 @@
 <!--	<string name="str_textview_param79">79.保留</string>-->
 	<string name="str_textview_param79">79.藍牙開關</string>
 <!-- End of H.M.Wang 2024-7-27 追加藍牙設備號和藍牙開關功能 -->
-	<string name="str_textview_param80">80.列間隔</string>
+	<string name="str_textview_param80">80.泵壓循環</string>
 <!-- H.M.Wang 2025-5-19 22mm設置循環參數 -->
-<!--	<string name="str_textview_param80">80.保留</string>-->
+<!--	<string name="str_textview_param81">81.保留</string>-->
 	<string name="str_textview_param81">81.循環間隔</string>
 <!-- End of H.M.Wang 2025-5-19 22mm設置循環參數 -->
-	<string name="str_textview_param82">82.槽間隔</string>
+	<string name="str_textview_param82">82.保留</string>
 	<string name="str_textview_param83">83.保留</string>
 	<string name="str_textview_param84">84.保留</string>
 	<string name="str_textview_param85">85.保留</string>

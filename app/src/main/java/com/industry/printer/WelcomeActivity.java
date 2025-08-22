@@ -49,16 +49,17 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class WelcomeActivity extends Activity {
-	
-	private static final String TAG = WelcomeActivity.class.getSimpleName(); 
+
+	private static final String TAG = WelcomeActivity.class.getSimpleName();
 	private Context mContext;
 
-// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+	// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 	private ImageView mLoading1s;
 	private View mClickView;
 	private StartupDialog mStartupDialog = null;
 
 	private static final int LAUNCH_MAINACTIVITY = 7;
+	private static final int LAUNCH_UPGRADE = 8;
 
 	public static final boolean AVOID_CROSS_UPGRADE = true;			// 禁止交叉升级
 //	public static final boolean AVOID_CROSS_UPGRADE = false;		// 自由升级
@@ -147,6 +148,14 @@ public class WelcomeActivity extends Activity {
 					finish();
 
 					break;
+				case LAUNCH_UPGRADE:
+					if (!upgrade()) {
+						mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5000);
+					} else {
+						try {Thread.sleep(5000);} catch(Exception e) {}
+						new AlertDialog.Builder(WelcomeActivity.this).setMessage(R.string.str_urge2restart).create().show();
+					}
+					break;
 			}
 		}
 	};
@@ -164,25 +173,19 @@ public class WelcomeActivity extends Activity {
 
 		Debug.d(TAG, "-------- onCreate --------");
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
-		if (!upgrade()) {
-			mLoading1s = (ImageView) findViewById(R.id.image1s);
-			mClickView = (View) findViewById(R.id.clickView);
-			mClickView.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View view) {
-					mHander.removeMessages(LAUNCH_MAINACTIVITY);
-					mStartupDialog = new StartupDialog(WelcomeActivity.this);
-					mStartupDialog.show();
-					mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 15*1000);
-					return false;
-				}
-			});
-			mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5*1000);
-		} else {
-			try {Thread.sleep(10000);} catch(Exception e) {}
-			new AlertDialog.Builder(this).setMessage(R.string.str_urge2restart).create().show();
-//			ToastUtil.show(mContext, R.string.str_urge2restart);
-		}
+		mLoading1s = (ImageView) findViewById(R.id.image1s);
+		mClickView = (View) findViewById(R.id.clickView);
+		mClickView.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View view) {
+				mHander.removeMessages(LAUNCH_MAINACTIVITY);
+				mStartupDialog = new StartupDialog(WelcomeActivity.this);
+				mStartupDialog.show();
+				mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 15*1000);
+				return false;
+			}
+		});
+		mHander.sendEmptyMessageDelayed(LAUNCH_UPGRADE, 100);
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 /*
@@ -201,7 +204,7 @@ public class WelcomeActivity extends Activity {
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 	}
 
-// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+	// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -214,15 +217,16 @@ public class WelcomeActivity extends Activity {
 	public void onBackPressed() {
 		return ;
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		Debug.d("", "--->onConfigurationChanged");
 	}
-	
+
 	private boolean upgrade() {
 		boolean ret = false;
+
 // H.M.Wang 2024-11-5 增加A133平台的判断
 //		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
@@ -232,16 +236,27 @@ public class WelcomeActivity extends Activity {
 			ret = libUp.upgradeLibs();
 
 			PackageInstaller installer = PackageInstaller.getInstance(this);
-			if(AVOID_CROSS_UPGRADE) {
-				ret |= installer.silentUpgrade3();
-			} else {
-				ret |= installer.silentUpgrade();
+			long start = System.currentTimeMillis();
+			while(System.currentTimeMillis() - start < 3000) {
+				if(ConfigPath.getUpgradePath() != null) {
+					Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
+					if(AVOID_CROSS_UPGRADE) {
+						ret |= installer.silentUpgrade3();
+					} else {
+						ret |= installer.silentUpgrade();
+					}
+					break;
+				} else {
+					Debug.d(TAG, "Path = null. " + (System.currentTimeMillis() - start));
+					ConfigPath.updateMountedUsb();
+					try { Thread.sleep(100);} catch(Exception e) {}
+				}
 			}
 		}
 		return ret;
 	}
 
-// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
+	// H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 	private class StartupDialog extends Dialog implements android.view.View.OnClickListener {
 		private final String TAG = StartupDialog.class.getSimpleName();
 

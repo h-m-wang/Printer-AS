@@ -7,6 +7,7 @@ import com.industry.printer.BinInfo;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
+import com.industry.printer.Rfid.RfidScheduler;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.CypherUtils;
@@ -86,6 +87,9 @@ public class FpgaGpioOperation {
     public static final int FPGA_CMD_EXEC_PHOENC_TEST = 0x15;
     public static final int FPGA_CMD_READ_PHOENC_TEST = 0x16;
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+// H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
+    public static final int FPGA_CMD_GET_BAG_STATUS = 0x17;
+// End of H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
 // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -1084,6 +1088,35 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2024-9-21 追加一个获取FPGA驱动状态的命令
+// H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能。收到数据格式为：{1'b0, ink16, ink15, ... ink1, 15'b0}，接收到的数据是该数据右移一位的值
+    public static int getBagStatus() {
+// H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+//        if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BAGINK")) {
+        if(PlatformInfo.isA133Product() && (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0)) {
+// End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
+            int fd = open();
+            if (fd > 0) {
+                int inkLevel = ioctl(fd, FPGA_CMD_GET_BAG_STATUS, 0);
+                Debug.d(TAG, "Getting Bag Status: " + Integer.toHexString(inkLevel));
+                int bit31 = ((inkLevel & 0x80000000) == 0x80000000 ? 1 : 0);
+                inkLevel = ((inkLevel << 1) | bit31);
+                byte B3 = (byte)(inkLevel >> 24);
+                byte B2 = (byte)(inkLevel >> 16);
+                byte B1 = (byte)(inkLevel >> 8);
+                byte B0 = (byte)(inkLevel);
+                if((B3 ^ B2 ^ B1) == B0) {
+                    return (0x0000FFFF & (inkLevel >> 15));
+                } else {
+                    return -1;
+                }
+            }
+        } else {
+            Debug.e(TAG, "Don't support FPGA_CMD_GET_BAG_STATUS");
+        }
+        return -1;
+    }
+// End of H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
+
 // H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
     public static int startPhoEncTest() {
         int fd = open();

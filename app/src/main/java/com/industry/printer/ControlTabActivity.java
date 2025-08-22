@@ -1081,6 +1081,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		}
 // End of H.M.Wang 2021-3-1 移到延时线程里面
 
+//		if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BIGDOT")) pressCheckInit();
+		pressCheckInit();
 // H.M.Wang 2020-9-28 追加一个心跳协议
 		mLastHeartBeat = System.currentTimeMillis();
 		mHeartBeatTimer = new Timer();
@@ -1109,9 +1111,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
 				mSysconfig.writePrefs();
 // End of H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
-///// 2024-10-14 测试目的，已取消				if(null != mDTransThread && mDTransThread.isRunning()) mDTransThread.setRemoteTextSeparated("ABCEDFGHIJKLMN");
+// H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
+//				if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BIGDOT")) checkPress();
+				checkPress();
+// End of H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
 			}
-		}, 0L, 1000L);
+		}, 0L, 500L);
 
 // End of H.M.Wang 2020-9-28 追加一个心跳协议
 
@@ -1216,20 +1221,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							ToastUtil.show(mContext, R.string.strLevelLow);
 						}
 					});
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							if(!mIsAlarming) {
-								mIsAlarming = true;
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								mIsAlarming = false;
-							}
-						}
-					});
+					playAlarm();
 				}
 
 				@Override
@@ -1241,20 +1233,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							ToastUtil.show(mContext, R.string.strSolventLow);
 						}
 					});
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							if(!mIsAlarming) {
-								mIsAlarming = true;
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								mIsAlarming = false;
-							}
-						}
-					});
+					playAlarm();
 				}
 
 				@Override
@@ -2243,45 +2222,18 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码
 					Debug.d(TAG, "--->Smartcard check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-						}
-					});
+					playAlarm();
 					break;
 				case RFIDManager.MSG_RFID_CHECK_FAIL:
 					Debug.d(TAG, "--->Rfid check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-						}
-					});
+					playAlarm();
 					break;
 // H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 				case RFIDManager.MSG_RFID_CHECK_FAIL_INK_CHANGED:
 					Debug.d(TAG, "--->Print check UUID fail. Ink Changed!!!");
 					handleError(R.string.str_toast_ink_error_ink_changed, pcMsg);
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-							try{Thread.sleep(50);}catch(Exception e){};
-							ExtGpio.playClick();
-						}
-					});
+					playAlarm();
 					break;
 // End of  H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 // H.M.Wang 2022-1-13 追加获取RFID写3次失败后的通知
@@ -2629,23 +2581,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					Debug.e(TAG, "--->MESSAGE_RFID_ALARM");
 					mFlagAlarming = true;
 					// GPIO版本的img时，PH7是错误指示灯，SPI版本的img的时候，PI8是错误指示灯。但是apk仍然调用PH7，在img里面根据img的版本进行PH7或者PI8的调整
-					ExtGpio.writeGpio('h', 7, 1);
-
-                    ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-							if(!mIsAlarming) {
-								mIsAlarming = true;
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								mIsAlarming = false;
-							}
-						}
-					});
-
+					playAlarm();
 					break;
 				case MESSAGE_RECOVERY_PRINT:
 					SharedPreferences preference = mContext.getSharedPreferences(SettingsTabActivity.PREFERENCE_NAME, Context.MODE_PRIVATE);
@@ -2669,16 +2605,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
 						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
-						ThreadPoolManager.mControlThread.execute(new Runnable() {
-							@Override
-							public void run() {
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-								try{Thread.sleep(50);}catch(Exception e){};
-								ExtGpio.playClick();
-							}
-						});
+						playAlarm();
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
@@ -2689,16 +2616,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case MSG_ALARM_CNT_EDGE:
 					ToastUtil.show(mContext, (String.format(mContext.getResources().getString(R.string.strCounterIndex), msg.arg1) + " " + mContext.getResources().getString(R.string.strCounterClear)));
-					ThreadPoolManager.mControlThread.execute(new Runnable() {
-						@Override
-						public void run() {
-						ExtGpio.playClick();
-						try{Thread.sleep(50);}catch(Exception e){};
-						ExtGpio.playClick();
-						try{Thread.sleep(50);}catch(Exception e){};
-						ExtGpio.playClick();
-						}
-					});
+					playAlarm();
 					break;
 // End of H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
 				default:
@@ -2708,6 +2626,25 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	};
 
 	private volatile boolean mIsAlarming = false;
+	private void playAlarm() {
+		if(!mIsAlarming) {
+			ThreadPoolManager.mControlThread.execute(new Runnable() {
+				@Override
+				public void run() {
+					mIsAlarming = true;
+					ExtGpio.writeGpio('h', 7, 1);
+					ExtGpio.playClick();
+					try{Thread.sleep(50);}catch(Exception e){};
+					ExtGpio.playClick();
+					try{Thread.sleep(50);}catch(Exception e){};
+					ExtGpio.playClick();
+					try{Thread.sleep(50);}catch(Exception e){};
+					ExtGpio.writeGpio('h', 7, 0);
+					mIsAlarming = false;
+				}
+			});
+		}
+	}
 
 	private void handlerSuccess(int toastRs, String pcMsg) {
 		ToastUtil.show(mContext, toastRs);
@@ -3731,16 +3668,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
 //		mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 1000);
 // End of H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
-		ThreadPoolManager.mControlThread.execute(new Runnable() {
-			@Override
-			public void run() {
-				ExtGpio.playClick();
-				try{Thread.sleep(50);}catch(Exception e){};
-				ExtGpio.playClick();
-				try{Thread.sleep(50);}catch(Exception e){};
-				ExtGpio.playClick();
-			}
-		});
+		playAlarm();
 // End of H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 
 		getActivity().runOnUiThread(new Runnable() {
@@ -4871,6 +4799,63 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 	static char[] sRemoteBin;
 	//Socket________________________________________________________________________________________________________________________________
-	
+
+// H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能
+	private long mLastPressCheckTime;		// 上一次测试压力的时间
+	private long mLastPE4HighTime;			// 上一次拉高PE4的时间
+	private long mLastPE5HighTime;			// 上一次拉高PE5的时间
+
+	private void pressCheckInit() {
+		mLastPressCheckTime = System.currentTimeMillis();
+		mLastPE4HighTime = System.currentTimeMillis();
+		mLastPE5HighTime = System.currentTimeMillis();
+		ExtGpio.writeGpioTestPin('E', 4, 0);
+		ExtGpio.writeGpioTestPin('E', 5, 0);
+	}
+
+	private void checkPress() {
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) <= 60) return;	// 泵压循环<=60时，不工作
+
+		long curTimeMills = System.currentTimeMillis();
+
+		if(curTimeMills - mLastPE5HighTime > 1000) {	// 拉高了PE5，并且持续了1秒
+			Debug.d(TAG, "Set PE5 low");
+			ExtGpio.writeGpioTestPin('E', 5, 0);
+		}
+		if(curTimeMills - mLastPE4HighTime > 1000) {	// 拉高了PE4，并且持续了1秒
+			Debug.d(TAG, "Set PE4 low");
+			ExtGpio.writeGpioTestPin('E', 4, 0);
+		}
+		int inkStatus = ExtGpio.readGpioTestPin('G', 9);
+		if(inkStatus == 0) {
+			Debug.d(TAG, "Read PG9 low");
+			mHandler.obtainMessage(MESSAGE_RFID_ALARM).sendToTarget();
+		}
+
+		int press = 0;
+		if(curTimeMills - mLastPressCheckTime > 10*1000) {
+			mLastPressCheckTime = curTimeMills;
+			press = (int)(1.0f * SmartCard.readADS1115(0) / 32767 * (4.0f * 66.7f + 12) - 6.67f);
+			Debug.d(TAG, "Pressure: " + press + "; Param: " + mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE));
+			if(press < mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {	// 当测得压力小于P78设置的压力值
+				if(inkStatus != 0) {		// 没有缺墨报警（0=不缺墨；0<>缺墨）
+					Debug.d(TAG, "Read PG9 high");
+					mLastPE5HighTime = curTimeMills;
+					Debug.d(TAG, "Set PE5 high");
+					ExtGpio.writeGpioTestPin('E', 5, 1);
+					mLastPE4HighTime = curTimeMills;
+					Debug.d(TAG, "Set PE4 high");
+					ExtGpio.writeGpioTestPin('E', 4, 1);
+				}
+			}
+		}
+
+		if(curTimeMills - mLastPE4HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000 && press >= mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {
+			mLastPE4HighTime = curTimeMills;
+			Debug.d(TAG, "Set PE4 high");
+			ExtGpio.writeGpioTestPin('E', 4, 1);
+		}
+	}
+// End of H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能
 }
 

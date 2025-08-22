@@ -18,6 +18,7 @@ import com.industry.printer.WelcomeActivity;
 import com.industry.printer.hardware.RTCDevice;
 
 import android.R.string;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -138,21 +139,32 @@ public class CalendarDialog extends RelightableDialog {
 				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 					boolean ret;
+
+					final LoadingDialog ld = LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
+
 					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
 						ret = installer.silentUpgrade3();
 					} else {
 						ret = installer.silentUpgrade();
 					}
+
 					if(ret) {
-						dismiss();
-						LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
 						mUpgrade.postDelayed(new Runnable() {
 							@Override
 							public void run() {
-								LoadingDialog.showMessageOnly(CalendarDialog.super.getContext(), "Please reboot!");
+								ld.cancel();
+								new AlertDialog.Builder(CalendarDialog.super.getContext()).setMessage(R.string.str_urge2restart).create().show();
 							}
 						}, 10*1000);
+					} else {
+						mUpgrade.post(new Runnable() {
+							@Override
+							public void run() {
+								ld.cancel();
+//								ToastUtil.show(CalendarDialog.super.getContext(), "Failed");
+							}
+						});
 					}
 				}
 			}

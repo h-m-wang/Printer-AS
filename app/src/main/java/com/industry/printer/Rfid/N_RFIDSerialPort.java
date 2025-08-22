@@ -166,7 +166,7 @@ public class N_RFIDSerialPort {
             try{Thread.sleep(100);}catch(Exception e){}
         }
 synchronized (RFIDDevice.SERIAL_LOCK) {
-        ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能        ExtGpio.writeGpioTestPin('I', 9, 0);
         if (0 == write(rfidData.make(cmd, data))) {
             mErrorMessage = "COM异常：" + getErrorMessage();
             Debug.e(TAG, mErrorMessage);
@@ -174,7 +174,7 @@ synchronized (RFIDDevice.SERIAL_LOCK) {
         }
 
         byte[] recvData = read();
-        ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能        ExtGpio.writeGpioTestPin('I', 9, 1);
         if (null == recvData) {
             mErrorMessage = "COM异常：" + getErrorMessage();
             Debug.e(TAG, mErrorMessage);

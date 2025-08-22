@@ -428,6 +428,19 @@ public static final String TAG="SettingsTabActivity";
 //								ble.paramsChanged();
 								BluetoothServerManager bsm = BluetoothServerManager.getInstance();
 								bsm.paramsChanged();
+
+/* 多次写参数文件试验								for(int i=0; i<1000; i++) {
+									Debug.d(TAG, "[CHECK] Round " + i);
+									int[] val = mSysconfig.readConfig();
+									for(int j=0; j<96; j++) {
+										if(val[j] != mSysconfig.mParam[j]) {
+											Debug.d(TAG, "[CHECK] Error at pos " + j);
+										}
+									}
+									mSysconfig.saveConfig();
+									try { Thread.sleep(50);} catch (Exception e) {}
+								}
+								Debug.d(TAG, "[CHECK] done");*/
 							}
 						}).start();
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能

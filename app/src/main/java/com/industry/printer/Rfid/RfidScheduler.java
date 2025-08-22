@@ -8,9 +8,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.industry.printer.DataTransferThread;
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
@@ -20,7 +22,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 public class RfidScheduler implements IInkScheduler {
-	
 	private String TAG = RfidScheduler.class.getSimpleName();
 	
 	public static RfidScheduler mInstance = null;
@@ -50,7 +51,7 @@ public class RfidScheduler implements IInkScheduler {
 	private final static int READ_LEVEL_TIMES           = 1;        // 每次读取LEVEL值时尝试的最大次数，然后从成功的次数当中获取平均值，作为本次的读取值。如设置10次，则从下层读取10次，如成功5次，则使用成功的5次获取平均值作为本次读取的最终值
 	private final static int PROC_LEVEL_NUMS            = 10;       // 对读取数据进行处理的最小次数，当达到这个数字的时候，处理是否加墨的处理
 	private final static int READ_LEVEL_INTERVAL        = 10;		// 10ms
-	private final static int ADD_INK_TRY_LIMITS         = 10;       // 加墨的尝试次数
+	private final static int ADD_INK_TRY_LIMITS         = 20;       // 加墨的尝试次数	2025-8-20 由于调整了加墨量，次数从10次修改为20次
 
 	private int VALID_INK_MIN = 33000000;
 // H.M.Wang 2022-11-9 修改VALID_INK_MAX: 37000000 -> 56000000; ADD_INK_THRESHOLD: 34700000 -> 38000000
@@ -91,7 +92,7 @@ public class RfidScheduler implements IInkScheduler {
 		public ArrayList<Integer> mValidLevels;				// 有效数据清单，独到的数据至于在最大值与最小值之间时才收录
 		public int mHX24LCValue;							// 调整值，保存在HX24LC中的调整值，100000的单位数
 		public int mInkAddedTimes;
-		public long mInkAddedTime;
+		public ArrayList<Long> mInkAddedRecord;
 		public int mLevelLowCount;
 		public int mLevelHighCount;
 // H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
@@ -114,7 +115,7 @@ public class RfidScheduler implements IInkScheduler {
 			mRecentLevels = new ArrayList<Integer>();
 			mValidLevels = new ArrayList<Integer>();
 			mInkAddedTimes = 0;
-			mInkAddedTime = 0L;
+			mInkAddedRecord = new ArrayList<Long>();
 			mLevelLowCount = 0;
 			mLevelHighCount = 0;
 
@@ -126,24 +127,27 @@ public class RfidScheduler implements IInkScheduler {
 			mCountError = 0;
 			mEnableAddInk = false;
 // End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
-
-			ExtGpio.rfidSwitch(idx);
-			try {Thread.sleep(100);} catch (Exception e) {}
-			SmartCard.initLevelDirect();
-			mHX24LCValue = SmartCard.readHX24LC();
+// H.M.Wang 2025-8-7 在A133平台中，不需要通过I2C读取墨位的值的方式获取墨位信息，而是通过SPI读取墨位信息，因此取消不必要的I2C读值相关的操作
+			if(!PlatformInfo.isA133Product()) {
+				ExtGpio.rfidSwitch(idx);
+				try {Thread.sleep(100);} catch (Exception e) {}
+				SmartCard.initLevelDirect();
+				mHX24LCValue = SmartCard.readHX24LC();
 // H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
-			sLevelChipType = SmartCard.getLevelType(idx);
-			Debug.d(TAG, "Level Chip Type = " + sLevelChipType + ")");
-			if(LEVEL_CHIP_TYPE_MCPH21 == sLevelChipType) {
-				mInkMin = VALID_INK_MIN_MCPH21;
-				mInkMax = VALID_INK_MAX_MCPH21;
-				mAddInkThreshold = ADD_INK_THRESHOLD_MCPH21;
-			} else {
-				mInkMin = VALID_INK_MIN;
-				mInkMax = VALID_INK_MAX;
-				mAddInkThreshold = ADD_INK_THRESHOLD;
-			}
+				sLevelChipType = SmartCard.getLevelType(idx);
+				Debug.d(TAG, "Level Chip Type = " + sLevelChipType + ")");
+				if(LEVEL_CHIP_TYPE_MCPH21 == sLevelChipType) {
+					mInkMin = VALID_INK_MIN_MCPH21;
+					mInkMax = VALID_INK_MAX_MCPH21;
+					mAddInkThreshold = ADD_INK_THRESHOLD_MCPH21;
+				} else {
+					mInkMin = VALID_INK_MIN;
+					mInkMax = VALID_INK_MAX;
+					mAddInkThreshold = ADD_INK_THRESHOLD;
+				}
 // End of H.M.Wang 2024-8-6 增加一个判断Level测量芯片种类的函数，apk会根据不同的芯片种类，执行不同的逻辑。读取Level值也会根据不同的种类而调用不同的接口
+			}
+// End of H.M.Wang 2025-8-7 在A133平台中，不需要通过I2C读取墨位的值的方式获取墨位信息，而是通过SPI读取墨位信息，因此取消不必要的I2C读值相关的操作
 		}
 	}
 
@@ -233,7 +237,7 @@ public class RfidScheduler implements IInkScheduler {
 			long rt = System.currentTimeMillis();
 
 			while(mBaginkLevels[cardIdx].mLevelRecords.size() > 0) {
-			    Level_Record lr = mBaginkLevels[cardIdx].mLevelRecords.get(0);
+				Level_Record lr = mBaginkLevels[cardIdx].mLevelRecords.get(0);
 				if(rt - lr.RecordedTime > 5 * 60 * 1000) {
 					if (lr.Level == 0x0FFFFFFF) {
 						mBaginkLevels[cardIdx].mCountError--;
@@ -322,7 +326,7 @@ public class RfidScheduler implements IInkScheduler {
 					Thread.sleep(50);
 					ExtGpio.playClick();
 					mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (cardIdx+1) + " might failed in adding ink").sendToTarget();
-				} else if(System.currentTimeMillis() - mBaginkLevels[cardIdx].mInkAddedTime > 1000L*60*2) {		// 上次加墨后等待3秒再允许再次开阀
+				} else if(mBaginkLevels[cardIdx].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[cardIdx].mInkAddedRecord.get(mBaginkLevels[cardIdx].mInkAddedRecord.size()-1) > 1000L*60*2) {		// 上次加墨后等待3秒再允许再次开阀
 					Debug.d(TAG, "Add Ink");
 					ExtGpio.setValve(cardIdx, 1);
 
@@ -333,7 +337,7 @@ public class RfidScheduler implements IInkScheduler {
 					mBaginkLevels[cardIdx].mValidLevels.clear();
 
 					mBaginkLevels[cardIdx].mInkAddedTimes++;
-					mBaginkLevels[cardIdx].mInkAddedTime = System.currentTimeMillis();
+					mBaginkLevels[cardIdx].mInkAddedRecord.add(System.currentTimeMillis());
 				}
 			} else {
 				mBaginkLevels[cardIdx].mInkAddedTimes = 0;
@@ -342,6 +346,81 @@ public class RfidScheduler implements IInkScheduler {
 			Debug.e(TAG, e.getMessage());
 		}
 		Debug.d(TAG, "---> quit readLevelValue(" + cardIdx + ")");
+	}
+
+	private void readLevelValueA133(final int cardIdx) {
+		Debug.d(TAG, "---> enter readLevelValueA133(" + cardIdx + ")");
+
+		if(null == mBaginkLevels) {
+			Debug.e(TAG, "---> Bagink level data null");
+			return;
+		}
+
+		if(cardIdx >= mBaginkLevels.length) {
+			Debug.e(TAG, "---> Index beyond valid");
+			return;
+		}
+
+		try {
+			int inkStatus = FpgaGpioOperation.getBagStatus();
+			Debug.d(TAG, "Bag Status[" + cardIdx + "]: " + Integer.toHexString(inkStatus));
+			mLevelReading = false;
+
+			if((inkStatus & (0x00000001 << cardIdx)) != 0x00000000) {	// 相应的墨位被置为1，标识缺墨
+				inkStatus = 1;
+			} else {
+				inkStatus = 0;
+			}
+
+			long rt = System.currentTimeMillis();
+			if(mBaginkLevels[cardIdx].mLevelRecords.size() > 0) {
+				if(rt - mBaginkLevels[cardIdx].mLevelRecords.get(mBaginkLevels[cardIdx].mLevelRecords.size()-1).RecordedTime < 5000L) return;
+			}
+
+			mBaginkLevels[cardIdx].mLevelRecords.add(new Level_Record(rt, inkStatus));
+			if(mBaginkLevels[cardIdx].mLevelRecords.size() > PROC_LEVEL_NUMS) {
+				mBaginkLevels[cardIdx].mLevelRecords.remove(0);
+			}
+
+			if(mBaginkLevels[cardIdx].mLevelRecords.size() >= PROC_LEVEL_NUMS) {
+				float totalLevel = 0L;
+				int count = 0;
+				for(int i=0; i<mBaginkLevels[cardIdx].mLevelRecords.size(); i++) {
+					totalLevel += 0.9f * mBaginkLevels[cardIdx].mLevelRecords.get(i).Level;
+					count++;
+				}
+				inkStatus = (int)(totalLevel / count / 0.7f);
+			}
+
+			// Launch add ink if the level less than ADD_INK_THRESHOLD.
+			if(inkStatus == 1) {
+				// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
+				if(mBaginkLevels[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
+					ExtGpio.playClick();
+					Thread.sleep(50);
+					ExtGpio.playClick();
+					Thread.sleep(50);
+					ExtGpio.playClick();
+					mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (cardIdx+1) + " might failed in adding ink").sendToTarget();
+				} else if(mBaginkLevels[cardIdx].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[cardIdx].mInkAddedRecord.get(mBaginkLevels[cardIdx].mInkAddedRecord.size()-1) > 1000L*60*1) {		// 上次加墨后等待3秒再允许再次开阀
+					Debug.d(TAG, "Add Ink");
+					ExtGpio.setValve(cardIdx, 1);
+
+					try{Thread.sleep(1000);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
+						ExtGpio.setValve(cardIdx, 0);
+					};
+
+					mBaginkLevels[cardIdx].mInkAddedTimes++;
+					mBaginkLevels[cardIdx].mInkAddedRecord.add(System.currentTimeMillis());
+					if(mBaginkLevels[cardIdx].mInkAddedRecord.size() > ADD_INK_TRY_LIMITS) mBaginkLevels[cardIdx].mInkAddedRecord.remove(0);		// 保持ADD_INK_TRY_LIMITS次的加墨记录
+				}
+			} else {
+				mBaginkLevels[cardIdx].mInkAddedTimes = 0;
+			}
+		} catch(Exception e) {
+			Debug.e(TAG, e.getMessage());
+		}
+		Debug.d(TAG, "---> quit readLevelValueA133(" + cardIdx + ")");
 	}
 
 	public void setCallbackHandler(Handler callback) {
@@ -374,7 +453,10 @@ public class RfidScheduler implements IInkScheduler {
 
 // H.M.Wang 2022-12-13 将2022-10-28日追加的下述操作提到load()函数调用之前，以避免ExtGpio.rfidSwitch(mLevelIndexs[i])将load函数中已经设置好的当前头改变
 // H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
-		mBaginkImg = PlatformInfo.getImgUniqueCode().startsWith("BAGINK");
+// H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
+//		mBaginkImg = PlatformInfo.getImgUniqueCode().startsWith("BAGINK");
+		mBaginkImg = (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0);
+// End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 		if(mBaginkImg) {
 			Debug.d(TAG, "Initiate BAGINK variables.");
 			mBaginkLevels = new BaginkLevel[LEVELS.length];
@@ -386,24 +468,26 @@ public class RfidScheduler implements IInkScheduler {
 				} else {
 					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 256) * 100000;
 				}
-				if(mBaginkLevels[i].mAddInkThreshold < mBaginkLevels[i].mInkMin || mBaginkLevels[i].mAddInkThreshold > mBaginkLevels[i].mInkMax) {
-					mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low/high").sendToTarget();
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							try{
-								ExtGpio.playClick();
-								Thread.sleep(50);
-								ExtGpio.playClick();
-								Thread.sleep(50);
-								ExtGpio.playClick();
-							} catch (Exception e) {
-								Debug.e(TAG, e.getMessage());
+				if(!PlatformInfo.isA133Product()) {
+					if(mBaginkLevels[i].mAddInkThreshold < mBaginkLevels[i].mInkMin || mBaginkLevels[i].mAddInkThreshold > mBaginkLevels[i].mInkMax) {
+						mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low/high").sendToTarget();
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								try{
+									ExtGpio.playClick();
+									Thread.sleep(50);
+									ExtGpio.playClick();
+									Thread.sleep(50);
+									ExtGpio.playClick();
+								} catch (Exception e) {
+									Debug.e(TAG, e.getMessage());
+								}
 							}
-						}
-					}).start();
+						}).start();
+					}
 				}
-			};
+			}
 
 			mCachedThreadPool = Executors.newCachedThreadPool();
 		}
@@ -498,7 +582,37 @@ public class RfidScheduler implements IInkScheduler {
 					@Override
 					public void run() {
 						synchronized (RfidScheduler.this) {
-							readLevelValue(mCurrent);
+// H.M.Wang 2025-8-7 在A133平台中，不需要通过I2C读取墨位的值的方式获取墨位信息，而是通过SPI读取墨位信息，因此取消不必要的I2C读值相关的操作
+							if(PlatformInfo.isA133Product()) {
+								readLevelValueA133(mCurrent);
+								StringBuilder sb = new StringBuilder();
+								for (int i = 0; i < mBaginkLevels.length; i++) {
+									sb.append("Level" + (i+1) + ": ");
+									if(mBaginkLevels[i].mLevelRecords.size() > 0) {
+										for(int j=0; j<mBaginkLevels[i].mLevelRecords.size(); j++) {
+											if(j > 0) sb.append(",");
+											sb.append(mBaginkLevels[i].mLevelRecords.get(j).Level);
+										}
+										if(mBaginkLevels[i].mInkAddedRecord.size() > 0) {
+											SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+											sb.append("\n");
+											for(int j=0; j<mBaginkLevels[i].mInkAddedRecord.size(); j++) {
+												if(j > 0) sb.append(",");
+												sb.append("" + sdf.format(new Date(mBaginkLevels[i].mInkAddedRecord.get(j))));
+											}
+											if(mBaginkLevels[i].mInkAddedTimes > 1) {
+												sb.append("\nFailed " + mBaginkLevels[i].mInkAddedTimes + " times");
+											}
+										}
+										sb.append("\n\n");
+									} else {
+										sb.append("n/a\n\n");
+									}
+								}
+								Debug.d(TAG, "Show Level: " + sb.toString());
+								mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_SHOW_LEVEL, sb.toString()).sendToTarget();
+							} else {
+								readLevelValue(mCurrent);
 //							if (mShowMsgCD == 0) {
 //								mShowMsgCD = 10;
 								StringBuilder sb = new StringBuilder();
@@ -514,11 +628,15 @@ public class RfidScheduler implements IInkScheduler {
 											if(j > 0) sb.append(",");
 											sb.append(mBaginkLevels[i].mRecentLevels.get(j) / 100000);
 										}
-										sb.append("\n");
-										if(mBaginkLevels[i].mInkAddedTime > 0) {
-											SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-											sb.append("    Fill: " + sdf.format(new Date(mBaginkLevels[i].mInkAddedTime)) + "\n");
+										if(mBaginkLevels[i].mInkAddedRecord.size() > 0) {
+											SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+											sb.append("\n    Fill: ");
+											for(int j=0; j<mBaginkLevels[i].mInkAddedRecord.size(); j++) {
+												if(j > 0) sb.append(",");
+												sb.append("" + sdf.format(new Date(mBaginkLevels[i].mInkAddedRecord.get(j))));
+											}
 										}
+										sb.append("\n");
 // H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
 										if(!mBaginkLevels[i].mEnableAddInk) {
 											sb.append("> Max :  " + mBaginkLevels[i].mCountGtMax + "/" + mBaginkLevels[i].mLevelRecords.size() +
@@ -529,8 +647,9 @@ public class RfidScheduler implements IInkScheduler {
 													"(" + (1.0f * Math.round(1.0f * mBaginkLevels[i].mCountError / mBaginkLevels[i].mLevelRecords.size() * 1000) / 10) + "%)\n");
 										}
 // End of H.M.Wang 2023-4-1 临时增加异常值管理，当最近5分钟内大于560的次数超过5%时，报警，停止加墨；当相邻两次取值相差50点以上的次数>30%时，报警，停止加墨
+										sb.append("\n");
 									} else {
-										sb.append("n/a\n");
+										sb.append("n/a\n\n");
 									}
 								}
 								Debug.d(TAG, "Show Level: " + sb.toString());
@@ -538,6 +657,8 @@ public class RfidScheduler implements IInkScheduler {
 							}
 //							mShowMsgCD--;
 //						}
+						}
+// End of H.M.Wang 2025-8-7 在A133平台中，不需要通过I2C读取墨位的值的方式获取墨位信息，而是通过SPI读取墨位信息，因此取消不必要的I2C读值相关的操作
 					}
 				});
 				while(mLevelReading) {

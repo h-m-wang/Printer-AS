@@ -70,6 +70,7 @@ public class PackageInstaller {
 		if(PlatformInfo.isA133Product()) {
 			LibUpgrade libUp = new LibUpgrade();
 			libUp.copyToTempForA133(Configs.UPGRADE_APK_FILE, "/system/app/Printer");
+			try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
 		} else {
 			ReflectCaller.PowerManagerUpgrade(mContext);
 		}

@@ -239,7 +239,7 @@ public class TestMain {
 
                             synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
                                 BLEServer.BLERequiring = true;
-                                ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                                ExtGpio.writeGpioTestPin('I', 9, 0);
                                 IInkDevice rfidManager = InkManagerFactory.inkManager(mContext);
                                 if (rfidManager instanceof RFIDManager) {
                                     for (int i = 0; i < 100; i++) {
@@ -334,7 +334,7 @@ public class TestMain {
                                     });
                                 }
                                 BLEServer.BLERequiring = false;
-                                ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                                ExtGpio.writeGpioTestPin('I', 9, 1);
                             }
                         }
                     }).start();

@@ -11,6 +11,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.provider.Settings;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.SmartCard;
 
@@ -160,7 +161,10 @@ public class PlatformInfo {
 //				ret = buildID.substring(0,2) + "xx" + verInc.substring(1);
 // H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 //				ret = buildID + verInc + getFPGAVersion(buildID);
-				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000));
+// H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
+//				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000));
+				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000)) + String.format("%02d", (ExtGpio.getDriverVersion() % 1000));
+// End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 			}
 //			Debug.d(TAG, "===>Img Unique Code: " + ret);
@@ -191,7 +195,7 @@ public class PlatformInfo {
 	public static String getFPGAVersion(String buildID) {
 		int fpgaVersion = FpgaGpioOperation.getFPGAVersion();
 
-//		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
+		Debug.d(TAG, "FPGA Version = " + String.format("%08x", fpgaVersion));
 
 		if(fpgaVersion == 0) return "";
 
@@ -202,7 +206,14 @@ public class PlatformInfo {
 // H.M.Wang 2023-11-12 暂时变更4FIFO版本号的取位规则
 		int bank;
 		int code;
-		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM")) {
+// H.M.Wang 2025-8-6 增加一种情形，A133时无论什么版本读到的版本号都在上两字节，最后一个字节是上三个字节的异或，作为验证码
+		byte B3 = (byte)(fpgaVersion >> 24);
+		byte B2 = (byte)(fpgaVersion >> 16);
+		byte B1 = (byte)(fpgaVersion >> 8);
+		byte B0 = (byte)(fpgaVersion);
+//		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM")) {
+		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM") || (B3 ^ B2 ^ B1) == B0) {
+// End of H.M.Wang 2025-8-6 增加一种情形，A133时无论什么版本读到的版本号都在上两字节，最后一个字节是上三个字节的异或，作为验证码
 			bank = (int)((fpgaVersion & 0x7FFF0000) >> 25);
 			code = (int)((fpgaVersion & 0x01FF0000) >> 16);
 		} else {

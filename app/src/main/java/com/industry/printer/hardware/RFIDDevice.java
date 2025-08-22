@@ -625,7 +625,7 @@ public class RFIDDevice implements RfidCallback{
 if(BLEServer.BLERequiring) return null;
 synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	Debug.print(RFID_DATA_SEND, data.mTransData);
-	ExtGpio.writeGpioTestPin('I', 9, 0);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 0);
 
 // H.M.Wang 2023-1-12 将jshortArray buf修改为jbyteArray buf，short没有意义
 //		int writed = write(mFd, data.transferData(), data.getLength());
@@ -637,7 +637,7 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	}
 	readin = read(mFd, 64);
 	Debug.print(RFID_DATA_RECV, readin);
-	ExtGpio.writeGpioTestPin('I', 9, 1);
+// H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 1);
 }
 		if (readin == null || readin.length == 0) {
 			Debug.e(TAG, "===>read err");
