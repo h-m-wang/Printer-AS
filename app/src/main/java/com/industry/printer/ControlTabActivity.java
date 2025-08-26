@@ -1511,7 +1511,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				if(mInkManager instanceof SmartCardManager) {
 					level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-INVALID";
 				} else if(mInkManager instanceof Hp22mmSCManager) {
-						level = (i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-INVALID";
+					level = (i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-INVALID";
 				} else {
 					level = "P" + (i + 1) + "-INVALID";
 				}
@@ -3289,7 +3289,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 // End of H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
 				// mHandler.removeMessages(MESSAGE_PAOMADENG_TEST);
-				mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+				mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 300);
 				if(PlatformInfo.isA133Product()) SystemFs.writeSysfs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "schedutil");
 				break;
 			/*娓呮礂鎵撳嵃澶达紙涓�涓壒娈婄殑鎵撳嵃浠诲姟锛夛紝闇�瑕佸崟鐙殑璁剧疆锛氬弬鏁�2蹇呴』涓� 4锛屽弬鏁�4涓�200锛� 鍙傛暟5涓�20锛�*/

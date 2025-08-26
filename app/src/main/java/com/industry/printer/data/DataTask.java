@@ -858,7 +858,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 //			scaleW /= 1.0f * 1056 / 152;
-			scaleW /= 1.0f * 264 / 152;
+			scaleW /= 1.0f * 528 / 152;
 			div = scaleW;
 			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
