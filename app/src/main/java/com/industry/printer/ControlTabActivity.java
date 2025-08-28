@@ -4819,12 +4819,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		long curTimeMills = System.currentTimeMillis();
 
 		if(curTimeMills - mLastPE5HighTime > 1000) {	// 拉高了PE5，并且持续了1秒
-			Debug.d(TAG, "Set PE5 low");
-			ExtGpio.writeGpioTestPin('E', 5, 0);
-		}
-		if(curTimeMills - mLastPE4HighTime > 1000) {	// 拉高了PE4，并且持续了1秒
 			Debug.d(TAG, "Set PE4 low");
 			ExtGpio.writeGpioTestPin('E', 4, 0);
+		}
+		if(curTimeMills - mLastPE4HighTime > 1000) {	// 拉高了PE4，并且持续了1秒
+			Debug.d(TAG, "Set PE5 low");
+			ExtGpio.writeGpioTestPin('E', 5, 0);
 		}
 		int inkStatus = ExtGpio.readGpioTestPin('G', 9);
 		if(inkStatus == 0) {
@@ -4841,19 +4841,19 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				if(inkStatus != 0) {		// 没有缺墨报警（0=不缺墨；0<>缺墨）
 					Debug.d(TAG, "Read PG9 high");
 					mLastPE5HighTime = curTimeMills;
-					Debug.d(TAG, "Set PE5 high");
-					ExtGpio.writeGpioTestPin('E', 5, 1);
-					mLastPE4HighTime = curTimeMills;
 					Debug.d(TAG, "Set PE4 high");
 					ExtGpio.writeGpioTestPin('E', 4, 1);
+					mLastPE4HighTime = curTimeMills;
+					Debug.d(TAG, "Set PE5 high");
+					ExtGpio.writeGpioTestPin('E', 5, 1);
 				}
 			}
 		}
 
 		if(curTimeMills - mLastPE4HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000 && press >= mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {
 			mLastPE4HighTime = curTimeMills;
-			Debug.d(TAG, "Set PE4 high");
-			ExtGpio.writeGpioTestPin('E', 4, 1);
+			Debug.d(TAG, "Set PE5 high");
+			ExtGpio.writeGpioTestPin('E', 5, 1);
 		}
 	}
 // End of H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能

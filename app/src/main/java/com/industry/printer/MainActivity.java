@@ -291,6 +291,11 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 		initView();
 //		Configs.initConfigs(mContext);
+// H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
+		if(SystemConfigFile.getInstance(this).getParam(SystemConfigFile.INDEX_USER_APK_START) == 1) {
+			launchUserAPK(mContext);
+		}
+// End of H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
 // H.M.Wang 2024-11-5 为A133修改平台判断方法，取消使用DeviceInfosr函数，查找SoftwinerEvb特征字符串是否存在，而是使用PlatformInfo中的平台判断方法
 /*		String sDev = DeviceInfosr(mContext);
 		if (sDev.indexOf("SoftwinerEvb") <= 0) {
@@ -302,6 +307,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 		String sDev = DeviceInfosr(mContext);
 		if (sDev.indexOf("SoftwinerEvb") <= 0) {*/
+
 		if(!PlatformInfo.isSmfyProduct() && !PlatformInfo.isA133Product()) {
 			Intent intent = new Intent(getApplicationContext(), Socket_Control_Activity.class);
 			startActivityForResult(intent, 0);
@@ -1612,34 +1618,29 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		IP_address.setText(getLocalIpAddress() + " - Dev: " + no);
 	}
 
-	public String DeviceInfosr(Context context){
-
-		PackageManager mPackageManager = context.getPackageManager();
-		PackageInfo mPackageInfo = null, mp = null;
-		try {
-			mPackageInfo = mPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_ACTIVITIES);
 // H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
-			if(SystemConfigFile.getInstance(this).getParam(SystemConfigFile.INDEX_USER_APK_START) == 1) {
-				mp = mPackageManager.getPackageArchiveInfo("/system/app/UserAPK.apk", PackageManager.GET_ACTIVITIES);
-				if(null != mp ) {
-					Debug.d(TAG, "Package Name: " + mp.applicationInfo.packageName);
-					Intent mIntent =  getPackageManager().getLaunchIntentForPackage(mp.applicationInfo.packageName);
-					if(mIntent != null) startActivity(mIntent);
-				} else {
-//					ToastUtil.show(this, "User APK start fail");
-					Debug.e(TAG, "UserAPK.apk not found!");
-				}
-			}
-// End of H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
-		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+	private void launchUserAPK(Context context) {
+		PackageManager mPackageManager = context.getPackageManager();
+		PackageInfo mp = mPackageManager.getPackageArchiveInfo("/system/app/UserAPK.apk", PackageManager.GET_ACTIVITIES);
+		if(null != mp ) {
+			Debug.d(TAG, "Package Name: " + mp.applicationInfo.packageName);
+			Intent mIntent =  getPackageManager().getLaunchIntentForPackage(mp.applicationInfo.packageName);
+			if(mIntent != null) startActivity(mIntent);
+		} else {
+			Debug.e(TAG, "UserAPK.apk not found!");
 		}
+	}
+// End of H.M.Wang 2022-9-1 追加一个启动客户APK的机制，如果参数64为1，并且客户apk存在，则启动，否则不启动
+
+	public String DeviceInfosr(Context context){
 		PackageManager pm = mContext.getPackageManager();
+		PackageInfo mPackageInfo = null, mp = null;
 		try {
 			mPackageInfo = pm.getPackageInfo(mContext.getPackageName(), PackageManager.GET_ACTIVITIES);
 		} catch (PackageManager.NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return "";
 		}
 
 		String sDeviceInfor="versionName:"+ mPackageInfo.versionName;
