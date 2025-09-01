@@ -851,8 +851,8 @@ public class FpgaGpioOperation {
         }
 // End of H.M.Wang 2025-2-12 如果是4FIFO不执行该操作
 // End of H.M.Wang 2024-10-24 增加这两条的目的是使得img当中过滤掉多余的PH14中断，否则开始打印后，会收到一个多余的PH14中断
-        Debug.d(TAG, "FPGA_CMD_STARTPRINT");
-        ioctl(fd, FPGA_CMD_STARTPRINT, 0);
+//        Debug.d(TAG, "FPGA_CMD_STARTPRINT");
+//        ioctl(fd, FPGA_CMD_STARTPRINT, 0);
 // H.M.Wang 2024-4-22 根据ko驱动的版本号，如果是3119以后的版本，则是修改到先下发数据，后开始打印的版本，否则按着先开始打印，后下发数据处理
 /*
 // H.M.Wang 2023-1-5 取消开始打印命令下发后立即将GPIO切换到 FPGA_STATE_OUTPUT(00)，因为这会导致PH14立即发生，此时有可能数据还没有准备好，改为开始打印后第一次下发数据后切换
@@ -868,6 +868,8 @@ public class FpgaGpioOperation {
             mJustStartedPrint = true;
         }
 // End of H.M.Wang 2024-4-22 根据ko驱动的版本号，如果是3119以后的版本，则是修改到先下发数据，后开始打印的版本，否则按着先开始打印，后下发数据处理
+        Debug.d(TAG, "FPGA_CMD_STARTPRINT");
+        ioctl(fd, FPGA_CMD_STARTPRINT, 0);
     }
 
     /**

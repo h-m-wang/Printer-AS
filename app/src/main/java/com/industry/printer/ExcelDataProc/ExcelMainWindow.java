@@ -200,6 +200,7 @@ public class ExcelMainWindow {
             @Override
             public void onClick(View view) {
                 mData.clear();
+                mDataIndex.clear();
                 mExcelDataLVAdapter.notifyDataSetChanged();
             }
         });
