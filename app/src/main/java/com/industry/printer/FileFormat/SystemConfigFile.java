@@ -257,6 +257,12 @@ public class SystemConfigFile{
 	public static final int INDEX_CIRCULATION = 80;
 // End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 // H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
+// H.M.Wang 2025-8-28 重新梳理以下P94的值的意义：0-自动；1-强制RFID；2-强制SC；3-强制墨袋机
+	public static final int PROC_TYPE_AUTO = 0;		// 综合根据img的种类和是否能够识别到SC卡，来决定启动RFIDManager还是SmartCardManager（包括相对应的Scheduler）
+	public static final int PROC_TYPE_RFID = 1;		// 强制启动RFIDManager
+	public static final int PROC_TYPE_SC   = 2;		// 强制启动SmartCardManager
+	public static final int PROC_TYPE_BAGINK = 3;   // 强制启动墨袋机（使用RFIDManager鉴权，但是跑墨袋机的逻辑，这个选项有点与前项属于不同类的嫌疑）
+// End of H.M.Wang 2025-8-28 重新梳理以下P94的值的意义：0-自动；1-强制RFID；2-强制SC；3-强制墨袋机
 // 2025-7-26 取消该参数	public static final int INDEX_SLOT_SPACING = 81;
 	public static final int INDEX_RFID_SC_SWITCH = 93;
 // End of H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能

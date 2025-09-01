@@ -456,7 +456,7 @@ public class N_RfidScheduler implements IInkScheduler {
 // H.M.Wang 2022-10-28 追加BAGINK专用的墨位检查功能，这里完成初始化
 // H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 //		mBaginkImg = PlatformInfo.getImgUniqueCode().startsWith("BAGINK");
-        mBaginkImg = (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0);
+        mBaginkImg = (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_BAGINK);
 // End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 
         if(mBaginkImg) {

@@ -49,9 +49,9 @@ public class InkManagerFactory {
             }
 
 // H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
-            if(SystemConfigFile.getInstance(ctx).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 1) {
+            if(SystemConfigFile.getInstance(ctx).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_RFID) {
                 return new RFIDManager(ctx);
-            } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 2) {
+            } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_SC) {
                 SmartCard.exist((PlatformInfo.isMImgType(PlatformInfo.getImgUniqueCode()) ? 1 : 0), (PlatformInfo.isA133Product() ? 2 : 1));
                 return new SmartCardManager(ctx);
             }

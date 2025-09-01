@@ -144,7 +144,7 @@ public class LibUpgrade {
             ret |= upgradeSO(os, Configs.SMARTCARD_SO);
             ret |= upgradeSO(os, Configs.SERIAL_SO);
             ret |= upgradeSO(os, Configs.HP22MM_SO);
-
+            try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
         } catch(IOException e) {
             Debug.e(TAG, e.getMessage());
             e.printStackTrace();
@@ -166,6 +166,7 @@ public class LibUpgrade {
             ret |= upgradeKO(os, Configs.PREFIX_EXT_GPIO_KO, Configs.EXT_GPIO_KO);
             ret |= upgradeKO(os, Configs.PREFIX_GSLX680_KO, Configs.GSLX680_KO);
             ret |= upgradeKO(os, Configs.PREFIX_RTC_DS1307_KO, Configs.RTC_DS1307_KO);
+            try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
         } catch(IOException e) {
             Debug.e(TAG, e.getMessage());
             e.printStackTrace();

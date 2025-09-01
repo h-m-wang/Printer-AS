@@ -373,6 +373,11 @@ public class TestMain {
     private boolean mPhoEncTesting = false;
 
     private void execPhoEncTest() {
+        if(null != mPhoEncTestDlg) {
+            mPhoEncTestDlg.show();
+            return;
+        }
+
         int res = FpgaGpioOperation.startPhoEncTest();
         if(res == 1) {      // Succeeded.
             mPhoEncTestDlg = new AlertDialog.Builder(mContext).setTitle("Pho-Enc Test")
@@ -402,7 +407,7 @@ public class TestMain {
                                 mMainMenuLV.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mPhoEncTestDlg.setMessage("Pho: " + ((value >> 16) & 0x0000FFFF) + "; Enc: " + (value & 0x0000FFFF));
+                                        if(null != mPhoEncTestDlg) mPhoEncTestDlg.setMessage("Pho: " + ((value >> 16) & 0x0000FFFF) + "; Enc: " + (value & 0x0000FFFF));
                                     }
                                 });
                             }

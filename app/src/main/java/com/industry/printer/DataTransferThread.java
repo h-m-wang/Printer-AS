@@ -2142,13 +2142,13 @@ private void setSerialProtocol9DTs(final String data) {
 		int heads = PrinterNozzle.getInstance(headIndex).mHeads;
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 //		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof RfidScheduler)) {
-		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0) && (mScheduler instanceof RfidScheduler)) {
+		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_BAGINK) && (mScheduler instanceof RfidScheduler)) {
 // End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 			((RfidScheduler) mScheduler).setCallbackHandler(mHandler);
 		}
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 //		if(PlatformInfo.getImgUniqueCode().startsWith("BAGINK") && (mScheduler instanceof N_RfidScheduler)) {
-		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0) && (mScheduler instanceof N_RfidScheduler)) {
+		if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_BAGINK) && (mScheduler instanceof N_RfidScheduler)) {
 // End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 			((N_RfidScheduler) mScheduler).setCallbackHandler(mHandler);
 		}
@@ -3065,20 +3065,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 	}
 
 // End of H.M.Wang 2023-10-28 增加打印方向(Direction)和倒置(Inverse)
-/*
-public class PrintTask extends Thread {
-	@Override
-	public void run() {
-		Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-		while (mRunning == true) {
-			mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
-			mPrintedCount++;
-			if (mCallback != null) mInkListener.onCountChanged();
-			try {Thread.sleep(15);} catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
-		}
-	}
-}
-*/
+
 	public class PrintTask extends Thread {
 		@Override
 		public void run() {

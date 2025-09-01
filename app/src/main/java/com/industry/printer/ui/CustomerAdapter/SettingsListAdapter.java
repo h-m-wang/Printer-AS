@@ -125,6 +125,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	private PopWindowAdapter mBLEEnableAdapter;
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 
+// H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+	private PopWindowAdapter mProcType;
+// End of H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+
 	private ItemViewHolder mEncoderHolder;
 //	private HashMap<Integer, ItemViewHolder> mHoldMap;
 
@@ -440,6 +444,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mBLEEnableAdapter = new PopWindowAdapter(mContext, null);
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
 
+// H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+		mProcType = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+
 		initAdapters();
 
 		// H.M.Wang 增加3行。注册广播接收器，接收计数器更新值，设置到编辑区内
@@ -744,7 +752,7 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mSettingItems[90] = new ItemOneLine(91, R.string.str_textview_param91, 0);
 		mSettingItems[91] = new ItemOneLine(92, R.string.str_textview_param92, 0);
 		mSettingItems[92] = new ItemOneLine(93, R.string.str_textview_param93, 0);
-		mSettingItems[93] = new ItemOneLine(94, R.string.str_textview_param94, 0);
+		mSettingItems[93] = new ItemOneLine(94, R.string.str_textview_param94, R.array.switch_proc_type, 0, ItemType.TYPE_SWITCH);
 		mSettingItems[94] = new ItemOneLine(95, R.string.str_textview_param95, 0);
 		mSettingItems[95] = new ItemOneLine(96, R.string.str_textview_param96, 0);
 // End of H.M.Wang 2022-10-18 参数扩容32项目
@@ -912,6 +920,12 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 			mBLEEnableAdapter.addItem(items[i]);
 		}
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+// H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+		items = mContext.getResources().getStringArray(R.array.switch_proc_type);
+		for (int i = 0; i < items.length; i++) {
+			mProcType.addItem(items[i]);
+		}
+// End of H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
 	}
 
 	private String getEntry(int id,int index) {
@@ -1075,6 +1089,10 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		} else if (position == 78) { //參數79
 			mSpiner.setAdapter(mBLEEnableAdapter);
 // End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能
+// H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
+		} else if (position == 93) { //參數94
+			mSpiner.setAdapter(mProcType);
+// End of H.M.Wang 2025-8-28 P94参数从直接写数字修改为选择
 		}
 		mSpiner.setWidth(view.getWidth());
 		//mSpiner.showAsDropDown(view);

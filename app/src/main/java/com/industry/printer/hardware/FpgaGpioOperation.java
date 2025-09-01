@@ -1092,7 +1092,7 @@ public class FpgaGpioOperation {
     public static int getBagStatus() {
 // H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
 //        if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BAGINK")) {
-        if(PlatformInfo.isA133Product() && (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == 0)) {
+        if(PlatformInfo.isA133Product() && (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_RFID_SC_SWITCH) == SystemConfigFile.PROC_TYPE_BAGINK)) {
 // End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
             int fd = open();
             if (fd > 0) {

@@ -36,7 +36,7 @@ public class ConfigPath {
 	
 	public static ArrayList<String> updateMountedUsb() {
 		ArrayList<String> mPaths = new ArrayList<String>();
-		Debug.d(TAG, "===>getMountedUsb");
+//		Debug.d(TAG, "===>getMountedUsb");
 		try {
 			FileInputStream file = new FileInputStream(Configs.PROC_MOUNT_FILE);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(file));
@@ -46,7 +46,7 @@ public class ConfigPath {
 				String items[] = line.split(" ");
 				if (items != null && items.length >= 2) {
 					if(items[1].startsWith(PlatformInfo.getMntPath())) mPaths.add(items[1]);
-					Debug.d(TAG, "===>getMountUsb: " + line);
+//					Debug.d(TAG, "===>getMountUsb: " + line);
 				}
 				line = reader.readLine();
 			}

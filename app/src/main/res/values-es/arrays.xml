@@ -457,4 +457,12 @@
         <item>Rectangle</item>
     </string-array>
 <!-- End of H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+<!-- H.M.Wang 2025-8-28 处理种类选择，对应于P94，选择健全的种类（bagink有点另类） -->
+    <string-array name="switch_proc_type">
+        <item>Auto</item>
+        <item>Rfid</item>
+        <item>SC</item>
+        <item>Bagink</item>
+    </string-array>
+<!-- End of H.M.Wang 2025-8-28 处理种类选择，对应于P94，选择健全的种类（bagink有点另类） -->
 </resources>
