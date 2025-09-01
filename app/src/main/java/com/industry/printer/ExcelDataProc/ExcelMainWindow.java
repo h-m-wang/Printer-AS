@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.R;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.ToastUtil;
 
@@ -97,7 +98,23 @@ public class ExcelMainWindow {
             mLine3.setText(mData.get(mDataIndex.get(mSelectedItemNo))[3]);
             mLine4.setText(mData.get(mDataIndex.get(mSelectedItemNo))[4]);
 
-            if(mData.get(mDataIndex.get(mSelectedItemNo))[0].equalsIgnoreCase("金元素厂标")) {
+            String logoPath = ConfigPath.getPictureDir() + File.separator + mData.get(mDataIndex.get(mSelectedItemNo))[0];
+            if(logoPath.endsWith(".bmp") || logoPath.endsWith(".BMP")) {
+                logoPath = logoPath.substring(0, logoPath.length() - 4);
+            }
+
+// H.M.Wang 2025-9-1 修改图标的获取方法，由用户事先导入到pictures目录中，在excel文件中指定文件名（bmp文件，可指定或不指定扩展名，指定扩展名时可指定.bmp或.BMP均可）
+            if(new File(logoPath + ".bmp").exists()) {
+                LOGO_BITMAP = BitmapFactory.decodeFile(logoPath + ".bmp");
+                Debug.d(TAG, "LOGO_BITMAP = " + logoPath + ".bmp (" + LOGO_BITMAP + ")");
+            } else if(new File(logoPath + ".BMP").exists()) {
+                LOGO_BITMAP = BitmapFactory.decodeFile(logoPath + ".BMP");
+                Debug.d(TAG, "LOGO_BITMAP = " + logoPath + ".BMP (" + LOGO_BITMAP + ")");
+            } else {
+                LOGO_BITMAP = null;
+                Debug.d(TAG, "LOGO_BITMAP = " + mData.get(mDataIndex.get(mSelectedItemNo))[0] + " (" + LOGO_BITMAP + ")");
+            }
+/*            if(mData.get(mDataIndex.get(mSelectedItemNo))[0].equalsIgnoreCase("金元素厂标")) {
                 mLogoView.setImageResource(R.drawable.logo1);
                 LOGO_BITMAP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.logo1);
             } else if(mData.get(mDataIndex.get(mSelectedItemNo))[0].equalsIgnoreCase("南钢厂标")) {
@@ -106,7 +123,8 @@ public class ExcelMainWindow {
             } else if(mData.get(mDataIndex.get(mSelectedItemNo))[0].equalsIgnoreCase("船级社图标")) {
                 mLogoView.setImageResource(R.drawable.logo3);
                 LOGO_BITMAP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.logo3);
-            }
+            }*/
+// End of H.M.Wang 2025-9-1 修改图标的获取方法，由用户事先导入到pictures目录中，在excel文件中指定文件名（bmp文件，可指定或不指定扩展名，指定扩展名时可指定.bmp或.BMP均可）
         }
     }
 
