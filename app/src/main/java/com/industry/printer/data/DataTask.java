@@ -1091,8 +1091,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
 			} else if(o instanceof GraphicObject) {
 				if(config.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_4) {
-					if(ExcelMainWindow.LOGO_BITMAP != null) {
-						BinInfo info = new BinInfo(mContext, Bitmap.createScaledBitmap(ExcelMainWindow.LOGO_BITMAP, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false), mTask.getHeads(), mExtendStat);
+					if(ExcelMainWindow.mLogoBitmap != null) {
+						BinInfo info = new BinInfo(mContext, Bitmap.createScaledBitmap(ExcelMainWindow.mLogoBitmap, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false), mTask.getHeads(), mExtendStat);
 						BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
 					}
 				}

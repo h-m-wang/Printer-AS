@@ -184,7 +184,14 @@ public class TestGpioPinsNew implements ITestOperation {
                 case MSG_SHOW_FPGA_UPGRADING_PROGRESS:
                     mProgressMsg.setVisibility(View.VISIBLE);
                     int prog = FpgaGpioOperation.getUpgradingProgress();
-                    mProgressMsg.setText("FPGA Upgrading: " + (prog/1000 + 1) + ", " + prog%1000 + "%");
+// H.M.Wang 2025-9-2 修改进度的显示方法，0-100为写入进度，100-200为验证进度
+                    if((prog%1000) < 100) {
+                        mProgressMsg.setText("Upgrading: " + (prog/1000 + 1) + ", " + (prog%100) + "%");
+                    } else {
+                        mProgressMsg.setText("Verifying: " + (prog/1000 + 1) + ", " + (prog%100) + "%");
+                    }
+//                    mProgressMsg.setText("FPGA Upgrading: " + (prog/1000 + 1) + ", " + (prog%1000) + "%");
+// End of H.M.Wang 2025-9-2 修改进度的显示方法，0-100为写入进度，100-200为验证进度
                     sendMessageDelayed(obtainMessage(MSG_SHOW_FPGA_UPGRADING_PROGRESS), 500);
                     break;
                 case MSG_HIDE_FPGA_UPGRADING_PROGRESS:
