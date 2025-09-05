@@ -3,6 +3,7 @@ package com.industry.printer.Bluetooth;
 import com.industry.printer.Rfid.N_RFIDSerialPort;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.hardware.ExtGpio;
@@ -136,9 +137,15 @@ public class BLEServer extends BluetoothServer {
     public void closeServer() {
         mInitialized = false;
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             execCmdStopAdvertise();
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 0);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             PCCommandManager pcCM = PCCommandManager.getInstance();
             if(null != pcCM) {
                 PCCommandHandler pcCH = pcCM.getBLEHandler();
@@ -166,7 +173,10 @@ public class BLEServer extends BluetoothServer {
                 mClientConnected = false;
                 mClientMacAddress = "";
                 synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                    ExtGpio.writeGpioTestPin('I', 9, 1);
+                    if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
                     mInitialized =
                             execCmdRST() &&
                                     execCmdSetServerMode() &&
@@ -175,7 +185,10 @@ public class BLEServer extends BluetoothServer {
                                     execCmdSetAdvData() &&
                                     execCmdStartAdvertise();
 //            execGattGetChars();
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                    ExtGpio.writeGpioTestPin('I', 9, 0);
+                    if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
                     PCCommandManager pcCM = PCCommandManager.getInstance();
                     if(null != pcCM && mInitialized) {
                         pcCM.addBLEHandler(new BLEStreamTransport(mStreamTransport.getInputStream(), mStreamTransport.getOutputStream(), BLEServer.this));
@@ -196,7 +209,10 @@ public class BLEServer extends BluetoothServer {
 
         String rcvString = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             if(mStreamTransport.readerReady()) {
                 // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
@@ -283,7 +299,10 @@ public class BLEServer extends BluetoothServer {
         int recv = 0;
 
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 
             byte[] temp = new byte[RECV_CLIENT_WRITE.length()+8];
 

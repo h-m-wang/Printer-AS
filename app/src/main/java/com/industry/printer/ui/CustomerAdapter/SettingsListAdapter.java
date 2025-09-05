@@ -1138,11 +1138,11 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 	public void refresh() {
 		notifyDataSetChanged();
 	}
-	
+
 	private class SelfTextWatcher implements TextWatcher {
-		
+
 		private EditText mEditText;
-		
+
 		public SelfTextWatcher(EditText e) {
 			mEditText = e;
 		}

@@ -192,9 +192,15 @@ public class BLEDevice {
     public void closeServer() {
         mInitialized = false;
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             execCmdStopAdvertise();
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 0);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             if(null != PCCommandManager.getInstance()) {
                 PCCommandManager.getInstance().addBLEHandler(null);
             }
@@ -210,7 +216,10 @@ public class BLEDevice {
         mClientConnected = false;
         mClientMacAddress = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             mInitialized =
                 execCmdRST() &&
                 execCmdSetServerMode() &&
@@ -219,7 +228,10 @@ public class BLEDevice {
                 execCmdSetAdvData() &&
                 execCmdStartAdvertise();
 //            execGattGetChars();
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 0);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             if(null != PCCommandManager.getInstance() && mInitialized) {
                 PCCommandManager.getInstance().addBLEHandler(mBLEStreamTransport);
             }
@@ -243,7 +255,10 @@ public class BLEDevice {
 
         String rcvString = "";
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
             if(mStreamTransport.readerReady()) {
                 // AITHINKER的C304通道每次最多可以传递144字节的数据
                 rcvString = mStreamTransport.readLine();
@@ -330,7 +345,10 @@ public class BLEDevice {
         int recv = 0;
 
         synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能            ExtGpio.writeGpioTestPin('I', 9, 1);
+            if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 
             byte[] temp = new byte[RECV_CLIENT_WRITE.length()+8];
 

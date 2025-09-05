@@ -41,6 +41,8 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -192,6 +194,17 @@ public static final String TAG="SettingsTabActivity";
 		mListView = (ListView) getView().findViewById(R.id.settings_list_view);
 		mAdapter = new SettingsListAdapter(mContext);
 		mListView.setAdapter(mAdapter);
+// H.M.Wang 2025-9-2 增加一个面向A133的功能，用来关闭输入法软键盘
+		if(PlatformInfo.isA133Product()) {
+			mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+					InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+				}
+			});
+		}
+// End of H.M.Wang 2025-9-2 增加一个面向A133的功能，用来关闭输入法软键盘
 		//transaction.commit();
 		// setupViews();
 

@@ -239,7 +239,10 @@ public class TestMain {
 
                             synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
                                 BLEServer.BLERequiring = true;
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                                ExtGpio.writeGpioTestPin('I', 9, 0);
+                                if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
                                 IInkDevice rfidManager = InkManagerFactory.inkManager(mContext);
                                 if (rfidManager instanceof RFIDManager) {
                                     for (int i = 0; i < 100; i++) {
@@ -334,7 +337,10 @@ public class TestMain {
                                     });
                                 }
                                 BLEServer.BLERequiring = false;
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能                                ExtGpio.writeGpioTestPin('I', 9, 1);
+                                if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
                             }
                         }
                     }).start();

@@ -4,6 +4,7 @@ import com.industry.printer.BLE.BLEDevice;
 import com.industry.printer.Bluetooth.BLEServer;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.RFIDDevice;
 
@@ -57,7 +58,10 @@ while(BLEServer.BLERequiring) {
 }
 synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 	Debug.print(RFIDDevice.RFID_DATA_SEND, mCmd.mTransData);
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 0);
+	if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 		try {
 			for(int i=0; i<3; i++) {
@@ -78,7 +82,10 @@ synchronized (RFIDDevice.SERIAL_LOCK) { // 2024-1-29添加
 // End of H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次
 
 		Debug.print(RFIDDevice.RFID_DATA_RECV, readin);
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能	ExtGpio.writeGpioTestPin('I', 9, 1);
+	if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 }
 		RFIDData response = parseResponse(readin);
 		if (mCallback != null) {

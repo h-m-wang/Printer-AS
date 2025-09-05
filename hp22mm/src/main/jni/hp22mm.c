@@ -28,7 +28,17 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.166"
+#define VERSION_CODE                            "1.0.169"
+// 1.0.169 2025-9-4
+// 暂时取消pd_get_temperature调用，会影响到循环变量i，从1变为0，只要调用底层的service_get_actual_temp就会出现这个问题，原因不明。可能是hp的库中对内存的操作影响的
+// 1.0.168 2025-9-3
+// 1.0.167 2025-9-3
+// 在monitorThread中，由于最初只考虑的是一个头，当有两个头的时候，第二个头永远不会被执行握手，导致60s后第二头断电，由
+// int nonsecure_sec = 0;
+// int secure_sec = 0;
+// 修改为
+// int nonsecure_sec[] = {0, 0};
+// int secure_sec[] = {0, 0};
 // 1.0.166 2025-7-11
 // 在IDS_Init函数中，开启ADC的压力监测模式工作
 // 1.0.165 2025-7-11
@@ -346,8 +356,8 @@ int RunningState[3];             // [0]: IDS状态； [1]: PEN0状态； [2]: PE
 static volatile int EnableWarming = 1;
 
 void *monitorThread(void *arg) {
-    int nonsecure_sec = 0;
-    int secure_sec = 0;
+    int nonsecure_sec[] = {0, 0};
+    int secure_sec[] = {0, 0};
     float ink_weight;
 //    int degree_c;
     int limit_sec;
@@ -360,10 +370,6 @@ void *monitorThread(void *arg) {
         sleep(POLL_SEC);
 
 //        pthread_mutex_lock(&mutex);
-
-        nonsecure_sec += POLL_SEC;
-        secure_sec += POLL_SEC;
-
 //        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
 
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
@@ -443,6 +449,9 @@ void *monitorThread(void *arg) {
             }
 
             for(int i=0; i<penNum; i++) {
+                nonsecure_sec[i] += POLL_SEC;
+                secure_sec[i] += POLL_SEC;
+
                 RunningState[PEN0_STATE+i] = STATE_VALID;
                 // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
                 pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status), penIndexs[i]);
@@ -451,9 +460,9 @@ void *monitorThread(void *arg) {
                 }
 
                 uint8_t v;
-    // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
-                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+// 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
                 pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+// 2025-9-4 暂时取消这个调用，会影响到循环变量i，从1变为0，原因不明                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
 //                pd_set_recirc_override(PD_INSTANCE, penIndexs[i], 0, 13);
 
                 if(EnableWarming)
@@ -464,8 +473,8 @@ void *monitorThread(void *arg) {
                 // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
                 if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
                     // NON-SECURE ink use (for PILS algorithm)
-                    if (nonsecure_sec >= INK_POLL_SEC) {
-                        nonsecure_sec = 0;
+                    if (nonsecure_sec[i] >= INK_POLL_SEC) {
+                        nonsecure_sec[i] = 0;
                         // NON-SECURE ink use (for PILS algorithm)
                         ink_weight = GetInkWeight(penIndexs[i]);
                         if (ink_weight < 0) {
@@ -477,8 +486,8 @@ void *monitorThread(void *arg) {
                     }
 
                     // SECURE ink use
-                    if (secure_sec >= SECURE_INK_POLL_SEC) {
-                        secure_sec = 0;
+                    if (secure_sec[i] >= SECURE_INK_POLL_SEC) {
+                        secure_sec[i] = 0;
                         if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
                             LOGD("GetAndProcessInkUse failed.");
                         } else {

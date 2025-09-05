@@ -654,7 +654,7 @@ PDResult_t pd_get_print_head_status(int32_t instance, uint8_t ph_id , PrintHeadS
     print_head_status->overtemp_warning         = ((phstatus >> 16) & 0x02) ? 1 : 0;
     print_head_status->supplyexpired_warning    = ((phstatus >> 16) & 0x04) ? 1 : 0;
 
-    LOGD("pd_get_print_head_status() : print_head_state = %d, print_head_error = %d. energy_calibrated = %d\n", print_head_status->print_head_state, print_head_status->print_head_error, print_head_status->energy_calibrated);
+    LOGD("pd_get_print_head_status(%d) : print_head_state = %d, print_head_error = %d. energy_calibrated = %d\n", ph_id, print_head_status->print_head_state, print_head_status->print_head_error, print_head_status->energy_calibrated);
 
     LOGI("%s done", __FUNCTION__);
 
@@ -1830,7 +1830,7 @@ PDResult_t pd_get_temperature_override(int32_t instance, uint8_t ph_id, uint8_t 
         return PD_ERROR;
     }
 
-    LOGD("pd_get_temperature_override(): instance = %d, Pen ID = %d, Oveeride temperature = %d\n", instance, ph_id, *temp);
+    LOGD("pd_get_temperature_override(): instance = %d, Pen ID = %d, Overide temperature = %d\n", instance, ph_id, *temp);
 
     LOGI("%s done", __FUNCTION__);
 

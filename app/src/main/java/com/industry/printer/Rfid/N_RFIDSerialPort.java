@@ -166,7 +166,10 @@ public class N_RFIDSerialPort {
             try{Thread.sleep(100);}catch(Exception e){}
         }
 synchronized (RFIDDevice.SERIAL_LOCK) {
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能        ExtGpio.writeGpioTestPin('I', 9, 0);
+    if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 0);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
         if (0 == write(rfidData.make(cmd, data))) {
             mErrorMessage = "COM异常：" + getErrorMessage();
             Debug.e(TAG, mErrorMessage);
@@ -174,7 +177,10 @@ synchronized (RFIDDevice.SERIAL_LOCK) {
         }
 
         byte[] recvData = read();
+// H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
 // H.M.Wang 2025-8-15 永久取消蓝牙与串口通过PI9的切换功能        ExtGpio.writeGpioTestPin('I', 9, 1);
+    if(!PlatformInfo.isA133Product()) ExtGpio.writeGpioTestPin('I', 9, 1);
+// End of H.M.Wang 2025-9-5 修改为A133的情况下不执行此操作，A20的时候执行
         if (null == recvData) {
             mErrorMessage = "COM异常：" + getErrorMessage();
             Debug.e(TAG, mErrorMessage);
