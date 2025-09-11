@@ -75,7 +75,7 @@ public class ExcelMainWindow {
     private ImageView mLogoView = null;
 
     private List<String[]> mData;
-    private List<Integer> mDataIndex;
+    private List<Integer> mDataIndex;       // 由于有搜索功能，搜索结果可能是所有数据的一个子集，需要靠这个索引来访问当前命中数据集
     private int mSelectedItemNo = -1;
 
     private BaseAdapter mExcelDataLVAdapter = null;

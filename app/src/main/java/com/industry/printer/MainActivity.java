@@ -81,6 +81,7 @@ import android.widget.TextView;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.Server1.Server1MainWindow;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.CypherUtils;
@@ -340,6 +341,21 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			}, 500);
 		}
 // End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
+// H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
+// H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+			mRadioCustom.setVisibility(View.VISIBLE);
+			mRadioCustom.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					mRadioCtl.setChecked(false);
+					mRadioCustom.setChecked(true);
+				}
+			}, 500);
+			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+		}
+// End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+// End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
 
         BarcodeScanParser.setContext(this);
 
@@ -475,11 +491,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			mCustomTab1 = new Custom1TabActivity();
 		}
-/*
-		if(Configs.USER_MODE == Configs.USER_MODE_2) {
-			mCustomTab2 = new Custom2TabActivity();
-		}
-*/
 		mControlTab.setCallback(mHander);
 		
 		mPgBack = (RelativeLayout) findViewById(R.id.btn_page_backward);
@@ -501,35 +512,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mDispTime = (TextView) findViewById(R.id.disp_time);
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息更改为显示时间
 
-/*
-		mQuitBtn = (TextView) findViewById(R.id.quitBtn);
-		mQuitBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(Configs.USER_MODE == Configs.USER_MODE_1 || Configs.USER_MODE == Configs.USER_MODE_2) {
-					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-					builder.setTitle(R.string.str_quit)
-							.setMessage(R.string.str_quit_confirm)
-							.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-									mRadioCustom.setChecked(false);
-									mRadioCtl.setChecked(true);
-								}
-							})
-							.setNegativeButton(R.string.str_btn_cancel, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-								}
-							})
-							.create()
-							.show();
-				}
-			}
-		});
-*/
 		FragmentTransaction transaction = getFragmentManager().beginTransaction();
 //		transaction.replace(R.id.tab_content, mControlTab);
 //		transaction.commit();
@@ -545,9 +527,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			transaction.add(R.id.tab_content, mCustomTab1);
 		}
-/*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
-			transaction.add(R.id.tab_content, mCustomTab2);
-		}*/
 		JarTest.d(TAG, "JarTest");
 		Debug.d(TAG, "===>transaction");
 		// transaction.add(R.id.tv_counter_msg, mCtrlTitle);
@@ -565,9 +544,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			transaction.hide(mCustomTab1);
 		}
-/*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
-			transaction.hide(mCustomTab2);
-		}*/
 		transaction.show(mControlTab);
 		Debug.d(TAG, "===>show");
 
@@ -678,24 +654,19 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 						mCustomTab1.setCtrlHandler(mControlTab.mHandler);
 						mCustomTab1.refreshView();
 						fts.show(mCustomTab1);
+						mCustomExtra.setVisibility(View.VISIBLE);
 					}
-/*					if(Configs.USER_MODE == Configs.USER_MODE_2) {
-						mCustomTab2.setObjPath(mControlTab.mObjPath);
-						mCustomTab2.setCtrlHandler(mControlTab.mHandler);
-						mCustomTab2.refreshView();
-						fts.show(mCustomTab2);
-					}*/
-					Debug.d(TAG, "--->show CustomTab ok");
-					mCustomExtra.setVisibility(View.VISIBLE);
-					Debug.d(TAG, "--->show CustomExtra visible");
+// H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+						Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+						emw.show(mRadioCustom);
+					}
+// End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
 				} else {
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						fts.hide(mCustomTab1);
+						mCustomExtra.setVisibility(View.GONE);
 					}
-/*					if(Configs.USER_MODE == Configs.USER_MODE_2) {
-						fts.hide(mCustomTab2);
-					}*/
-					mCustomExtra.setVisibility(View.GONE);
 				}
 				break;
 		}
@@ -835,9 +806,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 			fts.remove(mCustomTab1);
 		}
-/*		if(Configs.USER_MODE == Configs.USER_MODE_2) {
-			fts.remove(mCustomTab2);
-		}*/
 		FpgaGpioOperation.close();
 	}
 

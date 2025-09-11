@@ -9,6 +9,8 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.FpgaGpioOperation;
 
+import java.util.Arrays;
+
 public class MessageObject extends BaseObject {
 	private static final String TAG = MessageObject.class.getSimpleName();
 
@@ -473,15 +475,23 @@ public class MessageObject extends BaseObject {
 				size[i] = String.valueOf(mBaseList[i] * 8);
 			}
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
-// H.M.Wang 2025-1-19 增加22mmx2打印头类型
-//		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM || mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
 			size = new String[mBaseList_22mm.length];
 			for (int i = 0; i < size.length; i++) {
 				size[i] = String.valueOf(mBaseList_22mm[i]);
 			}
 // End of H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+			size = new String[mBaseList_22mm.length*2+1];
+			for (int i = 0; i < mBaseList_22mm.length; i++) {
+				size[i] = String.valueOf(mBaseList_22mm[i]);
+			}
+			size[mBaseList_22mm.length] = String.valueOf(mBaseList_22mm[mBaseList_22mm.length-1] + 0.5f);
+			for (int i = 0; i < mBaseList_22mm.length; i++) {
+				size[mBaseList_22mm.length+1+i] = (String.valueOf(mBaseList_22mm[i] + mBaseList_22mm[mBaseList_22mm.length-1]));
+			}
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		}
 		return size;
 	}
@@ -531,12 +541,13 @@ public class MessageObject extends BaseObject {
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR) {
 			return h/8;
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
-// H.M.Wang 2025-1-19 增加22mmx2打印头类型
-//		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM || mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
 			return h * 12.7f / 22;
 // End of H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+			return h * 12.7f / 44;
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT )//addbylk 喷头类型
 		{
 // H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
@@ -815,13 +826,22 @@ public class MessageObject extends BaseObject {
 			sizelist = mBaseList_9mm;
 		}
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
-// H.M.Wang 2025-1-19 增加22mmx2打印头类型
-//		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
-		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM || mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
 			sizelist = mBaseList_22mm;
 		}
 // End if H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+			sizelist = new float[mBaseList_22mm.length*2+1];
+			for(int i=0; i<mBaseList_22mm.length; i++) {
+				sizelist[i] = mBaseList_22mm[i];
+			}
+			sizelist[mBaseList_22mm.length] = mBaseList_22mm[mBaseList_22mm.length-1] + 0.5f;
+			for (int i = 0; i < mBaseList_22mm.length; i++) {
+				sizelist[mBaseList_22mm.length+1+i] = mBaseList_22mm[i] + sizelist[mBaseList_22mm.length];
+			}
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		}
 
 //		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_12_7) {
 //			h = size/PIXELS_PER_MM;
@@ -1084,13 +1104,15 @@ public class MessageObject extends BaseObject {
 			}
 
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
-// H.M.Wang 2025-1-19 增加22mmx2打印头类型
-//			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
-			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM || mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
 				h = type * size/152*22;
 			}
 // End if H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+				h = type * size/152*44;
+			}
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		}
 
 		for (int i = 0; i < sizelist.length; i++) {

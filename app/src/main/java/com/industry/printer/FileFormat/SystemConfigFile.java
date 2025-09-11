@@ -228,6 +228,9 @@ public class SystemConfigFile{
 // H.M.Wang 2025-6-27 增加一个从Execl文件导入数据的功能，这个一个特殊用户的需求
 	public static final int USER_MODE_4 	= 4;
 // End of H.M.Wang 2025-6-27 增加一个从Execl文件导入数据的功能，这个一个特殊用户的需求
+// H.M.Wang 2025-9-9 增加一个用户模式，该模式下从网络获取数据，分配给DT
+	public static final int USER_MODE_5 	= 5;
+// End of H.M.Wang 2025-9-9 增加一个用户模式，该模式下从网络获取数据，分配给DT
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小

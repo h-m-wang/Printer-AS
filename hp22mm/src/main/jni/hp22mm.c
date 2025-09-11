@@ -28,7 +28,12 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.169"
+#define VERSION_CODE                            "1.0.170"
+// 1.0.170 2025-9-8
+// 在pdPowerOn函数中，追加
+// pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);
+// 设置为+100%
+// 在monitorThread类中，通过pd_get_recirc_override函数读取确认
 // 1.0.169 2025-9-4
 // 暂时取消pd_get_temperature调用，会影响到循环变量i，从1变为0，只要调用底层的service_get_actual_temp就会出现这个问题，原因不明。可能是hp的库中对内存的操作影响的
 // 1.0.168 2025-9-3
@@ -463,7 +468,7 @@ void *monitorThread(void *arg) {
 // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
                 pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
 // 2025-9-4 暂时取消这个调用，会影响到循环变量i，从1变为0，原因不明                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
-//                pd_set_recirc_override(PD_INSTANCE, penIndexs[i], 0, 13);
+                pd_get_recirc_override(PD_INSTANCE, penIndexs[i], 0, &v);
 
                 if(EnableWarming)
                     pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
@@ -550,6 +555,8 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
         pd_set_temperature_override(PD_INSTANCE, penIndex, 7);
     else if(temp < 70)
         pd_set_temperature_override(PD_INSTANCE, penIndex, 8);
+
+    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);
 
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex)) {
         PD_Power_State = PD_POWER_STATE_OFF;

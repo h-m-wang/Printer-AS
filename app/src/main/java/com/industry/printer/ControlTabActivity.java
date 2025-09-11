@@ -41,6 +41,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Serial.SerialHandler;
+import com.industry.printer.Server1.Server1MainWindow;
 import com.industry.printer.Socket_Server.Network;
 import com.industry.printer.Socket_Server.PCCommand;
 import com.industry.printer.Socket_Server.Paths_Create;
@@ -1268,6 +1269,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 		mPC_FIFO = PC_FIFO.getInstance(mContext);
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
+// H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+			emw.setCallback(mHandler);
+		}
+// End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
 	}
 
 	public boolean getLevelLow() {
@@ -4694,7 +4701,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	             pout.println(msg);  
 //	         }catch (IOException e) {  
 //	             e.printStackTrace();  
-//	         }  
+//	         }
 		}
 		public void onPrinted0000(int index) {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
@@ -4776,6 +4783,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 			});
 // End of H.M.Wang 2020-4-15 追加群组打印时，显示每个正在打印的message的1.bmp
+// H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+				if(index == mMsgTask.size()-1) {
+					Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+					emw.onPrinted();
+				}
+			}
+// End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
         }
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
 

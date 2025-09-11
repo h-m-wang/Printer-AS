@@ -438,6 +438,7 @@
         <item>模式2</item>
         <item>模式3</item>
         <item>模式4</item>
+        <item>模式5</item>
     </string-array>
 <!-- End of H.M.Wang 2023-2-15 增加一個快捷模式/Easy mode的參數。用來區分啓動哪個用戶界面 -->
 <!-- H.M.Wang 2023-10-13 增加一個AD參數，當AD=0時，按原有策略(根據img的類型顯示電池圖標）；當AD=1時，無條件顯示電池圖標；當AD=2時，顯示氣壓參數，具體方法待定 -->
