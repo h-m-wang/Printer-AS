@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
         <EditText
-            android:id="@+id/search_cnt"
+            android:id="@+id/search_word"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -19,7 +19,21 @@
             android:layout_marginRight="5dp"
             android:padding="5dp"
             android:textSize="24sp"
-            android:hint="Row Cnt"
+            android:hint="Search"
+            android:background="@color/white"
+            android:textColor="@color/black" />
+        <EditText
+            android:id="@+id/printer_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:padding="5dp"
+            android:textSize="24sp"
+            android:hint="Printer No."
+            android:minWidth="150sp"
             android:background="@color/white"
             android:textColor="@color/black" />
         <TextView
@@ -40,7 +54,9 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/black"
-            android:gravity="center" />
+            android:gravity="center"
+            android:layout_gravity="center"
+            />
         <TextView
             android:id="@+id/btn_print"
             android:layout_width="wrap_content"
@@ -59,7 +75,9 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textColor="@color/black"
-            android:gravity="center" />
+            android:gravity="center"
+            android:layout_gravity="center"
+            />
         <ImageView
             android:id="@+id/cancel"
             android:layout_width="wrap_content"

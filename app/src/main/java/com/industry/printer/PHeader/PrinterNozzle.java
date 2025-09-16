@@ -153,14 +153,17 @@ public enum PrinterNozzle {
 // H.M.Wang 2022-10-19 追加64SLANT头。
             case NozzleType.NOZZLE_TYPE_64SLANT:
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2025-9-15 64DOTONE头允许reverse和shift
+            case NozzleType.NOZZLE_TYPE_64DOTONE:
+// End of H.M.Wang 2025-9-15 64DOTONE头允许reverse和shift
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
                 reverseEnable = true;
                 shiftEnable = true;
                 mirrorEnable = true;
                 rotateAble = true;
                 break;
 // End of H.M.Wang 2022-9-1 因为64SN的变形处理是假借有4个头来在正式处理流程里面做的，因此，  mirrorEnable和   reverseEnable也都必须有效，否则不会被处理
-// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
-            case NozzleType.NOZZLE_TYPE_64DOTONE:
 // H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
             case NozzleType.NOZZLE_TYPE_16DOTX4:
 // End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
@@ -169,7 +172,6 @@ public enum PrinterNozzle {
                 mirrorEnable = true;
                 rotateAble = true;
                 break;
-// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
 // H.M.Wang 2023-7-29 追加48点头
             case NozzleType.NOZZLE_TYPE_48_DOT:
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -669,12 +671,14 @@ public enum PrinterNozzle {
 // End of H.M.Wang 2023-7-29 追加48点头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
             case NozzleType.NOZZLE_TYPE_22MM:
-// H.M.Wang 2025-1-19 增加22mmx2打印头类型
-            case NozzleType.NOZZLE_TYPE_22MMX2:
-// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
                 ratio = 1.0f * 22.0f / 304;
                 break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+            case NozzleType.NOZZLE_TYPE_22MMX2:
+                ratio = 1.0f * 44.0f / 304;
+                break;
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
             default:
                 break;
         }

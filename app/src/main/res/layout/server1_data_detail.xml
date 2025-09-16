@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:padding="20dp"
+    android:layout_gravity="center"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:text="Msg1: "
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/msg1"
+            android:layout_width="0dp"
+            android:layout_weight="7"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="36sp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:text="Msg2: "
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/msg2"
+            android:layout_width="0dp"
+            android:layout_weight="7"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="36sp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:text="Msg3: "
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/msg3"
+            android:layout_width="0dp"
+            android:layout_weight="7"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="36sp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:text="Msg4: "
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/msg4"
+            android:layout_width="0dp"
+            android:layout_weight="7"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="36sp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:text="Stove: "
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+        <TextView
+            android:id="@+id/stove"
+            android:layout_width="0dp"
+            android:layout_weight="7"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:textSize="36sp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/white"
+            android:lines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
+</LinearLayout>

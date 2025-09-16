@@ -1,13 +1,17 @@
 package com.industry.printer.Server1;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,14 +21,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.DataTransferThread;
-import com.industry.printer.ExcelDataProc.ExcelMainWindow;
-import com.industry.printer.ExcelDataProc.ExeclFile;
 import com.industry.printer.FileFormat.SystemConfigFile;
-import com.industry.printer.FileFormat.TextInputStream;
 import com.industry.printer.R;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.ConfigPath;
@@ -57,7 +59,8 @@ public class Server1MainWindow {
     private ListView mPostResultLV;
     private BaseAdapter mPostResultLVAdapter;
     private ProgressBar mProcessing;
-    private EditText mSearchCnt;
+    private EditText mSearchWord;
+    private EditText mPrinterNo;
     private TextView mGetFromHost;
     private TextView mPrint;
 
@@ -78,6 +81,7 @@ public class Server1MainWindow {
         mCallback = null;
 
         mResults = new ArrayList<String[]>();
+        mSelectedItemNo = -1;
 
         ThreadPoolManager.mThreads.execute(new Runnable() {
             @Override
@@ -86,14 +90,13 @@ public class Server1MainWindow {
                 ArrayList<String[]> readData = readDataFromFile();
                 if(null != readData) {
                     mResults = readData;
-                    mSelectedItemNo = 0;
                 }
             }
         });
     }
 
     private void selectPosition(int pos) {
-        if(pos >= 0 && pos < mResults.size() && pos != mSelectedItemNo) {
+        if(pos >= 0 && pos < mResults.size() && (pos != mSelectedItemNo || mSelectedItemNo == -1)) {
             mSelectedItemNo = pos;
             Debug.d(TAG, "mSelectedItemNo = " + mSelectedItemNo);
 
@@ -112,7 +115,12 @@ public class Server1MainWindow {
                 thread.mNeedUpdate = true;
             }
 
-            mPostResultLVAdapter.notifyDataSetChanged();
+            mGetFromHost.post(new Runnable() {
+                @Override
+                public void run() {
+                    mPostResultLVAdapter.notifyDataSetChanged();
+                }
+            });
         }
     }
 
@@ -219,10 +227,36 @@ public class Server1MainWindow {
             @Override
             public void onClick(View view) {
                 mPopupWindow.dismiss();
+                if(v instanceof RadioButton) ((RadioButton)v).setChecked(true);
             }
         });
 
-        mSearchCnt = (EditText) popupView.findViewById(R.id.search_cnt);
+        mSearchWord = (EditText) popupView.findViewById(R.id.search_word);
+        mSearchWord.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String keyWord = editable.toString();
+                if(keyWord.length() >= 4) {
+                    for(int i=0; i<mResults.size(); i++) {
+                        if(mResults.get(i)[5].endsWith(keyWord)) {
+                            selectPosition(i);
+                            mPostResultLV.smoothScrollToPosition(i);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        mPrinterNo = (EditText) popupView.findViewById(R.id.printer_no);
         mGetFromHost = (TextView) popupView.findViewById(R.id.btn_post);
         mGetFromHost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,7 +269,7 @@ public class Server1MainWindow {
                         HttpUtils httpUtils = new HttpUtils(
                                 "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg",
                                 "POST",
-                                "{\"inkQryReq\":{\"Dvc\":\"" + mSearchCnt.getText().toString() + "连铸喷码机\"}}",
+                                "{\"inkQryReq\":{\"Dvc\":\"" + mPrinterNo.getText().toString() + "连铸喷码机\"}}",
                                 new HttpUtils.HttpResponseListener() {
                                     @Override
                                     public void onReceived(String str) {
@@ -329,13 +363,13 @@ public class Server1MainWindow {
                 if(null == convertView) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_list_item, null);
                 }
+
                 if(mSelectedItemNo == position) {
                     convertView.setBackgroundColor(Color.YELLOW);
                 } else {
                     convertView.setBackgroundColor(Color.TRANSPARENT);
                 }
-                TextView idTv = (TextView) convertView.findViewById(R.id.id);
-                idTv.setText(mResults.get(position)[7]);
+
                 TextView stoveTv = (TextView) convertView.findViewById(R.id.stove);
                 stoveTv.setText(mResults.get(position)[4]);
                 TextView pieceNoTv = (TextView) convertView.findViewById(R.id.pieceNo);
@@ -350,6 +384,8 @@ public class Server1MainWindow {
                 printRowMsg3Tv.setText(mResults.get(position)[2]);
                 TextView printRowMsg4Tv = (TextView) convertView.findViewById(R.id.printRowMsg4);
                 printRowMsg4Tv.setText(mResults.get(position)[3]);
+                TextView idTv = (TextView) convertView.findViewById(R.id.id);
+                idTv.setText(mResults.get(position)[7]);
 
                 return convertView;
             }
@@ -359,17 +395,88 @@ public class Server1MainWindow {
         mPostResultLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                DataTransferThread thread = DataTransferThread.getInstance(mContext);
+                if (thread != null && thread.isRunning()) {
+                    if(!mResults.get(mSelectedItemNo)[6].equalsIgnoreCase(mResults.get(i)[6])) {
+                        if(null != mCallback) {
+                            String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(i)[6].substring(0,1);
+                            if(new File(filePath).exists()) {
+                                Message msg = mCallback.obtainMessage(ControlTabActivity.MESSAGE_OPEN_PREVIEW);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("file", Configs.GROUP_PREFIX + mResults.get(i)[6].substring(0,1));
+                                bundle.putBoolean("printNext", true);
+                                msg.setData(bundle);
+                                mCallback.sendMessage(msg);
+                                thread.setIndex(0);     // 从第一个成员开始
+                            } else {
+                                mCallback.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ToastUtil.show(mContext, R.string.str_tlk_not_found);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
                 selectPosition(i);
             }
         });
+        mPostResultLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final int pos = i;
+                final View tView = view;
 
+                View detailView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_detail, null);
+
+                final PopupWindow detailWindow = new PopupWindow(detailView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                detailWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
+                detailWindow.setOutsideTouchable(true);
+                detailWindow.setTouchable(true);
+                detailWindow.update();
+
+                TextView msg1TV = (TextView) detailView.findViewById(R.id.msg1);
+                msg1TV.setText(mResults.get(pos)[0]);
+                TextView msg2TV = (TextView) detailView.findViewById(R.id.msg2);
+                msg2TV.setText(mResults.get(pos)[1]);
+                TextView msg3TV = (TextView) detailView.findViewById(R.id.msg3);
+                msg3TV.setText(mResults.get(pos)[2]);
+                TextView msg4TV = (TextView) detailView.findViewById(R.id.msg4);
+                msg4TV.setText(mResults.get(pos)[3]);
+                TextView stoveTV = (TextView) detailView.findViewById(R.id.stove);
+                stoveTV.setText(mResults.get(pos)[4]);
+                view.setBackgroundColor(Color.GRAY);
+
+                detailWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        if(mSelectedItemNo == pos) {
+                            tView.setBackgroundColor(Color.YELLOW);
+                        } else {
+                            tView.setBackgroundColor(Color.TRANSPARENT);
+                        }
+                    }
+                });
+
+                detailView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        detailWindow.dismiss();
+                    }
+                });
+
+                detailWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+                return false;
+            }
+        });
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
 
-        selectPosition(mSelectedItemNo);
+        if(mSelectedItemNo == -1) selectPosition(0); else selectPosition(mSelectedItemNo);
         mPostResultLV.setSelection(mSelectedItemNo);
     }
 
-    public void onPrinted() {
+    public void goNextLine() {
         if(mSelectedItemNo >= 0 && mSelectedItemNo < mResults.size()) {
             final StringBuilder sb = new StringBuilder();
             HttpUtils httpUtils = new HttpUtils(
@@ -394,10 +501,30 @@ public class Server1MainWindow {
                     }
             );
             if(mSelectedItemNo+1 < mResults.size()) {
+                selectPosition(mSelectedItemNo+1);
+                if(!mResults.get(mSelectedItemNo)[6].equalsIgnoreCase(mResults.get(mSelectedItemNo-1)[6])) {
+                    if(null != mCallback) {
+                        String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(mSelectedItemNo)[6].substring(0,1);
+                        if(new File(filePath).exists()) {
+                            Message msg = mCallback.obtainMessage(ControlTabActivity.MESSAGE_OPEN_PREVIEW);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("file", Configs.GROUP_PREFIX + mResults.get(mSelectedItemNo)[6].substring(0,1));
+                            bundle.putBoolean("printNext", true);
+                            msg.setData(bundle);
+                            mCallback.sendMessage(msg);
+                        } else {
+                            mCallback.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ToastUtil.show(mContext, R.string.str_tlk_not_found);
+                                }
+                            });
+                        }
+                    }
+                }
                 mGetFromHost.post(new Runnable() {
                     @Override
                     public void run() {
-                        selectPosition(mSelectedItemNo+1);
                         if(mPostResultLV.getLastVisiblePosition() < mSelectedItemNo+1) mPostResultLV.smoothScrollByOffset(1);
                     }
                 });

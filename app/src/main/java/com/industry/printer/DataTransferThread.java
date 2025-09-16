@@ -51,6 +51,7 @@ import com.industry.printer.Serial.SerialHandler;
 import com.industry.printer.Serial.SerialProtocol;
 import com.industry.printer.Serial.SerialProtocol7;
 import com.industry.printer.Serial.SerialProtocol8;
+import com.industry.printer.Server1.Server1MainWindow;
 import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
@@ -368,6 +369,7 @@ public class DataTransferThread {
 //    				FpgaGpioOperation.updateSettings(mContext, mDataTask.get(mIndex), FpgaGpioOperation.SETTING_TYPE_NORMAL);
 // End of H.M.Wang 2021-3-19 未开始打印前启动purge时，mDataTask为空，会导致崩溃
 // End of H.M.Wang 2022-1-25 使用task设置参数可能会与打印的数据不符，比如打印数据是25.4头的，但是清洗是12.7头的，就会导致每列字节数不同而是恢复打印后的数据产生偏差，以前mDataTask为空的情况可能是还没有加needRestore变量，现在应该不会了，所以恢复原来的实现
+					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, mPrintBuffer, mPrintBuffer.length * 2);
 					FpgaGpioOperation.init();
 // H.M.Wang 2021-3-5 暂时取消
 //					resendBufferToFPGA();
@@ -3485,6 +3487,14 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							} else {
 // H.M.Wang 2020-5-19 QR文件打印最后一行后无反应问题。应该先生成打印缓冲区，而不是先判断是否到了终点。顺序不对
 								Debug.i(TAG, "mIndex: " + index());
+// H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+								if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+									if(index() == 0) {
+										Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+										emw.goNextLine();
+									}
+								}
+// End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
 // H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 								if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
 									mPrintBuffer = getDotMarkerPrintBuffer(false);

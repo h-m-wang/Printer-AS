@@ -154,7 +154,7 @@ public class BufferRebuilder {
         return dst;
     }
 
-// H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+// H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
     public BufferRebuilder reverseHp22mm(int pattern) {
         int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
         byte temp;
@@ -168,14 +168,14 @@ public class BufferRebuilder {
         }
         return this;
     }
-// End of H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+// End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
     public BufferRebuilder reverse(int pattern) {
-// H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+// H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
         if(pattern == 0xf0) {
             return reverseHp22mm(pattern);
         }
-// End of H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+// End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
         try {
 //            Debug.i(TAG, "reverse pattern: " + pattern);

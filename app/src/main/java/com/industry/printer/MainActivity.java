@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	    mRadioCtl = (RadioButton) findViewById(R.id.btn_control);
 	    mRadioCtl.setOnCheckedChangeListener(this);
 	    mRadioCtl.setOnTouchListener(this);
-	    
+
 	    mRadioEdit = (RadioButton) findViewById(R.id.btn_edit);
 	    mRadioEdit.setOnCheckedChangeListener(this);
 	    mRadioEdit.setOnTouchListener(this);
@@ -659,7 +659,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 // H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
 						Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
-						emw.show(mRadioCustom);
+						emw.show(mRadioCtl);
 					}
 // End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
 				} else {

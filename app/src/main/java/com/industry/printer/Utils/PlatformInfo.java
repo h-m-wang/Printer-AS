@@ -147,6 +147,27 @@ public class PlatformInfo {
 			info.startsWith("FNSM");		// A20 基于M2的F屏版本
 	}
 
+/* 2025-9-4 Indicated by 吕总
+A133 版本号新规则
+
+Aaaa_Bbbb_Cccc_Dddd
+
+Aaaa  IMG 版本号
+A=2  M2 板子用的img
+A=5  A 133_WC  5寸屏img
+A=9  A133_WC 7/9/10 寸屏 img
+aaa  img 版本序号
+
+Bbbb  FPGA版本号
+B  = a-z ,A-Z   代表FPGA 品种
+bbb  序号
+
+Cccc ,  SPI ko 编号
+C= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 和 M9 , FPGA不同， ko 相同
+
+Dddd,  SPI ko 编号
+D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 和 M9 , FPGA不同， ko 相同
+*/
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 	public static String getImgUniqueCode() {
 		try {

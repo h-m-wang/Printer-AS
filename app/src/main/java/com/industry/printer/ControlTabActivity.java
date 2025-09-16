@@ -4783,14 +4783,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 			});
 // End of H.M.Wang 2020-4-15 追加群组打印时，显示每个正在打印的message的1.bmp
-// H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
-			if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
-				if(index == mMsgTask.size()-1) {
-					Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
-					emw.onPrinted();
-				}
-			}
-// End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
         }
 // End of H.M.Wang 2020-1-7 追加群组打印时，显示正在打印的MSG的序号
 
