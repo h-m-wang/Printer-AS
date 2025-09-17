@@ -264,7 +264,7 @@ public class Hp22mmSCManager implements IInkDevice {
 
 // H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
     public int getInkCount() {
-        return mHeads.length;
+        if(null != mHeads) return mHeads.length;else return 0;
     }
 // End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 

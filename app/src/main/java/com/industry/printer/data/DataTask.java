@@ -1647,7 +1647,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			heads = 4;		// 16点，32点和64点，在这里假设按4个头来算，主要是为了就和当前的实现逻辑
 // H.M.Wang 2021-11-3 大字机4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
 //			offsetDiv = 6;	// 打字机位移量除6
-			offsetDiv = 24;
+// H.M.Wang 2025-9-15 64DOTONE不除24
+			offsetDiv = (object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64DOTONE ? 1 : 24);
+// End of H.M.Wang 2025-9-15 64DOTONE不除24
 // End of H.M.Wang 2021-11-3 大字机4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
 		}
 
@@ -1699,11 +1701,21 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			}
 		}
 // End of H.M.Wang 2022-10-19 对于64SLANT头做特殊处理。。。
-// H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
-		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-			if(sysconf.getParam(14) > 0) revert = 0xf0;
+// H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
+// H.M.Wang 2025-9-16 修改22MM的倒置逻辑，当Pen1倒置为1时倒置1头；当Pen2倒置为2时倒置2头；当Pen3倒置为1时，12头合并倒置。2头无论哪种倒置，据需要打印头类型选择为MESSAGE_TYPE_22MMX2
+//		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+//			if(sysconf.getParam(14) > 0) revert = 0xf0;
+//		}
+		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM) {
+			if(sysconf.getParam(14) > 0) revert = 0x10;		// 单头倒置
 		}
-// End of H.M.Wang 2025-2-17 增加22mm的导致处理，只是将字节位置倒置，字节内倒置由FPGA处理
+		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+			if(sysconf.getParam(14) > 0) revert |= 0x20;		// 双头1头单独倒置
+			if(sysconf.getParam(15) > 0) revert |= 0x40;		// 双头2头单独倒置
+			if(sysconf.getParam(22) > 0) revert = 0x10;		// 双头12头合并倒置（同时忽略掉1头2头单独倒置的设置）
+		}
+// End of H.M.Wang 2025-9-16 修改22MM的倒置逻辑，当Pen1倒置为1时倒置1头；当Pen2倒置为2时倒置2头；当Pen3倒置为1时，12头合并倒置。2头无论哪种倒置，据需要打印头类型选择为MESSAGE_TYPE_22MMX2
+// End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
 		BufferRebuilder br = new BufferRebuilder(mPrintBuffer, mBinInfo.getCharsFeed(), heads);
 		br.mirror(mirrors)

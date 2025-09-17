@@ -3332,7 +3332,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
 			case R.id.btnBinfile:
-                MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
+                final MessageBrowserDialog dialog = new MessageBrowserDialog(mContext, OpenFrom.OPEN_PRINT, mObjPath);
 				dialog.setOnPositiveClickedListener(new OnPositiveListener() {
 					
 					@Override
@@ -3344,7 +3344,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						// 如果选择内容为多个，表示需要新建组
 						Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
 						Bundle bundle = new Bundle();
-						if (f.size() > 1) {
+// H.M.Wang 2025-9-17 支持元素为一个信息的群组
+//						if (f.size() > 1) {
+						if (dialog.ismMultiSelMode()) {
+// End of H.M.Wang 2025-9-17 支持元素为一个信息的群组
 							msg = mHandler.obtainMessage(MESSAGE_OPEN_GROUP);
 							bundle.putStringArrayList("file", f);
 						} else {

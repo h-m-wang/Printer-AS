@@ -313,6 +313,9 @@ UserGroup 使用方法说明
 	public static final String FILE_1 = CONFIG_PATH_FLASH + SYSTEM_CONFIG_DIR + "/F1.txt";
 	public static final String FILE_2 = CONFIG_PATH_FLASH + SYSTEM_CONFIG_DIR + "/F2.txt";
 // End of H.M.Wang 2023-11-2 追击F1和F2的定义，这两个文件用来管理apk是否正确升级。具体的使用方法参照PackageInstaller类中的说明
+// H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
+	public static final String SAVE_PW_FILE = CONFIG_PATH_FLASH + SYSTEM_CONFIG_DIR + "/pw.txt";
+// End of H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
 
 	public static final String SYSTEM_CONFIG_MSG_PATH = "/MSG1";
 	/**

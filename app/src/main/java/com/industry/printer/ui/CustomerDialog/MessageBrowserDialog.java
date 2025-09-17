@@ -322,6 +322,12 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 		switchMode(!mMultiMode);
 	}
 
+// H.M.Wang 2025-9-17 支持元素为一个信息的群组
+	public boolean ismMultiSelMode() {
+		return mMultiMode;
+	}
+// End of H.M.Wang 2025-9-17 支持元素为一个信息的群组
+
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
 		switchMode(true);

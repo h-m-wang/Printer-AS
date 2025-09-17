@@ -613,7 +613,7 @@
 	<string name="str_tip_nothing">~ لا توجد صورة !!!</string>
 	<string name="str_no_permission">تم رفض الإذن للوصول إلى الملفات</string>
 
-	<string name="str_message_tips">الرسالة٪ s موجودة بالفعل ، قم بالكتابة فوقها?</string>
+	<string name="str_message_tips">الرسالة٪ %s موجودة بالفعل ، قم بالكتابة فوقها?</string>
 
 	<string name="str_flush_tips">سيتم الكتابة فوق الإعدادات ، قم بالتأكيد?</string>
 

@@ -416,12 +416,14 @@ public class Hp22mm {
 //        regs[REG27_MAX_PRINT_COUNT] = 0;                                                    // R27 最大打印次数 1
         regs[REG27_MAX_PRINT_COUNT] = (char)(config.mParam[2] / 300);                                                    // R27 最大打印次数 1
         regs[REG27_MAX_PRINT_COUNT] = (char)(regs[REG27_MAX_PRINT_COUNT] < 1 ? 0 : (regs[REG27_MAX_PRINT_COUNT]-1));
-// H.M.Wang 2025-2-17 R27[3] = 1 双头倒置
+// H.M.Wang 2025-9-16 取消在FPGA当中倒置处理，改为在apk中进行倒置，因此该参数不在设置
+/* // H.M.Wang 2025-2-17 R27[3] = 1 双头倒置
         if(config.getParam(14) > 0)
             regs[REG27_MAX_PRINT_COUNT] |= 0x08;
         else
             regs[REG27_MAX_PRINT_COUNT] &= ~0x08;
-// End of H.M.Wang 2025-2-17 R27[3] = 1 双头倒置
+// End of H.M.Wang 2025-2-17 R27[3] = 1 双头倒置 */
+// End of H.M.Wang 2025-9-16 取消在FPGA当中倒置处理，改为在apk中进行倒置，因此该参数不在设置
 // End of H.M.Wang 2024-12-27 该寄存器的意义改变，为DPI。当参数3的分辨率为300/450时，为0，600/750时，为1，以此类推
         regs[REG28_RESET] = 0;                                                              // R28 rest 1= Reset; 0= Not Reset
 // H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容

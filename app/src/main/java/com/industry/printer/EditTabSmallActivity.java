@@ -74,6 +74,7 @@ import com.industry.printer.ui.CustomerDialog.ObjectInfoDialog.OnPositiveBtnList
 import com.industry.printer.ui.CustomerDialog.ObjectInfoDialog.onDeleteListener;
 import com.industry.printer.ui.CustomerDialog.ObjectInsertDialog;
 import com.industry.printer.ui.CustomerDialog.ObjectListDialog;
+import com.industry.printer.ui.CustomerDialog.PWDialog4SaveMsg;
 import com.industry.printer.ui.MessageDisplayManager;
 import com.industry.printer.widget.PopWindowSpiner;
 
@@ -147,7 +148,10 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 	private HorizontalScrollView mEditLayout;
 
 	private boolean saveAndPrint = false;
-	
+// H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
+	private boolean mPasswordChecked = false;
+// End of H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
+
 	public EditTabSmallActivity() {
 		
 	}
@@ -629,6 +633,32 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
            			mHandler.sendEmptyMessage(HANDLER_MESSAGE_SAVE_CONFIRM);
                 	break;
             	case HANDLER_MESSAGE_SAVE_CONFIRM:
+// H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5 && !mPasswordChecked) {
+						PWDialog4SaveMsg dialog = new PWDialog4SaveMsg(mContext);
+						dialog.setOnPositiveClickedListener(new OnPositiveListener() {
+							@Override
+							public void onClick() {
+								mPasswordChecked = true;
+								mHandler.sendEmptyMessage(HANDLER_MESSAGE_SAVE_CONFIRM);
+							}
+
+							@Override
+							public void onClick(String content) {
+
+							}
+						});
+						dialog.setOnNagitiveClickedListener(new CustomerDialogBase.OnNagitiveListener() {
+							@Override
+							public void onClick() {
+
+							}
+						});
+						dialog.show();
+						break;
+					}
+					mPasswordChecked = false;
+// End of H.M.Wang 2025-9-17 为EASY_MODE5增加一个保存文件时验证密码的功能，密码内容保存在/sdcard/system/pw.txt中
             		progressDialog();
             		if (mObjName == null || mMsgTask == null) {
             			Debug.e(TAG, "--->nothing to save");
