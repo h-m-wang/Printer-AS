@@ -58,7 +58,6 @@ public class Server1MainWindow {
     private BaseAdapter mPostResultLVAdapter;
     private ProgressBar mProcessing;
     private EditText mSearchWord;
-    private EditText mPrinterNo;
     private TextView mGetFromHost;
     private TextView mPrint;
 
@@ -254,7 +253,8 @@ public class Server1MainWindow {
             }
         });
 
-        mPrinterNo = (EditText) popupView.findViewById(R.id.printer_no);
+        TextView printID = (TextView) popupView.findViewById(R.id.printer_no);
+        printID.setText(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "#连铸喷码机");
         mGetFromHost = (TextView) popupView.findViewById(R.id.btn_post);
         mGetFromHost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -267,7 +267,7 @@ public class Server1MainWindow {
                         HttpUtils httpUtils = new HttpUtils(
                                 "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg",
                                 "POST",
-                                "{\"inkQryReq\":{\"Dvc\":\"" + mPrinterNo.getText().toString() + "连铸喷码机\"}}",
+                                "{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "#连铸喷码机\"}}",
                                 new HttpUtils.HttpResponseListener() {
                                     @Override
                                     public void onReceived(String str) {
