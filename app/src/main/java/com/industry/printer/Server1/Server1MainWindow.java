@@ -267,7 +267,7 @@ public class Server1MainWindow {
                         HttpUtils httpUtils = new HttpUtils(
                                 "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg",
                                 "POST",
-                                "{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "#连铸喷码机\"}}",
+                                "{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\"}}",
                                 new HttpUtils.HttpResponseListener() {
                                     @Override
                                     public void onReceived(String str) {
@@ -480,10 +480,10 @@ public class Server1MainWindow {
             HttpUtils httpUtils = new HttpUtils(
                     "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint",
                     "POST",
-                    "{\"inkPrtReq\":{\"Dvc\":\"" + mResults.get(mSelectedItemNo)[6] + "连铸喷码机\",\"Id\":\"" + mResults.get(mSelectedItemNo)[7] + "\"}}",
+                    "{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(mSelectedItemNo)[7] + "\"}}",
                     new HttpUtils.HttpResponseListener() {
                         @Override
-                        public void onReceived(String str) {
+                        public void onReceived(final String str) {
                             if(null != str) {
                                 sb.append(str);
                             } else {
@@ -491,13 +491,20 @@ public class Server1MainWindow {
                                 mGetFromHost.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        ToastUtil.show(mContext, mResults.get(mSelectedItemNo)[7] + " reported.");
+                                        try {
+                                            JSONObject jObj = new JSONObject(sb.toString());
+                                            ToastUtil.show(mContext, SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "# " + jObj.getString("result"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 });
                             }
                         }
                     }
             );
+            httpUtils.access();
+
             if(mSelectedItemNo+1 < mResults.size()) {
                 selectPosition(mSelectedItemNo+1);
                 if(!mResults.get(mSelectedItemNo)[6].equalsIgnoreCase(mResults.get(mSelectedItemNo-1)[6])) {
