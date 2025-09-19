@@ -255,7 +255,7 @@ public class Server1MainWindow {
 
         TextView printID = (TextView) popupView.findViewById(R.id.printer_no);
         printID.setText(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "号喷码机");
-        
+
         mGetFromHost = (TextView) popupView.findViewById(R.id.btn_post);
         mGetFromHost.setOnClickListener(new View.OnClickListener() {
             @Override
