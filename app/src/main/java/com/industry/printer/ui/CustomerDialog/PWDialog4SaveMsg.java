@@ -24,7 +24,8 @@ import java.io.IOException;
 
 public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClickListener {
 
-    private String mPassword;
+    private String mPassword1;
+    private String mPassword2;
 
     private Button mOk;
     private Button mCancel;
@@ -37,7 +38,8 @@ public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClick
         super(context);
 // End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 
-        mPassword = "ok";
+        mPassword1 = "ok";
+        mPassword2 = "ok";
     }
 
     @Override
@@ -57,7 +59,8 @@ public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClick
         try {
             BufferedReader br = new BufferedReader(new FileReader(Configs.SAVE_PW_FILE));
             if (null != br) {
-                mPassword = br.readLine();
+                mPassword1 = br.readLine();
+                mPassword2 = br.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,7 +77,7 @@ public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClick
         mOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                if (StringUtil.equal(mPasswd.getText().toString(), mPassword)) {
+                if (StringUtil.equal(mPasswd.getText().toString(), mPassword1) || StringUtil.equal(mPasswd.getText().toString(), mPassword2)) {
                     if (pListener != null) {
                         pListener.onClick();
                     }

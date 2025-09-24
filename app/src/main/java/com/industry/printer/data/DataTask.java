@@ -623,19 +623,25 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			int orgCharsOfHead = mBinInfo.mCharsPerHFeed / mExtendStat.getScale();	// 注意，这里需要除以纵向扩充的倍数，否则一起调整了
 // End of H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
 			int orgCols = mBuffer.length / orgCharsOfHead;
-			char[] zero = new char[orgCharsOfHead];
+//			char[] zero = new char[orgCharsOfHead];
+			char[] zero = new char[1];
+			char[] zero1 = new char[68];
 			Arrays.fill(zero, (char)0x0000);
 
 			for(int i=0; i<orgCols; i++) {
 				caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
-				caBuf.append(zero, 0, orgCharsOfHead);
+//				caBuf.append(zero, 0, zero.length);
+				caBuf.append(zero, 0, zero.length);
 			}
+
+			caBuf.append(zero1, 0, zero1.length);
 
 			mBuffer = caBuf.toCharArray();
 
 			if(bSave) {
 				FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
-				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
+//				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
+				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (mBinInfo.mBytesPerHFeed + 2 ) * 8 * mTask.getNozzle().mHeads);
 			}
 		}
 

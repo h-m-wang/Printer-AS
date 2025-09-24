@@ -3491,7 +3491,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 								if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
 									if(index() == 0) {
 										Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
-										emw.goNextLine();
+										emw.gotoNextLine();
 									}
 								}
 // End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择

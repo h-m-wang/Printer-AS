@@ -4843,7 +4843,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 
 		int press = 0;
-		if(curTimeMills - mLastPressCheckTime > 10*1000) {
+// H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
+//		if(curTimeMills - mLastPressCheckTime > 10*1000) {
+		if(curTimeMills - mLastPressCheckTime > 5*1000) {
+// End of H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
 			mLastPressCheckTime = curTimeMills;
 			press = (int)(1.0f * SmartCard.readADS1115(0) / 32767 * (4.0f * 66.7f + 12) - 6.67f);
 			Debug.d(TAG, "Pressure: " + press + "; Param: " + mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE));
