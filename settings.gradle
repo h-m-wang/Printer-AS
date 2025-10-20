@@ -1,2 +1,3 @@
+include ':printersupervisor'
 include ':app', ':systemapi', ':corelib', ':hardware', ':zxingcore', ':smartcard', ':hp22mm', ':phoneapp'
 include ':gs1datamatrix', ':barcode'

@@ -1460,6 +1460,8 @@ public class MessageTask {
 			}
 // End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
 
+			try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
+
 			//
 			return null;
 		}

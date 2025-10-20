@@ -463,7 +463,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		mSettings.setOnClickListener(this);
 		mSettingTitle = (TextView) findViewById(R.id.setting_ext_view);
 // H.M.Wang 2021-4-16 追加机器类型码的取得和显示
-		mSettingTitle.setText(PlatformInfo.getImgUniqueCode());
+		mSettingTitle.setText(PlatformInfo.getDispVersionCode());
 // End of H.M.Wang 2021-4-16 追加机器类型码的取得和显示
 
 		mVersion = (TextView) findViewById(R.id.setting_version);
@@ -635,7 +635,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					// mSettingTitle.setVisibility(View.VISIBLE);
 					// mVersion.setVisibility(View.VISIBLE);
 //					mHander.sendEmptyMessage(REFRESH_TIME_DISPLAY);
-					mSettingTitle.setText(PlatformInfo.getImgUniqueCode());
+					mSettingTitle.setText(PlatformInfo.getDispVersionCode());
 				} else {
 					fts.hide(mSettingsTab);
 					mSettings.setVisibility(View.GONE);
@@ -700,6 +700,9 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 
 	public static final int USB_STORAGE_ATTACHED = 0;
+// H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
+	public static final int USB_STORAGE_INSERTED = 11;
+// End of H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
 	public static final int REFRESH_TIME_DISPLAY = 1;
 	public static final int UPDATE_COUNTER = 2;
 	
@@ -748,6 +751,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				reader.reInstance(MainActivity.this);
 				
 				break;
+// H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
+			case USB_STORAGE_INSERTED:
+				Debug.d(TAG, "--->USB_STORAGE_INSERTED");
+				ToastUtil.show(mContext, R.string.toast_usb_inserted);
+				break;
+// End of H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
 			case REFRESH_TIME_DISPLAY:
 				Calendar calendar = Calendar.getInstance();
 				int year = calendar.get(Calendar.YEAR);
@@ -1104,12 +1113,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 							Debug.d(TAG, "UG.txt: " + line);
 							String parts[] = line.split(",");
 							if(parts.length != 2) {
-								mCopy.post(new Runnable() {
-									@Override
-									public void run() {
-										ToastUtil.show(mContext, "Invalid UG line");
-									}
-								});
 								Debug.e(TAG, "Invalid line [" + line + "]");
 //								Debug.d(TAG, "Semaphore release");
 								semaphore.release();
@@ -1130,6 +1133,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 
 							subMsgs.add(parts[0]);
 						}
+						mCopy.post(new Runnable() {
+							@Override
+							public void run() {
+								ToastUtil.show(mContext, R.string.toast_save_success);
+							}
+						});
 					}
 				} catch(Exception e) {
 					Debug.e(TAG, e.getMessage());
@@ -1235,6 +1244,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					@Override
 					public void call() {
 						Debug.d(TAG, "--->complete");
+						try{Thread.sleep(10000);}catch(Exception e){}
 						mProgressDialog.dismiss();
 //						QRReader.reInstance(MainActivity.this);
 						//ToastUtil.show(mContext, "finished!!!");
@@ -1338,6 +1348,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			@Override
 			public void call() {
 				Debug.d(TAG, "--->complete");
+				try{Thread.sleep(10000);}catch(Exception e){}
 				mProgressDialog.dismiss();
 //				QRReader.reInstance(MainActivity.this);
 				// ToastUtil.show(mContext, "finished!!!");

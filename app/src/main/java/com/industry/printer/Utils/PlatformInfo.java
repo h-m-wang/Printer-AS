@@ -138,6 +138,8 @@ public class PlatformInfo {
 	public static boolean is3InchType() {
 		String info = getImgUniqueCode();
 		return
+			info.startsWith("M204A") ||		// A133 M2标准屏
+			info.startsWith("FM2A") ||		// A133 M2薄屏
 			info.startsWith("NNG3") ||		// A20 新板新屏GPIO版本
 			info.startsWith("ONG3") ||		// A20 旧板新屏GPIO版本
 			info.startsWith("GZJ") ||		// A20 基于旧板新屏GPIO版本的盖章机
@@ -168,8 +170,9 @@ C= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 �
 Dddd,  SPI ko 编号
 D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 和 M9 , FPGA不同， ko 相同
 */
-// H.M.Wang 2021-4-16 追加机器类型码的取得和显示
-	public static String getImgUniqueCode() {
+// H.M.Wang 2025-11-11 将用来显示的组合版本号与决定硬件种类的唯一码的获取分开，因为从2025-11-10起，新的img只提供标准的M2和M9的版本，其它不同的硬件(HP22MM,BAGINK,BIGDOT)通过ko来区分
+// 原来的getImgUniqueCode函数更名为getDispVersionCode，用于提供用于显示的版本号。原来的getImgUniqueCode函数修改为返回反应硬件种类的唯一码
+	public static String getDispVersionCode() {
 		try {
 			Class<?> mClassType = Class.forName("android.os.SystemProperties");
 			Method mGetMethod = mClassType.getDeclaredMethod("get", String.class);
@@ -184,11 +187,49 @@ D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 �
 //				ret = buildID + verInc + getFPGAVersion(buildID);
 // H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 //				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000));
-				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000)) + String.format("%02d", (ExtGpio.getDriverVersion() % 1000));
+// H.M.Wang 2025-10-5 修改A133版的版本号组成规则，参照2025-9-4 Indicated by 吕总。img在原有PROPERTY_BUILD_VERSION_INC字串后会加入一个Axxxx的5个字符的字符串，xxxx作为img版本号使用
+//				ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000)) + String.format("%02d", (ExtGpio.getDriverVersion() % 1000));
+				String verString = verInc.substring(verInc.length()-5);
+				if(verString.startsWith("A")) {
+					ret = verString.substring(1) + "_" + getFPGAVersion(buildID) + "_" + FpgaGpioOperation.getDriverVersion() + "_" + ExtGpio.getDriverVersion();
+					Debug.d(TAG, buildID + verInc + "[" + ret + "]");
+				} else {
+					ret = buildID + verInc + getFPGAVersion(buildID) + "-" + String.format("%03d", (FpgaGpioOperation.getDriverVersion() % 1000)) + String.format("%02d", (ExtGpio.getDriverVersion() % 1000));
+				}
+// End of H.M.Wang 2025-10-5 修改A133版的版本号组成规则，参照2025-9-4 Indicated by 吕总
 // End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 // End of H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 			}
-//			Debug.d(TAG, "===>Img Unique Code: " + ret);
+			return ret;
+		} catch (Exception e) {
+			Debug.d(TAG, "Exception: " + e.getMessage());
+		}
+		return "";
+	}
+// End of H.M.Wang 2025-11-11 将用来显示的组合版本号与决定硬件种类的唯一码的获取分开，因为从2025-11-10起，新的img只提供标准的M2和M9的版本，其它不同的硬件(HP22MM,BAGINK,BIGDOT)通过ko来区分
+
+// H.M.Wang 2025-10-11 修改为返回唯一码，原来的功能转移至getDispVersionCode函数
+// H.M.Wang 2021-4-16 追加机器类型码的取得和显示
+	public static String getImgUniqueCode() {
+		try {
+			Class<?> mClassType = Class.forName("android.os.SystemProperties");
+			Method mGetMethod = mClassType.getDeclaredMethod("get", String.class);
+			String buildID = (String) mGetMethod.invoke(mClassType, PROPERTY_BUILD_ID);
+			String verInc = (String) mGetMethod.invoke(mClassType, PROPERTY_BUILD_VERSION_INC);
+			String ret = "";
+			if("JDQ39".equals(buildID)) {
+				ret = "OLD-" + verInc;
+			} else {
+				ret = buildID;		// 当前只有FM2A和M9.。两种
+				String verString = verInc.substring(verInc.length()-5);
+				if(verString.startsWith("A")) {
+					int koVer = ExtGpio.getDriverVersion();
+					if(koVer >= 7000) ret = buildID;				// FM2A， M2 f屏
+					else if(koVer >= 6000) ret = "BAGINK";			// BAGINK	apk中没有特别区分，没有实际意义
+					else if(koVer >= 5000) ret = "BIGDOT";			// BIGDOT	apk中没有特别区分，没有实际意义
+					else if(koVer >= 4000) ret = "22MM";			// HP22MM
+				}
+			}
 			return ret;
 		} catch (Exception e) {
 			Debug.d(TAG, "Exception: " + e.getMessage());
@@ -196,6 +237,7 @@ D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 �
 		return "";
 	}
 // End of H.M.Wang 2021-4-16 追加机器类型码的取得和显示
+// End of H.M.Wang 2025-10-11 修改为返回唯一码，原来的功能转移至getDispVersionCode函数
 
 // H.M.Wang 2022-12-21 追加一个从FPGA驱动中获取FPGA版本号的调用
 // 算法(2进制描述)
@@ -233,7 +275,7 @@ D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 �
 		byte B1 = (byte)(fpgaVersion >> 8);
 		byte B0 = (byte)(fpgaVersion);
 //		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM")) {
-		if (buildID.startsWith("4FIFO") || buildID.startsWith("22MM") || (B3 ^ B2 ^ B1) == B0) {
+		if (getImgUniqueCode().startsWith("4FIFO") || getImgUniqueCode().startsWith("22MM") || (B3 ^ B2 ^ B1) == B0) {
 // End of H.M.Wang 2025-8-6 增加一种情形，A133时无论什么版本读到的版本号都在上两字节，最后一个字节是上三个字节的异或，作为验证码
 			bank = (int)((fpgaVersion & 0x7FFF0000) >> 25);
 			code = (int)((fpgaVersion & 0x01FF0000) >> 16);
@@ -336,7 +378,7 @@ D= 品种代号   和FPGA品种代号一般相同 有可能跨小品种 如H9 �
 // H.M.Wang 2024-11-3 A133获取串口
 		} else if (isA133Product()) {
 // H.M.Wang 2025-5-17 A133-M2004的rfid串口
-			if(PlatformInfo.getImgUniqueCode().startsWith("M204A") || PlatformInfo.getImgUniqueCode().startsWith("FM2A")) {
+			if(getImgUniqueCode().startsWith("M204A") || getImgUniqueCode().startsWith("FM2A")) {
 				return RFID_SERIAL_A133M2;
 			}
 // End of H.M.Wang 2025-5-17 A133-M2004的rfid串口

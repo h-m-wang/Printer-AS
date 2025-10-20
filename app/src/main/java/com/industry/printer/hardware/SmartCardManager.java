@@ -228,7 +228,11 @@ public class SmartCardManager implements IInkDevice {
         mCachedThreadPool = Executors.newCachedThreadPool();
 
         mBagNum = 1;        // 暂时墨袋只有一个
-        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4) {
+// H.M.Wang 2025-9-29 增加连供一带二功能
+//        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4) {
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4 ||
+           (SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_12_7 && SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)) {
+// End of H.M.Wang 2025-9-29 增加连供一带二功能
             mPenNum = 2;
             mCards = new _device_status[] {
                     new _device_status(SmartCard.CARD_TYPE_PEN1, SmartCard.CARD_TYPE_LEVEL1, MAX_PEN_INK_VOLUME),

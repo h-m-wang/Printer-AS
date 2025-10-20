@@ -6,6 +6,7 @@ import java.util.Vector;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.Utils.UsbDeviceID;
 
 //import android.os.SystemProperties;
@@ -26,7 +27,7 @@ public class PrinterBroadcastReceiver extends BroadcastReceiver {
 	public static boolean mUsbAlive=false;
 	public Handler mCallback;
 	public static int mUsbAttached;
-	
+
 	public PrinterBroadcastReceiver(Handler callback) {
 		mCallback = callback;
 		mUsbAttached = 0;
@@ -100,6 +101,9 @@ public class PrinterBroadcastReceiver extends BroadcastReceiver {
 // H.M.Wang 2022-5-13 追加一个USB盘的唯一ID获取调用，用来检查该盘是否为用来update的合法盘
 					UsbDeviceID.obtainUsbDeviceId();
 // End of H.M.Wang 2022-5-13 追加一个USB盘的唯一ID获取调用，用来检查该盘是否为用来update的合法盘
+// H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
+					mCallback.sendEmptyMessage(MainActivity.USB_STORAGE_INSERTED);
+// End of H.M.Wang 2025-10-15 增加一个插入U盘后显示提示的功能
 				}
 				//else if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED))
 				else if(intent.getAction().equals(Intent.ACTION_MEDIA_UNMOUNTED))

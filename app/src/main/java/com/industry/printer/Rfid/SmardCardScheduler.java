@@ -6,6 +6,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 
 public class SmardCardScheduler implements IInkScheduler {
+    private int mHeads;
 
     public SmardCardScheduler(Context ctx) {
 
@@ -13,17 +14,20 @@ public class SmardCardScheduler implements IInkScheduler {
 
     @Override
     public void init(int heads) {
-
+        mHeads = heads;
     }
 
     @Override
     public int count() {
+/*
 // H.M.Wang 2021-8-31 修改P2不减锁的问题，这里在有P2的时候应该返回2
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4) {
             return 2;
         }
 // End of H.M.Wang 2021-8-31 修改P2不减锁的问题，这里在有P2的时候应该返回2
         return 1;
+ */
+        return mHeads;
     }
 
     @Override

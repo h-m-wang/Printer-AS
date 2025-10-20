@@ -252,7 +252,11 @@ UserGroup 使用方法说明
 	public static final String A133_UPGRADE_DIR = "/Upgrade";
 // End of H.M.Wang 2024-12-3 追加一个A133平台的升级专用目录
 
+	public static final String SYSTEM_APK_PATH = "/system/app/Printer";
 	public static final String UPGRADE_APK_FILE = "/Printer.apk";
+
+	public static final String SYSTEM_IME_PATH = "/system/app/PinyinIME";
+	public static final String UPGRADE_IME_APK = "/PinyinIME.apk";
 
 	// H.M.Wang 添加1行，升级必要的so文件
 	public static final String NATIVEGRAPHIC_SO = "libNativeGraphicJni.so";

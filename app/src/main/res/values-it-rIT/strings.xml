@@ -570,6 +570,7 @@
     <string name="toast_content_empty">" Il contenuto non può essere vuoto"</string>
     <string name="toast_passwd_error">" La password è sbagliata !!!"</string>
     <string name="toast_plug_usb">Si prega di inserire un\'unità USB</string>
+    <string name="toast_usb_inserted">USB device inserted</string>
     <string name="toast_save_success">Salvato con successo</string>
     <string name="str_tlk_not_found">"1.TLK Assente "</string>
     <string name="str_print_thread_create_err">La creazione dell\'attività non è riuscita</string>
@@ -624,6 +625,7 @@
     <string name="str_m9_test_phoenc">PHO ENC Test</string>
     <string name="str_m9_test_update_fpga">UPD FPGA</string>
     <string name="str_m9_test_update_kos">UPD KOs</string>
+    <string name="str_m9_test_upgrade_ime">UPD IME</string>
     <string name="str_m9_test_1click_all">Total Test</string>
     <string name="str_m9_test_init">Init</string>
     <string name="str_m9_test_import">Import</string>

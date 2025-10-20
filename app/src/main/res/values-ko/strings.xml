@@ -624,6 +624,7 @@
 	<!-- Toast -->
 	<string name="toast_save_success">본존성공</string>
 	<string name="toast_plug_usb">USB 입력하세요</string>
+	<string name="toast_usb_inserted">USB device inserted</string>
 	<string name="toast_passwd_error">비밀번호 오류!!!</string>
 	<string name="toast_content_empty">내용이 비여서는 안됨</string>
 	<string name="toast_rfid_changed">잠김 수치 변화발생</string>
@@ -698,6 +699,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Total Test</string>
 	<string name="str_m9_test_init">Init</string>
 	<string name="str_m9_test_import">Import</string>

@@ -350,8 +350,8 @@ public class Hp22mm {
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
             encFreq = 5000;
         } else {
-            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2]) * 25: 150000);  // R15=90M * 25 /(C1*C3)   (2024-9-5)
-        }
+            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+         }
 // End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
 // End of H.M.Wang 2025-1-10 param0最小不能小于110来计算
 // End of H.M.Wang 2024-9-3 修改R15的计算公式
@@ -360,11 +360,16 @@ public class Hp22mm {
         regs[REG17_ENCODER_SOURCE] = (char)config.mParam[5];                                      // C6 = off  R17=0; C6 = on  R17=1
         regs[REG19_TOF_SOURCE] = (char)                                                           // C5 = off  R19=0; C5 = on  R19=1 (!!! C5=0: OFF; C5=1: INTERNAL; C5=2: EXTERNAL)
                 (config.mParam[4] > 0 ? config.mParam[4] - 1 : 0);
+
+// H.M.Wang 2025-10-16 重新修改R16的计算公式，当C5=0且C6=0时 90M * C7 / C1 / 2； 当C5=0且C6=1时 R16 = C7 * C10 * 64 / C9 / 3.14
         int tofFreq = (config.mParam[0] != 0 ? 90000000 / config.mParam[0] * config.mParam[6] / 2 : 45000000);                   // R16=90M * C7 / C1 / 2 (2024-9-5)
-        if(regs[REG17_ENCODER_SOURCE] == 1 && regs[REG19_TOF_SOURCE] == 0) {
+//        if(regs[REG17_ENCODER_SOURCE] == 1 && regs[REG19_TOF_SOURCE] == 0) {
+        if(config.mParam[5] == 1 && config.mParam[4] == 0) {
 //            tofFreq = param6 * 24;                                                                                 // R16=C7 * 24
-            tofFreq = config.mParam[6] * 0;                                                                                 // R16=C7 * 0 (2024-9-5)
+//            tofFreq = config.mParam[6] * 0;                                                                       // R16=C7 * 0 (2024-9-5)
+            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f);            // R16 = C7 * C10 * 64 / C9 / 3.14
         }
+// End of H.M.Wang 2025-10-16 计算公式改为 R16=C7* C10*64/C9/3.14
 // H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
 // H.M.Wang 2025-2-17 修改当清洗时R17和R19都设0
@@ -381,7 +386,10 @@ public class Hp22mm {
 //                (config.mParam[2] == 150 ? 4 : (config.mParam[2] == 300 ? 2 : (config.mParam[2] == 600 ? 1 : 1)));
         int C3A = Math.max(config.mParam[2]/300, 1) * 300;
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // R18=((C10*2*25.4)/(C9*3.14))/C3
-                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+// H.M.Wang 2025-10-12 修改計算公式, 2025-10-14 修改 64 -> 32
+//                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+                Math.max((32 * ((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+// End of H.M.Wang 2025-10-12 修改計算公式
 // End of H.M.Wang 2024-9-3 修改R18的计算公式
 // H.M.Wang 2024-9-3 修改R20,R21的计算公式
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 24 + config.mParam[11]);              // R20= C4x24+c12

@@ -1,5 +1,6 @@
 package com.industry.printer.ui.Test;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -22,11 +23,14 @@ import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.WelcomeActivity;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.RTCDevice;
+import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
+import com.industry.printer.ui.CustomerDialog.DialogListener;
 
 import org.w3c.dom.Text;
 
@@ -106,6 +110,7 @@ public class TestGpioPinsNew implements ITestOperation {
     private TextView mResImport = null;
     private TextView mResFPGA = null;
     private TextView mResKOs = null;
+    private TextView mResIME = null;
     private TextView mResCNTs = null;
     private TextView mResTime = null;
     private TextView mResEth = null;
@@ -130,10 +135,15 @@ public class TestGpioPinsNew implements ITestOperation {
     private final int MSG_SHOW_FPGA_UPGRADING_PROGRESS = 119;
     private final int MSG_HIDE_FPGA_UPGRADING_PROGRESS = 120;
 // End of H.M.Wang 2024-5-2 追加一个FPGA升级的进度查询命令
+// H.M.Wang 2025-10-15 增加升级IME时的进度显示
+    private final int MSG_SHOW_IME_UPGRADING_PROGRESS = 121;
+    private final int MSG_HIDE_IME_UPGRADING_PROGRESS = 122;
+// End of H.M.Wang 2025-10-15 增加升级IME时的进度显示
 
     private final int TEST_SEC_IMPORT = 0;
     private final int TEST_SEC_WRITE_FPGA = 1;
     private final int TEST_SEC_UPDATE_KOS = 2;
+    private final int TEST_SEC_UPDATE_IME = 7;
     private final int TEST_SEC_RESET_CNTS = 3;
     private final int TEST_SEC_RESET_TIME = 4;
     private final int TEST_SEC_ETHERNET = 5;
@@ -167,8 +177,19 @@ public class TestGpioPinsNew implements ITestOperation {
                         mResImport.setBackgroundColor(msg.arg2);
                     } if(msg.arg1 == TEST_SEC_WRITE_FPGA) {
                         mResFPGA.setBackgroundColor(msg.arg2);
+// H.M.Wang 2025-10-15 升级成功后提示重启
+                        if(msg.arg2 == Color.GREEN) new AlertDialog.Builder(mContext).setMessage(R.string.str_urge2restart).create().show();
+// End of H.M.Wang 2025-10-15 升级成功后提示重启
                     } if(msg.arg1 == TEST_SEC_UPDATE_KOS) {
                         mResKOs.setBackgroundColor(msg.arg2);
+// H.M.Wang 2025-10-15 升级成功后提示重启
+                        if(msg.arg2 == Color.GREEN) new AlertDialog.Builder(mContext).setMessage(R.string.str_urge2restart).create().show();
+// End of H.M.Wang 2025-10-15 升级成功后提示重启
+                    } if(msg.arg1 == TEST_SEC_UPDATE_IME) {
+                        mResIME.setBackgroundColor(msg.arg2);
+// H.M.Wang 2025-10-15 升级成功后提示重启
+                        if(msg.arg2 == Color.GREEN) new AlertDialog.Builder(mContext).setMessage(R.string.str_urge2restart).create().show();
+// End of H.M.Wang 2025-10-15 升级成功后提示重启
                     } if(msg.arg1 == TEST_SEC_RESET_CNTS) {
                         mResCNTs.setBackgroundColor(msg.arg2);
                     } if(msg.arg1 == TEST_SEC_RESET_TIME) {
@@ -198,6 +219,18 @@ public class TestGpioPinsNew implements ITestOperation {
                     removeMessages(MSG_SHOW_FPGA_UPGRADING_PROGRESS);
                     mProgressMsg.setVisibility(View.GONE);
                     break;
+// H.M.Wang 2025-10-15 增加升级IME时的进度显示
+                case MSG_SHOW_IME_UPGRADING_PROGRESS:
+                    mProgressMsg.setVisibility(View.VISIBLE);
+                    mProgressMsg.setText("Upgrading: " + msg.arg1 + "%");
+                    if(msg.arg1 < 100)
+                        sendMessageDelayed(obtainMessage(MSG_SHOW_IME_UPGRADING_PROGRESS, msg.arg1+10, 0), 800);
+                    break;
+                case MSG_HIDE_IME_UPGRADING_PROGRESS:
+                    removeMessages(MSG_SHOW_IME_UPGRADING_PROGRESS);
+                    mProgressMsg.setVisibility(View.GONE);
+                    break;
+// End of H.M.Wang 2025-10-15 增加升级IME时的进度显示
             }
         }
     };
@@ -261,6 +294,21 @@ public class TestGpioPinsNew implements ITestOperation {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.GREEN).sendToTarget();
         } else {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_KOS, Color.RED).sendToTarget();
+        }
+    }
+
+    private void testUpgradeIME() {
+        LibUpgrade libUp = new LibUpgrade();
+        boolean ret = libUp.updateIME(Configs.UPGRADE_IME_APK, Configs.SYSTEM_IME_PATH);
+
+        if(ret) {
+            mHandler.obtainMessage(MSG_SHOW_IME_UPGRADING_PROGRESS, 0, 0).sendToTarget();
+            try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
+            try{Thread.sleep(10* 1000);}catch(Exception e){}
+            mHandler.obtainMessage(MSG_HIDE_IME_UPGRADING_PROGRESS).sendToTarget();
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_IME, Color.GREEN).sendToTarget();
+        } else {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_UPDATE_IME, Color.RED).sendToTarget();
         }
     }
 
@@ -532,6 +580,7 @@ public class TestGpioPinsNew implements ITestOperation {
         mResImport = (TextView) mTestAreaLL.findViewById(R.id.result_import);
         mResFPGA = (TextView) mTestAreaLL.findViewById(R.id.result_fpga);
         mResKOs = (TextView) mTestAreaLL.findViewById(R.id.result_kos);
+        mResIME = (TextView) mTestAreaLL.findViewById(R.id.result_ime);
         mResCNTs = (TextView) mTestAreaLL.findViewById(R.id.result_counter);
         mResTime = (TextView) mTestAreaLL.findViewById(R.id.result_time);;
         mResEth = (TextView) mTestAreaLL.findViewById(R.id.result_eth);;
@@ -595,26 +644,35 @@ public class TestGpioPinsNew implements ITestOperation {
         writeFPGA.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+                ConfirmDialog cd = new ConfirmDialog(mContext, "Upgrade FPGA firmware?");
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        writeFPGA.post(new Runnable() {
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                writeFPGA.setEnabled(false);
-                                writeFPGA.setBackgroundColor(Color.GRAY);
+                                writeFPGA.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        writeFPGA.setEnabled(false);
+                                        writeFPGA.setBackgroundColor(Color.GRAY);
+                                    }
+                                });
+                                testWriteFPGA();
+                                writeFPGA.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        writeFPGA.setEnabled(true);
+                                        writeFPGA.setBackgroundColor(Color.GREEN);
+                                    }
+                                });
                             }
-                        });
-                        testWriteFPGA();
-                        writeFPGA.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                writeFPGA.setEnabled(true);
-                                writeFPGA.setBackgroundColor(Color.GREEN);
-                            }
-                        });
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
             }
         });
 
@@ -622,26 +680,71 @@ public class TestGpioPinsNew implements ITestOperation {
         updateKOs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+                ConfirmDialog cd = new ConfirmDialog(mContext, "Upgrade KOs?");
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        updateKOs.post(new Runnable() {
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                updateKOs.setEnabled(false);
-                                updateKOs.setBackgroundColor(Color.GRAY);
+                                updateKOs.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateKOs.setEnabled(false);
+                                        updateKOs.setBackgroundColor(Color.GRAY);
+                                    }
+                                });
+                                testUpgradeKOs();
+                                updateKOs.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateKOs.setEnabled(true);
+                                        updateKOs.setBackgroundColor(Color.GREEN);
+                                    }
+                                });
                             }
-                        });
-                        testUpgradeKOs();
-                        updateKOs.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateKOs.setEnabled(true);
-                                updateKOs.setBackgroundColor(Color.GREEN);
-                            }
-                        });
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+            }
+        });
+
+        final TextView upgradeIME = (TextView) mTestAreaLL.findViewById(R.id.upgrade_pinyinime_btn);
+        upgradeIME.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConfirmDialog cd = new ConfirmDialog(mContext, "Upgrade PinyinIME?");
+                cd.setListener(new DialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                upgradeIME.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        upgradeIME.setEnabled(false);
+                                        upgradeIME.setBackgroundColor(Color.GRAY);
+                                    }
+                                });
+                                testUpgradeIME();
+                                upgradeIME.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        upgradeIME.setEnabled(true);
+                                        upgradeIME.setBackgroundColor(Color.GREEN);
+                                    }
+                                });
+                            }
+                        }).start();
+                    }
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
             }
         });
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    >
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:layout_above="@+id/prompt"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:background="@android:color/transparent" />
+    <TextView
+        android:id="@+id/prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        android:text="Insert USB containing Printer.apk"
+        />
+    <TextView
+        android:id="@+id/launch_upgrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/prompt"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="30dp"
+        android:background="@drawable/bg_big_button_normal"
+        android:textColor="@color/white"
+        android:textSize="36sp"
+        android:text="Upgrade"
+        />
+</RelativeLayout>

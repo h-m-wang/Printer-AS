@@ -68,6 +68,7 @@ import com.industry.printer.data.TxtDT;
 import com.industry.printer.hardware.BarcodeScanParser;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCard;
@@ -2260,7 +2261,7 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的头的数量也要减记
 		int count = mScheduler.count();
 		IInkDevice scm = InkManagerFactory.inkManager(mContext);
-		if(scm instanceof SmartCardManager) {
+		if(scm instanceof SmartCardManager || scm instanceof Hp22mmSCManager) {
 			count++;
 		}
 		for (int i = 0; i < count; i++) {
@@ -2358,6 +2359,20 @@ private void setSerialProtocol9DTs(final String data) {
 			}
 		}
 // End of H.M.Wang 2024-2-3 当使用SmartCard的时候，墨袋对应的是墨盒(1个或者2个)后面的头来显示在主页面，但是在计算这个对应头的阈值的时候，因为这个头实际上是没有真实头的，所以没有打印数据，点数为0，因此阈值会成为一个固定数65536*8
+// H.M.Wang 2025-10-14 参照连供的逻辑计算hp22mm打印头的墨待的阈值
+		if(scm instanceof Hp22mmSCManager) {
+			if(head == ((Hp22mmSCManager)scm).getInkCount()-1) {
+				if(head == 1) {
+					mThresHolds[head] = mThresHolds[0];
+				} else if(head == 2) {
+					mThresHolds[head] = mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]);
+				} else {
+					mThresHolds[head] = 65536 * 8;
+				}
+				return mThresHolds[head];
+			}
+		}
+// End of H.M.Wang 2025-10-14 参照连供的逻辑计算hp22mm打印头的墨待的阈值
 
 //		int dotCount = getDotCount(mDataTask.get(index), head);
 		SystemConfigFile config = SystemConfigFile.getInstance(mContext);

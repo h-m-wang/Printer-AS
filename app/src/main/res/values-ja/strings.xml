@@ -574,6 +574,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Total Test</string>
 	<string name="str_m9_test_init">Init</string>
 	<string name="str_m9_test_import">Import</string>

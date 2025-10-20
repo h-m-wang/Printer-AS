@@ -33,7 +33,9 @@ public class Hp22mmSCManager implements IInkDevice {
     private class Hp22mmHead {
         private int mHeadType;      // 1: IDS; 2: PEN
         private int mID;            // 头的ID
-        private int mInkLevel;
+// H.M.Wang 2025-10-15 修改变量属性为volatile
+        volatile private int mInkLevel;
+// End of H.M.Wang 2025-10-15 修改变量属性为volatile
         private boolean mValid;
 
         public Hp22mmHead(int type, int id) {
@@ -225,7 +227,7 @@ public class Hp22mmSCManager implements IInkDevice {
             mHeads[dev].mInkLevel -= c;
             if(mInitialized) {
                 Hp22mm.downLocal(mHeads[dev].mID, c);    // 减记PENx
-                Hp22mm.downLocal(0, c);                     // 减记IDS
+//                Hp22mm.downLocal(0, c);                     // 减记IDS (已经在)mHeads的最后一个元素中减记
             }
 // End of H.M.Wang 2024-12-11 根据列数调整减记值
         }

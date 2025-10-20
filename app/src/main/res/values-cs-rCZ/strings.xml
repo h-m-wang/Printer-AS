@@ -620,6 +620,7 @@
 	<string name="password_title">Zadejte své heslo</string>
 	<string name="toast_save_success">" Úspěšně uloženo"</string>
 	<string name="toast_plug_usb">" Vložte USB flash disk"</string>
+	<string name="toast_usb_inserted">USB device inserted</string>
 	<string name="toast_passwd_error">Heslo je špatné!</string>
 	<string name="toast_content_empty">Obsah nesmí být prázdný</string>
 	<string name="tips_import_message">Importování informací</string>
@@ -669,6 +670,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Total Test</string>
 	<string name="str_m9_test_init">Init</string>
 	<string name="str_m9_test_import">Import</string>

@@ -334,7 +334,7 @@ public class TxtDT {
                 if (null == line) {
                     break;
                 }
-                line = line.trim();
+//                line = line.trim();
                 if(!line.isEmpty()) {
                     lineNum++;
                     txtList.add(line);

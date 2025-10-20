@@ -235,7 +235,8 @@ public class WelcomeActivity extends Activity {
 			LibUpgrade libUp = new LibUpgrade();
 			ret = libUp.upgradeLibs();
 
-			PackageInstaller installer = PackageInstaller.getInstance(this);
+// H.M.Wang 2025-9-24 取消开机升级
+/*			PackageInstaller installer = PackageInstaller.getInstance(this);
 			long start = System.currentTimeMillis();
 			while(System.currentTimeMillis() - start < 3000) {
 				if(ConfigPath.getUpgradePath() != null) {
@@ -251,7 +252,8 @@ public class WelcomeActivity extends Activity {
 					ConfigPath.updateMountedUsb();
 					try { Thread.sleep(100);} catch(Exception e) {}
 				}
-			}
+			}*/
+// End of H.M.Wang 2025-9-24 取消开机升级
 		}
 		return ret;
 	}

@@ -689,6 +689,7 @@
 	<!-- Toast -->
 	<string name="toast_save_success">Salvar el éxito</string>
 	<string name="toast_plug_usb">Por favor conecte un dispositivo USB</string>
+	<string name="toast_usb_inserted">USB device inserted</string>
 	<string name="toast_passwd_error">falla la verificación de contraseña!!!</string>
 	<string name="toast_content_empty">El contenido no debe estar vacío.</string>
 	<string name="toast_rfid_changed">Rfid cambiado</string>
@@ -758,6 +759,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Prueba total</string>
 	<string name="str_m9_test_init">En eso</string>
 	<string name="str_m9_test_import">Importar</string>

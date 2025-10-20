@@ -554,6 +554,7 @@
 	<string name="toast_content_empty">Der Inhalt darf nicht leer sein</string>
 	<string name="toast_passwd_error">Das Passwort ist falsch !!!</string>
 	<string name="toast_plug_usb">Bitte stecken Sie ein USB-Flashlaufwerk ein</string>
+	<string name="toast_usb_inserted">USB device inserted</string>
 	<string name="toast_save_success">Erfolgreich gespeichert</string>
 	<string name="str_tlk_not_found">1.TLK fehlt</string>
 	<string name="str_print_thread_create_err">Taskerstellung fehlgeschlagen</string>
@@ -616,6 +617,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Total Test</string>
 	<string name="str_m9_test_init">Init</string>
 	<string name="str_m9_test_import">Import</string>

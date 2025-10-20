@@ -8,11 +8,13 @@ import java.util.logging.Logger;
 
 import com.industry.printer.R;
 import com.industry.printer.R.id;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.WelcomeActivity;
 import com.industry.printer.hardware.RTCDevice;
@@ -140,32 +142,45 @@ public class CalendarDialog extends RelightableDialog {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 					boolean ret;
 
-					final LoadingDialog ld = LoadingDialog.show(CalendarDialog.super.getContext(), R.string.str_upgrade_progress);
+					final LoadingDialog ld = LoadingDialog.show(CalendarDialog.super.getContext(), R.string.toast_plug_usb);
 
-					PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
-					if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
-						ret = installer.silentUpgrade3();
-					} else {
-						ret = installer.silentUpgrade();
+					ret = false;
+					for(int i=0; i<100; i++) {
+						if(!StringUtil.isEmpty(ConfigPath.getUpgradePath())) {
+							ret = true;
+							break;
+						}
+						try { Thread.sleep(100); } catch (Exception e) {}
 					}
 
 					if(ret) {
-						mUpgrade.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								ld.cancel();
-								new AlertDialog.Builder(CalendarDialog.super.getContext()).setMessage(R.string.str_urge2restart).create().show();
-							}
-						}, 10*1000);
-					} else {
-						mUpgrade.post(new Runnable() {
-							@Override
-							public void run() {
-								ld.cancel();
-//								ToastUtil.show(CalendarDialog.super.getContext(), "Failed");
-							}
-						});
+						ld.setMessage(CalendarDialog.super.getContext().getString(R.string.str_upgrade_progress));
+
+						PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
+						if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
+							ret = installer.silentUpgrade3();
+						} else {
+							ret = installer.silentUpgrade();
+						}
+
+						if(ret) {
+							mUpgrade.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									ld.cancel();
+									new AlertDialog.Builder(CalendarDialog.super.getContext()).setMessage(R.string.str_urge2restart).create().show();
+								}
+							}, 10*1000);
+							return;
+						}
 					}
+					mUpgrade.post(new Runnable() {
+						@Override
+						public void run() {
+							ld.cancel();
+							ToastUtil.show(CalendarDialog.super.getContext(), "Upgrading failed");
+						}
+					});
 				}
 			}
 		});

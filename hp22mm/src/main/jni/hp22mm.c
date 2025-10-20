@@ -289,7 +289,7 @@ int CmdPressurize(jboolean async);
  *f
  *  Settings for basic customization.
  ***********************************************************/
-#define I2C_DEVICE "/dev/i2c-1"
+//#define I2C_DEVICE "/dev/i2c-1"
 
 void IDSCallback(int ids, int level, const char *message) {
     switch (level) {

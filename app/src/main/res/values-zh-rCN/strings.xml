@@ -637,6 +637,7 @@
 	<!-- Toast -->
 	<string name="toast_save_success">保存成功</string>
 	<string name="toast_plug_usb">请插入U盘</string>
+	<string name="toast_usb_inserted">U盘已插入</string>
 	<string name="toast_passwd_error">密码错误!!!</string>
 	<string name="toast_content_empty">内容不能为空</string>
 	<string name="toast_rfid_changed">锁值发生变化</string>
@@ -721,6 +722,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC 测试</string>
 	<string name="str_m9_test_update_fpga">升级FPGA</string>
 	<string name="str_m9_test_update_kos">升级KOs</string>
+	<string name="str_m9_test_upgrade_ime">升级IME</string>
 	<string name="str_m9_test_1click_all">一键通测</string>
 	<string name="str_m9_test_init">初始化</string>
 	<string name="str_m9_test_import">导入</string>

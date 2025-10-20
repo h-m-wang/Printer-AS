@@ -613,6 +613,7 @@
 	<!-- Toast -->
 	<string name="toast_save_success">保存成功</string>
 	<string name="toast_plug_usb">請插入U盤</string>
+	<string name="toast_usb_inserted">U盤已插入</string>
 	<string name="toast_passwd_error">密碼錯誤!!!</string>
 	<string name="toast_content_empty">內容不能為空</string>
 	<string name="toast_rfid_changed">鎖值發生變化</string>
@@ -691,8 +692,9 @@
 	<string name="str_m9_test_serial">測串口</string>
 	<string name="str_m9_test_rfid">RFID</string>
 	<string name="str_m9_test_phoenc">PHO ENC 測試</string>
-	<string name="str_m9_test_update_fpga">升級FPGA</string>
-	<string name="str_m9_test_update_kos">升級KOs</string>
+	<string name="str_m9_test_update_fpga">昇級FPGA</string>
+	<string name="str_m9_test_update_kos">昇級KOs</string>
+	<string name="str_m9_test_upgrade_ime">昇級IME</string>
 	<string name="str_m9_test_1click_all">一鍵通測</string>
 	<string name="str_m9_test_init">初始化</string>
 	<string name="str_m9_test_import">導入</string>

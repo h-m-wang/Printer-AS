@@ -632,6 +632,7 @@
 	<!-- Toast -->
 	<string name="toast_save_success">حفظ ناجح</string>
 	<string name="toast_plug_usb">الرجاء توصيل جهاز USB</string>
+	<string name="toast_usb_inserted">USB device inserted</string>
 	<string name="toast_passwd_error">فشل التحقق من كلمة المرور!!!</string>
 	<string name="toast_content_empty">يجب ألا يكون المحتوى فارغًا</string>
 <!--	<string name="toast_ai_empty">AI لايجب ان يكون فارغا</string>-->
@@ -729,6 +730,7 @@
 	<string name="str_m9_test_phoenc">PHO ENC Test</string>
 	<string name="str_m9_test_update_fpga">UPD FPGA</string>
 	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
 	<string name="str_m9_test_1click_all">Total Test</string>
 	<string name="str_m9_test_init">Init</string>
 	<string name="str_m9_test_import">Import</string>

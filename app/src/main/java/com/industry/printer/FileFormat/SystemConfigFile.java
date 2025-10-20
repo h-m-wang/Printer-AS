@@ -709,6 +709,8 @@ public class SystemConfigFile{
 		init();
 	}
 	public void init() {
+		File dir = new File(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
+		if (!dir.exists()) dir.mkdirs();
 // H.M.Wang 2022-6-13 追加开机时从xml读入已保存的10个DT初始值
 		readDTPrefs();
 // End of H.M.Wang 2022-6-13 追加开机时从xml读入已保存的10个DT初始值

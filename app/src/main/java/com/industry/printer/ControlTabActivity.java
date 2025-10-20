@@ -1438,7 +1438,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	private void refreshInk() {
-		Debug.d(TAG,  "[" + PlatformInfo.getImgUniqueCode() + "-" + BuildConfig.VERSION_CODE + "]");
+		Debug.d(TAG,  "[" + PlatformInfo.getDispVersionCode() + "-" + BuildConfig.VERSION_CODE + "]");
 // H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 		int skipNum = (FpgaGpioOperation.getDriverState() & 0x0FF);
 		if(skipNum > 0) {
@@ -4811,9 +4811,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	//Socket________________________________________________________________________________________________________________________________
 
 // H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能
-	private long mLastPressCheckTime;		// 上一次测试压力的时间
-	private long mLastPE4HighTime;			// 上一次拉高PE4的时间
-	private long mLastPE5HighTime;			// 上一次拉高PE5的时间
+// H.M.Wang 2025-10-15 修改变量属性为volatile
+	volatile private long mLastPressCheckTime;		// 上一次测试压力的时间
+	volatile private long mLastPE4HighTime;			// 上一次拉高PE4的时间
+	volatile private long mLastPE5HighTime;			// 上一次拉高PE5的时间
+// End of H.M.Wang 2025-10-15 修改变量属性为volatile
 
 	private void pressCheckInit() {
 		mLastPressCheckTime = System.currentTimeMillis();
