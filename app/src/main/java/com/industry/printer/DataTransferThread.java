@@ -420,7 +420,7 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-7 修改清洗下发数据的逻辑，从下发一次后等待3秒，修改为在开始清洗后的3秒内，每100ms查询一次img是否要数。这是因为现在清洗已经走正常打印通道，img不会自动重复，所以改为定期根据请求下发数据。并且取消原来的方式
 		long startTime = System.currentTimeMillis();
-		while(System.currentTimeMillis() - startTime < 3000) {
+		while(System.currentTimeMillis() - startTime < 2900) {
 			try {
 				Thread.sleep(5);
 				if(FpgaGpioOperation.pollState() > 0) {
@@ -560,13 +560,14 @@ public class DataTransferThread {
 //				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
 				char[] buffer = task.preparePurgeBuffer(purgeFile, true, false);
 // End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
-
+int ccc = 0;
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
-				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE1);
+				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE2);
 				if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+					ccc++;
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 				}
 				FpgaGpioOperation.init();
@@ -586,6 +587,7 @@ public class DataTransferThread {
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+							ccc++;
 						}
 					} catch(InterruptedException e) {
 						e.printStackTrace();
@@ -2546,17 +2548,23 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2024-1-8 计算时考虑双列的设置，如果设置了双列，因为同样内容要被打印两次，所以要消耗墨水量也要加倍(对应于threshold减少)
 		mThresHolds[head] /= (config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS) > 0 ? 2 : 1);
 // End of H.M.Wang 2024-1-8 计算时考虑双列的设置，如果设置了双列，因为同样内容要被打印两次，所以要消耗墨水量也要加倍
-		Debug.d(TAG, "mThresHolds[" + head + "]: " + mThresHolds[head]);
+// H.M.Wang 2025-10-22 22mm的时候计算考虑喷头使用的喷嘴数量
+		if(scm instanceof Hp22mmSCManager) {
+			mThresHolds[head] /= ((Hp22mmSCManager)scm).getSlotCount(head);
+		}
+// End of H.M.Wang 2025-10-22 22mm的时候计算考虑喷头使用的喷嘴数量
+
+			Debug.d(TAG, "mThresHolds[" + head + "]: " + mThresHolds[head]);
 		return mThresHolds[head];
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 	}
-	
+/*
 	public int getHeads() {
 		if (mDataTask != null && mDataTask.size() > 0) {
 			return mDataTask.get(0).getPNozzle().mHeads;
 		}
 		return 1;
-	}
+	}*/
 	/**
 	 * 打印間隔0~100ms（每秒鐘打印 > 20次），爲高速打印，每個打印間隔只執行1步操作
 	 * 打印間隔100~200ms（每秒鐘打印 > 20次），爲高速打印，每個打印間隔只執行2步操作

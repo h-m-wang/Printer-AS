@@ -72,6 +72,9 @@
 	<string name="strDragable">Arrastável</string>
 	<string name="strShow">Mostrar</string>
 	<string name="strFont">Fonte</string>
+<!-- H.M.Wang 2025-10-26 追加字间距标识 -->
+	<string name="strLetterSpacing">Spacing</string>
+<!-- End of H.M.Wang 2025-10-26 追加字间距标识 -->
 	<string name="strLinewidth">Espessura da linha</string>
 	<string name="strBits">Digitos</string>
 	<string name="strImage">Imagem</string>

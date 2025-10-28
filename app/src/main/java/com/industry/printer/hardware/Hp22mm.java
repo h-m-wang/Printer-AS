@@ -253,8 +253,8 @@ public class Hp22mm {
     private static char[] getPurgeSettings() {
         char[] regs = new char[34];
 
-        regs[0] = 0x3a;
-        regs[1] = 0x0;
+        regs[0] = 0xe4;
+        regs[1] = 0x03;
         regs[2] = 0x0;
         regs[3] = 0x0;
         regs[4] = 0x21;
@@ -269,8 +269,8 @@ public class Hp22mm {
         regs[12] = 0x0;
         regs[13] = 0x0;
         regs[14] = 0x0;
-        regs[15] = 0x1388;
-        regs[16] = 0x5d68;
+        regs[15] = 0x0d40;
+        regs[16] = 0xe1c0;
         regs[17] = 0x0;
         regs[18] = 0x4;
         regs[19] = 0x0;
@@ -299,6 +299,14 @@ public class Hp22mm {
 
 // H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) return getPurgeSettings();
+        if(type == FpgaGpioOperation.SETTING_TYPE_PURGE2) {
+            regs = getPurgeSettings();
+            regs[0] = 0x01;
+            regs[1] = 0x00;
+            regs[15] = 0xea60;
+            regs[16] = 0x5f90;
+            return regs;
+        }
 // End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
 
 // H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
@@ -397,8 +405,11 @@ public class Hp22mm {
 // H.M.Wang 2025-2-17 修改R20，R21计算公式为：R20= C4x(C10x2/(C9x3.14*4))/+(c11*24/6)； R21= C4x(C10x2/(C9x3.14*4))/+(c12*24/6)
 //        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[11] * 150 / config.mParam[2]);              // R20=C4*(C10*4/(C9*3.14))+(C12*150/C3) (2024-9-5)
 //        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 4 / (config.mParam[8] * 3.14f)) + config.mParam[10] * 150 / config.mParam[2]);              // R21=C4*(C10*4/(C9*3.14))+(C11*150/C3) (2024-9-5)
-        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[10] * 12 / 6);
-        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[11] * 12 / 6);
+// H.M.Wang 2025-10-22 取消当前公式，采用新公式 R20= C4x12+c12， R21= C4x12+c11
+//        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[10] * 12 / 6);
+//        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * (config.mParam[9] * 2 / (config.mParam[8] * 3.14f * 4)) + config.mParam[11] * 12 / 6);
+        regs[REG20_P1_TOF_OFFSET] = (char)(config.mParam[3] * 12 + config.mParam[10]);              // R20= C4x12+c11
+        regs[REG21_P0_TOF_OFFSET] = (char)(config.mParam[3] * 12 + config.mParam[11]);              // R21= C4x12+c12
 // H.M.Wang 2025-2-21 清洗时固定参数R20=0；R21=0
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
             regs[REG20_P1_TOF_OFFSET] = 0;

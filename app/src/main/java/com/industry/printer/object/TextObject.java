@@ -1,5 +1,7 @@
 package com.industry.printer.object;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.Configs;
@@ -11,15 +13,22 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.Paint.FontMetrics;
+import android.widget.EditText;
 
 public class TextObject extends BaseObject {
 	private static final String TAG = TextObject.class.getSimpleName();
 
+// H.M.Wang 2025-10-26 追加字间距标识
+	protected int mLetterSpacing;
+// End of H.M.Wang 2025-10-26 追加字间距标识
 	// H.M.Wang 追加时间对象的所属信息
 //	public BaseObject mParent;
 
 	public TextObject(Context context, float x) {
 		super( context, BaseObject.OBJECT_TYPE_TEXT, x);
+// H.M.Wang 2025-10-26 追加字间距标识
+		mLetterSpacing = 0;
+// End of H.M.Wang 2025-10-26 追加字间距标识
 //		mParent = null;
 	}
 
@@ -28,9 +37,65 @@ public class TextObject extends BaseObject {
 		mParent = parent;
 	}
 
+// H.M.Wang 2025-10-26 追加字间距标识
+	public void setLetterSpacing(String val) {
+		PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();	// TLKFileParser在调用这个函数的时候，mTask还没有设置，因此不能从mTask中获取Nozzle类型，本来mTask中的类型也是跟随SystemConfigFile中的，所以就直接从这里获取比较稳妥
+		Debug.d(TAG, "type = " + type);
+		if (type == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+			type == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+			type == PrinterNozzle.MESSAGE_TYPE_32DN ||
+			type == PrinterNozzle.MESSAGE_TYPE_32SN ||
+			type == PrinterNozzle.MESSAGE_TYPE_64SN ||
+// H.M.Wang 2022-10-19 追加64SLANT头。
+			type == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+			type == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+			type == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+// H.M.Wang 2022-5-27 追加32x2头类型
+			type == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+// End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2021-8-16 追加96DN头
+//			type == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
+			type == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+			type == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
+			type == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// End of H.M.Wang 2021-8-16 追加96DN头
+// End of H.M.Wang 2020-7-23 追加32DN打印头
+			try {
+				mLetterSpacing = Integer.valueOf(val);
+			} catch(NumberFormatException e){}
+		}
+	}
+
+	public int getLetterSpacing() {
+		return mLetterSpacing;
+	}
+// End of H.M.Wang 2025-10-26 追加字间距标识
+
 	@Override
 	public void setContent(String content) {
 // H.M.Wang 2020-4-20 在内容发生变化的情况下，设置新的内容，并且重新计算宽度，是保持比例
+// H.M.Wang 2025-10-26 追加字间距标识
+		if(mLetterSpacing > 0 && content.indexOf("¡") < 0) {
+			StringBuilder sp = new StringBuilder();
+			for(int i=0; i<mLetterSpacing; i++) {
+				sp.append("¡");
+			}
+			StringBuilder sb = new StringBuilder();
+			for(int i=0; i<content.length(); i++) {
+				sb.append(content.charAt(i));
+				sb.append(sp);
+			}
+			content = sb.toString();
+		}
+// End of H.M.Wang 2025-10-26 追加字间距标识
+Debug.d(TAG, "mLetterSpacing: [" +  mLetterSpacing + "]; Content: [" + content + "]");
 		if(mContent != null && !mContent.equals(content)) {
 			super.setContent(content);
 			meature();
@@ -87,9 +152,15 @@ public class TextObject extends BaseObject {
 				.append("000^000^000^000^00000000^00000000^00000000^00000000^" + (mParent == null ? "0000" : String.format("%03d", mParent.mIndex)) + "^0000^")
 //				.append("000^000^000^000^00000000^00000000^00000000^00000000^0000^0000^")
 				.append(mFont)
-				.append("^000^")
-				.append(mContent);
-				
+// H.M.Wang 2025-10-26 追加字间距标识
+//				.append("^000^")
+				.append("^")
+				.append(mLetterSpacing)
+				.append("^")
+//				.append(mContent);
+				.append(mContent.replaceAll("¡", ""));
+// End of H.M.Wang 2025-10-26 追加字间距标识
+
 		String str = builder.toString();
 //		String str="";
 //		//str += BaseObject.intToFormatString(mIndex, 3)+"^";

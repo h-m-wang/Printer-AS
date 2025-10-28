@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.170"
+#define VERSION_CODE                            "1.0.171"
+// 1.0.171 2025-10-22
+// MAX_BAG_INK_VOLUME_MAXIMUM修改为 49600 (15500 * 4)的80%
 // 1.0.170 2025-9-8
 // 在pdPowerOn函数中，追加
 // pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);
@@ -669,7 +671,7 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
     return value;
 }
 
-#define MAX_BAG_INK_VOLUME_MAXIMUM              (15500 * 4)
+#define MAX_BAG_INK_VOLUME_MAXIMUM              49600       // (15500 * 4)的80%
 
 JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count) {
     LOGI("Enter %s (head = %d, value = %d)", __FUNCTION__, head, count);

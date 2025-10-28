@@ -476,6 +476,14 @@ public class PCCommandHandler {
         } else if(PCCommand.CMD_SET_COUNTER.equalsIgnoreCase(cmd.command)) {
             try {
                 int cIndex = Integer.valueOf(cmd.content);
+// H.M.Wang 2025-10-28 增加Index=255，设置打印计数器的值
+                if(cIndex == 255) {
+                    int cValue = Integer.valueOf(cmd.note2);
+                    mControlTabActivity.mCounter = cValue;
+                    mControlTabActivity.mHandler.sendEmptyMessage(ControlTabActivity.MESSAGE_COUNT_CHANGE);
+                    sendmsg(Constants.pcOk(msg));
+                } else
+// End of H.M.Wang 2025-10-28 增加Index=255，设置打印计数器的值
                 if(cIndex < 0 || cIndex > 9) {
                     Debug.e(TAG, "CMD_SET_COUNTER command, Index overflow.");
                     sendmsg(Constants.pcErr(msg));
@@ -492,7 +500,6 @@ public class PCCommandHandler {
                             dt.mCounterReset = true;
 // End of H.M.Wang 2020-7-9 追加计数器重置标识
                         }
-
                         sendmsg(Constants.pcOk(msg));
                     } catch (NumberFormatException e) {
                         Debug.e(TAG, "CMD_SET_COUNTER command, invalid value.");

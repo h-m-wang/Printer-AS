@@ -29,7 +29,34 @@
 	        >
 	        
 	        <include android:id="@+id/base_info_text"  layout="@layout/obj_info_base"/>
-	       
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginTop="5dp"
+				android:layout_below="@+id/base_info_text"
+				android:layout_weight="1">
+				<EditText android:id="@+id/letterSpacingET"
+					android:layout_width="@dimen/settingsItemLength"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="150dp"
+					android:imeOptions="flagNoExtractUi|actionDone"
+					android:textSize="30sp"
+					android:singleLine="true"
+					android:inputType="numberDecimal"
+					android:hint="@string/strDefault"/>
+
+				<TextView android:id="@+id/letterSpacingTV"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="10dp"
+					android:layout_alignBaseline="@id/letterSpacingET"
+					android:textSize="30sp"
+					android:text="@string/strLetterSpacing"
+					android:textColor="#000000"
+					/>
+
+			</RelativeLayout>
+
 	    </RelativeLayout>
 	</ScrollView>
 

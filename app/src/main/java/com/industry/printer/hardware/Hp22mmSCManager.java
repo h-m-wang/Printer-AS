@@ -18,7 +18,7 @@ public class Hp22mmSCManager implements IInkDevice {
     private final static int PEN_VS_BAG_RATIO           = 3;
 // H.M.Wang 2024-12-11 墨水最大值的定位原则：由于根据实验，4列同时打印，打印200次的时候，使用了全部775ml中的10ml，因此，最大值设置为15500会与实际情况同步。同时考虑到可能会有1列单独，2列，3列打印的情况，因此将最大值按1列打印为标准设置，乘以4
 // getLocalInk的时候，按着读取的值除以列数，downLocal的时候，按列数减记次数，并且写入OEM_RW
-    private static int MAX_BAG_INK_VOLUME_MAXIMUM       = 15500 * 4;
+    private static int MAX_BAG_INK_VOLUME_MAXIMUM       = 49600;        // 15500 * 4; 的80%
 //    private static int MAX_BAG_INK_VOLUME         = 3150;
 //    private static int MAX_PEN_INK_VOLUME         = MAX_BAG_INK_VOLUME * PEN_VS_BAG_RATIO;
 // End of H.M.Wang 2024-12-11 墨水最大值
@@ -150,10 +150,11 @@ public class Hp22mmSCManager implements IInkDevice {
         return true;
     }
 
-    private int getSlotCount(int head) {
+    public int getSlotCount(int head) {
         int slotCount = 1;
         int ns = SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
         if(head == 1) ns = (ns >> 4);
+        ns &= 0x0F;
         if(ns == 0x00 || ns == 0x01 || ns == 0x02 || ns == 0x04 || ns == 0x08) {
             slotCount = 1;
         } else
@@ -166,6 +167,7 @@ public class Hp22mmSCManager implements IInkDevice {
         if(ns == 0x0F) {
             slotCount = 4;
         }
+        Debug.d(TAG, "Slot Count: " + slotCount + "[" + Integer.toHexString(ns) + "]");
         return slotCount;
     }
 
@@ -178,7 +180,7 @@ public class Hp22mmSCManager implements IInkDevice {
                 mHeads[head].mInkLevel = -1;
                 mHeads[head].mValid = false;
             } else {
-                mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 5) * MAX_BAG_INK_VOLUME_MAXIMUM - level;   // PEN的最大值是IDS的5倍
+                mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * MAX_BAG_INK_VOLUME_MAXIMUM - level;   // PEN的最大值是IDS的5倍
                 mHeads[head].mValid = true;
             }
         }
@@ -193,7 +195,7 @@ public class Hp22mmSCManager implements IInkDevice {
 //        if(usableVol > 0)
 //            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
         if(mHeads[head].mInkLevel >= 0) {
-            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:5) * MAX_BAG_INK_VOLUME_MAXIMUM)) + 0.1f;      // 为了避免只要开始打印就显示99.9%的问题，而是真的打印了0.1%后，才显示99.9%
+            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * MAX_BAG_INK_VOLUME_MAXIMUM)) + 0.1f;      // 为了避免只要开始打印就显示99.9%的问题，而是真的打印了0.1%后，才显示99.9%
             return (ret > 100.0f ? 100.0f : ret);
 // End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
         } else if(!mInitialized)
@@ -223,11 +225,9 @@ public class Hp22mmSCManager implements IInkDevice {
     public void downLocal(int dev) {
         if(mHeads[dev].mInkLevel > 0) {
 // H.M.Wang 2024-12-11 根据列数调整减记值
-            int c = getSlotCount(dev);
-            mHeads[dev].mInkLevel -= c;
+            mHeads[dev].mInkLevel--;
             if(mInitialized) {
-                Hp22mm.downLocal(mHeads[dev].mID, c);    // 减记PENx
-//                Hp22mm.downLocal(0, c);                     // 减记IDS (已经在)mHeads的最后一个元素中减记
+                Hp22mm.downLocal(mHeads[dev].mID, 1);    // 减记PENx
             }
 // End of H.M.Wang 2024-12-11 根据列数调整减记值
         }

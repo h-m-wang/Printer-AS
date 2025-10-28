@@ -360,7 +360,10 @@ public class TLKFileParser  extends TlkFile{
 			{
 				obj = new TextObject(mContext, 0);
 				try {
-					obj.setContent(new String(attr[21].getBytes(), "UTF-8"));
+// H.M.Wang 2025-10-26 追加字间距标识
+					((TextObject)obj).setLetterSpacing(attr[20]);
+// End of H.M.Wang 2025-10-26 追加字间距标识
+					((TextObject)obj).setContent(new String(attr[21].getBytes(), "UTF-8"));
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}

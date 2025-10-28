@@ -96,6 +96,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	public EditText mXcorEdit;
 	public EditText mYcorEdit;
 	public EditText mContent;
+// H.M.Wang 2025-10-26 追加字间距标识
+	public EditText mLetterSpacing;
+// End of H.M.Wang 2025-10-26 追加字间距标识
 	public TextView mContentView;
 	public TextView mFont;
 	public TextView mRtFormat;
@@ -539,6 +542,11 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 				mDigits = (EditText) findViewById(id.cntBits);
 			}
 // End of H.M.Wang 2020-6-10 追加DynamicText控件
+// H.M.Wang 2025-10-26 追加字间距标识
+			if (mObject instanceof TextObject) {
+				mLetterSpacing = (EditText) findViewById(id.letterSpacingET);
+			}
+// End of H.M.Wang 2025-10-26 追加字间距标识
 	 	}
 
 	     mOk = (Button) findViewById(R.id.btn_confirm);
@@ -571,6 +579,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 						}
 
 						if (mObject instanceof TextObject) {
+// H.M.Wang 2025-10-26 追加字间距标识
+							((TextObject)mObject).setLetterSpacing(mLetterSpacing.getText().toString());
+// End of H.M.Wang 2025-10-26 追加字间距标识
 							mObject.setContent(mContent.getText().toString());
 							Debug.d(TAG, "--->redraw: " + mObject.isNeedDraw());
 						}
@@ -864,7 +875,13 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 
 //				mXcorEdit.setText(String.valueOf((int)mObject.getX()*2));
 //				mYcorEdit.setText(String.valueOf((int)mObject.getY()*2));
-				mContent.setText(String.valueOf(mObject.getContent()));
+// H.M.Wang 2025-10-26 追加字间距标识
+//				mContent.setText(String.valueOf(mObject.getContent()));
+				if (mObject instanceof TextObject) {
+					mLetterSpacing.setText(String.valueOf(((TextObject)mObject).getLetterSpacing()));
+				}
+				mContent.setText(String.valueOf(mObject.getContent().replaceAll("¡", "")));
+// End of H.M.Wang 2025-10-26 追加字间距标识
 				mReverse.setChecked(mObject.getReverse());
 				
 				mFont.setText(mObject.getFont());

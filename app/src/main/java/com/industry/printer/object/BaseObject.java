@@ -24,6 +24,7 @@ import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.cache.FontCache;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
@@ -402,6 +403,13 @@ public class BaseObject{
 //		Debug.e(TAG, "--->asent: " + fm.ascent + ",  bottom: " + fm.bottom + ", descent: " + fm.descent + ", top: " + fm.top);
         // float tY = (y - getFontHeight(p))/2+getFontLeading(p);
 		mCan.drawText(mContent, 0, mHeight-fm.descent, mPaint);
+/* 2025-10-25 暂时中断		StringBuilder sb = new StringBuilder();
+		sb.append('A');		// 41
+		sb.append('¡');		// C2 A1
+		sb.append('B');		// 42
+		sb.append('ằ');		// E1 BA B1
+		Debug.d(TAG, ByteArrayUtils.toHexString(sb.toString().getBytes()));
+		mCan.drawText(sb.toString(), 0, mHeight-fm.descent, mPaint);*/
 //		if (mHeight <= 4 * MessageObject.PIXELS_PER_MM) {
 //			setWidth(width * 1.25f);
 //		}

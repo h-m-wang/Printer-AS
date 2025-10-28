@@ -236,23 +236,27 @@ public class WelcomeActivity extends Activity {
 			ret = libUp.upgradeLibs();
 
 // H.M.Wang 2025-9-24 取消开机升级
-/*			PackageInstaller installer = PackageInstaller.getInstance(this);
-			long start = System.currentTimeMillis();
-			while(System.currentTimeMillis() - start < 3000) {
-				if(ConfigPath.getUpgradePath() != null) {
-					Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
-					if(AVOID_CROSS_UPGRADE) {
-						ret |= installer.silentUpgrade3();
+// H.M.Wang 2025-10-24 仅A133取消开机升级
+			if(!PlatformInfo.isA133Product()) {
+// End of H.M.Wang 2025-10-24 仅A133取消开机升级
+				PackageInstaller installer = PackageInstaller.getInstance(this);
+				long start = System.currentTimeMillis();
+				while(System.currentTimeMillis() - start < 3000) {
+					if(ConfigPath.getUpgradePath() != null) {
+						Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
+						if(AVOID_CROSS_UPGRADE) {
+							ret |= installer.silentUpgrade3();
+						} else {
+							ret |= installer.silentUpgrade();
+						}
+						break;
 					} else {
-						ret |= installer.silentUpgrade();
+						Debug.d(TAG, "Path = null. " + (System.currentTimeMillis() - start));
+						ConfigPath.updateMountedUsb();
+						try { Thread.sleep(100);} catch(Exception e) {}
 					}
-					break;
-				} else {
-					Debug.d(TAG, "Path = null. " + (System.currentTimeMillis() - start));
-					ConfigPath.updateMountedUsb();
-					try { Thread.sleep(100);} catch(Exception e) {}
 				}
-			}*/
+			}
 // End of H.M.Wang 2025-9-24 取消开机升级
 		}
 		return ret;

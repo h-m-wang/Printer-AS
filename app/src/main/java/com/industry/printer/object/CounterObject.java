@@ -492,8 +492,7 @@ public class CounterObject extends BaseObject {
 	 
 		String str_new_content = mContent;
 		str_new_content =	str_new_content.replace('0', 'c');	
-		
-		str_new_content =	str_new_content.replace('1', 'c');	
+		str_new_content =	str_new_content.replace('1', 'c');
 		str_new_content =	str_new_content.replace('2', 'c');	
 		str_new_content =	str_new_content.replace('3', 'c');	
 		str_new_content =	str_new_content.replace('4', 'c');	

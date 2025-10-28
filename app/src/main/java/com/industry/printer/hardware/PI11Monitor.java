@@ -72,7 +72,7 @@ public class PI11Monitor {
                 public void run() {
                     try{Thread.sleep(delay);}catch(Exception e){};
                     while(true) {
-                        try{Thread.sleep(500);}catch(Exception e){};
+                        try{Thread.sleep(200);}catch(Exception e){};
                         //     协议１：　禁止GPIO　
                         if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_1) {
                             continue;
