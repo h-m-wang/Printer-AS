@@ -244,8 +244,8 @@
         android:layout_width="fill_parent"
         android:layout_height="83dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dp" >
-
+        android:layout_marginBottom="5dp"
+        android:orientation="horizontal" >
         <LinearLayout
             android:id="@+id/ink_value_group1"
             android:layout_width="0dp"
@@ -260,6 +260,8 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
             <TextView
@@ -269,6 +271,8 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
             <TextView
@@ -278,6 +282,8 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
         </LinearLayout>
@@ -296,6 +302,8 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
             <TextView
@@ -305,6 +313,8 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
             <TextView
@@ -314,6 +324,49 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="25sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ink_value_group3"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/ink_value7"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="25sp"
+                />
+            <TextView
+                android:id="@+id/ink_value8"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="25sp"
+                />
+            <TextView
+                android:id="@+id/ink_value9"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textColor="#000000"
+                android:lines="1"
+                android:ellipsize="end"
                 android:textSize="25sp"
                 />
         </LinearLayout>

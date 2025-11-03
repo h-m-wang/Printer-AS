@@ -500,9 +500,15 @@ public class FpgaGpioOperation {
 // End of H.M.Wang 2022-4-29 追加25.4x10头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx5 ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx6 ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx7 ||
+                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR) {
 //                data[17] |= 0x0010;
-                data[17] &= 0xFF0F;
+                data[17] &= 0xFFEF;
             }
 // End of H.M.Wang 2021-5-20 25.4x(1-4)头，打印的时候，S18[4]强制设为1
 // End of H.M.Wang 2021-5-22 25.4x(1-4)头，打印的时候，S18[4]强制设为0
@@ -531,6 +537,16 @@ public class FpgaGpioOperation {
                     data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCH_TRIPLE;
                 } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_50_8) {
                     data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCH_FOUR;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+                } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x5) {
+                    data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCHx5;
+                } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x6) {
+                    data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCHx6;
+                } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x7) {
+                    data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCHx7;
+                } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x8) {
+                    data[9] = (char) PrinterNozzle.NozzleType.NOZZLE_TYPE_1_INCHx8;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
                 }
 //                data[17] &= 0xFFF0;
                 data[17] |= 0x0010;
@@ -538,14 +554,6 @@ public class FpgaGpioOperation {
 //                Debug.d(TAG, "data[17] = " + Integer.toHexString(data[17]));
             }
 // End of H.M.Wang 2021-11-18 追加根据双列打印对参数的修改
-// H.M.Wang 2022-12-5 25.4 的喷头， 不管双列偏移设了什么， S18[4]=0
-            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH ||
-                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
-                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
-                config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR ) {
-                data[17] &= 0xFFEF;
-            }
-// End of H.M.Wang 2022-12-5 25.4 的喷头， 不管双列偏移设了什么， S18[4]=0
 // H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
             data[11] = (char)((data[11] & 0xF000) | (0x0FFF & DataTransferThread.SelectPen));
 // End of H.M.Wang 2023-8-8 增加一个新的网络命令，SelectPen
@@ -711,6 +719,12 @@ public class FpgaGpioOperation {
         if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_12_7 ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_25_4 ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_38_1 ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x5 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x6 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x7 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_50_8) {
             data[25] = (char) config.getParam(SystemConfigFile.INDEX_DUAL_COLUMNS);
         } else {

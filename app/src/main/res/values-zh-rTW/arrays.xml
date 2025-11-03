@@ -97,10 +97,22 @@
         <item>12.7X2</item>
         <item>12.7X3</item>
         <item>12.7X4</item>
+<!-- H.M.Wang 2025-10-27 追加12.7x5，6，7，8头 -->
+        <item>12.7X5</item>
+        <item>12.7X6</item>
+        <item>12.7X7</item>
+        <item>12.7X8</item>
+<!-- End of H.M.Wang 2025-10-27 追加12.7x5，6，7，8头 -->
         <item>25.4</item>
         <item>25.4X2</item>
         <item>25.4X3</item>
         <item>25.4X4</item>
+<!-- H.M.Wang 2025-10-27 追加25.4x5，6，7，8头 -->
+        <item>25.4X5</item>
+        <item>25.4X6</item>
+        <item>25.4X7</item>
+        <item>25.4X8</item>
+<!-- End of H.M.Wang 2025-10-27 追加25.4x5，6，7，8头 -->
         <item>16 dot</item>
         <item>32 dot</item>
 

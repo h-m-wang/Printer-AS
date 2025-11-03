@@ -560,25 +560,28 @@ public class DataTransferThread {
 //				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
 				char[] buffer = task.preparePurgeBuffer(purgeFile, true, false);
 // End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
-int ccc = 0;
+
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
 				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE2);
 				if(FpgaGpioOperation.getDriverVersion() >= 3119) {        // 先下发数据，后启动打印的img
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
-					ccc++;
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 				}
 				FpgaGpioOperation.init();
 
-				int remainTime = 120*1000;
+// H.M.Wang 2025-10-31 清洗时间由2分钟修改为5分钟，并且统一22mm的清洗时间
+				int remainTime = 300*1000;
+/*				int remainTime = 120*1000;
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 					remainTime *= 2.17;
 					Hp22mm.EnableWarming(0);
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
+*/
+// End of H.M.Wang 2025-10-31 清洗时间由2分钟修改为5分钟，并且统一22mm的清洗时间
 
 // H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
 				long startTime = System.currentTimeMillis();
@@ -587,7 +590,6 @@ int ccc = 0;
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
-							ccc++;
 						}
 					} catch(InterruptedException e) {
 						e.printStackTrace();

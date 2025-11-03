@@ -41,6 +41,8 @@ public class RfidScheduler implements IInkScheduler {
 	private static boolean mBaginkImg = false;
 	public Handler mCallbackHandler = null;
 
+	private static final int LEVEL_NUM_A133 = 16;
+
 	public static final int LEVELS[] = {
 		ExtGpio.RFID_CARD1,
 		ExtGpio.RFID_CARD3,
@@ -459,16 +461,21 @@ public class RfidScheduler implements IInkScheduler {
 // End of H.M.Wang 2025-8-17 img改为标准M9版本即支持BAGINK，而是否按BAGINK处理则看P94是否为0
 		if(mBaginkImg) {
 			Debug.d(TAG, "Initiate BAGINK variables.");
-			mBaginkLevels = new BaginkLevel[LEVELS.length];
-			for(int i=0; i<LEVELS.length; i++) {
-				mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
-
-				if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[i].sLevelChipType) {
-					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 346) * 10000;
-				} else {
-					mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 256) * 100000;
+			if(PlatformInfo.isA133Product()) {
+				mBaginkLevels = new BaginkLevel[LEVEL_NUM_A133];
+				for(int i=0; i<mBaginkLevels.length; i++) {
+					mBaginkLevels[i] = new BaginkLevel(0);
 				}
-				if(!PlatformInfo.isA133Product()) {
+			} else {
+				mBaginkLevels = new BaginkLevel[LEVELS.length];
+				for(int i=0; i<mBaginkLevels.length; i++) {
+					mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
+
+					if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[i].sLevelChipType) {
+						mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 346) * 10000;
+					} else {
+						mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 256) * 100000;
+					}
 					if(mBaginkLevels[i].mAddInkThreshold < mBaginkLevels[i].mInkMin || mBaginkLevels[i].mAddInkThreshold > mBaginkLevels[i].mInkMax) {
 						mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low/high").sendToTarget();
 						new Thread(new Runnable() {

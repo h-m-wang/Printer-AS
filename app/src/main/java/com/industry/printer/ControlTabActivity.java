@@ -225,6 +225,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private TextView[] mInkValues;
 	private LinearLayout mInkValuesGroup1;
 	private LinearLayout mInkValuesGroup2;
+	private LinearLayout mInkValuesGroup3;
 // End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	public TextView mTVPrinting;
 	public TextView mTVStopped;
@@ -726,6 +727,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		mInkLevel2 = (TextView) getView().findViewById(R.id.ink_value2);
 		mInkValuesGroup1 = (LinearLayout) getView().findViewById(R.id.ink_value_group1);
 		mInkValuesGroup2 = (LinearLayout) getView().findViewById(R.id.ink_value_group2);
+		mInkValuesGroup3 = (LinearLayout) getView().findViewById(R.id.ink_value_group3);
 
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 
@@ -737,7 +739,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					(TextView) getView().findViewById(R.id.ink_value4),
 					(TextView) getView().findViewById(R.id.ink_value5),
 					(TextView) getView().findViewById(R.id.ink_value6),
+					(TextView) getView().findViewById(R.id.ink_value7),
+					(TextView) getView().findViewById(R.id.ink_value8),
+					(TextView) getView().findViewById(R.id.ink_value9),
 			};
+			if(heads < 7) {
+				mInkValuesGroup3.setVisibility(View.GONE);
+			}
 			if(heads < 4) {
 				mInkValuesGroup2.setVisibility(View.GONE);
 			}
@@ -745,25 +753,28 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mInkValues[0].setTextSize(mInkValues[0].getTextSize() * 1.2f);
 				mInkValues[1].setTextSize(mInkValues[1].getTextSize() * 1.2f);
 			}
-			if(heads <= 2 ) {
-				mInkValuesGroup2.setVisibility(View.GONE);
-			}
 		} else {
 			mInkValues = new TextView[] {	// 先左右，后上下
 					(TextView) getView().findViewById(R.id.ink_value1),
 					(TextView) getView().findViewById(R.id.ink_value4),
+					(TextView) getView().findViewById(R.id.ink_value7),
 					(TextView) getView().findViewById(R.id.ink_value2),
 					(TextView) getView().findViewById(R.id.ink_value5),
+					(TextView) getView().findViewById(R.id.ink_value8),
 					(TextView) getView().findViewById(R.id.ink_value3),
-					(TextView) getView().findViewById(R.id.ink_value6)
+					(TextView) getView().findViewById(R.id.ink_value6),
+					(TextView) getView().findViewById(R.id.ink_value9)
 			};
-			if(heads <= 1 ) {
+			if(heads < 3 ) {
+				mInkValuesGroup3.setVisibility(View.GONE);
+			}
+			if(heads < 2 ) {
 				mInkValuesGroup2.setVisibility(View.GONE);
 			}
 		}
 
-		for(int i=heads; i<6; i++) {
-			mInkValues[i].setVisibility(View.GONE);
+		for(int i=heads; i<mInkValues.length; i++) {
+			mInkValues[i].setVisibility(View.INVISIBLE);
 		}
 // End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 
@@ -1471,21 +1482,23 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		int heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 		if(mInkManager instanceof SmartCardManager) {		// 当初始化这些显示控件的时候，还没有初始化SmartCardManager，因此还无法获得正确的heads，因此在这里再根据实际SC的头数调节控件的显示属性
 			heads = ((SmartCardManager)mInkManager).getInkCount();
+			if(heads >= 3) mInkValuesGroup3.setVisibility(View.VISIBLE);	// 流出显示B的位置
 			if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
-			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
+//			if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
 		}
 // H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
         if(mInkManager instanceof Hp22mmSCManager) {		// 当初始化这些显示控件的时候，还没有初始化SmartCardManager，因此还无法获得正确的heads，因此在这里再根据实际SC的头数调节控件的显示属性
             heads = ((Hp22mmSCManager)mInkManager).getInkCount();
-            if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
-            if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
+			if(heads >= 3) mInkValuesGroup3.setVisibility(View.VISIBLE);	// 流出显示B的位置
+			if(heads >= 2) mInkValuesGroup2.setVisibility(View.VISIBLE);	// 流出显示B的位置
+//            if(heads == 3) mInkValues[heads].setVisibility(View.INVISIBLE);	// 占个位置，不实际显示
         }
 // End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 
 		boolean valid = !(null != mDTransThread && mDTransThread.isRunning());
 // H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
 //		for(int i=0; i<heads; i++) {
-		for(int i=0; i<Math.min(heads, 6); i++) {
+		for(int i=0; i<Math.min(heads, mInkValues.length); i++) {
 // End of H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
 			float count = mInkManager.getLocalInk(i) - 1;
 			float ink = mInkManager.getLocalInkPercentage(i);
@@ -1548,7 +1561,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
 				mInkValues[i].setBackgroundColor(mContext.getResources().getColor(R.color.transparent));
 				mInkValues[i].setText(level);
-			} else if (ink > 0.0f){
+			} else if (ink > 0.1f){
 				mInkValues[i].setBackgroundColor(Color.YELLOW);
 				mInkValues[i].setText(level);
 			} else {
@@ -1561,11 +1574,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 
 			if((mInkManager instanceof SmartCardManager && ink < 5.0f ||
-					mInkManager instanceof RFIDManager && ink < 1.0f) &&
-					ink > 0f && mInkLow == false) {
+				mInkManager instanceof Hp22mmSCManager && ink < 5.0f ||
+				mInkManager instanceof RFIDManager && ink < 1.0f) &&
+					ink > 0.1f && mInkLow == false) {
 				mInkLow = true;
 				mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
-			} else if (ink <= 0f && mInkZero == false) {
+			} else if (ink <= 0.1f && mInkZero == false) {
 				mInkZero = true;
 				mHandler.removeMessages(MESSAGE_RFID_LOW);
 				if (!Configs.READING) {
@@ -2515,7 +2529,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					boolean ready = true;
 					Bundle bd = (Bundle) msg.getData();
 					for (int i=0; i < mSysconfig.getPNozzle().mHeads; i++) {
-
 						if (mInkManager.getLocalInk(i) <= 0) {
 							ready = false;
 							break;

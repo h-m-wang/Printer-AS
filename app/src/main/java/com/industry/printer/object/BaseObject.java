@@ -655,6 +655,12 @@ public class BaseObject{
 				(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
 				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
 				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR));
 
 		Debug.d(TAG, "--->dots: " + dots[0]);

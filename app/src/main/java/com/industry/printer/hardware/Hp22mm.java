@@ -84,6 +84,12 @@ public class Hp22mm {
 //    private static final int IDS_INDEX = 0;
 //    private static final int PEN_INDEX = 1;
 
+// H.M.Wang 2025-10-29 追加头类型的分类变量，用来对不同的头进行处理时参考。
+    public static final int HEAD_TYPE_1056 = 1;         // 1056点标准头
+    public static final int HEAD_TYPE_CIRCLE = 0;       // 528点循环头（下发打印数据时，为保持32点的倍数，每列增加两个字节16点，合计544点）
+    public static final int HEAD_TYPE = HEAD_TYPE_CIRCLE;
+// End of H.M.Wang 2025-10-29 追加头类型的分类变量，用来对不同的头进行处理时参考。
+
     public static final int DOTS_PER_COL = 1056;
     public static final int BYTES_PER_COL = DOTS_PER_COL / 8;       // 132
     public static final int WORDS_PER_COL = BYTES_PER_COL / 4;      // 33
@@ -256,7 +262,7 @@ public class Hp22mm {
         regs[0] = 0xe4;
         regs[1] = 0x03;
         regs[2] = 0x0;
-        regs[3] = 0x0;
+        regs[3] = HEAD_TYPE;
         regs[4] = 0x21;
 //            regs[5] = 0x108;
             regs[5] = 0x84;
@@ -301,10 +307,10 @@ public class Hp22mm {
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) return getPurgeSettings();
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE2) {
             regs = getPurgeSettings();
-            regs[0] = 0x01;
+            regs[0] = 0x0A;
             regs[1] = 0x00;
             regs[15] = 0xea60;
-            regs[16] = 0x5f90;
+            regs[16] = 0xAE60;
             return regs;
         }
 // End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
@@ -320,6 +326,7 @@ public class Hp22mm {
 // End of H.M.Wang 2025-1-21 增加区分正常打印和清洗的不同的下发内容
 // End of H.M.Wang 2025-2-10 取消这个修改，改为在R15和R16处直接根据是否为清洗分别计算设置
 
+        regs[3] = HEAD_TYPE;
         regs[REG04_32BIT_WORDS_PER_COL] = WORDS_PER_COL;
         regs[REG05_BYTES_PER_COL] = BYTES_PER_COL;
 // H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
@@ -358,7 +365,10 @@ public class Hp22mm {
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) {
             encFreq = 5000;
         } else {
-            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+// H.M.Wang 2025-10-29 config.mParam[0]最小值由110改为55
+//            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 55) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+// End of H.M.Wang 2025-10-29 config.mParam[0]最小值由110改为55
          }
 // End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
 // End of H.M.Wang 2025-1-10 param0最小不能小于110来计算

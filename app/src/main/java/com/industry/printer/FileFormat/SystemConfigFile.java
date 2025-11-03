@@ -1856,6 +1856,32 @@ public class SystemConfigFile{
 			case PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR:
 				nozzle = PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR;
 				break;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_127x5:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_127X5;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_127x6:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_127X6;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_127x7:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_127X7;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_127x8:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_127X8;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx5:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_1INCHX5;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx6:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_1INCHX6;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx7:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_1INCHX7;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx8:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_1INCHX8;
+				break;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 			case PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT:
 				nozzle = PrinterNozzle.MESSAGE_TYPE_16_DOT;
 				break;

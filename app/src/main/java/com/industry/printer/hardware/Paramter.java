@@ -116,6 +116,19 @@ public class Paramter {
 		}
 
 		// S17
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头, 2025-10-31 打印头的数量扩大到16，使用S17[10:7]
+		Debug.d(TAG, "--->heads=" + heads + ", " + (mFPGAParam[16] & 0x87f));
+		int inh = 0;
+		if(param[37] / 10 == 0) {
+			inh = Math.max(0, heads - 1);
+		} else if(param[37] / 10 == 1 || param[37] / 10 == 2) {
+			inh = Math.max(0, (param[37] % 10) - 1);
+		}
+		inh <<= 7;
+		mFPGAParam[16] = mFPGAParam[16] & 0x87f;			// 1000 0111 1111, Bit10-7为头的数量定义
+		mFPGAParam[16] = mFPGAParam[16] | (0x0780 & inh);	// 把实际的头的数量设置进去
+
+/* 2025-10-31 打印头的数量扩大到16，使用S17[10:7]
 		Debug.d(TAG, "--->heads=" + heads + ", " + (mFPGAParam[16] & 0xe7f));
 // H.M.Wang 2019-12-31 修改参数17的设置，根据系统参数38(n带m)的取值设置
 		if(param[37] / 10 == 0) {
@@ -138,6 +151,8 @@ public class Paramter {
 			mFPGAParam[16] = mFPGAParam[16] | (0x0380 & inh);	// 把实际的头的数量设置进去
 		}
 // End of H.M.Wang 2019-12-31 修改参数17的设置，根据系统参数38(n带m)的取值设置
+*/
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头，同时，打印头的数量扩大到16，使用S17[10:7]
 		Debug.d(TAG, "--->param[16]=" + mFPGAParam[16]);
 
 		// S23

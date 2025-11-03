@@ -26,6 +26,7 @@ import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.interceptor.ExtendInterceptor;
 import com.industry.printer.interceptor.ExtendInterceptor.ExtendStat;
 import com.industry.printer.object.BarcodeObject;
@@ -307,6 +308,16 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x5 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x6 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x7 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x8 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx5 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx6 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx7 ||
+				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 				sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM ||
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
@@ -623,25 +634,39 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			int orgCharsOfHead = mBinInfo.mCharsPerHFeed / mExtendStat.getScale();	// 注意，这里需要除以纵向扩充的倍数，否则一起调整了
 // End of H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
 			int orgCols = mBuffer.length / orgCharsOfHead;
-//			char[] zero = new char[orgCharsOfHead];
-			char[] zero = new char[1];
-			char[] zero1 = new char[68];
-			Arrays.fill(zero, (char)0x0000);
 
-			for(int i=0; i<orgCols; i++) {
-				caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
-//				caBuf.append(zero, 0, zero.length);
-				caBuf.append(zero, 0, zero.length);
-			}
+			if(Hp22mm.HEAD_TYPE == Hp22mm.HEAD_TYPE_1056) {		// 每列1056点，后面跟相同数量的0
+				char[] zero = new char[orgCharsOfHead];
+				Arrays.fill(zero, (char)0x0000);
 
-			caBuf.append(zero1, 0, zero1.length);
+				for(int i=0; i<orgCols; i++) {
+					caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
+					caBuf.append(zero, 0, zero.length);
+				}
 
-			mBuffer = caBuf.toCharArray();
+				mBuffer = caBuf.toCharArray();
 
-			if(bSave) {
-				FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
-//				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
-				BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (mBinInfo.mBytesPerHFeed + 2 ) * 8 * mTask.getNozzle().mHeads);
+				if(bSave) {
+					FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
+					BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
+				}
+			} else {		// HEAD_TYPE_CIRCLE(每列528点，为了保持32的倍数，追加16点，结果是544点)
+				char[] zero = new char[1];
+				char[] zero1 = new char[68];
+				Arrays.fill(zero, (char)0x0000);
+				Arrays.fill(zero1, (char)0x0000);
+
+				for(int i=0; i<orgCols; i++) {
+					caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
+					caBuf.append(zero, 0, zero.length);
+				}
+				caBuf.append(zero1, 0, zero1.length);
+				mBuffer = caBuf.toCharArray();
+
+				if(bSave) {
+					FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
+					BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (mBinInfo.mBytesPerHFeed + 2 ) * 8 * mTask.getNozzle().mHeads);
+				}
 			}
 		}
 
@@ -1074,6 +1099,20 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
 					wx = 4.0f;
 					hx = 4.0f;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X5) {
+					wx = 5.0f;
+					hx = 5.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X6) {
+					wx = 6.0f;
+					hx = 6.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X7) {
+					wx = 7.0f;
+					hx = 7.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X8) {
+					wx = 8.0f;
+					hx = 8.0f;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				}
 // End of H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
 
@@ -1141,6 +1180,20 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
 					wx = 4.0f;
 					hx = 4.0f;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X5) {
+					wx = 5.0f;
+					hx = 5.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X6) {
+					wx = 6.0f;
+					hx = 6.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X7) {
+					wx = 7.0f;
+					hx = 7.0f;
+				} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X8) {
+					wx = 8.0f;
+					hx = 8.0f;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				}
 
                 Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
@@ -1281,6 +1334,20 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
 							wx = 4.0f;
 							hx = 4.0f;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X5) {
+							wx = 5.0f;
+							hx = 5.0f;
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X6) {
+							wx = 6.0f;
+							hx = 6.0f;
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X7) {
+							wx = 7.0f;
+							hx = 7.0f;
+						} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X8) {
+							wx = 8.0f;
+							hx = 8.0f;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 						}
 
 						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());

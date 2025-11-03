@@ -554,6 +554,12 @@ public class TLKFileParser  extends TlkFile{
 			case MESSAGE_TYPE_25_4:
 			case MESSAGE_TYPE_38_1:
 			case MESSAGE_TYPE_50_8:
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+			case MESSAGE_TYPE_127X5:
+			case MESSAGE_TYPE_127X6:
+			case MESSAGE_TYPE_127X7:
+			case MESSAGE_TYPE_127X8:
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				dots = 152f;
 				mProportion = dots/Configs.gDots;
 				break;
@@ -581,6 +587,24 @@ public class TLKFileParser  extends TlkFile{
                 dots = 1280f;
                 mProportion = 1.0f;
                 break;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+			case MESSAGE_TYPE_1INCHX5:
+				dots = 1600f;
+				mProportion = 1.0f;
+				break;
+			case MESSAGE_TYPE_1INCHX6:
+				dots = 1920f;
+				mProportion = 1.0f;
+				break;
+			case MESSAGE_TYPE_1INCHX7:
+				dots = 2240f;
+				mProportion = 1.0f;
+				break;
+			case MESSAGE_TYPE_1INCHX8:
+				dots = 2560f;
+				mProportion = 1.0f;
+				break;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 			case MESSAGE_TYPE_22MM:
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型

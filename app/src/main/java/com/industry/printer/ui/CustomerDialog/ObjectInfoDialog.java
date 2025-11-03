@@ -844,6 +844,16 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4 ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_38_1 ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_50_8 ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X5 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X6 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X7 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X8 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM ||
 // End of H.M.Wang 2024-4-2 追加HP22MM喷头类型

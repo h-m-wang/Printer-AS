@@ -195,7 +195,7 @@ public class Hp22mmSCManager implements IInkDevice {
 //        if(usableVol > 0)
 //            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
         if(mHeads[head].mInkLevel >= 0) {
-            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * MAX_BAG_INK_VOLUME_MAXIMUM)) + 0.1f;      // 为了避免只要开始打印就显示99.9%的问题，而是真的打印了0.1%后，才显示99.9%
+            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * MAX_BAG_INK_VOLUME_MAXIMUM));
             return (ret > 100.0f ? 100.0f : ret);
 // End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
         } else if(!mInitialized)

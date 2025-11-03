@@ -381,6 +381,24 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 					case MESSAGE_TYPE_1_INCH_FOUR:
 						mEditLayout.setBackgroundResource(R.drawable.background_4);
 						break;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+					case MESSAGE_TYPE_127X5:
+					case MESSAGE_TYPE_1INCHX5:
+						mEditLayout.setBackgroundResource(R.drawable.background_5);
+						break;
+					case MESSAGE_TYPE_127X6:
+					case MESSAGE_TYPE_1INCHX6:
+						mEditLayout.setBackgroundResource(R.drawable.background_6);
+						break;
+					case MESSAGE_TYPE_127X7:
+					case MESSAGE_TYPE_1INCHX7:
+						mEditLayout.setBackgroundResource(R.drawable.background_7);
+						break;
+					case MESSAGE_TYPE_127X8:
+					case MESSAGE_TYPE_1INCHX8:
+						mEditLayout.setBackgroundResource(R.drawable.background_8);
+						break;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 					case MESSAGE_TYPE_16_DOT:
 					case MESSAGE_TYPE_32_DOT:
 // H.M.Wang 2020-7-23 追加32DN打印头

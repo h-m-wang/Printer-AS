@@ -464,7 +464,8 @@ public class MessageTask {
 	
 	private void dealDot(int dots) {
 		MessageObject msgObj = getMsgObject();
-		switch (msgObj.getPNozzle().mHeads) {
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+/*		switch (msgObj.getPNozzle().mHeads) {
 			case 1:
 				mDots[0] += dots;
 				break;
@@ -489,7 +490,11 @@ public class MessageTask {
 				break;		
 			default:
 				break;
+		}*/
+		for(int i=0; i<msgObj.getPNozzle().mHeads; i++) {
+			mDots[i] = dots / msgObj.getPNozzle().mHeads;
 		}
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 	}
 	public void saveBin() {
 		if (PlatformInfo.isBufferFromDotMatrix()==1) {
@@ -654,6 +659,12 @@ public class MessageTask {
 					(msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
 					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
 					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
+					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
+					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR)));
 		// 保存bin文件
 		maker.save(ConfigPath.getBinAbsolute(mName));
@@ -860,6 +871,12 @@ public class MessageTask {
 				((getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
 				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
 				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
+				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
+				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR)));
 			Debug.d(TAG, "mDots[0] = " + mDots[0] + "; [1] = " + mDots[1] + "; [2] = " + mDots[2]);
 		}

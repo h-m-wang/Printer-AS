@@ -407,6 +407,24 @@ public class MessageObject extends BaseObject {
 			for (int i = 0; i < size.length; i++) {
 				size[i] = String.valueOf(mBaseList[i] * 4);
 			}
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X5  || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX5) { // five
+			for (int i = 0; i < size.length; i++) {
+				size[i] = String.valueOf(mBaseList[i] * 5);
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X6  || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX6) { // six
+			for (int i = 0; i < size.length; i++) {
+				size[i] = String.valueOf(mBaseList[i] * 6);
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X7  || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX7) { // seven
+			for (int i = 0; i < size.length; i++) {
+				size[i] = String.valueOf(mBaseList[i] * 7);
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X8  || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX8) { // eight
+			for (int i = 0; i < size.length; i++) {
+				size[i] = String.valueOf(mBaseList[i] * 8);
+			}
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 		} else  if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			size = new String[mDotSizes.length];
 			for (int i = 0; i < size.length; i++) {
@@ -534,7 +552,16 @@ public class MessageObject extends BaseObject {
 			return h/3;
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_50_8 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL) {
 			return h/4;
-
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X5 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX5) {
+			return h/5;
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X6 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX6) {
+			return h/6;
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X7 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX7) {
+			return h/7;
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X8 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX8) {
+			return h/8;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 		// H.M.Wang 追加下列4行
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE) {
 			return h/6;
