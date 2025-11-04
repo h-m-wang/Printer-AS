@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Xml;
 
 import com.industry.printer.PHeader.PrinterNozzle;
@@ -46,7 +47,9 @@ import static android.R.attr.value;
 public class SystemConfigFile{
 	private static final String TAG = SystemConfigFile.class.getSimpleName();
 	
-	
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+	public static final String PH_SETTING_VERSION = "_10000";
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
 	public static final String PH_SETTING_ENCODER = "_10001";
 	public static final String PH_SETTING_TRIGER_MODE = "_10002";
 	public static final String PH_SETTING_HIGH_DELAY = "_10003";
@@ -686,7 +689,11 @@ public class SystemConfigFile{
 	public int mParam[] = new int[96];
 // End of H.M.Wang 2022-10-18 参数扩容32项目
 	public int mFPGAParam[] = new int[24];
-	
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+	public int mVersion;								// system_config.xml文件中记载的版本号，如无记载，则为0
+	public static final int CURRENT_VERSION = 1;		// 当前版本apk所对应的版本号
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+
 	public Context mContext;
 	public static SystemConfigFile mInstance;
 	
@@ -718,6 +725,9 @@ public class SystemConfigFile{
 		readBarcodePrefs();
 // End of H.M.Wang 2022-6-15 追加条码内容的保存桶
 		initParamRange();
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+		mVersion = 0;
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
 		if(!parseSystemCofig()) {
 			//default param
 			for (int i = 0; i < mParam.length; i++) {
@@ -946,6 +956,23 @@ public class SystemConfigFile{
 		inStream.close();
 		return ret;
 	}
+
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+	private void adjustParams() {
+		// 由于增加了12.7x5,6,7,8四种头，插在了4,5,6,7位置，25.4x5,6,7,8四种头，插在了8,9,10,11，因此原7以上的值需要后移8位，3以上的值需要后移4位
+		if(mVersion == 0 && mVersion < CURRENT_VERSION) {
+			if(mParam[INDEX_HEAD_TYPE] > 7) {
+				mParam[INDEX_HEAD_TYPE] += 8;
+			} else if(mParam[INDEX_HEAD_TYPE] > 3) {
+				mParam[INDEX_HEAD_TYPE] += 4;
+			}
+		}
+/* 再有升级时带来参数值需要调整时，在前一次调整的基础上，继续调整
+		if(mVersion == 1 && mVersion < CURRENT_VERSION) {
+		}
+*/
+	}
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
 
 	public boolean parseSystemCofig() {
 		Debug.d(TAG, "--->parseSystemCofig");
@@ -1211,6 +1238,10 @@ public class SystemConfigFile{
 				} else if (tag.equalsIgnoreCase(PH_SETTING_RESERVED_96)) {
 					mParam[95] = Integer.parseInt(t.getValue());
 // End of H.M.Wang 2022-10-18 参数扩容32项目
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+				} else if (tag.equalsIgnoreCase(PH_SETTING_VERSION)) {
+					mVersion = Integer.parseInt(t.getValue());
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
 				}
 //				Debug.d(TAG, "===>tag key:" + tag + ", value:" + t.getValue());
 			} catch ( Exception e) {
@@ -1218,6 +1249,10 @@ public class SystemConfigFile{
 			}
 		}
 		inStream.close();
+
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+		adjustParams();
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
 
 		for (int i = INDEX_COUNT_1; i <= INDEX_COUNT_10; i++) {
 			mParam[i] = (int)(RTCDevice.getInstance(mContext).read(i - INDEX_COUNT_1));
@@ -1351,7 +1386,12 @@ public class SystemConfigFile{
 		}
 		Debug.d(TAG, "===>dir:"+dir.getAbsolutePath());
 		ArrayList<XmlTag> list = new ArrayList<XmlTag>();
-		XmlTag tag1 = new XmlTag(PH_SETTING_ENCODER, String.valueOf(mParam[0]));
+		XmlTag tag1;
+// H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+		tag1 = new XmlTag(PH_SETTING_VERSION, String.valueOf(CURRENT_VERSION));
+		list.add(tag1);
+// End of H.M.Wang 2025-11-4 增加版本号项，用来在apk版本升级时，如果带来参数项目需要调整的话，进行调整
+		tag1 = new XmlTag(PH_SETTING_ENCODER, String.valueOf(mParam[0]));
 		list.add(tag1);
 		tag1 = new XmlTag(PH_SETTING_TRIGER_MODE, String.valueOf(mParam[1]));
 		list.add(tag1);

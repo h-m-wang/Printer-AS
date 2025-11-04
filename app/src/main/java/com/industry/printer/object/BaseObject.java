@@ -2025,17 +2025,17 @@ public class BaseObject{
 	 */
 	public boolean needVBin() {
 		if ((this instanceof CounterObject) ||
-				(this instanceof RealtimeYear) ||
-				(this instanceof RealtimeMonth) ||
-				(this instanceof RealtimeDate) ||
-				(this instanceof RealtimeHour) ||
-				(this instanceof RealtimeMinute) ||
-				(this instanceof JulianDayObject) ||
-				(this instanceof WeekDayObject) ||
-				(this instanceof WeekOfYearObject) ||
-				(this instanceof WeeksObject) ||
-				(this instanceof RealtimeSecond) ||
-				(this instanceof LetterHourObject)) {
+			(this instanceof RealtimeYear) ||
+			(this instanceof RealtimeMonth) ||
+			(this instanceof RealtimeDate) ||
+			(this instanceof RealtimeHour) ||
+			(this instanceof RealtimeMinute) ||
+			(this instanceof JulianDayObject) ||
+			(this instanceof WeekDayObject) ||
+			(this instanceof WeekOfYearObject) ||
+			(this instanceof WeeksObject) ||
+			(this instanceof RealtimeSecond) ||
+			(this instanceof LetterHourObject)) {
 			return true;
 		} else {
 			return false;

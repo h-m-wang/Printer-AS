@@ -753,6 +753,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mInkValues[0].setTextSize(mInkValues[0].getTextSize() * 1.2f);
 				mInkValues[1].setTextSize(mInkValues[1].getTextSize() * 1.2f);
 			}
+			for(int i=heads; i<mInkValues.length; i++) {
+				// 使得与最后一个头在相同行的打印头不显示，但保留位置。否则，头数少的列会被纵向拉伸，影响美观
+				if(i > 2) {
+					mInkValues[i].setVisibility(View.INVISIBLE);
+				} else {
+					mInkValues[i].setVisibility(View.GONE);
+				}
+			}
 		} else {
 			mInkValues = new TextView[] {	// 先左右，后上下
 					(TextView) getView().findViewById(R.id.ink_value1),
@@ -771,10 +779,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(heads < 2 ) {
 				mInkValuesGroup2.setVisibility(View.GONE);
 			}
-		}
-
-		for(int i=heads; i<mInkValues.length; i++) {
-			mInkValues[i].setVisibility(View.INVISIBLE);
+			for(int i=heads; i<mInkValues.length; i++) {
+				// 使得与最后一个头在相同行的打印头不显示，但保留位置。否则，头数少的列会被纵向拉伸，影响美观
+				if((heads-1)/3 == i/3) {
+					mInkValues[i].setVisibility(View.INVISIBLE);
+				} else {
+					mInkValues[i].setVisibility(View.GONE);
+				}
+			}
 		}
 // End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 
@@ -1561,18 +1573,40 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
 				mInkValues[i].setBackgroundColor(mContext.getResources().getColor(R.color.transparent));
 				mInkValues[i].setText(level);
+				if(mInkLow)	{
+					mFlagAlarming = false;
+					mInkLow = false;
+					mHandler.removeMessages(MESSAGE_RFID_LOW);
+				}
+				if(mInkZero)	{
+					mFlagAlarming = false;
+					mInkZero = false;
+					mHandler.removeMessages(MESSAGE_RFID_ZERO);
+				}
 			} else if (ink > 0.1f){
 				mInkValues[i].setBackgroundColor(Color.YELLOW);
 				mInkValues[i].setText(level);
+				if(!mInkLow)	{
+					mInkLow = true;
+					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
+				}
 			} else {
 				valid = false;
 				mInkValues[i].setBackgroundColor(Color.RED);
 				mInkValues[i].setText(level);
+				if(mInkLow)	{
+					mHandler.removeMessages(MESSAGE_RFID_LOW);
+					mInkLow = false;
+				}
+				if(!mInkZero)	{
+					mInkZero = true;
+					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 200);
+				}
 				if (mDTransThread != null && mDTransThread.isRunning()) {
 					mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
 				}
 			}
-
+/* H.M.Wang 2025-11-4 取消这段代码，合并到上面代码中，本段代码的else部分会导致报警被取消
 			if((mInkManager instanceof SmartCardManager && ink < 5.0f ||
 				mInkManager instanceof Hp22mmSCManager && ink < 5.0f ||
 				mInkManager instanceof RFIDManager && ink < 1.0f) &&
@@ -1591,7 +1625,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mHandler.removeMessages(MESSAGE_RFID_LOW);
 				mHandler.removeMessages(MESSAGE_RFID_ZERO);
 // End of H.M.Wang 2024-6-15 当ink值正常时，取消报警
-			}
+			}*/
 		}
 		if(valid) {
 			mBtnStart.setClickable(true);

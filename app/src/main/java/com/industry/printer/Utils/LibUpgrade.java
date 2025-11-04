@@ -212,10 +212,18 @@ public class LibUpgrade {
         File srcFile;
 
         try {
-            tmpPath = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            if(PlatformInfo.isA133Product()) {
+                tmpPath = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            } else {
+                tmpPath = dst + ".apk";
+            }
             if(ConfigPath.getUpgradePath() == null) return false;
             srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "/IME" : "/IME/" + File.separator) + file;
-            dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            if(PlatformInfo.isA133Product()) {
+                dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            } else {
+                dstPath = tmpPath;
+            }
             Debug.d(TAG, "Upgrade [" + srcPath + "] -> [" + tmpPath + "] -> [" + dstPath + "]");
 
             srcFile = new File(srcPath);

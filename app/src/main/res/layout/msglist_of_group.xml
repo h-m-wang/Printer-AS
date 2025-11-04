@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_margin="50dp"
+    android:background="@color/background" >
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_above="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="#00000000" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/btn_confirm"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:textSize="25sp"
+            android:text="@string/Edit"
+            />
+        <Button
+            android:id="@+id/btn_objinfo_cnl"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_style"
+            android:textSize="25sp"
+            android:text="@string/strNativeBtn"
+            />
+
+    </LinearLayout>
+</RelativeLayout>

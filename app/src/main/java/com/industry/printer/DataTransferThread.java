@@ -2488,6 +2488,9 @@ private void setSerialProtocol9DTs(final String data) {
 						bold = 1.0f * config.getParam(SystemConfigFile.INDEX_PRINT_DENSITY)/150;
 					} else {
 						bold = 1.0f * config.getParam(SystemConfigFile.INDEX_PRINT_DENSITY)/300;
+						if(scm instanceof Hp22mmSCManager) {
+							bold = (int)bold;			// H.M.Wang 2025-11-3 hp22mm的情况下，忽略调150， 450， 750等选项，只保留300，600，900，1200的选择
+						}
 					}
 				} else {
 					bold = 1.0f * config.getParam(SystemConfigFile.INDEX_PRINT_DENSITY)/150;
