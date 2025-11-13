@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:layout_margin="50dp"
+    android:layout_margin="10dp"
+    android:padding="5dp"
     android:background="@color/background" >
 
     <ListView
@@ -12,6 +13,7 @@
         android:layout_above="@+id/buttons"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:dividerHeight="5dp"
         android:divider="#00000000" />
 
     <LinearLayout
@@ -26,15 +28,17 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"
+            android:layout_marginRight="5dp"
             android:background="@drawable/button_style"
             android:textSize="25sp"
             android:text="@string/Edit"
             />
         <Button
-            android:id="@+id/btn_objinfo_cnl"
+            android:id="@+id/btn_cancel"
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"
+            android:layout_marginLeft="5dp"
             android:background="@drawable/button_style"
             android:textSize="25sp"
             android:text="@string/strNativeBtn"

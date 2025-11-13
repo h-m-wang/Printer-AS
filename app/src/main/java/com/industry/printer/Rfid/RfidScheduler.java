@@ -350,7 +350,10 @@ public class RfidScheduler implements IInkScheduler {
 		Debug.d(TAG, "---> quit readLevelValue(" + cardIdx + ")");
 	}
 
+// H.M.Wang 2025-11-5 修改函数逻辑，忽略掉参数cardIdx，因为这个卡号的轮换是随着打印一点一点换的，不是一次性的，因此或有显示延后的问题。改为一次就显示所有头的墨量
+//	private void readLevelValueA133(final int cardIdx) {
 	private void readLevelValueA133(final int cardIdx) {
+// End of H.M.Wang 2025-11-5 修改函数逻辑，忽略掉参数cardIdx，因为这个卡号的轮换是随着打印一点一点换的，不是一次性的，因此或有显示延后的问题。改为一次就显示所有头的墨量
 		Debug.d(TAG, "---> enter readLevelValueA133(" + cardIdx + ")");
 
 		if(null == mBaginkLevels) {
@@ -368,56 +371,58 @@ public class RfidScheduler implements IInkScheduler {
 			Debug.d(TAG, "Bag Status[" + cardIdx + "]: " + Integer.toHexString(inkStatus));
 			mLevelReading = false;
 
-			if((inkStatus & (0x00000001 << cardIdx)) != 0x00000000) {	// 相应的墨位被置为1，标识缺墨
-				inkStatus = 1;
-			} else {
-				inkStatus = 0;
-			}
-
-			long rt = System.currentTimeMillis();
-			if(mBaginkLevels[cardIdx].mLevelRecords.size() > 0) {
-				if(rt - mBaginkLevels[cardIdx].mLevelRecords.get(mBaginkLevels[cardIdx].mLevelRecords.size()-1).RecordedTime < 5000L) return;
-			}
-
-			mBaginkLevels[cardIdx].mLevelRecords.add(new Level_Record(rt, inkStatus));
-			if(mBaginkLevels[cardIdx].mLevelRecords.size() > PROC_LEVEL_NUMS) {
-				mBaginkLevels[cardIdx].mLevelRecords.remove(0);
-			}
-
-			if(mBaginkLevels[cardIdx].mLevelRecords.size() >= PROC_LEVEL_NUMS) {
-				float totalLevel = 0L;
-				int count = 0;
-				for(int i=0; i<mBaginkLevels[cardIdx].mLevelRecords.size(); i++) {
-					totalLevel += 0.9f * mBaginkLevels[cardIdx].mLevelRecords.get(i).Level;
-					count++;
+			for(int i=0; i<mBaginkLevels.length; i++) {
+				if((inkStatus & (0x00000001 << i)) != 0x00000000) {	// 相应的墨位被置为1，标识缺墨
+					inkStatus = 1;
+				} else {
+					inkStatus = 0;
 				}
-				inkStatus = (int)(totalLevel / count / 0.7f);
-			}
 
-			// Launch add ink if the level less than ADD_INK_THRESHOLD.
-			if(inkStatus == 1) {
-				// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
-				if(mBaginkLevels[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
-					ExtGpio.playClick();
-					Thread.sleep(50);
-					ExtGpio.playClick();
-					Thread.sleep(50);
-					ExtGpio.playClick();
-					mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (cardIdx+1) + " might failed in adding ink").sendToTarget();
-				} else if(mBaginkLevels[cardIdx].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[cardIdx].mInkAddedRecord.get(mBaginkLevels[cardIdx].mInkAddedRecord.size()-1) > 1000L*60*1) {		// 上次加墨后等待3秒再允许再次开阀
-					Debug.d(TAG, "Add Ink");
-					ExtGpio.setValve(cardIdx, 1);
-
-					try{Thread.sleep(1000);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
-						ExtGpio.setValve(cardIdx, 0);
-					};
-
-					mBaginkLevels[cardIdx].mInkAddedTimes++;
-					mBaginkLevels[cardIdx].mInkAddedRecord.add(System.currentTimeMillis());
-					if(mBaginkLevels[cardIdx].mInkAddedRecord.size() > ADD_INK_TRY_LIMITS) mBaginkLevels[cardIdx].mInkAddedRecord.remove(0);		// 保持ADD_INK_TRY_LIMITS次的加墨记录
+				long rt = System.currentTimeMillis();
+				if(mBaginkLevels[i].mLevelRecords.size() > 0) {
+					if(rt - mBaginkLevels[i].mLevelRecords.get(mBaginkLevels[i].mLevelRecords.size()-1).RecordedTime < 5000L) return;
 				}
-			} else {
-				mBaginkLevels[cardIdx].mInkAddedTimes = 0;
+
+				mBaginkLevels[i].mLevelRecords.add(new Level_Record(rt, inkStatus));
+				if(mBaginkLevels[i].mLevelRecords.size() > PROC_LEVEL_NUMS) {
+					mBaginkLevels[i].mLevelRecords.remove(0);
+				}
+
+				if(mBaginkLevels[i].mLevelRecords.size() >= PROC_LEVEL_NUMS) {
+					float totalLevel = 0L;
+					int count = 0;
+					for(int j=0; j<mBaginkLevels[i].mLevelRecords.size(); j++) {
+						totalLevel += 0.9f * mBaginkLevels[i].mLevelRecords.get(j).Level;
+						count++;
+					}
+					inkStatus = (int)(totalLevel / count / 0.7f);
+				}
+
+				// Launch add ink if the level less than ADD_INK_THRESHOLD.
+				if(inkStatus == 1) {
+					// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
+					if(mBaginkLevels[i].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
+						ExtGpio.playClick();
+						Thread.sleep(50);
+						ExtGpio.playClick();
+						Thread.sleep(50);
+						ExtGpio.playClick();
+						mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (i+1) + " might failed in adding ink").sendToTarget();
+					} else if(mBaginkLevels[i].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[i].mInkAddedRecord.get(mBaginkLevels[i].mInkAddedRecord.size()-1) > 1000L*60*1) {		// 上次加墨后等待3秒再允许再次开阀
+						Debug.d(TAG, "Add Ink");
+						ExtGpio.setValve(i, 1);
+
+						try{Thread.sleep(1000);ExtGpio.setValve(i, 0);}catch(Exception e){
+							ExtGpio.setValve(i, 0);
+						};
+
+						mBaginkLevels[i].mInkAddedTimes++;
+						mBaginkLevels[i].mInkAddedRecord.add(System.currentTimeMillis());
+						if(mBaginkLevels[i].mInkAddedRecord.size() > ADD_INK_TRY_LIMITS) mBaginkLevels[i].mInkAddedRecord.remove(0);		// 保持ADD_INK_TRY_LIMITS次的加墨记录
+					}
+				} else {
+					mBaginkLevels[i].mInkAddedTimes = 0;
+				}
 			}
 		} catch(Exception e) {
 			Debug.e(TAG, e.getMessage());

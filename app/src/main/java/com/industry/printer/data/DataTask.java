@@ -149,6 +149,7 @@ public class DataTask {
 
 	private char[] getPrintBuffer(boolean isPreview, boolean bSave) {
 		Debug.d(TAG, "--->getPrintBuffer.");
+		FpgaGpioOperation.createBufStart();
 		long startTime = System.currentTimeMillis();
 
 		if (mBgBuffer == null) {
@@ -670,6 +671,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			}
 		}
 
+		FpgaGpioOperation.createBufEnd();
 		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
 
 		return mBuffer;

@@ -31,6 +31,9 @@ public class ConfigPath {
 	private static ArrayList<String> mUsbPaths=null;
 	
 	public static ArrayList<String> getMountedUsb() {
+// H.M.Wang 2025-11-4 当没有登记U盘时，重新查询一次，以避免开机只查一次，但U盘一直插着，系统识别U盘在后，导致识别不到U盘的问题
+		if(mUsbPaths == null || mUsbPaths.size() == 0) return updateMountedUsb();
+// End of H.M.Wang 2025-11-4 当没有登记U盘时，重新查询一次，以避免开机只查一次，但U盘一直插着，系统识别U盘在后，导致识别不到U盘的问题
 		return mUsbPaths;
 	}
 	

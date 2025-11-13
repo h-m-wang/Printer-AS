@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.171"
+#define VERSION_CODE                            "1.0.172"
 // 1.0.171 2025-10-22
 // MAX_BAG_INK_VOLUME_MAXIMUM修改为 49600 (15500 * 4)的80%
 // 1.0.170 2025-9-8
@@ -678,7 +678,7 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
     uint32_t value;
 
     if(head == 0) {
-        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+/*        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
         if (ids_check("ids_read_oem_field", ids_r)) return(-1);
 
         value += count;
@@ -692,7 +692,7 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
         if (ids_check("ids_write_oem_field", ids_r)) return(-1);
 
         ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
-        if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
+        if (ids_check("ids_flush_smart_card", ids_r)) return(-1);*/
     } else {
         uint8_t pd_sc_result;
         PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);

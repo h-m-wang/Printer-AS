@@ -29,7 +29,7 @@ public class ExportLog2Usb {
                 Debug.d(TAG, "Export Log to " + path);
                 pid.waitFor();
             }
-            try{Thread.sleep(5000);}catch(Exception e){}
+            try{Thread.sleep(20000);}catch(Exception e){}
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }

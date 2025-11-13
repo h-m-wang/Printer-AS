@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.util.Printer;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.MainActivity;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.PrinterApplication;
 import com.industry.printer.Utils.Debug;
@@ -307,10 +308,10 @@ public class Hp22mm {
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) return getPurgeSettings();
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE2) {
             regs = getPurgeSettings();
-            regs[0] = 0x0A;
+            regs[0] = 0x1c9;
             regs[1] = 0x00;
-            regs[15] = 0xea60;
-            regs[16] = 0xAE60;
+            regs[15] = 0x3A98;
+            regs[16] = 0xc380;
             return regs;
         }
 // End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
@@ -367,7 +368,10 @@ public class Hp22mm {
         } else {
 // H.M.Wang 2025-10-29 config.mParam[0]最小值由110改为55
 //            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 110) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
-            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 55) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+// H.M.Wang 2025-11-5 修改算式，当C2的值不是300的整数倍时，令其按小于他的300整数倍值中的最大值计算，150按300计算
+//            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 55) * config.mParam[2] * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+            encFreq = (config.mParam[0] != 0 ? 90000000 / (Math.max(config.mParam[0], 55) * (Math.max(config.mParam[2]/300, 1)*300) * 4) * 25: 150000);  // R15=90M * 25 /(C1*C3) (2024-9-5) => 90M * 25 /(C1*C3*4) (2025-10-11)
+// End of H.M.Wang 2025-11-5 修改算式，当C2的值不是300的整数倍时，令其按小于他的300整数倍值中的最大值计算，150按300计算
 // End of H.M.Wang 2025-10-29 config.mParam[0]最小值由110改为55
          }
 // End of H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
@@ -406,7 +410,11 @@ public class Hp22mm {
         regs[REG18_ENCODER_DIVIDER] = (char)                                                      // R18=((C10*2*25.4)/(C9*3.14))/C3
 // H.M.Wang 2025-10-12 修改計算公式, 2025-10-14 修改 64 -> 32
 //                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
-                Math.max((32 * ((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+// H.M.Wang 2025-11-5 当C6=0时，按C9=1200，C10=64算，C3按300算，即C3A为300
+                (config.mParam[5] == 0 ?
+                    Math.max((32 * ((25.4f * 2 * 1200) / (3.14f * 64)) / 300), 1) :
+                    Math.max((32 * ((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1));     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+// End of H.M.Wang 2025-11-5 当C6=0时，按C9=1200，C10=64算，C3按300算，即C3A为300
 // End of H.M.Wang 2025-10-12 修改計算公式
 // End of H.M.Wang 2024-9-3 修改R18的计算公式
 // H.M.Wang 2024-9-3 修改R20,R21的计算公式
@@ -431,7 +439,10 @@ public class Hp22mm {
 
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
         regs[REG23_COLUMN_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
-        regs[REG24_SLOT_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
+// H.M.Wang 2025-11-11 临时R24=25
+//        regs[REG24_SLOT_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
+        regs[REG24_SLOT_SPACING] = 25;
+// End of H.M.Wang 2025-11-11 临时R24=25
 // H.M.Wang 2025-5-19 修改Reg25的值，Circulation/循环间隔设置为Reg25[15:2]
 //        regs[REG25_PRINT_ENABLE] = 0;                                                  // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????
 // H.M.Wang 2025-5-24 扩充REG25到32bit

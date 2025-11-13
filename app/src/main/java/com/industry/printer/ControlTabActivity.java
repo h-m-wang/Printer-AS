@@ -89,6 +89,7 @@ import com.industry.printer.pccommand.PCCommandManager;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.MessageGroupsortDialog;
+import com.industry.printer.ui.CustomerDialog.MsgListOfGroupDialog;
 import com.industry.printer.ui.CustomerDialog.RemoteMsgPrompt;
 import com.industry.printer.ui.CustomerDialog.SubStepDialog;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
@@ -512,6 +513,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mContext = this.getActivity();
 		mSysconfig = SystemConfigFile.getInstance(mContext);
 		mDTransThread = DataTransferThread.getInstance(mContext);
+		mDTransThread.setOnInkChangeListener(this);
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_REOPEN_SERIAL);
 		filter.addAction(ACTION_CLOSE_SERIAL);
@@ -674,7 +676,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			@Override
 			public void onClick(View v) {
 				Debug.d(TAG, "Preview Clicked");
-				if(null == mDTransThread || !mDTransThread.isRunning()) return;
+				if(null == mDTransThread || !mDTransThread.isRunning()) {
+					return;
+				}
 				DataTask dt = mDTransThread.getCurData();
 				if(null == mPrePrintBitmap) {
                     Debug.d(TAG, "Enter Realtime Preview");
@@ -706,15 +710,33 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2021-7-26 追加实际打印内容预览图显示功能
 
 // H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
-		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
+// H.M.Wang 2025-11-10 增加一个为群组时长按显示群组选择对话窗的功能，作为通用功能，取消仅为UI_CUSTOMIZED0的限制
+//		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
 			mllPreview.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View view) {
-					((MainActivity)getActivity()).onPreviewLongClicked(mObjPath);
+					if(mObjPath.startsWith(Configs.GROUP_PREFIX)) {
+						MsgListOfGroupDialog dialog = new MsgListOfGroupDialog(mContext, mObjPath);
+						dialog.setListener(new MsgListOfGroupDialog.IMsgListDialogListener() {
+							@Override
+							public void onConfirmed(String path) {
+								((MainActivity)getActivity()).jump2Edit(path);
+							}
+
+							@Override
+							public void onCanceled() {
+
+							}
+						});
+						dialog.show();
+					} else {
+						((MainActivity) getActivity()).jump2Edit(mObjPath);
+					}
 					return false;
 				}
 			});
-		}
+//		}
+// End of H.M.Wang 2025-11-10 增加一个为群组时长按显示群组选择对话窗的功能，作为通用功能，取消仅为UI_CUSTOMIZED0的限制
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 
 		// mMsgPreview = (TextView) getView().findViewById(R.id.message_preview);
@@ -1238,36 +1260,36 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 				@Override
 				public void onLevelLow() {
-					ExtGpio.writeGpio('h', 7, 1);
+//					ExtGpio.writeGpio('h', 7, 1);
 					mBtnStart.post(new Runnable() {
 						@Override
 						public void run() {
 							ToastUtil.show(mContext, R.string.strLevelLow);
 						}
 					});
-					playAlarm();
+					playAlarm(true);
 				}
 
 				@Override
 				public void onSolventLow() {
-					ExtGpio.writeGpio('h', 7, 1);
+//					ExtGpio.writeGpio('h', 7, 1);
 					mBtnStart.post(new Runnable() {
 						@Override
 						public void run() {
 							ToastUtil.show(mContext, R.string.strSolventLow);
 						}
 					});
-					playAlarm();
+					playAlarm(true);
 				}
 
 				@Override
 				public void onLevelHigh() {
-					ExtGpio.writeGpio('h', 7, 0);
+//					ExtGpio.writeGpio('h', 7, 0);
 				}
 
 				@Override
 				public void onSolventHigh() {
-					ExtGpio.writeGpio('h', 7, 0);
+//					ExtGpio.writeGpio('h', 7, 0);
 				}
 
 // H.M.Wang 2023-10-26 0x80：低有效，常态高。IN-8=0时，喷码机在等待打印状态下清洗一次
@@ -2277,18 +2299,18 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码
 					Debug.d(TAG, "--->Smartcard check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
-					playAlarm();
+					playAlarm(true);
 					break;
 				case RFIDManager.MSG_RFID_CHECK_FAIL:
 					Debug.d(TAG, "--->Rfid check UUID fail");
 					handleError(R.string.str_toast_ink_error, pcMsg);
-					playAlarm();
+					playAlarm(true);
 					break;
 // H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 				case RFIDManager.MSG_RFID_CHECK_FAIL_INK_CHANGED:
 					Debug.d(TAG, "--->Print check UUID fail. Ink Changed!!!");
 					handleError(R.string.str_toast_ink_error_ink_changed, pcMsg);
-					playAlarm();
+					playAlarm(true);
 					break;
 // End of  H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
 // H.M.Wang 2022-1-13 追加获取RFID写3次失败后的通知
@@ -2622,7 +2644,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				case MESSAGE_RFID_LOW:
 					Debug.e(TAG, "--->low: play error");
 // H.M.Wang 2020-11-27 追加当墨量小于5%的时候，出声报警
-					mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+					playAlarm(false);
+//					mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
 // End of H.M.Wang 2020-11-27 追加当墨量小于5%的时候，出声报警
 					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 5000);
 					break;
@@ -2635,7 +2658,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					Debug.e(TAG, "--->MESSAGE_RFID_ALARM");
 					mFlagAlarming = true;
 					// GPIO版本的img时，PH7是错误指示灯，SPI版本的img的时候，PI8是错误指示灯。但是apk仍然调用PH7，在img里面根据img的版本进行PH7或者PI8的调整
-					playAlarm();
+					playAlarm(true);
 					break;
 				case MESSAGE_RECOVERY_PRINT:
 					SharedPreferences preference = mContext.getSharedPreferences(SettingsTabActivity.PREFERENCE_NAME, Context.MODE_PRIVATE);
@@ -2659,7 +2682,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
 						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
-						playAlarm();
+						playAlarm(true);
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
@@ -2670,7 +2693,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case MSG_ALARM_CNT_EDGE:
 					ToastUtil.show(mContext, (String.format(mContext.getResources().getString(R.string.strCounterIndex), msg.arg1) + " " + mContext.getResources().getString(R.string.strCounterClear)));
-					playAlarm();
+					playAlarm(true);
 					break;
 // End of H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
 				default:
@@ -2680,20 +2703,20 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	};
 
 	private volatile boolean mIsAlarming = false;
-	private void playAlarm() {
+	private void playAlarm(final boolean isError) {
 		if(!mIsAlarming) {
 			ThreadPoolManager.mControlThread.execute(new Runnable() {
 				@Override
 				public void run() {
 					mIsAlarming = true;
-					ExtGpio.writeGpio('h', 7, 1);
+					if(isError) ExtGpio.writeGpio('h', 7, 1);
 					ExtGpio.playClick();
 					try{Thread.sleep(50);}catch(Exception e){};
 					ExtGpio.playClick();
 					try{Thread.sleep(50);}catch(Exception e){};
 					ExtGpio.playClick();
 					try{Thread.sleep(50);}catch(Exception e){};
-					ExtGpio.writeGpio('h', 7, 0);
+					if(isError) ExtGpio.writeGpio('h', 7, 0);
 					mIsAlarming = false;
 				}
 			});
@@ -3725,7 +3748,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
 //		mHandler.sendEmptyMessageDelayed(MESSAGE_PRINT_STOP, 1000);
 // End of H.M.Wang 2024-2-28 恢复打印完成后停止打印的功能，但是延时1s停止
-		playAlarm();
+		playAlarm(true);
 // End of H.M.Wang 2022-4-8 当QR_R.csv文件全部打印完成时，取消停止打印，因为取消太快的话，打印内容可能被切掉，改为报警
 
 		getActivity().runOnUiThread(new Runnable() {

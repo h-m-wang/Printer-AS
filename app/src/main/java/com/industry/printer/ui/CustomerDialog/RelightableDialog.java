@@ -16,7 +16,7 @@ import com.industry.printer.Utils.PlatformInfo;
 public class RelightableDialog extends Dialog {
     private static final String TAG = RelightableDialog.class.getSimpleName();
 
-    private Context mContext;
+    protected Context mContext;
     private boolean mScreensaveMode;
 
     public static final int ENTER_LOWLIGHT_MODE = 5;

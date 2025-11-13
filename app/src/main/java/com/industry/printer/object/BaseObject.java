@@ -333,7 +333,7 @@ public class BaseObject{
 ////		}
 // H.M.Wang 2020-9-2 调用setFont函数，使得每次mFont的变化，都会产生重新计算宽度
 //		mFont = verifyFont();
-		setFont(verifyFont());
+		this.setFont(verifyFont());
 // End of H.M.Wang 2020-9-2 调用setFont函数，使得每次mFont的变化，都会产生重新计算宽度
 		Debug.d(TAG,"--->draw font = " + mFont +"  h: " + mHeight);
 		try {

@@ -48,7 +48,7 @@ public class RealtimeSecond extends BaseObject {
         t.set(System.currentTimeMillis());
 
         if(!mContent.equals(BaseObject.intToFormatString(t.second, 2))) {
-            Debug.d(TAG, "Minute changed.");
+            Debug.d(TAG, "Second changed.");
         }
 
         return !mContent.equals(BaseObject.intToFormatString(t.second, 2));

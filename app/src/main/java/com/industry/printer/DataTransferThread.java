@@ -470,7 +470,7 @@ public class DataTransferThread {
 	 * @param context
 	 */
 	public void clean(final Context context) {
-		SystemConfigFile config = SystemConfigFile.getInstance(mContext);
+		final SystemConfigFile config = SystemConfigFile.getInstance(mContext);
 		final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 		final PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
 
@@ -560,7 +560,17 @@ public class DataTransferThread {
 //				char[] buffer = task.preparePurgeBuffer(purgeFile, true);
 				char[] buffer = task.preparePurgeBuffer(purgeFile, true, false);
 // End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
-
+				int heads = PrinterNozzle.getInstance(headIndex).mHeads * config.getHeadFactor();
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+					buffer = new char[544*1024];
+					Arrays.fill(buffer, (char)0xFFFF);
+					heads++;		// 在P的基础上加上B
+				}
+				int dots = 544*1024*16;
+				float threshold = 1.0f * Configs.DOTS_PER_PRINT / dots;
+				float count = threshold;
+				Debug.d(TAG, "Clean: buffer.length = " + buffer.length + ", dots = " + dots + ", Threshold = " + threshold + ", heads = " + heads);
+				IInkDevice scm = InkManagerFactory.inkManager(mContext);
 // H.M.Wang 2022-1-4 取消PURGE2的清洗，只留PURGE1，间隔还是10s，重复30次
 				FpgaGpioOperation.clean();
 				FpgaGpioOperation.updateSettings(context, task, FpgaGpioOperation.SETTING_TYPE_PURGE2);
@@ -568,6 +578,21 @@ public class DataTransferThread {
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
+					if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+						count -= 1.0f;
+						while (count <= 0.0f) {
+							count += threshold;
+							for(int i=0; i<heads; i++) {
+								for(int k=0; k<10; k++) {
+									if(scm instanceof Hp22mmSCManager) {
+										scm.downLocal(i);
+									}
+//									mInkListener.onInkLevelDown(i);
+//									try{Thread.sleep(5);}catch(Exception e){}
+								}
+							}
+						}
+					}
 				}
 				FpgaGpioOperation.init();
 
@@ -590,6 +615,22 @@ public class DataTransferThread {
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
+							if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+								count -= 1.0f;
+								while (count <= 0.0f) {
+									count += threshold;
+									for(int i=0; i<heads; i++) {
+										for(int k=0; k<10; k++) {
+											if(scm instanceof Hp22mmSCManager) {
+												scm.downLocal(i);
+											}
+//											mInkListener.onInkLevelDown(i);Hp22mmSCManager
+//											try{Thread.sleep(5);}catch(Exception e){}
+										}
+									}
+									Debug.d(TAG, "Downlocal");
+								}
+							}
 						}
 					} catch(InterruptedException e) {
 						e.printStackTrace();
@@ -2220,8 +2261,8 @@ private void setSerialProtocol9DTs(final String data) {
 		for (int i = 0; i < mcountdown.length; i++) {
 // H.M.Wang 2025-3-29 将mcountdown的初值从设为0改为threshold，同时根据上次打印的剩余次数占比来调整本次打印的剩余次数
 //			mcountdown[i] = 0;
-			float remainRatio = (mThresHolds[i] == 0 ? 1.0f : mcountdown[i]  / mThresHolds[i]);
-			mThresHolds[i] = 0;
+			float remainRatio = (mThresHolds[i] == 0f ? 1.0f : mcountdown[i]  / mThresHolds[i]);
+			mThresHolds[i] = 0f;
 			mcountdown[i] = (mDataTask == null ? 0 : getInkThreshold(i) * remainRatio);
 // End of H.M.Wang 2025-3-29 将mcountdown的初值从设为0改为threshold，同时根据上次打印的剩余次数占比来调整本次打印的剩余次数
 		}
@@ -2246,7 +2287,7 @@ private void setSerialProtocol9DTs(final String data) {
 		for (int i = 0; i < mcountdown.length; i++) {
 // H.M.Wang 2025-3-29 根据上次打印的剩余次数占比来调整本次打印的剩余次数
 //			mcountdown[i] = getInkThreshold(i);
-			float remainRatio = (mThresHolds[i] == 0 ? 1.0f : mcountdown[i]  / mThresHolds[i]);
+			float remainRatio = (mThresHolds[i] == 0f ? 1.0f : mcountdown[i]  / mThresHolds[i]);
 			mcountdown[i] = (mDataTask == null ? 0 : getInkThreshold(i) * remainRatio);
 // End od H.M.Wang 2025-3-29 根据上次打印的剩余次数占比来调整本次打印的剩余次数
 			//Debug.d(TAG, "--->initCount countdown[" + i + "] = " + mcountdown[i]);
@@ -2489,7 +2530,7 @@ private void setSerialProtocol9DTs(final String data) {
 					} else {
 						bold = 1.0f * config.getParam(SystemConfigFile.INDEX_PRINT_DENSITY)/300;
 						if(scm instanceof Hp22mmSCManager) {
-							bold = (int)bold;			// H.M.Wang 2025-11-3 hp22mm的情况下，忽略调150， 450， 750等选项，只保留300，600，900，1200的选择
+							bold = (int)Math.max(1.0f, bold);			// H.M.Wang 2025-11-3 hp22mm的情况下，忽略调150， 450， 750等选项，只保留300，600，900，1200的选择
 						}
 					}
 				} else {

@@ -592,6 +592,7 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 		mMsgTask = new MessageTask(mContext, mObjName);
 		mMsgManager.fill(mMsgTask);
 		mMsgManager.setSelect(1);
+		onShowInfo();
 	}
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 

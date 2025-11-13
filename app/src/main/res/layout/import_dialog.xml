@@ -158,15 +158,14 @@
 		android:layout_height="wrap_content">
 		<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 		<TextView
+			android:id="@+id/output_msg"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true"
 			android:layout_marginTop="10dp"
 			android:padding="5dp"
-			android:textColor="@color/blue"
-			android:text="@string/strImportUG"
-			android:visibility="invisible"
-			android:textSize="40sp"/>
+			android:textColor="@color/black"
+			android:textSize="18sp"/>
 		<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->
 		<!-- H.M.Wang 2023-9-4 追加一个输出log到U盘的按键 -->
 		<TextView

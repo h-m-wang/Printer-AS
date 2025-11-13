@@ -90,6 +90,11 @@ public class FpgaGpioOperation {
 // H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
     public static final int FPGA_CMD_GET_BAG_STATUS = 0x17;
 // End of H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
+// H.M.Wang 2025-11-10 临时增加开始生成打印区开始和结束通知
+    public static final int FPGA_CMD_CREATE_BUF_START = 0x18;
+    public static final int FPGA_CMD_CREATE_BUF_END = 0x19;
+// End of H.M.Wang 2025-11-10 临时增加开始生成打印区开始和结束通知
+
 // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
     public static final int DPI_VERSION_NONE  = 0;
     public static final int DPI_VERSION_150   = 1;
@@ -1159,4 +1164,20 @@ public class FpgaGpioOperation {
         return 0;
     }
 // End of H.M.Wang 2024-10-14 追加一个PHO-ENC Test的开始命令和读取测试结果的命令
+// H.M.Wang 2025-11-10 临时增加开始生成打印区开始和结束通知
+    public static int createBufStart() {
+        int fd = open();
+        if (fd > 0) {
+            return ioctl(fd, FPGA_CMD_CREATE_BUF_START, 0);
+        }
+        return 0;
+    }
+    public static int createBufEnd() {
+        int fd = open();
+        if (fd > 0) {
+            return ioctl(fd, FPGA_CMD_CREATE_BUF_END, 0);
+        }
+        return 0;
+    }
+// End of H.M.Wang 2025-11-10 临时增加开始生成打印区开始和结束通知
 }

@@ -690,12 +690,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	}
 
 // H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
-	public void onPreviewLongClicked(String objPath) {
-		if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
-			onEditTitleChanged(objPath);
+	public void jump2Edit(String objName) {
+			onEditTitleChanged(objName);
 			mRadioEdit.setChecked(true);
-			mEditSmallTab.openObjectDirectly(objPath);
-		}
+			mEditSmallTab.openObjectDirectly(objName);
 	}
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
 
