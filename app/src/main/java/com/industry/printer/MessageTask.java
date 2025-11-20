@@ -1069,6 +1069,7 @@ public class MessageTask {
 //			width = (int)(width > o.getXEnd() ? width : o.getXEnd());
 		}
 
+		if(width <= 0) return;
 		Bitmap bmp = Bitmap.createBitmap(width , Configs.gDots, Configs.BITMAP_PRE_CONFIG);
 		Debug.d(TAG, "drawPreviewBmp width="+width+", height="+Configs.gDots);
 		Canvas can = new Canvas(bmp);

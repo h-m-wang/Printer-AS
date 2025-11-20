@@ -99,6 +99,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 					int scrollToPosition = find(mDispIndex, mCurrentMsg);
 					mMessageList.setSelection(scrollToPosition);
 					mFileAdapter.setSelected(scrollToPosition);
+					if(scrollToPosition < mDispIndex.size() && mDispIndex.get(scrollToPosition) < mTotalContents.length) mTitles.add(mTotalContents[mDispIndex.get(scrollToPosition)]);
 					hideLoading();
 					break;
 				default:

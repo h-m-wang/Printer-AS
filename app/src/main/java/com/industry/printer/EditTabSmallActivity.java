@@ -1,6 +1,7 @@
 package com.industry.printer;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.FileUtil;
+import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.object.BarcodeObject;
 import com.industry.printer.object.BaseObject;
@@ -698,6 +700,28 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 					}
 // End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
             		// mMsgTask = new MessageTask(mContext, mObjName);
+// H.M.Wang 2025-11-19 当信息不包含任何变量，或者任何变量的宽度为0时报错返回
+					ArrayList<BaseObject> objs = mMsgTask.getObjects();
+					if(objs == null || objs.size() == 0) {		// 信息内不包含变量
+						ToastUtil.show(mContext, R.string.toast_content_empty);
+						dismissProgressDialog();
+						break;
+					}
+					int width = 0;
+					for(BaseObject o:objs) {
+						if(!(o instanceof MessageObject) && o.getXEnd() == 0) {		// 变量中不包含内容，宽度为0
+							width = 0;
+							Debug.d(TAG, "Size = 0");
+							break;
+						}
+						width = (int)(o.getXEnd());
+					}
+					if(width == 0) {
+						ToastUtil.show(mContext, R.string.toast_content_empty);
+						dismissProgressDialog();
+						break;
+					}
+// End of H.M.Wang 2025-11-19 当信息不包含任何变量，或者任何变量的宽度为0时报错返回
             		mMsgTask.setName(mObjName);
             		mMsgTask.createTaskFolderIfNeed();
             		((MainActivity)mContext).onEditTitleChanged(mObjName);
@@ -708,6 +732,10 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
             		OnPropertyChanged(false);
             		Debug.d(TAG, "--->save success");
             		// if save & print operation
+// H.M.Wang 2025-11-14 修改为保存信息后，如果该信息正在被打印，则及时更新打印内容
+                    DataTransferThread dtThread = DataTransferThread.getInstance(mContext);
+                    if(null != dtThread) dtThread.onDataSaved(mObjName);
+// End of H.M.Wang 2025-11-14 修改为保存信息后，如果该信息正在被打印，则及时更新打印内容
                     if (saveAndPrint) {
                         ((MainActivity) getActivity()).onSaveAndPrint(mObjName);
                     }

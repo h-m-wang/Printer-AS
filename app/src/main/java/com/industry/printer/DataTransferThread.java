@@ -238,7 +238,20 @@ public class DataTransferThread {
 		char[] buffer = getLanBuffer(index());
 		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);
 	}
-	
+
+// H.M.Wang 2025-11-14 修改为保存信息后，如果该信息正在被打印，则及时更新打印内容
+    public void onDataSaved(String objName) {
+		if(isRunning()) {
+			for(DataTask task : mDataTask) {
+				if(task.mTask.getName().equals(objName)) {
+					task.prepareBackgroudBuffer();
+					mNeedUpdate = true;
+				}
+			}
+		}
+	}
+// End of H.M.Wang 2025-11-14 修改为保存信息后，如果该信息正在被打印，则及时更新打印内容
+
 	boolean needRestore = false;
 // H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
 	public boolean isPurging = false;
@@ -3775,7 +3788,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 				}
 //				if(System.currentTimeMillis() - startMillis > 10) Debug.d(TAG, "Process time: " + (System.currentTimeMillis() - startMillis) + " from: " + writable);
 
-				try { Thread.sleep(3); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
+				try { Thread.sleep(2); } catch (InterruptedException e) {Debug.e(TAG, e.getMessage());}
 
 				//Debug.d(TAG, "===>kernel buffer empty, fill it");
 				//TO-DO list 下面需要把打印数据下发

@@ -812,6 +812,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 // End of H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+		mRemainCount = new int[mInkValues.length];
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+
 // H.M.Wang 2024-5-28 增加气压显示控件
 		try {
 			mPresArea = (LinearLayout) getView().findViewById(R.id.pressure_area);
@@ -1481,6 +1485,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+	private int[] mRemainCount;
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	private void refreshInk() {
 		Debug.d(TAG,  "[" + PlatformInfo.getDispVersionCode() + "-" + BuildConfig.VERSION_CODE + "]");
@@ -1540,7 +1548,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			String down = "";
 			if (mDTransThread != null) {
 				Debug.d(TAG, "--->refreshCount: " + i + "-" + count + " [" + mDTransThread.getKeptInkThreshold(i) + "-" + mDTransThread.getCount(i) + "]");
-				down = "" + (int)(count * mDTransThread.getKeptInkThreshold(i) + mDTransThread.getCount(i));
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+				if(mRemainCount[i] == 0) {
+					mRemainCount[i] = (int) (count * mDTransThread.getKeptInkThreshold(i) + mDTransThread.getCount(i));
+				}
+//				down = "" + (int) (count * mDTransThread.getKeptInkThreshold(i) + mDTransThread.getCount(i));
+				down = "" + mRemainCount[i];
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 			}
 
 			String level = "";
@@ -2441,6 +2455,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 					Debug.d(TAG, "--->finish ThreadId=" + Thread.currentThread().getId());
 					handlerSuccess(R.string.str_print_startok, pcMsg);
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+					for(int i=0; i<mRemainCount.length; i++) mRemainCount[i] = 0;
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 					break;
 				case MESSAGE_PRINT_STOP:
 // 2021-1-11 取消停止打印时重新下发参数
@@ -4775,6 +4792,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	         }catch (IOException e) {  
 //	             e.printStackTrace();  
 //	         }
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+			for(int i=0; i<mRemainCount.length; i++) if(mRemainCount[i] > 0) mRemainCount[i]--;
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 		}
 		public void onPrinted0000(int index) {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
