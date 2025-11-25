@@ -748,6 +748,11 @@
 	<string name="str_m9_test_m9">M9</string>
 	<string name="str_m9_test_makro">MAKRO</string>
 	<string name="str_m9_test_m7bag">M7 BAG</string>
+<!-- H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+	<string name="str_ink_modle_error">Ink model error</string>
+	<string name="str_cleaner_purging">Cleaner purging</string>
+	<string name="str_cleaner_done">Cleaning done, shutdown</string>
+<!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
 
 <!--	<string name="str_clear">واضح</string>
 

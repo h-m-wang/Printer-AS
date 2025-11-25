@@ -73,7 +73,25 @@ public class RFIDDevice implements RfidCallback{
 	/*墨水量上下限*/
 	public static final int INK_LEVEL_MAX = 100000;
 	public static final int INK_LEVEL_MIN = 0;
-	
+
+// H.M.Wang 2025-11-21 增加以下下功能
+/*
+	启用第六个参数是没有用的，作为墨水类型  INK_ID。  现在默认值是0
+	1.  =0 ，不做任何处理
+	2.  =1，  识别为清洁液。
+	3. =x ,  模式类型编号
+
+	APK修改：
+	1. APK中加入墨水识别号 ink_ID。   标准为0.  有编译选择。
+	2. 开始打印的时候， 比较本APK ink_ID 和锁  ink_ID ,是否相同，  不同就报错“墨水类型不匹配/Ink  model error"
+	3. 如果锁 Ink_ID 是1，  认为是清洁液，   按打印，  弹出窗，   "正在使用清洁液清洗系统/ Cleaner  purging",  10分钟后停止打印。
+*/
+	public final static int INDEX_INK_ID = 7;
+	public final static int INK_ID_NONE = 0;
+	public final static int INK_ID_CLEANER = 1;
+	public final static int PRESET_INK_ID = INK_ID_NONE;
+// End of H.M.Wang 2025-11-21 增加以下功能
+
 	/**
 	 * UUID
 	 */

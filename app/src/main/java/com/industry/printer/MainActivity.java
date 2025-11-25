@@ -1385,7 +1385,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 		
 		mProgressDialog = LoadingDialog.show(this, R.string.strCopying);
-		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR, "print.bin", Configs.LOG_1, Configs.LOG_2)
+// H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
+//		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR, "print.bin", Configs.LOG_1, Configs.LOG_2)
+		Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR, "print.bin", Configs.LOG_1, Configs.LOG_2, Configs.FPGA_KO_LOG)
+// End of H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
 		.flatMap(new Func1<String, Observable<Map<String, String>>>() {
 
 			@Override
@@ -1416,6 +1419,11 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					src.put("source", Configs.LOG_2);
 					src.put("dest", usbs.get(0) + "/log2.txt");
 // End of H.M.Wang 2020-2-19 修改导出错误
+// H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
+				} else if (Configs.FPGA_KO_LOG.equals(arg0)) {
+					src.put("source", Configs.FPGA_KO_LOG);
+					src.put("dest", usbs.get(0) + "/fpga-sunxi-ko.log");
+// End of H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
 				} else {
 					FileUtil.deleteFolder(usbs.get(0) + "/print.bin");
 					src.put("source", "/mnt/sdcard/print.bin");

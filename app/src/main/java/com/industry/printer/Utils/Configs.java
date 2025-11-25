@@ -343,7 +343,11 @@ UserGroup 使用方法说明
 	 */
 	public static final String LOG_1 = CONFIG_PATH_FLASH + "/log1.txt";
 	public static final String LOG_2 = CONFIG_PATH_FLASH + "/log2.txt";
-	
+
+// H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
+	public static final String FPGA_KO_LOG = CONFIG_PATH_FLASH + "/fpga-sunxi-ko.log";
+// End of H.M.Wang 2025-11-24 增加导出fpga-sunxi.ko吐出的打印记录
+
 	
 	/**
 	 * TLK path on flash

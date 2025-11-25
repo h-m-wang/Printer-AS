@@ -1538,6 +1538,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 
 		boolean valid = !(null != mDTransThread && mDTransThread.isRunning());
+// H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
+		int invalidCount = 0;
+// End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
 // H.M.Wang 2024-7-10 当打印头的数量多余6时，由于数据区mInkValues的最大容量为6，所以会越界，出现异常，暂时取消7，8头的信息显示
 //		for(int i=0; i<heads; i++) {
 		for(int i=0; i<Math.min(heads, mInkValues.length); i++) {
@@ -1590,6 +1593,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //				} else {
 //					mInkValues[i].setText(String.valueOf(i + 1) + "--");
 //				}
+
+// H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
+				invalidCount++;
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
+					mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
+					if(invalidCount < 2) continue;
+				}
+// End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
+
 				mBtnStart.setClickable(false);
 				mTvStart.setTextColor(Color.GRAY);
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
@@ -1627,9 +1639,16 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
 				}
 			} else {
-				valid = false;
 				mInkValues[i].setBackgroundColor(Color.RED);
 				mInkValues[i].setText(level);
+// H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
+				invalidCount++;
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
+					mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
+					if(invalidCount < 2) continue;
+				}
+// End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
+				valid = false;
 				if(mInkLow)	{
 					mHandler.removeMessages(MESSAGE_RFID_LOW);
 					mInkLow = false;
@@ -1663,6 +1682,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2024-6-15 当ink值正常时，取消报警
 			}*/
 		}
+
 		if(valid) {
 			mBtnStart.setClickable(true);
 			mTvStart.setTextColor(Color.BLACK);
@@ -2341,6 +2361,37 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //						handleError(R.string.str_print_printing, pcMsg);
 						break;
 					}
+// H.M.Wang 2025-11-21 比较本APK ink_ID 和锁  ink_ID ,是否相同，  不同就报错“墨水类型不匹配/Ink  model error"
+					heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
+					for(int i=0; i<heads; i++) {
+						if(mInkManager.getFeature(i, RFIDDevice.INDEX_INK_ID) == RFIDDevice.INK_ID_CLEANER) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+							builder.setMessage(R.string.str_cleaner_purging);
+							final AlertDialog d = builder.create();
+							d.setCancelable(false);           // 按返回键不消失
+							d.setCanceledOnTouchOutside(false); // 点击外部不消失
+							d.show();
+							mBtnStart.setClickable(
+							mHandler.postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									d.setMessage(mContext.getResources().getString(R.string.str_cleaner_done));
+									mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+								}
+							}, 20L * 60 * 1000));
+						} else if(mInkManager.getFeature(i, RFIDDevice.INDEX_INK_ID) != RFIDDevice.PRESET_INK_ID) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+							builder.setTitle(R.string.strNotice)
+									.setMessage(R.string.str_ink_modle_error)
+									.setPositiveButton(R.string.str_quit, null);
+							final AlertDialog d = builder.create();
+							d.show();
+							mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+							dismissProgressDialog();
+							return;
+						}
+					}
+// End of H.M.Wang 2025-11-21 比较本APK ink_ID 和锁  ink_ID ,是否相同，  不同就报错“墨水类型不匹配/Ink  model error"
 
 // H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 					if (Configs.PROHIBIT_BIG_DOTS_FUNCTION) {
