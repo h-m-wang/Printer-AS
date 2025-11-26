@@ -2262,7 +2262,7 @@ private void setSerialProtocol9DTs(final String data) {
 		if (mcountdown == null) {
 // H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 //			mcountdown = new int[8];
-			mcountdown = new float[8];
+			mcountdown = new float[] {0f,0f,0f,0f,0f,0f,0f,0f};
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 // H.M.Wang 2019-10-10 取消内部初始化0的操作，这样不全面
 //		} else {
@@ -2374,7 +2374,7 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
 // H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 //	private int[] mThresHolds = new int[8];
-	private float[] mThresHolds = new float[8];
+	private float[] mThresHolds = new float[] {0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f};
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。阈值计数器修改为浮点型，以便于管理调整后的阈值（必须为浮点型，否则不准确）
 // H.M.Wang 2021-1-25 追加Threshold的保存，当处于快速打印（根据FIFO判断）时，不再计算，直接返回值，但这个对群组无效，因此只能适应快速打印
 
@@ -2409,7 +2409,7 @@ private void setSerialProtocol9DTs(final String data) {
 				if(head == 1) {
 					mThresHolds[head] = mThresHolds[0];
 				} else if(head == 2) {
-					mThresHolds[head] = mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]);
+					mThresHolds[head] = ((mThresHolds[0] + mThresHolds[1]) == 0 ? 0f : mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]));
 				} else {
 					mThresHolds[head] = 65536 * 8;
 				}
@@ -2423,7 +2423,7 @@ private void setSerialProtocol9DTs(final String data) {
 				if(head == 1) {
 					mThresHolds[head] = mThresHolds[0];
 				} else if(head == 2) {
-					mThresHolds[head] = mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]);
+					mThresHolds[head] = ((mThresHolds[0] + mThresHolds[1]) == 0 ? 0f : mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]));
 				} else {
 					mThresHolds[head] = 65536 * 8;
 				}

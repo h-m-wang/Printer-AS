@@ -9,6 +9,7 @@ import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import com.industry.printer.BuildConfig;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.DataTransferThread;
@@ -351,9 +352,16 @@ public class PCCommandHandler {
             IInkDevice inkManager = InkManagerFactory.inkManager(mContext);
 // H.M.Wang 2023-8-14 使用喷头7的墨水值位置传递墨位状态，喷头8的墨水值位置传递溶剂状态。低为T，高为F。当使用协议6以外时为F
 //            for(int i=0; i<8; i++) {
-            for(int i=0; i<6; i++) {
+// H.M.Wang 2025-11-26 让出RFID6的位置，保存UserID
+//            for(int i=0; i<6; i++) {
+//            sb.append("|" + (int)(inkManager.getLocalInk(i)));
+//        }
+            for(int i=0; i<5; i++) {
                 sb.append("|" + (int)(inkManager.getLocalInk(i)));
             }
+            sb.append("|" + (BuildConfig.VERSION_CODE % 1000));
+// End of H.M.Wang 2025-11-26 让出RFID6的位置，保存UserID
+
             sb.append("|" + (mControlTabActivity.getLevelLow() ? "T" : "F"));
             sb.append("|" + (mControlTabActivity.getSolventLow() ? "T" : "F"));
 // End of H.M.Wang 2023-8-14 使用喷头7的墨水值位置传递墨位状态，喷头8的墨水值位置传递溶剂状态。低为T，高为F。当使用协议6以外时为F
