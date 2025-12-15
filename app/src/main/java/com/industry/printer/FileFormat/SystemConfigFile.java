@@ -1963,6 +1963,23 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_32X2;
 				break;
 // End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X3:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_32X3;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X4:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_32X4;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X5:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_32X5;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X6:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_32X6;
+				break;
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_32X7:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_32X7;
+				break;
+// End of H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 			case PrinterNozzle.MessageType.NOZZLE_INDEX_64_DOT:
 				nozzle = PrinterNozzle.MESSAGE_TYPE_64_DOT;
 				break;

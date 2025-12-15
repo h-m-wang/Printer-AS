@@ -19,7 +19,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
     public List<N_RFIDDevice> mRfidDevices;
     private Handler mCallback;
     private Timer mTimer;
-    private int mCurrent;
+    private boolean mInitialized;
 
     public static int TOTAL_RFID_DEVICES = 8;
 
@@ -57,7 +57,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
 
         mRfidDevices = new ArrayList<N_RFIDDevice>();
         mTimer = new Timer();
-        mCurrent = -1;
+        mInitialized = false;
     }
 
     /** implement IInkDevice*/
@@ -96,8 +96,6 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 2000L);
-
                 while(true) {
                     synchronized (N_RFIDManager.this) {
                         for(int i=0; i<mRfidDevices.size(); i++) {
@@ -110,6 +108,8 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                                 }
                             }
                         }
+                        if(!mInitialized) mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 100L);
+                        mInitialized = true;
                     }
                     try { Thread.sleep(1000); } catch(InterruptedException e){};
                 }
@@ -152,7 +152,6 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
     @Override
     public void switchRfid(final int i) {
         ExtGpio.rfidSwitch(i);
-        mCurrent = i;
         try { Thread.sleep(100); } catch (Exception e) {}
     }
 

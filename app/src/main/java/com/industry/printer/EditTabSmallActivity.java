@@ -371,29 +371,47 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 						break;
 					case MESSAGE_TYPE_25_4:
 					case MESSAGE_TYPE_1_INCH_DUAL:
+// H.M.Wang 2022-5-27 追加32x2头类型
+					case MESSAGE_TYPE_32X2:
+// End of H.M.Wang 2022-5-27 追加32x2头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_2);
 						break;
 					case MESSAGE_TYPE_38_1:
 					// H.M.Wang 追加下列一行
 					case MESSAGE_TYPE_1_INCH_TRIPLE:
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+					case MESSAGE_TYPE_32X3:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_3);
 						break;
 					case MESSAGE_TYPE_50_8:
 					// H.M.Wang 追加下列一行
 					case MESSAGE_TYPE_1_INCH_FOUR:
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+					case MESSAGE_TYPE_32X4:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_4);
 						break;
 // H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 					case MESSAGE_TYPE_127X5:
 					case MESSAGE_TYPE_1INCHX5:
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+					case MESSAGE_TYPE_32X5:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_5);
 						break;
 					case MESSAGE_TYPE_127X6:
 					case MESSAGE_TYPE_1INCHX6:
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+					case MESSAGE_TYPE_32X6:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_6);
 						break;
 					case MESSAGE_TYPE_127X7:
 					case MESSAGE_TYPE_1INCHX7:
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+					case MESSAGE_TYPE_32X7:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 						mEditLayout.setBackgroundResource(R.drawable.background_7);
 						break;
 					case MESSAGE_TYPE_127X8:
@@ -409,9 +427,6 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 // H.M.Wang 2020-8-18 追加32SN打印头
 					case MESSAGE_TYPE_32SN:
 // End of H.M.Wang 2020-8-18 追加32SN打印头
-// H.M.Wang 2022-5-27 追加32x2头类型
-					case MESSAGE_TYPE_32X2:
-// End of H.M.Wang 2022-5-27 追加32x2头类型
 					// H.M.Wang 追加下列一行
 					case MESSAGE_TYPE_64_DOT:
 // H.M.Wang 2020-8-26 追加64SN打印头

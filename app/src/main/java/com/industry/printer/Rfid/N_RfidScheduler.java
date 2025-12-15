@@ -370,10 +370,11 @@ public class N_RfidScheduler implements IInkScheduler {
             Debug.d(TAG, "Bag Status[" + cardIdx + "]: " + Integer.toHexString(inkStatus));
             mLevelReading = false;
 
+            int tmpStatus;
             if((inkStatus & (0x00000001 << cardIdx)) != 0x00000000) {	// 相应的墨位被置为1，标识缺墨
-                inkStatus = 1;
+                tmpStatus = 1;
             } else {
-                inkStatus = 0;
+                tmpStatus = 0;
             }
 
             long rt = System.currentTimeMillis();
@@ -381,11 +382,12 @@ public class N_RfidScheduler implements IInkScheduler {
                 if(rt - mBaginkLevels[cardIdx].mLevelRecords.get(mBaginkLevels[cardIdx].mLevelRecords.size()-1).RecordedTime < 5000L) return;
             }
 
-            mBaginkLevels[cardIdx].mLevelRecords.add(new N_RfidScheduler.Level_Record(rt, inkStatus));
+            mBaginkLevels[cardIdx].mLevelRecords.add(new N_RfidScheduler.Level_Record(rt, tmpStatus));
             if(mBaginkLevels[cardIdx].mLevelRecords.size() > PROC_LEVEL_NUMS) {
                 mBaginkLevels[cardIdx].mLevelRecords.remove(0);
             }
 
+            tmpStatus = 0;
             if(mBaginkLevels[cardIdx].mLevelRecords.size() >= PROC_LEVEL_NUMS) {
                 float totalLevel = 0L;
                 int count = 0;
@@ -393,11 +395,11 @@ public class N_RfidScheduler implements IInkScheduler {
                     totalLevel += 0.9f * mBaginkLevels[cardIdx].mLevelRecords.get(i).Level;
                     count++;
                 }
-                inkStatus = (int)(totalLevel / count / 0.7f);
+                tmpStatus = (int)(totalLevel / count / 0.7f);
             }
 
             // Launch add ink if the level less than ADD_INK_THRESHOLD.
-            if(inkStatus == 1) {
+            if(tmpStatus == 1) {
                 // If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
                 if(mBaginkLevels[cardIdx].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
                     ExtGpio.playClick();
@@ -461,31 +463,38 @@ public class N_RfidScheduler implements IInkScheduler {
 
         if(mBaginkImg) {
             Debug.d(TAG, "Initiate BAGINK variables.");
-            mBaginkLevels = new BaginkLevel[LEVELS.length];
-            for(int i=0; i<LEVELS.length; i++) {
-                mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
-                if(LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[i].sLevelChipType) {
-                    mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 346) * 10000;
-                } else {
-                    mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0,6) + 256) * 100000;
+            if(PlatformInfo.isA133Product()) {
+                mBaginkLevels = new BaginkLevel[heads];
+                for(int i=0; i<mBaginkLevels.length; i++) {
+                    mBaginkLevels[i] = new BaginkLevel(0);
                 }
-                if(!PlatformInfo.isA133Product()) {
-                    if(mBaginkLevels[i].mAddInkThreshold < mBaginkLevels[i].mInkMin || mBaginkLevels[i].mAddInkThreshold > mBaginkLevels[i].mInkMax) {
-                        mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low/high").sendToTarget();
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try{
-                                    ExtGpio.playClick();
-                                    Thread.sleep(50);
-                                    ExtGpio.playClick();
-                                    Thread.sleep(50);
-                                    ExtGpio.playClick();
-                                } catch (Exception e) {
-                                    Debug.e(TAG, e.getMessage());
+            } else {
+                mBaginkLevels = new BaginkLevel[heads];
+                for (int i = 0; i < mBaginkLevels.length; i++) {
+                    mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
+                    if (LEVEL_CHIP_TYPE_MCPH21 == mBaginkLevels[i].sLevelChipType) {
+                        mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0, 6) + 346) * 10000;
+                    } else {
+                        mBaginkLevels[i].mAddInkThreshold = (mManager.getFeature(0, 6) + 256) * 100000;
+                    }
+                    if (!PlatformInfo.isA133Product()) {
+                        if (mBaginkLevels[i].mAddInkThreshold < mBaginkLevels[i].mInkMin || mBaginkLevels[i].mAddInkThreshold > mBaginkLevels[i].mInkMax) {
+                            mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Valve threshold too low/high").sendToTarget();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        ExtGpio.playClick();
+                                        Thread.sleep(50);
+                                        ExtGpio.playClick();
+                                        Thread.sleep(50);
+                                        ExtGpio.playClick();
+                                    } catch (Exception e) {
+                                        Debug.e(TAG, e.getMessage());
+                                    }
                                 }
-                            }
-                        }).start();
+                            }).start();
+                        }
                     }
                 }
             }

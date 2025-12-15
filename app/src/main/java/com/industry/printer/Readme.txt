@@ -1,3 +1,83 @@
+2025-12-15 251215-187101001
+==================
+增加32x3 - 32x7打印头的功能，修改期（2025-12-9 - 2025-12-12，按此日期查找修改位置）
+
+2025-12-11 251211-187001001
+==================
+修改N_RFIDManager中，init函数的
+    由直接2秒后通报完成（主要目的是更新显示）
+    mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 2000L);
+    改为在无限循环中，首次初始化一圈后，通报
+    if(!mInitialized) mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 100L);
+
+2025-12-11 251211-186901001
+2025-12-11 251211-186801001
+2025-12-11 251211-186701001
+==================
+修改ControlTabActivity类中的refreshCount函数中启动refreshInk的时间计算方法，由原来开机后计时，修改为本Activity启动后计时。并且控制在启动10s内如果不显示失败信息
+
+2025-12-10 251210-186601001
+==================
+时间再由75000ms提高到90000ms
+
+2025-12-10 251210-186501001
+==================
+时间再由60000ms提高到75000ms
+
+2025-12-10 251210-186401001
+==================
+将ControlTabActivity类中的refreshCount函数中启动refreshInk的时间由50000ms提高到60000ms，否则M2-004上面会出现提前假报警，这个时间尺度需要尝试，不行再提高
+
+2025-12-10 251210-186301001
+==================
+1. RTCDevice类中，当为A133平台时，M2的RTC芯片在I2C-3上，M9在I2C-2上，以前均访问了I2C-2，做了修正（日期2025-12-9）
+2. RfidScheduler和N_RfidScheduler统计开始加墨条件的判断条件做了完善，以前会出现开始打印就加墨的情况，原因是复用tmpStatus前，没有将其置0
+3. 增加32x3 - 32x7完成一半（日期2025-12-9）
+
+2025-12-5 251205-186201001
+==================
+增加墨袋机的开阀测试页面（TestBaginkValveOnOff.java）。位于测试页面的Printer with Bag子菜单的下属菜单的最后一下，名称为Bagink Valve On/Off Test
+
+2025-12-5 251205-186101001
+==================
+修改RfidScheduler和N_RfidScheduler的init函数，mBaginkLevels按实际参数传递的头数生成
+
+2025-12-5 251205-186001001
+==================
+修改RfidScheduler和N_RfidScheduler的readLevelValueA133函数中的bug，混用了inkStatus和tmpStatus。导致统计数字错误
+
+2025-12-4 251204-185901001
+==================
+1. 取消 251203-185801001 的临时修改
+2. 追加16通道开阀控制
+
+2025-12-3 251203-185801001
+==================
+临时打开 1.0.169 关闭的pd_get_temperature调用
+
+2025-12-3 251203-185701001
+==================
+hp22mm.c中的monitorThread。暂时取消守护线程中，发生错误，状态为OFF或者单纯的PRESENT时主动尝试上电
+
+2025-11-27 251127-185600001
+==================
+1. 取消1855版本的修改2
+2. 取消updateSettings当中下发设置后设置的11的操作
+        DataTransferThread dt = DataTransferThread.mInstance;
+        if(null != dt && dt.isRunning()) {
+            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
+        } else {
+//            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);（取消这里）
+        }
+
+2025-11-27 251127-185500001
+==================
+1. (实际在1854版本后就将这个修改push上去了，没有发布版本，这里追记)PCCommandHandler类中的handle函数，CMD_READ_COUNTER的回送报文中，让出RFID6的位置，保存UserID
+2. 在FpgaGpioOperation类中的init函数中，清除PHOENC的操作前，加上将状态修改为Setting的操作，避免多余的PH14和PH15发生
+            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);（追加这个操作）
+            startPhoEncTest();
+            stopPhoEncTest();
+
 2025-11-26 251126-185401001
 ==================
 DataTransferThread类中，修改为

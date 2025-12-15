@@ -646,7 +646,13 @@ public class TLKFileParser  extends TlkFile{
 // H.M.Wang 2021-8-16 追加96DN头
 			case MESSAGE_TYPE_96DN:
 // End of H.M.Wang 2021-8-16 追加96DN头
-
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+			case MESSAGE_TYPE_32X3:
+			case MESSAGE_TYPE_32X4:
+			case MESSAGE_TYPE_32X5:
+			case MESSAGE_TYPE_32X6:
+			case MESSAGE_TYPE_32X7:
+// End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 				dots = 152f;
 				mProportion = dots/Configs.gDots;
 				break;

@@ -109,6 +109,20 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 	};
 // End of H.M.Wang 2021-8-16 追加96DN头
+// H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
+	public static final String[] mDot_32X4_Size = {
+			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128"
+	};
+	public static final String[] mDot_32X5_Size = {
+			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160"
+	};
+	public static final String[] mDot_32X6_Size = {
+			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192"
+	};
+	public static final String[] mDot_32X7_Size = {
+			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192", "224"
+	};
+// End of H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 
 	public MessageObject(Context context,  float x) {
 		super(context, BaseObject.OBJECT_TYPE_MsgName, x);
@@ -299,7 +313,9 @@ public class MessageObject extends BaseObject {
 //            int ratio = (mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT) ? 1 : 2 ;
 // H.M.Wang 2020-7-23 追加32DN打印头
 //			int ratio = (mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT || mPNozzle == PrinterNozzle.MESSAGE_TYPE_64_DOT) ? 1 : 2 ;
-			int ratio =(mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+			int ratio = (mPNozzle.isBigdotType()
+/*			int ratio =(mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 						mPNozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 						mPNozzle == PrinterNozzle.MESSAGE_TYPE_32DN ||
 // H.M.Wang 2020-8-17 追加32SN打印头
@@ -328,6 +344,8 @@ public class MessageObject extends BaseObject {
 // H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
 						mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN
 // End of H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
+*/
+// End of H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
 			) ? 1 : 2 ;
 
 //			str += mId+"^";
@@ -493,12 +511,37 @@ public class MessageObject extends BaseObject {
                 size[i] = mDot_64_Size[i];
             }
 // H.M.Wang 2021-9-20 (H.M.Wang 2021-8-16 追加96DN头) 追加遗漏内容
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+//		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X4) {
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 			size = new String[mDot_96_Size.length];
 			for (int i = 0; i < size.length; i++) {
 				size[i] = mDot_96_Size[i];
 			}
 // End of H.M.Wang 2021-9-20 (H.M.Wang 2021-8-16 追加96DN头) 追加遗漏内容
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X4) {
+			size = new String[mDot_32X4_Size.length];
+			for (int i = 0; i < size.length; i++) {
+				size[i] = mDot_32X4_Size[i];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X5) {
+			size = new String[mDot_32X5_Size.length];
+			for (int i = 0; i < size.length; i++) {
+				size[i] = mDot_32X5_Size[i];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X6) {
+			size = new String[mDot_32X6_Size.length];
+			for (int i = 0; i < size.length; i++) {
+				size[i] = mDot_32X6_Size[i];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X7) {
+			size = new String[mDot_32X7_Size.length];
+			for (int i = 0; i < size.length; i++) {
+				size[i] = mDot_32X7_Size[i];
+			}
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 			// H.M.Wang 追加下列8行
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE) {
 			for (int i = 0; i < size.length; i++) {
@@ -798,7 +841,10 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2020-4-15 追加"5x5"字体
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+//		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X3) {
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 			if (size.equalsIgnoreCase(mDot_96_Size[0])) {
 				h = 12.7f * 5 / 96;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -845,6 +891,140 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 96 / 96;
 			}
 // End of H.M.Wang 2022-8-19 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X4) {
+			if (size.equalsIgnoreCase(mDot_32X4_Size[0])) {
+				h = 12.7f * 5 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[1]) || size.equalsIgnoreCase(mDot_32X4_Size[2])) {
+				h = 12.7f * 8 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[3]) || size.equalsIgnoreCase(mDot_32X4_Size[4])) {
+				h = 12.7f * 10 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[5])) {
+				h = 12.7f * 12 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[6])) {
+				h = 12.7f * 14 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[7]) || size.equalsIgnoreCase(mDot_32X4_Size[8]) || size.equalsIgnoreCase(mDot_32X4_Size[9]) || size.equalsIgnoreCase(mDot_32X4_Size[10]) || size.equalsIgnoreCase(mDot_32X4_Size[11]) || size.equalsIgnoreCase(mDot_32X4_Size[12])) {
+				h = 12.7f * 16 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[13])) {
+				h = 12.7f * 19 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[14])) {
+				h = 12.7f * 21 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[15])) {
+				h = 12.7f * 24 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[16])) {
+				h = 12.7f * 28 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[17])) {
+				h = 12.7f * 32 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[18])) {
+				h = 12.7f * 64 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[19])) {
+				h = 12.7f * 96 / 128;
+			} else {
+				h = 12.7f * 128 / 128;
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X5) {
+			if (size.equalsIgnoreCase(mDot_32X5_Size[0])) {
+				h = 12.7f * 5 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[1]) || size.equalsIgnoreCase(mDot_32X5_Size[2])) {
+				h = 12.7f * 8 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[3]) || size.equalsIgnoreCase(mDot_32X5_Size[4])) {
+				h = 12.7f * 10 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[5])) {
+				h = 12.7f * 12 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[6])) {
+				h = 12.7f * 14 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[7]) || size.equalsIgnoreCase(mDot_32X5_Size[8]) || size.equalsIgnoreCase(mDot_32X5_Size[9]) || size.equalsIgnoreCase(mDot_32X5_Size[10]) || size.equalsIgnoreCase(mDot_32X5_Size[11]) || size.equalsIgnoreCase(mDot_32X5_Size[12])) {
+				h = 12.7f * 16 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[13])) {
+				h = 12.7f * 19 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[14])) {
+				h = 12.7f * 21 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[15])) {
+				h = 12.7f * 24 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[16])) {
+				h = 12.7f * 28 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[17])) {
+				h = 12.7f * 32 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[18])) {
+				h = 12.7f * 64 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[19])) {
+				h = 12.7f * 96 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[20])) {
+				h = 12.7f * 128 / 160;
+			} else {
+				h = 12.7f * 160 / 160;
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X6) {
+			if (size.equalsIgnoreCase(mDot_32X6_Size[0])) {
+				h = 12.7f * 5 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[1]) || size.equalsIgnoreCase(mDot_32X6_Size[2])) {
+				h = 12.7f * 8 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[3]) || size.equalsIgnoreCase(mDot_32X6_Size[4])) {
+				h = 12.7f * 10 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[5])) {
+				h = 12.7f * 12 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[6])) {
+				h = 12.7f * 14 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[7]) || size.equalsIgnoreCase(mDot_32X6_Size[8]) || size.equalsIgnoreCase(mDot_32X6_Size[9]) || size.equalsIgnoreCase(mDot_32X6_Size[10]) || size.equalsIgnoreCase(mDot_32X6_Size[11]) || size.equalsIgnoreCase(mDot_32X6_Size[12])) {
+				h = 12.7f * 16 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[13])) {
+				h = 12.7f * 19 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[14])) {
+				h = 12.7f * 21 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[15])) {
+				h = 12.7f * 24 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[16])) {
+				h = 12.7f * 28 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[17])) {
+				h = 12.7f * 32 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[18])) {
+				h = 12.7f * 64 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[19])) {
+				h = 12.7f * 96 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[20])) {
+				h = 12.7f * 128 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[21])) {
+				h = 12.7f * 160 / 192;
+			} else {
+				h = 12.7f * 192 / 192;
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X7) {
+			if (size.equalsIgnoreCase(mDot_32X7_Size[0])) {
+				h = 12.7f * 5 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[1]) || size.equalsIgnoreCase(mDot_32X7_Size[2])) {
+				h = 12.7f * 8 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[3]) || size.equalsIgnoreCase(mDot_32X7_Size[4])) {
+				h = 12.7f * 10 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[5])) {
+				h = 12.7f * 12 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[6])) {
+				h = 12.7f * 14 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[7]) || size.equalsIgnoreCase(mDot_32X7_Size[8]) || size.equalsIgnoreCase(mDot_32X7_Size[9]) || size.equalsIgnoreCase(mDot_32X7_Size[10]) || size.equalsIgnoreCase(mDot_32X7_Size[11]) || size.equalsIgnoreCase(mDot_32X7_Size[12])) {
+				h = 12.7f * 16 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[13])) {
+				h = 12.7f * 19 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[14])) {
+				h = 12.7f * 21 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[15])) {
+				h = 12.7f * 24 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[16])) {
+				h = 12.7f * 28 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[17])) {
+				h = 12.7f * 32 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[18])) {
+				h = 12.7f * 64 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[19])) {
+				h = 12.7f * 96 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[20])) {
+				h = 12.7f * 128 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[21])) {
+				h = 12.7f * 160 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[22])) {
+				h = 12.7f * 192 / 224;
+			} else {
+				h = 12.7f * 224 / 224;
+			}
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 		}
 		Debug.d(TAG, "--->h: " + h + ", type=" + mPNozzle.mType);
 		return h;
@@ -1102,7 +1282,10 @@ public class MessageObject extends BaseObject {
             }
 // End of H.M.Wang 2020-8-8 在每个判断高度得if语句里面，准确计算的数值后面都+1，目的是为了解决在保存时，由于四舍五入会导致数值偏差，再次读入时会发生错误。如：
 // H.M.Wang 2021-9-16 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+//		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X3) {
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 			if (size <= 152f * 5 / 96 + 1) {
 				return mDot_96_Size[0];
 			} else if (size <= 152f * 8 / 96 + 1) {
@@ -1134,6 +1317,152 @@ public class MessageObject extends BaseObject {
 				return mDot_96_Size[19];
 			}
 // End of H.M.Wang 2021-9-16 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
+// H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X4) {
+			if (size <= 152f * 5 / 128 + 1) {
+				return mDot_32X4_Size[0];
+			} else if (size <= 152f * 8 / 128 + 1) {
+				return mDot_32X4_Size[1];
+			} else if (size <= 152f * 10 / 128 + 1) {
+				return mDot_32X4_Size[3];
+			} else if (size <= 152f * 12 / 128 + 1) {
+				return mDot_32X4_Size[5];
+			} else if (size <= 152f * 14 / 128 + 1) {
+				return mDot_32X4_Size[6];
+			} else if (size <= 152f * 16 / 128 + 1) {
+				return mDot_32X4_Size[7];
+			} else if (size <= 152f * 19 / 128 + 1) {
+				return mDot_32X4_Size[13];
+			} else if (size <= 152f * 21 / 128 + 1) {
+//			} else if (size <= 152f * 21.1f / 64 + 1) {
+				return mDot_32X4_Size[14];
+			} else if (size <= 152f * 24 / 128 + 1) {
+				return mDot_32X4_Size[15];
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 128 + 1) {
+				return mDot_32X4_Size[16];
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 128 + 1) {
+				return mDot_32X4_Size[17];
+			} else if (size <= 152f * 64 / 128 + 1) {
+				return mDot_32X4_Size[18];
+			} else if (size <= 152f * 96 / 128 + 1) {
+				return mDot_32X4_Size[19];
+			} else {
+				return mDot_32X4_Size[20];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X5) {
+			if (size <= 152f * 5 / 160 + 1) {
+				return mDot_32X5_Size[0];
+			} else if (size <= 152f * 8 / 160 + 1) {
+				return mDot_32X5_Size[1];
+			} else if (size <= 152f * 10 / 160 + 1) {
+				return mDot_32X5_Size[3];
+			} else if (size <= 152f * 12 / 160 + 1) {
+				return mDot_32X5_Size[5];
+			} else if (size <= 152f * 14 / 160 + 1) {
+				return mDot_32X5_Size[6];
+			} else if (size <= 152f * 16 / 160 + 1) {
+				return mDot_32X5_Size[7];
+			} else if (size <= 152f * 19 / 160 + 1) {
+				return mDot_32X5_Size[13];
+			} else if (size <= 152f * 21 / 160 + 1) {
+//			} else if (size <= 152f * 21.1f / 64 + 1) {
+				return mDot_32X5_Size[14];
+			} else if (size <= 152f * 24 / 160 + 1) {
+				return mDot_32X5_Size[15];
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 160 + 1) {
+				return mDot_32X5_Size[16];
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 160 + 1) {
+				return mDot_32X5_Size[17];
+			} else if (size <= 152f * 64 / 160 + 1) {
+				return mDot_32X5_Size[18];
+			} else if (size <= 152f * 96 / 160 + 1) {
+				return mDot_32X5_Size[19];
+			} else if (size <= 152f * 128 / 160 + 1) {
+				return mDot_32X5_Size[20];
+			} else {
+				return mDot_32X5_Size[21];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X6) {
+			if (size <= 152f * 5 / 192 + 1) {
+				return mDot_32X6_Size[0];
+			} else if (size <= 152f * 8 / 192 + 1) {
+				return mDot_32X6_Size[1];
+			} else if (size <= 152f * 10 / 192 + 1) {
+				return mDot_32X6_Size[3];
+			} else if (size <= 152f * 12 / 192 + 1) {
+				return mDot_32X6_Size[5];
+			} else if (size <= 152f * 14 / 192 + 1) {
+				return mDot_32X6_Size[6];
+			} else if (size <= 152f * 16 / 192 + 1) {
+				return mDot_32X6_Size[7];
+			} else if (size <= 152f * 19 / 192 + 1) {
+				return mDot_32X6_Size[13];
+			} else if (size <= 152f * 21 / 192 + 1) {
+//			} else if (size <= 152f * 21.1f / 64 + 1) {
+				return mDot_32X6_Size[14];
+			} else if (size <= 152f * 24 / 192 + 1) {
+				return mDot_32X6_Size[15];
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 192 + 1) {
+				return mDot_32X6_Size[16];
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 192 + 1) {
+				return mDot_32X6_Size[17];
+			} else if (size <= 152f * 64 / 192 + 1) {
+				return mDot_32X6_Size[18];
+			} else if (size <= 152f * 96 / 192 + 1) {
+				return mDot_32X6_Size[19];
+			} else if (size <= 152f * 128 / 192 + 1) {
+				return mDot_32X6_Size[20];
+			} else if (size <= 152f * 160 / 192 + 1) {
+				return mDot_32X6_Size[21];
+			} else {
+				return mDot_32X6_Size[22];
+			}
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X7) {
+			if (size <= 152f * 5 / 224 + 1) {
+				return mDot_32X7_Size[0];
+			} else if (size <= 152f * 8 / 224 + 1) {
+				return mDot_32X7_Size[1];
+			} else if (size <= 152f * 10 / 224 + 1) {
+				return mDot_32X7_Size[3];
+			} else if (size <= 152f * 12 / 224 + 1) {
+				return mDot_32X7_Size[5];
+			} else if (size <= 152f * 14 / 224 + 1) {
+				return mDot_32X7_Size[6];
+			} else if (size <= 152f * 16 / 224 + 1) {
+				return mDot_32X7_Size[7];
+			} else if (size <= 152f * 19 / 224 + 1) {
+				return mDot_32X7_Size[13];
+			} else if (size <= 152f * 21 / 224 + 1) {
+//			} else if (size <= 152f * 21.1f / 64 + 1) {
+				return mDot_32X7_Size[14];
+			} else if (size <= 152f * 24 / 224 + 1) {
+				return mDot_32X7_Size[15];
+// H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 28 / 224 + 1) {
+				return mDot_32X7_Size[16];
+// End of H.M.Wang 2024-8-27 追加28号字体
+			} else if (size <= 152f * 32 / 224 + 1) {
+				return mDot_32X7_Size[17];
+			} else if (size <= 152f * 64 / 224 + 1) {
+				return mDot_32X7_Size[18];
+			} else if (size <= 152f * 96 / 224 + 1) {
+				return mDot_32X7_Size[19];
+			} else if (size <= 152f * 128 / 224 + 1) {
+				return mDot_32X7_Size[20];
+			} else if (size <= 152f * 160 / 224 + 1) {
+				return mDot_32X7_Size[21];
+			} else if (size <= 152f * 192 / 224 + 1) {
+				return mDot_32X7_Size[22];
+			} else {
+				return mDot_32X7_Size[23];
+			}
+// End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
         } else {
 // End of H.M.Wang 2020-4-15 追加"5x5"字体
 // H.M.Wang 2019-9-29 去除ScaleH，否则会由于其采用了308/304而使得计算结果被放大

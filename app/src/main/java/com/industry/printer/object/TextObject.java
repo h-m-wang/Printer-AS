@@ -41,7 +41,9 @@ public class TextObject extends BaseObject {
 	public void setLetterSpacing(String val) {
 		PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();	// TLKFileParser在调用这个函数的时候，mTask还没有设置，因此不能从mTask中获取Nozzle类型，本来mTask中的类型也是跟随SystemConfigFile中的，所以就直接从这里获取比较稳妥
 		Debug.d(TAG, "type = " + type);
-		if (type == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+		if(type.isBigdotType()) {
+/*		if (type == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			type == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 			type == PrinterNozzle.MESSAGE_TYPE_32DN ||
 			type == PrinterNozzle.MESSAGE_TYPE_32SN ||
@@ -67,6 +69,8 @@ public class TextObject extends BaseObject {
 			type == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // End of H.M.Wang 2020-7-23 追加32DN打印头
+*/
+// End of H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
 			try {
 				mLetterSpacing = Integer.valueOf(val);
 			} catch(NumberFormatException e){}

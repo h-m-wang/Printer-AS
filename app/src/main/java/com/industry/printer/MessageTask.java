@@ -333,7 +333,9 @@ public class MessageTask {
 				// H.M.Wang 修改下列两行
 //				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT) {
 //				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT || getNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+				if(getNozzle().isBigdotType()) {
+/*				if (getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 // H.M.Wang 2020-7-23 追加32DN打印头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_32DN ||
@@ -363,7 +365,8 @@ public class MessageTask {
 // H.M.Wang 2021-8-16 追加96DN头
 					getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
-
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 					for (int i = 0; i < mDots.length; i++) {
 						mDots[i] = mDots[i] * 200;
 					}
@@ -823,7 +826,9 @@ public class MessageTask {
 //		if (msgObj.getResolution() ||
 		if(
 // End of H.M.Wang 2021-4-9 将msgObj.getResolution()移到大字机分支，因为如果在这里，将导致300dpi的时候不会插空
-			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT) ||
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+			getNozzle().isBigdotType()) {
+/*			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT) ||
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT) ||
 // H.M.Wang 2020-7-23 追加32DN打印头
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_32DN) ||
@@ -853,7 +858,8 @@ public class MessageTask {
 // H.M.Wang 2021-8-16 追加96DN头
 			(getNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN)) {
 // End of H.M.Wang 2021-8-16 追加96DN头
-
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 			// H.M.Wang 追加一个是否移位的参数
 			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth, bHeight, false), getNozzle().mHeads, false);
 		} else {

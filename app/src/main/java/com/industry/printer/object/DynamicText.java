@@ -189,7 +189,9 @@ public class DynamicText extends BaseObject {
 
         PrinterNozzle head = mTask.getNozzle();
 
-        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+        if(head.isBigdotType()) {
+/*        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
             head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
             head == PrinterNozzle.MESSAGE_TYPE_32DN ||
             head == PrinterNozzle.MESSAGE_TYPE_32SN ||
@@ -214,6 +216,8 @@ public class DynamicText extends BaseObject {
 // End of H.M.Wang 2023-7-29 追加48点头
             head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
             paint.setTextScaleX(1.0f);
         } else {
             paint.setTextScaleX(1.0f * drawWidth / charWidth);
@@ -278,7 +282,9 @@ public class DynamicText extends BaseObject {
 //		if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT) {
 // H.M.Wang 2020-7-23 追加32DN打印头
 //        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT || head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+        if(head.isBigdotType()) {
+/*        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
             head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
             head == PrinterNozzle.MESSAGE_TYPE_32DN ||
 // H.M.Wang 2020-8-17 追加32SN打印头
@@ -308,7 +314,8 @@ public class DynamicText extends BaseObject {
             head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // End of H.M.Wang 2020-7-23 追加32DN打印头
-
+*/
+// End of H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
             singleW = width;
         } else {
             singleW = Math.round(mWidth * scaleW/mContent.length());

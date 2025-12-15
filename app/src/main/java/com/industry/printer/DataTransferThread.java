@@ -265,7 +265,9 @@ public class DataTransferThread {
 		// H.M.Wang 修改下列两行
 //		final boolean dotHd = (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT);
 //		final boolean dotHd = (head == PrinterNozzle.MESSAGE_TYPE_16_DOT || head == PrinterNozzle.MESSAGE_TYPE_32_DOT || head == PrinterNozzle.MESSAGE_TYPE_64_DOT);
-		final boolean dotHd =
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+		final boolean dotHd = head.isBigdotType();
+/*		final boolean dotHd =
 				(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 				head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 // H.M.Wang 2020-7-23 追加32DN打印头
@@ -296,6 +298,8 @@ public class DataTransferThread {
 // H.M.Wang 2021-8-16 追加96DN头
 				head == PrinterNozzle.MESSAGE_TYPE_96DN);
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 
 // H.M.Wang 2021-4-13 取消3-5修改内容，恢复原来的停止和打开操作
 // H.M.Wang 2021-3-5 取消purge之前停止打印，purge之后恢复打印的做法。因为停止打印可能会产生计数器跳数
@@ -490,7 +494,9 @@ public class DataTransferThread {
 		// H.M.Wang 修改下列两行
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT) {
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT && head != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+		if(!head.isBigdotType()) {
+/*		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 			head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
 // H.M.Wang 2020-7-23 追加32DN打印头
 			head != PrinterNozzle.MESSAGE_TYPE_32DN &&
@@ -524,6 +530,8 @@ public class DataTransferThread {
 // H.M.Wang 2021-8-16 追加96DN头
 			head != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 			return;
 		}
 
@@ -2497,7 +2505,9 @@ private void setSerialProtocol9DTs(final String data) {
 			final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 			final PrinterNozzle hType = PrinterNozzle.getInstance(headIndex);
 //			if (hType != PrinterNozzle.MESSAGE_TYPE_16_DOT && hType != PrinterNozzle.MESSAGE_TYPE_32_DOT && hType != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-			if (hType != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+			if(!hType.isBigdotType()) {
+/*			if (hType != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 				hType != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
 // H.M.Wang 2020-7-23 追加32DN打印头
 				hType != PrinterNozzle.MESSAGE_TYPE_32DN &&
@@ -2527,6 +2537,8 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2021-8-16 追加96DN头
 				hType != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 // H.M.Wang 2021-7-9 300dpi的时候生成的打印图案会比原来宽一倍，参数设置为300dpi的时候，返回值会差一倍，最如下修正
 //				bold = config.getParam(SystemConfigFile.INDEX_PRINT_DENSITY)/150;
 				if(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300) {

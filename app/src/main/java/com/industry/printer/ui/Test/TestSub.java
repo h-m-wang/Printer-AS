@@ -56,6 +56,9 @@ public class TestSub implements ITestOperation {
 // H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
     private static final int ID_MCP_H21XXXX_READING_TEST = 11;
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+// H.M.Wang 2025-12-5 增加Bagink的开阀试验
+    private static final int ID_BAGINK_VALVE_TEST = 12;
+// End of H.M.Wang 2025-12-5 增加Bagink的开阀试验
 
 // H.M.Wang 2024-5-24 临时追加一个ADS1115芯片的读数功能
     private AlertDialog mRecvedLevelPromptDlg = null;
@@ -86,6 +89,9 @@ public class TestSub implements ITestOperation {
 // H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
                     new TestItem("MCP-H21xxxx Reading Test", ID_MCP_H21XXXX_READING_TEST),
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+// H.M.Wang 2025-12-5 增加Bagink的开阀试验
+                    new TestItem("Bagink Valve On/Off Test", ID_BAGINK_VALVE_TEST),
+// End of H.M.Wang 2025-12-5 增加Bagink的开阀试验
             },
             {       // Smartcard
                     new TestItem("Level ID Test", ID_LEVEL_ID_TEST),
@@ -279,6 +285,11 @@ public class TestSub implements ITestOperation {
                         mIFTestOp = null;
                         break;
 // End of H.M.Wang 2024-7-4 追加一个MCP-H21系列芯片测量压力的读写功能
+// H.M.Wang 2025-12-5 增加Bagink的开阀试验
+                    case ID_BAGINK_VALVE_TEST:
+                        mIFTestOp = new TestBaginkValveOnOff(mContext, mSubTestIndex);
+                        break;
+// End of H.M.Wang 2025-12-5 增加Bagink的开阀试验
                     default:
                         mIFTestOp = null;
                         break;

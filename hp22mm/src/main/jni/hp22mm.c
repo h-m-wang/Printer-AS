@@ -28,7 +28,13 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.172"
+#define VERSION_CODE                            "1.0.174"
+// 1.0.174 2025-12-04
+// 取消 1.0.173 的临时修改
+// 1.0.173 2025-12-03
+// 临时打开 1.0.169 关闭的pd_get_temperature调用
+// 1.0.172 2025-12-03
+// 暂时取消守护线程中，发生错误，状态为OFF或者单纯的PRESENT时主动尝试上电
 // 1.0.171 2025-10-22
 // MAX_BAG_INK_VOLUME_MAXIMUM修改为 49600 (15500 * 4)的80%
 // 1.0.170 2025-9-8
@@ -463,7 +469,7 @@ void *monitorThread(void *arg) {
                 // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
                 pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status), penIndexs[i]);
                 if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+// H.M.Wang 2025-12-3 暂时进制重新上电                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
                 }
 
                 uint8_t v;

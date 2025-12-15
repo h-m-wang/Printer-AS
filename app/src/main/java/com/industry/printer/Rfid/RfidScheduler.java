@@ -329,7 +329,7 @@ public class RfidScheduler implements IInkScheduler {
 					ExtGpio.playClick();
 					mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (cardIdx+1) + " might failed in adding ink").sendToTarget();
 				} else if(mBaginkLevels[cardIdx].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[cardIdx].mInkAddedRecord.get(mBaginkLevels[cardIdx].mInkAddedRecord.size()-1) > 1000L*60*2) {		// 上次加墨后等待3秒再允许再次开阀
-					Debug.d(TAG, "Add Ink");
+					Debug.d(TAG, "Add Ink: " + cardIdx);
 					ExtGpio.setValve(cardIdx, 1);
 
 					try{Thread.sleep(100);ExtGpio.setValve(cardIdx, 0);}catch(Exception e){
@@ -372,10 +372,11 @@ public class RfidScheduler implements IInkScheduler {
 			mLevelReading = false;
 
 			for(int i=0; i<mBaginkLevels.length; i++) {
+				int tmpStatus;
 				if((inkStatus & (0x00000001 << i)) != 0x00000000) {	// 相应的墨位被置为1，标识缺墨
-					inkStatus = 1;
+					tmpStatus = 1;
 				} else {
-					inkStatus = 0;
+					tmpStatus = 0;
 				}
 
 				long rt = System.currentTimeMillis();
@@ -383,11 +384,12 @@ public class RfidScheduler implements IInkScheduler {
 					if(rt - mBaginkLevels[i].mLevelRecords.get(mBaginkLevels[i].mLevelRecords.size()-1).RecordedTime < 5000L) return;
 				}
 
-				mBaginkLevels[i].mLevelRecords.add(new Level_Record(rt, inkStatus));
+				mBaginkLevels[i].mLevelRecords.add(new Level_Record(rt, tmpStatus));
 				if(mBaginkLevels[i].mLevelRecords.size() > PROC_LEVEL_NUMS) {
 					mBaginkLevels[i].mLevelRecords.remove(0);
 				}
 
+				tmpStatus = 0;
 				if(mBaginkLevels[i].mLevelRecords.size() >= PROC_LEVEL_NUMS) {
 					float totalLevel = 0L;
 					int count = 0;
@@ -395,11 +397,11 @@ public class RfidScheduler implements IInkScheduler {
 						totalLevel += 0.9f * mBaginkLevels[i].mLevelRecords.get(j).Level;
 						count++;
 					}
-					inkStatus = (int)(totalLevel / count / 0.7f);
+					tmpStatus = (int)(totalLevel / count / 0.7f);
 				}
 
 				// Launch add ink if the level less than ADD_INK_THRESHOLD.
-				if(inkStatus == 1) {
+				if(tmpStatus == 1) {
 					// If still less than ADD_INK_THRESHOLD after ADD_INK_TRY_LIMITS times of add-ink action, alarm.
 					if(mBaginkLevels[i].mInkAddedTimes >= ADD_INK_TRY_LIMITS) {
 						ExtGpio.playClick();
@@ -409,7 +411,7 @@ public class RfidScheduler implements IInkScheduler {
 						ExtGpio.playClick();
 						mCallbackHandler.obtainMessage(DataTransferThread.MESSAGE_LEVEL_ERROR, "Level " + (i+1) + " might failed in adding ink").sendToTarget();
 					} else if(mBaginkLevels[i].mInkAddedRecord.size() == 0 || System.currentTimeMillis() - mBaginkLevels[i].mInkAddedRecord.get(mBaginkLevels[i].mInkAddedRecord.size()-1) > 1000L*60*1) {		// 上次加墨后等待3秒再允许再次开阀
-						Debug.d(TAG, "Add Ink");
+						Debug.d(TAG, "Add Ink: " + i);
 						ExtGpio.setValve(i, 1);
 
 						try{Thread.sleep(1000);ExtGpio.setValve(i, 0);}catch(Exception e){
@@ -467,12 +469,12 @@ public class RfidScheduler implements IInkScheduler {
 		if(mBaginkImg) {
 			Debug.d(TAG, "Initiate BAGINK variables.");
 			if(PlatformInfo.isA133Product()) {
-				mBaginkLevels = new BaginkLevel[LEVEL_NUM_A133];
+				mBaginkLevels = new BaginkLevel[heads];
 				for(int i=0; i<mBaginkLevels.length; i++) {
 					mBaginkLevels[i] = new BaginkLevel(0);
 				}
 			} else {
-				mBaginkLevels = new BaginkLevel[LEVELS.length];
+				mBaginkLevels = new BaginkLevel[heads];
 				for(int i=0; i<mBaginkLevels.length; i++) {
 					mBaginkLevels[i] = new BaginkLevel(LEVELS[i]);
 

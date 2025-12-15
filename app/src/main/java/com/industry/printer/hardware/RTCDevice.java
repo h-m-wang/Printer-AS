@@ -43,17 +43,30 @@ public class RTCDevice {
 // End of H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
 
 	public static RTCDevice mInstance = null;
-	
+
 	public static RTCDevice getInstance(Context context) {
 		if (mInstance == null) {
 			mInstance = new RTCDevice(context);
 		}
 		return mInstance;
 	}
-	
+
+// H.M.Wang 2025-12-9 区分M9和M2的RTC所在I2C组号
+	private int mI2CGroupID;
+// End of H.M.Wang 2025-12-9 区分M9和M2的RTC所在I2C组号
+
 	public RTCDevice(Context context) {
 // H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
-		if(PlatformInfo.isA133Product()) return;
+		if(PlatformInfo.isA133Product()) {
+// H.M.Wang 2025-12-9 区分M9和M2的RTC所在I2C组号，M2为I2C-3，M9为I2C-2
+			if(PlatformInfo.getImgUniqueCode().startsWith("FM2A") || PlatformInfo.getImgUniqueCode().startsWith("M204A")) {
+				mI2CGroupID = 3;
+			} else {
+				mI2CGroupID = 2;
+			}
+// End of H.M.Wang 2025-12-9 区分M9和M2的RTC所在I2C组号
+			return;
+		}
 // End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 
 		SystemFs.writeSysfs(I2C_DEVICE, "1,0x68");
@@ -119,7 +132,7 @@ public class RTCDevice {
 					(byte) ((count >> 24) & 0x0ff),
 					(byte) 0x00 };
 			data[4] = (byte) ((data[0] + data[1] + data[2] + data[3]) & 0x0ff);
-			SmartCard.writeRTC((byte)0x02, (byte)0x68, (byte)0x08, data, data.length);
+			SmartCard.writeRTC((byte)mI2CGroupID, (byte)0x68, (byte)0x08, data, data.length);
 		} else {
 // End of H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 			byte byte0 = (byte) (count & 0x0ff);
@@ -140,7 +153,7 @@ public class RTCDevice {
 	public int readCounter(Context context) {
 // H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 		if(PlatformInfo.isA133Product()) {
-			byte[] data = SmartCard.readRTC((byte)0x02, (byte)0x68, (byte)0x08, 5);
+			byte[] data = SmartCard.readRTC((byte)mI2CGroupID, (byte)0x68, (byte)0x08, 5);
 			if(null != data && data.length == 5) {
 				int count = (data[0] & 0x0ff) + (data[1] & 0x0ff) * 256 + (data[2] & 0x0ff) * 256 * 256 + (data[3] & 0x0ff) * 256 * 256 * 256;
 				byte checksum = (byte) ((data[0] + data[1] + data[2] + data[3]) & 0x0ff);
@@ -320,7 +333,7 @@ public class RTCDevice {
 // H.M.Wang 2024-11-5 借用SmartCard的I2C通道实现A133平台的RTC计数器读取（A20的时候是使用/sys/class/device_of_i2c通道实现的）
 		if(PlatformInfo.isA133Product()) {
 			try {
-				byte[] data = SmartCard.readRTC((byte)0x02, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), 4);
+				byte[] data = SmartCard.readRTC((byte)mI2CGroupID, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), 4);
 				if(data.length == 4) {
 					return (data[0] & 0x0ff) + (data[1] & 0x0ff) * 256 + (data[2] & 0x0ff) * 256 * 256 + (data[3] & 0x0ff) * 256 * 256 * 256;
 				}
@@ -370,7 +383,7 @@ public class RTCDevice {
 						(byte) ((count >> 16) & 0x0ff),
 						(byte) ((count >> 24) & 0x0ff)
 				};
-				SmartCard.writeRTC((byte)0x02, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), data,4);
+				SmartCard.writeRTC((byte)mI2CGroupID, (byte)0x68, (byte)Integer.parseInt(reg.substring(2), 16), data,4);
 			} catch(NumberFormatException e) {
 			} catch(Exception e) {
 			}

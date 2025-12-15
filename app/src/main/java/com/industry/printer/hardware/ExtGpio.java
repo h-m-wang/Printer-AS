@@ -45,6 +45,22 @@ public class ExtGpio {
 // H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
 	private static final int GPIO_GET_DRVVER = 0x15;
 // End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
+// H.M.Wang 2025-12-4 追加16通道开阀控制。为保证兼容性，跳过GPIO_GET_DRVVER = 0x15项
+	private static final int GPIO_SET_VALVE5 = 0x16;
+	private static final int GPIO_SET_VALVE6 = 0x17;
+	private static final int GPIO_SET_VALVE7 = 0x18;
+	private static final int GPIO_SET_VALVE8 = 0x19;
+	private static final int GPIO_SET_VALVE9 = 0x1A;
+	private static final int GPIO_SET_VALVE10 = 0x1B;
+	private static final int GPIO_SET_VALVE11 = 0x1C;
+	private static final int GPIO_SET_VALVE12 = 0x1D;
+	private static final int GPIO_SET_VALVE13 = 0x1E;
+	private static final int GPIO_SET_VALVE14 = 0x1F;
+	private static final int GPIO_SET_VALVE15 = 0x20;
+	private static final int GPIO_SET_VALVE16 = 0x21;
+	private static final int[] VALVES = {GPIO_SET_VALVE1, GPIO_SET_VALVE2, GPIO_SET_VALVE3, GPIO_SET_VALVE4, GPIO_SET_VALVE5, GPIO_SET_VALVE6, GPIO_SET_VALVE7, GPIO_SET_VALVE8,
+										 GPIO_SET_VALVE9, GPIO_SET_VALVE10, GPIO_SET_VALVE11, GPIO_SET_VALVE12, GPIO_SET_VALVE13, GPIO_SET_VALVE14, GPIO_SET_VALVE15, GPIO_SET_VALVE16};
+// End of H.M.Wang 2025-12-4 追加16通道开阀控制
 
 	public static final int FPGA_STATE_OUTPUT = 0x00;
 	public static final int FPGA_STATE_SETTING = 0x04;
@@ -186,7 +202,10 @@ public class ExtGpio {
 // H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
 	public static void setValve(int index, int arg) {
 		int fd = open();
-		FpgaGpioOperation.ioctl(fd, GPIO_SET_VALVE1 + index, arg);
+// H.M.Wang 2025-12-4 使用新的访问方法
+//		FpgaGpioOperation.ioctl(fd, GPIO_SET_VALVE1 + index, arg);
+		FpgaGpioOperation.ioctl(fd, VALVES[index], arg);
+// End of H.M.Wang 2025-12-4
 	}
 // End of H.M.Wang 2022-10-31 追加4个控制开关阀的命令，应用于BAGINK类型的img当中
 

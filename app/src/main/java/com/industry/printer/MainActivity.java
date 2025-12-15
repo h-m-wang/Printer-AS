@@ -177,10 +177,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	private TextView mDispTime = null;
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息更改为显示时间
 
-	static {
-		System.loadLibrary("Hardware_jni");
-	}
-	
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

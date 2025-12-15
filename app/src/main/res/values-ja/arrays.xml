@@ -172,7 +172,14 @@
         <!-- End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型 -->
         <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
         <item>16 Dot X4</item>
-        <!-- H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
+        <!-- End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型 -->
+        <!-- H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型 -->
+        <item>32x3</item>
+        <item>32x4</item>
+        <item>32x5</item>
+        <item>32x6</item>
+        <item>32x7</item>
+        <!-- End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型 -->
     </string-array>
 
     <string-array name="strFontArray">

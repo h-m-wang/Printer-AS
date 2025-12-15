@@ -472,9 +472,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private TextView mPresValue;
 // End of H.M.Wang 2024-5-28 增加气压显示控件
 
+	private long mActLauncedTime;		// 2025-12-11 用来保存Activity初次启动的时间
+
 	public ControlTabActivity() {
 		//mMsgTitle = (ExtendMessageTitleFragment)fragment;
 		mCounter = 0;
+		mActLauncedTime = System.currentTimeMillis();
 	}
 	
 	@Override
@@ -1492,6 +1495,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2023-1-17 修改主页面的显示逻辑，取消原来的锁值显示，将原来的锁值和剩余打印次数合并，显示在画面的左下角，并且同时显示最多6个头的锁值和剩余次数
 	private void refreshInk() {
 		Debug.d(TAG,  "[" + PlatformInfo.getDispVersionCode() + "-" + BuildConfig.VERSION_CODE + "]");
+
 // H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 		int skipNum = (FpgaGpioOperation.getDriverState() & 0x0FF);
 		if(skipNum > 0) {
@@ -1722,13 +1726,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private void refreshCount() {
 		Debug.d(TAG, "refreshCount = " + mCounter);
 		mCtrlTitle.setText(String.valueOf(mCounter));
+// H.M.Wang 2025-12-11 修改为Activity启动30s后才允许更新refreshInk内容，否则A133系统启动太慢，导致出现假警报
 // H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
-		if(SystemClock.uptimeMillis() > 50000 && System.currentTimeMillis() - inkDispInterval > 100) {
+//		if(SystemClock.uptimeMillis() > 90000 && System.currentTimeMillis() - inkDispInterval > 100) {
+		if(System.currentTimeMillis() - mActLauncedTime > 30000 && System.currentTimeMillis() - inkDispInterval > 100) {
 // End of H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
+// End of H.M.Wang 2025-12-11 修改为Activity启动30s后才允许更新refreshInk内容，否则A133系统启动太慢，导致出现假警报
 //Debug.d(TAG, "SystemClock.uptimeMillis() = " + SystemClock.uptimeMillis());
 			refreshInk();
 		}
 	}
+
 
 /*
 	private void refreshInk() {
@@ -2395,6 +2403,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 					if (Configs.PROHIBIT_BIG_DOTS_FUNCTION) {
+// H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
+						if(PrinterNozzle.getInstance(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE)).isBigdotType()) {
+/*
 // H.M.Wang 2023-12-21 禁止大字机功能的标识要甄别是否为大字机
 						PrinterNozzle head = PrinterNozzle.getInstance(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
 						if(head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
@@ -2427,6 +2438,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2021-8-16 追加96DN头
 							head == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2023-12-21 禁止大字机功能的标识要甄别是否为大字机
+*/
+// End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 							handleError(R.string.str_print_thread_create_err, pcMsg);
 							break;
 						}

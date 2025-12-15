@@ -363,7 +363,9 @@ public class FpgaGpioOperation {
         }
         char data[] = new char[Configs.gParams];
 // H.M.Wang 2021-12-31 在大字机的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
-        if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+        if(PrinterNozzle.getInstance(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE)).isBigdotType()) {
+/*        if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X2 ||
@@ -385,6 +387,8 @@ public class FpgaGpioOperation {
 // End of H.M.Wang 2023-7-29 追加48点头
 // End of H.M.Wang 2022-10-19 追加64SLANT头。
             config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
             config.setParam(2, 150);
         }
 // End of H.M.Wang 2021-12-31 在大字机的时候，将分辨率参数强制设为150，（其实我认为300dpi的img应该设为300，150dpi的img应该设为150）
@@ -436,7 +440,9 @@ public class FpgaGpioOperation {
                 data[15] = 16;
 // End of H.M.Wang 2021-10-20 E5,E6头的清洗加重值，从16改为128。2021-10-22 回复为16
             }
-            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+            if(PrinterNozzle.getInstance(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE)).isBigdotType()) {
+/*            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X2 ||
@@ -460,6 +466,8 @@ public class FpgaGpioOperation {
 // H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
 // H.M.Wang 2021-12-31 将data[15]原来强制设为8改为2（其实2是对应于300dpi的，150dpi应该是1
                 data[15] = 2;
 // End of H.M.Wang 2021-12-31 将data[15]原来强制设为8改为2（其实2是对应于300dpi的，150dpi应该是1
@@ -470,7 +478,9 @@ public class FpgaGpioOperation {
 // End of H.M.Wang 2021-4-1 当清洗时，将bold设为头数，以避免清洗变淡
 // H.M.Wang 2021-4-22 如果打印头的类型是打字机，则取消加重的设置。如果img为300dpi的话，强制设置为300dpi，如果img为150dpi的话，设置为150dpi
         } else {
-            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+            if(PrinterNozzle.getInstance(config.getParam(SystemConfigFile.INDEX_HEAD_TYPE)).isBigdotType()) {
+/*            if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
 // H.M.Wang 2022-5-27 追加32x2头类型
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X2 ||
@@ -494,6 +504,8 @@ public class FpgaGpioOperation {
 // H.M.Wang 2021-8-16 追加96DN头
                 config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
                 data[15] = (char) (Configs.GetDpiVersion() == DPI_VERSION_300 ? 2 : 1);
 // End of H.M.Wang 2021-4-22 如果打印头的类型是打字机，则取消加重的设置。如果img为300dpi的话，强制设置为300dpi，如果img为150dpi的话，设置为150dpi
             }
@@ -807,7 +819,7 @@ public class FpgaGpioOperation {
         if(null != dt && dt.isRunning()) {
             ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_OUTPUT);
         } else {
-            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
+// 2025-11-27 取消该设置，否则回启动PHOENC的PH14和PH15，导致会出现开始打印时打印两次的问题           ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_CLEAN);
         }
 // End of H.M.Wang 2023-7-15 这个下发， 打印中也会。打印中， 回打印，停止中， 回停止，
 // H.M.Wang 2024-3-25 将设置img的FIFO的大小移到下发参数的地方，以避免原来放在init函数中，则init函数必须在打印的最前端执行，这可能导致打印开始后，FPGA发出中断，但是驱动还没有接收到下发数据，而空跑，4FIFO就出现了第一次不打印的问题
@@ -865,6 +877,7 @@ public class FpgaGpioOperation {
 // H.M.Wang 2025-4-28 为A133平台专门设置一个讲状态从11改为10的操作，否则清理PhoEnc似乎无效，CB2没有这个问题
 //            if(PlatformInfo.isA133Product()) ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
 // End of H.M.Wang 2025-4-28 为A133平台专门设置一个讲状态从11改为10的操作，否则清理PhoEnc似乎无效，CB2没有这个问题
+//            ExtGpio.setFpgaState(ExtGpio.FPGA_STATE_SETTING);
             startPhoEncTest();
             stopPhoEncTest();
         }
@@ -1128,13 +1141,13 @@ public class FpgaGpioOperation {
                 if((B3 ^ B2 ^ B1) == B0) {
                     return (0x0000FFFF & (inkLevel >> 15));
                 } else {
-                    return -1;
+                    return 0;
                 }
             }
         } else {
             Debug.e(TAG, "Don't support FPGA_CMD_GET_BAG_STATUS");
         }
-        return -1;
+        return 0;
     }
 // End of H.M.Wang 2025-8-3 追加对于A133的墨袋机状态管理功能
 

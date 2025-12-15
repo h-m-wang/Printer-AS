@@ -64,6 +64,10 @@ public class WelcomeActivity extends Activity {
 	public static final boolean AVOID_CROSS_UPGRADE = true;			// 禁止交叉升级
 //	public static final boolean AVOID_CROSS_UPGRADE = false;		// 自由升级
 
+	static {
+		System.loadLibrary("Hardware_jni");
+	}
+
 	public Handler mHander = new Handler() {
 
 		public void handleMessage(Message msg) {

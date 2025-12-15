@@ -329,7 +329,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					maxColNumPerUnit = sysconf.getParam(SystemConfigFile.INDEX_REPEAT_PRINT) * 12;    // 1mm有12列
 				}
 			} else if (
-					sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+					PrinterNozzle.getInstance(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE)).isBigdotType()) {
+/*					sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_16_DOT ||
 							sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32_DOT ||
 							sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32DN ||
 							sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32SN ||
@@ -353,6 +355,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2021-8-16 追加96DN头
 							sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
 // H.M.Wang 2021-8-20 由于复制操作移到了倾斜操作之前，所以不需要这个SLANT的判断了
 //				if(sysconf.getParam(SystemConfigFile.INDEX_SLANT) >= 100) {
 //					maxColNumPerUnit = sysconf.getParam(SystemConfigFile.INDEX_REPEAT_PRINT) * 8;
@@ -696,7 +700,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			final int headIndex = config.getParam(SystemConfigFile.INDEX_HEAD_TYPE);
 			final PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
 
-			if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+			if (head.isBigdotType()) {
+/*			if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
                 head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
                 head != PrinterNozzle.MESSAGE_TYPE_32DN &&
                 head != PrinterNozzle.MESSAGE_TYPE_32SN &&
@@ -720,6 +726,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2021-8-16 追加96DN头
 				head != PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
                 dots[j] *= 2;
 			} else {
 				dots[j] *= 200;
@@ -739,7 +747,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 // 2022-9-1 因为64SN头需要按着4个头进行变形操作，但是PrinterNozzle当中定义的是1个头，因此这里要偷梁换柱一下，否则无法检查到各个头的变形参数设置
 		int heads = nozzle.mHeads;
-		if( nozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中。并且32x3-32x7按头数区分，而不是像其他的大字节按4个头计
+		if( nozzle.isBigdotType() &&
+			nozzle != PrinterNozzle.MESSAGE_TYPE_32X3 &&
+			nozzle != PrinterNozzle.MESSAGE_TYPE_32X4 &&
+			nozzle != PrinterNozzle.MESSAGE_TYPE_32X5 &&
+			nozzle != PrinterNozzle.MESSAGE_TYPE_32X6 &&
+			nozzle != PrinterNozzle.MESSAGE_TYPE_32X7) {
+/*		if( nozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32DN ||
 			nozzle == PrinterNozzle.MESSAGE_TYPE_32SN ||
@@ -759,6 +774,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			nozzle == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
 // End of H.M.Wang 2023-7-29 追加48点头
 			nozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
 			heads = 4;
 		}
 //		for (int i = 0; i < nozzle.mHeads; i++) {
@@ -938,6 +955,28 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			div = 152f/64f;
 			scaleW = 152f/64;
 			scaleH = 152f/64;
+// H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_32X3) {
+			div = 152f/(32f*3);
+			scaleW = 152f/(32f*3);
+			scaleH = 152f/(32f*3);
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_32X4) {
+			div = 152f/(32f*4);
+			scaleW = 152f/(32f*4);
+			scaleH = 152f/(32f*4);
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_32X5) {
+			div = 152f/(32f*5);
+			scaleW = 152f/(32f*5);
+			scaleH = 152f/(32f*5);
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_32X6) {
+			div = 152f/(32f*6);
+			scaleW = 152f/(32f*6);
+			scaleH = 152f/(32f*6);
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_32X7) {
+			div = 152f/(32f*7);
+			scaleW = 152f/(32f*7);
+			scaleH = 152f/(32f*7);
+// End of H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 // H.M.Wang 2021-3-6 追加E6X48,E6X50头
 //		} else if (headType == PrinterNozzle.MESSAGE_TYPE_9MM) {
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_9MM ||
@@ -981,7 +1020,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		if (Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300) {
 // End of H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
 // H.M.Wang 2021-4-9 修改为只有在非大字机的时候才处理高清
-			if((headType != PrinterNozzle.MESSAGE_TYPE_16_DOT) &&
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
+			if(!headType.isBigdotType()) {
+/*			if((headType != PrinterNozzle.MESSAGE_TYPE_16_DOT) &&
 				(headType != PrinterNozzle.MESSAGE_TYPE_32_DOT) &&
 				(headType != PrinterNozzle.MESSAGE_TYPE_32DN) &&
 				(headType != PrinterNozzle.MESSAGE_TYPE_32SN) &&
@@ -1005,6 +1046,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2021-8-16 追加96DN头
 				(headType != PrinterNozzle.MESSAGE_TYPE_96DN)) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
 ///./...				Debug.d(TAG, "--->High Resolution");
 				scaleW = scaleW / 2;
 				div = div / 2;
@@ -1692,7 +1735,14 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		int offsetDiv = 1;
 
 //		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
-		if( object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+// H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中。并且32x3-32x7按头数区分，而不是像其他的大字节按4个头计
+		if( object.getPNozzle().isBigdotType() &&
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X3 &&
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X4 &&
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X5 &&
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X6 &&
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X7) {
+/*		if( object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 // H.M.Wang 2020-7-23 追加32DN打印头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32DN ||
@@ -1722,6 +1772,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2021-8-16 追加96DN头
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_96DN) {
 // End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中。并且32x3-32x7按头数区分，而不是像其他的大字节按4个头计
 			heads = 4;		// 16点，32点和64点，在这里假设按4个头来算，主要是为了就和当前的实现逻辑
 // H.M.Wang 2021-11-3 大字机4mm是一列，参数设置的是1/6mm的单位数，因此，如果参数10（11，18，19都一样）设置24，才能够达到位移一位的效果
 //			offsetDiv = 6;	// 打字机位移量除6
