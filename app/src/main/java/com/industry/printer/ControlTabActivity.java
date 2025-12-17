@@ -477,7 +477,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public ControlTabActivity() {
 		//mMsgTitle = (ExtendMessageTitleFragment)fragment;
 		mCounter = 0;
-		mActLauncedTime = System.currentTimeMillis();
+		mActLauncedTime = SystemClock.uptimeMillis();
 	}
 	
 	@Override
@@ -1447,7 +1447,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mHandler.sendMessageDelayed(msg, 1000);
 	}
 
-	@Deprecated
 	public void reloadSettingAndMessage() {
 		mSysconfig.init();
 		loadMessage();
@@ -1729,7 +1728,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2025-12-11 修改为Activity启动30s后才允许更新refreshInk内容，否则A133系统启动太慢，导致出现假警报
 // H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
 //		if(SystemClock.uptimeMillis() > 90000 && System.currentTimeMillis() - inkDispInterval > 100) {
-		if(System.currentTimeMillis() - mActLauncedTime > 30000 && System.currentTimeMillis() - inkDispInterval > 100) {
+		if(SystemClock.uptimeMillis() - mActLauncedTime > 30000 && System.currentTimeMillis() - inkDispInterval > 100) {
 // End of H.M.Wang 2023-1-18 系统启动大概需要25000ms，如果立即启动refreshInk，会因为没有数据而导致误警报，所以放大到50000ms后才显示refreshInk
 // End of H.M.Wang 2025-12-11 修改为Activity启动30s后才允许更新refreshInk内容，否则A133系统启动太慢，导致出现假警报
 //Debug.d(TAG, "SystemClock.uptimeMillis() = " + SystemClock.uptimeMillis());
@@ -2121,28 +2120,34 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							} else
 // End of H.M.Wang 2022-11-29 增加UG的内部群组的追加功能
 // H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
-							if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
-								List<String> paths = MessageTask.parseQuickGroup(mObjPath);
-								for (String path : paths) {
-									MessageTask task = new MessageTask(mContext, mObjPath + "/" + path);
-									mMsgTask.add(task);
-								}
-							} else
+								if (mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX)) {
+									List<String> paths = MessageTask.parseQuickGroup(mObjPath);
+									for (String path : paths) {
+										MessageTask task = new MessageTask(mContext, mObjPath + "/" + path);
+										mMsgTask.add(task);
+									}
+								} else
 // End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，该类型以Configs.QUICK_GROUP_PREFIX为文件名开头，信息中的每个超文本作为一个独立的信息保存在母信息的目录当中，并且所有的子信息作为一个群组管理，该子群组的信息也保存到木信息的目录当中
-							if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
-								List<String> paths = MessageTask.parseGroup(mObjPath);
-								for (String path : paths) {
-									MessageTask task = new MessageTask(mContext, path);
-									mMsgTask.add(task);
-								}
-							} else {
-								MessageTask task = new MessageTask(mContext, mObjPath);
-								mMsgTask.add(task);
-							}
+									if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {   // group messages
+										List<String> paths = MessageTask.parseGroup(mObjPath);
+										for (String path : paths) {
+											MessageTask task = new MessageTask(mContext, path);
+											mMsgTask.add(task);
+										}
+									} else {
+										MessageTask task = new MessageTask(mContext, mObjPath);
+										mMsgTask.add(task);
+									}
 							if (printNext) {
 								mHandler.sendEmptyMessage(MESSAGE_OPEN_NEXT_MSG_SUCCESS);
 								return;
 							}
+
+							if (mMsgTask.size() == 0 || mMsgTask.get(0).getObjects().size() == 0) {
+								dismissProgressDialog();
+								return;
+							}
+
 							Message mesg = mHandler.obtainMessage(MESSAGE_OPEN_MSG_SUCCESS);
 							if (msgPC != null) {
 								Bundle bundle = new Bundle();

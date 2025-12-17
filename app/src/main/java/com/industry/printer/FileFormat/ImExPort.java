@@ -121,7 +121,10 @@ public class ImExPort {
      * import from USB to flash
      */
     public void msgImport(final ArrayList<String> usbs) {
-        Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_DIR)
+// H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+//        Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_DIR)
+        Observable.just(Configs.SYSTEM_CONFIG_MSG_PATH, Configs.PICTURE_SUB_PATH, Configs.SYSTEM_CONFIG_DIR , Configs.FONT_DIR_USB)
+// End of H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
                 .flatMap(new Func1<String, Observable<Map<String, String>>>() {
 
                     @Override
@@ -141,9 +144,14 @@ public class ImExPort {
                             src.put("dest", Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
                             src.put("tips", mContext.getString(R.string.tips_import_sysconf));
                         }
-                        else if (Configs.FONT_DIR.equals(arg0)) {
-                            src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
-                            src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+// H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+//                        else if (Configs.FONT_DIR.equals(arg0)) {
+//                            src.put("source",usbs.get(0) + Configs.FONT_DIR_USB + File.separator + Configs.FONT_ZIP_FILE);
+//                            src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE);
+                        else if (Configs.FONT_DIR_USB.equals(arg0)) {
+                            src.put("source",usbs.get(0) + arg0);
+                            src.put("dest", Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_DIR_USB);
+// End of H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
                             src.put("tips", mContext.getString(R.string.tips_import_font));
                         }
                         Debug.d(TAG, "--->flatMap: " + src.get("tips"));
@@ -156,10 +164,16 @@ public class ImExPort {
                     public Observable<Void> call(Map<String, String> arg0) {
                         try {
                             Debug.d(TAG, "--->map: " + arg0.get("source") + " -> " + arg0.get("dest"));
-                            FileUtil.copyClean(arg0.get("source"), arg0.get("dest"));
+// H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+//                            FileUtil.copyClean(arg0.get("source"), arg0.get("dest"));
                             String dest = arg0.get("dest");
-                            if (dest.endsWith(Configs.FONT_ZIP_FILE)) {
-                                ZipUtil.UnZipFolder(Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE, Configs.CONFIG_PATH_FLASH);
+//                            if (dest.endsWith(Configs.FONT_ZIP_FILE)) {
+                            if (dest.endsWith(Configs.FONT_DIR_USB)) {
+//                                ZipUtil.UnZipFolder(Configs.CONFIG_PATH_FLASH + File.separator + Configs.FONT_ZIP_FILE, Configs.CONFIG_PATH_FLASH);
+                                FileUtil.copyFonts(arg0.get("source"), arg0.get("dest"));
+                            } else {
+                                FileUtil.copyClean(arg0.get("source"), arg0.get("dest"));
+// End of H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
                             }
                         } catch (Exception e) {
                             // TODO: handle exception

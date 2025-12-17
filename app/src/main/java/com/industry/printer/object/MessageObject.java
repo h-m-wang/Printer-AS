@@ -42,7 +42,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "10x8", "12x9", "14x10", "16x12", "16@L", "16@R"
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB"
+// End of H.M.Wang 2025-12-16 增加12d字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 	};
@@ -55,7 +58,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32"
 // H.M.Wang 2024-8-27 追加28号字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32"
+// End of H.M.Wang 2025-12-16 增加12d字体
 // End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -68,7 +74,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "48"
 // H.M.Wang 2024-8-27 追加28号字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "48"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48"
+// End of H.M.Wang 2025-12-16 增加12d字体
 // End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -85,7 +94,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64"
 // H.M.Wang 2024-12-20 增加48点选项
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48", "64"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48", "64"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "48", "64"
+// End of H.M.Wang 2025-12-16 增加12d字体
 // End of H.M.Wang 2024-12-20 增加48点选项
 // End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
@@ -103,7 +115,10 @@ public class MessageObject extends BaseObject {
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "19x13", "21x14", "24", "32", "64", "96"
 // H.M.Wang 2024-8-27 追加28号字体
 //		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "32", "64", "96"
-		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96"
+// End of H.M.Wang 2025-12-16 增加12d字体
 // End of H.M.Wang 2024-8-27 追加28号字体
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -111,16 +126,28 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2021-8-16 追加96DN头
 // H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 	public static final String[] mDot_32X4_Size = {
-			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128"
+// End of H.M.Wang 2025-12-16 增加12d字体
 	};
 	public static final String[] mDot_32X5_Size = {
-			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160"
+// End of H.M.Wang 2025-12-16 增加12d字体
 	};
 	public static final String[] mDot_32X6_Size = {
-			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192"
+// End of H.M.Wang 2025-12-16 增加12d字体
 	};
 	public static final String[] mDot_32X7_Size = {
-			"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192", "224"
+// H.M.Wang 2025-12-16 增加12d字体
+//		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192", "224"
+		"5x5", "7x6", "7x6B", "10x8", "10x8B", "12x9", "12D", "14x10", "16x12", "16x12B", "16@L", "16@R", "16@LB", "16@RB", "19x13", "21x14", "24", "28", "32", "64", "96", "128", "160", "192", "224"
+// End of H.M.Wang 2025-12-16 增加12d字体
 	};
 // End of H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 
@@ -658,9 +685,9 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDotSizes[3]) || size.equalsIgnoreCase(mDotSizes[4])) {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 10 / 16;
-			} else if (size.equalsIgnoreCase(mDotSizes[5])) {
+			} else if (size.equalsIgnoreCase(mDotSizes[5]) || size.equalsIgnoreCase(mDotSizes[6])) {
 				h = 12.7f * 12 / 16;
-			} else if (size.equalsIgnoreCase(mDotSizes[6])) {
+			} else if (size.equalsIgnoreCase(mDotSizes[7])) {
 				h = 12.7f * 14 / 16;
 			} else {
 				h = 12.7f * 16 / 16;
@@ -688,32 +715,32 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_32_Size[3]) || size.equalsIgnoreCase(mDot_32_Size[4])) {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 10 / 32;
-			} else if (size.equalsIgnoreCase(mDot_32_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_32_Size[5]) || size.equalsIgnoreCase(mDot_32_Size[6])) {
 				h = 12.7f * 12 / 32;
-			} else if (size.equalsIgnoreCase(mDot_32_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_32_Size[7])) {
 				h = 12.7f * 14 / 32;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 //			} else if (size.equalsIgnoreCase(mDot_32_Size[5]) || size.equalsIgnoreCase(mDot_32_Size[6]) || size.equalsIgnoreCase(mDot_32_Size[7])) {
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //			} else if (size.equalsIgnoreCase(mDot_32_Size[7]) || size.equalsIgnoreCase(mDot_32_Size[8]) || size.equalsIgnoreCase(mDot_32_Size[9]) || size.equalsIgnoreCase(mDot_32_Size[10])) {
-			} else if (size.equalsIgnoreCase(mDot_32_Size[7]) || size.equalsIgnoreCase(mDot_32_Size[8]) || size.equalsIgnoreCase(mDot_32_Size[9]) || size.equalsIgnoreCase(mDot_32_Size[10]) || size.equalsIgnoreCase(mDot_32_Size[11]) || size.equalsIgnoreCase(mDot_32_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_32_Size[8]) || size.equalsIgnoreCase(mDot_32_Size[9]) || size.equalsIgnoreCase(mDot_32_Size[10]) || size.equalsIgnoreCase(mDot_32_Size[11]) || size.equalsIgnoreCase(mDot_32_Size[12]) || size.equalsIgnoreCase(mDot_32_Size[13])) {
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 16 / 32;
 // End of H.M.Wang 2020-4-15 追加"5x5"字体
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_32_Size[13])) {
-				h = 12.7f * 19 / 32;
 			} else if (size.equalsIgnoreCase(mDot_32_Size[14])) {
+				h = 12.7f * 19 / 32;
+			} else if (size.equalsIgnoreCase(mDot_32_Size[15])) {
 				h = 12.7f * 21 / 32;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 // 2022-11-12 增加24字高
-			} else if (size.equalsIgnoreCase(mDot_32_Size[15])) {
+			} else if (size.equalsIgnoreCase(mDot_32_Size[16])) {
 				h = 12.7f * 24 / 32;
 // End of 2022-11-12 增加24字高
 // H.M.Wang 2024-8-27 追加28号字体
-			} else if (size.equalsIgnoreCase(mDot_32_Size[16])) {
+			} else if (size.equalsIgnoreCase(mDot_32_Size[17])) {
 				h = 12.7f * 28 / 32;
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else {
@@ -734,31 +761,30 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_48_Size[3]) || size.equalsIgnoreCase(mDot_48_Size[4])) {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 10 / 48;
-			} else if (size.equalsIgnoreCase(mDot_48_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_48_Size[5]) || size.equalsIgnoreCase(mDot_48_Size[6])) {
 				h = 12.7f * 12 / 48;
-			} else if (size.equalsIgnoreCase(mDot_48_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_48_Size[7])) {
 				h = 12.7f * 14 / 48;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 //			} else if (size.equalsIgnoreCase(mDot_48_Size[5]) || size.equalsIgnoreCase(mDot_48_Size[6]) || size.equalsIgnoreCase(mDot_48_Size[7])) {
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //			} else if (size.equalsIgnoreCase(mDot_48_Size[7]) || size.equalsIgnoreCase(mDot_48_Size[8]) || size.equalsIgnoreCase(mDot_48_Size[9]) || size.equalsIgnoreCase(mDot_48_Size[10])) {
-			} else if (size.equalsIgnoreCase(mDot_48_Size[7]) || size.equalsIgnoreCase(mDot_48_Size[8]) || size.equalsIgnoreCase(mDot_48_Size[9]) || size.equalsIgnoreCase(mDot_48_Size[10]) || size.equalsIgnoreCase(mDot_48_Size[11]) || size.equalsIgnoreCase(mDot_48_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_48_Size[8]) || size.equalsIgnoreCase(mDot_48_Size[9]) || size.equalsIgnoreCase(mDot_48_Size[10]) || size.equalsIgnoreCase(mDot_48_Size[11]) || size.equalsIgnoreCase(mDot_48_Size[12]) || size.equalsIgnoreCase(mDot_48_Size[13])) {
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 16 / 48;
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_48_Size[13])) {
-				h = 12.7f * 19 / 48;
 			} else if (size.equalsIgnoreCase(mDot_48_Size[14])) {
+				h = 12.7f * 19 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[15])) {
 				h = 12.7f * 21 / 48;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_48_Size[15])) {
+			} else if (size.equalsIgnoreCase(mDot_48_Size[16])) {
 				h = 12.7f * 24 / 48;
 // H.M.Wang 2024-8-27 追加28号字体
-			} else if (size.equalsIgnoreCase(mDot_48_Size[16])) {
-				h = 12.7f * 28 / 48;
-//			} else if (size.equalsIgnoreCase(mDot_48_Size[16])) {
 			} else if (size.equalsIgnoreCase(mDot_48_Size[17])) {
+				h = 12.7f * 28 / 48;
+			} else if (size.equalsIgnoreCase(mDot_48_Size[18])) {
 // End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 32 / 48;
 			} else {
@@ -804,35 +830,35 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_64_Size[3]) || size.equalsIgnoreCase(mDot_64_Size[4])) {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 10 / 64;
-			} else if (size.equalsIgnoreCase(mDot_64_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[5]) || size.equalsIgnoreCase(mDot_64_Size[6])) {
 				h = 12.7f * 12 / 64;
-			} else if (size.equalsIgnoreCase(mDot_64_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[7])) {
                 h = 12.7f * 14 / 64;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 //			} else if (size.equalsIgnoreCase(mDot_64_Size[5]) || size.equalsIgnoreCase(mDot_64_Size[6]) || size.equalsIgnoreCase(mDot_64_Size[7])) {
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //			} else if (size.equalsIgnoreCase(mDot_64_Size[7]) || size.equalsIgnoreCase(mDot_64_Size[8]) || size.equalsIgnoreCase(mDot_64_Size[9]) || size.equalsIgnoreCase(mDot_64_Size[10])) {
-			} else if (size.equalsIgnoreCase(mDot_64_Size[7]) || size.equalsIgnoreCase(mDot_64_Size[8]) || size.equalsIgnoreCase(mDot_64_Size[9]) || size.equalsIgnoreCase(mDot_64_Size[10]) || size.equalsIgnoreCase(mDot_64_Size[11]) || size.equalsIgnoreCase(mDot_64_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[8]) || size.equalsIgnoreCase(mDot_64_Size[9]) || size.equalsIgnoreCase(mDot_64_Size[10]) || size.equalsIgnoreCase(mDot_64_Size[11]) || size.equalsIgnoreCase(mDot_64_Size[12]) || size.equalsIgnoreCase(mDot_64_Size[13])) {
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 16 / 64;
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_64_Size[13])) {
-				h = 12.7f * 19 / 64;
 			} else if (size.equalsIgnoreCase(mDot_64_Size[14])) {
+				h = 12.7f * 19 / 64;
+			} else if (size.equalsIgnoreCase(mDot_64_Size[15])) {
 				h = 12.7f * 21 / 64;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_64_Size[15])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
 				h = 12.7f * 24 / 64;
 // H.M.Wang 2024-8-27 追加28号字体
-			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[17])) {
 				h = 12.7f * 28 / 64;
 //			} else if (size.equalsIgnoreCase(mDot_64_Size[16])) {
-			} else if (size.equalsIgnoreCase(mDot_64_Size[17])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[18])) {
 // End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 32 / 64;
 // H.M.Wang 2024-12-20 增加48点选项
-			} else if (size.equalsIgnoreCase(mDot_64_Size[18])) {
+			} else if (size.equalsIgnoreCase(mDot_64_Size[19])) {
 				h = 12.7f * 48 / 64;
 // End of H.M.Wang 2024-12-20 增加48点选项
             } else {
@@ -857,34 +883,32 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[3]) || size.equalsIgnoreCase(mDot_96_Size[4])) {
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 10 / 96;
-			} else if (size.equalsIgnoreCase(mDot_96_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[5]) || size.equalsIgnoreCase(mDot_96_Size[6])) {
 				h = 12.7f * 12 / 96;
-			} else if (size.equalsIgnoreCase(mDot_96_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[7])) {
 				h = 12.7f * 14 / 96;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 //			} else if (size.equalsIgnoreCase(mDot_96_Size[5]) || size.equalsIgnoreCase(mDot_96_Size[6]) || size.equalsIgnoreCase(mDot_96_Size[7])) {
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 //			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_96_Size[8]) || size.equalsIgnoreCase(mDot_96_Size[9]) || size.equalsIgnoreCase(mDot_96_Size[10])) {
-			} else if (size.equalsIgnoreCase(mDot_96_Size[7]) || size.equalsIgnoreCase(mDot_96_Size[8]) || size.equalsIgnoreCase(mDot_96_Size[9]) || size.equalsIgnoreCase(mDot_96_Size[10]) || size.equalsIgnoreCase(mDot_96_Size[11]) || size.equalsIgnoreCase(mDot_96_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[8]) || size.equalsIgnoreCase(mDot_96_Size[9]) || size.equalsIgnoreCase(mDot_96_Size[10]) || size.equalsIgnoreCase(mDot_96_Size[11]) || size.equalsIgnoreCase(mDot_96_Size[12]) || size.equalsIgnoreCase(mDot_96_Size[13])) {
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				h = 12.7f * 16 / 96;
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_96_Size[13])) {
-				h = 12.7f * 19 / 96;
 			} else if (size.equalsIgnoreCase(mDot_96_Size[14])) {
+				h = 12.7f * 19 / 96;
+			} else if (size.equalsIgnoreCase(mDot_96_Size[15])) {
 				h = 12.7f * 21 / 96;
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-			} else if (size.equalsIgnoreCase(mDot_96_Size[15])) {
+			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
 				h = 12.7f * 24 / 96;
 // H.M.Wang 2024-8-27 追加28号字体
-			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
-				h = 12.7f * 28 / 96;
-//			} else if (size.equalsIgnoreCase(mDot_96_Size[16])) {
 			} else if (size.equalsIgnoreCase(mDot_96_Size[17])) {
-				h = 12.7f * 32 / 96;
-//			} else if (size.equalsIgnoreCase(mDot_96_Size[17])) {
+				h = 12.7f * 28 / 96;
 			} else if (size.equalsIgnoreCase(mDot_96_Size[18])) {
+				h = 12.7f * 32 / 96;
+			} else if (size.equalsIgnoreCase(mDot_96_Size[19])) {
 // End of H.M.Wang 2024-8-27 追加28号字体
 				h = 12.7f * 64 / 96;
 			} else {
@@ -899,25 +923,25 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 8 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[3]) || size.equalsIgnoreCase(mDot_32X4_Size[4])) {
 				h = 12.7f * 10 / 128;
-			} else if (size.equalsIgnoreCase(mDot_32X4_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[5]) || size.equalsIgnoreCase(mDot_32X4_Size[6])) {
 				h = 12.7f * 12 / 128;
-			} else if (size.equalsIgnoreCase(mDot_32X4_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[7])) {
 				h = 12.7f * 14 / 128;
-			} else if (size.equalsIgnoreCase(mDot_32X4_Size[7]) || size.equalsIgnoreCase(mDot_32X4_Size[8]) || size.equalsIgnoreCase(mDot_32X4_Size[9]) || size.equalsIgnoreCase(mDot_32X4_Size[10]) || size.equalsIgnoreCase(mDot_32X4_Size[11]) || size.equalsIgnoreCase(mDot_32X4_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[8]) || size.equalsIgnoreCase(mDot_32X4_Size[9]) || size.equalsIgnoreCase(mDot_32X4_Size[10]) || size.equalsIgnoreCase(mDot_32X4_Size[11]) || size.equalsIgnoreCase(mDot_32X4_Size[12]) || size.equalsIgnoreCase(mDot_32X4_Size[13])) {
 				h = 12.7f * 16 / 128;
-			} else if (size.equalsIgnoreCase(mDot_32X4_Size[13])) {
-				h = 12.7f * 19 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[14])) {
-				h = 12.7f * 21 / 128;
+				h = 12.7f * 19 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[15])) {
-				h = 12.7f * 24 / 128;
+				h = 12.7f * 21 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[16])) {
-				h = 12.7f * 28 / 128;
+				h = 12.7f * 24 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[17])) {
-				h = 12.7f * 32 / 128;
+				h = 12.7f * 28 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[18])) {
-				h = 12.7f * 64 / 128;
+				h = 12.7f * 32 / 128;
 			} else if (size.equalsIgnoreCase(mDot_32X4_Size[19])) {
+				h = 12.7f * 64 / 128;
+			} else if (size.equalsIgnoreCase(mDot_32X4_Size[20])) {
 				h = 12.7f * 96 / 128;
 			} else {
 				h = 12.7f * 128 / 128;
@@ -929,27 +953,27 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 8 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[3]) || size.equalsIgnoreCase(mDot_32X5_Size[4])) {
 				h = 12.7f * 10 / 160;
-			} else if (size.equalsIgnoreCase(mDot_32X5_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[5]) || size.equalsIgnoreCase(mDot_32X5_Size[6])) {
 				h = 12.7f * 12 / 160;
-			} else if (size.equalsIgnoreCase(mDot_32X5_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[7])) {
 				h = 12.7f * 14 / 160;
-			} else if (size.equalsIgnoreCase(mDot_32X5_Size[7]) || size.equalsIgnoreCase(mDot_32X5_Size[8]) || size.equalsIgnoreCase(mDot_32X5_Size[9]) || size.equalsIgnoreCase(mDot_32X5_Size[10]) || size.equalsIgnoreCase(mDot_32X5_Size[11]) || size.equalsIgnoreCase(mDot_32X5_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[8]) || size.equalsIgnoreCase(mDot_32X5_Size[9]) || size.equalsIgnoreCase(mDot_32X5_Size[10]) || size.equalsIgnoreCase(mDot_32X5_Size[11]) || size.equalsIgnoreCase(mDot_32X5_Size[12]) || size.equalsIgnoreCase(mDot_32X5_Size[13])) {
 				h = 12.7f * 16 / 160;
-			} else if (size.equalsIgnoreCase(mDot_32X5_Size[13])) {
-				h = 12.7f * 19 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[14])) {
-				h = 12.7f * 21 / 160;
+				h = 12.7f * 19 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[15])) {
-				h = 12.7f * 24 / 160;
+				h = 12.7f * 21 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[16])) {
-				h = 12.7f * 28 / 160;
+				h = 12.7f * 24 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[17])) {
-				h = 12.7f * 32 / 160;
+				h = 12.7f * 28 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[18])) {
-				h = 12.7f * 64 / 160;
+				h = 12.7f * 32 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[19])) {
-				h = 12.7f * 96 / 160;
+				h = 12.7f * 64 / 160;
 			} else if (size.equalsIgnoreCase(mDot_32X5_Size[20])) {
+				h = 12.7f * 96 / 160;
+			} else if (size.equalsIgnoreCase(mDot_32X5_Size[21])) {
 				h = 12.7f * 128 / 160;
 			} else {
 				h = 12.7f * 160 / 160;
@@ -961,29 +985,29 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 8 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[3]) || size.equalsIgnoreCase(mDot_32X6_Size[4])) {
 				h = 12.7f * 10 / 192;
-			} else if (size.equalsIgnoreCase(mDot_32X6_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[5]) || size.equalsIgnoreCase(mDot_32X6_Size[6])) {
 				h = 12.7f * 12 / 192;
-			} else if (size.equalsIgnoreCase(mDot_32X6_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[7])) {
 				h = 12.7f * 14 / 192;
-			} else if (size.equalsIgnoreCase(mDot_32X6_Size[7]) || size.equalsIgnoreCase(mDot_32X6_Size[8]) || size.equalsIgnoreCase(mDot_32X6_Size[9]) || size.equalsIgnoreCase(mDot_32X6_Size[10]) || size.equalsIgnoreCase(mDot_32X6_Size[11]) || size.equalsIgnoreCase(mDot_32X6_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[8]) || size.equalsIgnoreCase(mDot_32X6_Size[9]) || size.equalsIgnoreCase(mDot_32X6_Size[10]) || size.equalsIgnoreCase(mDot_32X6_Size[11]) || size.equalsIgnoreCase(mDot_32X6_Size[12]) || size.equalsIgnoreCase(mDot_32X6_Size[13])) {
 				h = 12.7f * 16 / 192;
-			} else if (size.equalsIgnoreCase(mDot_32X6_Size[13])) {
-				h = 12.7f * 19 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[14])) {
-				h = 12.7f * 21 / 192;
+				h = 12.7f * 19 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[15])) {
-				h = 12.7f * 24 / 192;
+				h = 12.7f * 21 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[16])) {
-				h = 12.7f * 28 / 192;
+				h = 12.7f * 24 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[17])) {
-				h = 12.7f * 32 / 192;
+				h = 12.7f * 28 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[18])) {
-				h = 12.7f * 64 / 192;
+				h = 12.7f * 32 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[19])) {
-				h = 12.7f * 96 / 192;
+				h = 12.7f * 64 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[20])) {
-				h = 12.7f * 128 / 192;
+				h = 12.7f * 96 / 192;
 			} else if (size.equalsIgnoreCase(mDot_32X6_Size[21])) {
+				h = 12.7f * 128 / 192;
+			} else if (size.equalsIgnoreCase(mDot_32X6_Size[22])) {
 				h = 12.7f * 160 / 192;
 			} else {
 				h = 12.7f * 192 / 192;
@@ -995,31 +1019,31 @@ public class MessageObject extends BaseObject {
 				h = 12.7f * 8 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[3]) || size.equalsIgnoreCase(mDot_32X7_Size[4])) {
 				h = 12.7f * 10 / 224;
-			} else if (size.equalsIgnoreCase(mDot_32X7_Size[5])) {
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[5]) || size.equalsIgnoreCase(mDot_32X7_Size[6])) {
 				h = 12.7f * 12 / 224;
-			} else if (size.equalsIgnoreCase(mDot_32X7_Size[6])) {
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[7])) {
 				h = 12.7f * 14 / 192;
-			} else if (size.equalsIgnoreCase(mDot_32X7_Size[7]) || size.equalsIgnoreCase(mDot_32X7_Size[8]) || size.equalsIgnoreCase(mDot_32X7_Size[9]) || size.equalsIgnoreCase(mDot_32X7_Size[10]) || size.equalsIgnoreCase(mDot_32X7_Size[11]) || size.equalsIgnoreCase(mDot_32X7_Size[12])) {
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[8]) || size.equalsIgnoreCase(mDot_32X7_Size[9]) || size.equalsIgnoreCase(mDot_32X7_Size[10]) || size.equalsIgnoreCase(mDot_32X7_Size[11]) || size.equalsIgnoreCase(mDot_32X7_Size[12]) || size.equalsIgnoreCase(mDot_32X7_Size[13])) {
 				h = 12.7f * 16 / 224;
-			} else if (size.equalsIgnoreCase(mDot_32X7_Size[13])) {
-				h = 12.7f * 19 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[14])) {
-				h = 12.7f * 21 / 224;
+				h = 12.7f * 19 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[15])) {
-				h = 12.7f * 24 / 224;
+				h = 12.7f * 21 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[16])) {
-				h = 12.7f * 28 / 224;
+				h = 12.7f * 24 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[17])) {
-				h = 12.7f * 32 / 224;
+				h = 12.7f * 28 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[18])) {
-				h = 12.7f * 64 / 224;
+				h = 12.7f * 32 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[19])) {
-				h = 12.7f * 96 / 224;
+				h = 12.7f * 64 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[20])) {
-				h = 12.7f * 128 / 224;
+				h = 12.7f * 96 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[21])) {
-				h = 12.7f * 160 / 224;
+				h = 12.7f * 128 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[22])) {
+				h = 12.7f * 160 / 224;
+			} else if (size.equalsIgnoreCase(mDot_32X7_Size[23])) {
 				h = 12.7f * 192 / 224;
 			} else {
 				h = 12.7f * 224 / 224;
@@ -1100,9 +1124,9 @@ public class MessageObject extends BaseObject {
             } else if(size <= 152f * 12 / 16 + 1) {
                 return mDotSizes[5];
             } else if(size <= 152f * 14 / 16 + 1) {
-                return mDotSizes[6];
+                return mDotSizes[7];
             } else {
-				return mDotSizes[7];
+				return mDotSizes[8];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			}
 // H.M.Wang 2020-7-23 追加32DN打印头
@@ -1123,12 +1147,12 @@ public class MessageObject extends BaseObject {
             } else if (size <= 152f * 12 / 32 + 1) {
                 return mDot_32_Size[5];
             } else if (size <= 152f * 14 / 32 + 1) {
-                return mDot_32_Size[6];
+                return mDot_32_Size[7];
             } else if (size <= 152f * 16 / 32 + 1) {
-				return mDot_32_Size[7];
+				return mDot_32_Size[8];
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 19 / 32 + 1) {
-				return mDot_32_Size[13];
+				return mDot_32_Size[14];
 			} else if (size <= 152f * 21 / 32 + 1) {
 //			} else if (size <= 152f * 21.1f / 32 + 1) {	// 【已经取消21.1f的处理方式，改为+1】应该是21，但是由于设置高的时候，取得RealPixel=12.7x21/32=8.334375，
 														// 再乘以PIXELS_PER_MM(12)= 100.0125，取整=100。而这里计算的152x21/32=99.75，
@@ -1172,18 +1196,18 @@ public class MessageObject extends BaseObject {
 				// 12.7	32	64	12	76.0 		152	32	64	76.000
 				// 12.7	64	64	12	152.0 		152	64	64	152.000
 
-				return mDot_32_Size[14];
+				return mDot_32_Size[15];
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 // 2022-11-12 增加24字高
 			} else if (size <= 152f * 24 / 32 + 1) {
-				return mDot_32_Size[15];
+				return mDot_32_Size[16];
 // End of 2022-11-12 增加24字高
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 32 + 1) {
-				return mDot_32_Size[16];
+				return mDot_32_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else {
-				return mDot_32_Size[17];
+				return mDot_32_Size[18];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 			}
 // H.M.Wang 2023-7-29 追加48点头
@@ -1198,26 +1222,26 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 48 + 1) {
 				return mDot_48_Size[5];
 			} else if (size <= 152f * 14 / 48 + 1) {
-				return mDot_48_Size[6];
-			} else if (size <= 152f * 16 / 48 + 1) {
 				return mDot_48_Size[7];
+			} else if (size <= 152f * 16 / 48 + 1) {
+				return mDot_48_Size[8];
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 19 / 48 + 1) {
-				return mDot_48_Size[13];
+				return mDot_48_Size[14];
 			} else if (size <= 152f * 21 / 48 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_48_Size[14];
+				return mDot_48_Size[15];
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 24 / 48 + 1) {
-				return mDot_48_Size[15];
+				return mDot_48_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 48 + 1) {
-				return mDot_48_Size[16];
+				return mDot_48_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 48 + 1) {
-				return mDot_48_Size[17];
-			} else {
 				return mDot_48_Size[18];
+			} else {
+				return mDot_48_Size[19];
 			}
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
 // End of H.M.Wang 2023-7-29 追加48点头
@@ -1254,30 +1278,30 @@ public class MessageObject extends BaseObject {
             } else if (size <= 152f * 12 / 64 + 1) {
                 return mDot_64_Size[5];
             } else if (size <= 152f * 14 / 64 + 1) {
-                return mDot_64_Size[6];
+                return mDot_64_Size[7];
 			} else if (size <= 152f * 16 / 64 + 1) {
-				return mDot_64_Size[7];
+				return mDot_64_Size[8];
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 19 / 64 + 1) {
-				return mDot_64_Size[13];
+				return mDot_64_Size[14];
 			} else if (size <= 152f * 21 / 64 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_64_Size[14];
+				return mDot_64_Size[15];
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
 			} else if (size <= 152f * 24 / 64 + 1) {
-				return mDot_64_Size[15];
+				return mDot_64_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 64 + 1) {
-				return mDot_64_Size[16];
+				return mDot_64_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 64 + 1) {
-				return mDot_64_Size[17];
+				return mDot_64_Size[18];
 // H.M.Wang 2024-12-20 增加48点选项
 			} else if (size <= 152f * 48 / 64 + 1) {
-				return mDot_64_Size[18];
+				return mDot_64_Size[19];
 // End of H.M.Wang 2024-12-20 增加48点选项
             } else {
-				return mDot_64_Size[19];
+				return mDot_64_Size[20];
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
             }
 // End of H.M.Wang 2020-8-8 在每个判断高度得if语句里面，准确计算的数值后面都+1，目的是为了解决在保存时，由于四舍五入会导致数值偏差，再次读入时会发生错误。如：
@@ -1295,26 +1319,26 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 96 + 1) {
 				return mDot_96_Size[5];
 			} else if (size <= 152f * 14 / 96 + 1) {
-				return mDot_96_Size[6];
-			} else if (size <= 152f * 16 / 96 + 1) {
 				return mDot_96_Size[7];
+			} else if (size <= 152f * 16 / 96 + 1) {
+				return mDot_96_Size[8];
 			} else if (size <= 152f * 19 / 96 + 1) {
-				return mDot_96_Size[13];
+				return mDot_96_Size[14];
 			} else if (size <= 152f * 21 / 96 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_96_Size[14];
-			} else if (size <= 152f * 24 / 96 + 1) {
 				return mDot_96_Size[15];
+			} else if (size <= 152f * 24 / 96 + 1) {
+				return mDot_96_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 96 + 1) {
-				return mDot_96_Size[16];
+				return mDot_96_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 96 + 1) {
-				return mDot_96_Size[17];
-			} else if (size <= 152f * 64 / 96 + 1) {
 				return mDot_96_Size[18];
-			} else {
+			} else if (size <= 152f * 64 / 96 + 1) {
 				return mDot_96_Size[19];
+			} else {
+				return mDot_96_Size[20];
 			}
 // End of H.M.Wang 2021-9-16 追加 （H.M.Wang 2021-8-16 追加96DN头） 时的遗漏
 // H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
@@ -1328,28 +1352,28 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 128 + 1) {
 				return mDot_32X4_Size[5];
 			} else if (size <= 152f * 14 / 128 + 1) {
-				return mDot_32X4_Size[6];
-			} else if (size <= 152f * 16 / 128 + 1) {
 				return mDot_32X4_Size[7];
+			} else if (size <= 152f * 16 / 128 + 1) {
+				return mDot_32X4_Size[8];
 			} else if (size <= 152f * 19 / 128 + 1) {
-				return mDot_32X4_Size[13];
+				return mDot_32X4_Size[14];
 			} else if (size <= 152f * 21 / 128 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_32X4_Size[14];
-			} else if (size <= 152f * 24 / 128 + 1) {
 				return mDot_32X4_Size[15];
+			} else if (size <= 152f * 24 / 128 + 1) {
+				return mDot_32X4_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 128 + 1) {
-				return mDot_32X4_Size[16];
+				return mDot_32X4_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 128 + 1) {
-				return mDot_32X4_Size[17];
-			} else if (size <= 152f * 64 / 128 + 1) {
 				return mDot_32X4_Size[18];
-			} else if (size <= 152f * 96 / 128 + 1) {
+			} else if (size <= 152f * 64 / 128 + 1) {
 				return mDot_32X4_Size[19];
-			} else {
+			} else if (size <= 152f * 96 / 128 + 1) {
 				return mDot_32X4_Size[20];
+			} else {
+				return mDot_32X4_Size[21];
 			}
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X5) {
 			if (size <= 152f * 5 / 160 + 1) {
@@ -1361,30 +1385,30 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 160 + 1) {
 				return mDot_32X5_Size[5];
 			} else if (size <= 152f * 14 / 160 + 1) {
-				return mDot_32X5_Size[6];
-			} else if (size <= 152f * 16 / 160 + 1) {
 				return mDot_32X5_Size[7];
+			} else if (size <= 152f * 16 / 160 + 1) {
+				return mDot_32X5_Size[8];
 			} else if (size <= 152f * 19 / 160 + 1) {
-				return mDot_32X5_Size[13];
+				return mDot_32X5_Size[14];
 			} else if (size <= 152f * 21 / 160 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_32X5_Size[14];
-			} else if (size <= 152f * 24 / 160 + 1) {
 				return mDot_32X5_Size[15];
+			} else if (size <= 152f * 24 / 160 + 1) {
+				return mDot_32X5_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 160 + 1) {
-				return mDot_32X5_Size[16];
+				return mDot_32X5_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 160 + 1) {
-				return mDot_32X5_Size[17];
-			} else if (size <= 152f * 64 / 160 + 1) {
 				return mDot_32X5_Size[18];
-			} else if (size <= 152f * 96 / 160 + 1) {
+			} else if (size <= 152f * 64 / 160 + 1) {
 				return mDot_32X5_Size[19];
-			} else if (size <= 152f * 128 / 160 + 1) {
+			} else if (size <= 152f * 96 / 160 + 1) {
 				return mDot_32X5_Size[20];
-			} else {
+			} else if (size <= 152f * 128 / 160 + 1) {
 				return mDot_32X5_Size[21];
+			} else {
+				return mDot_32X5_Size[22];
 			}
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X6) {
 			if (size <= 152f * 5 / 192 + 1) {
@@ -1396,32 +1420,32 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 192 + 1) {
 				return mDot_32X6_Size[5];
 			} else if (size <= 152f * 14 / 192 + 1) {
-				return mDot_32X6_Size[6];
-			} else if (size <= 152f * 16 / 192 + 1) {
 				return mDot_32X6_Size[7];
+			} else if (size <= 152f * 16 / 192 + 1) {
+				return mDot_32X6_Size[8];
 			} else if (size <= 152f * 19 / 192 + 1) {
-				return mDot_32X6_Size[13];
+				return mDot_32X6_Size[14];
 			} else if (size <= 152f * 21 / 192 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_32X6_Size[14];
-			} else if (size <= 152f * 24 / 192 + 1) {
 				return mDot_32X6_Size[15];
+			} else if (size <= 152f * 24 / 192 + 1) {
+				return mDot_32X6_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 192 + 1) {
-				return mDot_32X6_Size[16];
+				return mDot_32X6_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 192 + 1) {
-				return mDot_32X6_Size[17];
-			} else if (size <= 152f * 64 / 192 + 1) {
 				return mDot_32X6_Size[18];
-			} else if (size <= 152f * 96 / 192 + 1) {
+			} else if (size <= 152f * 64 / 192 + 1) {
 				return mDot_32X6_Size[19];
-			} else if (size <= 152f * 128 / 192 + 1) {
+			} else if (size <= 152f * 96 / 192 + 1) {
 				return mDot_32X6_Size[20];
-			} else if (size <= 152f * 160 / 192 + 1) {
+			} else if (size <= 152f * 128 / 192 + 1) {
 				return mDot_32X6_Size[21];
-			} else {
+			} else if (size <= 152f * 160 / 192 + 1) {
 				return mDot_32X6_Size[22];
+			} else {
+				return mDot_32X6_Size[23];
 			}
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X7) {
 			if (size <= 152f * 5 / 224 + 1) {
@@ -1433,34 +1457,34 @@ public class MessageObject extends BaseObject {
 			} else if (size <= 152f * 12 / 224 + 1) {
 				return mDot_32X7_Size[5];
 			} else if (size <= 152f * 14 / 224 + 1) {
-				return mDot_32X7_Size[6];
-			} else if (size <= 152f * 16 / 224 + 1) {
 				return mDot_32X7_Size[7];
+			} else if (size <= 152f * 16 / 224 + 1) {
+				return mDot_32X7_Size[8];
 			} else if (size <= 152f * 19 / 224 + 1) {
-				return mDot_32X7_Size[13];
+				return mDot_32X7_Size[14];
 			} else if (size <= 152f * 21 / 224 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
-				return mDot_32X7_Size[14];
-			} else if (size <= 152f * 24 / 224 + 1) {
 				return mDot_32X7_Size[15];
+			} else if (size <= 152f * 24 / 224 + 1) {
+				return mDot_32X7_Size[16];
 // H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 28 / 224 + 1) {
-				return mDot_32X7_Size[16];
+				return mDot_32X7_Size[17];
 // End of H.M.Wang 2024-8-27 追加28号字体
 			} else if (size <= 152f * 32 / 224 + 1) {
-				return mDot_32X7_Size[17];
-			} else if (size <= 152f * 64 / 224 + 1) {
 				return mDot_32X7_Size[18];
-			} else if (size <= 152f * 96 / 224 + 1) {
+			} else if (size <= 152f * 64 / 224 + 1) {
 				return mDot_32X7_Size[19];
-			} else if (size <= 152f * 128 / 224 + 1) {
+			} else if (size <= 152f * 96 / 224 + 1) {
 				return mDot_32X7_Size[20];
-			} else if (size <= 152f * 160 / 224 + 1) {
+			} else if (size <= 152f * 128 / 224 + 1) {
 				return mDot_32X7_Size[21];
-			} else if (size <= 152f * 192 / 224 + 1) {
+			} else if (size <= 152f * 160 / 224 + 1) {
 				return mDot_32X7_Size[22];
-			} else {
+			} else if (size <= 152f * 192 / 224 + 1) {
 				return mDot_32X7_Size[23];
+			} else {
+				return mDot_32X7_Size[24];
 			}
 // End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
         } else {

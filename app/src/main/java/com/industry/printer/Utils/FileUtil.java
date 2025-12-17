@@ -84,7 +84,7 @@ public class FileUtil {
         for (int i = 0; i < file.length; i++) { 
             if (file[i].isFile()) {  
                 // source file
-                File sourceFile=file[i];  
+                File sourceFile=file[i];
                 // target file
                File targetFile=new File(new File(targetDir).getAbsolutePath() + File.separator + file[i].getName());
 // H.M.Wang 2024-2-1 由于将F1.txt和F2.txt错误的放在了system目录下，因此在导入导出时，需要排除
@@ -101,7 +101,30 @@ public class FileUtil {
                 copyDirectiory(dir1, dir2);  
             }  
         }  
-    } 
+    }
+
+// H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+    public static void copyFonts(String sourceDir, String targetDir)  throws IOException {
+        Debug.d(TAG, "--->copyFonts src: " + sourceDir + "  target: " + targetDir);
+
+        File src = new File(sourceDir);
+        if(!src.exists()) return;
+        File[] file = (new File(sourceDir)).listFiles();
+        if (file == null || file.length <= 0) {
+            return;
+        }
+        for (int i = 0; i < file.length; i++) {
+            if (file[i].isFile()) {
+                if(file[i].getName().charAt(0) >= '0' && file[i].getName().charAt(0) <= '9' && file[i].getName().indexOf(".") < 0) {
+                    File sourceFile=file[i];
+                    File targetFile=new File(new File(targetDir).getAbsolutePath() + File.separator + file[i].getName());
+                    copyFile(sourceFile,targetFile);
+                }
+            }
+        }
+    }
+// End of H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+
     /**
      * copy from source directory to target directory, and delete the target directory before copy
      * @param sourceDir

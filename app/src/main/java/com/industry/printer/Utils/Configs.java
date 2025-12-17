@@ -364,9 +364,11 @@ UserGroup 使用方法说明
 	public static final String FONT_PATH1 = "/fonts";
 
 	public static final String FONT_ZIP_FILE = "Well.Ftt";
-	
-	public static final String FONT_DIR_USB = "/ft";
-	
+
+// H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+	public static final String FONT_DIR_USB = "/fonts";
+// End of H.M.Wang 2025-12-15 修改fonts的升级办法，从usb/fonts目录直接复制数字开头的无扩展名文件到/sdcard/fonts目录
+
 	public static SystemConfigFile mSysconfig;
 	/**
 	 * initConfigs initiallize the system configs,such as dots and fixed rows 

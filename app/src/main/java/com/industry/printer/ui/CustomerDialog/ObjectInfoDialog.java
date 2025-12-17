@@ -225,45 +225,48 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					mFont.setText("12");
 					mFont.setClickable(false);
 				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[6])) {
-					mFont.setText("14");
+					mFont.setText("12D");
 					mFont.setClickable(false);
 				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[7])) {
-					mFont.setText("7");
+					mFont.setText("14");
 					mFont.setClickable(false);
 				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[8])) {
-					mFont.setText("7B");
+					mFont.setText("7");
 					mFont.setClickable(false);
 				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[9])) {
-					mFont.setText("7L");
+					mFont.setText("7B");
 					mFont.setClickable(false);
 				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[10])) {
+					mFont.setText("7L");
+					mFont.setClickable(false);
+				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[11])) {
 					mFont.setText("7R");
 					mFont.setClickable(false);
 // End of H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体
 // End of H.M.Wang 2020-4-15 追加"5x5"字体
 // H.M.Wang 2024-5-6 追加16@LB，16@RB字体
-				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[11])) {
+				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[12])) {
 					mFont.setText("7LB");
 					mFont.setClickable(false);
-				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[12])) {
+				} else if (size.equalsIgnoreCase(MessageObject.mDotSizes[13])) {
 					mFont.setText("7RB");
 					mFont.setClickable(false);
 // End of H.M.Wang 2024-5-6 追加16@LB，16@RB字体
 // H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[13])) {
+				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[14])) {
 					mFont.setText("19");
 // H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 //					mFont.setClickable(false);
 					mFont.setClickable(true);
 // End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
-				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[14])) {
+				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[15])) {
 					mFont.setText("21");
 // H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 //					mFont.setClickable(false);
 					mFont.setClickable(true);
 // End of H.M.Wang 2023-4-2 大字机在19，21时不锁定字体，但缺省设置最合适的字体
 // End of H.M.Wang 2020-5-29 追加"19x13", "21x14"字体
-				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[15])) {
+				} else if (size.equalsIgnoreCase(MessageObject.mDot_32_Size[16])) {
 					mFont.setText("24");
 					mFont.setClickable(true);
 				} else {
