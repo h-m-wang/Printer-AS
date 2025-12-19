@@ -701,7 +701,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			final PrinterNozzle head = PrinterNozzle.getInstance(headIndex);
 
 // H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中
-			if (head.isBigdotType()) {
+			if (!head.isBigdotType()) {
 /*			if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
                 head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
                 head != PrinterNozzle.MESSAGE_TYPE_32DN &&
