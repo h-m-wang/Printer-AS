@@ -405,7 +405,32 @@ public class FpgaGpioOperation {
             feature4 = device.getFeature(0, 4);
             feature5 = device.getFeature(0, 5);
         }
-        paramter.paramTrans(config.mParam, feature4, feature5, config.getPNozzle().mHeads);
+
+// H.M.Wang 2025-12-26 32x2，32x3-32x7头时下发实际头数
+        int heads;
+        if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X2 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64DOTONE ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64_DOT ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SLANT ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_64SN) {
+            heads = 2;
+        } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X3 ||
+            config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_96DN) {
+            heads = 3;
+        } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X4) {
+            heads = 4;
+        } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X5) {
+            heads = 5;
+        } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X6) {
+            heads = 6;
+        } else if (config.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_32X7) {
+            heads = 7;
+        } else {
+            heads = config.getPNozzle().mHeads;
+        }
+        paramter.paramTrans(config.mParam, feature4, feature5, heads);
+//        paramter.paramTrans(config.mParam, feature4, feature5, config.getPNozzle().mHeads);
+// End of H.M.Wang 2025-12-26 32x2，32x3-32x7头时下发实际头数
         for (int i = 0; i < 24; i++) {
             data[i] = (char) paramter.getFPGAParam(i);
         }

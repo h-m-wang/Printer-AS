@@ -667,6 +667,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息移至ControlTab
 
 		switchState(STATE_STOPPED);
+// H.M.Wang 2026-1-6 开机时打印键修改为不可点击，知道所有锁值被访问完成（必须放在switchState(STATE_STOPPED)后面，否则会被设回去）
+		mBtnStart.setClickable(false);
+		mTvStart.setTextColor(Color.GRAY);
+// End of H.M.Wang 2026-1-6 开机时打印键修改为不可点击，知道所有锁值被访问完成
+
 		mScrollView = (HorizontalScrollView) getView().findViewById(R.id.preview_scroll);
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 		if(TxtDT.getInstance(mContext).isTxtDT()) {
@@ -1601,7 +1606,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				invalidCount++;
 				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
 					mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
-					if(invalidCount < 2) continue;
+// H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
+					if(invalidCount < 4) continue;
+// End of H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
 				}
 // End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
 
@@ -1648,7 +1655,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				invalidCount++;
 				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
 					mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
-					if(invalidCount < 2) continue;
+// H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
+					if(invalidCount < 4) continue;
+// End of H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
 				}
 // End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
 				valid = false;
@@ -2335,6 +2344,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if (dt != null && dt.size() > 0) {
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
+// H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
+					mHandler.removeMessages(RFIDManager.MSG_RFID_INIT);
+// End of H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
 					mInkManager.checkUID(heads);
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
@@ -2451,11 +2463,15 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 // End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 
-					if (!checkRfid()) {
-						handleError(R.string.str_toast_no_ink, pcMsg);
-						return;
+// H.M.Wang 2026-1-6 如果是鸡蛋机就不检查锁值合法性
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 &&
+						mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
+// End of H.M.Wang 2026-1-6 如果是鸡蛋机就不检查锁值合法性
+						if (!checkRfid()) {
+							handleError(R.string.str_toast_no_ink, pcMsg);
+							return;
+						}
 					}
-
 					Debug.d(TAG, "--->check rfid ok");
 
 					if (mObjPath == null || mObjPath.isEmpty()) {

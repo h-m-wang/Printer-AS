@@ -252,14 +252,21 @@ public class RFIDDevice implements RfidCallback{
 		if (mRfidDevice == null) {
 			synchronized (RFIDDevice.class) {
 				if (mRfidDevice == null) {
-					mRfidDevice = new RFIDDevice();
+					mRfidDevice = new RFIDDevice(0);
 				}
 			}
 		}
 		return mRfidDevice;
 	}
-	
-	public RFIDDevice() {
+
+	private int mIndex;
+
+	public int getIndex() {
+		return mIndex;
+	}
+
+	public RFIDDevice(int idx) {
+		mIndex = idx;
 		mState = STATE_RFID_UNINITED;
 		mCurInkLevel = 0;
         mTepInkLevel = 0;

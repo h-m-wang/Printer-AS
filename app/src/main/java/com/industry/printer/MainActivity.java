@@ -859,40 +859,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	private long mLastClick = 0;
 	private int mClickCount = 0;
 
-	private void divAAATxt() {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader("/mnt/sdcard/aaa.txt"));
-			BufferedWriter writter = new BufferedWriter(new FileWriter("/mnt/sdcard/out.txt"));
-			String line;
-			do {
-				line = reader.readLine();
-				if (!TextUtils.isEmpty(line)) {
-					if(line.indexOf("Send FPGA print data. head=0") > 0) {
-						writter.write("\t" + line + "\n");
-					} else if(line.indexOf("Send FPGA print data. head=1") > 0) {
-						writter.write("\t\t" + line + "\n");
-					} else if(line.indexOf("Send FPGA print data. head=2") > 0) {
-						writter.write("\t\t\t" + line + "\n");
-					} else if(line.indexOf("Send FPGA print data. head=3") > 0) {
-						writter.write("\t\t\t\t" + line + "\n");
-					} else if(line.indexOf("=== expand_data ===") > 0) {
-						writter.write(line + "\n");
-					} else if(line.indexOf("===>startPrint") > 0) {
-						writter.write(line + "\n");
-					} else if(line.indexOf("===>stopPrint") > 0) {
-						writter.write(line + "\n");
-					} else if(line.indexOf("sPrintPool[") > 0) {
-						writter.write(line + "\n");
-					}
-				}
-			} while(!TextUtils.isEmpty(line));
-			reader.close();
-			writter.close();
-		} catch(IOException e) {
-			Debug.e(TAG, e.getMessage());
-		}
-	}
-
 	@Override
 	public void onClick(View arg0) {
 		switch (arg0.getId()) {

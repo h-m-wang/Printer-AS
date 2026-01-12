@@ -90,6 +90,8 @@ public class TestMain {
         mQuit = false;
     }
 
+    private int mSaveTestCnt;
+
     public void show(final View v) {
         if (null == mContext) {
             return;
@@ -172,22 +174,30 @@ public class TestMain {
                     if(new File(ConfigPath.getTlkPath() + File.separator + "Test001").exists()) {
                         mTask.setName("Test001_");
                         mSaving = false;
+                        final AlertDialog dlg = new AlertDialog.Builder(mContext)
+//                                .setTitle("Pho-Enc Test")
+                                .setMessage("")
+                                .create();
+                        dlg.show();
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try{
+                                    mSaveTestCnt = 0;
                                     for(int i=0; i<SAVE_COUNT_LIMIT; i++) {
                                         if(mQuit) break;
-                                        final int pos = i+1;
                                         mSaving = true;
                                         mTask.save(new MessageTask.SaveProgressListener() {
                                             @Override
                                             public void onSaved() {
+//                                                Debug.d(TAG, "pos = " + pos);
                                                 mSaving = false;
+                                                mSaveTestCnt++;
                                                 mMainMenuLV.post(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        ToastUtil.show(mContext, "Saved: " + pos);
+                                                        dlg.setMessage("\n    Saved: " + mSaveTestCnt + "/1000    \n");
                                                     }
                                                 });
                                             }
@@ -196,9 +206,16 @@ public class TestMain {
                                             Thread.sleep(10);
                                         }
                                     }
+                                    Thread.sleep(100);
                                 } catch(Exception e) {
                                     Debug.e(TAG, e.getMessage());
                                 }
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dlg.dismiss();
+                                    }
+                                });
                             }
                         }).start();
                     }

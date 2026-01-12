@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
 //    buildToolsVersion "28.0.3"
     buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId 'com.printer.phoneapp'
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 26
         versionCode 2503171
         versionName "202503171200"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

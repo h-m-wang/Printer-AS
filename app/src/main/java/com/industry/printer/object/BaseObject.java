@@ -1200,6 +1200,7 @@ public class BaseObject{
 // End of H.M.Wang 2021-8-16 追加96DN头
 // H.M.Wang 2025-12-11 增加32X3 - 32X7打印头类型
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X4) {
+			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_32X4_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 128;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -1247,6 +1248,7 @@ public class BaseObject{
 				mHeight = 152f * 128 / 128;
 			}
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X5) {
+			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_32X5_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 160;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -1296,6 +1298,7 @@ public class BaseObject{
 				mHeight = 152f * 160 / 160;
 			}
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X6) {
+			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_32X6_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 192;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -1347,6 +1350,7 @@ public class BaseObject{
 				mHeight = 152f * 192 / 192;
 			}
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X7) {
+			Debug.d(TAG, "--->display H = " + dspH + "   mHeight: " + mHeight);
 			if (MessageObject.mDot_32X7_Size[0].equalsIgnoreCase(dspH)) {
 				mHeight = 152f * 5 / 224;
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
@@ -1440,6 +1444,9 @@ public class BaseObject{
 			dispString = "10x8B";
 		}
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
+		if(dispString.startsWith("12x9") && mFont.equals("12D")) {
+			dispString = "12D";
+		}
 		if(dispString.startsWith("16x12")) {
 			if(mFont.equals("7B")) {
 				dispString = "16x12B";
@@ -1845,7 +1852,7 @@ public class BaseObject{
 	 * @return
 	 */
 	protected String verifyFont() {
-		Debug.d(TAG, "--->verifyFont: " + mFont);
+		Debug.d(TAG, "--->verifyFont: " + mFont + "; mHeight: " + mHeight);
 		PrinterNozzle type = mTask.getNozzle();
 		String font = "";
 
@@ -2264,7 +2271,7 @@ public class BaseObject{
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X6) {
 			if (mHeight <= 152f * 5 / 192 + 1) {
 				font = "5x5";
-			} else if (mHeight <= 152f * 8 / 192 + 1) {
+			} else if (mHeight <= 152f * 8 / 192 + 0.1) {
 				font = "4";
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				if(mFont.equals("4B")) {
@@ -2283,7 +2290,7 @@ public class BaseObject{
 				if(mFont.equals("12D")) {
 					font = "12D";
 				}
-			} else if(mHeight <= 152f * 14 / 192 + 1){
+			} else if(mHeight <= 152f * 14 / 192 + 0.1){
 				font = "14";
 			} else if(mHeight <= 152f * 16 / 192 + 1){
 				if(mFont.equals("7L")) {
@@ -2309,7 +2316,7 @@ public class BaseObject{
 		} else if (type == PrinterNozzle.MESSAGE_TYPE_32X7) {
 			if (mHeight <= 152f * 5 / 224 + 1) {
 				font = "5x5";
-			} else if (mHeight <= 152f * 8 / 224 + 1) {
+			} else if (mHeight <= 152f * 8 / 224 + 0.1) {
 				font = "4";
 // H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
 				if(mFont.equals("4B")) {
@@ -2323,12 +2330,12 @@ public class BaseObject{
 					font = "10B";
 				}
 // End of H.M.Wang 2024-4-28 增加16X12B  7X6B 10X8B字体
-			} else if(mHeight <= 152f * 12 / 224 + 1){
+			} else if(mHeight <= 152f * 12 / 224 + 0.1){
 				font = "12";
 				if(mFont.equals("12D")) {
 					font = "12D";
 				}
-			} else if(mHeight <= 152f * 14 / 224 + 1){
+			} else if(mHeight <= 152f * 14 / 224 + 0.1){
 				font = "14";
 			} else if(mHeight <= 152f * 16 / 224 + 1){
 				if(mFont.equals("7L")) {

@@ -74,12 +74,12 @@ public enum PrinterNozzle {
 //  奇数bit,进上32, 偶数bit进下32 bit, 然后 上32bit , 后移4 列。大概原理如此， 后面要实验调整
     MESSAGE_TYPE_32X2(MessageType.NOZZLE_INDEX_32X2, NozzleType.NOZZLE_TYPE_32X2, 1, 1),
 // End of H.M.Wang 2022-5-27 追加32x2头类型
-// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
-    MESSAGE_TYPE_32X3(MessageType.NOZZLE_INDEX_32X3, NozzleType.NOZZLE_TYPE_32X3, 3, 3),
-    MESSAGE_TYPE_32X4(MessageType.NOZZLE_INDEX_32X4, NozzleType.NOZZLE_TYPE_32X4, 4, 4),
-    MESSAGE_TYPE_32X5(MessageType.NOZZLE_INDEX_32X5, NozzleType.NOZZLE_TYPE_32X5, 5, 5),
-    MESSAGE_TYPE_32X6(MessageType.NOZZLE_INDEX_32X6, NozzleType.NOZZLE_TYPE_32X6, 6, 6),
-    MESSAGE_TYPE_32X7(MessageType.NOZZLE_INDEX_32X7, NozzleType.NOZZLE_TYPE_32X7, 7, 7),
+// H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型。2025-12-26 修改头数，大字机头数都按1算，目的是解一个锁，但是下发FPGA的时候需要按实际指定头数
+    MESSAGE_TYPE_32X3(MessageType.NOZZLE_INDEX_32X3, NozzleType.NOZZLE_TYPE_32X3, 1, 1),
+    MESSAGE_TYPE_32X4(MessageType.NOZZLE_INDEX_32X4, NozzleType.NOZZLE_TYPE_32X4, 1, 1),
+    MESSAGE_TYPE_32X5(MessageType.NOZZLE_INDEX_32X5, NozzleType.NOZZLE_TYPE_32X5, 1, 1),
+    MESSAGE_TYPE_32X6(MessageType.NOZZLE_INDEX_32X6, NozzleType.NOZZLE_TYPE_32X6, 1, 1),
+    MESSAGE_TYPE_32X7(MessageType.NOZZLE_INDEX_32X7, NozzleType.NOZZLE_TYPE_32X7, 1, 1),
     // End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
 // H.M.Wang 2022-10-19 追加64SLANT头。
 // 此类型暂时理解为两个32 点喷头，1-32点和33-64点。

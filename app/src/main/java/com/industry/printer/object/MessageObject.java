@@ -540,7 +540,7 @@ public class MessageObject extends BaseObject {
 // H.M.Wang 2021-9-20 (H.M.Wang 2021-8-16 追加96DN头) 追加遗漏内容
 // H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 //		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN) {
-		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X4) {
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_96DN || mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X3) {
 // End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型
 			size = new String[mDot_96_Size.length];
 			for (int i = 0; i < size.length; i++) {
@@ -613,7 +613,6 @@ public class MessageObject extends BaseObject {
 		Debug.d(TAG, "--->size: " + size);
 		try {
 			h = Float.parseFloat(size);
-			
 		} catch(Exception e) {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
@@ -1022,7 +1021,7 @@ public class MessageObject extends BaseObject {
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[5]) || size.equalsIgnoreCase(mDot_32X7_Size[6])) {
 				h = 12.7f * 12 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[7])) {
-				h = 12.7f * 14 / 192;
+				h = 12.7f * 14 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[8]) || size.equalsIgnoreCase(mDot_32X7_Size[9]) || size.equalsIgnoreCase(mDot_32X7_Size[10]) || size.equalsIgnoreCase(mDot_32X7_Size[11]) || size.equalsIgnoreCase(mDot_32X7_Size[12]) || size.equalsIgnoreCase(mDot_32X7_Size[13])) {
 				h = 12.7f * 16 / 224;
 			} else if (size.equalsIgnoreCase(mDot_32X7_Size[14])) {
@@ -1413,17 +1412,17 @@ public class MessageObject extends BaseObject {
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X6) {
 			if (size <= 152f * 5 / 192 + 1) {
 				return mDot_32X6_Size[0];
-			} else if (size <= 152f * 8 / 192 + 1) {
+			} else if (size <= 152f * 8 / 192 + 0.1) {
 				return mDot_32X6_Size[1];
 			} else if (size <= 152f * 10 / 192 + 1) {
 				return mDot_32X6_Size[3];
 			} else if (size <= 152f * 12 / 192 + 1) {
 				return mDot_32X6_Size[5];
-			} else if (size <= 152f * 14 / 192 + 1) {
+			} else if (size <= 152f * 14 / 192 + 0.1) {
 				return mDot_32X6_Size[7];
 			} else if (size <= 152f * 16 / 192 + 1) {
 				return mDot_32X6_Size[8];
-			} else if (size <= 152f * 19 / 192 + 1) {
+			} else if (size <= 152f * 19 / 192 + 0.1) {
 				return mDot_32X6_Size[14];
 			} else if (size <= 152f * 21 / 192 + 1) {
 //			} else if (size <= 152f * 21.1f / 64 + 1) {
@@ -1450,13 +1449,13 @@ public class MessageObject extends BaseObject {
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_32X7) {
 			if (size <= 152f * 5 / 224 + 1) {
 				return mDot_32X7_Size[0];
-			} else if (size <= 152f * 8 / 224 + 1) {
+			} else if (size <= 152f * 8 / 224 + 0.1) {
 				return mDot_32X7_Size[1];
 			} else if (size <= 152f * 10 / 224 + 1) {
 				return mDot_32X7_Size[3];
-			} else if (size <= 152f * 12 / 224 + 1) {
+			} else if (size <= 152f * 12 / 224 + 0.1) {
 				return mDot_32X7_Size[5];
-			} else if (size <= 152f * 14 / 224 + 1) {
+			} else if (size <= 152f * 14 / 224 + 0.1) {
 				return mDot_32X7_Size[7];
 			} else if (size <= 152f * 16 / 224 + 1) {
 				return mDot_32X7_Size[8];

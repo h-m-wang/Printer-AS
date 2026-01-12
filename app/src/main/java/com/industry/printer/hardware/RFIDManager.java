@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Rfid.EncryptionMethod;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -28,7 +29,11 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 	private RFIDDevice mDevice;
 	private Handler mCallback;
 
-	
+// H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
+	private boolean mInitializing;
+	private boolean mUIDChecking;
+// End of H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
+
 	public static int TOTAL_RFID_DEVICES = 8;
 	
 	public static final int MSG_RFID_INIT_SUCCESS = 101;
@@ -63,6 +68,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 				if (mCurrent >= TOTAL_RFID_DEVICES) {
 					Debug.d(TAG, "--->rfid init success");
 					mCallback.sendEmptyMessageDelayed(MSG_RFID_READ_SUCCESS, 100);
+					mInitializing = false;
 					break;
 				}
 				mDevice = mRfidDevices.get(mCurrent);
@@ -75,7 +81,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 					break;
 				}
 				ExtGpio.rfidSwitch(mCurrent);
-				mHandler.sendEmptyMessageDelayed(MSG_RFID_INIT_NEXT, 200);	
+				mHandler.sendEmptyMessageDelayed(MSG_RFID_INIT_NEXT, 200);
 				break;
 			case MSG_RFID_INIT_NEXT:
 				Debug.d(TAG, "MSG_RFID_INIT_NEXT");
@@ -96,12 +102,31 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 				mDevice.removeListener(RFIDManager.this);
 				Debug.d(TAG, "--->dev: " + mCurrent + "  ink:" + mDevice.getLocalInk());
 				mCurrent++;
+
+// H.M.Wang 2026-1-6 当鸡蛋机时，只要有3个以上的头有效，就判定有效，继续打印
+				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
+					if (mCurrent >= mLiveHeads) {
+						int cnt = 0;
+					    for(int i=0; i<mRfidDevices.size(); i++) {
+					    	if(mRfidDevices.get(i).isValid()) cnt++;
+						}
+						if(cnt >= 3) {
+							Debug.d(TAG, "--->rfid check success");
+							mCallback.sendEmptyMessage(MSG_RFID_CHECK_SUCCESS);
+							mUIDChecking = false;
+                        }
+					}
+					break;
+				} else {
+// End of H.M.Wang 2026-1-6 当鸡蛋机时，只要有3个以上的头有效，就判定有效，继续打印
 // H.M.Wang 2021-3-16 修改不检测特征码的问题
 //				if (mCurrent >= mLiveHeads) {
 				if (mCurrent >= mLiveHeads && mDevice.isValid()) {
 // End of H.M.Wang 2021-3-16 修改不检测特征码的问题
 					Debug.d(TAG, "--->rfid check success");
 					mCallback.sendEmptyMessage(MSG_RFID_CHECK_SUCCESS);
+					mUIDChecking = false;
 					break;
 				}
 // H.M.Wang 2021-3-16 修改不检测特征码的问题
@@ -110,14 +135,15 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 // End of H.M.Wang 2021-3-16 修改不检测特征码的问题
 					Debug.d(TAG, "--->rfid check failure");
 					mCallback.sendEmptyMessageDelayed(MSG_RFID_CHECK_FAIL, 100);
+					mUIDChecking = false;
 					break;
 				}
+}
 				mDevice = mRfidDevices.get(mCurrent);
 				mDevice.addLisetener(RFIDManager.this);
 				
 				ExtGpio.rfidSwitch(mCurrent);
-				mHandler.sendEmptyMessageDelayed(MSG_RFID_CHECK_NEXT, 200);	
-				
+				mHandler.sendEmptyMessageDelayed(MSG_RFID_CHECK_NEXT, 200);
 				break;
 			case MSG_RFID_CHECK_NEXT:
 // H.M.Wang 2021-11-9 尝试修改checkUID的方法，不去读(0x21命令，而是跑自动寻卡命令，目的是获取SN）
@@ -129,10 +155,16 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 							Message msg = mHandler.obtainMessage(MSG_RFID_CHECK_COMPLETE);
 							msg.arg1 = 0;
 							msg.sendToTarget();
+							mUIDChecking = false;
 							return;
 						}
 // End of H.M.Wang 2022-5-12 修改读写逻辑，如果读失败，超时返回，则最多等待5次，每次等待100ms，作为一个尝试循环。如果失败，再次发送写命令，后重新开始读尝试循环，最多3次。上述尝试失败以后，向应用层报错
-
+// H.M.Wang 2026-1-6 增加null判断，否则在允许读锁失败情况下打印时，这里会出现异常
+						if(null == mDevice.mSN) {
+							mHandler.sendEmptyMessageDelayed(MSG_RFID_CHECK_SWITCH_DEVICE, 200);
+							return;
+						}
+// End of H.M.Wang 2026-1-6 增加null判断，否则在允许读锁失败情况下打印时，这里会出现异常
 						byte[] orgSN = mDevice.mSN.clone();
 						byte[] orgRFIDKeyA = mDevice.mRFIDKeyA.clone();
 // H.M.Wang 2022-2-16 取消2022-1-13的修改，这个修改在第一次读取SN的时候，如果出错会报错，但是如果尝试第二次，则会两个相同的错误进行比较，误判为正确。改为读取失败后，将mValid设为false比较稳妥
@@ -152,6 +184,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 							mDevice.mRFIDKeyA = orgRFIDKeyA;
 // End of H.M.Wang 2022-8-31 对于打印前更换了墨盒的情况，禁止打印，恢复原来的SN和KEY值，并且在主画面显示不要带电更换墨盒的信息
 							msg.sendToTarget();
+							mUIDChecking = false;
 						}
 					}
 				});
@@ -215,32 +248,49 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		// 根据参数38调整减锁数量
 		TOTAL_RFID_DEVICES *= configFile.getHeadFactor();
 
+// H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
+		mInitializing = false;
+		mUIDChecking = false;
+// End of H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
 	}
 
 	/** implement IInkDevice*/
 	@Override
 	public void init(final Handler callback) {
-		mCallback = callback;
-		Debug.d(TAG, "--->init");
-		mCurrent = 0;
-		ExtGpio.rfidSwitch(mCurrent);
+// H.M.Wang 2026-1-10 将启动初始化的处理移到线程中，并且增加初始化与检查UID处理的互斥处理
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Debug.d(TAG, "--->init");
+			    if(mInitializing) return;			// 正在初始化，直接返回
+				while(mUIDChecking) {try {Thread.sleep(1000);} catch (Exception e) {}}
+				mInitializing = true;
 
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {
-		}
-		
-		if (mRfidDevices.size() != TOTAL_RFID_DEVICES) {
-			mRfidDevices.clear();
-			for (int i = 0; i < TOTAL_RFID_DEVICES; i++) {
-				RFIDDevice device = new RFIDDevice();
-				mRfidDevices.add(device);
+				mCallback = callback;
+				Debug.d(TAG, "--->init2");
+				if(mDevice != null) mDevice.removeListener(RFIDManager.this);
+				mCurrent = 0;
+				ExtGpio.rfidSwitch(mCurrent);
+
+				try {
+					Thread.sleep(1000);
+				} catch (Exception e) {
+				}
+
+				if (mRfidDevices.size() != TOTAL_RFID_DEVICES) {
+					mRfidDevices.clear();
+					for (int i = 0; i < TOTAL_RFID_DEVICES; i++) {
+						RFIDDevice device = new RFIDDevice(i);
+						mRfidDevices.add(device);
+					}
+				}
+
+				mDevice = mRfidDevices.get(mCurrent);
+				mDevice.addLisetener(RFIDManager.this);
+				mHandler.sendEmptyMessage(MSG_RFID_INIT_NEXT);
 			}
-		}
-		
-		mDevice = mRfidDevices.get(mCurrent);
-		mDevice.addLisetener(this);
-		mHandler.sendEmptyMessage(MSG_RFID_INIT_NEXT);
+		}).start();
+// End of H.M.Wang 2026-1-10 将启动初始化的处理移到线程中，并且增加初始化与检查UID处理的互斥处理
 		// mDevice.connect();
 		/*
 		ThreadPoolManager.mThreads.execute(new Runnable() {
@@ -279,7 +329,6 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		final RFIDDevice device = mRfidDevices.get(i);
 		device.setReady(false);
 		ThreadPoolManager.mThreads.execute(new Runnable() {
-			
 			@Override
 			public void run() {
 				Debug.e(TAG, "--->switch");
@@ -296,8 +345,6 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 	/** implement IInkDevice*/
 	@Override
 	public float getLocalInk(int dev) {
-		Debug.d(TAG, "---> enter getLocalInk()");
-
 		if (dev >= mRfidDevices.size()) {
 			return 0;
 		}
@@ -305,6 +352,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		if (device == null) {
 			return 0;
 		}
+		Debug.d(TAG, "---> enter getLocalInk(" + dev + ") = " + device.getLocalInk() + "(Index: " + device.getIndex() + ", " + "isValid: " + device.isValid() + ")");
 		int max = device.getMax();
 		if (max <= 0 && Configs.READING) {
 // H.M.Wang 2020-2-25 修改max值
@@ -491,20 +539,31 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 
 	/** implement IInkDevice*/
 	@Override
-	public boolean checkUID(int heads) {
-		mLiveHeads = heads;
-		mCurrent = 0;
-		ExtGpio.rfidSwitch(mCurrent);
-		Debug.d(TAG, "--->Print execute check UUID");
-		try {
-			Thread.sleep(200);
-		} catch (Exception e) {
-		}
-		mDevice = mRfidDevices.get(mCurrent);
-		mDevice.removeListener(this);
-		mDevice.addLisetener(this);
-		mHandler.sendEmptyMessage(MSG_RFID_CHECK_NEXT);
+	public boolean checkUID(final int heads) {
+// H.M.Wang 2026-1-10 将启动检查UID的处理移到线程中，并且增加初始化与检查UID处理的互斥处理
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Debug.d(TAG, "--->checkUID");
+				if(mUIDChecking) return;			// 正在初始化，直接返回
+				while(mInitializing) {try {Thread.sleep(1000);} catch (Exception e) {}}
+				mUIDChecking = true;
+				Debug.d(TAG, "--->checkUID2");
 
+				if(mDevice != null) mDevice.removeListener(RFIDManager.this);
+				mLiveHeads = heads;
+				mCurrent = 0;
+				ExtGpio.rfidSwitch(mCurrent);
+				try {
+					Thread.sleep(200);
+				} catch (Exception e) {
+				}
+				mDevice = mRfidDevices.get(mCurrent);
+				mDevice.addLisetener(RFIDManager.this);
+				mHandler.sendEmptyMessage(MSG_RFID_CHECK_NEXT);
+			}
+		}).start();
+// End od H.M.Wang 2026-1-10 将启动检查UID的处理移到线程中，并且增加初始化与检查UID处理的互斥处理
 		return true;
 	}
 

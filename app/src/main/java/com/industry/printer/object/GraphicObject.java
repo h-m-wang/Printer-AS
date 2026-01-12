@@ -25,7 +25,7 @@ public class GraphicObject  extends BaseObject{
 	
 	public Bitmap mBitmap;
 	private String mImage;
-	
+
 	public GraphicObject(Context context) {
 		super(context, BaseObject.OBJECT_TYPE_GRAPHIC, 0);
 		// TODO Auto-generated constructor stub
@@ -75,10 +75,7 @@ public class GraphicObject  extends BaseObject{
 		float height = mTask.getMsgObject().getPixels(size);
 
 		Debug.d(TAG, "====> setHeight: mWidth = " + mWidth + "; mHeight = " + mHeight + "; height = " + height);
-		float ratio = 1.0f * height / mHeight;
-//		setHeight(height);
-//		Debug.d(TAG, "====> setHeight: oldHeight = " + oldHeight);
-		setWidth(mWidth * ratio);
+		setWidth(mBitmap.getWidth() * (height / mBitmap.getHeight()));
 		setHeight(height);
 		Debug.d(TAG, "====> setHeight: mWidth = " + mWidth + "; mHeight = " + mHeight);
 	}

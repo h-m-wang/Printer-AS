@@ -61,6 +61,9 @@ public class ExtGpio {
 	private static final int[] VALVES = {GPIO_SET_VALVE1, GPIO_SET_VALVE2, GPIO_SET_VALVE3, GPIO_SET_VALVE4, GPIO_SET_VALVE5, GPIO_SET_VALVE6, GPIO_SET_VALVE7, GPIO_SET_VALVE8,
 										 GPIO_SET_VALVE9, GPIO_SET_VALVE10, GPIO_SET_VALVE11, GPIO_SET_VALVE12, GPIO_SET_VALVE13, GPIO_SET_VALVE14, GPIO_SET_VALVE15, GPIO_SET_VALVE16};
 // End of H.M.Wang 2025-12-4 追加16通道开阀控制
+// H.M.Wang 2025-12-30 修改A133的电池存量数据的获取方法
+	private static final int GPIO_GET_BATTERY = 0x22;
+// End of H.M.Wang 2025-12-30 修改A133的电池存量数据的获取方法
 
 	public static final int FPGA_STATE_OUTPUT = 0x00;
 	public static final int FPGA_STATE_SETTING = 0x04;
@@ -218,4 +221,13 @@ public class ExtGpio {
 		return 0;
 	}
 // End of H.M.Wang 2025-7-28 追加一个gpio驱动版本号获取渠道
+// H.M.Wang 2025-12-30 修改A133的电池存量数据的获取方法
+	public static int getBatteryVolume() {
+		int fd = open();
+		if (fd > 0) {
+			return FpgaGpioOperation.ioctl(fd, GPIO_GET_BATTERY, 0);
+		}
+		return 0;
+	}
+// End of H.M.Wang 2025-12-30 修改A133的电池存量数据的获取方法
 }

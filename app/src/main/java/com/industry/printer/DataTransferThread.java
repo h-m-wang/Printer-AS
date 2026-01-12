@@ -1119,7 +1119,11 @@ public class DataTransferThread {
 		String[] recvStrs;
 
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6) {
-			recvStrs = data.split(":");
+            recvStrs = data.split(":");
+// H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
+        } else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER11) {
+			recvStrs = data.split(",");
+// End of H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
 		} else {
 			recvStrs = data.split(Scaner2Protocol.TEXT_SEPERATOR);
 		}
@@ -1873,6 +1877,9 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 		        || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+// H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
+				|| SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER11
+// End of H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
 				) {
 					String datastring = new String(data, 0, data.length);
 					mS2Times = 0;
@@ -1928,6 +1935,9 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 	        || SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+// H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
+			|| SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER11
+// End of H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
 		) {
 			mS2Times = 0;
 			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
