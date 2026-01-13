@@ -1563,6 +1563,179 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     return PD_OK;
 }
 
+PDResult_t pd_fpga_fw_reflash_108(int32_t instance, const char *fw_file_name, bool verify) {
+    LOGI("Enter %s", __FUNCTION__);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//		LOGE("Invalid Instance!");
+//		return PD_ERROR;
+//	}
+    if(fw_file_name == NULL) {
+        LOGE("fw_file_name NULL!");
+        return PD_ERROR;
+    }
+
+    LOGD("instance = %d, file name = %s\n", instance, fw_file_name);
+
+    uint32_t first_address = 0;
+    uint32_t total_size = 0;
+
+    /* Validate the firmware file and extract the starting address and size */
+    oem_lock(instance);
+    ReflashResult_t r = validate_srec(fw_file_name, &first_address, &total_size);
+
+    if(REFLASH_OK != r) {
+        oem_unlock(instance);
+        return _reflash_result_to_pd_result(r);
+    }
+
+    /* Verify start address and size */
+    if((first_address != 0) || (total_size > FPGA_FLASH_SIZE)) {
+        oem_unlock(instance);
+        LOGE("ERROR: Invalid file. First Address = 0x%x, size = %d\n",
+             first_address, total_size);
+        return PD_INVALID_FILE;
+    }
+
+    /* initialize fpgaflash info */
+    Flashinfo_t fpgaflashinfo;
+    PDResult_t pr = _pd_init_fpgaflash_info( instance, &fpgaflashinfo);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+/*
+    LOGE("FlashInfo.rev = %d", fpgaflashinfo.rev);
+    LOGE("FlashInfo.total_srvcs = %d", fpgaflashinfo.total_srvcs);
+    LOGE("FlashInfo.total_evnts = %d", fpgaflashinfo.total_evnts);
+    LOGE("FlashInfo.first_srvc_id = %d", fpgaflashinfo.first_srvc_id);
+    LOGE("FlashInfo.first_evnt_id = %d", fpgaflashinfo.first_evnt_id);
+    LOGE("FlashInfo.total_dvcs = %d", fpgaflashinfo.total_dvcs);
+    LOGE("FlashInfo.dev_name = [%s]", fpgaflashinfo.dev_name);
+    LOGE("FlashInfo.dev_id = %d", fpgaflashinfo.dev_id);
+    for(int i=0; i<MAX_FLASH_OBJECTS; i++) {
+        LOGE("FlashInfo.objects[%d] = {id=%d, size=%d, addr=%d}", i, fpgaflashinfo.objects[i].id, fpgaflashinfo.objects[i].size, fpgaflashinfo.objects[i].addr);
+    }
+*/
+    /* Put FPGA in reset mode before starting reflash. */
+#if 0
+    pr = _pd_fpga_setreset( instance, 0);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+#endif
+    LOGI("  Checking for write protect..\n");
+
+    /* check for write protect. */
+    uint32_t  try = 0;
+    uint8_t status = 0;
+    pr = _pd_fpgaflash_getstatus( instance, &fpgaflashinfo, &status);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+
+    if(status & FLASH_WP_MASK) {
+        LOGI("FPGA flash is write protected. Trying to write enable..\n");
+
+        /* fpga flash is write protected...try removing it */
+        while(1) {
+            pr = _pd_fpgaflash_remove_wp( instance, &fpgaflashinfo);
+            if(PD_OK != pr) {
+                oem_unlock(instance);
+                return pr;
+            }
+            try++;
+
+            /* ensure  write protect removal */
+            status = 0xff;
+            pr = _pd_fpgaflash_getstatus( instance, &fpgaflashinfo, &status);
+            if(PD_OK != pr) {
+                oem_unlock(instance);
+                return pr;
+            }
+
+            if(status & FLASH_WP_MASK) {
+                if( try >= 3) {
+                    LOGE("FPGA flash is write protected. Cannot flash FW.\n");
+                    /* might be h/w write protected. Can't program flash */
+                    oem_unlock(instance);
+                    return PD_FLASH_WP;
+                }
+            } else {
+                LOGI("  FPGA flash is write enabled.\n");
+                break;
+            }
+        }
+    } else {
+        LOGI("  FPGA flash is not write protected..\n");
+    }
+
+    // New code to set SPI quad-enable bit (NOTE: FOR MACRONIX SPI FLASH ONLY!!)
+    // Set the Quad SPI enable bit in the status read from status register
+    status |= FLASH_QE_MASK;
+    pr = _pd_fpgaflash_set_quad_enable_bit(instance, &fpgaflashinfo, status);
+    if(PD_OK != pr) {
+        LOGE("  Error setting FPGA flash quad-enable.\n");
+        oem_unlock(instance);
+        return pr;
+    }
+
+    /* Erase fpga flash */
+    pr = _pd_fpgaflash_erase( instance, &fpgaflashinfo);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+    /* get the status to check whether erase is over */
+    while(1) {
+        sleep(1);  /* in secs */
+        pr = _pd_fpgaflash_getstatus( instance, &fpgaflashinfo, &status);
+        if(PD_OK != pr) {
+            oem_unlock(instance);
+            return pr;
+        }
+        LOGD(" FPGA flash: Status - 0x%x\n",status);
+        if( !(status & FLASH_WIP_BIT) ) break;
+    }
+
+    /* Write the firmware binary to flash */
+    pr =_pd_write_fpgafw( instance, &fpgaflashinfo, fw_file_name, verify);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+
+    LOGI(" Pgmng over.Write protecting fpga flash..\n");
+
+    /* write protect the fpga flash */
+	pr = _pd_fpgaflash_writeprotect( instance,&fpgaflashinfo);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+
+#if 0
+    /* Enable FPGA */
+    pr = _pd_fpga_setreset( instance, 1);
+    if(PD_OK != pr) {
+        oem_unlock(instance);
+        return pr;
+    }
+#endif
+
+    LOGI("%s done", __FUNCTION__);
+
+    oem_unlock(instance);
+
+    return PD_OK;
+}
+
 PDResult_t pd_calibrate_pulsewidth(int32_t instance, uint8_t ph_id, uint8_t slot, uint32_t *calibrated_fpwidth) {
     LOGI("Enter %s", __FUNCTION__);
 

@@ -539,14 +539,24 @@ public class RfidScheduler implements IInkScheduler {
 
 	private void load() {
 		mCurrent = 0;
-		mManager.switchRfid(mCurrent);
+//	H.M.Wang 2026-1-12	mManager.switchRfid(mCurrent);
 		if (mRfidTasks.size() <= 0) {
 			return;
 		}
-		RfidTask task = mRfidTasks.get(mCurrent);
-		task.onLoad();
-		/*切換鎖之後需要等待1s才能進行讀寫操作*/
-		mSwitchTimeStemp = SystemClock.elapsedRealtime();
+// H.M.Wang 2026-1-13 增加等待初始化和CheckUID结束的处理
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Debug.d(TAG, "Load1. " + RFIDManager.mInitializing + ", " + RFIDManager.mUIDChecking);
+				while(RFIDManager.mUIDChecking || RFIDManager.mInitializing) {try {Thread.sleep(1000);} catch (Exception e) {}}
+				Debug.d(TAG, "Load2");
+				RfidTask task = mRfidTasks.get(mCurrent);
+				task.onLoad();
+				/*切換鎖之後需要等待1s才能進行讀寫操作*/
+				mSwitchTimeStemp = SystemClock.elapsedRealtime();
+			}
+		}).start();
+// End of H.M.Wang 2026-1-13 增加等待初始化和CheckUID结束的处理
 	}
 
 	/**
@@ -576,6 +586,9 @@ public class RfidScheduler implements IInkScheduler {
 		}
 
 		for (int i = 0; i < DataTransferThread.getInterval(); i++) {
+//	H.M.Wang 2026-1-12
+			if(mRfidTasks.size() > 1) mManager.switchRfid(mCurrent);
+//	End of H.M.Wang 2026-1-12
 			task.execute();
 			try {
 				Thread.sleep(30);
@@ -695,7 +708,7 @@ public class RfidScheduler implements IInkScheduler {
 			public void run() {
 				mCurrent = 0;
 				int last = mCurrent;
-				mManager.switchRfid(mCurrent);
+//	H.M.Wang 2026-1-12				mManager.switchRfid(mCurrent);
 				Debug.e(TAG, "--->sync inklevel after print finish...");
 				while(running && mCurrent < mRfidTasks.size()) {
 					Debug.d(TAG, "--->mCurrent: " + mCurrent + "  size=" + mRfidTasks.size());
@@ -738,7 +751,7 @@ public class RfidScheduler implements IInkScheduler {
 		RfidTask task;
 		if (mCurrent < 0) {
 			mCurrent = 0;
-			mManager.switchRfid(mCurrent);
+//	H.M.Wang 2026-1-12			mManager.switchRfid(mCurrent);
 		} else {
 			task = mRfidTasks.get(mCurrent);
 			if (task != null) {
@@ -756,7 +769,7 @@ public class RfidScheduler implements IInkScheduler {
 		}
 		// ExtGpio.rfidSwitch(mCurrent);
 		if (mRfidTasks.size() > 1) {
-			mManager.switchRfid(mCurrent);
+//	H.M.Wang 2026-1-12			mManager.switchRfid(mCurrent);
 		}
 		task = mRfidTasks.get(mCurrent);
 		task.onLoad();

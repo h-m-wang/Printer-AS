@@ -90,10 +90,11 @@ public class TestHp22mm implements ITestOperation {
 //            "22 -- Read FIFO",
             "17 -- Update PD MCU\nFrom [U-Disk/PD.s19]",
             "18 -- Update FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
-            "19 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
-            "20 -- Toggle PI4",
-            "21 -- Toggle PI5",
-            "22 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+            "19 -- Update 108 FPGA FLASH\nFrom [U-Disk/FPGA.s19]",
+            "20 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
+            "21 -- Toggle PI4",
+            "22 -- Toggle PI5",
+            "23 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
     };
 
     private String[] Registers = new String[] {
@@ -171,11 +172,12 @@ public class TestHp22mm implements ITestOperation {
 //    private final static int HP22MM_TEST_FIFO2MCU                       = 24;
     private final static int HP22MM_TEST_UPDATE_PD_MCU                  = 21;
     private final static int HP22MM_TEST_UPDATE_FPGA_FLASH              = 22;
-    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 23;
-    private final static int HP22MM_TOGGLE_PI4                          = 24;
-    private final static int HP22MM_TOGGLE_PI5                          = 25;
+    private final static int HP22MM_TEST_UPDATE_FPGA_FLASH_108          = 23;
+    private final static int HP22MM_TEST_UPDATE_IDS_MCU                 = 24;
+    private final static int HP22MM_TOGGLE_PI4                          = 25;
+    private final static int HP22MM_TOGGLE_PI5                          = 26;
 // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
-    private final static int HP22MM_HISPEED_WTEST                       = 26;
+    private final static int HP22MM_HISPEED_WTEST                       = 27;
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
@@ -629,7 +631,16 @@ public class TestHp22mm implements ITestOperation {
                             break;
                         case HP22MM_TEST_UPDATE_FPGA_FLASH:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                if (0 == Hp22mm.UpdateFPGAFlash()) {
+                                if (0 == Hp22mm.UpdateFPGAFlash(22)) {
+                                    mHp22mmTestResult[index] = "Success";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed";
+                                }
+                            }
+                            break;
+                        case HP22MM_TEST_UPDATE_FPGA_FLASH_108:
+                            synchronized (Hp22mmSCManager.LockObj) {
+                                if (0 == Hp22mm.UpdateFPGAFlash(108)) {
                                     mHp22mmTestResult[index] = "Success";
                                 } else {
                                     mHp22mmTestResult[index] = "Failed";

@@ -30,8 +30,8 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 	private Handler mCallback;
 
 // H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
-	private boolean mInitializing;
-	private boolean mUIDChecking;
+	public static volatile boolean mInitializing;
+	public static volatile boolean mUIDChecking;
 // End of H.M.Wang 2026-1-10 增加初始化与检查UID处理的互斥处理
 
 	public static int TOTAL_RFID_DEVICES = 8;
@@ -74,7 +74,7 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 				mDevice = mRfidDevices.get(mCurrent);
 				mDevice.addLisetener(RFIDManager.this);
 
-				Debug.d(TAG, "MSG_RFID_SWITCH_DEVICE");
+				Debug.d(TAG, "MSG_RFID_SWITCH_DEVICE to " + mCurrent);
 
 				if (mDevice.getLocalInk() > 0) {
 					mHandler.sendEmptyMessageDelayed(MSG_RFID_SWITCH_DEVICE, 200);
@@ -261,13 +261,11 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Debug.d(TAG, "--->init");
 			    if(mInitializing) return;			// 正在初始化，直接返回
 				while(mUIDChecking) {try {Thread.sleep(1000);} catch (Exception e) {}}
 				mInitializing = true;
 
 				mCallback = callback;
-				Debug.d(TAG, "--->init2");
 				if(mDevice != null) mDevice.removeListener(RFIDManager.this);
 				mCurrent = 0;
 				ExtGpio.rfidSwitch(mCurrent);
@@ -544,11 +542,9 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Debug.d(TAG, "--->checkUID");
 				if(mUIDChecking) return;			// 正在初始化，直接返回
 				while(mInitializing) {try {Thread.sleep(1000);} catch (Exception e) {}}
 				mUIDChecking = true;
-				Debug.d(TAG, "--->checkUID2");
 
 				if(mDevice != null) mDevice.removeListener(RFIDManager.this);
 				mLiveHeads = heads;

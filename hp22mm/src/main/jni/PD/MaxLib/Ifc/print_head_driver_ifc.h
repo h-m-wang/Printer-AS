@@ -186,6 +186,7 @@ PDResult_t pd_micro_fw_reflash_no_reset(int32_t instance, const char *fw_file_na
  *                          No Error Codes
  */
 PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fpga_file_name, bool verify);
+PDResult_t pd_fpga_fw_reflash_108(int32_t instance, const char *fpga_file_name, bool verify);
 
 /**
  * @brief                   Power on the requested Printhead.

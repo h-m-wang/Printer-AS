@@ -56,7 +56,7 @@ public class Hp22mm {
     static public native String getPressurizedValue();
     static public native int Depressurize();
     static public native int UpdatePDFW();
-    static public native int UpdateFPGAFlash();
+    static public native int UpdateFPGAFlash(int type);
     static public native int UpdateIDSFW();
     static public native int pdPowerOn(int penIndex, int temp);
     static public native int pdPowerOff(int penIndex);

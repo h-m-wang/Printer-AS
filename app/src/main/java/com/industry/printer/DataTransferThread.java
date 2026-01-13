@@ -161,6 +161,7 @@ public class DataTransferThread {
 			}
 		}).create();
 // End of H.M.Wang 2022-11-8 添加一个显示Bagink当中Level值的信息框
+		mScheduler = InkSchedulerFactory.getScheduler(mContext);		//  2026-1-13
 	}
 	
 	/**
@@ -2211,9 +2212,9 @@ private void setSerialProtocol9DTs(final String data) {
 			isBufferReady |= tk.prepareBackgroudBuffer();
 		}
 
-		if (mScheduler == null) {
-			mScheduler = InkSchedulerFactory.getScheduler(mContext);
-		}
+// 2026-1-13		if (mScheduler == null) {
+// 2026-1-13			mScheduler = InkSchedulerFactory.getScheduler(mContext);
+// 2026-1-13		}
 
 		SystemConfigFile configFile = SystemConfigFile.getInstance(context);
 

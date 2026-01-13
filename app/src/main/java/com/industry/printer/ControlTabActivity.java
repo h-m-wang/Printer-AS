@@ -2225,9 +2225,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						BinFromBitmap.recyleBitmap(mPreBitmap);
 					}
 					//鏂规1锛氫粠bin鏂囦欢鐢熸垚buffer
-					initDTThread();
-
-					Debug.d(TAG, "--->init thread ok");
+// H.M.Wang 2026-1-13					initDTThread();
+// H.M.Wang 2026-1-13					Debug.d(TAG, "--->init thread ok");
 
 // H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
 //					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
@@ -2323,7 +2322,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						handleError(R.string.str_print_printing, pcMsg);
 						break;
 					}
-					//Debug.d(TAG, "--->initDTThread");
+
 					ExtendInterceptor interceptor = new ExtendInterceptor(mContext);
 					ExtendStat stat = interceptor.getExtend();
 					boolean statChanged = false;
@@ -2331,23 +2330,23 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						statChanged = true;
 						extendStat = stat;
 					}
-					if (mDTransThread == null  || statChanged) {
-						initDTThread();
-					}
 					if (mDTransThread == null) {
 						handleError(R.string.str_toast_no_message, pcMsg);
 						break;
 					}
+// H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
+					mHandler.removeMessages(RFIDManager.MSG_RFID_INIT);
+// End of H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
 					Debug.d(TAG, "--->prepare buffer");
 					List<DataTask> dt = mDTransThread.getData();
 					int heads = 1;
 					if (dt != null && dt.size() > 0) {
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
-// H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
-					mHandler.removeMessages(RFIDManager.MSG_RFID_INIT);
-// End of H.M.Wang 2026-1-9 鸡蛋机由于允许有未解锁的头时打印，因此checkUID和初始化会互相进行打印头轮番检查，导致交错而出错，因此此时取消掉初始化尝试
 					mInkManager.checkUID(heads);
+// H.M.Wang 2026-1-13					if (mDTransThread == null  || statChanged) {
+						initDTThread();
+// H.M.Wang 2026-1-13					}
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
 // H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码

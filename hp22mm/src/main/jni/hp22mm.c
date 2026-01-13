@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.174"
+#define VERSION_CODE                            "1.0.175"
+// 1.0.175 2026-1-13
+// 增加对于108类型的升级Flash的函数pd_fpga_fw_reflash_108，和与之对应的调用逻辑
 // 1.0.174 2025-12-04
 // 取消 1.0.173 的临时修改
 // 1.0.173 2025-12-03
@@ -1258,7 +1260,7 @@ JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int type) {
     PDResult_t pd_r;
 
     Air_Pump_State_t a = Air_Pump_State;
@@ -1274,9 +1276,17 @@ JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg) {
     pd_r = pd_init(PD_INSTANCE);
     if (pd_check("pd_init", pd_r)) return -1;
 
-    pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
-    if (pd_check("pd_fpga_fw_reflash", pd_r)) {
+    if(108 == type) {
+        pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+    } else {
         pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+    }
+    if (pd_check("pd_fpga_fw_reflash", pd_r)) {
+        if(108 == type) {
+            pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+        } else {
+            pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+        }
         if (pd_check("pd_fpga_fw_reflash", pd_r)) {
             Air_Pump_State = a;
             PD_Power_State = p;
@@ -1434,7 +1444,7 @@ static JNINativeMethod gMethods[] = {
         {"downLocal",		        "(II)I",						(void *)Java_com_downLocal},
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
         {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
-        {"UpdateFPGAFlash",		            "()I",	                    (void *)Java_com_UpdateFPGAFlash},
+        {"UpdateFPGAFlash",		            "(I)I",	                    (void *)Java_com_UpdateFPGAFlash},
         {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
 // H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
         {"enableLog",	    	    "(I)I",						(void *)Java_com_enableLogOutput},
