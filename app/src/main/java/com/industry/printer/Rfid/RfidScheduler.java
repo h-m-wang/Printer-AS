@@ -547,9 +547,7 @@ public class RfidScheduler implements IInkScheduler {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Debug.d(TAG, "Load1. " + RFIDManager.mInitializing + ", " + RFIDManager.mUIDChecking);
 				while(RFIDManager.mUIDChecking || RFIDManager.mInitializing) {try {Thread.sleep(1000);} catch (Exception e) {}}
-				Debug.d(TAG, "Load2");
 				RfidTask task = mRfidTasks.get(mCurrent);
 				task.onLoad();
 				/*切換鎖之後需要等待1s才能進行讀寫操作*/

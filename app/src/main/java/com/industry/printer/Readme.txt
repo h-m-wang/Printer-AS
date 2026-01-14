@@ -1,3 +1,9 @@
+2026-1-13 260113-189300001
+==================
+在ControlTabActivity类的响应MSG_RFID_READ_SUCCESS时间处理中，增加判断是否正在打印中的判断，如果是打印中则不在调用再次初始化，否则可能会造成初始化与RfidScheduler之间切换打印头的操作交叉
+					if (!ready && !mDTransThread.isRunning()) {
+						mHandler.sendEmptyMessageDelayed(RFIDManager.MSG_RFID_INIT, 5000);
+
 2026-1-13 260113-189200001
 ==================
 再次在189100001的基础上，修改RfidScheduler的启动时间和逻辑，目的是使得RfidScheduler中对RFIDDevice中的数据进行的修改，不至于影响到checkUID或者init中的执行，是的他们完全被隔离

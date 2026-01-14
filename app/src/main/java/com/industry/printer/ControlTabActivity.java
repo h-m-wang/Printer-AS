@@ -2710,7 +2710,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //							repeatTimes--;
 //						}
 					}
-					if (!ready) {
+// H.M.Wang 2026-1-13
+//					if (!ready) {
+					if (!ready && !mDTransThread.isRunning()) {
+// End of H.M.Wang 2026-1-13
 						mHandler.sendEmptyMessageDelayed(RFIDManager.MSG_RFID_INIT, 5000);
 					} else {
 						mHandler.removeMessages(MESSAGE_RFID_ZERO);
@@ -3054,7 +3057,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 		}
 	}
-	
+
 	public void initDTThread() {
 		
 		if (mMsgTask == null) {
