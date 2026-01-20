@@ -82,6 +82,7 @@
 	<string name="str_preview">Avance</string>
 	
 	<string name="str_del">Borrar</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Grupo</string>
 	<string name="str_btn_shift">Cambio</string>
 	<string name="str_btn_second">Segundo</string>

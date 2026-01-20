@@ -53,6 +53,7 @@
 	<string name="str_preview">プレビュー</string>
 	
 	<string name="str_del">削除</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_btn_shift">シフト</string>
 	<string name="str_btn_second">Second</string>
 	

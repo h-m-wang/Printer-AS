@@ -56,6 +56,7 @@
 	<string name="str_remain_ink">Encre</string>
 	<string name="str_remain_ptimes">Total</string>
 	<string name="str_del">Efface</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Group</string>
 	<string name="str_btn_shift">Décalage</string>
 	<string name="str_btn_second">Seconde</string>

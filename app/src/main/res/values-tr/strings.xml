@@ -82,6 +82,7 @@
 	<string name="str_preview">Önizleme</string>
 	
 	<string name="str_del">Sil</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Grup</string>
 	<string name="str_btn_shift">Shift</string>
 	<string name="str_btn_second">İkinci</string>

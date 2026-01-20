@@ -53,6 +53,7 @@
 	<string name="str_preview">Náhled</string>
 	
 	<string name="str_del">Smazat</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Group</string>
 	<string name="str_btn_shift">Směna</string>
 	<string name="str_btn_second">Sekunda</string>

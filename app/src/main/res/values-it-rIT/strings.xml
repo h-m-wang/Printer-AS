@@ -54,6 +54,7 @@
     <string name="str_mvbackward">Indietro</string>
     <string name="str_preview">Anteprima</string>
     <string name="str_del">Canc.</string>
+    <string name="str_del_all">Delete All?</string>
     <string name="str_multi_select">gruppo</string>
     <string name="str_btn_shift">Shift</string>
     <string name="str_btn_second">Secondo</string>

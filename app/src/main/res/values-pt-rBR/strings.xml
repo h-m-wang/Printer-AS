@@ -52,6 +52,7 @@
 	<string name="str_mvbackward">Voltar</string>
 	<string name="str_preview">Visualizar</string>
 	<string name="str_del">Excluir</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Group</string>
 	<string name="str_btn_shift">Shift</string>
 	<string name="str_btn_second">Segundo</string>

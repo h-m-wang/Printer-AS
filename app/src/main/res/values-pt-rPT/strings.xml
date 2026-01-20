@@ -52,6 +52,7 @@
 	<string name="str_mvbackward">"Para trás"</string>
 	<string name="str_preview">Visualizar</string>
 	<string name="str_del">Deletar</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_btn_shift">Mudar</string>
 	<string name="str_btn_second">Segundo</string>
 	<string name="str_btn_upgrade">Atualizar</string>

@@ -1,6 +1,8 @@
 package com.industry.printer.Server1;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -12,19 +14,23 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.DataTransferThread;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.MainActivity;
 import com.industry.printer.R;
 import com.industry.printer.ThreadPoolManager;
 import com.industry.printer.Utils.ConfigPath;
@@ -46,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 public class Server1MainWindow {
     public static final String TAG = Server1MainWindow.class.getSimpleName();
@@ -92,6 +99,14 @@ public class Server1MainWindow {
     private EditText mSearchWord;
     private TextView mGetFromHost;
     private TextView mPrint;
+// H.M.Wang 2026-1-19 增加一个全部删除剩余条目的按键，点按该按键后，经过确认，全部删除剩余条目，并且每删除一个条目反馈一条信息（与打印完一样，只是增加一个Cmd:N的数据对）
+    private TextView mDelete;
+    private LinearLayout mConfirm;
+    private TextView mPromptMsg;
+    private TextView mOK;
+    private TextView mCancel;
+    private boolean mStopDeleting;
+// End of H.M.Wang 2026-1-19 增加一个全部删除剩余条目的按键，点按该按键后，经过确认，全部删除剩余条目，并且每删除一个条目反馈一条信息（与打印完一样，只是增加一个Cmd:N的数据对）
 
     private ArrayList<String[]> mResults;
     private int mSelectedItemNo;
@@ -104,7 +119,7 @@ public class Server1MainWindow {
         }
         return mInstance;
     }
-
+AlertDialog dialog;
     private Server1MainWindow(Context ctx) {
         mContext = ctx;
         mCallback = null;
@@ -289,7 +304,22 @@ public class Server1MainWindow {
                 String keyWord = editable.toString();
                 if(keyWord.length() >= 4) {
                     for(int i=0; i<mResults.size(); i++) {
-                        if(mResults.get(i)[INDEX_PIECE_NO].endsWith(keyWord)) {
+// H.M.Wang 2026-1-18 修改为搜索所有字段
+//                        if(mResults.get(i)[INDEX_PIECE_NO].endsWith(keyWord)) {
+                        if(mResults.get(i)[INDEX_PRINT_ROW_MSG_0].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_1].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_2].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_3].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_4].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_5].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_6].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_7].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_8].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PRINT_ROW_MSG_9].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_STOVE].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_PIECE_NO].indexOf(keyWord) >= 0 ||
+                           mResults.get(i)[INDEX_ID].indexOf(keyWord) >= 0 ) {
+// End of H.M.Wang 2026-1-18 修改为搜索所有字段
                             selectPosition(i);
                             mPostResultLV.smoothScrollToPosition(i);
                             break;
@@ -383,6 +413,36 @@ public class Server1MainWindow {
                         ToastUtil.show(mContext, R.string.str_tlk_not_found);
                     }
                 }
+            }
+        });
+
+        mConfirm = (LinearLayout) popupView.findViewById(R.id.comfirm);
+        mConfirm.setVisibility(View.GONE);
+        mPromptMsg = (TextView) popupView.findViewById(R.id.prompt_msg);
+        mOK = (TextView) popupView.findViewById(R.id.btn_ok);
+        mOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                mConfirm.setVisibility(View.GONE);
+                mPromptMsg.setText("" + mResults.size());
+                mOK.setVisibility(View.GONE);
+                mStopDeleting = false;
+                deleteAll();
+            }
+        });
+        mCancel = (TextView) popupView.findViewById(R.id.btn_cancel);
+        mCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mStopDeleting = true;
+                mConfirm.setVisibility(View.GONE);
+            }
+        });
+        mDelete = (TextView) popupView.findViewById(R.id.btn_delete);
+        mDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConfirm.setVisibility(View.VISIBLE);
             }
         });
 
@@ -592,7 +652,7 @@ public class Server1MainWindow {
                         }
                     }
                 }
-                mGetFromHost.post(new Runnable() {
+                mPostResultLV.post(new Runnable() {
                     @Override
                     public void run() {
                         if(mPostResultLV.getLastVisiblePosition() < mSelectedItemNo+1) mPostResultLV.smoothScrollByOffset(1);
@@ -602,5 +662,55 @@ public class Server1MainWindow {
                 if(null != mCallback) mCallback.sendEmptyMessageDelayed(ControlTabActivity.MESSAGE_PRINT_STOP, 1000L);
             }
         }
+    }
+
+    public void deleteAll() {
+        ThreadPoolManager.mThreads.execute(new Runnable() {
+            @Override
+            public void run() {
+                mSelectedItemNo = -1;
+                while(mResults.size() > 0 && !mStopDeleting) {
+//                    Debug.d(TAG, "Deleting [" + mResults.get(0)[INDEX_ID] + "]");
+                    final CountDownLatch latch = new CountDownLatch(1);
+                    final StringBuilder sb = new StringBuilder();
+                    HttpUtils httpUtils = new HttpUtils(
+                            "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint",
+                            "POST",
+                            "{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(0)[INDEX_ID] + "\",\"Cmd\":\"N\"}}",
+                            new HttpUtils.HttpResponseListener() {
+                                @Override
+                                public void onReceived(final String str) {
+//                                    Debug.d(TAG, "[" + mResults.get(0)[INDEX_ID] + "] Deleted");
+                                    mResults.remove(0);
+                                    latch.countDown();
+                                }
+                            }
+                    );
+                    httpUtils.access();
+
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    mPostResultLV.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPostResultLVAdapter.notifyDataSetChanged();
+                            mPromptMsg.setText("" + mResults.size());
+                        }
+                    });
+                }
+                writeDataToFile(mResults);
+                mPostResultLV.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.show(mContext, (mStopDeleting ? "Canceled" : "Done"));
+                        mConfirm.setVisibility(View.GONE);
+                    }
+                });
+            }
+        });
     }
 }

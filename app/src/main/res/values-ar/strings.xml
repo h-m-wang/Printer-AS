@@ -71,6 +71,7 @@
 	<string name="str_preview">معاينة</string>
 
 	<string name="str_del">حذف</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">مجموعة</string>
 	<string name="str_btn_shift">وردية</string>
 	<string name="str_btn_second">ثانية</string>

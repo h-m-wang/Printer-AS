@@ -70,6 +70,7 @@
 	<string name="str_mvbackward">뒤로 이동</string>
 	<string name="str_preview">미리보기</string>
 	<string name="str_del">삭제</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">다 선택</string>
 	<string name="str_btn_shift">롯뜨</string>
 	<string name="str_btn_second">초</string>

@@ -53,6 +53,7 @@
 	<string name="str_preview">Preview</string>
 	
 	<string name="str_del">Delete</string>
+	<string name="str_del_all">Delete All?</string>
 	<string name="str_multi_select">Group</string>
 	<string name="str_btn_shift">Shift</string>
 	<string name="str_btn_second">Second</string>

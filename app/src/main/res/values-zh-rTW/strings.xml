@@ -73,6 +73,7 @@
 	<string name="str_mvbackward">後移</string>
 	<string name="str_preview">預覽</string>
 	<string name="str_del">刪除</string>
+	<string name="str_del_all">全部刪除?</string>
 	<string name="str_multi_select">多選</string>
 	<string name="str_btn_shift">班次</string>
 	<string name="str_btn_second">秒</string>
