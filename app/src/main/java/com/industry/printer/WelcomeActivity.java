@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -164,6 +165,8 @@ public class WelcomeActivity extends Activity {
 						if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
 						SerialPort.loadLibrary();
 						Hp22mm.loadLibrary();
+						/*初始化系统配置*/
+						Configs.initConfigs(mContext);
 // End of H.M.Wang 2026-1-22 由PrinterApplication类转移过来，目的是只有升级成功才load库，否则库的api接口有修改时，A133会出现先load（旧的so）后升级（新的so）的问题，导致apk的api与so的api不匹配而崩溃的问题
 						mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5000);
 					} else {
@@ -183,8 +186,6 @@ public class WelcomeActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.welcome_layout);
 		mContext = getApplicationContext();
-		/*初始化系统配置*/
-		Configs.initConfigs(mContext);
 
 		Debug.d(TAG, "-------- onCreate --------");
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
@@ -244,36 +245,34 @@ public class WelcomeActivity extends Activity {
 
 // H.M.Wang 2024-11-5 增加A133平台的判断
 //		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
-		if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
+		if (PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			LibUpgrade libUp = new LibUpgrade();
-			ret = libUp.upgradeSOs() && PlatformInfo.isA133Product();		// 是由A133才需要重新启动一次，A20不需要
-
+			ret = libUp.upgradeSOs();
+		} else {
 // H.M.Wang 2025-9-24 取消开机升级
 // H.M.Wang 2025-10-24 仅A133取消开机升级
-			if(!PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2025-10-24 仅A133取消开机升级
-				PackageInstaller installer = PackageInstaller.getInstance(this);
-				long start = System.currentTimeMillis();
-				while(System.currentTimeMillis() - start < 3000) {
-					if(ConfigPath.getUpgradePath() != null) {
-						Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
-						if(AVOID_CROSS_UPGRADE) {
-							ret |= installer.silentUpgrade3();
-						} else {
-							ret |= installer.silentUpgrade();
-						}
-						break;
+			PackageInstaller installer = PackageInstaller.getInstance(this);
+			long start = System.currentTimeMillis();
+			while(System.currentTimeMillis() - start < 3000) {
+				if(ConfigPath.getUpgradePath() != null) {
+					Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
+					if(AVOID_CROSS_UPGRADE) {
+						ret |= installer.silentUpgrade3();
 					} else {
-						Debug.d(TAG, "Path = null. " + (System.currentTimeMillis() - start));
-						ConfigPath.updateMountedUsb();
-						try { Thread.sleep(100);} catch(Exception e) {}
+						ret |= installer.silentUpgrade();
 					}
+					break;
+				} else {
+					Debug.d(TAG, "Path = null. " + (System.currentTimeMillis() - start));
+					ConfigPath.updateMountedUsb();
+					try { Thread.sleep(100);} catch(Exception e) {}
 				}
 			}
-// End of H.M.Wang 2025-9-24 取消开机升级
 		}
+// End of H.M.Wang 2025-9-24 取消开机升级
 		return ret;
 	}
 

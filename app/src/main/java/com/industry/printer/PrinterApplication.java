@@ -40,17 +40,22 @@ public class PrinterApplication extends Application {
 		sInstance = this;
 		asyncInit();
 
-/* H.M.Wang 2026-1-22 取消这里升级，改为都在WelcomeActivity中升级		try {
+		try {
 			if(PlatformInfo.isSmfyProduct()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用其他方式升级
 				LibUpgrade libUp = new LibUpgrade();
 				libUp.upgradeSOs();
+
+				NativeGraphicJni.loadLibrary();
+				if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
+				SerialPort.loadLibrary();
+				Hp22mm.loadLibrary();
 			}
 		} catch (ExceptionInInitializerError e) {
 			Debug.e(TAG, "--->e: " + e.getMessage());
 		} catch (Exception e) {
 			Debug.e(TAG, "--->e: " + e.getMessage());
 		}
-*/
+
 	}
 
 	private void registerFileListener() {
