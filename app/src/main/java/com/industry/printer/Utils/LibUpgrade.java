@@ -244,11 +244,12 @@ public class LibUpgrade {
         }
         return false;
     }
-
+/*
     public boolean upgradeLibs() {
         if(PlatformInfo.isA133Product()) {
             return upgradeSOs();
         }
         return false;
     }
+*/
 }

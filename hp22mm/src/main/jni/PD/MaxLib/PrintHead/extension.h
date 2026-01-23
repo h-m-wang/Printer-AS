@@ -48,6 +48,7 @@ Made in U.S.A.
 #define FLASH_BP0_BIT			1<<2
 #define FLASH_BP1_BIT			1<<3
 #define FLASH_BP2_BIT			1<<4
+#define FLASH_BP3_BIT           1<<6
 #define FLASH_WP_MASK			(FLASH_BP0_BIT | FLASH_BP1_BIT | FLASH_BP2_BIT)
 #define FLASH_PAGE_SIZE			256
 #define FLASH_QE_MASK			1<<6

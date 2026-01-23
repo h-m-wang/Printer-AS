@@ -35,6 +35,11 @@ Made in U.S.A.
 #define SC_STATUS_IDX                       (TOTAL_NUMBER_OF_ID + 4)
 #define SC_INFO_IDX                         (TOTAL_NUMBER_OF_ID + 5)
 
+// FPGA flash part manufactucter IDs    (SW_01_02升级内容)
+#define MICRON_MFG_ID   0x20
+#define MACRONIX_MFG_ID 0xC2
+#define INFINEON_MFG_ID 0x01
+
 /* Array of print head control handle structure */
 PDHandle_t _pd_handle[NUM_BLUR_INSTANCES];
 static bool _is_lib_initialized = false;
@@ -931,11 +936,55 @@ static PDResult_t _pd_fpgaflash_getstatus(int32_t instance,Flashinfo_t *info, ui
 
     return PD_OK;	 
 }
- 
- /*
- * 
- * 
- */
+
+/*
+*
+*
+*/
+static PDResult_t _pd_fpgaflash_getrdid(int32_t instance,Flashinfo_t * info, uint8_t *rdid) {
+    LOGI("Enter %s", __FUNCTION__);
+
+    if(_is_lib_initialized == false) {
+        LOGE("Not initialized!");
+        return PD_ERROR;
+    }
+//    if(instance <= 0 || instance > NUM_BLUR_INSTANCES) {
+//		LOGE("Invalid Instance!");
+//		return PD_ERROR;
+//	}
+//	if(info == NULL) return PD_ERROR;
+//	if(rdid == NULL) return PD_ERROR;
+
+    Response_t res;
+    ServiceResult_t sr = service_flash_rdid(instance, info, &res);
+    if (sr != SERVICE_OK)
+        return PD_ERROR;
+
+    /* if there is response to be processed...1 byte of response is expected */
+    if ((res.res_size == 0) || (res.res_size != 1)) {
+        LOGE(" res_size=%d\n", res.res_size);
+        return PD_ERROR;
+    }
+
+    sr = service_read_data(instance, info->objects[FLASH_RDBUF].addr, 20, &res);
+    if (sr != SERVICE_OK)
+        return PD_ERROR;
+
+    /* if there is response to be processed...1 byte of response is expected */
+    /* decode the response data */
+    if (res.res_size != 0 && res.res_size == 20) {
+        LOGE("MFG Id=0x%x\n", res.data[0]);
+        /* decode the response data */
+        *rdid = res.data[0];
+    }
+
+    return PD_OK;
+}
+
+/*
+*
+*
+*/
 static PDResult_t _pd_fpgaflash_erase(int32_t instance,Flashinfo_t *info) {
     LOGI("Enter %s", __FUNCTION__);
 
@@ -1412,6 +1461,13 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     uint32_t first_address = 0;
     uint32_t total_size = 0;
 
+    /* check for write protect. */
+    uint32_t try = 0;
+    uint8_t status = 0;
+    uint8_t mfg_rdid = 0;
+    uint8_t flash_write_protect_mask;
+    PDResult_t pr;
+
     /* Validate the firmware file and extract the starting address and size */
     oem_lock(instance);
     ReflashResult_t r = validate_srec(fw_file_name, &first_address, &total_size);
@@ -1431,7 +1487,7 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     
 	/* initialize fpgaflash info */
 	Flashinfo_t fpgaflashinfo;
-    PDResult_t pr = _pd_init_fpgaflash_info( instance, &fpgaflashinfo);
+    pr = _pd_init_fpgaflash_info(instance, &fpgaflashinfo);
     if(PD_OK != pr) {
         oem_unlock(instance);
         return pr;
@@ -1449,25 +1505,65 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
         LOGE("FlashInfo.objects[%d] = {id=%d, size=%d, addr=%d}", i, fpgaflashinfo.objects[i].id, fpgaflashinfo.objects[i].size, fpgaflashinfo.objects[i].addr);
     }
 */
+    pr = _pd_fpgaflash_getrdid(instance, &fpgaflashinfo, &mfg_rdid);
+    if (PD_OK != pr) {
+        /* Lock ends here. Unlock mutex is done here */
+        oem_unlock(instance);
+        LOGE("ERROR: pd_fpga_fw_reflash(): Failed to get fpga flash rdid\n");
+        return pr;
+    }
+    LOGD("FPGA MFG: %s\n", (mfg_rdid==MICRON_MFG_ID)?"Micron":(mfg_rdid==MACRONIX_MFG_ID)?"Macronix":(mfg_rdid==INFINEON_MFG_ID)?"Infineon":"Unknown");
+
+    // if rdid == 0xff or 0x00, try to flash FPGA by holding FPGA in reset (PROGB)
+    // This will not work over Fiber Optic since it will break the communication
+    if ((mfg_rdid==0xff) || (mfg_rdid==0x00)) {
+        /* Put FPGA in reset mode before starting reflash. */
+        pr = _pd_fpga_setreset( instance, 0);
+        if(PD_OK != pr) {
+            /* Lock ends here. Unlock mutex is done here */
+            oem_unlock(instance);
+            LOGE("ERROR: pd_fpga_fw_reflash(): Failed to put FPGA in reset mode\n");
+            return pr;
+        }
+
+        pr = _pd_fpgaflash_getrdid(instance, &fpgaflashinfo, &mfg_rdid);
+        if (PD_OK != pr) {
+            /* Lock ends here. Unlock mutex is done here */
+            oem_unlock(instance);
+            LOGE("ERROR: pd_fpga_fw_reflash(): Failed to get fpga flash rdid\n");
+            return pr;
+        }
+        LOGD("FPGA MFG: %s\n", (mfg_rdid==MICRON_MFG_ID)?"Micron":(mfg_rdid==MACRONIX_MFG_ID)?"Macronix":(mfg_rdid==INFINEON_MFG_ID)?"Infineon":"Unknown");
+    }
+
+#if 0
     /* Put FPGA in reset mode before starting reflash. */
     pr = _pd_fpga_setreset( instance, 0);
     if(PD_OK != pr) {
         oem_unlock(instance);
         return pr;
     }
+#endif
 
     LOGI("  Checking for write protect..\n");
 		
 	/* check for write protect. */
-    uint32_t  try = 0;
-	uint8_t status = 0;
 	pr = _pd_fpgaflash_getstatus( instance, &fpgaflashinfo, &status);
 	if(PD_OK != pr) {
     	oem_unlock(instance);
     	return pr;
     }
 
-	if(status & FLASH_WP_MASK) {
+
+    LOGD("FPGA initial status=0x%x\n", status);
+    flash_write_protect_mask = FLASH_WP_MASK;
+
+    // Micron parts have an additional write protect bit 0x5C
+    if (mfg_rdid==MICRON_MFG_ID) {
+        flash_write_protect_mask |= FLASH_BP3_BIT;
+    }
+
+    if(status & flash_write_protect_mask)    {
         LOGI("FPGA flash is write protected. Trying to write enable..\n");
 						
 		/* fpga flash is write protected...try removing it */
@@ -1487,7 +1583,9 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
                 return pr;
             }
 
-            if(status & FLASH_WP_MASK) {
+            LOGE("FPGA attempting to clear write protect status=0x%x\n", status);
+
+            if(status & flash_write_protect_mask) {
                 if( try >= 3) {
                     LOGE("FPGA flash is write protected. Cannot flash FW.\n");
                     /* might be h/w write protected. Can't program flash */
@@ -1520,6 +1618,7 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
     	return pr;
 	}
 	/* get the status to check whether erase is over */
+    try = 0;
 	while(1) {
         sleep(1);  /* in secs */
         pr = _pd_fpgaflash_getstatus( instance, &fpgaflashinfo, &status);
@@ -1529,7 +1628,18 @@ PDResult_t pd_fpga_fw_reflash(int32_t instance, const char *fw_file_name, bool v
         }
         LOGD(" FPGA flash: Status - 0x%x\n",status);
         if( !(status & FLASH_WIP_BIT) ) break;
-	}
+        else
+            try++;
+
+        if(try > 120) {
+            LOGE("ERROR: pd_fpga_fw_reflash(): FPGA FLASH_WIP_BIT not cleared,  Cannot flash FW.\n");
+            /* erase failed?, can't program flash */
+            /* Lock ends here. Unlock mutex is done here */
+            oem_unlock(instance);
+
+            return PD_ERROR;
+        }
+    }
    
     /* Write the firmware binary to flash */
 	pr =_pd_write_fpgafw( instance, &fpgaflashinfo, fw_file_name, verify);

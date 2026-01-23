@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.industry.printer.Serial.SerialPort;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
@@ -22,6 +23,10 @@ import com.industry.printer.Utils.LibUpgrade;
 import com.industry.printer.Utils.PackageInstaller;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.data.NativeGraphicJni;
+import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.SmartCard;
+import com.industry.printer.hardware.SmartCardManager;
 import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
 import com.industry.printer.ui.CustomerDialog.RelightableDialog;
@@ -154,6 +159,12 @@ public class WelcomeActivity extends Activity {
 					break;
 				case LAUNCH_UPGRADE:
 					if (!upgrade()) {
+// H.M.Wang 2026-1-22 由PrinterApplication类转移过来，目的是只有升级成功才load库，否则库的api接口有修改时，A133会出现先load（旧的so）后升级（新的so）的问题，导致apk的api与so的api不匹配而崩溃的问题
+						NativeGraphicJni.loadLibrary();
+						if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
+						SerialPort.loadLibrary();
+						Hp22mm.loadLibrary();
+// End of H.M.Wang 2026-1-22 由PrinterApplication类转移过来，目的是只有升级成功才load库，否则库的api接口有修改时，A133会出现先load（旧的so）后升级（新的so）的问题，导致apk的api与so的api不匹配而崩溃的问题
 						mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5000);
 					} else {
 						try {Thread.sleep(5000);} catch(Exception e) {}
@@ -237,7 +248,7 @@ public class WelcomeActivity extends Activity {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			LibUpgrade libUp = new LibUpgrade();
-			ret = libUp.upgradeLibs();
+			ret = libUp.upgradeSOs() && PlatformInfo.isA133Product();		// 是由A133才需要重新启动一次，A20不需要
 
 // H.M.Wang 2025-9-24 取消开机升级
 // H.M.Wang 2025-10-24 仅A133取消开机升级

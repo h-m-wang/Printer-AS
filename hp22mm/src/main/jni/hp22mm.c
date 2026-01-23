@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.175"
+#define VERSION_CODE                            "1.0.176"
+// 1.0.176 2026-1-21
+// 根据22mm_SS_SW_01_02版本中的修改内容，升级print_head_driver.c和extension.h中的相应内容
 // 1.0.175 2026-1-13
 // 增加对于108类型的升级Flash的函数pd_fpga_fw_reflash_108，和与之对应的调用逻辑
 // 1.0.174 2025-12-04

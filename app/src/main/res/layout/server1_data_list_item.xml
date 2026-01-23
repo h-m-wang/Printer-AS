@@ -3,6 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none" >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -152,4 +156,5 @@
                 android:lines="1"
                 android:ellipsize="end" />
         </LinearLayout>
+    </HorizontalScrollView>
 </LinearLayout>

@@ -103,8 +103,8 @@ public class Server1MainWindow {
     private TextView mDelete;
     private LinearLayout mConfirm;
     private TextView mPromptMsg;
-    private TextView mOK;
-    private TextView mCancel;
+    private TextView mPromptOK;
+    private TextView mPromptCancel;
     private boolean mStopDeleting;
 // End of H.M.Wang 2026-1-19 增加一个全部删除剩余条目的按键，点按该按键后，经过确认，全部删除剩余条目，并且每删除一个条目反馈一条信息（与打印完一样，只是增加一个Cmd:N的数据对）
 
@@ -119,7 +119,7 @@ public class Server1MainWindow {
         }
         return mInstance;
     }
-AlertDialog dialog;
+
     private Server1MainWindow(Context ctx) {
         mContext = ctx;
         mCallback = null;
@@ -419,19 +419,19 @@ AlertDialog dialog;
         mConfirm = (LinearLayout) popupView.findViewById(R.id.comfirm);
         mConfirm.setVisibility(View.GONE);
         mPromptMsg = (TextView) popupView.findViewById(R.id.prompt_msg);
-        mOK = (TextView) popupView.findViewById(R.id.btn_ok);
-        mOK.setOnClickListener(new View.OnClickListener() {
+        mPromptOK = (TextView) popupView.findViewById(R.id.btn_ok);
+        mPromptOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                mConfirm.setVisibility(View.GONE);
                 mPromptMsg.setText("" + mResults.size());
-                mOK.setVisibility(View.GONE);
+                mPromptOK.setVisibility(View.GONE);
                 mStopDeleting = false;
                 deleteAll();
             }
         });
-        mCancel = (TextView) popupView.findViewById(R.id.btn_cancel);
-        mCancel.setOnClickListener(new View.OnClickListener() {
+        mPromptCancel = (TextView) popupView.findViewById(R.id.btn_cancel);
+        mPromptCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mStopDeleting = true;
@@ -468,6 +468,7 @@ AlertDialog dialog;
                 if(null == convertView) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_list_item, null);
                 }
+                final View final_convertView = convertView;
 
                 if(mSelectedItemNo == position) {
                     convertView.setBackgroundColor(Color.YELLOW);
@@ -477,35 +478,190 @@ AlertDialog dialog;
 
                 TextView printRowCntTv = (TextView) convertView.findViewById(R.id.printRowCnt);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_CNT) printRowCntTv.setText(mResults.get(position)[INDEX_PRINT_ROW_CNT]);
+                printRowCntTv.setOnClickListener(new View.OnClickListener() {       // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowCntTv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView pieceNoTv = (TextView) convertView.findViewById(R.id.pieceNo);
                 if(mResults.get(position).length > INDEX_PIECE_NO) pieceNoTv.setText(mResults.get(position)[INDEX_PIECE_NO]);
+                pieceNoTv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                pieceNoTv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg0Tv = (TextView) convertView.findViewById(R.id.printRowMsg0);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_0) printRowMsg0Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_0]);
+                printRowMsg0Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg0Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg1Tv = (TextView) convertView.findViewById(R.id.printRowMsg1);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_1) printRowMsg1Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_1]);
+                printRowMsg1Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg1Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg2Tv = (TextView) convertView.findViewById(R.id.printRowMsg2);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_2) printRowMsg2Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_2]);
+                printRowMsg2Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg2Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg3Tv = (TextView) convertView.findViewById(R.id.printRowMsg3);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_3) printRowMsg3Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_3]);
+                printRowMsg3Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg3Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg4Tv = (TextView) convertView.findViewById(R.id.printRowMsg4);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_4) printRowMsg4Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_4]);
+                printRowMsg4Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg4Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg5Tv = (TextView) convertView.findViewById(R.id.printRowMsg5);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_5) printRowMsg5Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_5]);
+                printRowMsg5Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg5Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg6Tv = (TextView) convertView.findViewById(R.id.printRowMsg6);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_6) printRowMsg6Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_6]);
+                printRowMsg6Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg6Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg7Tv = (TextView) convertView.findViewById(R.id.printRowMsg7);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_7) printRowMsg7Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_7]);
+                printRowMsg7Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg7Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg8Tv = (TextView) convertView.findViewById(R.id.printRowMsg8);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_8) printRowMsg8Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_8]);
+                printRowMsg8Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg8Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
+
                 TextView printRowMsg9Tv = (TextView) convertView.findViewById(R.id.printRowMsg9);
                 if(mResults.get(position).length > INDEX_PRINT_ROW_MSG_9) printRowMsg9Tv.setText(mResults.get(position)[INDEX_PRINT_ROW_MSG_9]);
+                printRowMsg9Tv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onItemClickListener(position);
+                    }
+                });
+                printRowMsg9Tv.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                    @Override
+                    public boolean onLongClick(View view) {
+                        return onItemLongClick(v, final_convertView, position);
+                    }
+                });
 
                 return convertView;
             }
         };
 
         mPostResultLV.setAdapter(mPostResultLVAdapter);
-        mPostResultLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+/*        mPostResultLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 DataTransferThread thread = DataTransferThread.getInstance(mContext);
@@ -534,8 +690,8 @@ AlertDialog dialog;
                 }
                 selectPosition(i);
             }
-        });
-        mPostResultLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        }); */
+/*        mPostResultLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 final int pos = i;
@@ -592,11 +748,95 @@ AlertDialog dialog;
                 detailWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
                 return false;
             }
-        });
+        });*/
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
 
         if(mSelectedItemNo == -1) selectPosition(0); else selectPosition(mSelectedItemNo);
         mPostResultLV.setSelection(mSelectedItemNo);
+    }
+
+    private void onItemClickListener(int position) {
+        DataTransferThread thread = DataTransferThread.getInstance(mContext);
+        if (thread != null && thread.isRunning()) {
+            if(!mResults.get(mSelectedItemNo)[INDEX_PRINT_ROW_CNT].equalsIgnoreCase(mResults.get(position)[INDEX_PRINT_ROW_CNT])) {
+                if(null != mCallback) {
+                    String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(position)[INDEX_PRINT_ROW_CNT].replace("#", "");
+                    if(new File(filePath).exists()) {
+                        Message msg = mCallback.obtainMessage(ControlTabActivity.MESSAGE_OPEN_PREVIEW);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("file", Configs.GROUP_PREFIX + mResults.get(position)[INDEX_PRINT_ROW_CNT].replace("#", ""));
+                        bundle.putBoolean("printNext", true);
+                        msg.setData(bundle);
+                        mCallback.sendMessage(msg);
+                        thread.setIndex(0);     // 从第一个成员开始
+                    } else {
+                        mCallback.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show(mContext, R.string.str_tlk_not_found);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        selectPosition(position);
+    }
+
+    private boolean onItemLongClick(View v, View view, int i) {
+        final int pos = i;
+        final View tView = view;
+
+        View detailView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_detail, null);
+
+        final PopupWindow detailWindow = new PopupWindow(detailView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        detailWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#CC000000")));
+        detailWindow.setOutsideTouchable(true);
+        detailWindow.setTouchable(true);
+        detailWindow.update();
+
+        TextView msg0TV = (TextView) detailView.findViewById(R.id.msg0);
+        msg0TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_0) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_0] : "");
+        TextView msg1TV = (TextView) detailView.findViewById(R.id.msg1);
+        msg1TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_1) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_1] : "");
+        TextView msg2TV = (TextView) detailView.findViewById(R.id.msg2);
+        msg2TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_2) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_2] : "");
+        TextView msg3TV = (TextView) detailView.findViewById(R.id.msg3);
+        msg3TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_3) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_3] : "");
+        TextView msg4TV = (TextView) detailView.findViewById(R.id.msg4);
+        msg4TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_4) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_4] : "");
+        TextView msg5TV = (TextView) detailView.findViewById(R.id.msg5);
+        msg5TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_5) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_5] : "");
+        TextView msg6TV = (TextView) detailView.findViewById(R.id.msg6);
+        msg6TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_6) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_6] : "");
+        TextView msg7TV = (TextView) detailView.findViewById(R.id.msg7);
+        msg7TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_7) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_7] : "");
+        TextView msg8TV = (TextView) detailView.findViewById(R.id.msg8);
+        msg8TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_8) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_8] : "");
+        TextView msg9TV = (TextView) detailView.findViewById(R.id.msg9);
+        msg9TV.setText((mResults.get(pos).length > INDEX_PRINT_ROW_MSG_9) ? mResults.get(pos)[INDEX_PRINT_ROW_MSG_9] : "");
+        view.setBackgroundColor(Color.GRAY);
+
+        detailWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if(mSelectedItemNo == pos) {
+                    tView.setBackgroundColor(Color.YELLOW);
+                } else {
+                    tView.setBackgroundColor(Color.TRANSPARENT);
+                }
+            }
+        });
+
+        detailView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                detailWindow.dismiss();
+            }
+        });
+
+        detailWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+        return false;
     }
 
     public void gotoNextLine() {
@@ -665,6 +905,26 @@ AlertDialog dialog;
     }
 
     public void deleteAll() {
+/*        try {
+            String plainText = "ABCD";
+            Cipher cipher = Cipher.getInstance("SM2");
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
+            ECGenParameterSpec sm2Spec = new ECGenParameterSpec("sm2p256v1");
+            kpg.initialize(sm2Spec);
+            KeyPair keyPair = kpg.generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
+
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] encrypted = cipher.doFinal(plainText.getBytes("UTF-8"));
+        } catch(UnsupportedEncodingException e) {
+        } catch(InvalidKeyException e) {
+        } catch(InvalidAlgorithmParameterException e) {
+        } catch(NoSuchAlgorithmException e) {
+        } catch(NoSuchPaddingException e) {
+        } catch (BadPaddingException e) {
+        } catch (IllegalBlockSizeException e) {
+        }
+*/
         ThreadPoolManager.mThreads.execute(new Runnable() {
             @Override
             public void run() {
@@ -674,7 +934,7 @@ AlertDialog dialog;
                     final CountDownLatch latch = new CountDownLatch(1);
                     final StringBuilder sb = new StringBuilder();
                     HttpUtils httpUtils = new HttpUtils(
-                            "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint",
+                            "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrintTest",
                             "POST",
                             "{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(0)[INDEX_ID] + "\",\"Cmd\":\"N\"}}",
                             new HttpUtils.HttpResponseListener() {
