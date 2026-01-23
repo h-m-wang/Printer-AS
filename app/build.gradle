@@ -54,7 +54,7 @@ dependencies {
     implementation project(':hardware');
     implementation project(':smartcard');
     implementation project(':hp22mm');
-    implementation 'com.android.support:support-v4:25.3.0'
+//    implementation 'com.android.support:support-v4:25.3.0'
     implementation 'io.reactivex:rxjava:1.1.0'
     implementation project(':zxingcore')
 //    compile 'com.google.zxing:core:3.3.3'

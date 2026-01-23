@@ -1,5 +1,6 @@
 package com.industry.printersupervisor;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -229,16 +230,17 @@ public class PackageInstaller {
 
 		if (curFeature == 0) {                        // 当前apk为旧版apk，可以升级
 			ShowString = curVersion + " -> " + newVersion + "\n" + "从旧版apk升级：允许升级";
-		} else if (curFeature == 1111) {            // 当前apk为特权apk，可以升级
+		} else if ((curFeature == 1111 && !PlatformInfo.isA133Product()) || (curFeature == 3111 && PlatformInfo.isA133Product())) {            // 当前apk为特权apk，可以升级
 			ShowString = curVersion + " -> " + newVersion + "\n" + "从特权版apk升级：允许升级";
 		} else if (newFeature == curFeature) {        // 两个apk的特征码一致，则可以升级
 			ShowString = curVersion + " -> " + newVersion + "\n" + "相同客户apk间升级：允许升级";
-		} else if ((newFeature == 1111 && checkUSBAuthentication3())) {    // 当目标apk为特权apk时，检查USB授权
+		} else if (((newFeature == 1111 && !PlatformInfo.isA133Product()) || (newFeature == 3111 && PlatformInfo.isA133Product())) && checkUSBAuthentication3()) {    // 当目标apk为特权apk时，检查USB授权
 			ShowString = curVersion + " -> " + newVersion + "\n" + "升级为特权版apk，限制条件满足：允许升级";
 		} else {
 			ShowString = curVersion + " -> " + newVersion + "\n" + "升级条件不满足：禁止升级";
 			Debug.e(TAG, ShowString);
-			ToastUtil.show(mContext, R.string.str_no_permission);
+			new AlertDialog.Builder(mContext).setMessage(R.string.str_no_permission).create().show();
+//			ToastUtil.show(mContext, R.string.str_no_permission);
 			return false;
 		}
 
