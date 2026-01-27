@@ -8,10 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 189700001          //next: 189800001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
-        versionName "260123-189700001"
-//        versionCode 289600113          //next: 189700001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
-//        versionName "260122-1896RB"
+        versionCode 189800001          //next: 189900001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
+        versionName "260127-189800001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
 
