@@ -1482,7 +1482,7 @@ JNIEXPORT jint JNICALL Java_com_test100msInterval(JNIEnv *env, jclass arg, jint 
         gPollRate = 100000;
     }
 }
-JNIEXPORT jintArray JNICALL getErrorCounts(JNIEnv *env, jclass arg) {
+JNIEXPORT jintArray JNICALL Java_com_getErrorCounts(JNIEnv *env, jclass arg) {
     jintArray result = (*env)->NewIntArray(env, PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR+1);
     (*env)->SetIntArrayRegion(env, result, 0, PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR+1, gPrintHeadErrorCount);
 
@@ -1570,6 +1570,11 @@ int register_hp22mm(JNIEnv* env) {
     if(clazz == NULL) {
         return JNI_FALSE;
     }
+    gPollRate = POLL_SEC * 1000000;
+    for(int i=0; i<=PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR; i++) {
+        gPrintHeadErrorCount[i] = 0;
+    }
+
     return (*env)->RegisterNatives(env, clazz, gMethods, sizeof(gMethods)/sizeof(gMethods[0]));
 }
 

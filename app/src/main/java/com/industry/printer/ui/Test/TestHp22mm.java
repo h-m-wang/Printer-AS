@@ -94,7 +94,8 @@ public class TestHp22mm implements ITestOperation {
             "20 -- Update IDS MCU\nFrom [U-Disk/IDS.s19]",
             "21 -- Toggle PI4",
             "22 -- Toggle PI5",
-            "23 -- SPI Writing Test @24Mbps"    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+            "23 -- SPI Writing Test @24Mbps",    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+            "24 -- Read Print Head Error every 100ms"
     };
 
     private String[] Registers = new String[] {
@@ -179,6 +180,10 @@ public class TestHp22mm implements ITestOperation {
 // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
     private final static int HP22MM_HISPEED_WTEST                       = 27;
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+// H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+    private final static int HP22MM_100MS_FRESH                       = 28;
+    private boolean m100msFreshRunning;
+// End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
 
@@ -321,7 +326,17 @@ public class TestHp22mm implements ITestOperation {
             View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
             pb.setVisibility(View.GONE);
             TextView result = (TextView) view.findViewById(R.id.hp22mm_test_result);
-            result.setText(mHp22mmTestResult[position]);
+            if(position == HP22MM_100MS_FRESH && m100msFreshRunning) {
+                int results[] = Hp22mm.getErrorCounts();
+                StringBuilder sb = new StringBuilder();
+                for(int i=0; i<results.length; i++) {
+                    sb.append(i + ": ");
+                    sb.append(results + "\n");
+                }
+                result.setText(sb.toString());
+            } else {
+                result.setText(mHp22mmTestResult[position]);
+            }
             if(null == mHp22mmTestResult[position] || mHp22mmTestResult[position].isEmpty()) {
                 result.setVisibility(View.GONE);
             } else if(mHp22mmTestResult[position].startsWith("Success")) {
@@ -330,6 +345,11 @@ public class TestHp22mm implements ITestOperation {
             } else {
                 result.setTextColor(Color.RED);
                 result.setVisibility(View.VISIBLE);
+            }
+            if(position == HP22MM_100MS_FRESH && m100msFreshRunning) {
+                Message msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
+                msg.obj = view;
+                mHandler.sendMessageDelayed(msg, 1000);
             }
         }
     }
@@ -686,6 +706,13 @@ public class TestHp22mm implements ITestOperation {
                             }
                             break;
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
+                        case HP22MM_100MS_FRESH:
+                            if(m100msFreshRunning) {
+                                m100msFreshRunning = false;
+                            } else {
+                                m100msFreshRunning = true;
+                            }
+                            Hp22mm.test100msInterval(m100msFreshRunning?1:0);
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;
