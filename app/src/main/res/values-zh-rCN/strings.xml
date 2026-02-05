@@ -92,6 +92,7 @@
 	<string name="strXcor">横向位置</string>
 	<string name="strYcor">纵向位置</string>
 	<string name="strCnt">内容</string>
+	<string name="strRefresh">刷新</string>
 	<string name="strDefault">0</string>
 	<string name="txtDefault">text</string>
 	<string name="strDragable">是否拖动</string>
@@ -563,6 +564,7 @@
         <string name="str_btn_settings_sync">确认</string>
         <string name="str_time_unit_0_1v">0.1伏</string>
         <string name="str_length_unit_mm">毫米</string>
+	<string name="str_length_unit_percentage">%</string>
         <string name="str_length_unit_6_1mm">1/6毫米</string>
         <string name="str_time_unit_ms">毫秒</string>
 	<string name="str_time_unit_s">秒</string>
@@ -746,4 +748,16 @@
 	<string name="str_cleaner_purging">正在使用清洁液清洗系统</string>
 	<string name="str_cleaner_done">清洗结束， 请关机</string>
 <!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+<!-- H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+	<string name="str_login_prompt">用户登录</string>
+	<string name="str_user_number">用户名</string>
+	<string name="str_password">密码</string>
+	<string name="str_remember_pw">记住密码</string>
+	<string name="str_login">登录</string>
+	<string name="str_confirm">确定</string>
+	<string name="str_current">当前打印</string>
+	<string name="str_error_user_empty">用户名不能为空</string>
+	<string name="str_error_pw_empty">密码不能为空</string>
+	<string name="str_login_success">登录成功</string>
+<!-- End of H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
 </resources>

@@ -50,6 +50,9 @@ public class Hp22mm {
     static public native int StartMonitor();
     static public native int Pressurize(boolean async);
 // End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
+// H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
+    static public native int CheckPenStatusAndRepowerOnIfNeed();
+// End of H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
 // H.M.Wang 2025-2-10 追加要给控制是否加热的功能
     static public native int EnableWarming(int enable);
 // End of H.M.Wang 2025-2-10 追加要给控制是否加热的功能
@@ -74,6 +77,11 @@ public class Hp22mm {
 // H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
     static public native int enableLog(int output);
 // End of H.M.Wang 2025-6-9 修改为log可设置为输出和不输出
+// 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+    static public native int test100msInterval(int start);
+    static public native int[] getErrorCounts();
+// End of 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
 //    static public native String spiTest();
@@ -308,10 +316,11 @@ public class Hp22mm {
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE1) return getPurgeSettings();
         if(type == FpgaGpioOperation.SETTING_TYPE_PURGE2) {
             regs = getPurgeSettings();
-            regs[0] = 0x1c9;
+            regs[0] = 0x09;
             regs[1] = 0x00;
-            regs[15] = 0x3A98;
-            regs[16] = 0xc380;
+            regs[15] = 0x3A98;      // 15000
+            regs[16] = 0x27c0;      // 600000
+            regs[18] = 0x02;        // 2
             return regs;
         }
 // End of  H.M.Wang 2025-3-5 固定清洗时的参数（寄存器）值
@@ -411,9 +420,15 @@ public class Hp22mm {
 // H.M.Wang 2025-10-12 修改計算公式, 2025-10-14 修改 64 -> 32
 //                Math.max((((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1);     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
 // H.M.Wang 2025-11-5 当C6=0时，按C9=1200，C10=64算，C3按300算，即C3A为300
+// H.M.Wang 2026-1-29 修改计算公式 = ((C10*2*25.4)/(C9*3.14))/C3A*32*(C59/100), C59=0时，按100算，C59=1-8，R18=C59
+                (config.mParam[58] >= 1 && config.mParam[58] <=8 ? config.mParam[58] :
+// End of H.M.Wang 2026-1-29 修改计算公式 = ((C10*2*25.4)/(C9*3.14))/C3A*32*(C59/100), C59=0时，按100算，C59=1-8，R18=C59
                 (config.mParam[5] == 0 ?
                     Math.max((32 * ((25.4f * 2 * 1200) / (3.14f * 64)) / 300), 1) :
-                    Math.max((32 * ((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1));     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+                    Math.max((32 * ((25.4f * 2 * config.mParam[9]) / (3.14f * config.mParam[8])) / C3A), 1))     // (2024-9-5)  (2025-1-9 最小值不小于1)(2025-4-10 config.mParam[2]取300整数倍)
+// H.M.Wang 2026-1-29 修改计算公式 = ((C10*2*25.4)/(C9*3.14))/C3A*32*(C59/100), C59=0时，按100算，C59=1-8，R18=C59
+                * (config.mParam[58] == 0 ? (100f / 100f) : (config.mParam[58] / 100f)));
+// End of H.M.Wang 2026-1-29 修改计算公式 = ((C10*2*25.4)/(C9*3.14))/C3A*32*(C59/100), C59=0时，按100算，C59=1-8，R18=C59
 // End of H.M.Wang 2025-11-5 当C6=0时，按C9=1200，C10=64算，C3按300算，即C3A为300
 // End of H.M.Wang 2025-10-12 修改計算公式
 // End of H.M.Wang 2024-9-3 修改R18的计算公式
@@ -438,10 +453,17 @@ public class Hp22mm {
 // End of H.M.Wang 2024-9-3 修改R20,R21的计算公式
 
         regs[REG22_PRINT_DIRECTION] = (char)config.mParam[1];                                     // R22= C2???????????  0 = forward, 1 = reverse, 2 = no offsets?????????????????
-        regs[REG23_COLUMN_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
+// H.M.Wang 2026-1-29 固定值修改为1
+//        regs[REG23_COLUMN_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_COLUMN_SPACING);                                                     // 固定数据待定=4
+        regs[REG23_COLUMN_SPACING] = 1;
+// End of H.M.Wang 2026-1-29 固定值修改为1
 // H.M.Wang 2025-11-11 临时R24=25
 //        regs[REG24_SLOT_SPACING] = 0; // 2025-7-26 取消从参数设置，改为固定值0 (char)config.getParam(SystemConfigFile.INDEX_SLOT_SPACING);                                                      // 固定数据待定=52
-        regs[REG24_SLOT_SPACING] = 25;
+// H.M.Wang 2026-1-29 修改为计算公式 = 26*(100/C59)
+//        regs[REG24_SLOT_SPACING] = 25;
+        regs[REG24_SLOT_SPACING] = (char)(26 * (1.0f * (config.mParam[58]<10?100f/100:(100f/config.mParam[58]))));
+// End of H.M.Wang 2026-1-29 修改为计算公式 = 26*(100/C59)
+// H.M.Wang 2026-1-29 固定值修改为1
 // End of H.M.Wang 2025-11-11 临时R24=25
 // H.M.Wang 2025-5-19 修改Reg25的值，Circulation/循环间隔设置为Reg25[15:2]
 //        regs[REG25_PRINT_ENABLE] = 0;                                                  // Enables printing. 1=enable, 0= disable; 1=打印 2=停止???????

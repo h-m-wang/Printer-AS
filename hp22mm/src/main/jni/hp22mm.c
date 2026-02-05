@@ -28,7 +28,25 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.176"
+#define VERSION_CODE                            "1.0.185"
+// 1.0.185 2026-2-5
+// 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+// 1.0.184 2026-2-5
+// ERR_STRING1在不发生错误的时候也记录(0)，否则前次错误会被累计
+// 1.0.183 2026-2-3
+// 修改ERR_STRING1的返回内容，只保留 print_head_status.print_head_error 的错误号
+// 1.0.182 2026-2-3
+// 恢复为正式版，带重新上电
+// 1.0.181 2026-2-2
+// pd_get_print_head_status发生错误时，同时返回错误号
+// 1.0.180 2026-1-31
+// 临时增加一个ERR_STRING1，用来保存monitorThread函数中获取的 pd_get_print_head_status的错误信息，否则ERR_STRING会在下一条函数成功后被清空，导致报错信息不会被送回
+// 1.0.179 2026-1-31
+// 在monitorThread函数中，读取 pd_get_print_head_status后，即使函数返回的是PD_OK，也要检查一下print_head_status.print_head_state和print_head_status.print_head_error，并且在必要时返回错误信息
+// 1.0.178 2026-1-31
+// 再次暂时禁止重新上电
+// 1.0.177 2026-1-29
+// 恢复monitorThread函数中，当失败时尝试重新上电
 // 1.0.176 2026-1-21
 // 根据22mm_SS_SW_01_02版本中的修改内容，升级print_head_driver.c和extension.h中的相应内容
 // 1.0.175 2026-1-13
@@ -317,6 +335,9 @@ void IDSCallback(int ids, int level, const char *message) {
 }
 
 extern char ERR_STRING[];
+char ERR_STRING1[1024];
+int gPrintHeadErrorCount[PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR+1];      // 为print_head_error增加一个计数器，记录错误次数
+int gPollRate;      // 调整monitorThread中循环读取状态的间隔时间
 
 static pthread_t sMonitorThread = (pthread_t)NULL;
 typedef enum {
@@ -384,7 +405,10 @@ void *monitorThread(void *arg) {
 
     while (!CancelMonitor) {
         // sleep until next poll, then increment time counters
-        sleep(POLL_SEC);
+// H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+//        sleep(POLL_SEC);
+        usleep(gPollRate);
+// End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
 //        pthread_mutex_lock(&mutex);
 //        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
@@ -466,15 +490,21 @@ void *monitorThread(void *arg) {
             }
 
             for(int i=0; i<penNum; i++) {
-                nonsecure_sec[i] += POLL_SEC;
-                secure_sec[i] += POLL_SEC;
+//                nonsecure_sec[i] += POLL_SEC;
+//                secure_sec[i] += POLL_SEC;
+                nonsecure_sec[i] += gPollRate;
+                secure_sec[i] += gPollRate;
 
                 RunningState[PEN0_STATE+i] = STATE_VALID;
                 // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
-                pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status), penIndexs[i]);
+                pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status);
                 if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
-// H.M.Wang 2025-12-3 暂时进制重新上电                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+// H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
+                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
                 }
+//                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
+                    sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+//                }
 
                 uint8_t v;
 // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
@@ -490,7 +520,7 @@ void *monitorThread(void *arg) {
                 // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
                 if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
                     // NON-SECURE ink use (for PILS algorithm)
-                    if (nonsecure_sec[i] >= INK_POLL_SEC) {
+                    if (nonsecure_sec[i] >= INK_POLL_SEC * 1000000) {
                         nonsecure_sec[i] = 0;
                         // NON-SECURE ink use (for PILS algorithm)
                         ink_weight = GetInkWeight(penIndexs[i]);
@@ -503,7 +533,7 @@ void *monitorThread(void *arg) {
                     }
 
                     // SECURE ink use
-                    if (secure_sec[i] >= SECURE_INK_POLL_SEC) {
+                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {
                         secure_sec[i] = 0;
                         if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
                             LOGD("GetAndProcessInkUse failed.");
@@ -517,6 +547,43 @@ void *monitorThread(void *arg) {
 //        pthread_mutex_unlock(&mutex);
     }
     return (void*)NULL;
+}
+
+JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jclass arg) {
+    if(PD_Power_State == PD_POWER_STATE_ON) {
+        int penNum;
+        if (PenArg == BOTH_PEN_INSTALLED) {
+            penNum = 2;
+        } else if (PenArg == PEN0_INSTALLED || PenArg == PEN1_INSTALLED) {
+            penNum = 1;
+        } else {
+            LOGE("Monitor thread starting failed. Wrong parametres(arg=%d)", PenArg);
+            return 0;
+        }
+
+        int penIndexs[penNum];
+        if (PenArg == PEN0_INSTALLED)
+            penIndexs[0] = 0;
+        else if (PenArg == PEN1_INSTALLED)
+            penIndexs[0] = 1;
+        else if (PenArg >= BOTH_PEN_INSTALLED) {
+            penIndexs[0] = 0;
+            penIndexs[1] = 1;
+        }
+
+        for (int i = 0; i < penNum; i++) {
+            pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status);
+            if (print_head_status.print_head_state == PH_STATE_POWERED_OFF ||
+                print_head_status.print_head_state == PH_STATE_PRESENT) {
+                pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+            }
+            if (print_head_status.print_head_state != PH_STATE_POWERED_ON ||
+                print_head_status.print_head_error != PH_NO_ERROR) {
+                sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+            }
+        }
+    }
+    return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable) {
@@ -645,7 +712,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
 
 JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
-    return (*env)->NewStringUTF(env, ERR_STRING);
+    return (*env)->NewStringUTF(env, (strlen(ERR_STRING) == 0 ? ERR_STRING1 : ERR_STRING));
 }
 
 JNIEXPORT jint JNICALL Java_com_GetRunningState(JNIEnv *env, jclass arg, jint index) {
@@ -975,7 +1042,7 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
 
     LOGI("pd_get_print_head_status PEN(%d) ....\n", penIndex);
 
-    if (pd_check_ph("pd_get_print_head_status", pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status), penIndex)) return (-1);
+    pd_r = pd_get_print_head_status(PD_INSTANCE, penIndex, &print_head_status);
 // H.M.Wang 2024-11-6 取消该判断，这个是为开机时的初始化设计的，正常运行时执行该操作，会得到    print_head_status.print_head_state == PH_STATE_POWERED_ON，所以会报错
 //    if (print_head_status.print_head_state != PH_STATE_PRESENT && print_head_status.print_head_state != PH_STATE_POWERED_OFF) {
 //        LOGE("Print head state not valid. print_head_state=%d, print_head_error=%d\n", (int)print_head_status.print_head_state, (int)print_head_status.print_head_error);
@@ -993,7 +1060,7 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
 
     if (print_head_status.print_head_error != PH_NO_ERROR) {
         LOGE("Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
-        sprintf(ERR_STRING, "Print head error = %s\n", ph_error_description(print_head_status.print_head_error));
+        sprintf(ERR_STRING, "Print head error = [%d][%s]\n", print_head_status.print_head_error, ph_error_description(print_head_status.print_head_error));
         RunningState[PEN0_STATE+penIndex] = STATE_INVALID;
         return (-1);
     }
@@ -1009,7 +1076,7 @@ JNIEXPORT jint JNICALL Java_com_pd_get_print_head_status(JNIEnv *env, jclass arg
     LOGD("overtemp_warning = 0x%02X\n", print_head_status.overtemp_warning);       /**< Overtemp warning has occured after the last read of status */
     LOGD("supplyexpired_warning = 0x%02X\n", print_head_status.supplyexpired_warning);           /**< Idsexpired warning has occured after the last read of status */
 
-    return 0;
+    return pd_r;
 }
 
 JNIEXPORT jstring JNICALL Java_com_pd_get_print_head_status_info(JNIEnv *env, jclass arg) {
@@ -1340,6 +1407,7 @@ int _CmdPressurize(float set_pressure) {
     IDS_GPIO_ClearBits(sIdsIdx, COMBO_INK_BOTH);      // ink Off
     IDS_GPIO_SetBits(sIdsIdx, COMBO_AIR_PUMP_ALL);    // pump enabled; air valve On/Hold
     IDS_LED_On(sIdsIdx, LED_Y);
+
     LOGD("Pressurizing Supply %d to %.1f psi...\n", sIdsIdx, pressure);
 
     sleep(1);       // delay
@@ -1403,6 +1471,25 @@ JNIEXPORT jint JNICALL Java_com_enableLogOutput(JNIEnv *env, jclass arg, jint ou
 }
 // End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 
+// H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+JNIEXPORT jint JNICALL Java_com_test100msInterval(JNIEnv *env, jclass arg, jint start) {
+    if(start == 0) {
+        gPollRate = POLL_SEC * 1000000;
+    } else {
+        for(int i=0; i<=PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR; i++) {
+            gPrintHeadErrorCount[i] = 0;
+        }
+        gPollRate = 100000;
+    }
+}
+JNIEXPORT jintArray JNICALL getErrorCounts(JNIEnv *env, jclass arg) {
+    jintArray result = (*env)->NewIntArray(env, PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR+1);
+    (*env)->SetIntArrayRegion(env, result, 0, PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR+1, gPrintHeadErrorCount);
+
+    return result;
+}
+// End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+
 /**
  * HP22MM操作jni接口
  */
@@ -1428,7 +1515,9 @@ static JNINativeMethod gMethods[] = {
         {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
+        {"CheckPenStatusAndRepowerOnIfNeed",		                "()I",	    (void *)Java_com_checkPenStatusAndRepowerOnIfNeed},
         {"EnableWarming",		                "(I)I",	                    (void *)Java_com_EnableWarming},
+
         {"StartMonitor",		                "()I",	                    (void *)Java_com_StartMonitor},
         {"getPressurizedValue",	            "()Ljava/lang/String;",     (void *)Java_com_getPressurizedValue},
         {"Depressurize",		            "()I",	                    (void *)Java_com_Depressurize},
@@ -1451,6 +1540,10 @@ static JNINativeMethod gMethods[] = {
 // H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
         {"enableLog",	    	    "(I)I",						(void *)Java_com_enableLogOutput},
 // End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
+// H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+        {"test100msInterval",	    	    "(I)I",						(void *)Java_com_test100msInterval},
+        {"getErrorCounts",	    	    "()[I",						(void *)Java_com_getErrorCounts},
+// End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔，并且启动或者停止该测试实验的功能
 
 /*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容

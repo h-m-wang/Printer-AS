@@ -10,6 +10,7 @@ import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
 
+import java.net.InetAddress;
 import java.util.Vector;
 
 public class Hp22mmSCManager implements IInkDevice {
@@ -65,6 +66,9 @@ public class Hp22mmSCManager implements IInkDevice {
         mInitialized = false;
     }
 
+    private String mErrStr = "";
+    private int mLastError, mErrCount;
+
     @Override
     public void init(Handler callback) {
         final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
@@ -92,6 +96,9 @@ public class Hp22mmSCManager implements IInkDevice {
                 break;
         }
 
+        mErrStr = "";
+        mLastError = 0;
+        mErrCount = 0;
         mCallback = callback;
         mCallback.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_INIT_SUCCESS);
         new Thread(new Runnable() {
@@ -107,18 +114,18 @@ public class Hp22mmSCManager implements IInkDevice {
                             // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
                             int error = Hp22mm.initHp22mm(nozzle_sel);
                             if(error == 0) {
-                                mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, 0, "").sendToTarget();
                                 mInitialized = true;
                             } else {
 // H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
                                 if(error == -254) {     // DoPairing failed. 可能是C77指定的头和实际连接打印头不一致
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, "Pairing failed. Please check C77 head setting").sendToTarget();
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Pairing failed. Please check C77 head setting").sendToTarget();
                                 } else if(error == -255) {      // hp22mm类型却在C77制定了两个打印头
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, "Too many heads indicated in C77").sendToTarget();
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Too many heads indicated in C77").sendToTarget();
                                 } else if(error == -253) {      // hp22mm类型却在C77制定了两个打印头
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, "Too few heads indicated in C77").sendToTarget();
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Too few heads indicated in C77").sendToTarget();
                                 } else {    // 其它错误
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, Hp22mm.getErrString()).sendToTarget();
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, Hp22mm.getErrString()).sendToTarget();
                                 }
                                 try {
                                     Thread.sleep(2000);
@@ -129,11 +136,30 @@ public class Hp22mmSCManager implements IInkDevice {
                         }
                         // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常
                         String errStr = Hp22mm.getErrString();
-                        if (StringUtil.isEmpty(errStr)) {
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, "").sendToTarget();
-                        } else {
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, errStr).sendToTarget();
+// H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
+                        try {
+                            int errno = Integer.parseInt(errStr);
+                            if(errno != 0) {
+                                if(mLastError != errno) {
+                                    if(mLastError != 0) {
+                                        if(mErrCount > 1) {
+                                            mErrStr += "(" + mErrCount + ")";
+                                        }
+                                        mErrStr = mErrStr + "," + errno;
+                                    } else {
+                                        mErrStr = "" + errno;
+                                    }
+                                    mLastError = errno;
+                                    mErrCount = 0;
+                                }
+                                mErrCount++;
+                            }
+                            mCallback.obtainMessage(MSG_HP22MM_ERROR, errno, mErrCount, mErrStr).sendToTarget();    // 无报警声 arg1=0
+                        } catch(NumberFormatException e) {
+                            mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, mErrCount, mErrStr).sendToTarget();    // 无报警声 arg1=0
                         }
+// End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
+
                         for(int i=0; i<mHeads.length; i++) {
                             mHeads[i].mValid = (Hp22mm.getRunningState((i+1)%mHeads.length) == 1 ? true : false);
                         }

@@ -37,12 +37,15 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MainActivity;
 import com.industry.printer.R;
 import com.industry.printer.ThreadPoolManager;
+import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.HttpUtils;
+import com.industry.printer.Utils.SM2Cipher;
 import com.industry.printer.Utils.ToastUtil;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +58,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -111,6 +115,7 @@ public class Server1MainWindow {
     private TextView mPromptCancel;
     private boolean mStopDeleting;
 // End of H.M.Wang 2026-1-19 增加一个全部删除剩余条目的按键，点按该按键后，经过确认，全部删除剩余条目，并且每删除一个条目反馈一条信息（与打印完一样，只是增加一个Cmd:N的数据对）
+    private boolean mPrinting;
 
     private ArrayList<String[]> mResults;
 // H.M.Wang 2026-1-27 修改检索的显示方法，修改为只显示命中的项目
@@ -134,6 +139,7 @@ public class Server1MainWindow {
         mResults = new ArrayList<String[]>();
         mDispList = new ArrayList<Integer>();
         mSelectedItemNo = -1;
+        mPrinting = false;
 
         ThreadPoolManager.mThreads.execute(new Runnable() {
             @Override
@@ -151,9 +157,9 @@ public class Server1MainWindow {
     private void selectPosition(int pos) {
 //        if(pos >= 0 && pos < mResults.size() && (pos != mSelectedItemNo || mSelectedItemNo == -1)) {
         if(pos >= 0 && pos < mDispList.size()) {
-            if(pos != mSelectedItemNo || mSelectedItemNo == -1) {
+//            if(pos != mSelectedItemNo || mSelectedItemNo == -1) {
                 mSelectedItemNo = pos;
-                Debug.d(TAG, "mSelectedItemNo = " + mSelectedItemNo);
+                Debug.d(TAG, "mSelectedItemNo = " + mSelectedItemNo + "; mDispList = " + mDispList.get(pos));
 
                 SystemConfigFile sysConfig = SystemConfigFile.getInstance(mContext);
                 sysConfig.setDTBuffer(0, mResults.get(mDispList.get(pos)).length > INDEX_PRINT_ROW_MSG_0 ? mResults.get(mDispList.get(pos))[INDEX_PRINT_ROW_MSG_0] : "");
@@ -167,10 +173,10 @@ public class Server1MainWindow {
                 sysConfig.setDTBuffer(8, mResults.get(mDispList.get(pos)).length > INDEX_PRINT_ROW_MSG_8 ? mResults.get(mDispList.get(pos))[INDEX_PRINT_ROW_MSG_8] : "");
                 sysConfig.setDTBuffer(9, mResults.get(mDispList.get(pos)).length > INDEX_PRINT_ROW_MSG_9 ? mResults.get(mDispList.get(pos))[INDEX_PRINT_ROW_MSG_9] : "");
 
-                DataTransferThread thread = DataTransferThread.getInstance(mContext);
-                if (thread != null && thread.isRunning()) {
-                    thread.mNeedUpdate = true;
-                }
+//                DataTransferThread thread = DataTransferThread.getInstance(mContext);
+//                if (thread != null && thread.isRunning()) {
+//                    thread.mNeedUpdate = true;
+//                }
 
                 mGetFromHost.post(new Runnable() {
                     @Override
@@ -178,7 +184,7 @@ public class Server1MainWindow {
                         mPostResultLVAdapter.notifyDataSetChanged();
                     }
                 });
-            }
+//            }
         } else {
             mSelectedItemNo = -1;
         }
@@ -285,16 +291,16 @@ public class Server1MainWindow {
 // H.M.Wang 2026-1-18 修改为搜索所有字段
 //                        if(mResults.get(i)[INDEX_PIECE_NO].endsWith(keyWord)) {
             if(mResults.get(i)[INDEX_PRINT_ROW_MSG_0].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_1].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_2].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_3].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_4].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_5].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_6].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_7].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_8].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PRINT_ROW_MSG_9].indexOf(keyWord) >= 0 ||
-                    mResults.get(i)[INDEX_PIECE_NO].indexOf(keyWord) >= 0 ) {
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_1].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_2].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_3].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_4].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_5].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_6].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_7].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_8].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PRINT_ROW_MSG_9].indexOf(keyWord) >= 0 ||
+                mResults.get(i)[INDEX_PIECE_NO].indexOf(keyWord) >= 0 ) {
 // End of H.M.Wang 2026-1-18 修改为搜索所有字段
                 dispList.add(i);
             }
@@ -306,6 +312,9 @@ public class Server1MainWindow {
         if (null == mContext) {
             return;
         }
+
+        mDispList.clear();
+        for(int i=0; i<mResults.size(); i++) mDispList.add(i);
 
         View popupView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_layout, null);
 
@@ -339,10 +348,17 @@ public class Server1MainWindow {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if(mPrinting && null != mCallback) {
+                    mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                    mPrinting = false;
+                    mPrint.setEnabled(true);
+                    mPrint.setTextColor(Color.BLACK);
+                }
                 String keyWord = editable.toString();
                 if(!keyWord.isEmpty()) {
                     mDispList = getDispList(keyWord);
                     selectPosition(0);
+//                    onItemClickListener(0);
                 }
             }
         });
@@ -354,6 +370,12 @@ public class Server1MainWindow {
         mGetFromHost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(mPrinting && null != mCallback) {
+                    mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                    mPrinting = false;
+                    mPrint.setEnabled(true);
+                    mPrint.setTextColor(Color.BLACK);
+                }
                 mProcessing.setVisibility(View.VISIBLE);
                 ThreadPoolManager.mThreads.execute(new Runnable() {
                     @Override
@@ -385,6 +407,7 @@ public class Server1MainWindow {
                                                     if(!mSearchWord.getText().toString().isEmpty()) {
                                                         mDispList = getDispList(mSearchWord.getText().toString());
                                                     } else {
+                                                        mDispList.clear();
                                                         for(int i=0; i<mResults.size(); i++) mDispList.add(i);
                                                     }
                                                     selectPosition(0);
@@ -426,6 +449,9 @@ public class Server1MainWindow {
                 if(null != mCallback) {
                     String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].replace("#", "");
                     if(new File(filePath).exists()) {
+                        mPrinting = true;
+                        mPrint.setEnabled(false);
+                        mPrint.setTextColor(Color.GRAY);
                         Message msg = mCallback.obtainMessage(ControlTabActivity.MESSAGE_OPEN_PREVIEW);
                         Bundle bundle = new Bundle();
                         bundle.putString("file", Configs.GROUP_PREFIX + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].replace("#", ""));
@@ -447,6 +473,12 @@ public class Server1MainWindow {
             @Override
             public void onClick(View view) {
 //                mConfirm.setVisibility(View.GONE);
+                if(mPrinting && null != mCallback) {
+                    mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                    mPrinting = false;
+                    mPrint.setEnabled(true);
+                    mPrint.setTextColor(Color.BLACK);
+                }
                 mPromptMsg.setText("" + mResults.size());
                 mPromptOK.setVisibility(View.GONE);
                 mStopDeleting = false;
@@ -569,8 +601,9 @@ public class Server1MainWindow {
 
     private void onItemClickListener(int position) {
         DataTransferThread thread = DataTransferThread.getInstance(mContext);
-        if (thread != null && thread.isRunning()) {
-            if(!mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].equalsIgnoreCase(mResults.get(mDispList.get(position))[INDEX_PRINT_ROW_CNT])) {
+//        if(!mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].equalsIgnoreCase(mResults.get(mDispList.get(position))[INDEX_PRINT_ROW_CNT])) {
+            selectPosition(position);
+            if (thread != null && thread.isRunning()) {
                 if(null != mCallback) {
                     String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(mDispList.get(position))[INDEX_PRINT_ROW_CNT].replace("#", "");
                     if(new File(filePath).exists()) {
@@ -591,8 +624,7 @@ public class Server1MainWindow {
                     }
                 }
             }
-        }
-        selectPosition(position);
+//        }
     }
 
     private boolean onItemLongClick(View v, View view, int i) {
@@ -684,7 +716,7 @@ public class Server1MainWindow {
 
             if(mSelectedItemNo+1 < mDispList.size()) {
                 selectPosition(mSelectedItemNo+1);
-                if(!mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].equalsIgnoreCase(mResults.get(mDispList.get(mSelectedItemNo-1))[INDEX_PRINT_ROW_CNT])) {
+//                if(!mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].equalsIgnoreCase(mResults.get(mDispList.get(mSelectedItemNo-1))[INDEX_PRINT_ROW_CNT])) {
                     if(null != mCallback) {
                         String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].replace("#", "");
                         if(new File(filePath).exists()) {
@@ -702,7 +734,7 @@ public class Server1MainWindow {
                                 }
                             });
                         }
-                    }
+//                    }
                 }
                 mPostResultLV.post(new Runnable() {
                     @Override
@@ -717,26 +749,6 @@ public class Server1MainWindow {
     }
 
     public void deleteAll() {
-/*        try {
-            String plainText = "ABCD";
-            Cipher cipher = Cipher.getInstance("SM2");
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-            ECGenParameterSpec sm2Spec = new ECGenParameterSpec("sm2p256v1");
-            kpg.initialize(sm2Spec);
-            KeyPair keyPair = kpg.generateKeyPair();
-            PublicKey publicKey = keyPair.getPublic();
-
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] encrypted = cipher.doFinal(plainText.getBytes("UTF-8"));
-        } catch(UnsupportedEncodingException e) {
-        } catch(InvalidKeyException e) {
-        } catch(InvalidAlgorithmParameterException e) {
-        } catch(NoSuchAlgorithmException e) {
-        } catch(NoSuchPaddingException e) {
-        } catch (BadPaddingException e) {
-        } catch (IllegalBlockSizeException e) {
-        }
-*/
         mSearchWord.setText("");
         ThreadPoolManager.mThreads.execute(new Runnable() {
             private int mFailedNum;     // 服务器端删除错误是计数

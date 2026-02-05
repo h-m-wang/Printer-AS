@@ -1,5 +1,6 @@
 package com.industry.printer.Utils;
 
+import android.content.ContentValues;
 import android.util.Log;
 
 import com.google.zxing.Charsets.StandardCharsets;
@@ -39,15 +40,20 @@ public class HttpUtils {
         try {
             URL url = new URL(mUri);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
             con.setRequestMethod(mMethod);
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+            con.setConnectTimeout(15000);
+            con.setReadTimeout(30000);
 
             if("POST".equalsIgnoreCase(mMethod)) {
-                con.setRequestProperty("Content-Type", "application/json; utf-8");
-                con.setRequestProperty("Accept", "application/json");
-                con.setDoOutput(true);
-                OutputStream os = con.getOutputStream();
-                byte[] input = mParams.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
+                if(null != mParams && !mParams.isEmpty()) {
+                    con.setDoOutput(true);
+                    OutputStream os = con.getOutputStream();
+                    byte[] input = mParams.getBytes(StandardCharsets.UTF_8);
+                    os.write(input, 0, input.length);
+                }
             }
 
             int responseCode = con.getResponseCode();
@@ -63,10 +69,9 @@ public class HttpUtils {
                     if(null != mListener) mListener.onReceived(buf);
                 }
             }
-
-            if(null != mListener) mListener.onReceived(null);   // 标识接收作业结束
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if(null != mListener) mListener.onReceived(null);   // 标识接收作业结束
     }
 }

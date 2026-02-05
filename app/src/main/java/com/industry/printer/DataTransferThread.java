@@ -496,7 +496,10 @@ public class DataTransferThread {
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT) {
 //		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT && head != PrinterNozzle.MESSAGE_TYPE_32_DOT && head != PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
-		if(!head.isBigdotType()) {
+		if(!head.isBigdotType() &&
+			head != PrinterNozzle.MESSAGE_TYPE_22MM &&
+			head != PrinterNozzle.MESSAGE_TYPE_22MMX2
+		) {
 /*		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 			head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
 // H.M.Wang 2020-7-23 追加32DN打印头
@@ -620,14 +623,14 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-10-31 清洗时间由2分钟修改为5分钟，并且统一22mm的清洗时间
 				int remainTime = 300*1000;
-/*				int remainTime = 120*1000;
+//				int remainTime = 120*1000;
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-					remainTime *= 2.17;
+//					remainTime *= 2.17;
 					Hp22mm.EnableWarming(0);
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
-*/
+
 // End of H.M.Wang 2025-10-31 清洗时间由2分钟修改为5分钟，并且统一22mm的清洗时间
 
 // H.M.Wang 2025-2-7 修改长清洗的下发数据的逻辑，从原来的开始长清洗后，每个6秒下发一次数据，重复50次攻击5分钟的时长，改为每个100ms查询一次底层是否要数，如果要数就下发数据，持续5秒，共下发50次
@@ -3702,6 +3705,11 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							mPrintCount--;
 						}
 ////////////////////////////////////////////////////////
+// H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
+					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+						Hp22mm.CheckPenStatusAndRepowerOnIfNeed();
+					}
+// End of H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
                 }
 
 // H.M.Wang 2020-11-13 追加内容是否变化的判断

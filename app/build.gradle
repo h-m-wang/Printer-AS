@@ -8,8 +8,8 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 189800001          //next: 189900001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
-        versionName "260127-189800001"
+        versionCode 192500001          //next: 192600001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
+        versionName "260205-192500001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
 
@@ -69,4 +69,6 @@ dependencies {
 //    implementation 'org.apache.poi:poi:5.2.2'
 //    implementation 'org.apache.poi:poi-ooxml:5.2.2'
     implementation 'net.sourceforge.jexcelapi:jxl:2.6.12'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
 }

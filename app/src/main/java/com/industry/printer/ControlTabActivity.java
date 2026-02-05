@@ -32,6 +32,7 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.industry.printer.Baoqiao.MainFunc;
 import com.industry.printer.Bluetooth.BluetoothServerManager;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.ExcelDataProc.ExcelMainWindow;
@@ -848,6 +849,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 			mHp22mmErrTV = (TextView) getView().findViewById(R.id.tv_hp22mm_result);
+			mHp22mmErrTV.setText("");		// 2026-2-2 增加显示版本说明（测试版的具体描述）
 		}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 // H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
@@ -2778,15 +2780,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case Hp22mmSCManager.MSG_HP22MM_ERROR:
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+// H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 					if(null != mHp22mmErrTV) {
-						mHp22mmErrTV.setText((String)msg.obj);
+						mHp22mmErrTV.setText((String)msg.obj + (msg.arg2 > 1 ? "(" + msg.arg2 + ")" : ""));
 					}
+// End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 // H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!((String)msg.obj).isEmpty()) ToastUtil.show(mContext, (String)msg.obj);
 // End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
 						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
-						playAlarm(true);
+						if(msg.arg1 != 0) playAlarm(true);
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
@@ -3554,6 +3558,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
+//				MainFunc baoqiao = MainFunc.getInstance(mContext);
+//				baoqiao.login(mTVPrinting);
 				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
@@ -3564,7 +3570,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 				});
 				dlg.show();
-
 				break;
 			case R.id.ctrl_btn_down:
 				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);

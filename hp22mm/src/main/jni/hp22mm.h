@@ -31,6 +31,7 @@ JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async);
+JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable);
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
@@ -58,6 +59,8 @@ JNIEXPORT jint JNICALL Java_com_FIFO2DDR(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DDR2FIFO(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_FIFO2MCU(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_enableLogOutput(JNIEnv *env, jclass arg, jint output);
+JNIEXPORT jint JNICALL Java_com_test100msInterval(JNIEnv *env, jclass arg, jint start);
+JNIEXPORT jintArray JNICALL Java_com_getErrorCounts(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
 }

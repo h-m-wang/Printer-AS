@@ -103,6 +103,7 @@
 	<string name="strXcor">Horizon</string>
 	<string name="strYcor">Vertical</string>
 	<string name="strCnt">Content</string>
+	<string name="strRefresh">Refresh</string>
 	<string name="strDefault">0</string>
 	<string name="txtDefault">text</string>
 	<string name="strDragable">Dragable</string>
@@ -585,6 +586,7 @@
 
 	<string name="str_time_unit_0_1v">0.1V</string>
 	<string name="str_length_unit_mm">mm</string>
+	<string name="str_length_unit_percentage">%</string>
 	<string name="str_length_unit_6_1mm">1/6mm</string>
 	<string name="str_time_unit_mm">ms</string>
 	<string name="str_time_unit_ms">ms</string>
@@ -787,4 +789,16 @@
 	<string name="str_cleaner_purging">Cleaner purging</string>
 	<string name="str_cleaner_done">Cleaning done, shutdown</string>
 <!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+<!-- H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+	<string name="str_login_prompt">User Login</string>
+	<string name="str_user_number">User Number</string>
+	<string name="str_password">Password</string>
+	<string name="str_remember_pw">Remember password</string>
+	<string name="str_login">Login</string>
+	<string name="str_confirm">Confirm</string>
+	<string name="str_current">Current</string>
+	<string name="str_error_user_empty">User number empty!</string>
+	<string name="str_error_pw_empty">Password empty!</string>
+	<string name="str_login_success">Login succeeded</string>
+<!-- End of H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
 </resources>

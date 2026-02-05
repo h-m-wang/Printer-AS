@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#44000000" >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:minWidth="500dp"
+        android:background="@color/white"
+        android:layout_centerInParent="true"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/sequence_number"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:padding="5dp"
+                android:lines="1"
+                android:textSize="24sp"
+                android:textColor="@color/black"
+                />
+            <TextView
+                android:id="@+id/btn_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:paddingTop="10dp"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:paddingBottom="10dp"
+                android:textSize="28sp"
+                android:text="@string/str_confirm"
+                android:textColor="@color/black"
+                android:background="@drawable/bg_big_button_normal"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/recv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textSize="24sp"
+            android:text="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            android:textColor="@color/black"
+            />
+
+        <TextView
+            android:id="@+id/btn_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:paddingBottom="10dp"
+            android:textSize="28sp"
+            android:text="@string/str_btn_send"
+            android:textColor="@color/black"
+            android:background="@drawable/bg_big_button_normal"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="18sp"
+            android:text="@string/str_current"
+            android:textColor="@color/black"
+            />
+        <TextView
+            android:id="@+id/print_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:textSize="24sp"
+            android:text="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+            android:textColor="@color/black"
+            />
+    </LinearLayout>
+</RelativeLayout>

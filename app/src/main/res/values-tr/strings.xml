@@ -93,6 +93,7 @@ Kaydet</string>
     <string name="strXcor">Yatay</string>
     <string name="strYcor">Dikey</string>
     <string name="strCnt">Adet</string>
+    <string name="strRefresh">Refresh</string>
     <string name="strDefault">0</string>
     <string name="txtDefault">metin</string>
     <string name="strDragable">Sürüklenebilir</string>
@@ -436,6 +437,7 @@ Kaydet</string>
     <string name="str_btn_settings_sync">Tamam.</string>
     <string name="str_time_unit_0_1v">0.1V</string>
     <string name="str_length_unit_mm">mm</string>
+    <string name="str_length_unit_percentage">%</string>
     <string name="str_length_unit_6_1mm">1/6mm</string>
     <string name="str_time_unit_mm">ms</string>
     <string name="str_time_unit_ms">ms</string>
@@ -559,7 +561,7 @@ Kaydet</string>
     <string name="str_test_main_printer_with_bag">Printer with Bag</string>
     <string name="str_test_main_bulk_printer">Bulk Printer</string>
     <string name="str_test_main_al_printer">AL Printer</string>
-    <string name="str_test_main_save_100">Test001'i Kaydet</string>
+    <string name="str_test_main_save_100">Test001 Kaydet</string>
     <string name="str_test_print_data_creation">Yazdırma Verisi Oluşturma Testi</string>
     <string name="str_test_main_m9_test">M9 Test</string>
     <string name="str_m9_test_gpio">GPIO</string>

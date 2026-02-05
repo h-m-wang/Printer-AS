@@ -92,6 +92,7 @@
 	<string name="strXcor">橫向位置</string>
 	<string name="strYcor">縱向位置</string>
 	<string name="strCnt">內容</string>
+	<string name="strRefresh">刷新</string>
 	<string name="strDefault">0</string>
 	<string name="txtDefault">text</string>
 	<string name="strDragable">是否拖動</string>
@@ -539,6 +540,7 @@
 	<string name="str_btn_settings_sync">確認</string>
 	<string name="str_time_unit_0_1v">0.1伏</string>
 	<string name="str_length_unit_mm">毫米</string>
+	<string name="str_length_unit_percentage">%</string>
 	<string name="str_length_unit_6_1mm">1/6毫米</string>
 	<string name="str_time_unit_ms">毫秒</string>
 	<string name="str_time_unit_s">秒</string>

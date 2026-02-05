@@ -203,22 +203,23 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 	}
 
 	private void deleteTlkDir(String title) {
-		File file = new File(ConfigPath.getTlkDir(title));
+		File file = new File(title);
 		if (file.exists()) {
-			File[] list = file.listFiles();
-			for (int i = 0; i < list.length; i++) {
-				File f = list[i];
-				f.delete();
+			if(file.isDirectory()) {
+				File[] list = file.listFiles();
+				for (int i = 0; i < list.length; i++) {
+					deleteTlkDir(list[i].getPath());
+				}
 			}
+			file.delete();
 		}
-		file.delete();
 	}
 
 	private void deleteItem(Integer selected) {
 		if(selected < 0) return;
 		String title = mTotalContents[selected];
 		Debug.d(TAG, "Delete: " + title + "@" + selected);
-		deleteTlkDir(title);
+		deleteTlkDir(ConfigPath.getTlkDir(title));
 		mTotalIndex.remove(selected);
 		mTotalContents[selected.intValue()] = "";
 		mDispIndex.remove(selected);
@@ -284,10 +285,10 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 			ToastUtil.show(getContext(), R.string.invalid_message);
 			return;
 		}
-		if(!(new File(tlkPath + File.separator + "1.tlk")).exists()) {
-			ToastUtil.show(getContext(), R.string.invalid_message);
-			return;
-		}
+//		if(!(new File(tlkPath + File.separator + "1.tlk")).exists()) {
+//			ToastUtil.show(getContext(), R.string.invalid_message);
+//			return;
+//		}
 // End of H.M.Wang 2020-10-30 2020-9-21 追加TLK文件合法性判断，是否为目录，是否包含1.tlk文件
 
 		mFileAdapter.setSelected(position);
@@ -438,6 +439,10 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 						if (mFrom == OpenFrom.OPEN_EDIT && arg1.startsWith(Configs.GROUP_PREFIX)) {
 							return false;
 						}
+//						if(!new File(arg0.getPath() + File.separator + arg1 + File.separator + "1.tlk").exists()) {
+//							return false;
+//						}
+
 						return true;
 					}
 				});

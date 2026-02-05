@@ -89,6 +89,7 @@
 	<string name="strXcor">가로위치</string>
 	<string name="strYcor">세로위치</string>
 	<string name="strCnt">내용</string>
+	<string name="strRefresh">Refresh</string>
 	<string name="strDefault">0</string>
 	<string name="txtDefault">text</string>
 	<string name="strDragable">윛 옴길지</string>
@@ -551,6 +552,7 @@
 	<string name="str_btn_settings_sync">확인</string>
 	<string name="str_time_unit_0_1v">0.1볼트</string>
 	<string name="str_length_unit_mm">미리</string>
+	<string name="str_length_unit_percentage">%</string>
 	<string name="str_length_unit_6_1mm">1/6미리</string>
 	<string name="str_time_unit_ms">毫秒미리 초</string>
 	<string name="str_time_unit_s">초</string>

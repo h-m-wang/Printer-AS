@@ -46,7 +46,7 @@ public class RelightableDialog extends Dialog {
     private void setScreenBrightness(boolean save) {
         Debug.d(TAG, "--->setScreenBrightness. mScreensaveMode=" + mScreensaveMode + " ;save=" + save);
 // H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
-        if(PlatformInfo.isA133Product()) return;
+// 2026-2-1 取消该操作，A133已经可以设置        if(PlatformInfo.isA133Product()) return;
 // End of H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
         if (save == false) {
             mHandler.removeMessages(ENTER_LOWLIGHT_MODE);

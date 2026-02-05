@@ -72,6 +72,7 @@
     <string name="strXcor">X-Cor</string>
     <string name="strYcor">Y-Cor</string>
     <string name="strCnt">Contenuto</string>
+    <string name="strRefresh">Refresh</string>
     <string name="strDefault">0</string>
     <string name="txtDefault">testo</string>
     <string name="strDragable">Trascina</string>
@@ -494,6 +495,7 @@
     <string name="str_btn_settings_sync">Ok</string>
     <string name="str_time_unit_0_1v">0.1V</string>
     <string name="str_length_unit_mm">mm</string>
+    <string name="str_length_unit_percentage">%</string>
     <string name="str_length_unit_6_1mm">1/6mm</string>
     <string name="str_time_unit_mm">ms</string>
     <string name="str_time_unit_ms">ms</string>

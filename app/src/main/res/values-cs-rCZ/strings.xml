@@ -71,6 +71,7 @@
 	<string name="strXcor">X-kor</string>
 	<string name="strYcor">Y-kor</string>
 	<string name="strCnt">Obsah</string>
+	<string name="strRefresh">Refresh</string>
 	<string name="strDefault">0</string>
 	<string name="txtDefault">text</string>
 	<string name="strDragable">Lze přetáhnout</string>
@@ -504,6 +505,7 @@
 	
 	<string name="str_time_unit_0_1v">0,1V</string>
 	<string name="str_length_unit_mm">mm</string>
+	<string name="str_length_unit_percentage">%</string>
 	<string name="str_time_unit_mm">ms</string>
 	<string name="str_time_unit_ms">ms</string>
 	<string name="str_time_unit_s">s</string>

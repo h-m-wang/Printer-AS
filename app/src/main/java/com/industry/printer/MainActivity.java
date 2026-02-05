@@ -348,7 +348,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					mRadioCustom.setChecked(true);
 				}
 			}, 500);
-			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+//			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
 		}
 // End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
 // End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
@@ -1500,7 +1500,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	private void setScreenBrightness(boolean save) {
 		Debug.d(TAG, "--->setScreenBrightness. mScreensaveMode=" + mScreensaveMode + " ;save=" + save);
 // H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
-		if(PlatformInfo.isA133Product()) return;
+// 2026-2-1 取消该操作，A133已经可以设置		if(PlatformInfo.isA133Product()) return;
 // End of H.M.Wang 2024-11-5 A133平台不能使用该方法设置亮度，否则死机
 		if (save == false) {
 			Debug.d(TAG, "--->setScreenBrightness. save == false");
