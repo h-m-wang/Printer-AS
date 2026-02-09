@@ -326,14 +326,19 @@ public class TestHp22mm implements ITestOperation {
             View pb = view.findViewById(R.id.hp22mm_test_progress_bar);
             pb.setVisibility(View.GONE);
             TextView result = (TextView) view.findViewById(R.id.hp22mm_test_result);
-            if(position == HP22MM_100MS_FRESH && m100msFreshRunning) {
-                int results[] = Hp22mm.getErrorCounts();
-                StringBuilder sb = new StringBuilder();
-                for(int i=0; i<results.length; i++) {
-                    sb.append(i + ": ");
-                    sb.append(results + "\n");
+            if(position == HP22MM_100MS_FRESH) {
+                if(m100msFreshRunning) {
+                    int results[] = Hp22mm.getErrorCounts();
+                    StringBuilder sb = new StringBuilder();
+                    for(int i=0; i<results.length; i++) {
+                        sb.append(i + ": ");
+                        sb.append(results[i] + "\n");
+                    }
+                    mHp22mmTestResult[position] = "Success";
+                    result.setText(sb.toString());
+                } else {
+                    mHp22mmTestResult[position] = "";
                 }
-                result.setText(sb.toString());
             } else {
                 result.setText(mHp22mmTestResult[position]);
             }

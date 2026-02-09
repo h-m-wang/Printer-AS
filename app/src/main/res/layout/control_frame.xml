@@ -523,8 +523,9 @@
             android:layout_margin="5dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:background="#88ffffff"
             android:textColor="@color/black"
-            android:textSize="24sp" />
+            android:textSize="48sp" />
     </RelativeLayout>
 <!-- End of H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
 </RelativeLayout>

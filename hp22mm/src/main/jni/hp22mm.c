@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.185"
+#define VERSION_CODE                            "1.0.186"
+// 1.0.186 2026-2-6
+// 测试升级用版本，没有功能修改
 // 1.0.185 2026-2-5
 // 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 // 1.0.184 2026-2-5
@@ -504,6 +506,9 @@ void *monitorThread(void *arg) {
                 }
 //                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
                     sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+                    if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
+                        gPrintHeadErrorCount[print_head_status.print_head_error]++;
+                    }
 //                }
 
                 uint8_t v;

@@ -156,11 +156,14 @@ public class CalendarDialog extends RelightableDialog {
 					if(ret) {
 						ld.setMessage(CalendarDialog.super.getContext().getString(R.string.str_upgrade_progress));
 
+						LibUpgrade libUp = new LibUpgrade();
+						ret = libUp.upgradeSOs(false);
+
 						PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 						if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
-							ret = installer.silentUpgrade3();
+							ret |= installer.silentUpgrade3();
 						} else {
-							ret = installer.silentUpgrade();
+							ret |= installer.silentUpgrade();
 						}
 
 						if(ret) {

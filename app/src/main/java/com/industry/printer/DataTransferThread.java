@@ -2431,7 +2431,16 @@ private void setSerialProtocol9DTs(final String data) {
 				if(head == 1) {
 					mThresHolds[head] = mThresHolds[0];
 				} else if(head == 2) {
-					mThresHolds[head] = ((mThresHolds[0] + mThresHolds[1]) == 0 ? 0f : mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]));
+// H.M.Wang 2026-2-6 当mThresHolds[0]或者mThresHolds[1]有一个是0的时候，不在采用P1*P2/(P1+P2)，否则结果是0，改为：
+// 当P1=0并且P2=0时，阈值给与一个足够大的数，即几乎无论怎么打印都不减少墨水
+// 当P1=0或者P2=0时，等于0的值不参与计算，B的值取不为0的那个值
+// 其余情况正常计算
+					mThresHolds[head] = ((mThresHolds[0] == 0 &&  mThresHolds[1] == 0) ?
+							65536 * 8 :
+							((mThresHolds[0] == 0 ||  mThresHolds[1]  == 0) ?
+									Math.max(mThresHolds[0], mThresHolds[1]) :
+									mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1])));
+// End of H.M.Wang 2026-2-6 当mThresHolds[0]或者mThresHolds[1]有一个是0的时候，不在采用P1*P2/(P1+P2)，否则结果是0，改为：
 				} else {
 					mThresHolds[head] = 65536 * 8;
 				}

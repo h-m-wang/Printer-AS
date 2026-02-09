@@ -249,7 +249,7 @@ public class WelcomeActivity extends Activity {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			LibUpgrade libUp = new LibUpgrade();
-			ret = libUp.upgradeSOs();
+			ret = libUp.upgradeSOs(true);
 		} else {
 // H.M.Wang 2025-9-24 取消开机升级
 // H.M.Wang 2025-10-24 仅A133取消开机升级
@@ -259,6 +259,8 @@ public class WelcomeActivity extends Activity {
 			while(System.currentTimeMillis() - start < 3000) {
 				if(ConfigPath.getUpgradePath() != null) {
 					Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
+					LibUpgrade libUp = new LibUpgrade();
+					ret = libUp.upgradeSOs(false);
 					if(AVOID_CROSS_UPGRADE) {
 						ret |= installer.silentUpgrade3();
 					} else {

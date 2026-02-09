@@ -78,6 +78,7 @@ import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.industry.printer.Baoqiao.MainFunc;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.QRReader;
 import com.industry.printer.FileFormat.SystemConfigFile;
@@ -339,7 +340,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 // End of H.M.Wang 2021-5-21 追加用户特色页面显示开关标识
 // H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
 // H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
-		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5 ||
+		   SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_6) {
 			mRadioCustom.setVisibility(View.VISIBLE);
 			mRadioCustom.postDelayed(new Runnable() {
 				@Override
@@ -658,6 +660,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 						emw.show(mRadioCtl);
 					}
 // End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
+// H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_6) {
+						MainFunc mf = MainFunc.getInstance(mContext);
+						mf.login(mRadioCtl);
+					}
+// End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
 				} else {
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						fts.hide(mCustomTab1);

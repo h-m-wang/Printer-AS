@@ -1070,7 +1070,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						if(keyCode == KeyEvent.KEYCODE_ENTER) {
 							return true;
 						} else {
-							Debug.d(TAG, "----");
+//							Debug.d(TAG, "----");
 							BarcodeScanParser.append(keyCode, event.isShiftPressed());
 						}
 					}
@@ -1334,6 +1334,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			emw.setCallback(mHandler);
 		}
 // End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
+// H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_6) {
+			MainFunc mf = MainFunc.getInstance(mContext);
+			mf.setCallback(this);
+		}
+// End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
 	}
 
 	public boolean getLevelLow() {
@@ -3558,9 +3564,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
-//				MainFunc baoqiao = MainFunc.getInstance(mContext);
-//				baoqiao.login(mTVPrinting);
-				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+				MainFunc baoqiao = MainFunc.getInstance(mContext);
+				baoqiao.login(mTVPrinting);
+/*				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3569,7 +3575,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg.show();
+				dlg.show();*/
 				break;
 			case R.id.ctrl_btn_down:
 				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);

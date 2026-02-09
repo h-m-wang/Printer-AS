@@ -28,12 +28,39 @@ public class HttpUtils {
     private String mUri;
     private String mMethod;
     private String mParams;
+    private ContentValues mHeaderParams;
 
-    public HttpUtils(String uri, String method, String params, HttpResponseListener cb) {
-        mListener = cb;
+    public HttpUtils() {
+        mListener = null;
+        mUri = "";
+        mMethod = "";
+        mParams = "";
+        mHeaderParams = new ContentValues();
+    }
+
+    public HttpUtils setUrl(String uri) {
         mUri = uri;
+        return this;
+    }
+
+    public HttpUtils setMethod(String method) {
         mMethod = method;
+        return this;
+    }
+
+    public HttpUtils setParams(String params) {
         mParams = params;
+        return this;
+    }
+
+    public HttpUtils setHeaderParams(String title, String value) {
+        mHeaderParams.put(title, value);
+        return this;
+    }
+
+    public HttpUtils setListeners(HttpResponseListener cb) {
+        mListener = cb;
+        return this;
     }
 
     public void access() {
@@ -44,6 +71,9 @@ public class HttpUtils {
             con.setRequestMethod(mMethod);
             con.setRequestProperty("Content-Type", "application/json; utf-8");
             con.setRequestProperty("Accept", "application/json");
+            for(String key : mHeaderParams.keySet()) {
+                con.setRequestProperty(key, mHeaderParams.getAsString(key));
+            }
             con.setConnectTimeout(15000);
             con.setReadTimeout(30000);
 

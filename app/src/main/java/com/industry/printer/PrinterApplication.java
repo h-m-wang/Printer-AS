@@ -39,11 +39,11 @@ public class PrinterApplication extends Application {
 		registerFileListener();
 		sInstance = this;
 		asyncInit();
-
+/*
 		try {
 			if(PlatformInfo.isSmfyProduct()) {		// 只有A20版本才通过复制asset->system/lib的方式升级so文件，A133使用其他方式升级
 				LibUpgrade libUp = new LibUpgrade();
-				libUp.upgradeSOs();
+				libUp.upgradeSOs(true);
 
 				NativeGraphicJni.loadLibrary();
 				if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
@@ -55,7 +55,7 @@ public class PrinterApplication extends Application {
 		} catch (Exception e) {
 			Debug.e(TAG, "--->e: " + e.getMessage());
 		}
-
+*/
 	}
 
 	private void registerFileListener() {

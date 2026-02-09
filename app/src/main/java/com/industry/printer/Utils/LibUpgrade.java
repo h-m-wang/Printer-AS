@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Created by hmwan on 2023/12/29.
@@ -86,19 +88,32 @@ public class LibUpgrade {
         return ret;
     }
 
-    private boolean upgradeSO(DataOutputStream os, String so) {
+    private boolean upgradeSO(DataOutputStream os, String so, boolean useLocalAsset) {
         boolean ret = false;
         InputStream is = null;
         String dstPath = "/system/lib/";
         String midPath = dstPath;
+        ZipFile xlsxFile = null;
+        ZipEntry solib = null;
 
         try {
             if(PlatformInfo.isA133Product()) {
                 midPath = "/data/audio_d/"; // A133无法直接将文件复制到system/lib目录中，需要通过/data/audio_d中转
             }
+
+            if(useLocalAsset) {
+                AssetManager assetManager = PrinterApplication.getInstance().getAssets();
+                is = assetManager.open(so);
+            } else {
+                if(null != ConfigPath.getUpgradePath()) {
+                    xlsxFile = new ZipFile(new File(ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE));
+                    solib = xlsxFile.getEntry("assets/" + so);
+                    is = xlsxFile.getInputStream(solib);
+                } else {
+                    return false;
+                }
+            }
             File file = new File(dstPath + so);
-            AssetManager assetManager = PrinterApplication.getInstance().getAssets();
-            is = assetManager.open(so);
 
             Debug.d(TAG, "Updating [" + so + "] ...");
             boolean needUpdate = false;
@@ -118,9 +133,14 @@ public class LibUpgrade {
                 os.writeBytes("chmod 777 " + dstPath + so);
                 Thread.sleep(100);
 
-                is.reset();
+                if(useLocalAsset) {
+                    is.reset();
+                } else {
+                    is = xlsxFile.getInputStream(solib);        // 在获取一次，因为计算MD5已经使用了。但reset不能执行，会报错
+                }
                 FileUtil.writeFile(midPath + so, is);       // 对于A20相当于直接复制到目的地，对于A133复制到中转站
 // End of H.M.Wang 2020-12-26 追加硬件库复制功能
+                Debug.d(TAG, "Upgrade Done");
                 ret = true;
             } else {
                 Debug.d(TAG, "Do not need update");
@@ -133,17 +153,17 @@ public class LibUpgrade {
         return ret;
     }
 
-    public boolean upgradeSOs() {
+    public boolean upgradeSOs(boolean useLocalAsset) {
         boolean ret = false;
         try {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
             Thread.sleep(100);
-            ret |= upgradeSO(os, Configs.HARDWARE_SO);
-            ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO);
-            ret |= upgradeSO(os, Configs.SMARTCARD_SO);
-            ret |= upgradeSO(os, Configs.SERIAL_SO);
-            ret |= upgradeSO(os, Configs.HP22MM_SO);
+            ret |= upgradeSO(os, Configs.HARDWARE_SO, useLocalAsset);
+            ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO, useLocalAsset);
+            ret |= upgradeSO(os, Configs.SMARTCARD_SO, useLocalAsset);
+            ret |= upgradeSO(os, Configs.SERIAL_SO, useLocalAsset);
+            ret |= upgradeSO(os, Configs.HP22MM_SO, useLocalAsset);
             try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
         } catch(IOException e) {
             Debug.e(TAG, e.getMessage());

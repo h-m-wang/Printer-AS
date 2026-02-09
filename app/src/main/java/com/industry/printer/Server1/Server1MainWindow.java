@@ -381,62 +381,60 @@ public class Server1MainWindow {
                     @Override
                     public void run() {
                         final StringBuilder sb = new StringBuilder();
-                        HttpUtils httpUtils = new HttpUtils(
-                                "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg",
-                                "POST",
-                                "{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\"}}",
-                                new HttpUtils.HttpResponseListener() {
-                                    @Override
-                                    public void onReceived(String str) {
-                                        if(null != str) {
-                                            sb.append(str);
+                        new HttpUtils()
+                            .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg")
+                            .setMethod("POST")
+                            .setParams("{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\"}}")
+                            .setListeners(new HttpUtils.HttpResponseListener() {
+                                @Override
+                                public void onReceived(String str) {
+                                    if(null != str) {
+                                        sb.append(str);
+                                    } else {
+                                        if(sb.length() == 0) {
+                                            mGetFromHost.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mProcessing.setVisibility(View.GONE);
+                                                    ToastUtil.show(mContext, "Network access error!");
+                                                }
+                                            });
                                         } else {
-                                            if(sb.length() == 0) {
+                                            Debug.d(TAG, sb.toString());
+                                            ArrayList<String[]> results = pickupResults(sb.toString());
+                                            if(results != null) {
+                                                mResults = results;
+                                                if(!mSearchWord.getText().toString().isEmpty()) {
+                                                    mDispList = getDispList(mSearchWord.getText().toString());
+                                                } else {
+                                                    mDispList.clear();
+                                                    for(int i=0; i<mResults.size(); i++) mDispList.add(i);
+                                                }
+                                                selectPosition(0);
                                                 mGetFromHost.post(new Runnable() {
                                                     @Override
                                                     public void run() {
                                                         mProcessing.setVisibility(View.GONE);
-                                                        ToastUtil.show(mContext, "Network access error!");
+                                                        mPostResultLV.setSelection(0);
                                                     }
                                                 });
                                             } else {
-                                                Debug.d(TAG, sb.toString());
-                                                ArrayList<String[]> results = pickupResults(sb.toString());
-                                                if(results != null) {
-                                                    mResults = results;
-                                                    if(!mSearchWord.getText().toString().isEmpty()) {
-                                                        mDispList = getDispList(mSearchWord.getText().toString());
-                                                    } else {
-                                                        mDispList.clear();
-                                                        for(int i=0; i<mResults.size(); i++) mDispList.add(i);
+                                                mGetFromHost.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        mProcessing.setVisibility(View.GONE);
+                                                        if(!mErrMsg.isEmpty()) {
+                                                            ToastUtil.show(mContext, mErrMsg);
+                                                        } else {
+                                                              ToastUtil.show(mContext, "Unknown Error");
+                                                        }
                                                     }
-                                                    selectPosition(0);
-                                                    mGetFromHost.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            mProcessing.setVisibility(View.GONE);
-                                                            mPostResultLV.setSelection(0);
-                                                        }
-                                                    });
-                                                } else {
-                                                    mGetFromHost.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            mProcessing.setVisibility(View.GONE);
-                                                            if(!mErrMsg.isEmpty()) {
-                                                                ToastUtil.show(mContext, mErrMsg);
-                                                            } else {
-                                                                ToastUtil.show(mContext, "Unknown Error");
-                                                            }
-                                                        }
-                                                    });
-                                                }
+                                                });
                                             }
                                         }
                                     }
                                 }
-                        );
-                        httpUtils.access();
+                            }).access();
                     }
                 });
             }
@@ -686,33 +684,31 @@ public class Server1MainWindow {
     public void gotoNextLine() {
         if(mSelectedItemNo >= 0 && mSelectedItemNo < mDispList.size()) {
             final StringBuilder sb = new StringBuilder();
-            HttpUtils httpUtils = new HttpUtils(
-                    "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint",
-                    "POST",
-                    "{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_ID] + "\"}}",
-                    new HttpUtils.HttpResponseListener() {
-                        @Override
-                        public void onReceived(final String str) {
-                            if(null != str) {
-                                sb.append(str);
-                            } else {
-                                Debug.d(TAG, sb.toString());
-                                mGetFromHost.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            JSONObject jObj = new JSONObject(sb.toString());
-                                            ToastUtil.show(mContext, SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "# " + jObj.getString("result"));
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+            new HttpUtils()
+                .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint")
+                .setMethod("POST")
+                .setParams("{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_ID] + "\"}}")
+                .setListeners(new HttpUtils.HttpResponseListener() {
+                    @Override
+                    public void onReceived(final String str) {
+                        if(null != str) {
+                            sb.append(str);
+                        } else {
+                            Debug.d(TAG, sb.toString());
+                            mGetFromHost.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        JSONObject jObj = new JSONObject(sb.toString());
+                                        ToastUtil.show(mContext, SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "# " + jObj.getString("result"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                });
-                            }
+                                }
+                            });
                         }
                     }
-            );
-            httpUtils.access();
+                }).access();
 
             if(mSelectedItemNo+1 < mDispList.size()) {
                 selectPosition(mSelectedItemNo+1);
@@ -764,33 +760,31 @@ public class Server1MainWindow {
 //                    Debug.d(TAG, "Deleting [" + mResults.get(0)[INDEX_ID] + "]");
                     final CountDownLatch latch = new CountDownLatch(1);
                     mSuccess = false;
-                    HttpUtils httpUtils = new HttpUtils(
-                            "http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrintTest",
-                            "POST",
-                            "{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(0)[INDEX_ID] + "\",\"Cmd\":\"N\"}}",
-                            new HttpUtils.HttpResponseListener() {
-                                @Override
-                                public void onReceived(final String str) {
+                    new HttpUtils()
+                        .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrintTest")
+                        .setMethod("POST")
+                        .setParams("{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(0)[INDEX_ID] + "\",\"Cmd\":\"N\"}}")
+                        .setListeners(new HttpUtils.HttpResponseListener() {
+                            @Override
+                            public void onReceived(final String str) {
 //                                    Debug.d(TAG, "[" + mResults.get(0)[INDEX_ID] + "] Deleted");
-                                    if(null == str) {       // 接收信息完成
-                                        Debug.d(TAG, "mResults.size() = " + mResults.size() + "; mDispList.size() = " + mDispList.size());
-                                        if(mSuccess) {
-                                            mResults.remove(mFailedNum);
-                                            mDispList.remove(mDispList.size()-1);
-                                        }
-                                        latch.countDown();
-                                    } else {
-                                        try {
-                                            JSONObject jObj = new JSONObject(str);
-                                            if(jObj.has("success") && jObj.getBoolean("success")) mSuccess = true; else mFailedNum++;
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+                                if(null == str) {       // 接收信息完成
+                                    Debug.d(TAG, "mResults.size() = " + mResults.size() + "; mDispList.size() = " + mDispList.size());
+                                    if(mSuccess) {
+                                        mResults.remove(mFailedNum);
+                                        mDispList.remove(mDispList.size()-1);
+                                    }
+                                    latch.countDown();
+                                } else {
+                                    try {
+                                        JSONObject jObj = new JSONObject(str);
+                                        if(jObj.has("success") && jObj.getBoolean("success")) mSuccess = true; else mFailedNum++;
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             }
-                    );
-                    httpUtils.access();
+                        }).access();
 
                     try {
                         latch.await();

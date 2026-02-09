@@ -93,7 +93,7 @@
             android:layout_marginBottom="20dp"
             android:layout_gravity="center"
             android:textSize="28sp"
-            android:checked="false"
+            android:checked="true"
             android:text="@string/str_remember_pw"
             android:textColor="@color/black"
             />
