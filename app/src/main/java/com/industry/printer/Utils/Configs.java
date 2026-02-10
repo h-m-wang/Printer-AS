@@ -48,7 +48,6 @@ public class Configs {
 // H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 //	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION = true;
 	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION = false;
-	public static final boolean PROHIBIT_BIG_DOTS_FUNCTION222 = false;
 // End of H.M.Wang 2023-12-13 通过编译，禁止大字机的功能，也就是只能用于HP
 
 // H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
