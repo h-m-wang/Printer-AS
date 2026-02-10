@@ -2233,8 +2233,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						BinFromBitmap.recyleBitmap(mPreBitmap);
 					}
 					//鏂规1锛氫粠bin鏂囦欢鐢熸垚buffer
-// H.M.Wang 2026-1-13					initDTThread();
-// H.M.Wang 2026-1-13					Debug.d(TAG, "--->init thread ok");
+// H.M.Wang 2026-1-13 为了解决鸡蛋机6个头状态都错误，取消。否则RfidScheduler和初始化都会切换当前头，导致头的匹配错误					initDTThread();
+// H.M.Wang 2026-1-13 为了解决鸡蛋机6个头状态都错误，取消。否则RfidScheduler和初始化都会切换当前头，导致头的匹配错误					Debug.d(TAG, "--->init thread ok");
 
 // H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
 //					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
@@ -2263,6 +2263,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					if (Configs.READING) {
 					// H.M.Wang 2019-09-13 RGNORE_RFID的时候将原来的网络命令传递下去
 //						mHandler.sendEmptyMessage(MESSAGE_PRINT_START);
+						initDTThread();				// 2026-2-10 补充2026-1-13前面修改取消了initDTThread()操作带来的影响，当Configs.READING=true时，DataTransferThread中的数据区没有初始化，而导致空指针异常
 						msg = mHandler.obtainMessage(MESSAGE_PRINT_START);
 
 						if (pcMsg != null) {
@@ -2352,9 +2353,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						heads = dt.get(0).getPNozzle().mHeads;
 					}
 					mInkManager.checkUID(heads);
-// H.M.Wang 2026-1-13					if (mDTransThread == null  || statChanged) {
+// H.M.Wang 2026-1-13	因此，这里无论如何都需要初始化一下，因此取消这个判断				if (mDTransThread == null  || statChanged) {
 						initDTThread();
-// H.M.Wang 2026-1-13					}
+// H.M.Wang 2026-1-13	因此，这里无论如何都需要初始化一下，因此取消这个判断					}
 					break;
 				case SmartCardManager.MSG_SMARTCARD_CHECK_FAILED:
 // H.M.Wang 2020-5-18 Smartcard定期检测出现错误显示错误码
