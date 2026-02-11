@@ -1,6 +1,12 @@
-2026-2-10 260210-193000001
+2026-2-11 260211-193200001
 ==================
-补充2026-1-13修改中，MESSAGE_OPEN_MSG_SUCCESS处理的前面取消了initDTThread()操作带来的影响，当Configs.READING=true时，DataTransferThread中的数据区没有初始化，而导致空指针异常
+1. 修改N_RFIDDevice中的getMaxRatio函数返回值，当Configs.READING=true时，由于设备不实际初始化，因此直接访问设备会出现空指针异常。
+2. 修改N_RFIDManager当锁值发生变化时写新锁值的操作，增加是否Configs.READING=true的判断，当为true时，不写卡
+
+2026-2-10 260210-193100001
+==================
+1. 补充2026-1-13修改中，MESSAGE_OPEN_MSG_SUCCESS处理的前面取消了initDTThread()操作带来的影响，当Configs.READING=true时，DataTransferThread中的数据区没有初始化，而导致空指针异常
+2. 修改N_RFIDManager和N_RFIDDevice的相应部分，当Configs.READING=true时，设置mLocalInk=185，并且不重复尝试初始化，以防止此时不解锁
 
 2026-2-9 260209-192900001
 2026-2-9 260209-192901001

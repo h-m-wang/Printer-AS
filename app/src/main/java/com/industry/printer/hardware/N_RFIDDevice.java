@@ -131,6 +131,12 @@ public class N_RFIDDevice {
         return mValid;
     }
 
+    public void setLocalInk(int level) {
+        Debug.d(TAG, "===>curInk=" + mCurInkLevel);
+        mCurInkLevel = level;
+
+    }
+
     public float getLocalInk() {
         return mCurInkLevel;
     }
@@ -141,7 +147,7 @@ public class N_RFIDDevice {
 
 // H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
     public float getMaxRatio() {
-        return mRFIDModule.getMaxRatio();
+        return (null == mRFIDModule ? 1.0f : mRFIDModule.getMaxRatio());
     }
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
 

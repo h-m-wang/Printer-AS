@@ -80,7 +80,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                 synchronized (N_RFIDManager.this) {
                     for(int i=0; i<mRfidDevices.size(); i++) {
                         N_RFIDDevice device = mRfidDevices.get(i);
-                        if(device.isValid()) {
+                        if(!Configs.READING && device.isValid()) {
                             if(device.inkModified()) {
                                 synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                                     switchRfid(i);
@@ -100,7 +100,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                     synchronized (N_RFIDManager.this) {
                         for(int i=0; i<mRfidDevices.size(); i++) {
                             N_RFIDDevice device = mRfidDevices.get(i);
-                            if(!device.isValid()) {
+                            if(!Configs.READING && !device.isValid()) {
                                 synchronized (ExtGpio.RFID_ACCESS_LOCK) {
                                     Debug.d(TAG, "Init RFID[" + i + "]");
                                     switchRfid(i);
@@ -255,7 +255,19 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
     /** implement IInkDevice*/
     @Override
     public void defaultInkForIgnoreRfid() {
-        Debug.e(TAG, "Function defaultInkForIgnoreRfid() has been deprecapted");
+        for (int i=0; i < mRfidDevices.size(); i++) {
+            N_RFIDDevice dev = mRfidDevices.get(i);
+            if (dev == null) {
+                continue;
+            }
+
+            Debug.d(TAG, "defaultInkForIgnoreRfid");
+
+            if (dev.getLocalInk() <= 0) {
+                dev.setLocalInk(185);
+            }
+        }
+//        Debug.e(TAG, "Function defaultInkForIgnoreRfid() has been deprecapted");
     }
 
 // H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
