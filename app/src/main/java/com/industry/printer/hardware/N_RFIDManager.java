@@ -35,7 +35,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
     // H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
     public static final int MSG_RFID_CHECK_FAIL_INK_CHANGED = 110;
 // End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒
-
+/*
     public static N_RFIDManager getInstance(Context ctx) {
         if (mInstance == null) {
             synchronized (RFIDManager.class) {
@@ -47,7 +47,7 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
         }
         return mInstance;
     }
-
+*/
     public N_RFIDManager(Context ctx) {
         super(ctx);
         SystemConfigFile configFile = SystemConfigFile.getInstance(ctx);
@@ -72,6 +72,8 @@ public class N_RFIDManager extends RFIDManager implements IInkDevice {
                 N_RFIDDevice device = new N_RFIDDevice(i);
                 mRfidDevices.add(device);
             }
+        } else {
+            return;
         }
 
         mTimer.scheduleAtFixedRate(new TimerTask() {

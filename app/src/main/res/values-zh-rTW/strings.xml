@@ -521,7 +521,10 @@
 <!--	<string name="str_textview_param81">81.保留</string>-->
 	<string name="str_textview_param81">81.循環間隔</string>
 <!-- End of H.M.Wang 2025-5-19 22mm設置循環參數 -->
-	<string name="str_textview_param82">82.保留</string>
+<!-- H.M.Wang 2026-2-26 增加压力PSI的设置功能 -->
+<!--	<string name="str_textview_param82">82.保留</string>-->
+	<string name="str_textview_param82">82.墨袋壓力</string>
+<!-- End of H.M.Wang 2026-2-26 增加压力PSI的设置功能 -->
 	<string name="str_textview_param83">83.保留</string>
 	<string name="str_textview_param84">84.保留</string>
 	<string name="str_textview_param85">85.保留</string>

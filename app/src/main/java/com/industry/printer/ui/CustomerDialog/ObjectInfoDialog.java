@@ -863,6 +863,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 ||
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_9MM ||
 // H.M.Wang 2021-3-6 追加E6X48,E6X50头
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_E6X48 ||

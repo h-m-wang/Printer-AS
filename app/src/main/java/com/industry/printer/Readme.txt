@@ -1,3 +1,27 @@
+2026-2-28 260228-193601001
+==================
+增加波兰语资源文件
+
+2026-2-27 260227-193501001
+==================
+修改当22mmx2的某个头没有打印信息的时候，在DataTransferThread类的countDown函数中，会出现mcountdown[i] <= 0.0f并且getInkThreshold(i)也为0的情况，导致陷入无限死循环，并且无间歇的调用mInkListener.onInkLevelDown(i)，而导致频繁更新画面，导致UI反应卡顿，修改为：
+    while (mcountdown[i] <= 0.0f && getInkThreshold(i) > 0.0f) {
+        mcountdown[i] += getInkThreshold(i);
+        mInkListener.onInkLevelDown(i);
+    }
+    增加&& getInkThreshold(i) > 0.0f的判断
+
+2026-2-27 260227-193401001
+==================
+增加hp108mm类型打印头，及相应的处理。基本原则是：
+1. 生成的打印数据为528*5的高度，在下发打印数据是按着544*5下发，每段后部添加16字节空
+2. 反转按整体旋转
+
+2026-2-26 260226-193301001
+==================
+1. 修改导入导出页面hp22mm->log的处理log，当没有错误log时会死机
+2. 增加压力PSI的设置功能
+
 2026-2-11 260211-193200001
 ==================
 1. 修改N_RFIDDevice中的getMaxRatio函数返回值，当Configs.READING=true时，由于设备不实际初始化，因此直接访问设备会出现空指针异常。

@@ -350,7 +350,7 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-1-18 增加22mm的清洗功能（走正常打印流程的清洗）
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
-				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM) {
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 					purgeFile = "purge/hp22mm_purge_short.bin";
 				}
@@ -358,7 +358,7 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 //				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd);
-				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd, head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2);
+				char[] buffer = task.preparePurgeBuffer(purgeFile, dotHd, head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM);
 // End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 
 // H.M.Wang 2020-8-21 取消大字机清洗后直接退出，该恢复打印的还是应该恢复打印
@@ -498,7 +498,8 @@ public class DataTransferThread {
 // H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 		if(!head.isBigdotType() &&
 			head != PrinterNozzle.MESSAGE_TYPE_22MM &&
-			head != PrinterNozzle.MESSAGE_TYPE_22MMX2
+			head != PrinterNozzle.MESSAGE_TYPE_22MMX2 &&
+			head != PrinterNozzle.MESSAGE_TYPE_108MM
 		) {
 /*		if (head != PrinterNozzle.MESSAGE_TYPE_16_DOT &&
 			head != PrinterNozzle.MESSAGE_TYPE_32_DOT &&
@@ -576,7 +577,7 @@ public class DataTransferThread {
 				}
 // End of H.M.Wang 2025-2-20 根据打字机打印头的类型使用不同的bin文件，主要区别是有旋转还是没有旋转
 // H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
-				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM) {
 					purgeFile = "purge/hp22mm_purge.bin";
 				}
 // End of H.M.Wang 2025-2-7 22mm的打印头类型支持清洗，使用22mm的专用清洗数据
@@ -586,7 +587,7 @@ public class DataTransferThread {
 				char[] buffer = task.preparePurgeBuffer(purgeFile, true, false);
 // End of H.M.Wang 2025-2-18 增加hp22mm的清洗数据生成，就是不横向放大
 				int heads = PrinterNozzle.getInstance(headIndex).mHeads * config.getHeadFactor();
-				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+				if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM) {
 					buffer = new char[544*1024];
 					Arrays.fill(buffer, (char)0xFFFF);
 					heads++;		// 在P的基础上加上B
@@ -603,7 +604,7 @@ public class DataTransferThread {
 // H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
 					FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
 // End of H.M.Wang 2024-3-25 恢复到先下发数据，后开始打印
-					if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+					if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM) {
 						count -= 1.0f;
 						while (count <= 0.0f) {
 							count += threshold;
@@ -640,7 +641,7 @@ public class DataTransferThread {
 						Thread.sleep(5);
 						if(FpgaGpioOperation.pollState() > 0) {
 							FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_NEW, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length*2);
-							if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+							if(head == PrinterNozzle.MESSAGE_TYPE_22MM || head == PrinterNozzle.MESSAGE_TYPE_22MMX2 || head == PrinterNozzle.MESSAGE_TYPE_108MM) {
 								count -= 1.0f;
 								while (count <= 0.0f) {
 									count += threshold;
@@ -2367,7 +2368,7 @@ private void setSerialProtocol9DTs(final String data) {
 //				mcountdown[i] = getInkThreshold(i);
 // H.M.Wang 2024-1-9 由于阈值可能小于1，即打印一次需要减锁数次才符合要求，因此，这里需要重复获取阈值并且减锁才可以。
 //			if (mcountdown[i] < 1.0f) {
-			while (mcountdown[i] <= 0.0f) {
+			while (mcountdown[i] <= 0.0f && getInkThreshold(i) > 0.0f) {
 // End of H.M.Wang 2024-1-9 由于阈值可能小于1，即打印一次需要减锁数次才符合要求，因此，这里需要重复获取阈值并且减锁才可以。
 				mcountdown[i] += getInkThreshold(i);
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。修改阈值计数的方法，>=1时减1，<1时重新添加阈值

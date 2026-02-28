@@ -740,7 +740,9 @@ public class SettingsListAdapter extends BaseAdapter implements OnClickListener,
 		mSettingItems[79] = new ItemOneLine(80, R.string.str_textview_param80, 0);
 // End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 		mSettingItems[80] = new ItemOneLine(81, R.string.str_textview_param81, R.string.str_time_unit_s);
+// H.M.Wang 2026-2-26 增加压力PSI的设置功能
 		mSettingItems[81] = new ItemOneLine(82, R.string.str_textview_param82, 0);
+// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
 		mSettingItems[82] = new ItemOneLine(83, R.string.str_textview_param83, 0);
 		mSettingItems[83] = new ItemOneLine(84, R.string.str_textview_param84, 0);
 		mSettingItems[84] = new ItemOneLine(85, R.string.str_textview_param85, 0);

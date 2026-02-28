@@ -596,6 +596,19 @@ public class MessageObject extends BaseObject {
 				size[mBaseList_22mm.length+1+i] = (String.valueOf(mBaseList_22mm[i] + mBaseList_22mm[mBaseList_22mm.length-1]));
 			}
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
+			size = new String[(mBaseList_22mm.length+1)*5];
+			int k=0;
+			for(int i=0; i<5; i++) {
+				for (int j=0; j<mBaseList_22mm.length; j++) {
+					if(k < size.length) size[k] = String.valueOf(mBaseList_22mm[j] + mBaseList_22mm[mBaseList_22mm.length-1] * i);
+                    k++;
+				}
+				if(k < size.length) size[k] = String.valueOf(mBaseList_22mm[mBaseList_22mm.length-1] * (i+1) + 0.5f);
+				k++;
+            }
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
 		}
 		return size;
 	}
@@ -668,6 +681,8 @@ public class MessageObject extends BaseObject {
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 			return h * 12.7f / 44;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
+			return h * 12.7f / 110;
 		} else if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT )//addbylk 喷头类型
 		{
 // H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
@@ -1094,7 +1109,21 @@ public class MessageObject extends BaseObject {
 			for (int i = 0; i < mBaseList_22mm.length; i++) {
 				sizelist[mBaseList_22mm.length+1+i] = mBaseList_22mm[i] + sizelist[mBaseList_22mm.length];
 			}
+		}
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
+			sizelist = new float[(mBaseList_22mm.length+1)*5];
+			int k=0;
+			for(int i=0; i<5; i++) {
+				for (int j=0; j<mBaseList_22mm.length; j++) {
+					if(k < sizelist.length) sizelist[k] = mBaseList_22mm[j] + mBaseList_22mm[mBaseList_22mm.length-1] * i;
+					k++;
+				}
+				if(k < sizelist.length) sizelist[k] = mBaseList_22mm[mBaseList_22mm.length-1] * (i+1) + 0.5f;
+				k++;
+			}
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
 		}
 
 //		if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_12_7) {
@@ -1514,6 +1543,11 @@ public class MessageObject extends BaseObject {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 				h = type * size/152*44;
+			}
+// End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
+				h = type * size/152*110;
 			}
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		}

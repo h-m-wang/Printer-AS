@@ -25,7 +25,7 @@ public class FileUtil {
 		File target = new File(newPath);
 		try {
             copyFile(srcFile, target);
-        } catch (IOException e) {
+        } catch (Exception e) {
 		    Debug.e(TAG, "--->copy error: " + e.getMessage());
         }
 	}

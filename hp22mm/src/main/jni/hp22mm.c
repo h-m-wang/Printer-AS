@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.186"
+#define VERSION_CODE                            "1.0.187"
+// 1.0.187 2026-2-26
+// 增加压力PSI的设置功能
 // 1.0.186 2026-2-6
 // 测试升级用版本，没有功能修改
 // 1.0.185 2026-2-5
@@ -365,8 +367,12 @@ static bool CancelMonitor = true;
 // SECURE_INK_POLL_SEC - secure ink is polled at this frequency (must be < 60 seconds)
 #define SECURE_INK_POLL_SEC 20
 
-#define SUPPLY_PRESSURE 4.0
-#define PRESSURE_OK_LINE 3.0
+// H.M.Wang 2026-2-26 取消压力的固定值，改为apk可以设置，设置值的范围为0-6.0
+//#define SUPPLY_PRESSURE 4.0
+//#define PRESSURE_OK_LINE 3.0
+static volatile float SUPPLY_PRESSURE = 4.0;
+static volatile float PRESSURE_OK_LINE = 3.0;
+// End of H.M.Wang 2026-2-26 取消压力的固定值，改为apk可以设置，设置值的范围为0-6.0
 #define PRESSURIZE_SEC 120  // 两分钟
 
 #define LED_R 0
@@ -421,7 +427,7 @@ void *monitorThread(void *arg) {
             if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) {
 //            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
                 sprintf(ERR_STRING, "WARNING: Air press low\n");
-                LOGE("[Async]WARNING: Air press low\n");
+                LOGE("[Async]WARNING: Air press low. %f\n", ADCGetPressurePSI(sIdsIdx));
                 RunningState[IDS_STATE] = STATE_INVALID;
                 Air_Pump_State = AIR_STATE_LAUNCH_PUMP;
             }
@@ -1295,6 +1301,12 @@ JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean asy
     return CmdPressurize(async);
 }
 
+JNIEXPORT jint JNICALL Java_com_SetPressurePSI(JNIEnv *env, jclass arg, jfloat psi) {
+    SUPPLY_PRESSURE = psi;
+    PRESSURE_OK_LINE = 0.73 * psi;
+    return 0;
+}
+
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg) {
     char strTemp[256];
 
@@ -1426,6 +1438,7 @@ int _CmdPressurize(float set_pressure) {
         sleep(1);   // delay 1 sec
 
         pressurized = true;
+        LOGD("ADCGetPressurePSI(%d) = %f\n", sIdsIdx, ADCGetPressurePSI(sIdsIdx));
         if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) pressurized = false;
 //        if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) pressurized = false;
 
@@ -1520,6 +1533,7 @@ static JNINativeMethod gMethods[] = {
         {"DoPairing",		                "()I",	                    (void *)Java_com_DoPairing},
         {"DoOverrides",		                "()I",	                    (void *)Java_com_DoOverrides},
         {"Pressurize", "(Z)I",	                    (void *)Java_com_Pressurize},
+        {"SetPressurePSI", "(F)I",	                    (void *)Java_com_SetPressurePSI},
         {"CheckPenStatusAndRepowerOnIfNeed",		                "()I",	    (void *)Java_com_checkPenStatusAndRepowerOnIfNeed},
         {"EnableWarming",		                "(I)I",	                    (void *)Java_com_EnableWarming},
 

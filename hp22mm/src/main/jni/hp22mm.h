@@ -31,6 +31,7 @@ JNIEXPORT jint JNICALL Java_com_DeletePairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoPairing(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_DoOverrides(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean async);
+JNIEXPORT jint JNICALL Java_com_SetPressurePSI(JNIEnv *env, jclass arg, jfloat psi);
 JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable);
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);

@@ -97,6 +97,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
     MESSAGE_TYPE_22MMX2(MessageType.NOZZLE_INDEX_22MMX2, NozzleType.NOZZLE_TYPE_22MMX2, 2, 1),
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+    MESSAGE_TYPE_108MM(MessageType.NOZZLE_INDEX_108MM, NozzleType.NOZZLE_TYPE_108MM, 1, 1),
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型，特点是不允许平移，不允许镜像，不允许反转，只允许旋转，旋转按着标准方法整体旋转
     MESSAGE_TYPE_64DOTONE(MessageType.NOZZLE_INDEX_64DOTONE, NozzleType.NOZZLE_TYPE_64DOTONE, 1, 1),
 // End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型，特点是不允许平移，不允许镜像，不允许反转，只允许旋转，旋转按着标准方法整体旋转
@@ -219,6 +222,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
             case NozzleType.NOZZLE_TYPE_22MMX2:
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case NozzleType.NOZZLE_TYPE_108MM:
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
                 shiftEnable = false;
 // H.M.Wang 2025-2-17 22MM打印头系列允许镜像和倒置
 //                mirrorEnable = false;
@@ -463,6 +469,10 @@ public enum PrinterNozzle {
                 }
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case NozzleType.NOZZLE_TYPE_108MM:
+                mHeight = 528 * 5;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
         }
     }
 
@@ -719,6 +729,12 @@ public enum PrinterNozzle {
                 }
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case NozzleType.NOZZLE_TYPE_108MM:
+                scaleW = 264f*5/152;
+                scaleH = 528f*5/152;
+                break;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
             default:
                 scaleW = 1f;
                 scaleH = 1f;
@@ -922,6 +938,10 @@ public enum PrinterNozzle {
                 ratio = 1.0f * 44.0f / 304;
                 break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case NozzleType.NOZZLE_TYPE_108MM:
+                ratio = 1.0f * 110.0f / 304;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
             default:
                 break;
         }
@@ -952,6 +972,9 @@ public enum PrinterNozzle {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
         if(this == MESSAGE_TYPE_22MMX2) return 1;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+        if(this == MESSAGE_TYPE_108MM) return 1;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
         return mHeight / 152;
     }
 
@@ -1142,6 +1165,10 @@ public enum PrinterNozzle {
             case MessageType.NOZZLE_INDEX_22MMX2:
                 return MESSAGE_TYPE_22MMX2;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case MessageType.NOZZLE_INDEX_108MM:
+                return MESSAGE_TYPE_108MM;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
             case MessageType.NOZZLE_INDEX_64DOTONE:
                 return MESSAGE_TYPE_64DOTONE;
@@ -1280,6 +1307,10 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_22MMX2:
                 return MESSAGE_TYPE_22MMX2;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+            case NozzleType.NOZZLE_TYPE_108MM:
+                return MESSAGE_TYPE_108MM;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
 // H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
             case NozzleType.NOZZLE_TYPE_64DOTONE:
                 return MESSAGE_TYPE_64DOTONE;
@@ -1385,6 +1416,9 @@ public enum PrinterNozzle {
         public static final int NOZZLE_INDEX_32X6 = 42;
         public static final int NOZZLE_INDEX_32X7 = 43;
 // End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+        public static final int NOZZLE_INDEX_108MM = 44;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
     }
 
     public static class NozzleType {
@@ -1471,5 +1505,8 @@ public enum PrinterNozzle {
         public static final int NOZZLE_TYPE_32X6 = 61;
         public static final int NOZZLE_TYPE_32X7 = 62;
 // End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
+// H.M.Wang 2026-2-24 增加108mm类型打印头
+        public static final int NOZZLE_TYPE_108MM = 63;
+// End of H.M.Wang 2026-2-24 增加108mm类型打印头
     }
 }

@@ -361,6 +361,7 @@ public class EditTabSmallActivity extends Fragment implements OnClickListener, O
 // End of H.M.Wang 2022-4-29 追加25.4x10头类型
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 					case MESSAGE_TYPE_22MM:
+					case MESSAGE_TYPE_108MM:
 						mEditLayout.setBackgroundResource(R.drawable.background);
 						break;
 // End of H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image

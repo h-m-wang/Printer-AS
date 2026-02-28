@@ -73,6 +73,9 @@ public class Hp22mmSCManager implements IInkDevice {
     public void init(Handler callback) {
         final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+            penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
+        }
         switch(penArg) {
             case 0x01:
                 mHeads = new Hp22mmHead[] {
@@ -111,6 +114,7 @@ public class Hp22mmSCManager implements IInkDevice {
                 while(true) {
                     synchronized (LockObj) {
                         if (!mInitialized) {
+                            Hp22mm.SetPressurePSI(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_IDS_PRESURE_PSI));
                             // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
                             int error = Hp22mm.initHp22mm(nozzle_sel);
                             if(error == 0) {

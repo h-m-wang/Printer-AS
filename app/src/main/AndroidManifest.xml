@@ -78,7 +78,7 @@
             android:name="com.industry.printer.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation|locale|layoutDirection|screenSize" >
+            android:configChanges="keyboard|keyboardHidden|orientation|locale|layoutDirection|screenSize" >
             
             <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                  android:resource="@xml/device_filter" />

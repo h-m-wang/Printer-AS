@@ -50,6 +50,9 @@ public class Hp22mm {
     static public native int StartMonitor();
     static public native int Pressurize(boolean async);
 // End of H.M.Wang 2024-11-10 修改so中的控制逻辑，函数参数变化
+// H.M.Wang 2026-2-26 增加压力PSI的设置功能
+    static public native int SetPressurePSI(float psi);
+// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
 // H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
     static public native int CheckPenStatusAndRepowerOnIfNeed();
 // End of H.M.Wang 2026-2-3 增加一个CheckPenStatusAndRepowerOnIfNeed函数，用来在每次打印后获取打印头状态，并且在必要时启动重新上电
@@ -181,7 +184,9 @@ public class Hp22mm {
         }
 
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
-
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+            penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
+        }
 // H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
             if(penArg != 3) {

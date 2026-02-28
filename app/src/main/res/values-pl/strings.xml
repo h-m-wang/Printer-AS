@@ -1,0 +1,804 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+<!-- En 20170322 -->
+
+	<string name="app_version">Wersja:</string>
+	<string name="system_time">Czas:</string>
+	<string name="app_name">Drukarka</string>
+	<string name="action_settings">Ustaw</string>
+	<string name="hello_world">Witaj świecie!</string>
+	<string name="ControlTab">Sterowanie</string>
+	<string name="manualCtrlTab">Ster. ręczne</string>
+	<string name="Home">Start</string>
+	<string name="Edit">Edytuj</string>
+	<string name="Settings">Ustawienia</string>
+	<string name="str_btn_start">Start</string>
+	<string name="str_btn_stop">Stop</string>
+	<string name="str_btn_launch">Start</string>
+	<string name="str_btn_clean">Przepłucz</string>
+	<string name="str_btn_sclean">Przepłucz</string>
+<!-- H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
+	<string name="str_purge_confirm">Potwierdź przepłukanie</string>
+	<string name="str_clean_confirm">Czyszczenie potrwa ok. 5 minut. Kontynuować?</string>
+	<string name="str_under_purging">Trwa przepłukiwanie, spróbuj później.</string>
+<!-- End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗 -->
+	<string name="str_under_printing">Zatrzymaj druk i spróbuj ponownie.</string>
+	<string name="str_btn_open">Otwórz</string>
+	<string name="str_remain_ink">Atrament</string>
+	<string name="str_remain_ptimes">Wydrukowano: </string>
+	<string name="str_btn_new">Nowy</string>
+	<string name="str_btn_save">Zapisz</string>
+	<string name="str_btn_saveprint">Zapisz i drukuj</string>
+	<string name="str_btn_cancel">Anuluj</string>
+<!-- H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_btn_close">Zamknij</string>
+	<string name="str_btn_backprint">Wstecz\nDrukuj</string>
+<!-- End of H.M.Wang 2024-9-20 增加两个字符串 -->
+	<string name="str_ip_add">Adres IP</string>
+	<string name="str_device_number">Urządzenie:</string>
+	<string name="str_dialog_surecancel">Uwaga:</string>
+	<string name="str_device_but_sure">OK</string>
+	<string name="str_ip_ed">Ustaw IP i spróbuj ponownie</string>
+	<string name="str_print_documents"></string>
+	<string name="str_port">Port</string>
+	<string name="str_information">Czy wykonać?</string>
+	<string name="str_btn_saveas">Zapisz\njako</string>
+	<string name="str_btn_prerecord">W górę</string>
+	<string name="str_btn_nextrecord">W dół</string>
+	<string name="str_btn_send">Wyślij</string>
+	<string name="str_btn_set">Ustaw</string>
+	<string name="str_btn_get">Tekst</string>
+	<string name="str_btn_print">Drukuj</string>
+	<string name="str_btn_finish">Zakończ</string>
+	<string name="str_btn_ids0">IDS1</string>
+	<string name="str_btn_ids1">IDS2</string>
+	<string name="str_btn_header0">Głowica 0</string>
+	<string name="str_btn_header1">Głowica 1</string>
+	<string name="str_btn_header2">Głowica 2</string>
+	<string name="str_btn_header3">Głowica 3</string>
+	<string name="str_btn_header4">Głowica 4</string>
+	<string name="strDate">Data:</string>
+	<string name="strInklevel">Pozostało: </string>
+	<string name="strPhotocellState">Fotokomórka</string>
+	<string name="strEncoderState">Enkoder</string>
+	<string name="strPrintstate">Drukowanie:</string>
+	<string name="strPrinting">Drukowanie</string>
+	<string name="strPrintok">Gotowe</string>
+	<string name="strOn">Wł.</string>
+	<string name="strOff">Wył.</string>
+	<string name="strwaitting">drukowanie......</string>
+	<string name="str_csvfile">CSV</string>
+	<string name="str_tlkfile">TLK</string>
+	<string name="str_binfile">Otwórz</string>
+	<string name="str_openfile">Otwórz...</string>
+	<string name="str_open_msg">Wiadomość...</string>
+<!-- H.M.Wang 2023-2-15 打开文件修改为打开模板 -->
+	<string name="str_opentemplate">Szablon...</string>
+<!-- End of H.M.Wang 2023-2-15 打开文件修改为打开模板 -->	
+	<string name="str_seldata">Otwórz...</string>
+	<string name="str_mvforward">Do przodu</string>
+	<string name="str_mvbackward">Do tyłu</string>
+	<string name="str_preview">Podgląd</string>
+
+	<string name="str_del">Usuń</string>
+	<string name="str_del_all">Usunąć wszystko?</string>
+	<string name="str_multi_select">Grupa</string>
+	<string name="str_btn_shift">Zmiana</string>
+	<string name="str_btn_second">Sekunda</string>
+
+	<string name="str_btn_upgrade">Aktualizuj</string>
+	<string name="str_urge2restart">Zaktualizowano, uruchom ponownie</string>
+	<string name="str_btn_setDate">Ustaw datę</string>
+	<string name="str_btn_setTime">Ustaw czas</string>
+	<string name="str_btn_image">Logo</string>
+	<string name="str_net_device_ink">Atrament</string>
+	<string name="str_goto">przejdź</string>
+	<!-- object info table -->
+	<string name="strWidth">Szerokość</string>
+	<string name="strHigh">Rozmiar</string>
+	<string name="strHightype">Skokowo</string>
+	<string name="strReverse">Odwrócenie</string>
+	<string name="strRevert">Przywróć</string>
+	<string name="strXcor">Poziomo</string>
+	<string name="strYcor">Pionowo</string>
+	<string name="strCnt">Zawartość</string>
+	<string name="strRefresh">Odśwież</string>
+	<string name="strDefault">0</string>
+	<string name="txtDefault">tekst</string>
+	<string name="strDragable">Przeciąganie</string>
+	<string name="strShow">Pokaż</string>
+	<string name="strFontsize">Rozmiar czcionki</string>
+	<string name="strFont">Czcionka</string>
+<!-- H.M.Wang 2025-10-26 追加字间距标识 -->	
+	<string name="strLetterSpacing">Odstęp</string>
+<!-- End of H.M.Wang 2025-10-26 追加字间距标识 -->
+	<string name="strLinewidth">Grubość linii</string>
+	<string name="strBits">Cyfry</string>
+	<string name="strImage">Obraz</string>
+	<string name="strDirect">Kierunek</string>
+	<string name="strShift1">Zmiana 1</string>
+	<string name="strShift2">Zmiana 2</string>
+	<string name="strShift3">Zmiana 3</string>
+	<string name="strShift4">Zmiana 4</string>
+	<string name="strShift5">Zmiana 5</string>
+	<string name="strInfoname">Obiekt</string>
+	<string name="strHeadType">Typ głowicy</string>
+	<string name="strHeadResolution">HD</string>
+	<string name="strUpgradeConfirm">Zaktualizować?</string>
+	<string name="strUpgradeNoApk">Brak pliku aktualizacji!!!</string>
+	<string name="strSaving">zapisywanie, czekaj...</string>
+	<string name="strLoading">ładowanie, czekaj...</string>
+	<string name="strCopying">kopiowanie, czekaj...</string>
+	<string name="strInsertSerial">Podłącz urządzenie...</string>
+	<string name="strReinsertSerial">Błąd, podłącz ponownie urządzenie</string>
+	<string name="str_net_error">Błąd komunikacji sieciowej</string>
+<!--
+	<string-array name="strFontFile">
+	    <item>WelldrawH000</item>
+	</string-array>
+-->
+
+	<string name="strGroup">Grupa</string>
+	<string name="strCode">Typ kodu</string>
+	<string name="strBarsource">Dane</string>
+	<string name="strLinetype">Typ linii</string>
+	<string name="str_ok">OK</string>
+	<string name="strNativeBtn">Anuluj</string>
+	<string name="strRtFmt">Format</string>
+	<string name="strOffset">Przesunięcie</string>
+
+<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->	
+	<string name="strFrame">Ramka</string>
+<!-- H.M.Wang 2020-2-25 追加追加ITF_14边框有无的设置 -->
+
+<!-- H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+	<string name="strDMType">Typ DM</string>
+<!-- End of H.M.Wang 2024-10-24 追加DM码的种类选择 -->
+
+<!-- H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+	<string name="strErrorCorrectionLevel">Poziom EC</string>
+<!-- End of H.M.Wang 2023-2-14 追加QR码的纠错级别 -->
+
+	<!-- object list -->
+	<string name="objectListName">Pokaż listę</string>
+	<string name="objectInfoName">Pokaż TEKST</string>
+	<string name="object_Msg">TEKST</string>
+	<string name="object_text">Tekst</string>
+	<string name="object_realtime">Data</string>
+	<string name="object_counter">Licznik</string>
+	<string name="object_bar">Kod kreskowy</string>
+	<string name="object_pic">Grafika</string>
+	<string name="object_julian">Juliański</string>
+	<string name="object_line">Linia</string>
+	<string name="object_rect">Prostokąt</string>
+	<string name="object_ellipse">Elipsa</string>
+	<string name="object_shift">Zmiana</string>
+	<string name="object_second">Sekunda</string>
+<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+	<string name="object_hypertext">Hipertekst</string>
+<!-- H.M.Wang 2020-2-16 追加HyperText控件 -->
+<!-- H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_hypertext_hint1"><u>@Y</u>:Rok <u>@M</u>:Miesiąc <u>@D</u>:Data</string>
+	<string name="object_hypertext_hint2"><u>@H</u>:Godzina <u>@N</u>:Minuta <u>@S</u>:Sekunda</string>
+	<string name="object_hypertext_hint3"><u>@T</u>:Zmiana <u>@A</u>:Dzień <u>@W</u>:Nr tygodnia</string>
+	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:Liczniki</string>
+<!-- H.M.Wang 2023-12-30 增加对DT的支持。 -->
+	<string name="object_hypertext_hint6"><u>@#n#m#</u>:Tekst dynamiczny. n:indeks; m:liczba cyfr</string>
+<!-- End of H.M.Wang 2023-12-30 增加对DT的支持。 -->
+<!-- H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->	
+	<string name="object_hypertext_hint5"><u>@UG</u>:Grupa użytkownika</string>
+<!-- End of H.M.Wang 2022-11-26 追加User Group超文本信息说明 -->
+<!-- End of H.M.Wang 2020-2-27 追加HyperText控件说明信息 -->
+	<string name="object_weekofyear">Tydzień roku</string>
+	<string name="object_weekday">Dzień tygodnia</string>
+	<string name="object_charHour">Godzina (litery)</string>
+	<string name="object_msg_name">Temat</string>
+	<string name="object_qr">Kod QR</string>
+	<string name="object_dynamic_qr">Dynamiczny QR</string>
+<!-- H.M.Wang 2020-7-29 所有条码均可以设置为动态条码，追加动态条码文字 -->
+	<string name="object_dynamic_barcode">Dynamiczny kod kreskowy</string>
+<!-- End of H.M.Wang 2020-7-29 所有条码均可以设置为动态条码，追加动态条码文字 -->
+<!-- H.M.Wang 2020-6-10 追加DynamicText控件 -->
+	<string name="object_dynamictext">Tekst dynamiczny</string>
+	<string name="object_dtindex">Indeks</string>
+<!-- End of H.M.Wang 2020-6-10 追加DynamicText控件 -->
+
+	<!-- Settings frame -->
+	<string name="strParam0">00.Zarezerwowane</string>
+	<string name="strPrSpeedname">01.Prędkość</string>
+	<string name="strDelay_key">delay_key</string>
+	<string name="strDelayname">02.Opóźnienie</string>
+	<string name="strDelay_summary">Ustaw opóźnienie</string>
+	<string name="strParam3">03.Zarezerwowane</string>
+	<string name="strTrigger_key">trigger_key</string>
+	<string name="strTriggername">04.Wyzwalanie</string>
+	<string name="strTrigger_summary">Tryb wyzwalania</string>
+	<string name="strDirection_key">direction_key</string>
+	<string name="strSyncname">05.Enkoder</string>
+	<string name="strDirectionname">05.Synchronizacja</string>
+	<string name="strBold">06.Pogrubienie</string>
+	<string name="strFixlen">07.Długość</string>
+	<string name="strFixtime">08.Ustalony czas</string>
+	<string name="strHeadTemp">09.Temp. głowicy</string>
+	<string name="strResvTemp">10.Temp. obudowy</string>
+	<string name="strfontwidth">11.Szer. czcionki</string>
+	<string name="strDotname">12.Rozmiar kropek</string>
+	<string name="strDirection_summary">Wybierz kierunek</string>
+	<string name="strEncoder_key">encoder</string>
+	<string name="strEncodername">03.Enkoder</string>
+	<string name="strEncoder_summary">Ustaw tryb enkodera</string>
+	<string name="strHoriRes_key">horires_key</string>
+	<string name="strHoriResname">04.Poziom</string>
+	<string name="strHoriRes_summary">Ustaw rozdz. poziomą</string>
+	<string name="strVertRes_key">vertres_key</string>
+	<string name="strVertResname">05.Pion</string>
+	<string name="strVertRes_summary">Ustaw rozdz. pionową</string>
+	<string name="strTimeunit">ms</string>
+	<string name="strResunit">dpi</string>
+	<string name="strLenunit">0,1 mm</string>
+	<string name="strTempunit">°C</string>
+	<string name="strPrSpeedUnit">Hz</string>
+	<string name="strResvname8">08.Reserved</string>
+	<string name="strResvname9">09.Reserved</string>
+	<string name="strResvname10">10.Reserved</string>
+	<string name="strResvname11">11.Reserved</string>
+	<string name="strResvname12">12.Reserved</string>
+	<string name="strResvname13">13.Reserved</string>
+	<string name="strResvname14">14.Reserved</string>
+	<string name="strResvname15">15.Reserved</string>
+	<string name="strResvname16">16.Reserved</string>
+	<string name="strResvname17">17.Reserved</string>
+	<string name="strResvname18">18.Reserved</string>
+	<string name="strResvname19">19.Reserved</string>
+	<string name="strResvname20">20.Reserved</string>
+	<string name="strResvname21">21.Reserved</string>
+	<string name="strResvname22">22.Reserved</string>
+	<string name="strResvname23">23.Reserved</string>
+	<string name="strResvname24">24.Reserved</string>
+	<string name="strResvname25">25.Reserved</string>
+	<string name="strResvname26">26.Reserved</string>
+	<string name="strResvname27">27.Reserved</string>
+	<string name="strResvname28">28.Reserved</string>
+	<string name="strResvname29">29.Reserved</string>
+	<string name="strResvname30">30.Reserved</string>
+	<string name="strResvname31">31.Reserved</string>
+	<string name="strResvname32">32.Reserved</string>
+	<string name="strResvname33">33.Reserved</string>
+	<string name="strResvname34">34.Reserved</string>
+	<string name="strResvname35">35.Reserved</string>
+	<string name="strResvname36">36.Reserved</string>
+	<string name="strResvname37">37.Reserved</string>
+	<string name="strResvname38">38.One for all</string>
+	<string name="strResvname39">39.Reserved</string>
+	<string name="strResvname40">40.Reserved</string>
+	<string name="strResvname41">41.Reserved</string>
+	<string name="strResvname42">42.Reserved</string>
+	<string name="strResvname43">43.Pens</string>
+	<string name="strResvname44">44.Reserved</string>
+	<string name="strResvname45">45.Reserved</string>
+	<string name="strResvname46">46.Reserved</string>
+	<string name="strResvname47">47.Reserved</string>
+	<string name="strResvname48">48.Reserved</string>
+	<string name="strResvname49">49.Reserved</string>
+	<string name="strResvname50">50.Reserved</string>
+	<string name="strResvname51">51.Reserved</string>
+	<string name="strResvname52">52.Reserved</string>
+	<string name="strResvname53">53.Reserved</string>
+	<string name="strResvname54">54.Reserved</string>
+	<string name="strResvname55">55.Reserved</string>
+	<string name="strResvname56">56.Reserved</string>
+	<string name="strResvname57">57.Reserved</string>
+	<string name="strResvname58">58.Reserved</string>
+	<string name="strResvname59">59.Reserved</string>
+	<string name="strResvname60">60.Reserved</string>
+	<string name="strResvname61">61.Reserved</string>
+	<string name="strResvname62">62.Reserved</string>
+	<string name="strResvname63">63.Reserved</string>
+	<string name="strResvname64">64.Reserved</string>
+
+<!-- H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+	<string name="strCounterEditTitle">Zmień wartość licznika</string>
+	<string name="strCounterIndex">Licznik %1$d:</string>
+	<string name="strCounterClear">Wyczyść</string>
+<!-- End of H.M.Wang 2020-4-24 修改计数器值修改方式为对话窗 -->
+<!-- H.M.Wang 2020-4-27 重复打印设置改为对话窗 -->
+	<string name="strPrintRepeatEditTitle">Zmień powtórzenia druku</string>
+<!-- End of H.M.Wang 2020-4-27 重复打印设置改为对话窗 -->
+	<!-- H.M.Wang 2020-4-27 编码器脉冲设置改为对话窗 -->
+	<string name="strEncoderPPREditTitle">Zmień PPR enkodera</string>
+	<!-- End of H.M.Wang 2020-4-27 编码器脉冲设置改为对话窗 -->
+<!-- H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理 -->
+	<string name="strQRLastEditTitle">Zmień indeks QRLast</string>
+<!-- End of H.M.Wang 2020-5-16 QRLast移植RTC的0x38地址保存，可以通过参数设置管理 -->
+
+	<string name="strBtnSave">OK</string>
+
+	<string name="strRecvedRemote">Odebrano z urządzenia zdalnego</string>
+
+	<string name="str_fileicon_des">ikona pliku</string>
+	<string name="str_file_save"> OK </string>
+	<string name="str_file_cancel">Anuluj</string>
+	<string name="str_setting_upgrade">Aktualizacja</string>
+	<string name="str_setting_clean">Czyszczenie</string>
+
+	<string name="str_month">Miesiąc</string>
+	<string name="str_year">Rok</string>
+	<string name="str_date">Data</string>
+	<string name="str_hour">Godzina</string>
+	<string name="str_minute">Minuta</string>
+	<string name="str_format">Format 24h</string>
+	<string name="str_format_24">Tak</string>
+	<string name="str_format_12">Nie</string>
+	<string name="cor_unit">piksel</string>
+	<string name="font_unit">mm</string>
+	<string name="dot_unit">kropki</string>
+
+	<string name="str_trans">w prawo</string>
+
+	<string name="str_column_index">index</string>
+	<string name="str_column_pic1">pic1</string>
+	<string name="str_column_pic2">pic2</string>
+	<string name="str_column_pic3">pic3</string>
+	<string name="str_column_pic4">pic4</string>
+	<string name="str_column_text1">text1</string>
+	<string name="str_column_text2">text2</string>
+	<string name="str_column_text3">text3</string>
+	<string name="str_column_text4">text4</string>
+	<string name="str_column_text5">text5</string>
+	<string name="str_column_text6">text6</string>
+	<string name="str_column_text7">text7</string>
+	<string name="str_column_text8">text8</string>
+	<string name="str_column_text9">text9</string>
+	<string name="str_column_text10">text10</string>
+	<string name="str_column_text11">text11</string>
+	<string name="str_column_text12">text12</string>
+	<string name="str_column_text13">text13</string>
+	<string name="str_column_text14">text14</string>
+	<string name="str_column_text15">text15</string>
+	<string name="str_column_text16">text16</string>
+	<string name="str_notlkfile">Wybierz plik TLK</string>
+	<string name="str_tlk_already_exist">Plik TLK już istnieje!!!</string>
+	<string name="str_createfile_failure">Błąd tworzenia</string>
+	<string name="str_no_print_target">Wybierz cel</string>
+
+	<string name="str_radioLocal">Lokalnie</string>
+	<string name="str_radioUsb">USB</string>
+	<string name="str_radioUsb1">USB1</string>
+	<string name="str_radioUsb2">USB2</string>
+	<string name="str_radioSdcard">Karta SD</string>
+
+	<string name="str_title_infodialog">Informacje o obiekcie</string>
+	<string name="str_fileopt_del">USUŃ</string>
+	<string name="str_fileopt_cancel">Anuluj</string>
+	<string name="str_search">Szukaj</string>
+
+<!-- 树莓派3 打印界面相关 -->
+	<string name="str_msg_name">Wiad.:</string>
+	<!-- 
+	<string name="str_state_inklevel">INK:  %1$d%%</string>
+	-->
+	<string name="str_state_inklevel">ATRAMENT:</string>
+	<string name="str_invalid_ink">--</string>
+	<string name="str_state_battery">Zasilanie:%1$d</string>
+	<string name="str_hint_preview">podgląd wiadomości</string>
+	<string name="str_print_count">Rekordy: </string>
+	<string name="str_print_count_default">0</string>
+	<string name="str_print_printing">Zadanie druku już działa — nie utworzono nowego</string>
+	<string name="str_print_startok">uruchomiono druk...</string>
+	<string name="str_print_stopok">zatrzymano druk...</string>
+	<string name="str_toast_no_bin">Nie znaleziono pliku BIN!!!</string>
+	<string name="str_toast_emptycontent">Wybrana wiadomość jest pusta!!!</string>
+	<string name="str_toast_no_message">Najpierw wybierz plik wiadomości!!!</string>
+	<string name="str_toast_no_ink">Niski poziom atramentu!!!</string>
+<!-- H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+	<string name="str_toast_ink_error">Błąd atramentu!!!</string>
+<!-- End of H.M.Wang 2020-2-25 增加墨盒错误提示 -->
+<!-- H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_toast_ink_error_ink_changed">Wyłącz zasilanie przed wymianą kartridża</string>
+<!-- End of H.M.Wang 2022-8-31 追加一个消息，显示提示不要带电更换墨盒 -->
+	<string name="str_rfid_initfail_notify">Inicjalizacja RFID nie powiodła się!</string>
+	<string name="str_page_forward"> 《 </string>
+	<string name="str_page_backward"> 》 </string>
+	<string name="str_message_no_content">nie można utworzyć podglądu</string>
+	<string name="str_state_printing">Drukowanie</string>
+	<string name="str_state_stopped">Gotowe</string>
+<!-- H.M.Wang 2023-6-27 追加用户定制画面 -->
+	<string name="str_state_cnt_print_up">Druk licznika w górę</string>
+	<string name="str_state_cnt_printdown">Druk licznika w dół</string>
+	<string name="str_btn_up_print">Druk licz. ↑</string>
+	<string name="str_btn_down_print">Druk licz. ↓</string>
+<!-- End of H.M.Wang 2023-6-27 追加用户定制画面 -->
+
+	<!-- 树莓派3 设置界面相关 -->
+
+	<string name="str_textview_param1">01. Prędkość</string>
+	<string name="str_textview_param2">02. Kierunek</string>
+	<string name="str_textview_param3">03. Rozdzielczość</string>
+	<string name="str_textview_param4">04. Opóźnienie</string>
+	<string name="str_textview_param5">05. Fotokomórka</string>
+	<string name="str_textview_param6">06. Enkoder</string>
+	<string name="str_textview_param7">07. Powtórzenia druku</string>
+	<string name="str_textview_param8">08. Wybór dysz</string>
+	<string name="str_textview_param9">09. Średnica koła</string>
+	<string name="str_textview_param10">10. Enkoder PPR</string>
+	<string name="str_textview_param11">11.Przes. głowicy 1</string>
+	<string name="str_textview_param12">12.Przes. głowicy 2</string>
+	<string name="str_textview_param13">13.Głowica 1 — lustrzanie</string>
+	<string name="str_textview_param14">14.Głowica 2 — lustrzanie</string>
+	<string name="str_textview_param15">15.Głowica 1 — negatyw</string>
+	<string name="str_textview_param16">16.Głowica 2 — negatyw</string>
+	<string name="str_textview_param17">17.Opóźnienie daty</string>
+
+<!--	<string name="str_textview_param18">18.Reserved</string>-->
+	<string name="str_textview_param18">18.Zerowanie</string>
+
+	<string name="str_textview_param19">19.Przes. głowicy 3</string>
+	<string name="str_textview_param20">20.Przes. głowicy 4</string>
+	<string name="str_textview_param21">21.Głowica 3 — lustrzanie</string>
+	<string name="str_textview_param22">22.Głowica 4 — lustrzanie</string>
+	<string name="str_textview_param23">23.Głowica 3 — negatyw</string>
+	<string name="str_textview_param24">24.Głowica 4 — negatyw</string>
+	<string name="str_textview_param25">25.Auto napięcie</string>
+	<string name="str_textview_param26">26.Ustaw napięcie</string>
+	<string name="str_textview_param27">27.Auto impuls</string>
+	<string name="str_textview_param28">28.Ustaw impuls</string>
+	<string name="str_textview_param29">29.Utrzymuj wilgoć</string>
+	<string name="str_textview_param30">30.Filtr foto</string>
+	<string name="str_textview_param31">31.Typ</string>
+	<string name="str_textview_param32">32.Reset licznika</string>
+	<string name="str_textview_param33">33.Rozmiar kropek</string>
+	<string name="str_textview_param34">34.PWML</string>
+	<string name="str_textview_param35">35.STR</string>
+	<string name="str_textview_param36">36.Pochylenie</string>
+	<string name="str_textview_param37">37.PWMH</string>
+	<string name="str_textview_param38">38.Jeden dla wszystkich</string>
+<!-- H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+<!--	<string name="str_textview_param39">39.Reserved</string> -->
+	<string name="str_textview_param39">39.Źródło danych</string>
+<!-- End of H.M.Wang 2019-12-19 追加对参数39的修改，使得其成为数据源选择的参数 -->
+	<string name="str_textview_param40">40.Sygnał dźwiękowy</string>
+<!-- H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
+<!-- H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+<!--	<string name="str_textview_param41">41.Com Print</string> -->
+<!--	<string name="str_textview_param41">41.Reserved</string> -->
+	<string name="str_repeat_times">41.Ilość</string>
+<!-- End of H.M.Wang 2019-12-19 恢复原来参数41的内容 -->
+<!-- End of H.M.Wang 2021-7-23 参数41改为对重复次数(Times)的设置 -->
+	<string name="str_textview_param42">42.Przy druku</string>
+	<string name="str_textview_param43">43.Głowice</string>
+	<string name="str_textview_param44">44.Jasność</string>
+	<string name="str_textview_param45">45.Counter0</string>
+	<string name="str_textview_param46">46.Counter1</string>
+	<string name="str_textview_param47">47.Counter2</string>
+	<string name="str_textview_param48">48.Counter3</string>
+	<string name="str_textview_param49">49.Counter4</string>
+	<string name="str_textview_param50">50.Counter5</string>
+	<string name="str_textview_param51">51.Counter6</string>
+	<string name="str_textview_param52">52.Counter7</string>
+	<string name="str_textview_param53">53.Counter8</string>
+	<string name="str_textview_param54">54.Counter9</string>
+	<string name="str_textview_param55">55.Indeks QR</string>
+	<string name="str_textview_param56">56.FIFO</string>
+	<!-- H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+<!--	<string name="str_textview_param57">57.Reserved</string> -->
+	<string name="str_textview_param57">57.Wejście</string>
+	<!-- End of H.M.Wang 2021-9-24 追加输入设置参数(参数57) -->
+	<string name="str_textview_param58">58.IP drukarki</string>
+<!-- H.M.Wang 2022-5-30 增加编码器变倍 -->
+<!--	<string name="str_textview_param59">59.Reserved</string> -->
+	<string name="str_textview_param59">59.Współczynnik szerokości</string>
+<!-- End of H.M.Wang 2022-5-30 增加编码器变倍 -->
+	<string name="str_textview_param60">60.Log</string>
+<!-- H.M.Wang 2021-11-19 修改双列支持的名称
+	<string name="str_textview_param61">61.Reserved</string> -->
+	<string name="str_textview_param61">61.Przesunięcie dysz</string>
+<!-- End of H.M.Wang 2021-11-19 修改双列支持的名称 -->
+
+<!-- H.M.Wang 2023-2-4 修改参数62及63的名称 -->
+<!-- H.M.Wang 2022-8-25 追加喷嘴加热参数项
+	<string name="str_textview_param62">62.Reserved</string>
+	<string name="str_textview_param62">62.Warming</string> -->
+	<string name="str_textview_param62">62.Limit grzania</string>
+<!-- End of H.M.Wang 2022-8-25 追加喷嘴加热参数项 -->
+<!--	<string name="str_textview_param63">63.Reserved</string>-->
+	<string name="str_textview_param63">63.Grzanie</string>
+<!-- End of H.M.Wang 2023-2-4 修改参数62及63的名称 -->
+
+<!-- H.M.Wang 2022-9-1 追加客户APK启动参数
+	<string name="str_textview_param64">64.Reserved</string>-->
+	<string name="str_textview_param64">64.Aplikacja użytkownika</string>
+<!-- End of H.M.Wang 2022-9-1 追加客户APK启动参数 -->
+<!-- H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
+	<string name="str_textview_param65">65.Pochylenie 2</string>
+	<string name="str_textview_param66">66.AD J2</string>
+<!-- H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+	<string name="str_textview_param67">67.Filtr ENC</string>
+<!-- End of H.M.Wang 2022-11-24 追加参数67，ENC_FILGER(ENC滤波) -->
+<!-- H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
+<!--	<string name="str_textview_param68">68.Reserved</string>-->
+	<string name="str_textview_param68">68.Kierunek ENC</string>
+<!-- End of H.M.Wang 2022-11-30 追加参数68，ENC_DIR -->
+<!-- H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
+<!--	<string name="str_textview_param69">69.Reserved</string>-->
+	<string name="str_textview_param69">69.Podkrok</string>
+<!-- End of H.M.Wang 2023-1-4 追加一个参数步长细分/Sub step -->
+<!-- H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
+	<string name="str_textview_param70">70.Szybki druk</string>
+<!-- End of H.M.Wang 2023-1-5 增加一个快速打印(Fast Print)的参数。通过S24[4]下发给FPGA -->
+<!-- H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+	<string name="str_textview_param71">71.Tryb łatwy</string>
+<!-- End of H.M.Wang 2023-2-15 增加一个快捷模式/Easy mode的参数。用来区分启动哪个用户界面 -->
+<!-- H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!--	<string name="str_textview_param72">72.Reserved</string>-->
+	<string name="str_textview_param72">72.PC FIFO</string>
+<!-- End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小 -->
+<!-- H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
+<!--	<string name="str_textview_param73">73.Reserved</string> -->
+	<string name="str_textview_param73">73.Odwróć LCD</string>
+<!-- End of H.M.Wang 2023-5-15 增加旋转屏幕，在180度之间转换 -->
+<!-- H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!--	<string name="str_textview_param74">74.Reserved</string>-->
+	<string name="str_textview_param74">74.AD</string>
+<!-- End of H.M.Wang 2023-10-13 增加一个AD参数，当AD=0时，按原有策略(根据img的类型显示电池图标）；当AD=1时，无条件显示电池图标；当AD=2时，显示气压参数，具体方法待定 -->
+<!-- H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
+<!--	<string name="str_textview_param75">75.Reserved</string>-->
+	<string name="str_textview_param75">75.Informacja zwrotna</string>
+<!-- End of H.M.Wang 2023-10-26 追加一个参数，当=0时，按当前逻辑回复PC端，当=1时，在打印完成后，回复0002到PC端 -->
+<!-- H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
+<!--	<string name="str_textview_param76">76.Reserved</string> -->
+	<string name="str_textview_param76">76.S2-Ilość</string>
+<!-- End of H.M.Wang 2024-3-29 追加一个限制打印次数的参数 -->
+<!-- H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!--	<string name="str_textview_param77">77.Reserved</string>-->
+	<string name="str_textview_param77">77.Dysza 22 mm</string>
+<!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!-- H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
+<!--	<string name="str_textview_param78">78.Reserved</string>-->
+	<string name="str_textview_param78">78.Ciśnienie powietrza</string>
+<!-- End of H.M.Wang 2024-5-27 临时追加一个DAC5571的设置功能，值从参数中设置，范围为0-255 -->
+<!-- H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
+<!--	<string name="str_textview_param79">79.Reserved</string>-->
+	<string name="str_textview_param79">79.Bluetooth</string>
+<!-- End of H.M.Wang 2024-7-27 追加蓝牙设备号和蓝牙开关功能 -->
+	<string name="str_textview_param80">80.Pompa (cyrkulacja)</string>
+<!-- H.M.Wang 2025-5-19 22mm设置循环参数 -->
+<!--	<string name="str_textview_param80">81.Reserved</string>-->
+	<string name="str_textview_param81">81.Cyrkulacja</string>
+<!-- End of H.M.Wang 2025-5-19 22mm设置循环参数 -->
+	<string name="str_textview_param82">82.Reserved</string>
+	<string name="str_textview_param83">83.Reserved</string>
+	<string name="str_textview_param84">84.Reserved</string>
+	<string name="str_textview_param85">85.Reserved</string>
+	<string name="str_textview_param86">86.Reserved</string>
+	<string name="str_textview_param87">87.Reserved</string>
+	<string name="str_textview_param88">88.Reserved</string>
+	<string name="str_textview_param89">89.Reserved</string>
+	<string name="str_textview_param90">90.Reserved</string>
+	<string name="str_textview_param91">91.Reserved</string>
+	<string name="str_textview_param92">92.Reserved</string>
+	<string name="str_textview_param93">93.Reserved</string>
+	<string name="str_textview_param94">94.Reserved</string>
+	<string name="str_textview_param95">95.Reserved</string>
+	<string name="str_textview_param96">96.Reserved</string>
+<!-- End of H.M.Wang 2022-10-18 参数扩容32项目，同时追加两个参数，Slant2和ADJ2 -->
+	<string name="str_btn_settings_sync">OK</string>
+
+	<string name="str_time_unit_0_1v">0.1V</string>
+	<string name="str_length_unit_mm">mm</string>
+	<string name="str_length_unit_percentage">%</string>
+	<string name="str_length_unit_6_1mm">1/6mm</string>
+	<string name="str_time_unit_mm">ms</string>
+	<string name="str_time_unit_ms">ms</string>
+	<string name="str_time_unit_s">s</string>
+	<string name="str_time_unit_mm_s">mm/s</string>
+	<string name="str_time_unit_0_1us">0.1us</string>
+	<string name="str_time_unit_us">us</string>
+	<string name="str_time_unit_100us">100us</string>
+	<string name="str_unit_ps">p/s</string>
+	<string name="str_unit_kPa">kPa</string>
+<!-- H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_time_unit_min">min</string>
+	<string name="str_temperature">℃</string>
+<!-- End of H.M.Wang 2023-2-4 追加一个分钟/Min单位 -->
+	<string name="str_setting_time">Zegar</string>
+	<string name="str_system_setting">Ustawienia</string>
+	<string name="str_upgrade_progress">aktualizacja systemu....</string>
+	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
+	<string name="str_toast_ink_unvalid">Ink dot outlevel,set to default：800</string>
+	<string name="str_toast_photoelectricity_delay">Photoelectricity high delay out level set to default:100</string>
+	<string name="str_toast_photoelectricity_antishake">Photoelectricity anti shake out level set to default:20</string>
+	<string name="str_toast_timingprint">Timing print out level, set to default:1000</string>
+
+<!-- 树莓派3 编辑界面相关 -->
+	<string name="str_edit_btn_insert">Wstaw</string>
+	<string name="str_edit_btn_temp1">Temp1</string>
+	<string name="str_edit_btn_temp2">Temp2</string>
+	<string name="str_edit_btn_temp3">Temp3</string>
+	<string name="str_edit_btn_temp4">Temp4</string>
+	<string name="str_edit_btn_temp5">Temp5</string>
+
+	<string name="str_edit_line1">Linia 1:</string>
+	<string name="str_edit_line2">Linia 2:</string>
+	<string name="str_edit_line3">Linia 3:</string>
+	<string name="str_edit_line4">Linia 4:</string>
+
+	<string name="str_notice_save">podaj nazwę wiadomości:</string>
+	<string name="str_notice_no_objects">Brak obiektów do zapisu!</string>
+	<string name="str_file_title">Wiadomość:</string>
+	<string name="str_file_hint">nazwa pliku</string>
+	<string name="str_page_prev">Strona w górę</string>
+	<string name="str_page_next">Strona w dół</string>
+	<string name="str_filename_no">Nowy</string>
+	<string name="str_btn_back">Wstecz</string>
+	<string name="str_btn_up">Następny</string>
+	<string name="str_btn_detail">Ustaw</string>
+	<string name="cursor">Kursor</string>
+<!-- 树莓派3  -->
+	<string name="str_dialog_msgnote">请选择信息行数：</string>
+
+
+	<string name="str_no_upgrade">To już najnowsza wersja</string>
+
+	<string name="str_cnt_min">Start</string>
+	<string name="str_cnt_max">Koniec</string>
+	<string name="str_cnt_index">CID</string>
+	<string name="str_cnt_steplen">Step-Len</string>
+	<string name="str_loading">ładowanie...</string>
+
+	<string name="str_toast_no_qrfile">brak QR.txt lub QR.csv</string>
+	<string name="str_barcode_end">Barcode file is end</string>
+	<string name="str_recover_print">przywracanie ostatniego wydruku</string>
+
+	<string name="str_net_devname">Urządzenie</string>
+	<string name="str_net_ipaddr">Adres IP</string>
+	<string name="str_net_stat">Stan</string>
+	<string name="all_print">Drukuj wszystko</string>
+	<string name="all_purge">Przepłucz wszystko</string>
+	<string name="all_stop">Zatrzymaj wszystko</string>
+	<string name="str_F1">F1</string>
+	<string name="str_F2">Skanuj urządzenia</string>
+	<string name="str_net_back">Wstecz</string>
+	<string name="str_net_query">Zapytaj</string>
+	<string name="str_net_device">Urządzenie:</string>
+
+	<string name="str_net_device_times">Ilość:</string>
+	<string name="str_net_one">1</string>
+	<string name="str_net_hundred">100</string>
+	<string name="str_net_thousand">1000</string>
+	<string name="str_net_connect">Połącz</string>
+	<string name="str_net_tips">Wskazówka</string>
+	<string name="str_net_textview">TextView</string>
+	<string name="str_net_ipdefault">192.168.1.101</string>
+
+	<string name="str_quit">Wyjdź</string>
+	<string name="str_quit_confirm">Potwierdź wyjście</string>
+
+	<string name="str_tip_nothing">~ Brak zdjęcia !!!</string>
+	<string name="str_no_permission">Brak uprawnień do dostępu do plików</string>
+	
+	<string name="str_message_tips">Wiadomość %s już istnieje — nadpisać?</string>
+	
+	<string name="str_flush_tips">Ustawienia zostaną nadpisane. Potwierdzić?</string>
+
+	<string name="str_build_tlk_start">start building tlk... </string>
+	<string name="str_prepared">TLK parse success!!!</string>
+	<string name="str_prepare_fail">TLK parse failed!!!</string>
+	<string name="str_build_tlk_ok">build TLK success</string>
+	<string name="str_build_tlk_fail">build TLK failed</string>
+	
+	<string name="str_tlk_opening">tlk parsing...</string>
+	<string name="str_print_thread_create_err">print thread creation failed...</string>
+	<string name="str_tlk_not_found">1.Nie znaleziono TLK</string>
+
+	<string name="password_title">Wprowadź hasło</string>
+
+	<!-- Toast -->
+	<string name="toast_save_success">Zapisano</string>
+	<string name="toast_plug_usb">Podłącz urządzenie USB</string>
+	<string name="toast_usb_inserted">Wykryto urządzenie USB</string>
+	<string name="toast_passwd_error">Błędne hasło!!!</string>
+	<string name="toast_content_empty">Treść nie może być pusta</string>
+	<string name="toast_rfid_changed">RFID zmieniono</string>
+
+	<string name="tips_import_msp">Import</string>
+	<string name="tips_import">Import</string>
+	<string name="tips_import_message">Import wiadomości</string>
+	<string name="tips_import_resource">Import zasobów</string>
+	<string name="tips_import_sysconf">Import konfiguracji systemu</string>
+	<string name="tips_import_font">Import biblioteki czcionek</string>
+
+	<string name="tips_export_message">Eksport wiadomości</string>
+	<string name="tips_export_sysconf">Eksport konfiguracji systemu</string>
+	<string name="tips_export_resource">Eksport zasobów</string>
+
+
+	<string name="message_confirm_printnext">Na pewno zmienić wiadomość?</string>
+	<string name="str_net_number">Numer</string>
+	<string name="str_net_counts">Licznik</string>
+	<string name="str_net_int">Tusz</string>
+	<string name="str_net_commands">Komenda</string>
+
+	<string name="invalid_message">Nieprawidłowa wiadomość</string>
+	<string name="invalid_code">Nieprawidłowy kod</string>
+	<string name="invalid_protocol">Nieprawidłowy protokół</string>
+	<string name="decoding">Dekodowanie...</string>
+
+	<string name="printDpiNotMatchError">DPI druku nie pasuje — zmodyfikuj wiadomość i spróbuj ponownie.</string>
+<!-- H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+	<string name="strNotice">Uwaga</string>
+	<string name="strQuickGroupPrompt">Wiadomość zostanie zapisana jako Szybka grupa</string>
+<!-- End of H.M.Wang 2022-10-25 追加一个“快速分组”的信息类型，与其相关的提示信息 -->
+<!-- H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->	
+	<string name="strImportUG"><u>Importuj UG</u></string>
+<!-- End of H.M.Wang 2022-11-27 追加一个导入用户群组(User Group)的按钮 -->	
+	<string name="strExportLog"><u>Log</u></string>
+
+<!-- H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strTxtDtFile">Plik</string>
+	<string name="strTxtDtFileHint">Kliknij, aby wybrać plik</string>
+	<string name="strTxtDtLines">Linie:</string>
+	<string name="strTxtDtFrom">Od</string>
+	<string name="strTxtDtTo">Do</string>
+	<string name="strTxtDtCur">Akt</string>
+	<string name="strTxtDtRpt">Powt</string>
+	<string name="strTxtDtCir">Cir</string>
+<!-- End of H.M.Wang 2023-2-12 添加新的从TXT文件读取每行内容打印的功能，与其相关的字符串 -->
+	<string name="strLevelLow">Niski poziom</string>
+	<string name="strSolventLow">Niski poziom rozpuszczalnika</string>
+<!-- H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity -->
+	<string name="strBackupThenRefresh">Zrób kopię i wyczyść dane</string>
+	<string name="strDirectRefresh">Wyczyść dane bez kopii</string>
+	<string name="strContinueStartup">Kontynuuj uruchamianie</string>
+	<string name="strStartDlgComment">Jeśli nie wykonasz akcji przez 15 sekund, uruchamianie będzie kontynuowane.</string>
+<!-- End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActvitiy -->
+	<string name="str_test_main_printer_with_bag">Printer with Bag</string>
+	<string name="str_test_main_bulk_printer">Bulk Printer</string>
+	<string name="str_test_main_al_printer">AL Printer</string>
+	<string name="str_test_main_save_100">Save Test001</string>
+	<string name="str_test_print_data_creation">Print Data Creation Test</string>
+	<string name="str_test_main_m9_test">M9 Test</string>
+	<string name="str_m9_test_gpio">GPIO</string>
+	<string name="str_m9_test_clear_gpio">Clear GPIO</string>
+	<string name="str_m9_test_net">Network</string>
+	<string name="str_m9_test_serial">Serial</string>
+	<string name="str_m9_test_rfid">RFID</string>
+	<string name="str_m9_test_phoenc">PHO ENC Test</string>
+	<string name="str_m9_test_9555A">9555A Test</string>
+	<string name="str_m9_test_update_fpga">UPD FPGA</string>
+	<string name="str_m9_test_update_kos">UPD KOs</string>
+	<string name="str_m9_test_upgrade_ime">UPD IME</string>
+	<string name="str_m9_test_1click_all">Total Test</string>
+	<string name="str_m9_test_init">Init</string>
+	<string name="str_m9_test_import">Import</string>
+	<string name="str_m9_test_counter">Counter</string>
+	<string name="str_m9_test_time">Time</string>
+	<string name="str_m9_test_rfid_0">RFID-0</string>
+	<string name="str_m9_test_rfid_1">RFID-1</string>
+	<string name="str_m9_test_rfid_2">RFID-2</string>
+	<string name="str_m9_test_rfid_3">RFID-3</string>
+	<string name="str_m9_test_m5">M5</string>
+	<string name="str_m9_test_m7">M7</string>
+	<string name="str_m9_test_m9">M9</string>
+	<string name="str_m9_test_makro">MAKRO</string>
+	<string name="str_m9_test_m7bag">M7 BAG</string>
+<!-- H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!-- End of H.M.Wang 2024-4-3 追加一个22mm的喷头选择参数 -->
+<!-- H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->	
+	<string name="str_ink_modle_error">Błędny model atramentu</string>
+	<string name="str_cleaner_purging">Przepłukiwanie czyścikiem</string>
+	<string name="str_cleaner_done">Czyszczenie zakończone — wyłączanie</string>
+<!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+<!-- H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+	<string name="str_login_prompt">Logowanie użytkownika</string>
+	<string name="str_user_number">Numer użytkownika</string>
+	<string name="str_password">Hasło</string>
+	<string name="str_remember_pw">Zapamiętaj hasło</string>
+	<string name="str_login">Zaloguj</string>
+	<string name="str_confirm">Potwierdź</string>
+	<string name="str_current">Bieżący</string>
+	<string name="str_error_user_empty">Numer użytkownika jest pusty!</string>
+	<string name="str_error_pw_empty">Hasło jest puste!</string>
+	<string name="str_login_success">Zalogowano pomyślnie</string>
+<!-- End of H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+</resources>

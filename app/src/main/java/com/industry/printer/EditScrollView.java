@@ -123,6 +123,7 @@ public class EditScrollView extends View {
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 				case MESSAGE_TYPE_22MMX2:
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+				case MESSAGE_TYPE_108MM:
 					break;
 				case MESSAGE_TYPE_25_4:
 				case MESSAGE_TYPE_1_INCH_DUAL:

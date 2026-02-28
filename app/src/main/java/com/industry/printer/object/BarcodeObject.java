@@ -733,7 +733,7 @@ public class BarcodeObject extends BaseObject {
 
 // H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 			BitMatrix matrix;
-			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) && w != h) {
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) && w != h) {
 				matrix = encode(content, Math.min(w, h), Math.min(w, h), hints);
 			} else {
 				matrix = encode(content, w, h, hints);
@@ -772,7 +772,7 @@ public class BarcodeObject extends BaseObject {
 			// H.M.Wang 修改返回值一行
 // H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 // H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
-			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
 					(width != w || height != h)) {
 				return Bitmap.createScaledBitmap(bitmap, w, h, false);
 			}
@@ -796,7 +796,7 @@ public class BarcodeObject extends BaseObject {
 
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
         int drawW = w, drawH = h;
-        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             drawW = Math.min(w, h);
             drawH = drawW;
         }
@@ -856,7 +856,7 @@ public class BarcodeObject extends BaseObject {
 
 		Debug.d(TAG, "GS1 QR spent time: " + ((System.nanoTime() - startTime) / 1000000));
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
-        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
             (w != drawW || h != drawH)) {
             return Bitmap.createScaledBitmap(outBmp, w, h, false);
         }
@@ -868,7 +868,7 @@ public class BarcodeObject extends BaseObject {
 		long startTime = System.nanoTime();
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
         int drawW = w, drawH = h;
-        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             drawW = Math.min(w, h);
             drawH = drawW;
         }
@@ -917,7 +917,7 @@ public class BarcodeObject extends BaseObject {
 
 		Debug.d(TAG, "GS1 DM spent time: " + ((System.nanoTime() - startTime) / 1000000));
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
-        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
                 (w != drawW || h != drawH)) {
             return Bitmap.createScaledBitmap(outBmp, w, h, false);
         }
@@ -939,7 +939,7 @@ public class BarcodeObject extends BaseObject {
 //        BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);
         int drawW = w, drawH = h;
         BitMatrix matrix;
-        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2)) {
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM)) {
             if(mDMType == DM_TYPE_RECTANGLE) {
                 drawH = Math.min(w*8, h*18)/18;
                 drawW = drawH*18/8;
@@ -1016,7 +1016,7 @@ public class BarcodeObject extends BaseObject {
 		// H.M.Wang 修改返回值一行
 // H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
-        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) &&
+        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
             (drawW != w || drawH != h)) {
             return Bitmap.createScaledBitmap(bitmap, w, h, false);
         }

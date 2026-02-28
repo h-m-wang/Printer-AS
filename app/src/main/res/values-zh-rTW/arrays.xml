@@ -184,6 +184,7 @@
         <item>32x6</item>
         <item>32x7</item>
         <!-- End of H.M.Wang 2025-12-12 增加32X3 - 32X7打印头类型 -->
+        <item>hp108mm</item>
     </string-array>
 
     <string-array name="strFontArray">

@@ -14,6 +14,7 @@ import com.industry.printer.Serial.EC_DOD_Protocol;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.RTCDevice;
 import org.xml.sax.InputSource;
@@ -265,6 +266,9 @@ public class SystemConfigFile{
 // H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 	public static final int INDEX_CIRCULATION = 80;
 // End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
+// H.M.Wang 2026-2-26 增加压力PSI的设置功能
+	public static final int INDEX_IDS_PRESURE_PSI = 81;
+	// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
 // H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
 // H.M.Wang 2025-8-28 重新梳理以下P94的值的意义：0-自动；1-强制RFID；2-强制SC；3-强制墨袋机
 	public static final int PROC_TYPE_AUTO = 0;		// 综合根据img的种类和是否能够识别到SC卡，来决定启动RFIDManager还是SmartCardManager（包括相对应的Scheduler）
@@ -1862,6 +1866,11 @@ public class SystemConfigFile{
 //		}
 // End of H.M.Wang 2021-9-24 追加输入设置参数
 // End of H.M.Wang 2022-3-21 由于实现方法做了修改，有apk获取相应管脚的状态后，设置是否对打印缓冲区进行反向操作，因此这里无需再通知驱动参数57的状态
+// H.M.Wang 2026-2-26 增加压力PSI的设置功能
+		if(PlatformInfo.getImgUniqueCode().startsWith("22MM") && index == INDEX_IDS_PRESURE_PSI) {
+			Hp22mm.SetPressurePSI(1.0f * checkParam(INDEX_IDS_PRESURE_PSI+1, value));
+		}
+// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
 	}
 
 	public PrinterNozzle getPNozzle() {
@@ -2037,6 +2046,9 @@ public class SystemConfigFile{
 				nozzle = PrinterNozzle.MESSAGE_TYPE_22MMX2;
 				break;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
+			case PrinterNozzle.MessageType.NOZZLE_INDEX_108MM:
+				nozzle = PrinterNozzle.MESSAGE_TYPE_108MM;
+				break;
 		}
 
 		return nozzle;

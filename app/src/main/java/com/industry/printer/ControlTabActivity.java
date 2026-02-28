@@ -508,7 +508,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private RemoteMsgPrompt mScanPromptDlg;
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {	
+	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		mIndex=0;
 //		mTlkList = new Vector<Vector<TlkObject>>();
@@ -1603,7 +1603,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					level = "P" + (i + 1) + "-INVALID";
 				}
 				mInkValues[i].setText(level);
-
 //				if(mInkManager instanceof SmartCardManager) {
 //					mInkValues[i].setText((i == ((SmartCardManager)mInkManager).getInkCount()-1 ? "B" : "P" + (i + 1)) + "--");
 //				} else {
@@ -2970,7 +2969,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				int x=0,y=0;
 				int cutWidth = 0;
 				float scale = 1;
-				float height = mllPreview.getHeight();
+				float height = (mllPreview.getHeight() == 0 ? 75 : mllPreview.getHeight());
 				scale = (height/mPreBitmap.getHeight());
 				mllPreview.removeAllViews();
 
@@ -3565,9 +3564,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
-				MainFunc baoqiao = MainFunc.getInstance(mContext);
-				baoqiao.login(mTVPrinting);
-/*				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3576,7 +3573,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg.show();*/
+				dlg.show();
 				break;
 			case R.id.ctrl_btn_down:
 				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);

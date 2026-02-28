@@ -79,7 +79,7 @@ public class ExportLog2Usb {
         try {
             S22mmErrLog.seek(0);
             return S22mmErrLog.readUTF();
-        } catch(IOException e) {
+        } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }
         return "";
@@ -88,7 +88,7 @@ public class ExportLog2Usb {
     public static String getNextLine() {
         try {
             return S22mmErrLog.readUTF();
-        } catch(IOException e) {
+        } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
         }
         return "";
