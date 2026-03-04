@@ -4900,6 +4900,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			}
 // End of H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
 
+			Debug.d(TAG, "--->onPrinted0000: mCounter:" + mCounter+"; ink:"+mInkManager.getLocalInk(0)+"; path:"+mObjPath+"\n");
 			// H.M.Wang 2020-1-8 向PC通报打印状态，附加命令ID
 // H.M.Wang 2020-8-24 返回打印任务名称
 //			this.sendMsg("000B|0000|1000|" + index + "|0000|0000|0000|" + mPCCmdId + "|0D0A");

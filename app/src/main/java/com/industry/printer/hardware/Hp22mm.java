@@ -349,6 +349,8 @@ public class Hp22mm {
            (nozzle == PrinterNozzle.MESSAGE_TYPE_22MM &&  config.getParam(SystemConfigFile.INDEX_ONE_MULTIPLE) == 12)) {
 // End of H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
             regs[REG05_BYTES_PER_COL] *= 2;
+        } else if(nozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
+            regs[REG05_BYTES_PER_COL] *= 5;
         }
 // End of H.M.Wang 2025-1-19 根据参数中选择的打印头类型决定R5和R11的值
 // 下发数据时再设           regs[REG06_COLUMNS] = 0;

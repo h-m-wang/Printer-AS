@@ -28,7 +28,24 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.187"
+#define VERSION_CODE                            "1.0.195"
+// 1.0.195 2026-3-3
+// 放开enable和disablewarming的管理；并且放开get_temperature_override功能
+// 1.0.194 2026-3-3
+// 在monitorThread中主动disable_warming
+// 1.0.193 2026-3-3
+// 再回到平铺的流程，在循环中好像确实不行
+// 1.0.192 2026-3-3
+// 恢复两个头在循环中操作，但是保持 pd_get_temperature 在每个循环处理的最后处理，以免影响后续处理
+// 暂时取消加热和关闭加热
+// 1.0.191 2026-3-3
+// 将 pd_get_temperature 挪到交互操作的后面，避免这个函数带来的影响
+// 1.0.190 2026-3-3
+// 暂时取消第二轮的 pd_get_temperature，看看后续的pd与ids的交互是否还受影响
+// 1.0.189 2026-3-2
+// 将monitorThread函数中受pd_get_temperature函数影响的循环执行方式修改为平铺两次代码的方式，以避免上述影响循环变量的问题
+// 1.0.188 2026-3-2
+// monitorThread函数中，取消 pd_get_temperature_override和pd_get_recirc_override的调用，开放读取温度的pd_get_temperature函数，但是只读头1的温度，因为读头2的温度会影响循环变量，原因不明
 // 1.0.187 2026-2-26
 // 增加压力PSI的设置功能
 // 1.0.186 2026-2-6
@@ -496,8 +513,8 @@ void *monitorThread(void *arg) {
                 penIndexs[0] = 0;
                 penIndexs[1] = 1;
             }
-
-            for(int i=0; i<penNum; i++) {
+int i=0;
+/////            for(int i=0; i<penNum; i++) {
 //                nonsecure_sec[i] += POLL_SEC;
 //                secure_sec[i] += POLL_SEC;
                 nonsecure_sec[i] += gPollRate;
@@ -519,10 +536,11 @@ void *monitorThread(void *arg) {
 
                 uint8_t v;
 // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
-                pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+//                pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
 // 2025-9-4 暂时取消这个调用，会影响到循环变量i，从1变为0，原因不明                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
-                pd_get_recirc_override(PD_INSTANCE, penIndexs[i], 0, &v);
+//                pd_get_recirc_override(PD_INSTANCE, penIndexs[i], 0, &v);
 
+                pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v);
                 if(EnableWarming)
                     pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
                 else
@@ -536,10 +554,10 @@ void *monitorThread(void *arg) {
                         // NON-SECURE ink use (for PILS algorithm)
                         ink_weight = GetInkWeight(penIndexs[i]);
                         if (ink_weight < 0) {
-                            LOGD("GetInkWeight failed.");
+                            LOGD("GetInkWeight[%d] failed.", i);
                         } else {
     //                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
-                            LOGD("GetInkWeight = %f", ink_weight);
+                            LOGD("GetInkWeight[%d] = %f", i, ink_weight);
                         }
                     }
 
@@ -547,13 +565,73 @@ void *monitorThread(void *arg) {
                     if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {
                         secure_sec[i] = 0;
                         if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
-                            LOGD("GetAndProcessInkUse failed.");
+                            LOGD("GetAndProcessInkUse[%d] failed.", i);
                         } else {
-                            LOGD("GetAndProcessInkUse succeeded.");
+                            LOGD("GetAndProcessInkUse[%d] succeeded.", i);
                         }
                     }
                 }
+                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
+
+            i++;
+            if(i<penNum) {
+                nonsecure_sec[i] += gPollRate;
+                secure_sec[i] += gPollRate;
+
+                RunningState[PEN0_STATE+i] = STATE_VALID;
+                // 如果读取PD状态失败，当失败后的状态为掉电的话，尝试重新上电
+                pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status);
+                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF || print_head_status.print_head_state == PH_STATE_PRESENT) {
+                    // H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
+                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                }
+                //                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
+                sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+                if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
+                    gPrintHeadErrorCount[print_head_status.print_head_error]++;
+                }
+                //                }
+
+                uint8_t v;
+                // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                //                pd_check_ph("pd_get_temperature_override", pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                // 2025-9-4 暂时取消这个调用，会影响到循环变量i，从1变为0，原因不明                pd_check_ph("pd_get_temperature", pd_get_temperature(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
+                //                pd_get_recirc_override(PD_INSTANCE, penIndexs[i], 0, &v);
+
+                pd_get_temperature_override(PD_INSTANCE, penIndexs[i], &v);
+                if(EnableWarming)
+                    pd_check_ph("pd_enable_warming", pd_enable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+                else
+                    pd_check_ph("pd_disable_warming", pd_disable_warming(PD_INSTANCE, penIndexs[i]), penIndexs[i]);
+
+                // 当失败后的状态为还处于上电状态的话，忽略发生的错误，尝试做IDS与PD的数据交换
+                if (print_head_status.print_head_state == PH_STATE_POWERED_ON) {
+                    // NON-SECURE ink use (for PILS algorithm)
+                    if (nonsecure_sec[i] >= INK_POLL_SEC * 1000000) {
+                        nonsecure_sec[i] = 0;
+                        // NON-SECURE ink use (for PILS algorithm)
+                        ink_weight = GetInkWeight(penIndexs[i]);
+                        if (ink_weight < 0) {
+                            LOGD("GetInkWeight[%d] failed.", i);
+                        } else {
+                            //                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
+                            LOGD("GetInkWeight[%d] = %f", i, ink_weight);
+                        }
+                    }
+
+                    // SECURE ink use
+                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {
+                        secure_sec[i] = 0;
+                        if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
+                            LOGD("GetAndProcessInkUse[%d] failed.", i);
+                        } else {
+                            LOGD("GetAndProcessInkUse[%d] succeeded.", i);
+                        }
+                    }
+                }
+                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
             }
+/////             }
         }
 //        pthread_mutex_unlock(&mutex);
     }

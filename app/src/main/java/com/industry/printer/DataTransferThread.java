@@ -2076,7 +2076,7 @@ private void setSerialProtocol9DTs(final String data) {
 		}
 
 // H.M.Wang 2021-5-6 只有在FIFO的size大于1，并且不是群组打印的时候，才启动该标识
-		mUsingFIFO = (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_FIFO_SIZE) > 1) && (mDataTask.size() == 1);
+//		mUsingFIFO = (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_FIFO_SIZE) > 1) && (mDataTask.size() == 1);
 		mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 只有在FIFO的size大于1，并且不是群组打印的时候，才启动该标识
 // H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
@@ -2103,7 +2103,7 @@ private void setSerialProtocol9DTs(final String data) {
 	}
 
 // H.M.Wang 2021-5-6 追击是否正在使用FIFO的标识，用来控制当使用计数器的时候，如果FIFO当中还残留未打印的任务，会导致计数器在下次开始打印时跳数
-	private boolean mUsingFIFO = false;
+//	private boolean mUsingFIFO = false;
 	private int mPrintedCount = 0;
 // End of H.M.Wang 2021-5-6 追击是否正在使用FIFO的标识，用来控制当使用计数器的时候，如果FIFO当中还残留未打印的任务，会导致计数器在下次开始打印时跳数
 // H.M.Wang 2024-6-22 追加一个虚假增加打印次数的变量。原因是，由于img中，2023-10-15的修改改变了实际打印计数的逻辑，导致打印次数的记录只能通过下次PH14的来到被记录，因此会出现打印次数计数少一次的问题，这个变量就是为了解决这个问题
@@ -3442,7 +3442,8 @@ private void setCounterPrintedNext(DataTask task, int count) {
 							mPrintedCount++;
 							if (mCallback != null) {
 								mInkListener.onCountChanged();
-								if(mUsingFIFO) mCallback.onPrinted0000(index());
+//								if(mUsingFIFO) mCallback.onPrinted0000(index());
+								mCallback.onPrinted0000(index());
 // H.M.Wang 2023-10-26 追加一个向PC端的回复，当INDEX_FEEDBACK=1时，回复0002到PC端
 								if((SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_FEEDBACK)) == 1) mCallback.onPrinted0002(index());
 // End of H.M.Wang 2023-10-26 追加一个向PC端的回复，当INDEX_FEEDBACK=1时，回复0002到PC端
@@ -3523,6 +3524,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 //					Time2 = System.currentTimeMillis();
 // End of H.M.Wang 2023-1-7 取消打印时下发参数
 // 2023-10-21 PC回送打印完成的操作，
+/* H.M.Wang 2026-3-4 这里的处理似乎是不需要的，可能是需要取消的时候没有处理到
 // H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
 					if(!mUsingFIFO &&
 						(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) != SystemConfigFile.DATA_SOURCE_SCANER3 ||
@@ -3532,6 +3534,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 						}
 					}
 // End of H.M.Wang 2023-3-10 群组打印的完成通知已到了前面的处理当中，因此这里只考虑非群组打印的情形
+// End of H.M.Wang 2026-3-4 这里的处理似乎是不需要的，可能是需要取消的时候没有处理到 */
 					mInterval = SystemClock.currentThreadTimeMillis() - last;
 					mHandler.removeMessages(MESSAGE_DATA_UPDATE);
 // H.M.Wang 2021-4-20 移到下面具体处理的next函数调用之前，如果放在这里，会导致SCAN3或者网络快速打印的第一次操作之前对计数器频繁调整

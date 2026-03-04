@@ -2013,7 +2013,7 @@ PDResult_t pd_ink_use(int32_t instance, uint8_t ph_id, uint8_t slot_id, int32_t 
 }
 
 PDResult_t pd_get_temperature(int32_t instance, uint8_t ph_id, uint32_t *degree_c) {
-    LOGI("Enter %s", __FUNCTION__);
+    LOGI("Enter %s[%d]", __FUNCTION__, ph_id);
 
     if(_is_lib_initialized == false) {
 		LOGE("Not initialized!");
