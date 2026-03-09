@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.195"
+#define VERSION_CODE                            "1.0.196"
+// 1.0.196 2026-3-5
+// 恢复mutex功能，并且添加到必要的地方
 // 1.0.195 2026-3-3
 // 放开enable和disablewarming的管理；并且放开get_temperature_override功能
 // 1.0.194 2026-3-3
@@ -328,13 +330,14 @@ int sIdsIdx = 1;
 //int sPenIdx = 0;
 // End of H.M.Wang 2025-1-13 取消固定一个打印头，改为可灵活使用两个打印头
 
-// static pthread_mutex_t mutex;
+static pthread_mutex_t mutex;
 // H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 char gOutputLog = 1;
 // End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 
 void CmdDepressurize();
 int CmdPressurize(jboolean async);
+
 /***********************************************************
  *  Customization
  *f
@@ -435,7 +438,7 @@ void *monitorThread(void *arg) {
         usleep(gPollRate);
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
-//        pthread_mutex_lock(&mutex);
+        pthread_mutex_lock(&mutex);
 //        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
 
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
@@ -633,12 +636,14 @@ int i=0;
             }
 /////             }
         }
-//        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&mutex);
     }
     return (void*)NULL;
 }
 
 JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jclass arg) {
+    LOGI("Enter %s", __FUNCTION__);
+
     if(PD_Power_State == PD_POWER_STATE_ON) {
         int penNum;
         if (PenArg == BOTH_PEN_INSTALLED) {
@@ -660,6 +665,7 @@ JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jc
             penIndexs[1] = 1;
         }
 
+        pthread_mutex_lock(&mutex);
         for (int i = 0; i < penNum; i++) {
             pd_get_print_head_status(PD_INSTANCE, penIndexs[i], &print_head_status);
             if (print_head_status.print_head_state == PH_STATE_POWERED_OFF ||
@@ -671,6 +677,7 @@ JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jc
                 sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
             }
         }
+        pthread_mutex_unlock(&mutex);
     }
     return 0;
 }
@@ -752,7 +759,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
 
     LOGD("print_head_status.print_head_state = %d", print_head_status.print_head_state);
 
-//    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&mutex);
 
     if(print_head_status.print_head_state != PH_STATE_POWERED_ON) {
         pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex);
@@ -794,7 +801,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
         }
     }
 
-//    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&mutex);
 
     return slot;
 }
@@ -824,6 +831,7 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
     LOGI("Enter %s (head = %d)", __FUNCTION__, head);
 
     uint32_t value;
+    pthread_mutex_lock(&mutex);
     if(head == 0) {
         IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
         if (ids_check("ids_read_oem_field", ids_r)) return(-1);
@@ -834,6 +842,7 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
         if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
         LOGD("PD_OEM_RW_1[%d] = %d", head-1, value);
     }
+    pthread_mutex_unlock(&mutex);
     return value;
 }
 
@@ -1658,10 +1667,6 @@ static JNINativeMethod gMethods[] = {
  * 注册HP22MM操作的JNI方法
  */
 int register_hp22mm(JNIEnv* env) {
-//    if (pthread_mutex_init(&mutex, NULL) != 0){
-//        return JNI_FALSE;
-//    }
-
     const char* kClassPathName = "com/industry/printer/hardware/Hp22mm";
     jclass clazz = (*env)->FindClass(env, kClassPathName);
     if(clazz == NULL) {
@@ -1674,7 +1679,6 @@ int register_hp22mm(JNIEnv* env) {
 
     return (*env)->RegisterNatives(env, clazz, gMethods, sizeof(gMethods)/sizeof(gMethods[0]));
 }
-
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -1689,6 +1693,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
     }
 
     if (register_hp22mm(env) < 0) {
+        goto fail;
+    }
+
+    if (pthread_mutex_init(&mutex, NULL) != 0){
         goto fail;
     }
 

@@ -1,11 +1,14 @@
 package com.industry.printer.hardware;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 import android.app.AlarmManager;
 import android.content.Context;
 import android.graphics.Bitmap.Config;
 
+import com.industry.printer.Utils.ByteArrayUtils;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -99,7 +102,11 @@ public class RTCDevice {
 		}
 		Debug.d(TAG, "--->NVRAM init out = " + I2C_ADDRESS);
 	}
-	
+
+	private int BCD2INT(byte bcd) {
+		return 0x0FF & (bcd >> 4) * 10 + (bcd & 0x0F);
+	}
+
 	public void initSystemTime(Context context) {
 		// AlarmManager aManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		// aManager.HwToSystemClock();
@@ -111,7 +118,46 @@ public class RTCDevice {
 		// aManager.SystemClockToHw();
 		ReflectCaller.AlarmManagerSystemClockToHw(context);
 	}
-	
+
+// H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能
+	public long compareRTCvSystemTime() {
+		byte[] data;
+		if(PlatformInfo.isA133Product()) {
+			data = SmartCard.readRTC((byte)mI2CGroupID, (byte)0x68, (byte)0x00, 8);
+		} else {
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+
+			String cmd = "8," + 0;
+			SystemFs.writeSysfs(I2C_READ, cmd);
+			String out = SystemFs.readSysfs(I2C_READ);
+			if (out == null) {
+				return 0;
+			}
+
+			int pos = 0;
+			String[] bytes = out.split("/r/n");
+			if (bytes == null || bytes.length < 7) {
+				return 0;
+			}
+			pos = bytes[3].lastIndexOf("0x");
+			data = new byte[8];
+			data[0] = (byte) Integer.parseInt(bytes[3].substring(pos + 2), 16);
+			data[1] = (byte) Integer.parseInt(bytes[4].substring(pos + 2), 16);
+			data[2] = (byte) Integer.parseInt(bytes[5].substring(pos + 2), 16);
+			data[3] = (byte) Integer.parseInt(bytes[6].substring(pos + 2), 16);
+			data[4] = (byte) Integer.parseInt(bytes[7].substring(pos + 2), 16);
+			data[5] = (byte) Integer.parseInt(bytes[8].substring(pos + 2), 16);
+			data[6] = (byte) Integer.parseInt(bytes[9].substring(pos + 2), 16);
+		}
+		Debug.d(TAG, "Read RTC: " + ByteArrayUtils.toHexString(data));
+		Date dateTime1 = new Date(BCD2INT(data[6])+100, BCD2INT(data[5])-1, BCD2INT(data[4]), BCD2INT(data[2]), BCD2INT(data[1]), BCD2INT(data[0]));
+//		Debug.d(TAG, "Read RTC: " + dateTime1.toString());
+		Debug.d(TAG, "Date.getTime(): " + dateTime1.getTime());
+		Debug.d(TAG, "System.currentTimeMillis(): " + System.currentTimeMillis());
+		return Math.abs(System.currentTimeMillis() - dateTime1.getTime());
+	}
+// End of H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能
+
 	/**
 	 * 
 	 */

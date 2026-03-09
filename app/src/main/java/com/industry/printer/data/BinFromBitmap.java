@@ -1,5 +1,7 @@
 package com.industry.printer.data;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 
@@ -105,6 +107,8 @@ public class BinFromBitmap extends BinCreater {
 
 		if(needShift) {
 			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head, 308, 320);
+		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head, 516, 544);
 		}
 
 // H.M.Wang 2020-9-10 大字机5x5字体的时候，vbin的全白问题，原来的220阈值有点低，修改为240

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors;
 
 import com.industry.printer.Baoqiao.MainFunc;
 import com.industry.printer.Bluetooth.BluetoothServerManager;
+import com.industry.printer.Collaboration.SocketManager;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.ExcelDataProc.ExcelMainWindow;
 import com.industry.printer.FileFormat.DotMatrixFont;
@@ -506,6 +508,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		return inflater.inflate(R.layout.control_frame, container, false);
 	}
 	private RemoteMsgPrompt mScanPromptDlg;
+	private int mTimeCheckInterval = 0;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -872,7 +875,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		//  鍔犺浇鎵撳嵃璁℃暟
 		PrinterDBHelper db = PrinterDBHelper.getInstance(mContext);
 		//mCounter = db.getCount(mContext);
-		RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
+		final RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
 
 // H.M.Wang 2024-11-5 增加A133平台的判断
 //		if (PlatformInfo.PRODUCT_SMFY_SUPER3.equalsIgnoreCase(PlatformInfo.getProduct())) {
@@ -1175,6 +1178,24 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //				if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BIGDOT")) checkPress();
 				checkPress();
 // End of H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
+// H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
+/*				mTimeCheckInterval++;
+				if(mTimeCheckInterval > 9) {
+					mTimeCheckInterval = 0;
+					if(rtcDevice.compareRTCvSystemTime() > 5000) {
+						Debug.e(TAG, "RTC and System time dismatch!!!");
+						try{
+							ExtGpio.playClick();
+							Thread.sleep(50);
+							ExtGpio.playClick();
+							Thread.sleep(50);
+							ExtGpio.playClick();
+						} catch (Exception e) {
+							Debug.e(TAG, e.getMessage());
+						}
+					}
+				}*/
+// End of H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
 			}
 		}, 0L, 500L);
 
