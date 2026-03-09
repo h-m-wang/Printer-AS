@@ -21,7 +21,7 @@ public class SocketManager {
 
     private static final int PORT = 4551;           // port number;
 
-    public static List<String> scanAllDevices() {
+    private List<String> scanAllDevices() {
         try {
             String hostAddress = ControlTabActivity.getLocalIpAddress();
             Debug.d(TAG, "本机IP: " + hostAddress);
@@ -30,7 +30,7 @@ public class SocketManager {
             Debug.d(TAG, "扫描网段: " + subnet + ".1/254");
 
             final List<String> aliveIPs = new ArrayList<>();
-            ExecutorService executor = Executors.newFixedThreadPool(20); // 使用线程池加速
+            ExecutorService executor = Executors.newFixedThreadPool(20);
 
             for (int i = 1; i <= 254; i++) {
                 final String targetIp = subnet + "." + i;
@@ -58,6 +58,14 @@ public class SocketManager {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<Socket> connectToServers() {
+        List<String> serverCandidates = scanAllDevices();
+        if(null != serverCandidates) {
+
         }
         return null;
     }
