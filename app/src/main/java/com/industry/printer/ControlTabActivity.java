@@ -1179,7 +1179,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				checkPress();
 // End of H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
 // H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
-/*				mTimeCheckInterval++;
+				mTimeCheckInterval++;
 				if(mTimeCheckInterval > 9) {
 					mTimeCheckInterval = 0;
 					if(rtcDevice.compareRTCvSystemTime() > 5000) {
@@ -1194,7 +1194,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							Debug.e(TAG, e.getMessage());
 						}
 					}
-				}*/
+				}
 // End of H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
 			}
 		}, 0L, 500L);
