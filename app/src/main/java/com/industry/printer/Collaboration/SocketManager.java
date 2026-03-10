@@ -7,6 +7,7 @@ import com.industry.printer.hardware.RTCDevice;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -46,6 +47,7 @@ public class SocketManager {
                                 }
                             }
                         } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -65,7 +67,21 @@ public class SocketManager {
     private List<Socket> connectToServers() {
         List<String> serverCandidates = scanAllDevices();
         if(null != serverCandidates) {
+            ExecutorService executor = Executors.newFixedThreadPool(20);
 
+            for (final String server : serverCandidates) {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Socket socket = new Socket();
+                            socket.connect(new InetSocketAddress(server, PORT),500);
+                        } catch (IOException e) {
+                        } catch (Exception e) {
+                        }
+                    }
+                });
+            }
         }
         return null;
     }

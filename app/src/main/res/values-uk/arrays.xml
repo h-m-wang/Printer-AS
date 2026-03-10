@@ -1,185 +1,99 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
-    <string-array name="strShiftBitsArray">
-        <item>1 bit</item>
-        <item>2 bits</item>
+<string-array name="strShiftBitsArray">
+        <item>1 біт</item>
+        <item>2 біти</item>
     </string-array>
-
-
-
-    <string-array name="strDataSourceArray">
-        <item>Disable</item>
+<string-array name="strDataSourceArray">
+        <item>Вимкнено</item>
         <item>Bin</item>
-        <item>File</item>
-        <item>File2</item>
-        <item>Lan Data</item>
-        <item>Fast Lan</item>
-        <item>Lan Heart</item>
-        <item>Scaner-1</item>
-        <item>Scaner-1-FIFO</item>
-        <item>Scaner-2</item>
-        <item>Scaner-3</item>
-        <item>Scaner-4</item>
-
-        <item>Scaner-5</item>
-
-
-        <item>Scaner-6</item>
-
-
-        <item>Scaner-7</item>
-
-
-
-        <item>Reserved</item>
-        <item>Reserved</item>
-
-
-        <item>Scaner-10</item>
-
-        <item>RS232-1</item>
+        <item>Файл</item>
+        <item>Файл2</item>
+        <item>Дані LAN</item>
+        <item>Швидкий LAN</item>
+        <item>LAN Heartbeat</item>
+        <item>Сканер-1</item>
+        <item>Сканер-1-FIFO</item>
+        <item>Сканер-2</item>
+        <item>Сканер-3</item>
+        <item>Сканер-4</item>
+<item>Сканер-5</item>
+<item>Сканер-6</item>
+<item>Сканер-7</item>
+<item>Зарезервовано</item>
+        <item>Зарезервовано</item>
+<item>Сканер-10</item>
+<item>RS232-1</item>
         <item>RS232-2</item>
         <item>RS232-3</item>
         <item>RS232-4</item>
         <item>RS232-6</item>
         <item>RS232-7</item>
-        
         <item>RS232-8</item>
-        
-        
         <item>RS232-9</item>
-        
-        
         <item>RS232-10</item>
-        
-        
-        <item>PC Command</item>
-        
-        
+        <item>Команда ПК</item>
         <item>RS232-11</item>
-        
-        
         <item>RS232-2 Wifi</item>
-        
-        
-        <item>Auto data</item>
-        
-
-        <item>RS232 Dot marker</item>
-
-
-        <item>RS232-12</item>
-
-
-        <item>GS1-2</item>
-
-
-        <item>LAN GS1-2</item>
-
-
-        <item>GS1-3</item>
+        <item>Авто-дані</item>
+        <item>RS232 Крапковий маркер</item>
+<item>RS232-12</item>
+<item>GS1-2</item>
+<item>LAN GS1-2</item>
+<item>GS1-3</item>
         <item>GS1-4</item>
         <item>GS1-5</item>
-
-
-        <item>Bluetooth Data</item>
-
-
-        <item>Scaner-11</item>
-
-    </string-array>
-    
-
+<item>Дані Bluetooth</item>
+    <item>Сканер-11</item>
+    <item>Сканер-12</item>
+</string-array>
     <string-array name="strPrinterArray">
-        <item>12.7 </item>
+        <item>12.7</item>
         <item>12.7X2</item>
         <item>12.7X3</item>
         <item>12.7X4</item>
-
-        <item>12.7X5</item>
+<item>12.7X5</item>
         <item>12.7X6</item>
         <item>12.7X7</item>
         <item>12.7X8</item>
-
-        <item>25.4</item>
+<item>25.4</item>
         <item>25.4X2</item>
         <item>25.4X3</item>
         <item>25.4X4</item>
-
-        <item>25.4X5</item>
+<item>25.4X5</item>
         <item>25.4X6</item>
         <item>25.4X7</item>
         <item>25.4X8</item>
+<item>16 крапок</item>
+        <item>32 крапки</item>
+        <item>64 крапки</item>
 
-        <item>16 dot</item>
-        <item>32 dot</item>
-        
-        <item>64 dot</item>
-
-        
-        
-        
         <item>R6X48</item>
         <item>R6X50</item>
-        
-
-        
         <item>32DN</item>
-        
-
-        
         <item>32SN</item>
-        
-
-        
         <item>64SN</item>
-        
         <item>9MM</item>
-        
         <item>E6X48</item>
         <item>E6X50</item>
-        
         <item>E6X1</item>
-        
         <item>96DN</item>
-        
-        
         <item>E5X48</item>
         <item>E5X50</item>
-        
-        
         <item>25.4x10</item>
-        
-        
         <item>32x2</item>
-        
-        
         <item>64SLANT</item>
-        
-        
-        <item>48 dot</item>
-        
-        
+        <item>48 крапок</item>
         <item>hp22mm</item>
-        
-        
         <item>hp22mmx2</item>
-        
-        
-        <item>64 Dot Увімкненоe</item>
-        
-        
+        <item>64 Dot One</item>
         <item>16 Dot X4</item>
-        
-        
         <item>32x3</item>
         <item>32x4</item>
         <item>32x5</item>
         <item>32x6</item>
         <item>32x7</item>
-        
         <item>hp108mm</item>
     </string-array>
 
@@ -207,58 +121,54 @@
     </string-array>
 
     <string-array name="strFontTipsArray">
-        <item>0T+ font</item>
-        <item>1+ font</item>
-        <item>1B+ font</item>
-        <item>1B2 font</item>
-        <item>1BS font</item>
-        <item>1T font</item>
-        <item>2+ font</item>
-        <item>2B font</item>
-        <item>2i font</item>
-        <item>3+ font</item>
-        <item>3B font</item>
-        <item>3i font</item>
-        <item>3T font</item>
-        <item>4 font</item>
-        <item>5 font</item>
-        <item>6 font</item>
-        <item>6B font</item>
-        <item>7 font</item>
-        <item>8 font</item>
-        <item>9 font</item>
+        <item>Шрифт 0T+</item>
+        <item>Шрифт 1+</item>
+        <item>Шрифт 1B+</item>
+        <item>Шрифт 1B2</item>
+        <item>Шрифт 1BS</item>
+        <item>Шрифт 1T</item>
+        <item>Шрифт 2+</item>
+        <item>Шрифт 2B</item>
+        <item>Шрифт 2i</item>
+        <item>Шрифт 3+</item>
+        <item>Шрифт 3B</item>
+        <item>Шрифт 3i</item>
+        <item>Шрифт 3T</item>
+        <item>Шрифт 4</item>
+        <item>Шрифт 5</item>
+        <item>Шрифт 6</item>
+        <item>Шрифт 6B</item>
+        <item>Шрифт 7</item>
+        <item>Шрифт 8</item>
+        <item>Шрифт 9</item>
     </string-array>
 
     <string-array name="strCodeArray">
         <item>EAN8</item>
         <item>EAN13</item>
         <item>EAN128</item>
-
-        <item>GS1128</item>
-
-        <item>CODE_128</item>
+<item>GS1128</item>
+<item>CODE_128</item>
         <item>CODE_39</item>
         <item>UPC_A</item>
         <item>ITF_14</item>
         <item>QR</item>
         <item>DM</item>
-
-        <item>GS1QR</item>
+<item>GS1QR</item>
         <item>GS1DM</item>
-
-    </string-array>
+</string-array>
 
     <string-array name="strDirectArray">
-        <item>increase</item>
-        <item>decrease</item>
+        <item>Збільшення</item>
+        <item>Зменшення</item>
     </string-array>
 
     <string-array name="strLineArray">
-        <item>Solid Лінія</item>
-        <item>Dash Лінія</item>
-        <item>Dot Лінія</item>
-        <item>Dash Dot Лінія</item>
-        <item>Dash Dot Dot Лінія</item>
+        <item>Суцільна лінія</item>
+        <item>Штрихова лінія</item>
+        <item>Пунктирна лінія</item>
+        <item>Штрихпунктирна лінія</item>
+        <item>Штрихпунктирна з 2 крапками</item>
     </string-array>
 
     <string-array name="strTimeFormat">
@@ -283,26 +193,26 @@
     </string-array>
 
     <string-array name="strarrayFontSize">
-        <item>1 mm</item>
-        <item>1.5 mm</item>
-        <item>2 mm</item>
-        <item>2.5 mm</item>
-        <item>3 mm</item>
-        <item>4 mm</item>
-        <item>5 mm</item>
-        <item>6 mm</item>
-        <item>7 mm</item>
-        <item>8 mm</item>
-        <item>9 mm</item>
-        <item>10 mm</item>
-        <item>11 mm</item>
-        <item>12 mm</item>
-        <item>12.7 mm</item>
+        <item>1 мм</item>
+        <item>1.5 мм</item>
+        <item>2 мм</item>
+        <item>2.5 мм</item>
+        <item>3 мм</item>
+        <item>4 мм</item>
+        <item>5 мм</item>
+        <item>6 мм</item>
+        <item>7 мм</item>
+        <item>8 мм</item>
+        <item>9 мм</item>
+        <item>10 мм</item>
+        <item>11 мм</item>
+        <item>12 мм</item>
+        <item>12.7 мм</item>
     </string-array>
 
     <string-array name="trigger_mode_name">
-        <item>Увімкнено</item>
-        <item>Вимкнено</item>
+        <item>Увімк.</item>
+        <item>Вимк.</item>
     </string-array>
 
     <string-array name="trigger_mode_value">
@@ -321,8 +231,8 @@
     </string-array>
 
     <string-array name="encoder_name">
-        <item>Увімкнено</item>
-        <item>Вимкнено</item>
+        <item>Увімк.</item>
+        <item>Вимк.</item>
     </string-array>
 
     <string-array name="encoder_value">
@@ -356,7 +266,7 @@
 
 
     <string-array name="storage_dev">
-        <item>SDCard</item>
+        <item>SD-карта</item>
         <item>USB</item>
     </string-array>
 
@@ -374,8 +284,8 @@
     </string-array>
 
     <string-array name="direction_item_entries">
-        <item>Left</item>
-        <item>Right</item>
+        <item>Вліво</item>
+        <item>Вправо</item>
     </string-array>
 
     <string-array name="resolution_item_entries">
@@ -384,8 +294,7 @@
         <item>450</item>
         <item>600</item>
         <item>750</item>
-    
-        <item>900</item>
+    <item>900</item>
         <item>1200</item>
         <item>1800</item>
         <item>2400</item>
@@ -404,14 +313,14 @@
 
 
     <string-array name="switch_item_entries">
-        <item>Вимкнено</item>
-        <item>Увімкнено</item>
+        <item>Вимк.</item>
+        <item>Увімк.</item>
     </string-array>
 
     <string-array name="photo_item_entries">
-        <item>Вимкнено</item>
-        <item>Pen</item>
-        <item>Port</item>
+        <item>Вимк.</item>
+        <item>Головка</item>
+        <item>Порт</item>
     </string-array>
 
     <string-array name="message_dots">
@@ -429,8 +338,7 @@
         <item>6</item>
     </string-array>
 
-
-    <string-array name="input_proc_item_entries">
+<string-array name="input_proc_item_entries">
         <item>P-1</item>
         <item>P-2</item>
         <item>P-3</item>
@@ -439,53 +347,39 @@
         <item>P-6</item>
         <item>P-7</item>
     </string-array>
-
-
-    <string-array name="enc_dir_item_entries">
-        <item>None</item>
-        <item>Left</item>
-        <item>Right</item>
+<string-array name="enc_dir_item_entries">
+        <item>Немає</item>
+        <item>Вліво</item>
+        <item>Вправо</item>
     </string-array>
-
-
-
-    <string-array name="error_correction_level">
+<string-array name="error_correction_level">
         <item>L (7%)</item>
         <item>M (15%)</item>
         <item>Q (25%)</item>
         <item>H (30%)</item>
     </string-array>
-
-
-    <string-array name="user_mode">
-        <item>None</item>
-        <item>Mode1</item>
-        <item>Mode2</item>
-        <item>Mode3</item>
-        <item>Mode4</item>
-        <item>Mode5</item>
-        <item>Mode6</item>
+<string-array name="user_mode">
+        <item>Немає</item>
+        <item>Режим 1</item>
+        <item>Режим 2</item>
+        <item>Режим 3</item>
+        <item>Режим 4</item>
+        <item>Режим 5</item>
+        <item>Режим 6</item>
     </string-array>
-
-
-    <string-array name="param_ad">
-        <item>None</item>
-        <item>Battery</item>
-        <item>Presure</item>
+<string-array name="param_ad">
+        <item>Немає</item>
+        <item>Батарея</item>
+        <item>Тиск</item>
     </string-array>
-
-
-    <string-array name="DMType">
-        <item>Square</item>
-        <item>Rectangle</item>
+<string-array name="DMType">
+        <item>Квадрат</item>
+        <item>Прямокутник</item>
     </string-array>
-
-
-    <string-array name="switch_proc_type">
-        <item>Auto</item>
+<string-array name="switch_proc_type">
+        <item>Авто</item>
         <item>Rfid</item>
         <item>SC</item>
         <item>Bagink</item>
     </string-array>
-
 </resources>

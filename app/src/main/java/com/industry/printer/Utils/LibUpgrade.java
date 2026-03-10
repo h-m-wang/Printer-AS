@@ -213,6 +213,7 @@ public class LibUpgrade {
                 if(!CypherUtils.getFileMD5(srcFile).equalsIgnoreCase(CypherUtils.getFileMD5(dstPath))) {
                     FileUtil.writeFile(tmpPath, new FileInputStream(srcFile));
                     Debug.d(TAG, "Done");
+                    try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
                     return true;
                 } else {
                     Debug.d(TAG, "[" + srcPath + "] is same as [" + dstPath + "]");

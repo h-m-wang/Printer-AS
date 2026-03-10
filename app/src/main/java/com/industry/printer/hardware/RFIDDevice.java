@@ -44,6 +44,7 @@ import com.industry.printer.Rfid.RFIDData;
 import com.industry.printer.Rfid.EncryptionMethod;
 
 public class RFIDDevice implements RfidCallback{
+	public static final String TAG = RFIDDevice.class.getSimpleName();
 
 	//RFID操作 native接口
 	public static native int open(String dev);
@@ -60,8 +61,7 @@ public class RFIDDevice implements RfidCallback{
 	/************************
 	 * RFID命令操作部分
 	 ***********************/
-	public static final String TAG = RFIDDevice.class.getSimpleName();
-	
+
 	public static volatile RFIDDevice mRfidDevice;
 	//串口节点
 	// public static final String SERIAL_INTERFACE = "/dev/ttyS3";

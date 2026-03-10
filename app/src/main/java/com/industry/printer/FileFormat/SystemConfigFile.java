@@ -443,7 +443,9 @@ public class SystemConfigFile{
 // H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
 	public static final int DATA_SOURCE_SCANER11 	= 39;
 // End of H.M.Wang 2026-1-9 增加一个扫描协议11，动作与扫描协议2完全一样，只是分隔符为逗号
-
+// H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
+	public static final int DATA_SOURCE_SCANER12	= 40;
+// End of H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 // H.M.Wang 2021-3-6 追加串口协议8
 	public static final int INDEX_LOCAL_ID 			= 57;		// 用于串口协议8当中的本地机器ID。
 // End of H.M.Wang 2021-3-6 追加串口协议8

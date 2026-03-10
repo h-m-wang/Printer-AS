@@ -209,23 +209,27 @@ public class BarcodeScanParser {
         int pos = 0;
         String code = mCodes.toString();
 
-        while(pos < code.length()) {
-            int index = code.indexOf("%", pos);
-            if(index < 0) {
-                sb.append(code.substring(pos));
-                break;
-            } else {
-                if(index > pos) sb.append(code, pos, index);
-                if(index + 1 < code.length() && code.charAt(index+1) == '%') {
-                    sb.append("%");
-                    pos = index + 2;
-                } else if(index + 4 < code.length()) {
-                    int utf = Integer.parseInt(code.substring(index+1,index+3), 16);
-                    utf += (Integer.parseInt(code.substring(index+3,index+5), 16) << 8);
-                    sb.append((char) utf);
-                    pos = index + 5;
+        try {
+            while(pos < code.length()) {
+                int index = code.indexOf("%", pos);
+                if(index < 0) {
+                    sb.append(code.substring(pos));
+                    break;
+                } else {
+                    if(index > pos) sb.append(code, pos, index);
+                    if(index + 1 < code.length() && code.charAt(index+1) == '%') {
+                        sb.append("%");
+                        pos = index + 2;
+                    } else if(index + 4 < code.length()) {
+                        int utf = Integer.parseInt(code.substring(index+1,index+3), 16);
+                        utf += (Integer.parseInt(code.substring(index+3,index+5), 16) << 8);
+                        sb.append((char) utf);
+                        pos = index + 5;
+                    }
                 }
             }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
 
         Debug.i(TAG, "Code: [" + sb.toString() + "] to " + mCodeListener);

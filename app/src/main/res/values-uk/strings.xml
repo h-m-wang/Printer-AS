@@ -1,771 +1,630 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-
-    <string name="app_version">Ver:</string>
-    <string name="system_time">Time:</string>
-    <string name="app_name">Друкer</string>
-    <string name="action_settings">Set</string>
-    <string name="hello_world">Hello world!</string>
+<string name="app_version">Версія:</string>
+    <string name="system_time">Час:</string>
+    <string name="app_name">Принтер</string>
+    <string name="action_settings">Налашт.</string>
+    <string name="hello_world">Привіт, світе!</string>
 	<string name="ControlTab">Керування</string>
-	<string name="manualCtrlTab">Керування man</string>
+	<string name="manualCtrlTab">Ручне кер.</string>
 	<string name="Home">Головна</string>
 	<string name="Edit">Редагувати</string>
 	<string name="Settings">Налаштування</string>
-	<string name="str_btn_start">Запуск</string>
-	<string name="str_btn_stop">Зупинка</string>
-	<string name="str_btn_launch">Запуск</string>
-	<string name="str_btn_clean">Purge</string>
-	<string name="str_btn_sclean">Purge</string>
-
-	<string name="str_purge_confirm">Підтвердити to purge</string>
-	<string name="str_clean_confirm">This Clean will take about 5 minutes, continue?</string>
-	<string name="str_under_purging">Purging, please try later.</string>
-
-	<string name="str_under_printing">Please stop print then try again.</string>
+	<string name="str_btn_start">Старт</string>
+	<string name="str_btn_stop">Стоп</string>
+	<string name="str_btn_launch">Старт</string>
+	<string name="str_btn_clean">Продувка</string>
+	<string name="str_btn_sclean">Продувка</string>
+<string name="str_purge_confirm">Підтвердити продувку</string>
+	<string name="str_clean_confirm">Це очищення триватиме близько 5 хвилин, продовжити?</string>
+	<string name="str_under_purging">Виконується продувка, спробуйте пізніше.</string>
+<string name="str_under_printing">Будь ласка, зупиніть друк і спробуйте ще раз.</string>
 	<string name="str_btn_open">Відкрити</string>
 	<string name="str_remain_ink">Чорнило</string>
-	<string name="str_remain_ptimes">Друкed: </string>
-	<string name="str_btn_new">New</string>
+	<string name="str_remain_ptimes">Надруковано: </string>
+	<string name="str_btn_new">Новий</string>
 	<string name="str_btn_save">Зберегти</string>
-	<string name="str_btn_saveprint">ЗберегтиДрук</string>
+	<string name="str_btn_saveprint">Зберегти та Друк</string>
 	<string name="str_btn_cancel">Скасувати</string>
-
-	<string name="str_btn_close">Закрити</string>
+<string name="str_btn_close">Закрити</string>
 	<string name="str_btn_backprint">Назад\nДрук</string>
-
-	<string name="str_ip_add">Ip Addr</string>
+<string name="str_ip_add">IP-адреса</string>
 	<string name="str_device_number">Пристрій:</string>
-	<string name="str_dialog_surecancel">warning:</string>
-	<string name="str_device_but_sure">Sure</string>
-	<string name="str_ip_ed">Please set IP and try again</string>
-	<string name="str_print_documents" />
-	<string name="str_port">Port</string>
-	<string name="str_information">Do you want to execute?</string>
-	<string name="str_btn_saveas">Зберегти\nas</string>
-	<string name="str_btn_prerecord">Up</string>
-	<string name="str_btn_nextrecord">Down</string>
-	<string name="str_btn_send">Send</string>
-	<string name="str_btn_set">Set</string>
+	<string name="str_dialog_surecancel">Попередження:</string>
+	<string name="str_device_but_sure">Підтвердити</string>
+	<string name="str_ip_ed">Будь ласка, встановіть IP та спробуйте ще раз</string>
+	<string name="str_print_documents"></string>
+	<string name="str_port">Порт</string>
+	<string name="str_information">Бажаєте виконати?</string>
+	<string name="str_btn_saveas">Зберегти\nяк</string>
+	<string name="str_btn_prerecord">Вгору</string>
+	<string name="str_btn_nextrecord">Вниз</string>
+	<string name="str_btn_send">Надіслати</string>
+	<string name="str_btn_set">Встанов.</string>
 	<string name="str_btn_get">Текст</string>
 	<string name="str_btn_print">Друк</string>
-	<string name="str_btn_finish">Finish</string>
+	<string name="str_btn_finish">Завершити</string>
 	<string name="str_btn_ids0">IDS1</string>
 	<string name="str_btn_ids1">IDS2</string>
-	<string name="str_btn_header0">Pen0</string>
-	<string name="str_btn_header1">Pen1</string>
-	<string name="str_btn_header2">Pen2</string>
-	<string name="str_btn_header3">Pen3</string>
-	<string name="str_btn_header4">Pen4</string>
+	<string name="str_btn_header0">Головка0</string>
+	<string name="str_btn_header1">Головка1</string>
+	<string name="str_btn_header2">Головка2</string>
+	<string name="str_btn_header3">Головка3</string>
+	<string name="str_btn_header4">Головка4</string>
 	<string name="strDate">Дата:</string>
-	<string name="strInklevel">Remain: </string>
-	<string name="strPhotocellState">Photocell</string>
+	<string name="strInklevel">Залишок: </string>
+	<string name="strPhotocellState">Фотоелемент</string>
 	<string name="strEncoderState">Енкодер</string>
-	<string name="strPrintstate">Друкing：</string>
-	<string name="strPrinting">Друкing</string>
+	<string name="strPrintstate">Друк: </string>
+	<string name="strPrinting">Друк</string>
 	<string name="strPrintok">Готово</string>
-	<string name="strOn">Увімкнено</string>
-	<string name="strOff">Вимкнено</string>
-	<string name="strwaitting">printing......</string>
+	<string name="strOn">Увімк.</string>
+	<string name="strOff">Вимк.</string>
+	<string name="strwaitting">друкування......</string>
 	<string name="str_csvfile">Csv</string>
 	<string name="str_tlkfile">Tlk</string>
 	<string name="str_binfile">Відкрити</string>
 	<string name="str_openfile">Відкрити...</string>
-	<string name="str_open_msg">Msg...</string>
-
-	<string name="str_opentemplate">Temp...</string>
-
-	<string name="str_seldata">Відкрити...</string>
+	<string name="str_open_msg">Повід...</string>
+<string name="str_opentemplate">Шабл...</string>
+<string name="str_seldata">Відкрити...</string>
 	<string name="str_mvforward">Вперед</string>
-	<string name="str_mvbackward">Назадward</string>
+	<string name="str_mvbackward">Назад</string>
 	<string name="str_preview">Попередній перегляд</string>
 	
 	<string name="str_del">Видалити</string>
-	<string name="str_del_all">Видалити All?</string>
+	<string name="str_del_all">Видалити все?</string>
 	<string name="str_multi_select">Група</string>
-	<string name="str_btn_shift">Shift</string>
-	<string name="str_btn_second">Second</string>
+	<string name="str_btn_shift">Зміна</string>
+	<string name="str_btn_second">Секунда</string>
 	
-	<string name="str_btn_upgrade">Upgrade</string>
-	<string name="str_urge2restart">Upgraded, please restart</string>
-	<string name="str_btn_setDate">Set Дата</string>
-	<string name="str_btn_setTime">Set Time</string>
-	<string name="str_btn_image">Logo</string>
+	<string name="str_btn_upgrade">Оновити</string>
+	<string name="str_urge2restart">Оновлено, будь ласка, перезавантажте</string>
+	<string name="str_btn_setDate">Встановити дату</string>
+	<string name="str_btn_setTime">Встановити час</string>
+	<string name="str_btn_image">Логотип</string>
 	<string name="str_net_device_ink">Чорнило</string>
-	<string name="str_goto">goto</string>
-	
-	<string name="strWidth">Width</string>
-	<string name="strHigh">Size</string>
-	<string name="strHightype">Stepwise</string>
-	<string name="strReverse">Inversion</string>
-	<string name="strRevert">Revert</string>
-	<string name="strXcor">Horizon</string>
-	<string name="strYcor">Vertical</string>
-	<string name="strCnt">Content</string>
+	<string name="str_goto">перейти до</string>
+	<string name="strWidth">Ширина</string>
+	<string name="strHigh">Розмір</string>
+	<string name="strHightype">Покроковий</string>
+	<string name="strReverse">Інверсія</string>
+	<string name="strRevert">Відновити</string>
+	<string name="strXcor">Горизонталь</string>
+	<string name="strYcor">Вертикаль</string>
+	<string name="strCnt">Вміст</string>
 	<string name="strRefresh">Оновити</string>
 	<string name="strDefault">0</string>
-	<string name="txtDefault">text</string>
-	<string name="strDragable">Dragable</string>
-	<string name="strShow">Show</string>
-	<string name="strFontsize">Шрифт Size</string>
+	<string name="txtDefault">текст</string>
+	<string name="strDragable">Перетягування</string>
+	<string name="strShow">Відобразити</string>
+	<string name="strFontsize">Розмір шрифту</string>
 	<string name="strFont">Шрифт</string>
-
-	<string name="strLetterSpacing">Spacing</string>
-
-	<string name="strLinewidth">Лінія Width</string>
-	<string name="strBits">Digits</string>
+<string name="strLetterSpacing">Інтервал</string>
+<string name="strLinewidth">Товщина лінії</string>
+	<string name="strBits">Розряди</string>
 	<string name="strImage">Зображення</string>
 	<string name="strDirect">Напрямок</string>
-	<string name="strShift1">Shift1</string>
-	<string name="strShift2">Shift2</string>
-	<string name="strShift3">Shift3</string>
-	<string name="strShift4">Shift4</string>
-	<string name="strShift5">Shift5</string>
-	<string name="strInfoname">Object</string>
-	<string name="strHeadType">PenType</string>
-	<string name="strHeadResolution">HD</string>
-	<string name="strUpgradeConfirm">Do upgrade?</string>
-	<string name="strUpgradeNoApk">No Upgrade file!!!</string>
-	<string name="strSaving">saving, please wait...</string>
-	<string name="strLoading">loading, please wait...</string>
-	<string name="strCopying">Copying, please wait...</string>
-	<string name="strInsertSerial">Please connect device...</string>
-	<string name="strReinsertSerial">Error, please reconnect device</string>
-	<string name="str_net_error">Network communication error</string>
-
-
-	<string name="strGroup">Група</string>
-	<string name="strCode">Code Type</string>
-	<string name="strBarsource">Data</string>
-	<string name="strLinetype">Лінія Type</string>
-	<string name="str_ok">OK</string>
+	<string name="strShift1">Зміна1</string>
+	<string name="strShift2">Зміна2</string>
+	<string name="strShift3">Зміна3</string>
+	<string name="strShift4">Зміна4</string>
+	<string name="strShift5">Зміна5</string>
+	<string name="strInfoname">Об\'єкт</string>
+	<string name="strHeadType">Тип головки</string>
+	<string name="strHeadResolution">Роздільна зд.</string>
+	<string name="strUpgradeConfirm">Виконати оновлення?</string>
+	<string name="strUpgradeNoApk">Немає файлу оновлення!!!</string>
+	<string name="strSaving">збереження, зачекайте...</string>
+	<string name="strLoading">завантаження, зачекайте...</string>
+	<string name="strCopying">Копіювання, зачекайте...</string>
+	<string name="strInsertSerial">Будь ласка, підключіть пристрій...</string>
+	<string name="strReinsertSerial">Помилка, перепідключіть пристрій</string>
+	<string name="str_net_error">Помилка мережевого зв\'язку</string>
+<string name="strGroup">Група</string>
+	<string name="strCode">Тип коду</string>
+	<string name="strBarsource">Дані</string>
+	<string name="strLinetype">Тип лінії</string>
+	<string name="str_ok">ОК</string>
 	<string name="strNativeBtn">Скасувати</string>
-	<string name="strRtFmt">Format</string>
-	<string name="strOffset">Вимкненоset</string>
+	<string name="strRtFmt">Формат</string>
+	<string name="strOffset">Зміщення</string>
 
-
-	<string name="strFrame">Frame</string>
-
-
-
-	<string name="strDMType">DM Type</string>
-
-
-
-	<string name="strErrorCorrectionLevel">EC Level</string>
-
-
-	
-	<string name="objectListName">Show List</string>
-	<string name="objectInfoName">Show TEXT</string>
-	<string name="object_Msg">TEXT</string>
+<string name="strFrame">Рамка</string>
+<string name="strDMType">Тип DM</string>
+<string name="strErrorCorrectionLevel">Рівень EC</string>
+<string name="objectListName">Показати список</string>
+	<string name="objectInfoName">Показати ТЕКСТ</string>
+	<string name="object_Msg">ТЕКСТ</string>
 	<string name="object_text">Текст</string>
 	<string name="object_realtime">Дата</string>
 	<string name="object_counter">Лічильник</string>
-	<string name="object_bar">Штрихкод</string>
+	<string name="object_bar">Штрих-код</string>
 	<string name="object_pic">Графіка</string>
-	<string name="object_julian">Julian</string>
+	<string name="object_julian">Юліанський</string>
 	<string name="object_line">Лінія</string>
-	<string name="object_rect">Rect</string>
-	<string name="object_ellipse">Ellipse</string>
-	<string name="object_shift">Shift</string>
-	<string name="object_second">Second</string>
-
-	<string name="object_hypertext">Hypertext</string>
-
-
-	<string name="object_hypertext_hint1"><u>@Y</u>:Year <u>@M</u>:Month <u>@D</u>:Date</string>
-	<string name="object_hypertext_hint2"><u>@H</u>:Hour <u>@N</u>:Minute <u>@S</u>:Second</string>
-	<string name="object_hypertext_hint3"><u>@T</u>:Shift <u>@A</u>:Day <u>@W</u>:Week No.</string>
-	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:Counters</string>
-
-	<string name="object_hypertext_hint6"><u>@#n#m#</u>:Dynamic Text. n:index; m:bits</string>
-
-
-	<string name="object_hypertext_hint5"><u>@UG</u>:User Group</string>
-
-
-	<string name="object_weekofyear">WeekOfРік</string>
-	<string name="object_weekday">WeekDay</string>
-	<string name="object_charHour">AlphaГодина</string>
-	<string name="object_msg_name">Subject</string>
-	<string name="object_qr">QRCode</string>
-	<string name="object_dynamic_qr">DynamicQR</string>
-
-	<string name="object_dynamic_barcode">DynamicШтрихкод</string>
-
-
-	<string name="object_dynamictext">Dynamictext</string>
-	<string name="object_dtindex">Index</string>
-
-
-	
-	<string name="strParam0">00.Reserved</string>
-	<string name="strPrSpeedname">01.Швидкість</string>
+	<string name="object_rect">Прямокутник</string>
+	<string name="object_ellipse">Еліпс</string>
+	<string name="object_shift">Зміна</string>
+	<string name="object_second">Секунда</string>
+<string name="object_hypertext">Гіпертекст</string>
+<string name="object_hypertext_hint1"><u>@Y</u>:Рік <u>@M</u>:Місяць <u>@D</u>:Дата</string>
+	<string name="object_hypertext_hint2"><u>@H</u>:Година <u>@N</u>:Хвилина <u>@S</u>:Секунда</string>
+	<string name="object_hypertext_hint3"><u>@T</u>:Зміна <u>@A</u>:День <u>@W</u>:№ тижня</string>
+	<string name="object_hypertext_hint4"><u>@2</u>,<u>@3C</u>,<u>@4CC</u>,<u>@5CCC</u>:Лічильники</string>
+<string name="object_hypertext_hint6"><u>@#n#m#</u>:Дин. текст. n:індекс; m:біти</string>
+<string name="object_hypertext_hint5"><u>@UG</u>:Група користувачів</string>
+<string name="object_weekofyear">Тиждень року</string>
+	<string name="object_weekday">День тижня</string>
+	<string name="object_charHour">Літерна година</string>
+	<string name="object_msg_name">Тема</string>
+	<string name="object_qr">QR-код</string>
+	<string name="object_dynamic_qr">Динамічний QR</string>
+<string name="object_dynamic_barcode">Динам. штрих-код</string>
+<string name="object_dynamictext">Динамічний текст</string>
+	<string name="object_dtindex">Індекс</string>
+<string name="strParam0">00. Зарезервовано</string>
+	<string name="strPrSpeedname">01. Швидкість</string>
 	<string name="strDelay_key">delay_key</string>
-	<string name="strDelayname">02.Затримка</string>
-	<string name="strDelay_summary">Set Затримка</string>
-	<string name="strParam3">03.Reserved</string>
+	<string name="strDelayname">02. Затримка</string>
+	<string name="strDelay_summary">Встановити затримку</string>
+	<string name="strParam3">03. Зарезервовано</string>
 	<string name="strTrigger_key">trigger_key</string>
-	<string name="strTriggername">04.Trigger</string>
-	<string name="strTrigger_summary">Trigger Mode</string>
+	<string name="strTriggername">04. Тригер</string>
+	<string name="strTrigger_summary">Режим тригера</string>
 	<string name="strDirection_key">direction_key</string>
-	<string name="strSyncname">05.Енкодер</string>
-	<string name="strDirectionname">05.Sync</string>
-	<string name="strBold">06.Bold</string>
-	<string name="strFixlen">07.Length</string>
-	<string name="strFixtime">08.Fix Time</string>
-	<string name="strHeadTemp">09.Head Temp</string>
-	<string name="strResvTemp">10.Box Temp</string>
-	<string name="strfontwidth">11.fontWidth</string>
-	<string name="strDotname">12.Dotsize</string>
-	<string name="strDirection_summary">Choose Напрямок</string>
+	<string name="strSyncname">05. Енкодер</string>
+	<string name="strDirectionname">05. Синхронізація</string>
+	<string name="strBold">06. Жирний</string>
+	<string name="strFixlen">07. Довжина</string>
+	<string name="strFixtime">08. Фікс. час</string>
+	<string name="strHeadTemp">09. Темп. головки</string>
+	<string name="strResvTemp">10. Темп. блоку</string>
+	<string name="strfontwidth">11. Ширина шрифту</string>
+	<string name="strDotname">12. Розмір крапки</string>
+	<string name="strDirection_summary">Виберіть напрямок</string>
 	<string name="strEncoder_key">encoder</string>
-	<string name="strEncodername">03.Енкодер</string>
-	<string name="strEncoder_summary">Set Енкодер mode</string>
+	<string name="strEncodername">03. Енкодер</string>
+	<string name="strEncoder_summary">Встановити режим енкодера</string>
 	<string name="strHoriRes_key">horires_key</string>
-	<string name="strHoriResname">04.Hori</string>
-	<string name="strHoriRes_summary">Setting Hori Res</string>
+	<string name="strHoriResname">04. Горизонт.</string>
+	<string name="strHoriRes_summary">Налашт. гориз. розд. здатн.</string>
 	<string name="strVertRes_key">vertres_key</string>
-	<string name="strVertResname">05.Vert</string>
-	<string name="strVertRes_summary">Setting Vert Res</string>
-	<string name="strTimeunit">ms</string>
+	<string name="strVertResname">05. Вертик.</string>
+	<string name="strVertRes_summary">Налашт. вертик. розд. здатн.</string>
+	<string name="strTimeunit">мс</string>
 	<string name="strResunit">dpi</string>
-	<string name="strLenunit">0.1mmm</string>
+	<string name="strLenunit">0.1мм</string>
 	<string name="strTempunit">C</string>
-	<string name="strPrSpeedUnit">HZ</string>
-	<string name="strResvname8">08.Reserved</string>
-	<string name="strResvname9">09.Reserved</string>
-	<string name="strResvname10">10.Reserved</string>
-	<string name="strResvname11">11.Reserved</string>
-	<string name="strResvname12">12.Reserved</string>
-	<string name="strResvname13">13.Reserved</string>
-	<string name="strResvname14">14.Reserved</string>
-	<string name="strResvname15">15.Reserved</string>
-	<string name="strResvname16">16.Reserved</string>
-	<string name="strResvname17">17.Reserved</string>
-	<string name="strResvname18">18.Reserved</string>
-	<string name="strResvname19">19.Reserved</string>
-	<string name="strResvname20">20.Reserved</string>
-	<string name="strResvname21">21.Reserved</string>
-	<string name="strResvname22">22.Reserved</string>
-	<string name="strResvname23">23.Reserved</string>
-	<string name="strResvname24">24.Reserved</string>
-	<string name="strResvname25">25.Reserved</string>
-	<string name="strResvname26">26.Reserved</string>
-	<string name="strResvname27">27.Reserved</string>
-	<string name="strResvname28">28.Reserved</string>
-	<string name="strResvname29">29.Reserved</string>
-	<string name="strResvname30">30.Reserved</string>
-	<string name="strResvname31">31.Reserved</string>
-	<string name="strResvname32">32.Reserved</string>
-	<string name="strResvname33">33.Reserved</string>
-	<string name="strResvname34">34.Reserved</string>
-	<string name="strResvname35">35.Reserved</string>
-	<string name="strResvname36">36.Reserved</string>
-	<string name="strResvname37">37.Reserved</string>
-	<string name="strResvname38">38.Увімкненоe for all</string>
-	<string name="strResvname39">39.Reserved</string>
-	<string name="strResvname40">40.Reserved</string>
-	<string name="strResvname41">41.Reserved</string>
-	<string name="strResvname42">42.Reserved</string>
-	<string name="strResvname43">43.Pens</string>
-	<string name="strResvname44">44.Reserved</string>
-	<string name="strResvname45">45.Reserved</string>
-	<string name="strResvname46">46.Reserved</string>
-	<string name="strResvname47">47.Reserved</string>
-	<string name="strResvname48">48.Reserved</string>
-	<string name="strResvname49">49.Reserved</string>
-	<string name="strResvname50">50.Reserved</string>
-	<string name="strResvname51">51.Reserved</string>
-	<string name="strResvname52">52.Reserved</string>
-	<string name="strResvname53">53.Reserved</string>
-	<string name="strResvname54">54.Reserved</string>
-	<string name="strResvname55">55.Reserved</string>
-	<string name="strResvname56">56.Reserved</string>
-	<string name="strResvname57">57.Reserved</string>
-	<string name="strResvname58">58.Reserved</string>
-	<string name="strResvname59">59.Reserved</string>
-	<string name="strResvname60">60.Reserved</string>
-	<string name="strResvname61">61.Reserved</string>
-	<string name="strResvname62">62.Reserved</string>
-	<string name="strResvname63">63.Reserved</string>
-	<string name="strResvname64">64.Reserved</string>
+	<string name="strPrSpeedUnit">ГЦ</string>
+	<string name="strResvname8">08. Зарезервовано</string>
+	<string name="strResvname9">09. Зарезервовано</string>
+	<string name="strResvname10">10. Зарезервовано</string>
+	<string name="strResvname11">11. Зарезервовано</string>
+	<string name="strResvname12">12. Зарезервовано</string>
+	<string name="strResvname13">13. Зарезервовано</string>
+	<string name="strResvname14">14. Зарезервовано</string>
+	<string name="strResvname15">15. Зарезервовано</string>
+	<string name="strResvname16">16. Зарезервовано</string>
+	<string name="strResvname17">17. Зарезервовано</string>
+	<string name="strResvname18">18. Зарезервовано</string>
+	<string name="strResvname19">19. Зарезервовано</string>
+	<string name="strResvname20">20. Зарезервовано</string>
+	<string name="strResvname21">21. Зарезервовано</string>
+	<string name="strResvname22">22. Зарезервовано</string>
+	<string name="strResvname23">23. Зарезервовано</string>
+	<string name="strResvname24">24. Зарезервовано</string>
+	<string name="strResvname25">25. Зарезервовано</string>
+	<string name="strResvname26">26. Зарезервовано</string>
+	<string name="strResvname27">27. Зарезервовано</string>
+	<string name="strResvname28">28. Зарезервовано</string>
+	<string name="strResvname29">29. Зарезервовано</string>
+	<string name="strResvname30">30. Зарезервовано</string>
+	<string name="strResvname31">31. Зарезервовано</string>
+	<string name="strResvname32">32. Зарезервовано</string>
+	<string name="strResvname33">33. Зарезервовано</string>
+	<string name="strResvname34">34. Зарезервовано</string>
+	<string name="strResvname35">35. Зарезервовано</string>
+	<string name="strResvname36">36. Зарезервовано</string>
+	<string name="strResvname37">37. Зарезервовано</string>
+	<string name="strResvname38">38. Один для всіх</string>
+	<string name="strResvname39">39. Зарезервовано</string>
+	<string name="strResvname40">40. Зарезервовано</string>
+	<string name="strResvname41">41. Зарезервовано</string>
+	<string name="strResvname42">42. Зарезервовано</string>
+	<string name="strResvname43">43. Головки</string>
+	<string name="strResvname44">44. Зарезервовано</string>
+	<string name="strResvname45">45. Зарезервовано</string>
+	<string name="strResvname46">46. Зарезервовано</string>
+	<string name="strResvname47">47. Зарезервовано</string>
+	<string name="strResvname48">48. Зарезервовано</string>
+	<string name="strResvname49">49. Зарезервовано</string>
+	<string name="strResvname50">50. Зарезервовано</string>
+	<string name="strResvname51">51. Зарезервовано</string>
+	<string name="strResvname52">52. Зарезервовано</string>
+	<string name="strResvname53">53. Зарезервовано</string>
+	<string name="strResvname54">54. Зарезервовано</string>
+	<string name="strResvname55">55. Зарезервовано</string>
+	<string name="strResvname56">56. Зарезервовано</string>
+	<string name="strResvname57">57. Зарезервовано</string>
+	<string name="strResvname58">58. Зарезервовано</string>
+	<string name="strResvname59">59. Зарезервовано</string>
+	<string name="strResvname60">60. Зарезервовано</string>
+	<string name="strResvname61">61. Зарезервовано</string>
+	<string name="strResvname62">62. Зарезервовано</string>
+	<string name="strResvname63">63. Зарезервовано</string>
+	<string name="strResvname64">64. Зарезервовано</string>
 
-
-	<string name="strCounterEditTitle">Modify Лічильник Value</string>
+<string name="strCounterEditTitle">Змінити значення лічильника</string>
 	<string name="strCounterIndex">Лічильник %1$d:</string>
-	<string name="strCounterClear">Clear</string>
+	<string name="strCounterClear">Очистити</string>
+<string name="strPrintRepeatEditTitle">Змінити повторний друк</string>
+<string name="strEncoderPPREditTitle">Змінити імпульси енкодера (PPR)</string>
+	<string name="strQRLastEditTitle">Змінити індекс QRLast</string>
+<string name="strBtnSave">ОК</string>
 
+	<string name="strRecvedRemote">Отримано з віддаленого ПК</string>
 
-	<string name="strPrintRepeatEditTitle">Modify Повтор Друк</string>
-
-	
-	<string name="strEncoderPPREditTitle">Modify Енкодер PPR</string>
-	
-
-	<string name="strQRLastEditTitle">Modify QRLast Index</string>
-
-
-	<string name="strBtnSave">Ok</string>
-
-	<string name="strRecvedRemote">Received from Remote</string>
-
-	<string name="str_fileicon_des">file icon</string>
-	<string name="str_file_save"> Ok </string>
+	<string name="str_fileicon_des">значок файлу</string>
+	<string name="str_file_save"> ОК </string>
 	<string name="str_file_cancel">Скасувати</string>
-	<string name="str_setting_upgrade">Upgrade</string>
-	<string name="str_setting_clean">Clean</string>
+	<string name="str_setting_upgrade">Оновити</string>
+	<string name="str_setting_clean">Очистити</string>
 	
 	<string name="str_month">Місяць</string>
 	<string name="str_year">Рік</string>
 	<string name="str_date">Дата</string>
 	<string name="str_hour">Година</string>
 	<string name="str_minute">Хвилина</string>
-	<string name="str_format">24-Format</string>
-	<string name="str_format_24">Yes</string>
-	<string name="str_format_12">No</string>
-	<string name="cor_unit">pixel</string>
-	<string name="font_unit">mm</string>
-	<string name="dot_unit">Dots</string>
+	<string name="str_format">Формат-24</string>
+	<string name="str_format_24">Так</string>
+	<string name="str_format_12">Ні</string>
+	<string name="cor_unit">піксель</string>
+	<string name="font_unit">мм</string>
+	<string name="dot_unit">Крапки</string>
 
-	<string name="str_trans">toRight</string>
+	<string name="str_trans">Вправо</string>
 	
-	<string name="str_column_index">index</string>
-	<string name="str_column_pic1">pic1</string>
-	<string name="str_column_pic2">pic2</string>
-	<string name="str_column_pic3">pic3</string>
-	<string name="str_column_pic4">pic4</string>
-	<string name="str_column_text1">text1</string>
-	<string name="str_column_text2">text2</string>
-	<string name="str_column_text3">text3</string>
-	<string name="str_column_text4">text4</string>
-	<string name="str_column_text5">text5</string>
-	<string name="str_column_text6">text6</string>
-	<string name="str_column_text7">text7</string>
-	<string name="str_column_text8">text8</string>
-	<string name="str_column_text9">text9</string>
-	<string name="str_column_text10">text10</string>
-	<string name="str_column_text11">text11</string>
-	<string name="str_column_text12">text12</string>
-	<string name="str_column_text13">text13</string>
-	<string name="str_column_text14">text14</string>
-	<string name="str_column_text15">text15</string>
-	<string name="str_column_text16">text16</string>
-	<string name="str_notlkfile">Please select a TLK file</string>
-	<string name="str_tlk_already_exist">Tlk file is already exist!!!</string>
-	<string name="str_createfile_failure">Create error</string>
-	<string name="str_no_print_target">Please chose a target</string>
+	<string name="str_column_index">індекс</string>
+	<string name="str_column_pic1">мал1</string>
+	<string name="str_column_pic2">мал2</string>
+	<string name="str_column_pic3">мал3</string>
+	<string name="str_column_pic4">мал4</string>
+	<string name="str_column_text1">текст1</string>
+	<string name="str_column_text2">текст2</string>
+	<string name="str_column_text3">текст3</string>
+	<string name="str_column_text4">текст4</string>
+	<string name="str_column_text5">текст5</string>
+	<string name="str_column_text6">текст6</string>
+	<string name="str_column_text7">текст7</string>
+	<string name="str_column_text8">текст8</string>
+	<string name="str_column_text9">текст9</string>
+	<string name="str_column_text10">текст10</string>
+	<string name="str_column_text11">текст11</string>
+	<string name="str_column_text12">текст12</string>
+	<string name="str_column_text13">текст13</string>
+	<string name="str_column_text14">текст14</string>
+	<string name="str_column_text15">текст15</string>
+	<string name="str_column_text16">текст16</string>
+	<string name="str_notlkfile">Будь ласка, виберіть файл TLK</string>
+	<string name="str_tlk_already_exist">Файл Tlk вже існує!!!</string>
+	<string name="str_createfile_failure">Помилка створення</string>
+	<string name="str_no_print_target">Будь ласка, оберіть ціль</string>
 	
-	<string name="str_radioLocal">Local</string>
+	<string name="str_radioLocal">Локальний</string>
 	<string name="str_radioUsb">USB</string>
 	<string name="str_radioUsb1">USB1</string>
 	<string name="str_radioUsb2">USB2</string>
-	<string name="str_radioSdcard">SDCard</string>
+	<string name="str_radioSdcard">SD-карта</string>
 	
-	<string name="str_title_infodialog">Object Info</string>
-	<string name="str_fileopt_del">DEL</string>
+	<string name="str_title_infodialog">Інфо об\'єкта</string>
+	<string name="str_fileopt_del">ВИДАЛИТИ</string>
 	<string name="str_fileopt_cancel">Скасувати</string>	
 	<string name="str_search">Пошук</string>
 
-	
-	<string name="str_msg_name">MSG:</string>
-	
-	<string name="str_state_inklevel">INK:</string>
+<string name="str_msg_name">ПОВІД:</string>
+	<string name="str_state_inklevel">ЧОРН:</string>
 	<string name="str_invalid_ink">--</string>
-	<string name="str_state_battery">Живлення:%1$d</string>
-	<string name="str_hint_preview">message preview</string>
-	<string name="str_print_count">Records: </string>
+	<string name="str_state_battery">Живлення: %1$d</string>
+	<string name="str_hint_preview">попередній перегляд повідомлення</string>
+	<string name="str_print_count">Записи: </string>
 	<string name="str_print_count_default">0</string>
-	<string name="str_print_printing">Друк Task Running already, no new task create</string>
-	<string name="str_print_startok">start print task success...</string>
-	<string name="str_print_stopok">stop print task success...</string>
-	<string name="str_toast_no_bin">No bin file found !!!</string>
-	<string name="str_toast_emptycontent">The message you selected is empty!!!</string>
-	<string name="str_toast_no_message">Please select a message file first!!!</string>
-	<string name="str_toast_no_ink">Чорнило low!!!</string>
-
-	<string name="str_toast_ink_error">Чорнило Error!!!</string>
-
-
-	<string name="str_toast_ink_error_ink_changed">Please turn off power before replace cartridge</string>
-
-	<string name="str_rfid_initfail_notify">RFID initiallize fail！</string>
+	<string name="str_print_printing">Завдання друку вже виконується, нове завдання не створено</string>
+	<string name="str_print_startok">завдання друку успішно розпочато...</string>
+	<string name="str_print_stopok">завдання друку успішно зупинено...</string>
+	<string name="str_toast_no_bin">Файл bin не знайдено !!!</string>
+	<string name="str_toast_emptycontent">Вибране вами повідомлення порожнє!!!</string>
+	<string name="str_toast_no_message">Будь ласка, спочатку виберіть файл повідомлення!!!</string>
+	<string name="str_toast_no_ink">Низький рівень чорнила!!!</string>
+<string name="str_toast_ink_error">Помилка чорнила!!!</string>
+<string name="str_toast_ink_error_ink_changed">Будь ласка, вимкніть живлення перед заміною картриджа</string>
+<string name="str_rfid_initfail_notify">Помилка ініціалізації RFID!</string>
 	<string name="str_page_forward"> 《 </string>
 	<string name="str_page_backward"> 》 </string>
-	<string name="str_message_no_content">can not create preview</string>
-	<string name="str_state_printing">Друкing</string>
+	<string name="str_message_no_content">не вдається створити попередній перегляд</string>
+	<string name="str_state_printing">Друк</string>
 	<string name="str_state_stopped">Готово</string>
-
-	<string name="str_state_cnt_print_up">Cnt. Up Друкing</string>
-	<string name="str_state_cnt_printdown">Cnt. Down Друкing</string>
-	<string name="str_btn_up_print">Up Cnt. Друк</string>
-	<string name="str_btn_down_print">Dn Cnt. Друк</string>
-
-
-	
-	
-	<string name="str_textview_param1">01. Швидкість</string>
+<string name="str_state_cnt_print_up">Друк прям. ліч.</string>
+	<string name="str_state_cnt_printdown">Друк зворотн. ліч.</string>
+	<string name="str_btn_up_print">Друк збіл. ліч.</string>
+	<string name="str_btn_down_print">Друк змен. ліч.</string>
+<string name="str_textview_param1">01. Швидкість</string>
 	<string name="str_textview_param2">02. Напрямок</string>
 	<string name="str_textview_param3">03. Роздільна здатність</string> 
 	<string name="str_textview_param4">04. Затримка</string>
-	<string name="str_textview_param5">05. Photocell</string>
+	<string name="str_textview_param5">05. Фотоелемент</string>
 	<string name="str_textview_param6">06. Енкодер</string>
-	<string name="str_textview_param7">07. Повтор print</string>
-	<string name="str_textview_param8">08. Nozzle select</string>
-	<string name="str_textview_param9">09. Wheel Diameter</string>
-	<string name="str_textview_param10">10. Енкодер PPR</string>
-	<string name="str_textview_param11">11.Pen1 offset</string>
-	<string name="str_textview_param12">12.Pen2 offset</string>
-	<string name="str_textview_param13">13.Pen1 Mirrored</string>
-	<string name="str_textview_param14">14.Pen2 Mirrored</string>
-	<string name="str_textview_param15">15.Pen1 Invert</string>
-	<string name="str_textview_param16">16.Pen2 Invert</string>
-	<string name="str_textview_param17">17.Дата delay</string>
-
-
-	<string name="str_textview_param18">18.Clear Zero</string>
-
-	<string name="str_textview_param19">19.Pen3 offset</string>
-	<string name="str_textview_param20">20.Pen4 offset</string>
-	<string name="str_textview_param21">21.Pen3 Mirrored</string>
-	<string name="str_textview_param22">22.Pen4 Mirrored</string>
-	<string name="str_textview_param23">23.Pen3 Invert</string>
-	<string name="str_textview_param24">24.Pen4 Invert</string>
-	<string name="str_textview_param25">25.Auto Voltage</string>
-	<string name="str_textview_param26">26.Voltage Set</string>
-	<string name="str_textview_param27">27.Auto Pulse</string>
-	<string name="str_textview_param28">28.Pulse Set</string>
-	<string name="str_textview_param29">29.Keep Wet</string>
-	<string name="str_textview_param30">30.Pho Filter</string>
-	<string name="str_textview_param31">31.Type</string>
-	<string name="str_textview_param32">32.Cnt Reset</string>
-	<string name="str_textview_param33">33.Dotsize</string>
-	<string name="str_textview_param34">34.PWML</string>
-	<string name="str_textview_param35">35.STR</string>
-	<string name="str_textview_param36">36.Slant</string>
-	<string name="str_textview_param37">37.PWMH</string>
-	<string name="str_textview_param38">38.Увімкненоe for all</string>
-
-
-	<string name="str_textview_param39">39.Data Source</string>
-
-	<string name="str_textview_param40">40.Beep</string>
-
-
-
-
-	<string name="str_repeat_times">41.Times</string>
-
-
-	<string name="str_textview_param42">42.Увімкнено Друк</string>
-	<string name="str_textview_param43">43.Pens</string>
-	<string name="str_textview_param44">"44.Brightness "</string>
-	<string name="str_textview_param45">45.Лічильник0</string>
-	<string name="str_textview_param46">46.Лічильник1</string>
-	<string name="str_textview_param47">47.Лічильник2</string>
-	<string name="str_textview_param48">48.Лічильник3</string>
-	<string name="str_textview_param49">49.Лічильник4</string>
-	<string name="str_textview_param50">50.Лічильник5</string>
-	<string name="str_textview_param51">51.Лічильник6</string>
-	<string name="str_textview_param52">52.Лічильник7</string>
-	<string name="str_textview_param53">53.Лічильник8</string>
-	<string name="str_textview_param54">54.Лічильник9</string>
-	<string name="str_textview_param55">55.QR Index</string>
-	<string name="str_textview_param56">56.FIFO</string>
-	
-
-	<string name="str_textview_param57">57.Input</string>
-	
-	<string name="str_textview_param58">58.Друкer IP</string>
-
-
-	<string name="str_textview_param59">59.Width Ratio</string>
-
-	<string name="str_textview_param60">60.Log</string>
-
-	<string name="str_textview_param61">61.Nozzle Вимкненоset</string>
-
-
-
-
-	<string name="str_textview_param62">62.Warm limit</string>
-
-
-	<string name="str_textview_param63">63.Warming</string>
-
-
-
-	<string name="str_textview_param64">64.User APK</string>
-
-
-	<string name="str_textview_param65">65.Slant2</string>
-	<string name="str_textview_param66">66.ADJ2</string>
-
-	<string name="str_textview_param67">67.ENC Filter</string>
-
-
-
-	<string name="str_textview_param68">68.ENC Dir</string>
-
-
-
-	<string name="str_textview_param69">69.Sub Step</string>
-
-
-	<string name="str_textview_param70">70.Fast Друк</string>
-
-
-	<string name="str_textview_param71">71.Easy mode</string>
-
-
-
-	<string name="str_textview_param72">72.PC FIFO</string>
-
-
-
-	<string name="str_textview_param73">73.LCD Inverse</string>
-
-
-
-	<string name="str_textview_param74">74.AD</string>
-
-
-
-	<string name="str_textview_param75">75.Feedback</string>
-
-
-
-	<string name="str_textview_param76">76.S2-Times</string>
-
-
-
-	<string name="str_textview_param77">77.22MM Nozzle</string>
-
-
-
-	<string name="str_textview_param78">78.Air pressure</string>
-
-
-
-	<string name="str_textview_param79">79.Bluetooth</string>
-
-	<string name="str_textview_param80">80.PumpCircu</string>
-
-
-	<string name="str_textview_param81">81.Circulation</string>
-
-
-
-	<string name="str_textview_param82">82.IDS pressure</string>
-
-	<string name="str_textview_param83">83.Reserved</string>
-	<string name="str_textview_param84">84.Reserved</string>
-	<string name="str_textview_param85">85.Reserved</string>
-	<string name="str_textview_param86">86.Reserved</string>
-	<string name="str_textview_param87">87.Reserved</string>
-	<string name="str_textview_param88">88.Reserved</string>
-	<string name="str_textview_param89">89.Reserved</string>
-	<string name="str_textview_param90">90.Reserved</string>
-	<string name="str_textview_param91">91.Reserved</string>
-	<string name="str_textview_param92">92.Reserved</string>
-	<string name="str_textview_param93">93.Reserved</string>
-	<string name="str_textview_param94">94.Reserved</string>
-	<string name="str_textview_param95">95.Reserved</string>
-	<string name="str_textview_param96">96.Reserved</string>
-
-	<string name="str_btn_settings_sync">Ok</string>
-
-	<string name="str_time_unit_0_1v">0.1V</string>
-	<string name="str_length_unit_mm">mm</string>
+	<string name="str_textview_param7">07. Повторний друк</string>
+	<string name="str_textview_param8">08. Вибір сопла</string>
+	<string name="str_textview_param9">09. Діаметр колеса</string>
+	<string name="str_textview_param10">10. Імпульси енкодера (PPR)</string>
+	<string name="str_textview_param11">11. Зміщення гол. 1</string>
+	<string name="str_textview_param12">12. Зміщення гол. 2</string>
+	<string name="str_textview_param13">13. Дзеркально гол. 1</string>
+	<string name="str_textview_param14">14. Дзеркально гол. 2</string>
+	<string name="str_textview_param15">15. Інверсія гол. 1</string>
+	<string name="str_textview_param16">16. Інверсія гол. 2</string>
+	<string name="str_textview_param17">17. Затримка дати</string>
+
+<string name="str_textview_param18">18. Очищення в нуль</string>
+
+	<string name="str_textview_param19">19. Зміщення гол. 3</string>
+	<string name="str_textview_param20">20. Зміщення гол. 4</string>
+	<string name="str_textview_param21">21. Дзеркально гол. 3</string>
+	<string name="str_textview_param22">22. Дзеркально гол. 4</string>
+	<string name="str_textview_param23">23. Інверсія гол. 3</string>
+	<string name="str_textview_param24">24. Інверсія гол. 4</string>
+	<string name="str_textview_param25">25. Авто-напруга</string>
+	<string name="str_textview_param26">26. Налашт. напруги</string>
+	<string name="str_textview_param27">27. Авто-імпульс</string>
+	<string name="str_textview_param28">28. Налашт. імпульсу</string>
+	<string name="str_textview_param29">29. Підтримка зволоження</string>
+	<string name="str_textview_param30">30. Фільтр фотоел.</string>
+	<string name="str_textview_param31">31. Тип</string>
+	<string name="str_textview_param32">32. Скидання лічил.</string>
+	<string name="str_textview_param33">33. Розмір крапки</string>
+	<string name="str_textview_param34">34. PWML</string>
+	<string name="str_textview_param35">35. STR</string>
+	<string name="str_textview_param36">36. Нахил</string>
+	<string name="str_textview_param37">37. PWMH</string>
+	<string name="str_textview_param38">38. Один для всіх</string>
+<string name="str_textview_param39">39. Джерело даних</string>
+<string name="str_textview_param40">40. Звуковий сигнал</string>
+<string name="str_repeat_times">41. Кількість разів</string>
+<string name="str_textview_param42">42. При друкуванні</string>
+	<string name="str_textview_param43">43. Головки</string>
+	<string name="str_textview_param44">44. Яскравість</string>
+	<string name="str_textview_param45">45. Лічильник0</string>
+	<string name="str_textview_param46">46. Лічильник1</string>
+	<string name="str_textview_param47">47. Лічильник2</string>
+	<string name="str_textview_param48">48. Лічильник3</string>
+	<string name="str_textview_param49">49. Лічильник4</string>
+	<string name="str_textview_param50">50. Лічильник5</string>
+	<string name="str_textview_param51">51. Лічильник6</string>
+	<string name="str_textview_param52">52. Лічильник7</string>
+	<string name="str_textview_param53">53. Лічильник8</string>
+	<string name="str_textview_param54">54. Лічильник9</string>
+	<string name="str_textview_param55">55. Індекс QR</string>
+	<string name="str_textview_param56">56. FIFO</string>
+	<string name="str_textview_param57">57. Вхід</string>
+	<string name="str_textview_param58">58. IP принтера</string>
+<string name="str_textview_param59">59. Коеф. ширини</string>
+<string name="str_textview_param60">60. Журнал</string>
+<string name="str_textview_param61">61. Зміщення сопел</string>
+<string name="str_textview_param62">62. Ліміт підігріву</string>
+<string name="str_textview_param63">63. Підігрів</string>
+<string name="str_textview_param64">64. APK користувача</string>
+<string name="str_textview_param65">65. Нахил2</string>
+	<string name="str_textview_param66">66. Налашт2</string>
+<string name="str_textview_param67">67. Фільтр енкодера</string>
+<string name="str_textview_param68">68. Напрям. енкодера</string>
+<string name="str_textview_param69">69. Мікрокрок</string>
+<string name="str_textview_param70">70. Швидкий друк</string>
+<string name="str_textview_param71">71. Простий режим</string>
+<string name="str_textview_param72">72. FIFO ПК</string>
+<string name="str_textview_param73">73. Інверсія РК-дисплею</string>
+<string name="str_textview_param74">74. AD</string>
+<string name="str_textview_param75">75. Зворотний зв\'язок</string>
+<string name="str_textview_param76">76. Кільк.-S2</string>
+<string name="str_textview_param77">77. Головка 22MM</string>
+<string name="str_textview_param78">78. Тиск повітря</string>
+<string name="str_textview_param79">79. Bluetooth</string>
+<string name="str_textview_param80">80. Циркуляція насоса</string>
+<string name="str_textview_param81">81. Циркуляція</string>
+<string name="str_textview_param82">82. Тиск IDS</string>
+<string name="str_textview_param83">83. Зарезервовано</string>
+	<string name="str_textview_param84">84. Зарезервовано</string>
+	<string name="str_textview_param85">85. Зарезервовано</string>
+	<string name="str_textview_param86">86. Зарезервовано</string>
+	<string name="str_textview_param87">87. Зарезервовано</string>
+	<string name="str_textview_param88">88. Зарезервовано</string>
+	<string name="str_textview_param89">89. Зарезервовано</string>
+	<string name="str_textview_param90">90. Зарезервовано</string>
+	<string name="str_textview_param91">91. Зарезервовано</string>
+	<string name="str_textview_param92">92. Зарезервовано</string>
+	<string name="str_textview_param93">93. Зарезервовано</string>
+	<string name="str_textview_param94">94. Зарезервовано</string>
+	<string name="str_textview_param95">95. Зарезервовано</string>
+	<string name="str_textview_param96">96. Зарезервовано</string>
+<string name="str_btn_settings_sync">ОК</string>
+
+	<string name="str_time_unit_0_1v">0.1В</string>
+	<string name="str_length_unit_mm">мм</string>
 	<string name="str_length_unit_percentage">%</string>
-	<string name="str_length_unit_6_1mm">1/6mm</string>
-	<string name="str_time_unit_mm">ms</string>
-	<string name="str_time_unit_ms">ms</string>
-	<string name="str_time_unit_s">s</string>
-	<string name="str_time_unit_mm_s">mm/s</string>
-	<string name="str_time_unit_0_1us">0.1us</string>
-	<string name="str_time_unit_us">us</string>
-	<string name="str_time_unit_100us">100us</string>
-	<string name="str_unit_ps">p/s</string>
-	<string name="str_unit_kPa">kPa</string>
-
-	<string name="str_time_unit_min">min</string>
+	<string name="str_length_unit_6_1mm">1/6мм</string>
+	<string name="str_time_unit_mm">мс</string>
+	<string name="str_time_unit_ms">мс</string>
+	<string name="str_time_unit_s">с</string>
+	<string name="str_time_unit_mm_s">мм/с</string>
+	<string name="str_time_unit_0_1us">0.1мкс</string>
+	<string name="str_time_unit_us">мкс</string>
+	<string name="str_time_unit_100us">100мкс</string>
+	<string name="str_unit_ps">к/с</string>
+	<string name="str_unit_kPa">кПа</string>
+<string name="str_time_unit_min">хв</string>
 	<string name="str_temperature">℃</string>
-
-	<string name="str_setting_time">Clock</string>
+<string name="str_setting_time">Годинник</string>
 	<string name="str_system_setting">Налаштування</string>
-	<string name="str_upgrade_progress">system upgrading....</string>
+	<string name="str_upgrade_progress">система оновлюється....</string>
 	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
-	<string name="str_toast_ink_unvalid">Чорнило dot outlevel,set to default：800</string>
-	<string name="str_toast_photoelectricity_delay">Photoelectricity high delay out level set to default:100</string>
-	<string name="str_toast_photoelectricity_antishake">Photoelectricity anti shake out level set to default:20</string>
-	<string name="str_toast_timingprint">Timing print out level, set to default:1000</string>
+	<string name="str_toast_ink_unvalid">Рівень краплі чорнила вийшов за межі, встановлено за замовчуванням: 800</string>
+	<string name="str_toast_photoelectricity_delay">Затримка фотоелемента вийшла за межі, встановлено за замовчуванням: 100</string>
+	<string name="str_toast_photoelectricity_antishake">Антитремтіння фотоелемента вийшло за межі, встановлено за замовчуванням: 20</string>
+	<string name="str_toast_timingprint">Таймінг друку вийшов за межі, встановлено за замовчуванням: 1000</string>
 
-
-	<string name="str_edit_btn_insert">Insert</string>
-	<string name="str_edit_btn_temp1">Temp1</string>
-	<string name="str_edit_btn_temp2">Temp2</string>
-	<string name="str_edit_btn_temp3">Temp3</string>
-	<string name="str_edit_btn_temp4">Temp4</string>
-	<string name="str_edit_btn_temp5">Temp5</string>
+<string name="str_edit_btn_insert">Вставити</string>
+	<string name="str_edit_btn_temp1">Шабл1</string>
+	<string name="str_edit_btn_temp2">Шабл2</string>
+	<string name="str_edit_btn_temp3">Шабл3</string>
+	<string name="str_edit_btn_temp4">Шабл4</string>
+	<string name="str_edit_btn_temp5">Шабл5</string>
 	
-	<string name="str_edit_line1">1st Лінія:</string>
-	<string name="str_edit_line2">2nd Лінія:</string>
-	<string name="str_edit_line3">3rd Лінія:</string>
-	<string name="str_edit_line4">4th Лінія:</string>
+	<string name="str_edit_line1">1-й рядок:</string>
+	<string name="str_edit_line2">2-й рядок:</string>
+	<string name="str_edit_line3">3-й рядок:</string>
+	<string name="str_edit_line4">4-й рядок:</string>
 	
-	<string name="str_notice_save">please input message name:</string>
-	<string name="str_notice_no_objects">No Object for save!</string>
-	<string name="str_file_title">Message：</string>
-	<string name="str_file_hint">file name</string>
-	<string name="str_page_prev">PageUp</string>
-	<string name="str_page_next">PageDown</string>
-	<string name="str_filename_no">New</string>
+	<string name="str_notice_save">будь ласка, введіть назву повідомлення:</string>
+	<string name="str_notice_no_objects">Немає об\'єкта для збереження!</string>
+	<string name="str_file_title">Повідомлення:</string>
+	<string name="str_file_hint">назва файлу</string>
+	<string name="str_page_prev">Вгору стор.</string>
+	<string name="str_page_next">Вниз стор.</string>
+	<string name="str_filename_no">Новий</string>
 	<string name="str_btn_back">Назад</string>
-	<string name="str_btn_up">Up</string>
-	<string name="str_btn_detail">Set</string>
-	<string name="cursor">Cursor</string>
-
-	<string name="str_dialog_msgnote">请选择信息行数：</string>
+	<string name="str_btn_up">Вгору</string>
+	<string name="str_btn_detail">Встанов.</string>
+	<string name="cursor">Курсор</string>
+<string name="str_dialog_msgnote">Будь ласка, оберіть кількість рядків повідомлення:</string>
 
 	
-	<string name="str_no_upgrade">Already the last Version right now</string>
+	<string name="str_no_upgrade">Наразі встановлено останню версію</string>
 	
-	<string name="str_cnt_min">Запуск</string>
-	<string name="str_cnt_max">End</string>
+	<string name="str_cnt_min">Початок</string>
+	<string name="str_cnt_max">Кінець</string>
 	<string name="str_cnt_index">CID</string>
-	<string name="str_cnt_steplen">Step-Len</string>
-	<string name="str_loading">loading...</string>
+	<string name="str_cnt_steplen">Крок</string>
+	<string name="str_loading">завантаження...</string>
 	
-	<string name="str_toast_no_qrfile">no QR.txt or QR.csv</string>
-	<string name="str_barcode_end">Штрихкод file is end</string>
-	<string name="str_recover_print">recover last print</string>
+	<string name="str_toast_no_qrfile">немає QR.txt або QR.csv</string>
+	<string name="str_barcode_end">Файл штрих-коду завершився</string>
+	<string name="str_recover_print">відновити останній друк</string>
 	
 	<string name="str_net_devname">Пристрій</string>
-	<string name="str_net_ipaddr">IP addr</string>
-	<string name="str_net_stat">State</string>
-	<string name="all_print">All Друк</string>
-	<string name="all_purge">All Purge</string>
-	<string name="all_stop">All Зупинка</string>
+	<string name="str_net_ipaddr">IP-адреса</string>
+	<string name="str_net_stat">Стан</string>
+	<string name="all_print">Друк усе</string>
+	<string name="all_purge">Продути усе</string>
+	<string name="all_stop">Зупинити усе</string>
 	<string name="str_F1">F1</string>
-	<string name="str_F2">Scan Пристрій</string>
+	<string name="str_F2">Сканувати пристрій</string>
 	<string name="str_net_back">Назад</string>
 	<string name="str_net_query">Запит</string>
 	<string name="str_net_device">Пристрій:</string>
 	
-	<string name="str_net_device_times">Times:</string>
+	<string name="str_net_device_times">К-ть разів:</string>
 	<string name="str_net_one">1</string>
 	<string name="str_net_hundred">100</string>
 	<string name="str_net_thousand">1000</string>
 	<string name="str_net_connect">Підключити</string>
-	<string name="str_net_tips">Hint</string>
-	<string name="str_net_textview">ТекстView</string>
+	<string name="str_net_tips">Підказка</string>
+	<string name="str_net_textview">Текст</string>
 	<string name="str_net_ipdefault">192.168.1.101</string>
 
 	<string name="str_quit">Вийти</string>
-	<string name="str_quit_confirm">Підтвердити to quit</string>
+	<string name="str_quit_confirm">Підтвердити вихід</string>
 
-	<string name="str_tip_nothing">~ There is no picture !!!</string>
-	<string name="str_no_permission">Permission denied for access the files</string>
+	<string name="str_tip_nothing">~ Немає зображення !!!</string>
+	<string name="str_no_permission">Відмовлено в доступі до файлів</string>
 	
-	<string name="str_message_tips">Message %s already exist, overwrite it?</string>
+	<string name="str_message_tips">Повідомлення %s вже існує, перезаписати його?</string>
 	
-	<string name="str_flush_tips">Will Overwrite the settings, Підтвердити?</string>
+	<string name="str_flush_tips">Налаштування будуть перезаписані. Підтвердити?</string>
 	
-	<string name="str_build_tlk_start">start building tlk... </string>
-	<string name="str_prepared">TLK parse success!!!</string>
-	<string name="str_prepare_fail">TLK parse failed!!!</string>
-	<string name="str_build_tlk_ok">build TLK success</string>
-	<string name="str_build_tlk_fail">build TLK failed</string>
+	<string name="str_build_tlk_start">початок створення tlk... </string>
+	<string name="str_prepared">Синтаксичний аналіз TLK успішний!!!</string>
+	<string name="str_prepare_fail">Помилка синтаксичного аналізу TLK!!!</string>
+	<string name="str_build_tlk_ok">створення TLK успішне</string>
+	<string name="str_build_tlk_fail">помилка створення TLK</string>
 	
-	<string name="str_tlk_opening">tlk parsing...</string>
-	<string name="str_print_thread_create_err">print thread creation failed...</string>
-	<string name="str_tlk_not_found">1.TLK not found</string>
+	<string name="str_tlk_opening">аналіз tlk...</string>
+	<string name="str_print_thread_create_err">помилка створення потоку друку...</string>
+	<string name="str_tlk_not_found">1. TLK не знайдено</string>
 	
-	<string name="password_title">Please Enter Password</string>
+	<string name="password_title">Будь ласка, введіть пароль</string>
 	
-	
-	<string name="toast_save_success">Зберегти Success</string>
-	<string name="toast_plug_usb">Please plugin a USB device</string>
-	<string name="toast_usb_inserted">USB device inserted</string>
-	<string name="toast_passwd_error">password chech fail!!!</string>
-	<string name="toast_content_empty">Content shouldn`t be empty</string>
-	<string name="toast_rfid_changed">Rfid changed</string>
+	<string name="toast_save_success">Успішно збережено</string>
+	<string name="toast_plug_usb">Будь ласка, підключіть USB-пристрій</string>
+	<string name="toast_usb_inserted">USB-пристрій підключено</string>
+	<string name="toast_passwd_error">помилка перевірки пароля!!!</string>
+	<string name="toast_content_empty">Вміст не повинен бути порожнім</string>
+	<string name="toast_rfid_changed">Rfid змінено</string>
 
-	<string name="tips_import_msp">Import</string>
-	<string name="tips_import">Import</string>
-	<string name="tips_import_message">Importing messages</string>
-	<string name="tips_import_resource">Importing resources</string>
-	<string name="tips_import_sysconf">Importing System configs</string>
-	<string name="tips_import_font">Importing font library</string>
+	<string name="tips_import_msp">Імпорт</string>
+	<string name="tips_import">Імпорт</string>
+	<string name="tips_import_message">Імпортування повідомлень</string>
+	<string name="tips_import_resource">Імпортування ресурсів</string>
+	<string name="tips_import_sysconf">Імпортування системних налаштувань</string>
+	<string name="tips_import_font">Імпортування бібліотеки шрифтів</string>
 	
-	<string name="tips_export_message">Exporting messages</string>
-	<string name="tips_export_sysconf">Exporting System configs</string>
-	<string name="tips_export_resource">Exporting resources</string>
+	<string name="tips_export_message">Експортування повідомлень</string>
+	<string name="tips_export_sysconf">Експортування системних налаштувань</string>
+	<string name="tips_export_resource">Експортування ресурсів</string>
 	
 
-	<string name="message_confirm_printnext">Sure for changing message?</string>
-	<string name="str_net_number">Number</string>
-	<string name="str_net_counts">Counts</string>
+	<string name="message_confirm_printnext">Впевнені, що бажаєте змінити повідомлення?</string>
+	<string name="str_net_number">Номер</string>
+	<string name="str_net_counts">Кількість</string>
 	<string name="str_net_int">Чорнило</string>
-	<string name="str_net_commands">Command</string>
+	<string name="str_net_commands">Команда</string>
 
-	<string name="invalid_message">Invalid Message</string>
-	<string name="invalid_code">Invalid Code</string>
-	<string name="invalid_protocol">Invalid Protocol</string>
-	<string name="decoding">Decoding...</string>
+	<string name="invalid_message">Недійсне повідомлення</string>
+	<string name="invalid_code">Недійсний код</string>
+	<string name="invalid_protocol">Недійсний протокол</string>
+	<string name="decoding">Декодування...</string>
 
-	<string name="printDpiNotMatchError">Друк DPI not match, please modify the message and try it again.</string>
+	<string name="printDpiNotMatchError">DPI друку не збігається, будь ласка, змініть повідомлення та спробуйте ще раз.</string>
+<string name="strNotice">Сповіщення</string>
+	<string name="strQuickGroupPrompt">Повідомлення буде збережено як Швидка група</string>
+<string name="strImportUG"><u>Імпорт ГК</u></string>
+<string name="strExportLog"><u>Журнал</u></string>
 
-	<string name="strNotice">Notice</string>
-	<string name="strQuickGroupPrompt">The message will be saved as Quick Група</string>
-
-
-	<string name="strImportUG"><u>Import UG</u></string>
-
-	<string name="strExportLog"><u>Log</u></string>
-
-
-	<string name="strTxtDtFile">File</string>
-	<string name="strTxtDtFileHint">Click to select a file</string>
-	<string name="strTxtDtLines">Лініяs:</string>
-	<string name="strTxtDtFrom">From</string>
-	<string name="strTxtDtTo">To</string>
-	<string name="strTxtDtCur">Cur</string>
-	<string name="strTxtDtRpt">Rpt</string>
-	<string name="strTxtDtCir">Cir</string>
-
-	<string name="strLevelLow">Level Low</string>
-	<string name="strSolventLow">Solvent Low</string>
-
-	<string name="strBackupThenRefresh">Назадup then clear data</string>
-	<string name="strDirectRefresh">Direct clearup</string>
-	<string name="strContinueStartup">Continue to startup</string>
-	<string name="strStartDlgComment">It will continue startup if no operation occurs in 15 seconds.</string>
-
-	<string name="str_test_main_printer_with_bag">Друкer with Bag</string>
-	<string name="str_test_main_bulk_printer">Bulk Друкer</string>
-	<string name="str_test_main_al_printer">AL Друкer</string>
+<string name="strTxtDtFile">Файл</string>
+	<string name="strTxtDtFileHint">Натисніть, щоб вибрати файл</string>
+	<string name="strTxtDtLines">Рядки:</string>
+	<string name="strTxtDtFrom">Від</string>
+	<string name="strTxtDtTo">До</string>
+	<string name="strTxtDtCur">Поточн</string>
+	<string name="strTxtDtRpt">Повт</string>
+	<string name="strTxtDtCir">Цикл</string>
+<string name="strLevelLow">Низький рівень</string>
+	<string name="strSolventLow">Низький рівень розчинника</string>
+<string name="strBackupThenRefresh">Резервна копія, потім очистити</string>
+	<string name="strDirectRefresh">Пряме очищення</string>
+	<string name="strContinueStartup">Продовжити запуск</string>
+	<string name="strStartDlgComment">Запуск продовжиться, якщо не буде виконано жодних дій протягом 15 секунд.</string>
+<string name="str_test_main_printer_with_bag">Принтер з пакетом</string>
+	<string name="str_test_main_bulk_printer">Магістральний принтер</string>
+	<string name="str_test_main_al_printer">Принтер AL</string>
 	<string name="str_test_main_save_100">Зберегти Test001</string>
-	<string name="str_test_print_data_creation">Друк Data Creation Test</string>
-	<string name="str_test_main_m9_test">M9 Test</string>
+	<string name="str_test_print_data_creation">Тест створення даних для друку</string>
+	<string name="str_test_main_m9_test">Тест M9</string>
 	<string name="str_m9_test_gpio">GPIO</string>
-	<string name="str_m9_test_clear_gpio">Clear GPIO</string>
-	<string name="str_m9_test_net">Network</string>
-	<string name="str_m9_test_serial">Serial</string>
+	<string name="str_m9_test_clear_gpio">Очистити GPIO</string>
+	<string name="str_m9_test_net">Мережа</string>
+	<string name="str_m9_test_serial">Серійний порт</string>
 	<string name="str_m9_test_rfid">RFID</string>
-	<string name="str_m9_test_phoenc">PHO ENC Test</string>
-	<string name="str_m9_test_9555A">9555A Test</string>
-	<string name="str_m9_test_update_fpga">UPD FPGA</string>
-	<string name="str_m9_test_update_kos">UPD KOs</string>
-	<string name="str_m9_test_upgrade_ime">UPD IME</string>
-	<string name="str_m9_test_1click_all">Total Test</string>
-	<string name="str_m9_test_init">Init</string>
-	<string name="str_m9_test_import">Import</string>
+	<string name="str_m9_test_phoenc">Тест фотоел/енкодера</string>
+	<string name="str_m9_test_9555A">Тест 9555A</string>
+	<string name="str_m9_test_update_fpga">Оновл. FPGA</string>
+	<string name="str_m9_test_update_kos">Оновл. KO</string>
+	<string name="str_m9_test_upgrade_ime">Оновл. IME</string>
+	<string name="str_m9_test_1click_all">Повний тест</string>
+	<string name="str_m9_test_init">Ініц</string>
+	<string name="str_m9_test_import">Імпорт</string>
 	<string name="str_m9_test_counter">Лічильник</string>
-	<string name="str_m9_test_time">Time</string>
+	<string name="str_m9_test_time">Час</string>
 	<string name="str_m9_test_rfid_0">RFID-0</string>
 	<string name="str_m9_test_rfid_1">RFID-1</string>
 	<string name="str_m9_test_rfid_2">RFID-2</string>
@@ -774,24 +633,18 @@
 	<string name="str_m9_test_m7">M7</string>
 	<string name="str_m9_test_m9">M9</string>
 	<string name="str_m9_test_makro">MAKRO</string>
-	<string name="str_m9_test_m7bag">M7 BAG</string>
-
-
-
-	<string name="str_ink_modle_error">Чорнило model error</string>
-	<string name="str_cleaner_purging">Cleaner purging</string>
-	<string name="str_cleaner_done">Cleaning done, shutdown</string>
-
-
-	<string name="str_login_prompt">User Login</string>
-	<string name="str_user_number">User Number</string>
-	<string name="str_password">Password</string>
-	<string name="str_remember_pw">Remember password</string>
-	<string name="str_login">Login</string>
+	<string name="str_m9_test_m7bag">ПАКЕТ M7</string>
+<string name="str_ink_modle_error">Помилка моделі чорнила</string>
+	<string name="str_cleaner_purging">Промивання очисника</string>
+	<string name="str_cleaner_done">Очищення завершено, вимкнення</string>
+<string name="str_login_prompt">Вхід користувача</string>
+	<string name="str_user_number">Номер користувача</string>
+	<string name="str_password">Пароль</string>
+	<string name="str_remember_pw">Запам\'ятати пароль</string>
+	<string name="str_login">Увійти</string>
 	<string name="str_confirm">Підтвердити</string>
-	<string name="str_current">Current</string>
-	<string name="str_error_user_empty">User number empty!</string>
-	<string name="str_error_pw_empty">Password empty!</string>
-	<string name="str_login_success">Login succeeded</string>
-
+	<string name="str_current">Поточний</string>
+	<string name="str_error_user_empty">Номер користувача порожній!</string>
+	<string name="str_error_pw_empty">Пароль порожній!</string>
+	<string name="str_login_success">Вхід успішний</string>
 </resources>
