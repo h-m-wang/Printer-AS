@@ -39,10 +39,10 @@ public class RTCDevice {
 	private static int I2C_CHECK_VALUE = 0x55;
 	private final String[] ADDRESS = {"0x10", "0x14", "0x18", "0x1C", "0x20", "0x24", "0x28", "0x2C", "0x30", "0x34"};
 // H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
-	private final static String SUB_STEP_REGISTER = "0x3c";
+	private final static String SUB_STEP_REGISTER = "0x0c";		// 2026-3-11 由3C -> 0C
 // End of H.M.Wang 2023-9-20 追加一个读写计数细分值的功能，地址为0x3c
 // H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
-	private final static String QRLAST_REGISTER = "0x38";
+	private final static String QRLAST_REGISTER = "0x08";		// 2026-3-11 由38 -> 08
 // End of H.M.Wang 2020-5-15 QRLast移植RTC的0x38地址保存
 
 	public static RTCDevice mInstance = null;
@@ -119,6 +119,13 @@ public class RTCDevice {
 		ReflectCaller.AlarmManagerSystemClockToHw(context);
 	}
 
+// H.M.Wang 2026-3-12 增加字节单位的读写，以实现一些状态读取及设置
+	private byte mCtrlReg, mSecReg;
+
+    public byte getCtrlReg() {
+        return mCtrlReg;
+    }
+// End of H.M.Wang 2026-3-12 增加字节单位的读写，以实现一些状态读取及设置
 // H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能
 	public long compareRTCvSystemTime() {
 		byte[] data;
@@ -148,12 +155,12 @@ public class RTCDevice {
 			data[4] = (byte) Integer.parseInt(bytes[7].substring(pos + 2), 16);
 			data[5] = (byte) Integer.parseInt(bytes[8].substring(pos + 2), 16);
 			data[6] = (byte) Integer.parseInt(bytes[9].substring(pos + 2), 16);
+			data[7] = (byte) Integer.parseInt(bytes[10].substring(pos + 2), 16);
 		}
+		mSecReg = data[0];
+		mCtrlReg = data[7];
 		Debug.d(TAG, "Read RTC: " + ByteArrayUtils.toHexString(data));
 		Date dateTime1 = new Date(BCD2INT(data[6])+100, BCD2INT(data[5])-1, BCD2INT(data[4]), BCD2INT(data[2]), BCD2INT(data[1]), BCD2INT(data[0]));
-//		Debug.d(TAG, "Read RTC: " + dateTime1.toString());
-		Debug.d(TAG, "Date.getTime(): " + dateTime1.getTime());
-		Debug.d(TAG, "System.currentTimeMillis(): " + System.currentTimeMillis());
 		return Math.abs(System.currentTimeMillis() - dateTime1.getTime());
 	}
 // End of H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能

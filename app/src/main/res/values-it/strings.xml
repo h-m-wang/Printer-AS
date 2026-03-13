@@ -654,4 +654,5 @@
     <string name="str_cleaner_purging">Cleaner purging</string>
     <string name="str_cleaner_done">Cleaning done, shutdown</string>
 <!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+    <string name="str_ask_check_time">Please check time</string>
 </resources>

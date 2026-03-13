@@ -79,7 +79,8 @@ import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.DynamicText;
 import com.industry.printer.object.HyperTextObject;
-import com.industry.printer.ui.CustomerDialog.CntComfirmDialogScanner12;
+import com.industry.printer.ui.CustomerDialog.CntConfirmDialogScanner12;
+import com.industry.printer.ui.CustomerDialog.CntConfirmDialogScanner12;
 import com.industry.printer.ui.CustomerDialog.RemoteMsgPrompt;
 
 import org.apache.http.util.ByteArrayBuffer;
@@ -1160,19 +1161,40 @@ public class DataTransferThread {
 // End of H.M.Wang 2020-10-30 追加扫描2串口协议
 // H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 	private String mScan12LabelStr, mScan12SizeStr;
-	public void setScan12DataToDt(final String data) {
-		Debug.d(TAG, "String from Remote = [" + data + "]");
+	private CntConfirmDialogScanner12 mCntConfirmDialog;
 
-		boolean needUpdate = false;
+	private void setScan12DTData(String label, String size) {
+		SystemConfigFile.getInstance().setDTBuffer(0, label);
+		SystemConfigFile.getInstance().setDTBuffer(1, size);
+		synchronized (DataTransferThread.class) {
+			for (DataTask dataTask : mDataTask) {
+				ArrayList<BaseObject> objList = dataTask.getObjList();
+				for (BaseObject baseObject : objList) {
+					if (baseObject instanceof DynamicText) {
+						int dtIndex = ((DynamicText) baseObject).getDtIndex();
+						if (dtIndex == 0) {
+							baseObject.setContent(label);
+						} else if (dtIndex == 1) {
+							baseObject.setContent(size);
+						} else continue;
+						mNeedUpdate = true;
+					}
+				}
+			}
+		}
+    }
+
+    private boolean parseScan12Data(String data) {
+		boolean ret = false;
 
 		// 先把所有标签的位置找出来
 		int[] keyPos = new int[6];
-		keyPos[0] = data.indexOf("牌号:");
-		keyPos[1] = data.indexOf("规格:");
-		keyPos[2] = data.indexOf("标准:");
-		keyPos[3] = data.indexOf("重量:");
-		keyPos[4] = data.indexOf("检验号:");
-		keyPos[5] = data.indexOf("日期:");
+		keyPos[0] = data.indexOf("牌号");
+		keyPos[1] = data.indexOf("规格");
+		keyPos[2] = data.indexOf("标准");
+		keyPos[3] = data.indexOf("重量");
+		keyPos[4] = data.indexOf("检验号");
+		keyPos[5] = data.indexOf("日期");
 
 		// 然后提取牌号和规格的内容
 		mScan12LabelStr = "";
@@ -1186,48 +1208,64 @@ public class DataTransferThread {
 			}
 			if(nextPos > 0 && nextPos > keyPos[0] + "牌号:".length()) {
 				mScan12LabelStr = data.substring(keyPos[0] + "牌号:".length(), nextPos);
+				ret = true;
 			}
 		}
 
 		if(keyPos[1] > 0) {
-            int nextPos = -1;
-            for(int i=0; i<keyPos.length; i++) {
-                if(keyPos[i] < 0) continue;			// 待检测位置的标签没有找到，则跳过
-                if(nextPos == -1 && keyPos[i] > keyPos[1]) nextPos = keyPos[i];	// 如果当前的下位最近位置还没有开始找，则使用当前待检测位置
-                if(keyPos[i] > keyPos[1] && keyPos[i] < nextPos) nextPos = keyPos[i];		// 发现距离当前标签更近的后续标签则采用
-            }
-            if(nextPos > 0 && nextPos > keyPos[1] + "规格:".length()) {
+			int nextPos = -1;
+			for(int i=0; i<keyPos.length; i++) {
+				if(keyPos[i] < 0) continue;			// 待检测位置的标签没有找到，则跳过
+				if(nextPos == -1 && keyPos[i] > keyPos[1]) nextPos = keyPos[i];	// 如果当前的下位最近位置还没有开始找，则使用当前待检测位置
+				if(keyPos[i] > keyPos[1] && keyPos[i] < nextPos) nextPos = keyPos[i];		// 发现距离当前标签更近的后续标签则采用
+			}
+			if(nextPos > 0 && nextPos > keyPos[1] + "规格:".length()) {
 				mScan12SizeStr = data.substring(keyPos[1] + "规格:".length(), nextPos);
-            }
+				if(mScan12SizeStr.startsWith("(T)")) mScan12SizeStr = mScan12SizeStr.substring(3);		// 去掉线头的(T)
+				ret = true;
+			}
 		}
+
+		setScan12DTData(mScan12LabelStr, mScan12SizeStr);
+		return ret;
+	}
+
+	public void setScan12DataToDt(final String data) {
+		Debug.d(TAG, "String from Remote = [" + data + "]");
+
+		boolean needUpdate = false;
+
+		mScan12LabelStr = "";
+		mScan12SizeStr = "";
+		parseScan12Data(data);
 
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				CntComfirmDialogScanner12 dialog = new CntComfirmDialogScanner12(mContext, mScan12LabelStr, mScan12SizeStr, new CntComfirmDialogScanner12.ConfirmListener() {
-					@Override
-					public void onConfirmed(String label, String size) {
-						SystemConfigFile.getInstance().setDTBuffer(0, label);
-						SystemConfigFile.getInstance().setDTBuffer(1, size);
-						synchronized (DataTransferThread.class) {
-							for (DataTask dataTask : mDataTask) {
-								ArrayList<BaseObject> objList = dataTask.getObjList();
-								for (BaseObject baseObject : objList) {
-									if (baseObject instanceof DynamicText) {
-										int dtIndex = ((DynamicText) baseObject).getDtIndex();
-										if (dtIndex == 0) {
-											baseObject.setContent(label);
-										} else if (dtIndex == 1) {
-											baseObject.setContent(size);
-										} else continue;
-										mNeedUpdate = true;
-									}
+				if(null == mCntConfirmDialog) {
+					mCntConfirmDialog = new CntConfirmDialogScanner12(mContext, new CntConfirmDialogScanner12.ConfirmListener() {
+						@Override
+						public void onConfirmed(String label, String size) {
+							setScan12DTData(label, size);
+						}
+					});
+					mCntConfirmDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+						@Override
+						public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+							if(event.getAction() == KeyEvent.ACTION_DOWN) {
+								if(keyCode == KeyEvent.KEYCODE_ENTER) {
+									return true;
+								} else {
+									BarcodeScanParser.append(keyCode, event.isShiftPressed());
 								}
 							}
+							return false;
 						}
-					}
-				});
-				dialog.show();
+					});
+				}
+				if(!mCntConfirmDialog.isShowing()) mCntConfirmDialog.show();
+				mCntConfirmDialog.setLabelStr(mScan12LabelStr);
+				mCntConfirmDialog.setSizeStr(mScan12SizeStr);
 			}
 		});
 	}
@@ -1969,6 +2007,7 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12) {
 					String datastring = new String(data, 0, data.length);
+					mCntConfirmDialog = null;
 					setScan12DataToDt(datastring);
 // End of H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 // H.M.Wang 2021-1-15 追加扫描协议3，协议内容与扫描2协议完全一致，仅在打印的时候，仅可以打印一次
@@ -2201,6 +2240,11 @@ private void setSerialProtocol9DTs(final String data) {
 
 	public void finish() {
 		mRunning = false;
+
+		if(null != mCntConfirmDialog) {
+			mCntConfirmDialog.dismiss();
+			mCntConfirmDialog = null;
+		}
 
 		while(!mStopped) {try {Thread.sleep(1);} catch(Exception e){}}
 

@@ -141,6 +141,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	private static final String TAG = ControlTabActivity.class.getSimpleName();
@@ -1193,6 +1194,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						} catch (Exception e) {
 							Debug.e(TAG, e.getMessage());
 						}
+						rtcDevice.syncSystemTimeToRTC(mContext);
+					}
+					if((rtcDevice.getCtrlReg() & 0x20) != 0x00) {
+						ToastUtil.show(mContext, R.string.str_ask_check_time);
 					}
 				}
 // End of H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警

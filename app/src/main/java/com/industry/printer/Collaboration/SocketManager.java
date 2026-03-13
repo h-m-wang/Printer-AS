@@ -3,9 +3,17 @@ package com.industry.printer.Collaboration;
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.MainActivity;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.hardware.RTCDevice;
 
+import org.bouncycastle.util.Arrays;
+
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -64,8 +72,11 @@ public class SocketManager {
         return null;
     }
 
+    private final String HelloKitty = "Hello Kitty";
+
     private List<Socket> connectToServers() {
         List<String> serverCandidates = scanAllDevices();
+        final List<Socket> sockets = new ArrayList<Socket>();
         if(null != serverCandidates) {
             ExecutorService executor = Executors.newFixedThreadPool(20);
 
@@ -75,14 +86,27 @@ public class SocketManager {
                     public void run() {
                         try {
                             Socket socket = new Socket();
-                            socket.connect(new InetSocketAddress(server, PORT),500);
+                            socket.setSoTimeout(2000);
+                            socket.connect(new InetSocketAddress(server, PORT),3000);
+                            if(socket != null && socket.isConnected()) {
+                                StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
+                                st.writeLine(HelloKitty);
+                                String recv = st.readLine();
+                                if (HelloKitty.equals(recv)) {
+                                    synchronized (sockets) {
+                                        sockets.add(socket);
+                                    }
+                                }
+                            }
                         } catch (IOException e) {
+                            e.printStackTrace();
                         } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 });
             }
         }
-        return null;
+        return sockets;
     }
 }

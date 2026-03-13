@@ -763,4 +763,5 @@
 	<string name="str_error_pw_empty">密码不能为空</string>
 	<string name="str_login_success">登录成功</string>
 <!-- End of H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+	<string name="str_ask_check_time">请检查时间</string>
 </resources>

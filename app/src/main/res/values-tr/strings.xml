@@ -593,4 +593,5 @@ Kaydet</string>
     <string name="str_ink_modle_error">Mürekkep modeli hatası</string>
     <string name="str_cleaner_purging">Cleaner purging</string>
     <string name="str_cleaner_done">Cleaning done, shutdown</string>
-    </resources>
+    <string name="str_ask_check_time">Please check time</string>
+</resources>

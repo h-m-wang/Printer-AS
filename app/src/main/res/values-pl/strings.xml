@@ -801,4 +801,5 @@
 	<string name="str_error_pw_empty">Hasło jest puste!</string>
 	<string name="str_login_success">Zalogowano pomyślnie</string>
 <!-- End of H.M.Wang 2026-2-2 宝桥功能特需字符串 -->
+	<string name="str_ask_check_time">Please check time</string>
 </resources>

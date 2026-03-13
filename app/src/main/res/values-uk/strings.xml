@@ -647,4 +647,5 @@
 	<string name="str_error_user_empty">Номер користувача порожній!</string>
 	<string name="str_error_pw_empty">Пароль порожній!</string>
 	<string name="str_login_success">Вхід успішний</string>
+	<string name="str_ask_check_time">Please check time</string>
 </resources>

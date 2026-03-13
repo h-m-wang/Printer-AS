@@ -150,7 +150,12 @@ public class BarcodeScanParser {
 
     private static OnScanCodeListener mCodeListener = null;
 
+    private static boolean isAcceptableCode(int keyCode) {
+        return (mMapShiftPressed.containsKey(keyCode) || mMapShiftUnPressed.containsKey(keyCode));
+    }
+
     public static void append(int keyCode, boolean shiftPressed) {
+        if(!BarcodeScanParser.isAcceptableCode(keyCode)) return;
         synchronized(BarcodeScanParser.class) {
             long currency = System.currentTimeMillis();
 //            if (currency - mLast > 200) {
@@ -247,6 +252,11 @@ public class BarcodeScanParser {
             parseCode();
         } else
 // End of H.M.Wang 2024-1-12 增加一个扫描协议5，要点： (1) 不做第二位和最后一位的一致性检查；(2)扫描内容按网络协议650的规范，DT0-DT9,BC的格式，分别保存到桶和条码桶中
+// H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
+        if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12) {
+            parseCode();
+        } else
+// End of H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 // H.M.Wan 2024-7-24 为特殊用户修改扫描协议2时的处理，去掉对末尾字符与第二个字符的匹配检查
 //	public static final boolean SCANER2_4_SPECIAL_USE = false;		// 检查字符匹配
         if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER2 && Configs.SCANER2_4_SPECIAL_USE) {

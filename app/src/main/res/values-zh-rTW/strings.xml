@@ -723,4 +723,5 @@
 	<string name="str_cleaner_purging">正在使用清潔液清洗系統</string>
 	<string name="str_cleaner_done">清洗結束，請關機</string>
 <!-- End of H.M.Wang 2025-11-21 增加ink_id相关提示信息 -->
+	<string name="str_ask_check_time">請檢查時間</string>
 </resources>

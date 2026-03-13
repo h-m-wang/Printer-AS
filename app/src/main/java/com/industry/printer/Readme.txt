@@ -1,3 +1,23 @@
+2026-3-13 260313-195600001
+==================
+修改BarcodeScanParser类的append函数，增加判断是否为可接受字符，不是可接受字符直接返回
+
+2026-3-13 260313-195500001
+2026-3-13 260313-195400001
+==================
+完善方大特钢的定制功能，
+扫描后显示识别内容，点击相应的内容会进入改内容的编辑框。点击确定后使得编辑内容生效，并且关闭编辑窗而切换为显示不可编辑的内容。
+
+2026-3-12 260312-195300001
+==================
+a. Avoid write write data near 0x3c to 0x3F. (0x38 -> 0x08, 0x3c -> 0x0c)
+b. read OSF ,  when power on,  if =1, pop up a window to ask user check time (Toast show "Please check time/请检查时间")
+C. during power on,  when write anything in RTC, read time and OSF,  00H bit 7,   if time is different with system time,  write system into RTC.  if time is write, but OSF is 1 or 0x00 bit 7 is 1,   time is right,   then write  00H bit 7 to 0, osf =0
+
+2026-3-12 260312-195200001
+==================
+修改方大特钢的定制功能，扫码枪扫到的内容不检查校验位
+
 2026-3-10 260310-195100001
 2026-3-10 260310-195101001
 ==================
