@@ -1166,6 +1166,7 @@ public class DataTransferThread {
 	private void setScan12DTData(String label, String size) {
 		SystemConfigFile.getInstance().setDTBuffer(0, label);
 		SystemConfigFile.getInstance().setDTBuffer(1, size);
+		mS2Times = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_S2_TIMES);
 		synchronized (DataTransferThread.class) {
 			for (DataTask dataTask : mDataTask) {
 				ArrayList<BaseObject> objList = dataTask.getObjList();
@@ -2007,6 +2008,7 @@ private void setSerialProtocol9DTs(final String data) {
 // H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 				} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12) {
 					String datastring = new String(data, 0, data.length);
+					mS2Times = 0;
 					mCntConfirmDialog = null;
 					setScan12DataToDt(datastring);
 // End of H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
@@ -2072,6 +2074,7 @@ private void setSerialProtocol9DTs(final String data) {
 			});
 // H.M.Wang 2026-3-10 增加一个方大特钢的特殊需求，扫描二维码，从中提取牌号和规格，分别赋值给DT0和DT1
 		} else if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12) {
+			mS2Times = 0;
 			BarcodeScanParser.setListener(new BarcodeScanParser.OnScanCodeListener() {
 				@Override
 				public void onCodeReceived(String code) {
@@ -3616,6 +3619,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 						|| SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
+// H.M.Wang 2026-3-19 新增扫描协议12也控制打印次数
+						|| SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12
+// End of H.M.Wang 2026-3-19 新增扫描协议12也控制打印次数
 					) {
 						if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) > 0) {
 							if(mS2Times == 0) continue;

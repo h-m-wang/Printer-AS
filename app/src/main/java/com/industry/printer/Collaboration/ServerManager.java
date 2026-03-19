@@ -1,9 +1,12 @@
 package com.industry.printer.Collaboration;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StreamTransport;
+import com.industry.printer.pccommand.PCCommandHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -97,6 +100,7 @@ public class ServerManager {
     }
 
     private final String HelloKitty = "Hello Kitty";
+    PCCommandHandler pcCmdHdl;
 
     private void handle(final String msg) {
         try {
@@ -104,6 +108,16 @@ public class ServerManager {
                 StreamTransport st = new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream());
                 st.writeLine(msg + "01");
             }
+            pcCmdHdl = new PCCommandHandler(
+                mContext,
+                new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream()),
+                null,
+                new Handler() {
+                    public void handleMessage(Message msg) {
+                        pcCmdHdl.handleReCreateResult(msg);
+                    }
+                });
+            pcCmdHdl.handle(msg);
         } catch(Exception e) {
             e.printStackTrace();
         }
