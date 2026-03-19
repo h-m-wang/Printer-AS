@@ -732,7 +732,7 @@ public enum PrinterNozzle {
 // H.M.Wang 2026-2-24 增加108mm类型打印头
             case NozzleType.NOZZLE_TYPE_108MM:
                 scaleW = 258f*5/152;
-                scaleH = 516f*5/152;
+                scaleH = 508f*5/152;
                 break;
 // End of H.M.Wang 2026-2-24 增加108mm类型打印头
             default:

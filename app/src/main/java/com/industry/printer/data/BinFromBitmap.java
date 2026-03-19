@@ -108,7 +108,7 @@ public class BinFromBitmap extends BinCreater {
 		if(needShift) {
 			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head, 308, 320);
 		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
-			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head, 516, 544);
+			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 		}
 
 // H.M.Wang 2020-9-10 大字机5x5字体的时候，vbin的全白问题，原来的220阈值有点低，修改为240

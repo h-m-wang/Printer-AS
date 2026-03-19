@@ -1,102 +1,111 @@
 package com.industry.printer.Collaboration;
 
+import android.content.Context;
+
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StreamTransport;
-import com.industry.printer.pccommand.ClientSocket;
-import com.industry.printer.pccommand.PCCommandHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ServerManager {
     private static final String TAG = ServerManager.class.getSimpleName();
 
     private static final int PORT = 4551;           // port number;
+    private Context mContext;
     private boolean mRunning;
-    private Socket mWordingSocket;
-    private StreamTransport mStreamTransport;
+    private ServerSocket mServerSocket;
+    private Socket mWorkingSocket;
+    private ExecutorService mExecutor;
 
-    private void acceptConnection() {
-        mRunning = true;
-        mWordingSocket = null;
-        mStreamTransport = null;
+    public ServerManager(Context ctx) {
+        mContext = ctx;
+        mExecutor = Executors.newFixedThreadPool(3);
+    }
 
-        new Thread(new Runnable() {
+    public void start() {
+        mServerSocket = null;
+        mWorkingSocket = null;
+
+        mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    final ServerSocket serverSocket = new ServerSocket(PORT);
+                    mServerSocket = new ServerSocket(PORT);
+                    mRunning = true;
 
                     while(mRunning) {
                         try {
-                            if(mWordingSocket == null || mWordingSocket.isClosed()) {
-                                mWordingSocket = serverSocket.accept();
-                                mWordingSocket.setSoTimeout(2000);
-                                mStreamTransport = new StreamTransport(mWordingSocket.getInputStream(), mWordingSocket.getOutputStream());
-                            }
+                            Socket socket = mServerSocket.accept();
+                            socket.setSoTimeout(2000);
+                            work(socket);
                         } catch(IOException e) {
-                            Debug.e(TAG, e.getMessage());
+                            e.printStackTrace();
                         }
                         try {Thread.sleep(1000);} catch(Exception e){}
                     }
                 } catch(IOException e) {
-                    Debug.e(TAG, e.getMessage());
+                    e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
-    class ServerThread extends Thread {
-        private static final int PORT = 3550; // port number;
-        private ServerSocket mServerSocket = null; //socket service object
-
-        public ServerThread() {
-            mServerSocket = null;
+    public void close() {
+        mRunning = false;
+        try {
+            if(null != mWorkingSocket && !mWorkingSocket.isClosed()) mWorkingSocket.close();
+            if(null != mServerSocket && !mServerSocket.isClosed()) mServerSocket.close();
+        } catch(IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        public void stopServer(){
+    private void work(final Socket socket) {
+        Debug.i(TAG, "Started to work");
+        if(null != mWorkingSocket && !mWorkingSocket.isClosed()) {
             try {
-                if(null != mServerSocket){
-                    interrupt();
-                    mServerSocket.close();
-                }
-            } catch (IOException e) {
-                Debug.e(TAG, e.getMessage());
+                mWorkingSocket.close();
+            } catch(IOException e) {
+                e.printStackTrace();
             }
         }
+        mWorkingSocket = socket;
 
-        @Override
-        public void run() {
-            try {
-                mServerSocket = new ServerSocket(PORT);
-            } catch (IOException e) {
-                Debug.e(TAG, e.getMessage());
-                return;
-            }
-
-            Socket client;
-
-            while(!isInterrupted()) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    client = mServerSocket.accept();
-                    client.setSoTimeout(2 * 1000);
-                    //client.setSoTimeout(5000);
-/*
-                    if(null != mSocketHandler) {
-                        mSocketHandler.close();
+                    StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
+                    while(!socket.isClosed()) {
+                        String cmd = st.readLine();
+                        if(null != cmd) {       // 连接还在
+                            if(!cmd.isEmpty()) handle(cmd);
+                        } else {                // 连接已经关闭
+                            socket.close();
+                        }
+                        try{Thread.sleep(10);}catch(Exception e){};
                     }
-                    if(null != mClientSocket) {
-                        mClientSocket.close();
-                    }
-
-                    mClientSocket = new ClientSocket(client, mContext);
-                    mSocketHandler = new PCCommandHandler(mContext, mClientSocket.getStreamTransport(), mControlTabActivity, mHandler);
-                    mSocketHandler.work();*/
-                }catch ( IOException e) {
-                    Debug.e(TAG, e.getMessage());
+                } catch(IOException e) {
+                    e.printStackTrace();
                 }
             }
+        });
+    }
+
+    private final String HelloKitty = "Hello Kitty";
+
+    private void handle(final String msg) {
+        try {
+            if(HelloKitty.equals(msg)) {
+                StreamTransport st = new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream());
+                st.writeLine(msg + "01");
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

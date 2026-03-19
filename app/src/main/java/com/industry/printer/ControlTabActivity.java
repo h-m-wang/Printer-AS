@@ -35,7 +35,8 @@ import java.util.concurrent.Executors;
 
 import com.industry.printer.Baoqiao.MainFunc;
 import com.industry.printer.Bluetooth.BluetoothServerManager;
-import com.industry.printer.Collaboration.SocketManager;
+import com.industry.printer.Collaboration.ClientManager;
+import com.industry.printer.Collaboration.ServerManager;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.ExcelDataProc.ExcelMainWindow;
 import com.industry.printer.FileFormat.DotMatrixFont;
@@ -89,6 +90,7 @@ import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.TextObject;
 import com.industry.printer.object.TlkObject;
 import com.industry.printer.pccommand.PCCommandManager;
+import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.MessageGroupsortDialog;
@@ -373,7 +375,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	private static final int MSG_SHOW_COUNTER = 25;
 	private static final int MSG_ALARM_CNT_EDGE = 26;
 // End of H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
-
+	private static final int RTC_ERROR = 27;
 	/**
 	 * the bitmap for preview
 	 */
@@ -510,6 +512,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 	private RemoteMsgPrompt mScanPromptDlg;
 	private int mTimeCheckInterval = 0;
+	private int mLastWH = 0, mWHCount = 0, mLastOSF = 0, mOSFCount = 0;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -851,10 +854,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		mPowerV = (TextView) getView().findViewById(R.id.powerV);
 		mTime = (TextView) getView().findViewById(R.id.time);
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
-		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+//		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 			mHp22mmErrTV = (TextView) getView().findViewById(R.id.tv_hp22mm_result);
 			mHp22mmErrTV.setText("");		// 2026-2-2 增加显示版本说明（测试版的具体描述）
-		}
+//		}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 // H.M.Wang 2024-9-21 追加一个显示FPGA驱动状态的功能，当前只显示跳空次数
 		mDriverState = (TextView) getView().findViewById(R.id.tv_driver_state);
@@ -1181,9 +1184,37 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
 // H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
 				mTimeCheckInterval++;
-				if(mTimeCheckInterval > 9) {
-					mTimeCheckInterval = 0;
-					if(rtcDevice.compareRTCvSystemTime() > 5000) {
+				if(mTimeCheckInterval % 10 == 0) {
+					long timeDiff = rtcDevice.compareRTCvSystemTime();
+					if ((rtcDevice.getCtrlReg() & 0x20) != 0x00) {		// 旨在OSF由0变为1时计数，与前次值无变化时不计数
+						if (mLastOSF == 0) mOSFCount++;
+						mLastOSF = 1;
+					} else {
+						mLastOSF = 0;
+					}
+
+					if ((rtcDevice.getSecReg() & 0x80) != 0x00) {		// 旨在WH由0变为1时计数，与前次值无变化时不计数
+						if (mLastWH == 0) mWHCount++;
+						mLastWH = 1;
+					} else {
+						mLastWH = 0;
+					}
+
+					String errStr = "";
+					if(mOSFCount != 0) {
+						errStr += " OSF(" + mOSFCount + ")";
+					}
+					if(mWHCount != 0) {
+						errStr += " WH(" + mWHCount + ")";
+					}
+					if(rtcDevice.isDate20000101()) {
+						errStr += " 2000-1-1";
+					}
+					if(!errStr.isEmpty() && mTimeCheckInterval == 10) {	// 首个循环中检测到错误
+						mHandler.obtainMessage(RTC_ERROR, 0, 0, errStr).sendToTarget();
+					}
+
+					if(timeDiff > 5000L) {
 						Debug.e(TAG, "RTC and System time dismatch!!!");
 						try{
 							ExtGpio.playClick();
@@ -1195,9 +1226,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 							Debug.e(TAG, e.getMessage());
 						}
 						rtcDevice.syncSystemTimeToRTC(mContext);
-					}
-					if((rtcDevice.getCtrlReg() & 0x20) != 0x00) {
-						ToastUtil.show(mContext, R.string.str_ask_check_time);
 					}
 				}
 // End of H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
@@ -2825,6 +2853,24 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						if(msg.arg1 != 0) playAlarm(true);
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
+					break;
+				case RTC_ERROR:
+					ConfirmDialog cDialog = new ConfirmDialog(mContext, R.string.str_ask_check_time);
+					cDialog.setListener(new DialogListener() {
+						@Override
+						public void onConfirm() {
+							CalendarDialog dialog = new CalendarDialog(mContext, R.layout.calendar_setting);
+							dialog.show();
+							RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
+							rtcDevice.clearOSF();
+						}
+						@Override
+						public void onCancel() {
+							RTCDevice rtcDevice = RTCDevice.getInstance(mContext);
+							rtcDevice.clearOSF();
+						}
+					});
+					cDialog.show();
 					break;
 // H.M.Wang 2024-12-28 增加两个消息，一个是显示计数器当前值，另外一个是计数器到了边界值报警
 				case MSG_SHOW_COUNTER:
@@ -5023,6 +5069,24 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	static char[] sRemoteBin;
 	//Socket________________________________________________________________________________________________________________________________
 
+/* 2026-3-17 重新整理该部分逻辑，处理内容以本次说明为准
+	逻辑是：
+	PE4  泵 1=on ， PE5 阀 1=on， PG9 液位   缺墨=0 。
+	实现动作，  循环，   加墨， 底膜报警
+(1).  循环
+	a.当泵（P80、循环间隔）<=60s时，循环不工作, 避免循环太频繁
+	b. P80 > 60 s ， 每经过P80 时间， 压力高于p78，PE4 拉高 1s.   PE5 维持低。 如果压力低于p78，PE5   同时拉高 1s.
+
+(2).   加墨：
+	a. 每1秒检测一次，
+	如果从ADS1115读取的值，经过计算
+			press = ADS1115 / 32767 * (4.0 * 66.7 + 12) - 6.67
+	b.   得到press，小于P78的设定值时，并且从PG9=1，拉高PE4   1s   (都开 加墨 )
+
+(3). 报警 ：  PG9为低时报警
+(4). PE4拉高维持1s后拉低; PE5拉高维持1s后拉低
+
+ */
 // H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能
 // H.M.Wang 2025-10-15 修改变量属性为volatile
 	volatile private long mLastPressCheckTime;		// 上一次测试压力的时间
@@ -5044,12 +5108,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		long curTimeMills = System.currentTimeMillis();
 
 		if(curTimeMills - mLastPE5HighTime > 1000) {	// 拉高了PE5，并且持续了1秒
-			Debug.d(TAG, "Set PE4 low");
-			ExtGpio.writeGpioTestPin('E', 4, 0);
-		}
-		if(curTimeMills - mLastPE4HighTime > 1000) {	// 拉高了PE4，并且持续了1秒
 			Debug.d(TAG, "Set PE5 low");
 			ExtGpio.writeGpioTestPin('E', 5, 0);
+		}
+		if(curTimeMills - mLastPE4HighTime > 1000) {	// 拉高了PE4，并且持续了1秒
+			Debug.d(TAG, "Set PE4 low");
+			ExtGpio.writeGpioTestPin('E', 4, 0);
 		}
 		int inkStatus = ExtGpio.readGpioTestPin('G', 9);
 		if(inkStatus == 0) {
@@ -5060,7 +5124,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		int press = 0;
 // H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
 //		if(curTimeMills - mLastPressCheckTime > 10*1000) {
-		if(curTimeMills - mLastPressCheckTime > 5*1000) {
+		if(curTimeMills - mLastPressCheckTime > 1000) {
 // End of H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
 			mLastPressCheckTime = curTimeMills;
 			press = (int)(1.0f * SmartCard.readADS1115(0) / 32767 * (4.0f * 66.7f + 12) - 6.67f);
@@ -5068,20 +5132,25 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			if(press < mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {	// 当测得压力小于P78设置的压力值
 				if(inkStatus != 0) {		// 没有缺墨报警（0=不缺墨；0<>缺墨）
 					Debug.d(TAG, "Read PG9 high");
-					mLastPE5HighTime = curTimeMills;
+					mLastPE4HighTime = curTimeMills;
 					Debug.d(TAG, "Set PE4 high");
 					ExtGpio.writeGpioTestPin('E', 4, 1);
-					mLastPE4HighTime = curTimeMills;
-					Debug.d(TAG, "Set PE5 high");
-					ExtGpio.writeGpioTestPin('E', 5, 1);
+//					mLastPE5HighTime = curTimeMills;
+//					Debug.d(TAG, "Set PE5 high");
+//					ExtGpio.writeGpioTestPin('E', 5, 1);
 				}
 			}
 		}
 
-		if(curTimeMills - mLastPE4HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000 && press >= mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {
+		if(curTimeMills - mLastPE4HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000) {
 			mLastPE4HighTime = curTimeMills;
-			Debug.d(TAG, "Set PE5 high");
-			ExtGpio.writeGpioTestPin('E', 5, 1);
+			Debug.d(TAG, "Set PE4 high");
+			ExtGpio.writeGpioTestPin('E', 4, 1);
+			if(press < mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {
+				mLastPE5HighTime = curTimeMills;
+				Debug.d(TAG, "Set PE5 high");
+				ExtGpio.writeGpioTestPin('E', 5, 1);
+            }
 		}
 	}
 // End of H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能

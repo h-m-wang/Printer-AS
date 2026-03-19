@@ -1409,6 +1409,11 @@ public class BaseObject{
 	
 	public void resizeByHeight() {
 		mPaint.setTextSize(getfeed());
+		try {
+			mPaint.setTypeface(FontCache.get(mContext, mFont));
+		} catch (Exception e) {
+
+		}
 
 		// H.M.Wang 修改为测量标准字符串，而非实际内容
 //		String s = getContent();

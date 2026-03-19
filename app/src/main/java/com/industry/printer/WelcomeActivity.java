@@ -28,9 +28,7 @@ import com.industry.printer.data.NativeGraphicJni;
 import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
-import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
-import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;

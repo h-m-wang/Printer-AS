@@ -1,7 +1,9 @@
 package com.industry.printer.hardware;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 
 import android.app.AlarmManager;
@@ -117,14 +119,41 @@ public class RTCDevice {
 		// AlarmManager aManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		// aManager.SystemClockToHw();
 		ReflectCaller.AlarmManagerSystemClockToHw(context);
+		clearOSF();
 	}
 
 // H.M.Wang 2026-3-12 增加字节单位的读写，以实现一些状态读取及设置
 	private byte mCtrlReg, mSecReg;
+	private Calendar mRTCDate;
+
+	public byte getSecReg() {
+		return mSecReg;
+	}
 
     public byte getCtrlReg() {
         return mCtrlReg;
     }
+
+    public boolean isDate20000101() {
+		return (mRTCDate.get(Calendar.YEAR) == 2000 && mRTCDate.get(Calendar.MONTH) == 0 && mRTCDate.get(Calendar.DAY_OF_MONTH) == 1);
+	}
+
+	public void clearOSF() {
+		if(PlatformInfo.isA133Product()) {
+			SmartCard.writeRTC((byte)mI2CGroupID, (byte)0x68, (byte)0x07, new byte[] {(byte)(mCtrlReg & 0xDF)}, 1);
+		} else {
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
+
+			StringBuilder cmd = new StringBuilder("0x07");
+
+			cmd.append(",");
+			cmd.append("0x" + Integer.toHexString((byte)(mCtrlReg & 0xDF)));
+
+			SystemFs.writeSysfs(I2C_WRITE, cmd.toString());
+		}
+	}
+
 // End of H.M.Wang 2026-3-12 增加字节单位的读写，以实现一些状态读取及设置
 // H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能
 	public long compareRTCvSystemTime() {
@@ -160,8 +189,18 @@ public class RTCDevice {
 		mSecReg = data[0];
 		mCtrlReg = data[7];
 		Debug.d(TAG, "Read RTC: " + ByteArrayUtils.toHexString(data));
-		Date dateTime1 = new Date(BCD2INT(data[6])+100, BCD2INT(data[5])-1, BCD2INT(data[4]), BCD2INT(data[2]), BCD2INT(data[1]), BCD2INT(data[0]));
-		return Math.abs(System.currentTimeMillis() - dateTime1.getTime());
+		mRTCDate = Calendar.getInstance();
+		mRTCDate.set(Calendar.YEAR, BCD2INT(data[6])+2000);
+		mRTCDate.set(Calendar.MONTH, BCD2INT(data[5])-1);
+		mRTCDate.set(Calendar.DAY_OF_MONTH, BCD2INT(data[4]));
+		mRTCDate.set(Calendar.HOUR_OF_DAY, BCD2INT(data[2]));
+		mRTCDate.set(Calendar.MINUTE, BCD2INT(data[1]));
+		mRTCDate.set(Calendar.SECOND, BCD2INT(data[0]));
+//		mRTCDate = new Date(BCD2INT(data[6])+100, BCD2INT(data[5])-1, BCD2INT(data[4]), BCD2INT(data[2]), BCD2INT(data[1]), BCD2INT(data[0]));
+//		Debug.d(TAG, "System.currentTimeMillis(): " + System.currentTimeMillis());
+//		Debug.d(TAG, "mRTCDate.getTimeInMillis(): " + mRTCDate.getTimeInMillis());
+//		Debug.d(TAG, new SimpleDateFormat().format(mRTCDate.getTime()));
+		return Math.abs(System.currentTimeMillis() - mRTCDate.getTimeInMillis());
 	}
 // End of H.M.Wang 2026-3-9 增加比对RTC时间和系统时间的比对功能
 
