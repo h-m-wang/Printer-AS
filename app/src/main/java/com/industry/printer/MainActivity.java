@@ -99,6 +99,7 @@ import com.industry.printer.hardware.Hp22mm;
 import com.industry.printer.hardware.RFIDDevice;
 import com.industry.printer.hardware.RTCDevice;
 import com.industry.printer.hardware.SmartCard;
+import com.industry.printer.pccommand.CustomApk;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
@@ -354,6 +355,15 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 // End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
 // End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_7) {
+			mRadioCustom.post(new Runnable() {
+				@Override
+				public void run() {
+					mRadioCustom.setVisibility(View.VISIBLE);
+				}
+			});
+//			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
+		}
 
         BarcodeScanParser.setContext(this);
 
@@ -666,6 +676,27 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 						mf.login(mRadioCtl);
 					}
 // End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
+// H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_7) {
+						CustomApk cApk = CustomApk.getInstance(mContext);
+						cApk.setControlTabActivity(mControlTab);
+						cApk.start();
+						mRadioCtl.setChecked(true);
+						try {
+							PackageManager mPackageManager = mContext.getPackageManager();
+							PackageInfo mp = mPackageManager.getPackageArchiveInfo("/system/app/Custom.apk", PackageManager.GET_ACTIVITIES);
+							if(null != mp ) {
+								Debug.d(TAG, "Package Name: " + mp.applicationInfo.packageName);
+								Intent mIntent =  mPackageManager.getLaunchIntentForPackage(mp.applicationInfo.packageName);
+								if(mIntent != null) startActivity(mIntent);
+							} else {
+								Debug.e(TAG, "Custom.apk not found!");
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+// End of H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
 				} else {
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						fts.hide(mCustomTab1);

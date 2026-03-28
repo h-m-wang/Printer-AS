@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
+import com.industry.printer.ControlTabActivity;
+import com.industry.printer.MainActivity;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.pccommand.PCCommandHandler;
@@ -23,13 +25,16 @@ public class ServerManager {
     private ServerSocket mServerSocket;
     private Socket mWorkingSocket;
     private ExecutorService mExecutor;
+    private ControlTabActivity mControlTabActivity;
 
-    public ServerManager(Context ctx) {
+    public ServerManager(Context ctx, ControlTabActivity act) {
         mContext = ctx;
         mExecutor = Executors.newFixedThreadPool(3);
+        mControlTabActivity = act;
     }
 
     public void start() {
+        Debug.i(TAG, "Start as Server");
         mServerSocket = null;
         mWorkingSocket = null;
 
@@ -42,7 +47,9 @@ public class ServerManager {
 
                     while(mRunning) {
                         try {
+                            Debug.i(TAG, "Waiting connection");
                             Socket socket = mServerSocket.accept();
+                            Debug.i(TAG, "Incoming connection");
                             socket.setSoTimeout(2000);
                             work(socket);
                         } catch(IOException e) {
@@ -85,8 +92,8 @@ public class ServerManager {
                     StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
                     while(!socket.isClosed()) {
                         String cmd = st.readLine();
-                        if(null != cmd) {       // 连接还在
-                            if(!cmd.isEmpty()) handle(cmd);
+                        if(null != cmd && !cmd.isEmpty()) {       // 连接还在并且没有超时，收到了实际数据
+                            handle(cmd);
                         } else {                // 连接已经关闭
                             socket.close();
                         }
@@ -101,23 +108,25 @@ public class ServerManager {
 
     private final String HelloKitty = "Hello Kitty";
     PCCommandHandler pcCmdHdl;
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            pcCmdHdl.handleReCreateResult(msg);
+        }
+    };
 
     private void handle(final String msg) {
         try {
             if(HelloKitty.equals(msg)) {
                 StreamTransport st = new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream());
                 st.writeLine(msg + "01");
+            } else {
+                pcCmdHdl = new PCCommandHandler(
+                        mContext,
+                        new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream()),
+                        mControlTabActivity,
+                        mHandler);
+                pcCmdHdl.handle(msg);
             }
-            pcCmdHdl = new PCCommandHandler(
-                mContext,
-                new StreamTransport(mWorkingSocket.getInputStream(), mWorkingSocket.getOutputStream()),
-                null,
-                new Handler() {
-                    public void handleMessage(Message msg) {
-                        pcCmdHdl.handleReCreateResult(msg);
-                    }
-                });
-            pcCmdHdl.handle(msg);
         } catch(Exception e) {
             e.printStackTrace();
         }

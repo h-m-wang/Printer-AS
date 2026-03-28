@@ -60,6 +60,7 @@ import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.Utils.PrinterDBHelper;
+import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.SystemFs;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
@@ -89,6 +90,8 @@ import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.TextObject;
 import com.industry.printer.object.TlkObject;
+import com.industry.printer.pccommand.ClientSocket;
+import com.industry.printer.pccommand.PCCommandHandler;
 import com.industry.printer.pccommand.PCCommandManager;
 import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
@@ -1179,8 +1182,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mSysconfig.writePrefs();
 // End of H.M.Wang 2023-2-19 借用这个常驻线程，完成10个DT桶向闪存的写入更新
 // H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
-//				if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BIGDOT")) checkPress();
-				checkPress();
+				if(PlatformInfo.isA133Product() && PlatformInfo.getImgUniqueCode().startsWith("BIGDOT")) checkPress();
+//				checkPress();
 // End of H.M.Wang 2025-7-28 借用这个常驻线程，实现BIGDOT机型的泵压循环功能
 // H.M.Wang 2026-3-9 借用心跳线程来比对RTC当中保存的时间和系统时间的差异，如果相差超过5秒就报警
 				mTimeCheckInterval++;
@@ -1394,7 +1397,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mf.setCallback(this);
 		}
 // End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
+/*		if(SystemConfigFile.getInstance(mContext).getParam(89) == 0) {
+			mClientManager = new ClientManager(mContext, new ClientManager.TransferListener() {
+				@Override
+				public void onRecv(ClientManager.ConnectedDevice dev, String recv) {
+					Debug.d(TAG, dev.getIPAddress() + ": " + recv);
+				}
+			});
+			mClientManager.findServers();
+		} else {
+			mServerManager = new ServerManager(mContext, this);
+			mServerManager.start();
+		}*/
 	}
+	ClientManager mClientManager;
+	ServerManager mServerManager;
 
 	public boolean getLevelLow() {
 		if(null != mPI11Monitor) return mPI11Monitor.getLevelLow();
@@ -1686,7 +1703,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 				valid = false;
 
-				mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+				mHandler.obtainMessage(MESSAGE_RFID_ALARM,2, 0, null).sendToTarget();
 			} else if (mInkManager instanceof SmartCardManager && ink >= 5.0f ||
 					mInkManager instanceof Hp22mmSCManager && ink >= 5.0f ||
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
@@ -2171,7 +2188,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						dismissProgressDialog();
 						break;
 					}
-					
+//					mClientManager.startPrint(null);
 					//鏂规2锛氫粠tlk鏂囦欢閲嶆柊缁樺埗鍥剧墖锛岀劧鍚庤В鏋愮敓鎴恇uffer
 					//parseTlk(f);
 					//initBgBuffer();
@@ -2472,7 +2489,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 									.setPositiveButton(R.string.str_quit, null);
 							final AlertDialog d = builder.create();
 							d.show();
-							mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+							mHandler.obtainMessage(MESSAGE_RFID_ALARM,3, 0, null).sendToTarget();
 							dismissProgressDialog();
 							return;
 						}
@@ -2551,7 +2568,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2021-1-4 追加数据源FILE2，也是从QR.txt读取DT0,DT1,...,DT9,BARCODE的信息，但是DT赋值根据DT变量内部的序号匹配
 // End of H.M.Wang 2020-6-2 只有数据源为文件打印的时候采取检查QR.txt或者QR.csv的存在
 						handleError(R.string.str_toast_no_qrfile, Constants.pcErr(pcMsg));
-						mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+						mHandler.obtainMessage(MESSAGE_RFID_ALARM,4, 0, null).sendToTarget();
 						break;
 					} else {
 						mFlagAlarming = false;
@@ -2817,11 +2834,11 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					break;
 				case MESSAGE_RFID_ZERO:
 					Debug.e(TAG, "--->zero: play error");
-					mHandler.sendEmptyMessage(MESSAGE_RFID_ALARM);
+					mHandler.obtainMessage(MESSAGE_RFID_ALARM,5, 0, null).sendToTarget();
 					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 5000);
 					break;
 				case MESSAGE_RFID_ALARM:
-					Debug.e(TAG, "--->MESSAGE_RFID_ALARM");
+					Debug.e(TAG, "--->MESSAGE_RFID_ALARM(" + msg.arg1 + ")");
 					mFlagAlarming = true;
 					// GPIO版本的img时，PH7是错误指示灯，SPI版本的img的时候，PI8是错误指示灯。但是apk仍然调用PH7，在img里面根据img的版本进行PH7或者PI8的调整
 					playAlarm(true);
@@ -2842,15 +2859,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 // H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 					if(null != mHp22mmErrTV) {
-						mHp22mmErrTV.setText((String)msg.obj + (msg.arg2 > 1 ? "(" + msg.arg2 + ")" : ""));
+						mHp22mmErrTV.setText((String)msg.obj);
 					}
 // End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 // H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!((String)msg.obj).isEmpty()) ToastUtil.show(mContext, (String)msg.obj);
 // End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
-						ExportLog2Usb.writeHp22mmErrLog((String)msg.obj);
-						if(msg.arg1 != 0) playAlarm(true);
+						playAlarm(true);
 					}
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面显示的功能
 					break;
@@ -5071,20 +5087,19 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 /* 2026-3-17 重新整理该部分逻辑，处理内容以本次说明为准
 	逻辑是：
-	PE4  泵 1=on ， PE5 阀 1=on， PG9 液位   缺墨=0 。
+	PE4  阀 1=on ， PE5 泵 1=on， PG9 液位   缺墨=0 。
 	实现动作，  循环，   加墨， 底膜报警
 (1).  循环
 	a.当泵（P80、循环间隔）<=60s时，循环不工作, 避免循环太频繁
-	b. P80 > 60 s ， 每经过P80 时间， 压力高于p78，PE4 拉高 1s.   PE5 维持低。 如果压力低于p78，PE5   同时拉高 1s.
+	b. P80 > 60 s ， 每经过P80 时间， 压力高于p78，PE5 拉高 1s.   PE4 维持低。
 
 (2).   加墨：
 	a. 每1秒检测一次，
 	如果从ADS1115读取的值，经过计算
 			press = ADS1115 / 32767 * (4.0 * 66.7 + 12) - 6.67
-	b.   得到press，小于P78的设定值时，并且从PG9=1，拉高PE4   1s   (都开 加墨 )
+	b.   得到press，小于P78的设定值时，并且PG9=1，拉高PE4与PE5   1s   (都开 加墨 )
 
 (3). 报警 ：  PG9为低时报警
-(4). PE4拉高维持1s后拉低; PE5拉高维持1s后拉低
 
  */
 // H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能
@@ -5103,8 +5118,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 
 	private void checkPress() {
-		if(mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) <= 60) return;	// 泵压循环<=60时，不工作
-
 		long curTimeMills = System.currentTimeMillis();
 
 		if(curTimeMills - mLastPE5HighTime > 1000) {	// 拉高了PE5，并且持续了1秒
@@ -5118,9 +5131,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		int inkStatus = ExtGpio.readGpioTestPin('G', 9);
 		if(inkStatus == 0) {
 			Debug.d(TAG, "Read PG9 low");
-			mHandler.obtainMessage(MESSAGE_RFID_ALARM).sendToTarget();
+			mHandler.obtainMessage(MESSAGE_RFID_ALARM,1, 0, null).sendToTarget();
 		}
 
+		// 加墨
 		int press = 0;
 // H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
 //		if(curTimeMills - mLastPressCheckTime > 10*1000) {
@@ -5135,22 +5149,20 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mLastPE4HighTime = curTimeMills;
 					Debug.d(TAG, "Set PE4 high");
 					ExtGpio.writeGpioTestPin('E', 4, 1);
-//					mLastPE5HighTime = curTimeMills;
-//					Debug.d(TAG, "Set PE5 high");
-//					ExtGpio.writeGpioTestPin('E', 5, 1);
+					mLastPE5HighTime = curTimeMills;
+					Debug.d(TAG, "Set PE5 high");
+					ExtGpio.writeGpioTestPin('E', 5, 1);
 				}
 			}
 		}
 
-		if(curTimeMills - mLastPE4HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000) {
-			mLastPE4HighTime = curTimeMills;
-			Debug.d(TAG, "Set PE4 high");
-			ExtGpio.writeGpioTestPin('E', 4, 1);
-			if(press < mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {
+		// 循环
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) > 60) {
+			if(curTimeMills - mLastPE5HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000) {
 				mLastPE5HighTime = curTimeMills;
 				Debug.d(TAG, "Set PE5 high");
 				ExtGpio.writeGpioTestPin('E', 5, 1);
-            }
+			}
 		}
 	}
 // End of H.M.Wang 2025-7-28 增加BIGDOT机型的泵压循环功能

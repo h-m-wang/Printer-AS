@@ -120,12 +120,13 @@ int pd_check_ph(char *function, PDResult_t result, int PenIdx) {
     memset(ERR_STRING, 0x00, 1024);
     if(result == PD_OK) return 0;
 
-    LOGE("ERROR: %s() == %d\n", function, result);
+    sprintf(ERR_STRING, "ERROR: %s() == %d\n", function, result);
+    LOGE("%s", ERR_STRING);
 
     if (PenIdx < 0) {
         sprintf(ERR_STRING, "ERROR: %s() failed: invalid pen index. %s\n", function, pd_get_error_description(result));
         LOGE("%s\n", ERR_STRING);
-    } else {
+    } else if(strcmp("pd_get_print_head_status", function) != 0) {
         // attempt to get print head status to include in error log
         PrintHeadStatus status;
         status.print_head_state = -1;
@@ -285,8 +286,9 @@ int DoPairing(int SupplyIdx, int PenArg) {
     // before pairing, reset the sequence in case previous pairing had failed
     if (ids_terminate_session(IDS_INSTANCE) != IDS_OK ||
         pd_terminate_session(PD_INSTANCE) != PD_OK) {
-            LOGE("ERROR: Cannot terminate pairing sessions\n");
-            return -1;
+        sprintf(ERR_STRING, "ERROR: Cannot terminate pairing sessions\n");
+        LOGE("%s", ERR_STRING);
+        return -1;
     }
 
     if(PenArg == 1)
@@ -296,7 +298,8 @@ int DoPairing(int SupplyIdx, int PenArg) {
     else if(PenArg == 3)
         slotbits = 0x0F;    // pair both slots of both pens
     else {
-        LOGE("ERROR: Parametre error. (PenArg=%d\n", PenArg);
+        sprintf(ERR_STRING, "ERROR: Parametre error. (PenArg=%d\n", PenArg);
+        LOGE("%s", ERR_STRING);
         return -1;
     }
 
@@ -305,21 +308,25 @@ int DoPairing(int SupplyIdx, int PenArg) {
     for (step=1; step<=3; step++) {
         ids_r = ids_pairing(IDS_INSTANCE, step, PD_ID, SupplyIdx, payload, payload_size, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
         if(ids_r != IDS_OK) {
-            LOGE("ERROR: ids_pairing() step %d failed: %s\n", step, ids_get_error_description(ids_r));
+            sprintf(ERR_STRING, "ERROR: ids_pairing() step %d failed: %s\n", step, ids_get_error_description(ids_r));
+            LOGE("%s", ERR_STRING);
             return -1;
         }
         if (status != KEY_NEGOTIATION_SESSION_OK && status != KEY_NEGOTIATION_SESSION_COMPLETE) {
-            LOGE("ERROR: ids_pairing() step %d failed, status %d\n", step, status);
+            sprintf(ERR_STRING, "ERROR: ids_pairing() step %d failed, status %d\n", step, status);
+            LOGE("%s", ERR_STRING);
             return -1;
         }
 
         pd_r = pd_pairing(PD_INSTANCE, step, slotbits, IDS_ID, payload, payload_size, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
         if(pd_r != PD_OK) {
-            LOGE("ERROR: pd_pairing() step %d failed: %s\n", step, pd_get_error_description(pd_r));
+            sprintf(ERR_STRING, "ERROR: pd_pairing() step %d failed: %s\n", step, pd_get_error_description(pd_r));
+            LOGE("%s", ERR_STRING);
             return -1;
         }
         if (status != KEY_NEGOTIATION_SESSION_OK && status != KEY_NEGOTIATION_SESSION_COMPLETE) {
-            LOGE("ERROR: pd_pairing() step %d failed, status %d\n", step, status);
+            sprintf(ERR_STRING, "ERROR: pd_pairing() step %d failed, status %d\n", step, status);
+            LOGE("%s", ERR_STRING);
             return -1;
         }
     }
@@ -343,7 +350,8 @@ int DoOverrides(int SupplyIdx, int PenArg) {
     } else if(PenArg == 2 || PenArg == 1) {
         penNum = 1;
     } else {
-        LOGE("ERROR: DoOverrides() failed, PenArg=%d\n", PenArg);
+        sprintf(ERR_STRING, "ERROR: DoOverrides() failed, PenArg=%d\n", PenArg);
+        LOGE("%s", ERR_STRING);
         return -1;
     }
 
@@ -364,7 +372,8 @@ int DoOverrides(int SupplyIdx, int PenArg) {
             pd_r = pd_set_secure_overrides(PD_INSTANCE, penIndexs[i], slot, payload, payload_size, &status);
             if (pd_check_ph("pd_set_secure_overrides", pd_r, penIndexs[i])) return(-1);
             if (status != 0) {
-                LOGE("ERROR: pd_set_secure_overrides() slot %d failed, status %d\n", slot, status);
+                sprintf(ERR_STRING, "ERROR: pd_set_secure_overrides() slot %d failed, status %d\n", slot, status);
+                LOGE("%s", ERR_STRING);
                 return -1;
             }
         }
@@ -408,14 +417,16 @@ int GetAndProcessInkUse(int PenIdx, int SupplyIdx) {
         pd_r = pd_ink_use(PD_INSTANCE, PenIdx, slot, &status, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
         if (pd_check_ph("pd_ink_use", pd_r, PenIdx)) return(-1);
         if (status != 0) {
-            LOGE("ERROR: pd_ink_use() slot %d failed, status %d\n", slot, status);
+            sprintf(ERR_STRING, "ERROR: pd_ink_use() slot %d failed, status %d\n", slot, status);
+            LOGE("%s", ERR_STRING);
             return -1;
         }
         // pass payload to IDS and get status payload
         ids_r = ids_ink_use(IDS_INSTANCE, PD_ID, SupplyIdx, payload, payload_size, &status, &status2, payload, &payload_size, PAYLOAD_BUFFER_SIZE);
         if (ids_check("ids_ink_use", ids_r)) return(-1);
         if (status != 0) {
-            LOGE("ERROR: ids_ink_use() from slot %d failed, status %d\n", slot, status);
+            sprintf(ERR_STRING, "ERROR: ids_ink_use() from slot %d failed, status %d\n", slot, status);
+            LOGE("%s", ERR_STRING);
             return -1;
         }
         // pass status payload back to PD
@@ -423,6 +434,8 @@ int GetAndProcessInkUse(int PenIdx, int SupplyIdx) {
         if (pd_check_ph("pd_supply_status", pd_r, PenIdx)) return(-1);
         if (status != 0) {
             LOGE("ERROR: pd_supply_status() slot %d failed, status %d\n", slot, status);
+            sprintf(ERR_STRING, "ERROR: pd_supply_status() slot %d failed, status %d\n", slot, status);
+            LOGE("%s", ERR_STRING);
             return -1;
         }
     }

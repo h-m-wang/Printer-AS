@@ -3619,9 +3619,6 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
 						|| SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER6
 // End of H.M.Wang 2024-7-1 新增加一个扫描协议（扫描协议6），除分隔符为[:]以外，与扫描协议2完全一样
-// H.M.Wang 2026-3-19 新增扫描协议12也控制打印次数
-						|| SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12
-// End of H.M.Wang 2026-3-19 新增扫描协议12也控制打印次数
 					) {
 						if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) > 0) {
 							if(mS2Times == 0) continue;
@@ -3761,6 +3758,15 @@ private void setCounterPrintedNext(DataTask task, int count) {
 								} else {
 									mPrintBuffer = mDataTask.get(index()).getPrintBuffer(false);
 								}
+// H.M.Wang 2026-3-20 新增扫描协议12也控制打印次数，达到打印次数后，下发空白内容
+								if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_SCANER12) {
+									if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_S2_TIMES) > 0) {
+										mS2Times--;
+										if(mS2Times < 0) Arrays.fill(mPrintBuffer, (char)0x0000);
+									}
+								}
+// End of H.M.Wang 2026-3-20 新增扫描协议12也控制打印次数，达到打印次数后，下发空白内容
+
 // End of H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 //							Debug.i(TAG, "mIndex: " + index());
 //							mPrintBuffer = mDataTask.get(index()).getPrintBuffer();

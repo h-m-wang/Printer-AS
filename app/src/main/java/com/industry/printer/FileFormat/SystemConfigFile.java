@@ -238,6 +238,9 @@ public class SystemConfigFile{
 // H.M.Wang 2026-2-5 增加宝桥公司要求的功能
 	public static final int USER_MODE_6 	= 6;
 // End of H.M.Wang 2026-2-5 增加宝桥公司要求的功能
+// H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
+	public static final int USER_MODE_7 	= 7;
+// End of H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小

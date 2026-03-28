@@ -366,6 +366,7 @@
         <item>Режим 4</item>
         <item>Режим 5</item>
         <item>Режим 6</item>
+        <item>Режим 7</item>
     </string-array>
 <string-array name="param_ad">
         <item>Немає</item>

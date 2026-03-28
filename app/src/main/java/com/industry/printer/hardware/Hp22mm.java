@@ -180,6 +180,7 @@ public class Hp22mm {
             } else {
                 Debug.d(TAG, "Pressurize succeeded\n");
             }
+
             mIDSInitialized = true;
         }
 

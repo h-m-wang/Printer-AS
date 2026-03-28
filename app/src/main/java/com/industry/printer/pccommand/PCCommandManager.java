@@ -49,7 +49,7 @@ public class PCCommandManager {
             public void handleMessage(Message msg) {
                 if(null != mSocketHandler)mSocketHandler.handleReCreateResult(msg);
                 if(null != mSerialHandler)mSerialHandler.handleReCreateResult(msg);
-                if(null != mBLEHandler)mSerialHandler.handleReCreateResult(msg);
+                if(null != mBLEHandler)mBLEHandler.handleReCreateResult(msg);
             }
         };
 
@@ -147,6 +147,9 @@ public class PCCommandManager {
         }
         if(null != mSerialHandler) {
             mSerialHandler.sendmsg(msg);
+        }
+        if(null != mBLEHandler) {
+            mBLEHandler.sendmsg(msg);
         }
     }
 

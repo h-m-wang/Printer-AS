@@ -8,6 +8,7 @@ import com.industry.printer.ControlTabActivity;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.ExportLog2Usb;
 import com.industry.printer.Utils.StringUtil;
 
 import java.net.InetAddress;
@@ -67,7 +68,8 @@ public class Hp22mmSCManager implements IInkDevice {
     }
 
     private String mErrStr = "";
-    private int mLastError, mErrCount;
+    private String mLastError;
+    private int mErrCount;
 
     @Override
     public void init(Handler callback) {
@@ -100,7 +102,7 @@ public class Hp22mmSCManager implements IInkDevice {
         }
 
         mErrStr = "";
-        mLastError = 0;
+        mLastError = "";
         mErrCount = 0;
         mCallback = callback;
         mCallback.sendEmptyMessage(SmartCardManager.MSG_SMARTCARD_INIT_SUCCESS);
@@ -140,27 +142,38 @@ public class Hp22mmSCManager implements IInkDevice {
                         }
                         // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常
                         String errStr = Hp22mm.getErrString();
+                        Debug.d(TAG, "========ErrStr: " + errStr);
 // H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
-                        try {
-                            int errno = Integer.parseInt(errStr);
-                            if(errno != 0) {
-                                if(mLastError != errno) {
-                                    if(mLastError != 0) {
-                                        if(mErrCount > 1) {
-                                            mErrStr += "(" + mErrCount + ")";
+                        String tmpErr = "";
+                        if(!errStr.isEmpty()) {
+                            int errorPos = errStr.indexOf("ERROR");
+                            if(errorPos >= 0) {
+                                ExportLog2Usb.writeHp22mmErrLog(errStr.substring(errorPos) + "\r\n");
+                                errStr = errStr.substring(0, errorPos);
+                                if("0".equals(errStr))
+                                    mCallback.obtainMessage(ControlTabActivity.MESSAGE_RFID_ALARM,6, 0, null).sendToTarget();
+                            }
+
+                            if(!"0".equals(errStr)) {
+                                if(!mLastError.equals(errStr)) {
+                                    if(!mLastError.isEmpty()) {
+                                        if(errStr.startsWith("PS") || errStr.startsWith("HS")) {
+                                            tmpErr = errStr;
+                                        } else {
+                                            if(mErrCount > 1) {
+                                                mErrStr += "(" + mErrCount + ")";
+                                            }
+                                            mErrStr = mErrStr + "," + errStr;
                                         }
-                                        mErrStr = mErrStr + "," + errno;
                                     } else {
-                                        mErrStr = "" + errno;
+                                        mErrStr = errStr;
                                     }
-                                    mLastError = errno;
+                                    mLastError = errStr;
                                     mErrCount = 0;
                                 }
                                 mErrCount++;
+                                mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, tmpErr + mErrStr + (mErrCount > 1 ? "(" + mErrCount + ")" : "")).sendToTarget();    // 无报警声 arg1=0
                             }
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, errno, mErrCount, mErrStr).sendToTarget();    // 无报警声 arg1=0
-                        } catch(NumberFormatException e) {
-                            mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, mErrCount, mErrStr).sendToTarget();    // 无报警声 arg1=0
                         }
 // End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 

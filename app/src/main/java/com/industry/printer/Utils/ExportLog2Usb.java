@@ -40,7 +40,7 @@ public class ExportLog2Usb {
     private static String LastErrString = "";
 
     public static void writeHp22mmErrLog(String str) {
-        if(str.equals(LastErrString)) return;
+//        if(str.equals(LastErrString)) return;
 
         if(null == S22mmErrLog) {
             try {
