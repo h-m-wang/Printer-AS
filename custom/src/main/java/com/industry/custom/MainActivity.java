@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -112,14 +115,20 @@ public class MainActivity extends Activity {
                                 mResultTV.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mResultTV.setText("Timeout!\r\n");
+                                        SpannableString message = new SpannableString("Timeout!");
+                                        message.setSpan(new ForegroundColorSpan(Color.RED), 0, "Timeout!".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                                        mResultTV.append(message);
+                                        mResultTV.append("\r\n");
                                     }
                                 });
                             } catch (Exception e) {
                                 mResultTV.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        mResultTV.setText("Connection broken!\r\n");
+                                        SpannableString message = new SpannableString("Connection broken!");
+                                        message.setSpan(new ForegroundColorSpan(Color.RED), 0, "Connection broken!".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                                        mResultTV.append(message);
+                                        mResultTV.append("\r\n");
                                     }
                                 });
                                 e.printStackTrace();
@@ -128,7 +137,10 @@ public class MainActivity extends Activity {
                             mResultTV.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mResultTV.setText("Not connected!\r\n");
+                                    SpannableString message = new SpannableString("Not connected!\r\n");
+                                    message.setSpan(new ForegroundColorSpan(Color.RED), 0, "Not connected!\r\n".length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                                    mResultTV.append(message);
+                                    mResultTV.append("\r\n");
                                 }
                             });
                         }

@@ -12,6 +12,10 @@ import java.lang.System;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.text.TextUtils;
 
 import com.industry.printer.BinInfo;
@@ -229,7 +233,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // H.M.Wang 2022-4-4 按着吕总要求修改
 //			if(slant == 0) {
 //				mPrintBuffer = bitShiftFor32DN();
-			if (slant >= 0 && slant <= 8) {
+// H.M.Wang 2026-4-20 适用范围由0-8扩展到0-10
+//			if (slant >= 0 && slant <= 8) {
+			if (slant >= 0 && slant <= 10) {
+// End of H.M.Wang 2026-4-20 适用范围由0-8扩展到0-10
 				mPrintBuffer = bitShiftFor32DN(slant);
 // End of H.M.Wang 2022-4-4 按着吕总要求修改
 			} else {
@@ -624,7 +631,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		}
 
 // H.M.Wang 2020-10-23 计算点数从DataTransferThread移到这里
-		calDots();
+// H.M.Wang 2026-4-9 只有点数为0的时候才统计一下点数，否则的话，第一次统计了点数以后，后续即使有变量产生了一些点数变化也不在统计
+		if(mDots == 0) calDots();
+// End of H.M.Wang 2026-4-9 只有点数为0的时候才统计一下点数，否则的话，第一次统计了点数以后，后续即使有变量产生了一些点数变化也不在统计
 // End of H.M.Wang 2020-10-23 计算点数从DataTransferThread移到这里
 
 // H.M.Wang 2022-6-11 删除打印缓冲区后部的空白
@@ -641,10 +650,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			int orgCharsOfHead = mBinInfo.mCharsPerHFeed * mTask.getNozzle().mHeads;
 			int orgCharsOfHead = mBinInfo.mCharsPerHFeed / mExtendStat.getScale();    // 注意，这里需要除以纵向扩充的倍数，否则一起调整了
 // End of H.M.Wang 2025-8-12 增加对于22mmx2类型的处理，仍然也是528内容+528个0的组合，与单头无区别
-
-			if(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
-				orgCharsOfHead /=5;		// 108MM由于是按着一个头来计数的，因此orgCharsOfHead应该是528*5，因此需要调整到528，才能够正确的插入16字节的空
-			}
 
 			int orgCols = mBuffer.length / orgCharsOfHead;			// 这个orgCols不等于实际的列数，而是每528作为一个单位的计数，主要目的是在后面插入16字节的空
 
@@ -664,38 +669,22 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads * 2);
 				}
 			} else {        // HEAD_TYPE_CIRCLE(每列528点，为了保持32的倍数，追加16点，结果是544点)
-/*				if(sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
-					char[] zero = new char[1];
-					Arrays.fill(zero, (char) 0x0000);
+				char[] zero = new char[1];
+				char[] zero1 = new char[68];
+				Arrays.fill(zero, (char) 0x0000);
+				Arrays.fill(zero1, (char) 0x0000);
 
-					for (int i = 0; i < orgCols; i++) {
-						caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
-						caBuf.append(zero, 0, zero.length);
-					}
-					mBuffer = caBuf.toCharArray();
+				for (int i = 0; i < orgCols; i++) {
+					caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
+					caBuf.append(zero, 0, zero.length);
+				}
+				caBuf.append(zero1, 0, zero1.length);
+				mBuffer = caBuf.toCharArray();
 
-					if (bSave) {
-						FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
-						BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (orgCharsOfHead+1)*2*8*5);
-					}
-				} else {*/
-					char[] zero = new char[1];
-					char[] zero1 = new char[68];
-					Arrays.fill(zero, (char) 0x0000);
-					Arrays.fill(zero1, (char) 0x0000);
-
-					for (int i = 0; i < orgCols; i++) {
-						caBuf.append(mBuffer, i * orgCharsOfHead, orgCharsOfHead);
-						caBuf.append(zero, 0, zero.length);
-					}
-					caBuf.append(zero1, 0, zero1.length);
-					mBuffer = caBuf.toCharArray();
-
-					if (bSave) {
-						FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
-						BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (mBinInfo.mBytesPerHFeed + 2) * 8 * mTask.getNozzle().mHeads);
-					}
-//				}
+				if (bSave) {
+					FileUtil.deleteFolder("/mnt/sdcard/print22MM.bin");
+					BinCreater.saveBin("/mnt/sdcard/print22MM.bin", mBuffer, (mBinInfo.mBytesPerHFeed + 2) * 8 * mTask.getNozzle().mHeads);
+				}
 			}
 		}
 	} catch(Exception e) {
@@ -704,7 +693,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 	}
 		FpgaGpioOperation.createBufEnd();
 		Debug.d(TAG, "--->getPrintBuffer: " + (System.currentTimeMillis() - startTime));
-
 		return mBuffer;
 	}
 
@@ -896,12 +884,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			scaleW = 1;
 			scaleW /= 1.0f * 308 / 152;
 			div = scaleW;
-			scaleH = 0.5f;
+			scaleH = 1.0f * 152 / 308;
 // H.M.Wang 2022-4-29 追加25.4x10头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_254X10) {
 			scaleW /= 10.0f * 308 / 152;
 			div = scaleW;
-			scaleH = 0.05f;
+			scaleH = 1.0f * 152 / (10.0f * 308);
 // End of H.M.Wang 2022-4-29 追加25.4x10头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL) {
 // H.M.Wang 修改
@@ -909,7 +897,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			scaleW = 0.5f;
 			scaleW /= 2.0f * 308 / 152;
 			div = scaleW;
-			scaleH = 0.25f;
+			scaleH = 1.0f * 152 / (2.0f * 308);;
 		// H.M.Wang 追加下列8行
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE) {
 // H.M.Wang 修改
@@ -917,14 +905,32 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //			scaleW = 0.3333333333f;
 			scaleW /= 3.0f * 308 / 152;
 			div = scaleW;
-			scaleH = 0.1666666667f;
+			scaleH = 1.0f * 152 / (3.0f * 308);;
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR) {
 // H.M.Wang 修改
 //			div = 0.25f;
 //			scaleW = 0.25f;
 			scaleW /= 4.0f * 308 / 152;
 			div = scaleW;
-			scaleH = 0.125f;
+			scaleH = 1.0f * 152 / (4.0f * 308);;
+// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1INCHX5) {
+			scaleW /= 5.0f * 308 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / (5.0f * 308);;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1INCHX6) {
+			scaleW /= 6.0f * 308 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / (6.0f * 308);;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1INCHX7) {
+			scaleW /= 7.0f * 308 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / (7.0f * 308);;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_1INCHX8) {
+			scaleW /= 8.0f * 308 / 152;
+			div = scaleW;
+			scaleH = 1.0f * 152 / (8.0f * 308);;
+// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 // H.M.Wang 2024-3-11 追加hp22mm打印头，以生成1056点高的打印image
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_22MM) {
 //			scaleW /= 1.0f * 1056 / 152;
@@ -941,9 +947,9 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_108MM) {
 //			scaleW /= 1.0f * 1056 / 152;
-			scaleW /= 1.0f * 264 * 5 / 152;
+			scaleW /= 1.0f * 258 * 5 / 152;
 			div = scaleW;
-			scaleH = 1.0f * 152 / (528 * 5);
+			scaleH = 1.0f * 152 / (508 * 5);
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;
 			scaleW = 152f/16;
@@ -1214,7 +1220,22 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			} else if(o instanceof GraphicObject) {
 				if(config.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_4) {
 					if(ExcelMainWindow.mLogoBitmap != null) {
-						BinInfo info = new BinInfo(mContext, Bitmap.createScaledBitmap(ExcelMainWindow.mLogoBitmap, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false), mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//						BinInfo info = new BinInfo(mContext, Bitmap.createScaledBitmap(ExcelMainWindow.mLogoBitmap, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false), mTask.getHeads(), mExtendStat);
+						Bitmap bmp = Bitmap.createScaledBitmap(ExcelMainWindow.mLogoBitmap, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), false);
+						Paint paint = new Paint();
+						paint.setAntiAlias(true); //去除锯齿
+						paint.setFilterBitmap(true); //对位图进行滤波处理
+						Bitmap bmp1 = Bitmap.createBitmap(bmp.getHeight(), bmp.getWidth(), Configs.BITMAP_CONFIG);
+						Canvas can = new Canvas(bmp1);
+						can.drawColor(Color.WHITE);
+						can.save();
+						can.rotate(90, 0, 0);
+						can.scale(1, -1, 0, 0);
+						can.drawBitmap(bmp, 0, 0, paint);
+						can.restore();
+						BinInfo info = new BinInfo(mContext, bmp1, mTask.getHeads(), mExtendStat);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 						BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
 					}
 				}
@@ -1278,7 +1299,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //				Debug.d(TAG, "Bitmat: Width=" + bmp.getWidth() + "; Height=" + bmp.getHeight());
                 BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
 //				Debug.d(TAG, "Overlap: x=" + (int)(o.getX()/div) + "; Height=" + info.getCharsFeed() * stat.getScale());
-                BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
 
 /*
 				BinInfo info = null;
@@ -1390,6 +1411,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					//BinCreater.saveBin("/mnt/usbhost1/v" + o.getIndex() + ".bin", var, info.mBytesPerHFeed*8);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 					BinInfo.overlap(mPrintBuffer, var, (int) (rtSub.getX() / div), info.getCharsFeed() * stat.getScale());
+//					Point pt = newSizeOfBin(new Point((int)(rtSub.getY()/scaleH), (int)(rtSub.getHeight()/scaleH)));
+//					info.overlap(mPrintBuffer, var, (int)(rtSub.getX()/div), pt.x, pt.y, info.getCharsFeed(), stat.getScale());
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 ///./...					Debug.d(TAG, "--->real x=" + rtSub.getX() / div);
 //					BinCreater.saveBin("/sdcard/" + o.getIndex() + substr + ".bin", var, info.getCharsFeed() * stat.getScale() * 16);
@@ -1885,7 +1908,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2024-9-20 为扫描协议7增加一个可自由选择打印头的参数，未选择的打印头数据清空。和一个反向打印的开关
 		mBuffer = br.getCharBuffer();
 // End of H.M.Wang 2020-3-3 修改生成偏移，镜像以及倒置的算法
-
 		if (mTask != null && mTask.getNozzle() != null && mTask.getNozzle().buffer8Enable) {
 // H.M.Wang 2022-10-19 对于64SLANT头做特殊处理。64SLANT是将每列的1-32和33-64点分成两个头来看待，
 // Slant2用于控制第二喷头倾斜。（原有SLANT  用于控制第一个32 点喷头倾斜）
@@ -1899,7 +1921,6 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				if(br.getColumnNum() > 0) expendColumn(mBuffer, br.getColumnNum(), SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_SLANT));
 			}
 		}
-
 // End of H.M.Wang 2021-12-29 将下列判断移到这里，保证正常打印的逻辑不变
 	}
 	/**
@@ -2081,7 +2102,7 @@ End of H.M.Wang 2022-7-12 取消原来96DN的构造算法，改为新的构造�
                 // 源数据由于在插入空白后，向后扩展8倍（最终结果达到源数据扩展16倍的效果），因此需要增加mPrintBuffer.length * 8 * 2的空间
         Arrays.fill(buffer, (char)0x0000);
 
-        for (int i=mBinInfo.mColumn-1; i>-0; i--) {
+        for (int i=mBinInfo.mColumn-1; i>=0; i--) {
 			char d1 = 0x0000;
 			char d2 = 0x0000;
 			for (int j=CHARS_PER_COLOMN-1; j>=0; j--) {
@@ -2524,4 +2545,51 @@ public char[] bitShiftFor64SN() {
 
 		mBuffer = Arrays.copyOf(shiftBuffer, realColumns * charsPerColumn);
 	}
+/*
+	// 计算扣窟窿算法的新坐标。
+	// 对于一个全高为h的列，假如需要更新数据的起始点为y1, 结束点为y2，(y1 < y2 < h)。由于二值化后的数据，每个像素点占一位，十六个位为一个char，是一个可访问单位，因此，如果y1，y2不是16的整数倍时，
+	// y1需要向前，y2向后，对齐16字节位置，分别为y1', y2'，这样方便二值化后的数据贴到目标数据上，否则y1，y2不是整char时，粘贴时非常困难
+	// 同时，如果y1‘不等于y1，y1-y1’这部分内容可能会与原数据重叠，需要合并处理，y2与y2‘也同理。因此贴图时可能需要：
+	// 二值化后的数据，如果y1<>y1'，则第一个char与原数据中同位置的数据做或操作，如果y2<>y2’, 则最后一个char与原数据中同位置的数据做或处理，中间数据直接填充
+	private Point newSizeOfBin(Point pt) {
+		int yStart = pt.x, yEnd = pt.x + pt.y;
+
+		PrinterNozzle headType = mTask.getNozzle();
+		switch (headType) {
+			case MESSAGE_TYPE_12_7:
+			case MESSAGE_TYPE_25_4:
+			case MESSAGE_TYPE_38_1:
+			case MESSAGE_TYPE_50_8:
+			case MESSAGE_TYPE_127X5:
+			case MESSAGE_TYPE_127X6:
+			case MESSAGE_TYPE_127X7:
+			case MESSAGE_TYPE_127X8:
+				yStart += (yStart / 152) * 8;			// 由于12.7系列的打印头，每个头的实际点数是152，需要凑成160，因此，每个头的尾部插入8个点，因此该计算的目的是获取插入空格后的开始位置
+				yStart /= 16;							// 除以char的包含位数（对应点数），使得开始位置收敛于真实开始位置前最近的一个整char的开始位置
+				yEnd += (yEnd / 152) * 8;			    // 同理计算出调整后的结束位置
+				yEnd = (int)Math.ceil(1.0f * yEnd / 16);
+				break;
+            case MESSAGE_TYPE_1_INCH:
+            case MESSAGE_TYPE_1_INCH_DUAL:
+            case MESSAGE_TYPE_1_INCH_TRIPLE:
+            case MESSAGE_TYPE_1_INCH_FOUR:
+			case MESSAGE_TYPE_1INCHX5:
+			case MESSAGE_TYPE_1INCHX6:
+			case MESSAGE_TYPE_1INCHX7:
+			case MESSAGE_TYPE_1INCHX8:
+				yStart += (yStart / 308) * 12;
+				yStart /= 16;
+				yEnd += (yEnd / 308) * 12;
+				yEnd = (int)Math.ceil(1.0f * yEnd / 16);
+				break;
+			case MESSAGE_TYPE_108MM:
+				yStart += (yStart / 508) * 36;
+				yStart /= 16;
+				yEnd += (yEnd / 508) * 36;
+				yEnd = (int)Math.ceil(1.0f * yEnd / 16);
+				break;
+		}
+
+		return new Point(yStart, yEnd - yStart);
+	}*/
 }

@@ -239,7 +239,7 @@ public class LibUpgrade {
                 tmpPath = "/data/camera" + (file.startsWith(File.separator) ? "" : File.separator) + file;
             }
             if(ConfigPath.getUpgradePath() == null) return false;
-            srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "/IME" : "/IME/" + File.separator) + file;
+            srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "/IME" : "/IME" + File.separator) + file;
             if(PlatformInfo.isA133Product()) {
                 dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
             } else {

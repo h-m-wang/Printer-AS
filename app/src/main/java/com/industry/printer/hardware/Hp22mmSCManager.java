@@ -123,20 +123,32 @@ public class Hp22mmSCManager implements IInkDevice {
                                 mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, 0, "").sendToTarget();
                                 mInitialized = true;
                             } else {
+                                String errString;
 // H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
                                 if(error == -254) {     // DoPairing failed. 可能是C77指定的头和实际连接打印头不一致
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Pairing failed. Please check C77 head setting").sendToTarget();
+                                    errString = "Pairing failed. Please check C77 head setting";
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
+// H.M.Wang 2026-4-2 增加当配对失败时，读取一下sc卡，以确定是否sc卡插牢了
+                                } else if(error == -252) {
+                                    errString = "Error occured when reading SC of Head 1";
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
+                                } else if(error == -251) {
+                                    errString = "Error occured when reading SC of Head 2";
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
+// End of H.M.Wang 2026-4-2 增加当配对失败时，读取一下sc卡，以确定是否sc卡插牢了
                                 } else if(error == -255) {      // hp22mm类型却在C77制定了两个打印头
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Too many heads indicated in C77").sendToTarget();
+                                    errString = "Too many heads indicated in C77";
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
                                 } else if(error == -253) {      // hp22mm类型却在C77制定了两个打印头
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, "Too few heads indicated in C77").sendToTarget();
+                                    errString = "Too few heads indicated in C77";
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
                                 } else {    // 其它错误
-                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, Hp22mm.getErrString()).sendToTarget();
+                                    errString = Hp22mm.getErrString();
+                                    mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
                                 }
-                                try {
-                                    Thread.sleep(2000);
-                                } catch (Exception e) {
-                                }
+                                ExportLog2Usb.writeHp22mmErrLog(errString + "\r\n");
+
+                                try {Thread.sleep(2000);} catch (Exception e) {}
 // End of H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
                             }
                         }

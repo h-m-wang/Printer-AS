@@ -15,23 +15,19 @@ public class BufferRebuilder {
 //    private int mBytesPerColumn = 0;        // 每列的字节数；mColNum * mBytesPerColumn === mByteBuffer.length
     private int mBlockNum = 0;              // 每列中包含的块的数量，每个块为一个处理的数据单元
 //    private int mBytesPerBlock = 0;         // 每个块的字节数；mBlockNum * mBytesPerBlock === mBytesPerColumn
-
-    public BufferRebuilder(char[] src, int colCharNum, int blockNum) {
-///./...        Debug.d(TAG, "src.length = " + src.length + "; colCharNum = " + colCharNum + "; blockNum = " + blockNum);
+// H.M.Wang 2026-4-9 将char[]向mByteBuffer的数据移动从初始化移开，这样会避免没有移动需求的时候也无意义的移动数据
+    private char[] mCharBuffer;
+    private void transferBuffer() {
         try {
-            mColNum = src.length / colCharNum;
 //            mBytesPerColumn = colCharNum * 2;
 // H.M.Wang 2021-9-1 防止不能整除而产生目标空间不够大而出现OutOfBounds的异常
 //            mByteBuffer = new byte[mColNum * colCharNum * 2];
-            mByteBuffer = new byte[src.length * 2];
+            mByteBuffer = new byte[mCharBuffer.length * 2];
 // End of H.M.Wang 2021-9-1 防止不能整除而产生目标空间不够大而出现OutOfBounds的异常
 
-            mBlockNum = blockNum;
-//            mBytesPerBlock = mBytesPerColumn / mBlockNum;
-
 //            StringBuilder sb = new StringBuilder();
-            for(int i=0; i<src.length; i++) {
-                char tmp = src[i];
+            for(int i=0; i<mCharBuffer.length; i++) {
+                char tmp = mCharBuffer[i];
 //                String str = "0000" + Integer.toHexString(tmp);
 //                sb.append(str.substring(str.length()-4)  + " ");
                 mByteBuffer[2*i] = (byte)(tmp & 0x00ff);
@@ -43,6 +39,15 @@ public class BufferRebuilder {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+// End of H.M.Wang 2026-4-9 将char[]向mByteBuffer的数据移动从初始化移开，这样会避免没有移动需求的时候也无意义的移动数据
+
+    public BufferRebuilder(char[] src, int colCharNum, int blockNum) {
+///./...        Debug.d(TAG, "src.length = " + src.length + "; colCharNum = " + colCharNum + "; blockNum = " + blockNum);
+        mColNum = src.length / colCharNum;
+        mBlockNum = blockNum;
+        mCharBuffer = src;
+        mByteBuffer = null;
     }
 
     public BufferRebuilder shift(int[] shifts) {
@@ -62,6 +67,8 @@ public class BufferRebuilder {
 ///./...                Debug.i(TAG, "No shift required!");
                 return this;
             }
+
+            if(null == mByteBuffer) transferBuffer();
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
             int bytesPerBlock = bytesPerColumn / mBlockNum;
@@ -101,6 +108,8 @@ public class BufferRebuilder {
 ///./...                Debug.i(TAG, "No mirror required!");
                 return this;
             }
+
+            if(null == mByteBuffer) transferBuffer();
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
             int bytesPerBlock = bytesPerColumn / mBlockNum;
@@ -176,6 +185,7 @@ public class BufferRebuilder {
 
 // H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
     public BufferRebuilder reverseHp22mm(int pattern) {
+        if(null == mByteBuffer) transferBuffer();
         int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
         byte temp;
 // H.M.Wang 2025-9-16 根据pattern的值，做不同的导致处理
@@ -216,17 +226,19 @@ public class BufferRebuilder {
 // End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
     public BufferRebuilder reverse(int pattern) {
+        try {
 // H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
-        if((pattern & 0xf0) != 0x00) {
-            return reverseHp22mm(pattern);
-        }
+            if((pattern & 0xf0) != 0x00) {
+                return reverseHp22mm(pattern);
+            }
 // End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
-        try {
 //            Debug.i(TAG, "reverse pattern: " + pattern);
             if ((pattern & 0x0f) == 0x00) {
                 return this;
             }
+
+            if(null == mByteBuffer) transferBuffer();
 
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
 
@@ -315,6 +327,8 @@ public class BufferRebuilder {
                 return this;
             }
 
+            if(null == mByteBuffer) transferBuffer();
+
             int bytesPerColumn = mByteBuffer.length / mColNum;        // 每列的字节数
             int bytesPerBlock = bytesPerColumn / mBlockNum;
             byte[] zero = new byte[bytesPerBlock];
@@ -342,6 +356,8 @@ public class BufferRebuilder {
     }
 
     public char[] getCharBuffer() {
+        if(null == mByteBuffer) return mCharBuffer;
+
         char[] dstBuf = new char[mByteBuffer.length/2];
 
         for(int i=0; i<mByteBuffer.length; i+=2) {

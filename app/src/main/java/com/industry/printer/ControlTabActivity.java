@@ -90,6 +90,7 @@ import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.TextObject;
 import com.industry.printer.object.TlkObject;
+import com.industry.printer.object.data.BitmapWriter;
 import com.industry.printer.pccommand.ClientSocket;
 import com.industry.printer.pccommand.PCCommandHandler;
 import com.industry.printer.pccommand.PCCommandManager;
@@ -121,7 +122,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -2101,6 +2104,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		messageNew = true;
 	}
 
+	private AlertDialog mHp22mmErrorDlg = null;
+
 	public Handler mHandler = new Handler(){
 		public void handleMessage(Message msg) {
 			final String pcMsg = msg.getData().getString(Constants.PC_CMD, "");
@@ -2145,7 +2150,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						message.setData(bundle);
 						message.sendToTarget();
 					}
-
 					if(mSysconfig.getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_2) {
 // H.M.Wang 2022-11-29 补充 2022-10-25修改QuickGroup时的修改遗漏
 //						if (mObjPath.startsWith(Configs.GROUP_PREFIX)) {
@@ -2863,7 +2867,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 // End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 // H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
-					if(!((String)msg.obj).isEmpty()) ToastUtil.show(mContext, (String)msg.obj);
+					if(!((String)msg.obj).isEmpty()) {
+						if(null == mHp22mmErrorDlg) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+							builder.setView(R.layout.toast_layout);
+							mHp22mmErrorDlg = builder.create();
+						}
+						if(!mHp22mmErrorDlg.isShowing()) mHp22mmErrorDlg.show();
+						TextView tv = mHp22mmErrorDlg.findViewById(R.id.text);
+						tv.setText((String)msg.obj);
+//						ToastUtil.show(mContext, (String)msg.obj);
+					}
 // End of H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!TextUtils.isEmpty((String)msg.obj)) {
 						playAlarm(true);
@@ -3618,7 +3632,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						Bundle bundle = new Bundle();
 // H.M.Wang 2025-9-17 支持元素为一个信息的群组
 //						if (f.size() > 1) {
-						if (dialog.ismMultiSelMode()) {
+						if (dialog.isMultiSelMode()) {
 // End of H.M.Wang 2025-9-17 支持元素为一个信息的群组
 							msg = mHandler.obtainMessage(MESSAGE_OPEN_GROUP);
 							bundle.putStringArrayList("file", f);
@@ -3652,6 +3666,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
+
 				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
@@ -4519,7 +4534,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 										 try {
 											 int cIndex = Integer.valueOf(cmd.content);
 											 cIndex--;
-											 if(cIndex < 0 || cIndex > 63) {
+											 if(cIndex < 0 || cIndex > 95) {
 												 Debug.e(TAG, "Invalid PARAM index.");
 												 this.sendmsg(Constants.pcErr(msg));
 											 } else {

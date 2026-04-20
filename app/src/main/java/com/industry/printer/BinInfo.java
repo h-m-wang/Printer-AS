@@ -13,6 +13,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
@@ -176,7 +177,10 @@ public class BinInfo {
 		mBuffer = m.getBuffer();
 		ByteArrayBuffer buffer = new ByteArrayBuffer(0);
 		byte[] header = new byte[BinCreater.RESERVED_FOR_HEADER];
-		int width = bmp.getWidth();
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		int width = bmp.getWidth();
+		int width = bmp.getHeight();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		///./...Debug.d(TAG, "--->width=" + width);
 		header[2] = (byte) (width & 0x0ff);
     	header[1] = (byte) ((width>>8) & 0x0ff);
@@ -717,8 +721,55 @@ public class BinInfo {
     		}
     	}
     }
-    
-    /**
+
+/*
+	public static void overlap(char[] dst, char[] src, int x, int y, int high, int headHeight, int one4allScale) {
+		Debug.d(TAG, "DataTask x=" + x + ", y=" + y + ", high=" + high + ", headHeight=" + headHeight + ", one4allScale=" + one4allScale);
+		int width = src.length / high;
+		int totalHeight = headHeight * one4allScale;
+		int headStep = headHeight, columnStep = totalHeight;
+		int dstStartPos = x * headHeight * one4allScale + y;
+		int dstEndPos = x * headHeight * one4allScale + y;
+		try {
+			if(one4allScale == 1) {				// 没有一带多
+				if(y == 0 && high == headHeight) {        // 跟新内容就是全高的
+					System.arraycopy(src, 0, dst, x*headHeight, src.length);		// 把待贴入内容全部一次性贴入
+				} else {
+					int pd = x*headHeight+y;
+					int ps=0;
+					for(int i=0; i<width; i++) {
+						dst[pd] |= src[ps];					    // 原始列头char做合并处理，为了放置覆盖掉上面已有内容
+						if(high > 2) System.arraycopy(src, ps+1, dst, pd+1, high-2);	    // 中间部分直接覆盖
+						dst[pd+high-1] |= src[(i+1)*high-1];    // 原始列尾char做合并处理，为了放置覆盖掉下面已有内容
+
+						pd += headHeight;
+						ps += high;
+					}
+				}
+			} else {
+				if(y == 0 && high == headHeight) {        // 跟新内容就是全高的
+					System.arraycopy(src, 0, dst, x*headHeight*one4allScale, src.length);		// 把待贴入内容全部一次性贴入，src是已经按着一带多生成好的
+				} else {
+					int pd = x*headHeight*one4allScale+y;
+					int ps = 0;
+					for(int i=0; i<width; i++) {
+						for(int k=0; k<one4allScale; k++) {			// 对于每一个一带多的单元，都重复将src的对应部分复制到目标位置
+							dst[pd] |= src[ps];					    // 原始列头char做合并处理，为了放置覆盖掉上面已有内容
+							if(high > 2) System.arraycopy(src, ps+1, dst, pd+1, high-2);	    // 中间部分直接覆盖
+							dst[pd+high-1] |= src[(i+1)*high-1];    // 原始列尾char做合并处理，为了放置覆盖掉下面已有内容
+
+							pd += headHeight;
+							ps += high;
+						}
+					}
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+*/
+	/**
      * 覆蓋方式
      * @param dst
      * @param src

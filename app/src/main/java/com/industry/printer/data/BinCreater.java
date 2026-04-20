@@ -308,7 +308,10 @@ public class BinCreater {
     
     public boolean saveBin(String f) {
     	int bytesPerCol = 0;
-    	bytesPerCol = mHeight%8==0? mHeight/8 : (mHeight/8+1);
+// H.M.Wang 2026-4-14 旋转镜像转换。由于经过了旋转镜像，原来的height变成了width
+//		bytesPerCol = mHeight%8==0? mHeight/8 : (mHeight/8+1);
+		bytesPerCol = mWidth%8==0? mWidth/8 : (mWidth/8+1);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
     	int columns = mBinBits.length/bytesPerCol;
     	try {
     		
@@ -325,9 +328,14 @@ public class BinCreater {
 	    	head[0] = (byte) ((columns>>16) & 0x0ff);
 	    	
 	    	/*save width of single element*/
-	    	head[5] = (byte) (mHeight & 0x0ff);
-	    	head[4] = (byte) ((mHeight>>8) & 0x0ff);
-	    	head[3] = (byte) ((mHeight>>16) & 0x0ff);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			head[5] = (byte) (mHeight & 0x0ff);
+//			head[4] = (byte) ((mHeight>>8) & 0x0ff);
+//			head[3] = (byte) ((mHeight>>16) & 0x0ff);
+	    	head[5] = (byte) (mWidth & 0x0ff);
+	    	head[4] = (byte) ((mWidth>>8) & 0x0ff);
+	    	head[3] = (byte) ((mWidth>>16) & 0x0ff);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 	    	stream.write(head);
 			stream.write(mBinBits);
 			stream.flush();

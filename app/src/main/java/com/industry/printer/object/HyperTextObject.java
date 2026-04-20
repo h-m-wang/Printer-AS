@@ -8,9 +8,12 @@ import android.graphics.Paint;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MessageTask;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.cache.FontCache;
+import com.industry.printer.object.data.BitmapWriter;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -668,7 +671,10 @@ public class HyperTextObject extends BaseObject {
     public Bitmap getBgBitmap(Context context, float scaleW, float scaleH) {
         Debug.d(TAG, "getBgBitmap width = " + (mXcor_end - mXcor) + ", mHeight = " + mHeight);
 
-        Bitmap bmp = Bitmap.createBitmap((int)(mXcor_end * scaleW - mXcor * scaleW) , (int)(mHeight * scaleH), Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//        Bitmap bmp = Bitmap.createBitmap((int)(mXcor_end * scaleW - mXcor * scaleW) , (int)(mHeight * scaleH), Configs.BITMAP_CONFIG);
+        Bitmap bmp = Bitmap.createBitmap((int)(mHeight * scaleH), (int)(mXcor_end * scaleW - mXcor * scaleW) , Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
         mCan = new Canvas(bmp);
         mCan.drawColor(Color.WHITE);
         for(BaseObject o : mSubObjs) {
@@ -677,7 +683,10 @@ public class HyperTextObject extends BaseObject {
                 if (b == null) {
                     continue;
                 }
-                mCan.drawBitmap(b, (int)(o.getX() * scaleW), 0, mPaint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//                mCan.drawBitmap(b, (int)(o.getX() * scaleW), 0, mPaint);
+                mCan.drawBitmap(b, 0, (int)(o.getX() * scaleW), mPaint);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
             }
         }
         return bmp;
@@ -735,13 +744,25 @@ public class HyperTextObject extends BaseObject {
 
     @Override
     public int makeVarBin(Context ctx, float scaleW, float scaleH, int dstH) {
-        int dot = 0;
+// H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
+        int dot = 0, d = 0;
+        BaseObject savedObj = null;
+// End of H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
         for(BaseObject o : mSubObjs) {
             Debug.d(TAG, "--->obj: " + o.mId);
             if(o instanceof TextObject) {
                 continue;
             } else	{
-                dot += o.makeVarBin(ctx, scaleW, scaleH, dstH);
+// H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
+//                dot += o.makeVarBin(ctx, scaleW, scaleH, dstH);
+                if(null == savedObj) {
+                    d = o.makeVarBin(ctx, scaleW, scaleH, dstH);
+                    savedObj = o;
+                } else {
+                    FileUtil.copyFile(ConfigPath.getVBinAbsolute(mTask.getName(), savedObj.mIndex), ConfigPath.getVBinAbsolute(mTask.getName(), o.mIndex));
+                }
+                dot += d;
+// End of H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
             }
         }
         return dot;

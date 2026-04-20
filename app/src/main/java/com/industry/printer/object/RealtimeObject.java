@@ -3,9 +3,12 @@ package com.industry.printer.object;
 import java.util.Vector;
 
 import com.industry.printer.MessageTask;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
+import com.industry.printer.object.data.BitmapWriter;
 
 import android.R;
 import android.content.Context;
@@ -213,7 +216,10 @@ public class RealtimeObject extends BaseObject {
 		Debug.d(TAG, "getBgBitmap scaleW="+scaleW+", scaleH="+scaleH);
 		Debug.d(TAG, "getBgBitmap width="+Math.round(mXcor_end * scaleW - mXcor * scaleW)+", mHeight="+Math.round(mHeight * scaleH));
 		// meature();
-		Bitmap bmp = Bitmap.createBitmap(Math.round(mXcor_end * scaleW - mXcor * scaleW) , Math.round(mHeight * scaleH), Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap bmp = Bitmap.createBitmap(Math.round(mXcor_end * scaleW - mXcor * scaleW) , Math.round(mHeight * scaleH), Configs.BITMAP_CONFIG);
+		Bitmap bmp = Bitmap.createBitmap(Math.round(mHeight * scaleH), Math.round(mXcor_end * scaleW - mXcor * scaleW) , Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		//System.out.println("getBitmap width="+width+", height="+height+ ", mHeight="+mHeight);
 		mCan = new Canvas(bmp);
 		mCan.drawColor(Color.WHITE);
@@ -227,7 +233,11 @@ public class RealtimeObject extends BaseObject {
 				if (b == null) {
 					continue;
 				}
-				mCan.drawBitmap(b, Math.round(o.getX() * scaleW - getX() * scaleW), 0, mPaint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//				mCan.drawBitmap(b, Math.round(o.getX() * scaleW - getX() * scaleW), 0, mPaint);
+				mCan.drawBitmap(b, 0, Math.round(o.getX() * scaleW - getX() * scaleW), mPaint);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+				b.recycle();
 				Debug.d(TAG, "drawBitmap: x=" + Math.round((o.getX() * scaleW)) + "; y=" + Math.round(o.getY() * scaleH) + "; w= " + b.getWidth() + "; h= " + b.getHeight());
 			}
 			else	//variable
@@ -253,7 +263,10 @@ public class RealtimeObject extends BaseObject {
 
 	@Override
 	public int makeVarBin(Context ctx, float scaleW, float scaleH, int dstH) {
-		int dot = 0;
+// H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
+		int dot = 0, d = 0;
+		BaseObject savedObj = null;
+// End of H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
 		for(BaseObject o : mSubObjs)
 		{
 			Debug.d(TAG, "--->obj: " + o.mId);
@@ -262,7 +275,15 @@ public class RealtimeObject extends BaseObject {
 			}
 			else	//variable
 			{
-				dot += o.makeVarBin(ctx, scaleW, scaleH, dstH);
+// H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
+				if(null == savedObj) {
+					d = o.makeVarBin(ctx, scaleW, scaleH, dstH);
+					savedObj = o;
+				} else {
+					FileUtil.copyFile(ConfigPath.getVBinAbsolute(mTask.getName(), savedObj.mIndex), ConfigPath.getVBinAbsolute(mTask.getName(), o.mIndex));
+				}
+				dot += d;
+// End of H.M.Wang 2026-4-7 修改对于一个日期的符合变量当中，仅生成第一个变量的vbin，其他的变量直接复制，以节省生成时间
 			}
 		}
 		return dot;
@@ -528,7 +549,7 @@ public class RealtimeObject extends BaseObject {
 		if (mXcor_end - mXcor == 0) {
 	//		meature();
 		}
-		Debug.e(TAG, "=============--->getScaledBitmap xEnd: " + mXcor_end + " x="+ mXcor + "  height=" + mHeight);
+		Debug.d(TAG, "=============--->getScaledBitmap xEnd: " + mXcor_end + " x="+ mXcor + "  height=" + mHeight);
 		// meature();
 		
 		bitmap = Bitmap.createBitmap((int)(mXcor_end - mXcor) , (int)mHeight, Configs.BITMAP_PRE_CONFIG);
@@ -537,7 +558,7 @@ public class RealtimeObject extends BaseObject {
 		for(BaseObject o : mSubObjs)
 		{
 			Bitmap b = o.getpreviewbmp();
-			Debug.e(TAG, "============>id:" + o.mId + ", x=" + o.getX() + "  width = " + b.getWidth());
+			Debug.d(TAG, "============>id:" + o.mId + ", x=" + o.getX() + "  width = " + b.getWidth());
 			mCan.drawBitmap(b, o.getX()-getX(), 0, mPaint);
 		}
 		return bitmap;

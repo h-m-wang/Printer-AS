@@ -30,10 +30,10 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    Binarization
- * Signature: ([IIIII)[B
+ * Signature: ([IIIIII)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Binarize
-  (JNIEnv *, jclass, jintArray, jint, jint, jint, jint);
+  (JNIEnv *, jclass, jintArray, jint, jint, jint, jint, jint);
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni

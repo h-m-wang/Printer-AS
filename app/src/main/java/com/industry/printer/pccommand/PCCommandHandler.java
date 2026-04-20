@@ -566,7 +566,7 @@ public class PCCommandHandler {
             try {
                 int cIndex = Integer.valueOf(cmd.content);
                 cIndex--;
-                if(cIndex < 0 || cIndex > 63) {
+                if(cIndex < 0 || cIndex > 95) {
                     Debug.e(TAG, "Invalid PARAM index.");
                     sendmsg(Constants.pcErr(msg));
                 } else {

@@ -213,7 +213,7 @@ public class Hp22mm {
 
         int[] penIdxs;
         if(penArg == 0x01) {
-            penIdxs = new int[] {0};
+            penIdxs = new int[]{0};
         } else if(penArg == 0x02) {
             penIdxs = new int[]{1};
         } else {
@@ -236,6 +236,10 @@ public class Hp22mm {
 
         if (0 != DoPairing()) {
             Debug.d(TAG, "DoPairing failed\n");
+// H.M.Wang 2026-4-2 增加当配对失败时，读取一下sc卡，以确定是否sc卡插牢了
+            if(pd_sc_get_info(penIdxs[0]) == -1) return -252;
+            if(penIdxs.length > 1 && pd_sc_get_info(penIdxs[1]) == -1) return -251;
+// End of H.M.Wang 2026-4-2 增加当配对失败时，读取一下sc卡，以确定是否sc卡插牢了
 // H.M.Wang 2025-1-20 虽然C31指定为hp22mm，C77指定了单头，但是两者不匹配，会发生DoPairing错误，此时返回-254错误
             return -254;
 // End of H.M.Wang 2025-1-20 虽然C31指定为hp22mm，C77指定了单头，但是两者不匹配，会发生DoPairing错误

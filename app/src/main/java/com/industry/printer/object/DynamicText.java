@@ -226,11 +226,22 @@ public class DynamicText extends BaseObject {
         Paint.FontMetrics fm = paint.getFontMetrics();
 
         // 按调整了大小的高度进行正常图片绘制
-        Bitmap drawBmp = Bitmap.createBitmap(drawWidth, dstHeight, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//        Bitmap drawBmp = Bitmap.createBitmap(drawWidth, dstHeight, Configs.BITMAP_CONFIG);
+        Bitmap drawBmp = Bitmap.createBitmap(dstHeight, drawWidth, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
         Debug.d(TAG,"Draw [" + cnt + "] with [" + drawWidth + ", " + drawHeight + "]");
         Canvas drawCanvas = new Canvas(drawBmp);
         drawCanvas.drawColor(Color.WHITE);
+// H.M.Wang 2026-4-14 旋转镜像转换
+        drawCanvas.save();
+        drawCanvas.rotate(90, 0, 0);
+        drawCanvas.scale(1, -1, 0, 0);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
         drawCanvas.drawText(cnt, 0, drawY + drawHeight - fm.descent, paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+        drawCanvas.restore();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 
         return drawBmp;
     }

@@ -4,6 +4,7 @@ import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
+import com.industry.printer.object.data.BitmapWriter;
 
 import android.graphics.Bitmap;
 
@@ -46,8 +47,8 @@ public class BinFromBitmap extends BinCreater {
 	@Override
 	// H.M.Wang 追加一个是否移位的参数
 	public int[] extract(Bitmap bmp, int head, boolean needShift) {
-    	mWidth = bmp.getWidth();         
-        mHeight = bmp.getHeight(); 
+    	mWidth = bmp.getWidth();         		// mWidth 是经过旋转的bmp的宽，相当于原图的高
+        mHeight = bmp.getHeight(); 				// mHeight 是经过旋转的bmp的高，相当于原图的宽
         mHeighEachHead = mHeight / head;
 
 /*
@@ -99,6 +100,38 @@ public class BinFromBitmap extends BinCreater {
 
 		// H.M.Wang 增加9行 25.4xn情况下断档和实现JNI的二值化
 //		int[] pixels = new int[mWidth * mHeight];
+		if(mWidth * mHeight > 4 * 1024 * 1024) {
+			int procHeight = 4 * 1024 * 1024 / mWidth;
+			pixels = new int[procHeight * mWidth];
+			int xPos = 0;
+
+			int binWidth = (mWidth % 8 == 0 ? mWidth/8 : mWidth/8 + 1);
+/*			if(needShift) {
+				binWidth = head * 320 / 8;
+			} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+				binWidth = 5 * 544 / 8;
+			}*/
+            mBinBits = new byte[mHeight * binWidth];
+			while(xPos < mHeight) {
+				int tmpHeight = (mHeight - xPos > procHeight ? procHeight : mHeight - xPos);
+//				Debug.d(TAG, "xPos = " + xPos + "; tmpHeight = " + tmpHeight + "; mHeight = " + mHeight + "; binWidth = " + binWidth);
+				bmp.getPixels(pixels, 0, mWidth, 0, xPos, mWidth, tmpHeight);
+
+				if(needShift) {
+					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head, 308, 320);
+				} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
+				}
+				byte[] tmpBin;
+				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head*5, 240, (xPos == 0 ? 1 : 0));	// 因为108MM表面上是按着1个头来管理的，但是在二值化时需要考虑头之间的间隙
+				} else {
+					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));
+				}
+				System.arraycopy(tmpBin, 0, mBinBits, xPos * binWidth, tmpBin.length);
+				xPos += tmpHeight;
+			}
+		} else {
 // H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_FOR_ALLOC)而额外消耗时间
 		if(mWidth * mHeight > pixels.length) pixels = new int[mWidth * mHeight];
 // End of H.M.Wang 2023-2-19 事先生成一个具有一定空间的pixels数组，在实际使用时，如果需要的空间在此范围内就不再申请空间，而是直接使用这个预先申请的空间，目的是避免运行时频繁申请内存而导致系统启动内存清理(GC_FOR_ALLOC)而额外消耗时间
@@ -110,11 +143,14 @@ public class BinFromBitmap extends BinCreater {
 		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 		}
-
 // H.M.Wang 2020-9-10 大字机5x5字体的时候，vbin的全白问题，原来的220阈值有点低，修改为240
-		mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240);
-// H.M.Wang 2020-9-10 大字机5x5字体的时候，...
-
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head*5, 240, 1);
+		} else {
+			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);
+		}
+// End of H.M.Wang 2020-9-10 大字机5x5字体的时候，...
+		}
 		mDots = NativeGraphicJni.GetDots();
 
 		// H.M.Wang 增加1行
@@ -122,7 +158,7 @@ public class BinFromBitmap extends BinCreater {
 
         return mDots; 
     }
-	
+
 	public static Bitmap Bin2Bitmap(byte []map)
     {
     	int k=0;

@@ -28,6 +28,7 @@ import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.R;
 import com.industry.printer.data.ZIntSymbol;
+import com.industry.printer.object.data.BitmapWriter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -604,6 +605,8 @@ public class BarcodeObject extends BaseObject {
 		// mBitmap = draw(mContent, (int)mWidth, (int)mHeight);
 		setWidth(mWidth);
 
+// H.M.Wang 2026-4-14 由于绘图的时候已经做了着色处理，因此这里可以省略
+/*
 // H.M.Wang 2022-4-23 追加动态条码、二维码使用蓝色图案
 		if(mSource) {
 			int[] pixels = new int[(int)mWidth * (int)mHeight];
@@ -619,6 +622,8 @@ public class BarcodeObject extends BaseObject {
 			mBitmap.setPixels(pixels, 0, (int)mWidth, 0, 0, (int)mWidth, (int)mHeight);
 		}
 // End of H.M.Wang 2022-4-23 追加动态条码、二维码使用蓝色图案
+*/
+// End of H.M.Wang 2026-4-14 由于绘图的时候已经做了着色处理，因此这里可以省略
 
 		return mBitmap;
 	}
@@ -646,28 +651,37 @@ public class BarcodeObject extends BaseObject {
 		return Bitmap.createScaledBitmap(mBitmap, (int) mWidth, (int) mHeight, false);
 	}
 
+// H.M.Wang 2026-4-14 增加一个当前生成内容的目标是否为bin，如果是bin的情况下，需要进行旋转镜像处理
+	private boolean mIsForBin = false;
+// End of H.M.Wang 2026-4-14 增加一个当前生成内容的目标是否为bin，如果是bin的情况下，需要进行旋转镜像处理
 	@Override
 	public Bitmap makeBinBitmap(Context ctx, String content, int ctW, int ctH, String font) {
 // H.M.Wang 2025-7-10 修改当内容为动态条码或者是静态条码中包含超文本时，不生成，直接返回空
-		if(getSource() || needRedraw()) return null;
+		if(isDynamicCode() || needRedraw()) return null;
 // End of H.M.Wang 2025-7-10 修改当内容为动态条码或者是静态条码中包含超文本时，不生成，直接返回空
+
+		Bitmap bmp;
+		mIsForBin = true;
 
 		if (is2D()) {
 //			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
-				return drawDataMatrix(content, ctW, ctH);
+				bmp = drawDataMatrix(content, ctW, ctH);
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
-				return drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
+				bmp =  drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
-				return drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
+				bmp =  drawGS1Datamatrix(mContent, (int) mWidth, (int) mHeight);
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else {
-				return drawQR(content, ctW, ctH);
+				bmp =  drawQR(content, ctW, ctH);
 			}
 		} else {
-			return draw(content, ctW, ctH);
+			bmp =  draw(content, ctW, ctH);
 		}
+
+		mIsForBin = false;
+		return bmp;
 	}
 
 	private Bitmap drawLcfQR(String strContent, int w, int h) {
@@ -745,7 +759,8 @@ public class BarcodeObject extends BaseObject {
 			int width = matrix.getWidth();
 			int height = matrix.getHeight();
 			Debug.d("BarcodeObject", "mWidth="+ w +", width="+width + "   height=" + height);
-			int[] pixels = new int[width * height];
+// H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
+/*			int[] pixels = new int[width * height];
 			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++)
@@ -778,6 +793,30 @@ public class BarcodeObject extends BaseObject {
 			}
 // End of H.M.Wang 2025-7-21 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
+*/
+			Bitmap bitmap;
+			if(mIsForBin) {
+				int[] pixels = BitMatrix2IntArray(matrix, width, height, true,
+						(mRevert ? 0xffffffff : 0xff000000),
+						(mRevert ? 0xff000000 : 0xffffffff));
+				bitmap = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+				bitmap.setPixels(pixels, 0, height, 0, 0, height, width);
+				if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+						(width != w || height != h)) {
+					return Bitmap.createScaledBitmap(bitmap, h, w, false);
+				}
+			} else {
+				int[] pixels = BitMatrix2IntArray(matrix, width, height, false,
+                        (mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000)),
+						(mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff));
+				bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+				bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+				if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+						(width != w || height != h)) {
+					return Bitmap.createScaledBitmap(bitmap, w, h, false);
+				}
+			}
+// End of H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
 			return bitmap;
 //			return Bitmap.createScaledBitmap(bitmap, w, h, false);
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
@@ -801,7 +840,15 @@ public class BarcodeObject extends BaseObject {
             drawH = drawW;
         }
 //		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);;
-        Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+		Bitmap outBmp;
+        if(mIsForBin) {
+			outBmp = Bitmap.createBitmap(drawH, drawW, Configs.BITMAP_CONFIG);
+        } else {
+			outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+		}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 
 //		Debug.d(TAG, "GS1 QR: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
@@ -836,16 +883,29 @@ public class BarcodeObject extends BaseObject {
 				Java2DRenderer renderer = new Java2DRenderer(drawH/qrcode.getHeight(), Color.WHITE, Color.BLACK);
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				renderer.setReverse(mRevert);
-				if (isDynamicCode() || needRedraw()) {
+				if (needRedraw() && !mIsForBin) {
 					renderer.setInk(0xff0000ff);
 				}
 				Bitmap bitmap = renderer.render(qrcode);
 //				Debug.d(TAG, "GS1 QR width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
 
 				Canvas canvas = new Canvas(outBmp);
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					canvas.save();
+					canvas.rotate(90, 0, 0);
+					canvas.scale(1, -1, 0, 0);
+				}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
+
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				canvas.drawBitmap(bitmap, (drawW - bitmap.getWidth())/2, (drawH - bitmap.getHeight())/2, new Paint());  // 将bitmap画在中央
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					canvas.restore();
+				}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 				bitmap.recycle();
 			}
 		} catch (OkapiException e) {
@@ -858,7 +918,14 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
         if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
             (w != drawW || h != drawH)) {
-            return Bitmap.createScaledBitmap(outBmp, w, h, false);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			return Bitmap.createScaledBitmap(outBmp, w, h, false);
+			if(mIsForBin) {
+				return Bitmap.createScaledBitmap(outBmp, h, w, false);
+			} else {
+				return Bitmap.createScaledBitmap(outBmp, w, h, false);
+			}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
         }
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 		return outBmp;
@@ -873,7 +940,15 @@ public class BarcodeObject extends BaseObject {
             drawH = drawW;
         }
 //        Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
-        Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+		Bitmap outBmp;
+		if(mIsForBin) {
+			outBmp = Bitmap.createBitmap(drawH, drawW, Configs.BITMAP_CONFIG);
+		} else {
+			outBmp = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+		}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 
 //		Debug.d(TAG, "GS1 DM: cnt=[" + content + "]; \nw=" + w + "; h=" + h);
@@ -892,16 +967,29 @@ public class BarcodeObject extends BaseObject {
 				Java2DRenderer renderer = new Java2DRenderer(drawH/dataMatrix.getHeight(), Color.WHITE, Color.BLACK);
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				renderer.setReverse(mRevert);
-				if (isDynamicCode() || needRedraw()) {
+				if (needRedraw() && !mIsForBin) {
 					renderer.setInk(0xff0000ff);
 				}
 				Bitmap bitmap = renderer.render(dataMatrix);
 //				Debug.d(TAG, "GS1 DM width: " + bitmap.getWidth() + "; height: " + bitmap.getHeight());
 
 				Canvas canvas = new Canvas(outBmp);
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					canvas.save();
+					canvas.rotate(90, 0, 0);
+					canvas.scale(1, -1, 0, 0);
+				}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
+
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 				canvas.drawBitmap(bitmap, (drawW - bitmap.getWidth())/2, (drawH - bitmap.getHeight())/2, new Paint());
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					canvas.restore();
+				}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 				bitmap.recycle();
 			}
 		} catch (Exception e) {
@@ -919,7 +1007,14 @@ public class BarcodeObject extends BaseObject {
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
         if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
                 (w != drawW || h != drawH)) {
-            return Bitmap.createScaledBitmap(outBmp, w, h, false);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			return Bitmap.createScaledBitmap(outBmp, w, h, false);
+			if(mIsForBin) {
+				return Bitmap.createScaledBitmap(outBmp, h, w, false);
+			} else {
+				return Bitmap.createScaledBitmap(outBmp, w, h, false);
+			}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
         }
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 		return outBmp;
@@ -958,6 +1053,10 @@ public class BarcodeObject extends BaseObject {
 
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
+		Debug.d(TAG, "Content: " + content + "; drawW: " + drawW + "; drawH: " + drawH + "; Width: " + width + "; Height: " + height);
+
+// H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
+/*
 // H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
 //		int[] pixels = new int[width * height];
 // H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
@@ -965,8 +1064,6 @@ public class BarcodeObject extends BaseObject {
         int[] pixels = new int[drawW * drawH];
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 // End of H.M.Wang 2024-12-6 生成的DM码放置于申请大小中心（四边各留一个像素的空格）
-
-		Debug.d(TAG, "Content: " + content + "; drawW: " + drawW + "; drawH: " + drawH + "; Width: " + width + "; Height: " + height);
 //		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height; y++)
 		{
@@ -1021,6 +1118,30 @@ public class BarcodeObject extends BaseObject {
             return Bitmap.createScaledBitmap(bitmap, w, h, false);
         }
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
+*/
+		Bitmap bitmap;
+		if(mIsForBin) {
+			int[] pixels = BitMatrix2IntArray(matrix, width, height, true,
+					(mRevert ? 0xffffffff : 0xff000000),
+					(mRevert ? 0xff000000 : 0xffffffff));
+			bitmap = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+			bitmap.setPixels(pixels, 0, height, 0, 0, height, width);
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+					(width != w || height != h)) {
+				return Bitmap.createScaledBitmap(bitmap, h, w, false);
+			}
+		} else {
+			int[] pixels = BitMatrix2IntArray(matrix, width, height, false,
+					(mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000)),
+					(mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff));
+			bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+					(width != w || height != h)) {
+				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+			}
+		}
+// End of H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
 		return bitmap;
 //		return Bitmap.createScaledBitmap(bitmap, w, h, false);
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
@@ -1028,7 +1149,8 @@ public class BarcodeObject extends BaseObject {
 //		return bitmap;
 	}
 
-	private int[] BitMatrix2IntArray(BitMatrix matrix, int width, int height) {
+// H.M.Wang 2026-4-14 实现BitMatrix到pixels的转换。并且根据需要，实现生成bin数据时的旋转镜像转换
+/*	private int[] BitMatrix2IntArray(BitMatrix matrix, int width, int height) {
 		int[] pixels = new int[width * height];
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -1040,7 +1162,27 @@ public class BarcodeObject extends BaseObject {
 			}
 		}
 		return pixels;
+	}*/
+	private int[] BitMatrix2IntArray(BitMatrix matrix, int width, int height, boolean is4Bin, int foreColor, int backColor) {
+		int[] pixels = new int[width * height];
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				if (matrix.get(x, y)) {
+					if(is4Bin)
+						pixels[x * height + y] = foreColor;
+					else
+						pixels[y * width + x] = foreColor;
+				} else {
+					if(is4Bin)
+						pixels[x * height + y] = backColor;
+					else
+						pixels[y * width + x] = backColor;
+				}
+			}
+		}
+		return pixels;
 	}
+// End of H.M.Wang 2026-4-14 实现BitMatrix到pixels的转换。并且根据需要，实现生成bin数据时的旋转镜像转换
 
 	// H.M.Wang 2020-6-19 修改EAN-13和EAN-8的图片输出格式
 	private Bitmap drawEAN8(int w, int h) {
@@ -1066,11 +1208,26 @@ public class BarcodeObject extends BaseObject {
 			int height = matrix.getHeight();
 			int br[] = matrix.getBottomRightOnBit();
 			Debug.d(TAG, "width="+ width +", height="+height + "， left=" + tl[0] + "， top=" + tl[1] + "， right=" + br[0] + "， bottom=" + br[1]);
-			int[] pixels = BitMatrix2IntArray(matrix, width, height);
+			int[] pixels = BitMatrix2IntArray(matrix, width, height, mIsForBin,
+					(mRevert ? 0xffffffff : ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000)),
+					(mRevert ? ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000) : 0xffffffff));
 
-			Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-			bmp.setPixels(pixels, 0, width, 0, 0, width, height);
-			Bitmap bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+//			bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+//			Bitmap bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+			Bitmap bitmap;
+			Bitmap bmp;
+			if(mIsForBin) {
+				bmp = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+				bmp.setPixels(pixels, 0, height, 0, 0, height, width);
+				bitmap = Bitmap.createBitmap(h, width, Configs.BITMAP_CONFIG);
+			} else {
+				bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+				bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+				bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+			}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 			Canvas can = new Canvas(bitmap);
 
 			if(mShow) {
@@ -1087,6 +1244,13 @@ public class BarcodeObject extends BaseObject {
 
 				paint.setStyle(Paint.Style.FILL);
 
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.save();
+					can.rotate(90, 0, 0);
+					can.scale(1, -1, 0, 0);
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				// 清空文字区背景
 				can.drawRect(left + modWidth * 3, top + h - textH - 5, left + modWidth * 31, top + h, paint);
 				can.drawRect(left + modWidth * 36, top + h - textH - 5, left + modWidth * 64, top + h, paint);
@@ -1107,14 +1271,32 @@ public class BarcodeObject extends BaseObject {
 //					can.drawText(content.substring(i, i+1), left + modWidth * 3 + (i+0.5f)* numDispWid, h-3, paint);
 //					can.drawText(content.substring(i+4, i+5), left + modWidth * 36 + (i+0.5f) * numDispWid, h-3, paint);
 //				}
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.restore();
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+				bmp.recycle();
 			}
 
-			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// H.M.Wang 2026-4-14 旋转镜像转换
+			if(mIsForBin) {
+				return Bitmap.createScaledBitmap(bitmap, h, w, false);
+			} else {
+				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+			}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		} catch (Exception e) {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
 // H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
-		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+		if(mIsForBin) {
+			return Bitmap.createBitmap(h, w, Configs.BITMAP_CONFIG);
+		} else {
+			return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 //		return null;
 // End of H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
 	}
@@ -1142,11 +1324,26 @@ public class BarcodeObject extends BaseObject {
 			int height = matrix.getHeight();
 			int br[] = matrix.getBottomRightOnBit();
 			Debug.d(TAG, "width="+ width +", height="+height + "， left=" + tl[0] + "， top=" + tl[1] + "， right=" + br[0] + "， bottom=" + br[1]);
-			int[] pixels = BitMatrix2IntArray(matrix, width, height);
+			int[] pixels = BitMatrix2IntArray(matrix, width, height, mIsForBin,
+					(mRevert ? 0xffffffff : ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000)),
+					(mRevert ? ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000) : 0xffffffff));
 
-			Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-			bmp.setPixels(pixels, 0, width, 0, 0, width, height);
-			Bitmap bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+//			bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+//			Bitmap bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+			Bitmap bitmap;
+			Bitmap bmp;
+			if(mIsForBin) {
+				bmp = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+				bmp.setPixels(pixels, 0, height, 0, 0, height, width);
+				bitmap = Bitmap.createBitmap(h, width, Configs.BITMAP_CONFIG);
+			} else {
+				bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+				bmp.setPixels(pixels, 0, width, 0, 0, width, height);
+				bitmap = Bitmap.createBitmap(width, h, Configs.BITMAP_CONFIG);
+			}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 			Canvas can = new Canvas(bitmap);
 
 			if(mShow) {
@@ -1163,6 +1360,13 @@ public class BarcodeObject extends BaseObject {
 
 				paint.setStyle(Paint.Style.FILL);
 
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.save();
+					can.rotate(90, 0, 0);
+					can.scale(1, -1, 0, 0);
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				// 清空文字区背景
 				can.drawRect(left + modWidth * 3, top + h - textH - 5, left + modWidth * 45, top + h, paint);
 				can.drawRect(left + modWidth * 50, top + h - textH - 5, left + modWidth * 92, top + h, paint);
@@ -1185,14 +1389,32 @@ public class BarcodeObject extends BaseObject {
 //					can.drawText(content.substring(i+7, i+8), left + modWidth * 50 + (i+0.5f) * numDispWid, h-3, paint);
 //				}
 // End of H.M.Wang 2021-10-6 修改显示编码内容，追加导入码的显示
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.restore();
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+				bmp.recycle();
 			}
 
-			return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// H.M.Wang 2026-4-14 旋转镜像转换
+			if(mIsForBin) {
+				return Bitmap.createScaledBitmap(bitmap, h, w, false);
+			} else {
+				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+			}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		} catch (Exception e) {
 			Debug.d(TAG, "--->exception: " + e.getMessage());
 		}
 // H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
-		return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+		if(mIsForBin) {
+			return Bitmap.createBitmap(h, w, Configs.BITMAP_CONFIG);
+		} else {
+			return Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 //		return null;
 // End of H.M.Wang 2020-8-10 如果条码格式有误，会在这里返回null，但是后续没有对null的情况进行排查，所以会导致异常发生，如EAN8赋值了非数字就会发生这种情形，改为返回一个空的bitmap
 	}
@@ -1219,12 +1441,20 @@ public class BarcodeObject extends BaseObject {
 		int textH = (h * mTextSize) / 100;
 		int width = w - 2 * margin;
 		int height = h - textH - 2 * margin;
-		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		Bitmap outBmp;
+		if(mIsForBin) {
+			outBmp = Bitmap.createBitmap(h, w, Configs.BITMAP_CONFIG);
+		} else {
+			outBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+		}
+// End of H.M.Wang 2026-4-14 实现旋转镜像转换
 
 		Paint paint = new Paint();
 		Debug.d(TAG, "--->draw TotalW : " + w + "; TotalH: " + h + "; textH = " + textH + "; barWidth: " + width + "; barHeight: " + height);
 		try {
-			Bitmap barBmp = Bitmap.createBitmap(w, h, Configs.BITMAP_CONFIG);
+			Bitmap barBmp;
 
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			if(BARCODE_FORMAT_GS1128.equalsIgnoreCase(mFormat)) {
@@ -1238,9 +1468,12 @@ public class BarcodeObject extends BaseObject {
 
 				Java2DRenderer renderer = new Java2DRenderer(10, Color.WHITE, Color.BLACK);
 				code128.setBarHeight(height);
-				barBmp = renderer.render(code128);
-				if(barBmp.getWidth() != width) {
-					barBmp = Bitmap.createScaledBitmap(barBmp, width, height, false);
+				Bitmap tmpBmp = renderer.render(code128);
+				if(tmpBmp.getWidth() != width) {
+					barBmp = Bitmap.createScaledBitmap(tmpBmp, width, height, false);
+					tmpBmp.recycle();
+				} else {
+					barBmp = tmpBmp;
 				}
 			} else {
 // End of H.M.Wang 2023-11-21 追加GS1的QR和DM
@@ -1266,10 +1499,11 @@ public class BarcodeObject extends BaseObject {
 
 				matrix = writer.encode(content, format, width, height, null);
 
-				int tl[] = matrix.getTopLeftOnBit();
-				int br[] = matrix.getBottomRightOnBit();
+//				int tl[] = matrix.getTopLeftOnBit();
+//				int br[] = matrix.getBottomRightOnBit();
 
-				int[] pixels = new int[width * height];
+// H.M.Wang 2026-4-14 旋转镜像转换。由于后面还要再画，因此这里先不旋转
+/*				int[] pixels = new int[width * height];
 				for (int y = 0; y < height; y++)
 				{
 					for (int x = 0; x < width; x++)
@@ -1281,7 +1515,12 @@ public class BarcodeObject extends BaseObject {
 							pixels[y * width + x] = 0xffffffff;
 						}
 					}
-				}
+				}*/
+				barBmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+				int[] pixels = BitMatrix2IntArray(matrix, width, height, false,
+						(mRevert ? 0xffffffff : ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000)),
+						(mRevert ? ((needRedraw() && !mIsForBin) ? 0xff0000ff : 0xff000000) : 0xffffffff));
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				/* 条码/二维码的四个边缘空出20像素作为白边 */
 				barBmp.setPixels(pixels, 0, width, 0, 0, width, height);
 
@@ -1304,8 +1543,21 @@ public class BarcodeObject extends BaseObject {
 
 				//BinCreater.saveBitmap(code, "barcode.png");
 				Canvas can = new Canvas(outBmp);
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.save();
+					can.rotate(90, 0, 0);
+					can.scale(1, -1, 0, 0);
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+				can.drawColor(Color.WHITE);
 				can.drawBitmap(barBmp, margin, margin, paint);
 				can.drawBitmap(code, margin, height+margin, paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+				if(mIsForBin) {
+					can.restore();
+				}
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				BinFromBitmap.recyleBitmap(barBmp);
 				BinFromBitmap.recyleBitmap(code);
 			}
@@ -1462,6 +1714,7 @@ public class BarcodeObject extends BaseObject {
 */
 // H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此在生成打印缓冲区的时候，判断是否需要重画
 	public boolean needRedraw() {
+		if(mSource) return true;
 		Vector<BaseObject> subOjbs = mHTContent.getSubObjs();
 		for (BaseObject object : subOjbs) {
 			if(!(object instanceof TextObject)) return true;
@@ -1479,7 +1732,11 @@ public class BarcodeObject extends BaseObject {
 // End of H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此在生成打印缓冲区的时候，判断是否需要重画
 
 	public Bitmap getPrintBitmap(int totalW, int totalH, int w, int h, int y) {
-		Bitmap bg = Bitmap.createBitmap(totalW, totalH, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap bg = Bitmap.createBitmap(totalW, totalH, Configs.BITMAP_CONFIG);
+		Bitmap bg = Bitmap.createBitmap(totalH, totalW, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+
 		Canvas canvas = new Canvas(bg);
 
 		Bitmap bitmap = null;
@@ -1493,6 +1750,7 @@ public class BarcodeObject extends BaseObject {
 		mContent = cnt;
 
 		check();
+		mIsForBin = true;
 
 		if (!is2D()) {
 			bitmap = draw(mContent, w, h);
@@ -1555,7 +1813,12 @@ public class BarcodeObject extends BaseObject {
 		}
 
 		canvas.drawColor(Color.WHITE);
-		canvas.drawBitmap(bitmap, 0, y, mPaint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		canvas.drawBitmap(bitmap, 0, y, mPaint);
+		canvas.drawBitmap(bitmap, y, 0, mPaint);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+
+		mIsForBin = false;
 
 		return bg;
 	}

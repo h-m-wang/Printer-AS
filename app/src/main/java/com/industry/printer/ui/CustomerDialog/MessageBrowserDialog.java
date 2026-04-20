@@ -325,7 +325,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 	}
 
 // H.M.Wang 2025-9-17 支持元素为一个信息的群组
-	public boolean ismMultiSelMode() {
+	public boolean isMultiSelMode() {
 		return mMultiMode;
 	}
 // End of H.M.Wang 2025-9-17 支持元素为一个信息的群组

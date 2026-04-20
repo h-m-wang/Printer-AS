@@ -704,7 +704,10 @@ public class MessageTask {
 // End of H.M.Wang 2020-8-11 64点内容有时保存时最后却一列问题解决，如果算出来的宽度是12.3，原来直接取整和四舍五入都不能解决问题，只有取天花板才正确
 		int bHeight = msgObj.getPNozzle().getHeight();
 //		Debug.d(TAG, "SaveTime: - Start CreateBitmap : " + System.currentTimeMillis());
-		Bitmap bmp = Bitmap.createBitmap(bWidth , bHeight, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap bmp = Bitmap.createBitmap(bWidth , bHeight, Configs.BITMAP_CONFIG);
+		Bitmap bmp = Bitmap.createBitmap(bHeight, bWidth , Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		Debug.d(TAG, "drawAllBmp width=" + bWidth + ", height=" + bHeight);
 		Canvas can = new Canvas(bmp);
 		can.drawColor(Color.WHITE);
@@ -734,7 +737,10 @@ public class MessageTask {
 				Bitmap t = ((RealtimeObject) o).getBgBitmap(mContext, scaleW, scaleH);
 
 				// H.M.Wang 修改1行
-				can.drawBitmap(t, Math.round((o.getX() * scaleW)), Math.round(o.getY() * scaleH), p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//				can.drawBitmap(t, Math.round((o.getX() * scaleW)), Math.round(o.getY() * scaleH), p);
+				can.drawBitmap(t, Math.round(o.getY() * scaleH), Math.round((o.getX() * scaleW)), p);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 //				can.drawBitmap(t, (int)(o.getX() * scaleW), o.getY() * scaleH, p);
 //				Debug.d(TAG, "drawBitmap: x=" + Math.round((o.getX() * scaleW)) + "; y=" + Math.round(o.getY() * scaleH) + "; w= " + t.getWidth() + "; h= " + t.getHeight());
 
@@ -746,7 +752,10 @@ public class MessageTask {
 				Debug.d(TAG, "HypertextObject.content = " + o.getContent());
 				Bitmap t = ((HyperTextObject) o).getBgBitmap(mContext, scaleW, scaleH);
 				Debug.d(TAG, "Draw HypertextObject.fixed.bitmap[" + t.getWidth() + ", " + t.getHeight() + "] at [" + (o.getX() * scaleW) + "," + Math.round(o.getY() * scaleH) + "]");
-				can.drawBitmap(t, Math.round((o.getX() * scaleW)), Math.round(o.getY() * scaleH), p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//				can.drawBitmap(t, Math.round((o.getX() * scaleW)), Math.round(o.getY() * scaleH), p);
+				can.drawBitmap(t, Math.round(o.getY() * scaleH), Math.round((o.getX() * scaleW)), p);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				t.recycle();
 // End of H.M.Wang 2020-2-16 追加HyperText控件
 			} else if (o instanceof BarcodeObject) {
@@ -768,7 +777,10 @@ public class MessageTask {
 
 				// H.M.Wang 修改1行
 //				can.drawBitmap(t, o.getX() * scaleW, o.getY() * scaleH, p);
-				can.drawBitmap(t, Math.round(o.getX() * scaleW), Math.round(o.getY() * scaleH), p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//				can.drawBitmap(t, Math.round(o.getX() * scaleW), Math.round(o.getY() * scaleH), p);
+				can.drawBitmap(t, Math.round(o.getY() * scaleH), Math.round(o.getX() * scaleW), p);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 
 				// H.M.Wang 增加1行
 //                t.recycle();
@@ -786,7 +798,15 @@ public class MessageTask {
 
 					// H.M.Wang 修改1行
 //					can.drawBitmap(t, o.getX() * scaleW, o.getY() * scaleH, p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+					can.save();
+					can.rotate(90, 0, 0);
+					can.scale(1, -1, 0, 0);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 					can.drawBitmap(t, Math.round(o.getX() * scaleW), Math.round(o.getY() * scaleH), p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+					can.restore();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 
 					// H.M.Wang2019-9-17 注释掉1行。否则，将可能把GraphicObject的元图片回收，后续操作死机
 //					t.recycle();
@@ -800,7 +820,10 @@ public class MessageTask {
 //					Debug.d(TAG, "1.bin drawBitmap = [" + Math.round(o.getX() * scaleW) + ", " + Math.round(o.getY() * scaleH) + "]");
 //					Debug.d(TAG, "SaveTime: - Start drawBitmap() : " + System.currentTimeMillis());
 					// H.M.Wang 修改1行
-					can.drawBitmap(t, Math.round(o.getX() * scaleW), Math.round(o.getY() * scaleH), p);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//					can.drawBitmap(t, Math.round(o.getX() * scaleW), Math.round(o.getY() * scaleH), p);
+					can.drawBitmap(t, Math.round(o.getY() * scaleH), Math.round(o.getX() * scaleW), p);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 //					can.drawBitmap(t, (int)(o.getX() * scaleW), (int)(o.getY() * scaleH), p);
 
 					// H.M.Wang 增加1行
@@ -861,7 +884,10 @@ public class MessageTask {
 */
 // End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
 			// H.M.Wang 追加一个是否移位的参数
-			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth, bHeight, false), getNozzle().mHeads, false);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth, bHeight, false), getNozzle().mHeads, false);
+			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bHeight, bWidth, false), getNozzle().mHeads, false);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		} else {
 			// H.M.Wang 追加一个是否移位的参数
 // H.M.Wang 2021-2-26 取消过滤选项，过滤选项的目的是使得图像平滑，但是会打乱图像的内容
@@ -871,7 +897,10 @@ public class MessageTask {
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/2, bHeight, false), msgObj.getPNozzle().mHeads,
 // H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/(msgObj.getResolution()?1:2), bHeight, false), msgObj.getPNozzle().mHeads,
-			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), bHeight, false), msgObj.getPNozzle().mHeads,
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), bHeight, false), msgObj.getPNozzle().mHeads,
+			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bHeight, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), false), msgObj.getPNozzle().mHeads,
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 // End of H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
 // End of H.M.Wang 2021-4-9 将msgObj.getResolution()移到大字机分支，因为如果在这里，将导致300dpi的时候不会插空
 				((getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||

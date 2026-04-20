@@ -17,7 +17,7 @@ extern "C"
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 static jint *DOTS = new jint[8];
-
+static jint OrgLines=0, TarLines=0;
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    ShiftImage
@@ -27,6 +27,9 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
   (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, jint head, jint orgLines, jint tarLines) {
 
 //    LOGD("ShiftImage: [%d, %d], head=%d, orgLines=%d, tarLines=%d", width, height, head, orgLines, tarLines);
+    OrgLines = orgLines;
+    TarLines = tarLines;
+    return src;
 
     jint *cbuf;
     cbuf = env->GetIntArrayElements(src, 0);
@@ -49,24 +52,26 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    Binarize
- * Signature: ([IIIII)[B
+ * Signature: ([IIIIII)[B
+ * 2026-4-14 新修改的版本中，由于原图做了旋转镜像，因此横轴和纵轴交换
  */
 JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Binarize
-        (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, int head, jint value) {
-
-//    LOGD("Binarize: [%d, %d], head=%d, value=%d", width, height, head, value);
+        (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, int head, jint value, jint reset) {
 
     jint *cbuf;
     cbuf = env->GetIntArrayElements(src, 0);
 
-    int colEach = (((height % 8) == 0) ? height/8 : height/8+1);
-    int newSize = colEach * width;
+//    int colEach = (((height % 8) == 0) ? height/8 : height/8+1);
+//    int newSize = colEach * width;
+//    int heighEachHead = height / head;
+
+    int colEach = (((width % 8) == 0) ? width/8 : width/8+1);
+    int newSize = height * colEach;
     jbyte *rbuf = new jbyte[newSize];
 
-    int heighEachHead = height / head;
+    if(reset) memset(DOTS, 0x00, 8 * sizeof(jint));
 
-    memset(DOTS, 0x00, 8 * sizeof(jint));
-
+/*
     for(int i=0; i<width; i++) {
         for(int j=0; j<height; j++) {
             int curr_color = *(cbuf + j * width + i);
@@ -85,6 +90,47 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
             }
         }
     }
+*/
+    jint *cbuf_tmp  = cbuf;
+    jbyte *rbuf_tmp = rbuf;
+    memset(rbuf_tmp, 0x00, newSize);
+    int head_index = 0;
+    int dot_count = 0;
+
+    for(int j=0; j<height * width; j+=8, rbuf_tmp++) {
+        if(TarLines > 0 && dot_count == TarLines) {
+//            if(j<2*height)LOGD("ProcTime Skip End: [%d, %d], head=%d", j, 0, head_index);
+            dot_count = 0;
+            head_index++;
+            if(head_index == head) {
+                head_index = 0;
+                cbuf_tmp += (TarLines - OrgLines) * head;
+//                if(j<2*height)LOGD("ProcTime New Line: orgaddr=%d", j);
+            }
+        }
+        for(int i=0; i<8; i++, dot_count++) {
+            if(OrgLines > 0 && dot_count >= OrgLines) {
+//                if(j<2*height)LOGD("ProcTime Skip: [%d, %d], head=%d", j, i, head_index);
+                continue;
+            }
+            int curr_color = *cbuf_tmp++;
+//            int pixR = RED(curr_color);
+//            int pixG = GREEN(curr_color);
+//            int pixB = BLUE(curr_color);
+//    	    int pixA = ALPHA(curr_color);
+
+//            int grey = (int)((float) pixR * 0.3 + (float)pixG * 0.59 + (float)pixB * 0.11);
+
+//            if(grey <= value) {
+            if(curr_color == 0xFF000000) {
+                *rbuf_tmp |= (0x01 << i);
+                DOTS[head_index]++;
+            }
+        }
+//        if(j<height)LOGD("ProcTime rbuf_tmp[%d] = %08x", j/8, *rbuf_tmp);
+    }
+    OrgLines = 0;
+    TarLines = 0;
 
     jbyteArray result = env->NewByteArray(newSize);
     env->SetByteArrayRegion(result, 0, newSize, rbuf);
@@ -185,6 +231,8 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
  *      heads：             打印头的数量
  * Signature: ([CIII})[I
  */
+static int nibble_dots[16] = {0,1,1,2,1,2,2,3,1,2,2,3,2,2,3,4}; // 0000 - 1111各个数值的1的个数
+static int byte_dots[256];
 JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetPrintDots
         (JNIEnv *env, jclass thiz, jcharArray src, jint length, jint charsPerHFeed, jint heads) {
 
@@ -202,12 +250,17 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
             headIndex++;
             headIndex %= heads;
         }
-
-        for(int j=0; j<16; j++) {
+// H.M.Wang 2026-4-9 取消移位判定的做法，改为查表的方法获取点数，这样可以大幅度提高效率（8064*2720个点的bin，耗时由440->170ms）
+/*        for(int j=0; j<16; j++) {
             if( (srcBuf[i] & (0x0001 << j)) != 0x0000) {
                 dots[headIndex]++;
             }
-        }
+        }*/
+
+        dots[headIndex] += byte_dots[srcBuf[i]/256];
+        dots[headIndex] += byte_dots[srcBuf[i]%256];
+// End of H.M.Wang 2026-4-9 取消移位判定的做法，改为查表的方法获取点数，这样可以大幅度提高效率（8064*2720个点的bin，耗时由440->170ms）
+
     }
 
     env->ReleaseCharArrayElements(src, srcBuf, JNI_ABORT);
@@ -219,8 +272,14 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
     return result;
 }
 
+// 2026-4-9 1.0.6 修改GetPrintDots获取点数的方法，可以大大提高处理性能。二值化的处理暂时不修改，因为改善的不太多
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.5 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.7 Loaded.");
+    for(int i=0; i<16; i++) {
+        for(int j=0; j<16; j++) {
+            byte_dots[i*16+j] = nibble_dots[i] + nibble_dots[j];
+        }
+    }
     return JNI_VERSION_1_4;     //这里很重要，必须返回版本，否则加载会失败。
 }
 

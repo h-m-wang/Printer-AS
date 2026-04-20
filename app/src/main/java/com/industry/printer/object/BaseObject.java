@@ -29,6 +29,7 @@ import com.industry.printer.cache.FontCache;
 import com.industry.printer.data.BinFileMaker;
 import com.industry.printer.data.BinFromBitmap;
 import com.industry.printer.hardware.FpgaGpioOperation;
+import com.industry.printer.object.data.BitmapWriter;
 
 public class BaseObject{
 	private static final String TAG = BaseObject.class.getSimpleName();
@@ -461,7 +462,10 @@ public class BaseObject{
 //		Rect rect = new Rect();
 //		paint.getTextBounds(getContent(), 0, getContent().length(), rect);
 //		int w = getTextWidth(paint, getContent());
-		bitmap = Bitmap.createBitmap(width , ctH, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		bitmap = Bitmap.createBitmap(width , ctH, Configs.BITMAP_CONFIG);
+		bitmap = Bitmap.createBitmap(ctH, width , Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		Debug.e(TAG,"createBitmap width=" + width + ", height=" + ctH);
 		Canvas canvas = new Canvas(bitmap);
 		FontMetrics fm = paint.getFontMetrics();
@@ -470,7 +474,15 @@ public class BaseObject{
 //			adjust = 4;
 //		}
 		Debug.e(TAG,"drawText: " + content);
+// H.M.Wang 2026-4-14 旋转镜像转换
+		canvas.save();
+		canvas.rotate(90, 0, 0);
+		canvas.scale(1, -1, 0, 0);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		canvas.drawText(content, 0, ctH-adjust, paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+		canvas.restore();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		PrinterNozzle head = mTask.getNozzle();
 //		Debug.d(TAG, "--->content: " + content + "  descent=" + fm.descent + "  ascent= " + fm.ascent + " botom= " + fm.bottom + " top = " + fm.top + " leading = " + fm.leading);
 
@@ -516,7 +528,10 @@ public class BaseObject{
 		}
 
 		Debug.e(TAG,"createScaledBitmap width=" + ctW + ", height=" + ctH);
-		return Bitmap.createScaledBitmap(bitmap, ctW, ctH, true);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		return Bitmap.createScaledBitmap(bitmap, ctW, ctH, true);
+		return Bitmap.createScaledBitmap(bitmap, ctH, ctW, true);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 	}
 
 	public static int getTextWidth(Paint paint, String str) {
@@ -584,7 +599,10 @@ public class BaseObject{
 		FontMetrics fm = paint.getFontMetrics();
 		
 		/*draw Bitmap of single digit*/
-		Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap bmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+		Bitmap bmp = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		Canvas can = new Canvas(bmp);
 
 		PrinterNozzle head = mTask.getNozzle();
@@ -646,16 +664,30 @@ public class BaseObject{
 		Debug.d(TAG, "--->singleW=" + singleW);
 		
 		/* 最終生成v.bin使用的bitmap */
-		Bitmap gBmp = Bitmap.createBitmap(singleW*10, dstH, Configs.BITMAP_CONFIG);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		Bitmap gBmp = Bitmap.createBitmap(singleW*10, dstH, Configs.BITMAP_CONFIG);
+		Bitmap gBmp = Bitmap.createBitmap(dstH, singleW*10, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		Canvas gCan = new Canvas(gBmp);
 		
 		gCan.drawColor(Color.WHITE);	/*white background*/
 		for(int i =0; i<=9; i++) {
 			can.drawColor(Color.WHITE);
+// H.M.Wang 2026-4-14 旋转镜像转换
+			can.save();
+			can.rotate(90, 0, 0);
+			can.scale(1, -1, 0, 0);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 			can.drawText(String.valueOf(i), 0, height - fm.descent, paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+			can.restore();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 			// H.M.Wang 修改 20190905
 //			gCan.drawBitmap(Bitmap.createScaledBitmap(bmp, singleW, height, false), i*singleW, (int)getY() * scaleH, paint);
-			gCan.drawBitmap(Bitmap.createScaledBitmap(bmp, singleW, height, false), i*singleW, Math.round(getY() * scaleH), paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+//			gCan.drawBitmap(Bitmap.createScaledBitmap(bmp, singleW, height, false), i*singleW, Math.round(getY() * scaleH), paint);
+			gCan.drawBitmap(Bitmap.createScaledBitmap(bmp, height, singleW, false), Math.round(getY() * scaleH), i*singleW, paint);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 		}
 
 		BinFromBitmap.recyleBitmap(bmp);
@@ -663,7 +695,10 @@ public class BaseObject{
 		BinFileMaker maker = new BinFileMaker(mContext);
 
 		// H.M.Wang 追加一个是否移位的参数。修改喷头数
-		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, gBmp.getWidth(), dstH, false), head.mHeads,
+// H.M.Wang 2026-4-14 旋转镜像转换
+//		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, gBmp.getWidth(), dstH, false), head.mHeads,
+		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, dstH, gBmp.getHeight(), false), head.mHeads,
+// End of H.M.Wang 2026-4-14 旋转镜像转换
 				(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
 				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
 				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
