@@ -119,9 +119,17 @@ public class BinFromBitmap extends BinCreater {
 				bmp.getPixels(pixels, 0, mWidth, 0, xPos, mWidth, tmpHeight);
 
 				if(needShift) {
-					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head, 308, 320);
+// H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
+//					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head, 308, 320);
+					pixels = NativeGraphicJni.ShiftImage(pixels, 0, 0, 0, 308, 320);
+// End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 				} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
-					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
+// H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
+//					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
+					int c83 = SystemConfigFile.getInstance().getParam(82);
+					int c84 = SystemConfigFile.getInstance().getParam(83);
+					pixels = NativeGraphicJni.ShiftImage(pixels, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
+// End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 				}
 				byte[] tmpBin;
 				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
