@@ -225,10 +225,45 @@ public class BufferRebuilder {
     }
 // End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
+// H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
+    public BufferRebuilder reverseHp108mm(int pattern) {
+        if(null == mByteBuffer) transferBuffer();
+        int containerBytes = 68;            // 对应于每个打印头的544点内容空间
+        int contentBytes = 64;              // 对应于每个打印头的实际内容空间，最后字节仅低位4位有内容，高位4位开始为空隙
+        int bytesPerColumn = containerBytes * 5;    // 每列的字节数，对应于5个头，共68*5 = 340（字节） = 2720（点）
+        byte src_tmp, dst_tmp;
+
+//long a = System.currentTimeMillis();
+        for(int i=0; i<mColNum; i++) {      // 对于每一列
+            for(int s=0; s<(bytesPerColumn - (containerBytes - contentBytes))/2; s++) {
+                if((s % containerBytes) == contentBytes) s += (containerBytes - contentBytes);  // 跳过插入空的部分
+
+                src_tmp = BitReverseTable256[mByteBuffer[bytesPerColumn*i + s] & 0x0FF];        // 提取原位置的对码（这个位置是一个字节）
+                int highByte = bytesPerColumn * (i+1) - s - (containerBytes - contentBytes) - 1;    // 计算目标位置的高字节位置。
+                int lowByte = highByte - 1;                                                         // 计算目标位置的低字节位置。
+                byte conbinedByte = (byte)(((mByteBuffer[highByte] << 4) & 0xF0) | ((mByteBuffer[lowByte] >> 4) & 0x0F));
+                dst_tmp = BitReverseTable256[conbinedByte & 0x0FF];
+                //
+                mByteBuffer[bytesPerColumn*i + s] = dst_tmp;        // 目标位置的高字节低4位与低字节的高4位，反序复制到原位置。
+                mByteBuffer[highByte] = (byte)((src_tmp & 0x0F) | (mByteBuffer[highByte] & 0xF0));      // 原位置的高4位反序复制到该位置的低4位
+                mByteBuffer[lowByte] = (byte)((src_tmp & 0xF0) | (mByteBuffer[lowByte] & 0x0F));        // 原位置的低4位反序复制到该位置的高4位
+            }
+        }
+//Debug.d(TAG, "reverseHp108mm: " + (System.currentTimeMillis() - a));
+
+        return this;
+    }
+// End of H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
+
     public BufferRebuilder reverse(int pattern) {
         try {
+// H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
+            if((pattern & 0x80) != 0x00) {
+                return reverseHp108mm(pattern);
+            }
+// End of H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
 // H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
-            if((pattern & 0xf0) != 0x00) {
+            if((pattern & 0x70) != 0x00) {
                 return reverseHp22mm(pattern);
             }
 // End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理

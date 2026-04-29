@@ -2153,13 +2153,22 @@ public class BarcodeObject extends BaseObject {
 		StringBuilder builder = new StringBuilder(mId);							// Tag 1    对象编号
 		if (BaseObject.OBJECT_TYPE_QR.equalsIgnoreCase(mId)) {
 			builder.append("^")
-					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))		// Tag 2
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))		// Tag 2
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))		// Tag 3
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5
+					.append(BaseObject.intToFormatString(Math.round(getX()*2*prop), 5))		// Tag 2
 					.append("^")
-					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))		// Tag 3
+					.append(BaseObject.intToFormatString(Math.round(getY()*2*prop), 5))		// Tag 3
 					.append("^")
-					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4
+					.append(BaseObject.intToFormatString(Math.round(getXEnd()*2*prop), 5))		// Tag 4
 					.append("^")
-					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5
+					.append(BaseObject.intToFormatString(Math.round(getYEnd()*2*prop), 5))		// Tag 5
+// End op H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 					.append("^")
 					.append(BaseObject.intToFormatString(0, 1))		// Tag 6
 					.append("^")
@@ -2189,17 +2198,36 @@ public class BarcodeObject extends BaseObject {
 					.append("^00000000^00000000^00000000^00000000^00000000^00000000^")		// Tag 15-20
 // H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
 //				.append(mContent);
-					.append(mOrgContent);										// Tag 21
+					.append(mOrgContent)										// Tag 21
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+					.append("^")
+					.append(BaseObject.floatToFormatString(getX()*2*prop, 4))		// Tag 22
+					.append("^")
+					.append(BaseObject.floatToFormatString(getY()*2*prop, 4))		// Tag 23
+					.append("^")
+					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 4))		// Tag 24
+					.append("^")
+					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 4));		// Tag 25
+// End op H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		} else {
 			builder.append("^")
-					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))			// Tag 2    X开始坐标
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//					.append(BaseObject.floatToFormatString(getX()*2*prop, 5))			// Tag 2    X开始坐标
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))			// Tag 3    Y开始坐标
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4    X终止坐标
+//					.append("^")
+//					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5    Y终止坐标
+					.append(BaseObject.intToFormatString(Math.round(getX()*2*prop), 5))		// Tag 2
 					.append("^")
-					.append(BaseObject.floatToFormatString(getY()*2*prop, 5))			// Tag 3    Y开始坐标
+					.append(BaseObject.intToFormatString(Math.round(getY()*2*prop), 5))		// Tag 3
 					.append("^")
-					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 5))		// Tag 4    X终止坐标
+					.append(BaseObject.intToFormatString(Math.round(getXEnd()*2*prop), 5))		// Tag 4
 					.append("^")
-					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 5))		// Tag 5    Y终止坐标
+					.append(BaseObject.intToFormatString(Math.round(getYEnd()*2*prop), 5))		// Tag 5
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 					.append("^")
 					.append(BaseObject.intToFormatString(0, 1))							// Tag 6    字符大小
 					.append("^")
@@ -2233,7 +2261,17 @@ public class BarcodeObject extends BaseObject {
 					.append(BaseObject.boolToFormatString(mWithFrame, 3))				// Tag 20   (新)边框有无
 					.append("^")														// Tag 20   (新)边框有无
 // End of H.M.Wang 2020-2-25 追加ITF_14边框有无的设置
-					.append(BaseObject.intToFormatString(mTextSize, 3));				// Tag 21   文本大小？
+					.append(BaseObject.intToFormatString(mTextSize, 3))				// Tag 21   文本大小？
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+					.append("^")
+					.append(BaseObject.floatToFormatString(getX()*2*prop, 4))		// Tag 22
+					.append("^")
+					.append(BaseObject.floatToFormatString(getY()*2*prop, 4))		// Tag 23
+					.append("^")
+					.append(BaseObject.floatToFormatString(getXEnd()*2*prop, 4))		// Tag 24
+					.append("^")
+					.append(BaseObject.floatToFormatString(getYEnd()*2*prop, 4));		// Tag 25
+// End op H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		}
 
 		String str = builder.toString();

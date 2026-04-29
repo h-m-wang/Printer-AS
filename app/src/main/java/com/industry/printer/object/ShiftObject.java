@@ -399,11 +399,16 @@ public class ShiftObject extends BaseObject {
 		String str="";
 		//str += BaseObject.intToFormatString(mIndex, 3)+"^";
 		str += mId+"^";
-		str += BaseObject.floatToFormatString(getX() * prop, 5)+"^";
-		str += BaseObject.floatToFormatString(getY()*2 * prop, 5)+"^";
-		str += BaseObject.floatToFormatString(getXEnd() * prop, 5)+"^";
-		//str += BaseObject.floatToFormatString(getY() + (getYEnd()-getY())*2, 5)+"^";
-		str += BaseObject.floatToFormatString(getYEnd()*2 * prop, 5)+"^";
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//        str += BaseObject.floatToFormatString(getX() * prop, 5)+"^";          // Tag 2    X开始坐标
+//        str += BaseObject.floatToFormatString(getY()*2 * prop, 5)+"^";          // Tag 3    Y开始坐标
+//        str += BaseObject.floatToFormatString(getXEnd() * prop, 5)+"^";      // Tag 4    X终止坐标
+//        str += BaseObject.floatToFormatString(getYEnd()*2 * prop, 5)+"^";       // Tag 5    Y终止坐标
+		str += BaseObject.intToFormatString(Math.round(getX() * prop), 5)+"^";          // Tag 2    X开始坐标
+		str += BaseObject.intToFormatString(Math.round(getY()*2 * prop), 5)+"^";          // Tag 3    Y开始坐标
+		str += BaseObject.intToFormatString(Math.round(getXEnd() * prop), 5)+"^";      // Tag 4    X终止坐标
+		str += BaseObject.intToFormatString(Math.round(getYEnd()*2 * prop), 5)+"^";       // Tag 5    Y终止坐标
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		str += BaseObject.intToFormatString(0, 1)+"^";
 		str += BaseObject.boolToFormatString(mDragable, 3)+"^";
 		str += BaseObject.intToFormatString(mBits, 3)+"^";
@@ -412,6 +417,12 @@ public class ShiftObject extends BaseObject {
 		str += BaseObject.intToFormatString(mShifts[0],8)+"^"+BaseObject.intToFormatString(mShifts[1],8)+"^"+BaseObject.intToFormatString(mShifts[2],8)+"^"+BaseObject.intToFormatString(mShifts[3],8)+"^";
 		str += (mParent == null ? "0000" : String.format("%03d", mParent.mIndex)) + "^150" + "^";
 		str += mFont+"^" + "000" + "^" + "1";
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+		str += "^" + BaseObject.floatToFormatString(getX()*2 * prop, 4)+"^";          // Tag 22    X开始坐标
+		str += BaseObject.floatToFormatString(getY()*2 * prop, 4)+"^";          // Tag 23    Y开始坐标
+		str += BaseObject.floatToFormatString(getXEnd()*2  * prop, 4)+"^";      // Tag 24    X终止坐标
+		str += BaseObject.floatToFormatString(getYEnd()*2 * prop, 4);       // Tag 25    Y终止坐标
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		Debug.d(TAG, "toString = [" + str + "]");
 //		Debug.d(TAG,"shift string ["+str+"]");
 		return str;

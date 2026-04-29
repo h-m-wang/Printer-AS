@@ -100,6 +100,7 @@ public class BinFromBitmap extends BinCreater {
 
 		// H.M.Wang 增加9行 25.4xn情况下断档和实现JNI的二值化
 //		int[] pixels = new int[mWidth * mHeight];
+//		BitmapWriter.saveBitmap(bmp, Configs.TLK_PATH_FLASH, "aaa.bmp");
 		if(mWidth * mHeight > 4 * 1024 * 1024) {
 			int procHeight = 4 * 1024 * 1024 / mWidth;
 			pixels = new int[procHeight * mWidth];

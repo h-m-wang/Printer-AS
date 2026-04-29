@@ -392,13 +392,22 @@ public class DynamicText extends BaseObject {
         StringBuilder builder = new StringBuilder(mId);
         float prop = getProportion();
         builder.append("^")
-                .append(BaseObject.floatToFormatString(getX()*prop, 5))
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//                .append(BaseObject.floatToFormatString(getX()*prop, 5))
+//                .append("^")
+//                .append(BaseObject.floatToFormatString(getY()*2 * prop, 5))
+//                .append("^")
+//                .append(BaseObject.floatToFormatString(getXEnd() * prop, 5))
+//                .append("^")
+//                .append(BaseObject.floatToFormatString(getYEnd()*2 * prop, 5))
+                .append(BaseObject.intToFormatString(Math.round(getX()*prop), 5))		// Tag 2
                 .append("^")
-                .append(BaseObject.floatToFormatString(getY()*2 * prop, 5))
+                .append(BaseObject.intToFormatString(Math.round(getY()*2 * prop), 5))		// Tag 3
                 .append("^")
-                .append(BaseObject.floatToFormatString(getXEnd() * prop, 5))
+                .append(BaseObject.intToFormatString(Math.round(getXEnd() * prop), 5))		// Tag 4
                 .append("^")
-                .append(BaseObject.floatToFormatString(getYEnd()*2 * prop, 5))
+                .append(BaseObject.intToFormatString(Math.round(getYEnd()*2 * prop), 5))		// Tag 5
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
                 .append("^")
                 .append(BaseObject.intToFormatString(0, 1))
                 .append("^")
@@ -413,7 +422,17 @@ public class DynamicText extends BaseObject {
                 .append("^0000^0000^")
                 .append(mFont)
                 .append("^000^")
-                .append(mContent);
+                .append(mContent)
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+				.append("^")
+                .append(BaseObject.floatToFormatString(getX()*prop, 4))		// Tag 22
+                .append("^")
+                .append(BaseObject.floatToFormatString(getY()*2*prop, 4))		// Tag 23
+                .append("^")
+                .append(BaseObject.floatToFormatString(getXEnd()*prop, 4))		// Tag 24
+                .append("^")
+                .append(BaseObject.floatToFormatString(getYEnd()*2*prop, 4));		// Tag 25
+// End op H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 
         String str = builder.toString();
 

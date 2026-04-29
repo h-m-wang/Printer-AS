@@ -16,13 +16,25 @@ public class WeeksObject extends BaseObject {
 		float prop = getProportion();
 		String str="";
 		str += mId+"^";
-		str += BaseObject.floatToFormatString(getX() * prop, 5)+"^";
-		str += BaseObject.floatToFormatString(getY() * prop, 5)+"^";
-		str += BaseObject.floatToFormatString(getXEnd() * prop, 5)+"^";
-		str += BaseObject.floatToFormatString(getYEnd() * prop, 5)+"^";
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//		str += BaseObject.floatToFormatString(getX() * prop, 5)+"^";
+//		str += BaseObject.floatToFormatString(getY() * prop, 5)+"^";
+//		str += BaseObject.floatToFormatString(getXEnd() * prop, 5)+"^";
+//		str += BaseObject.floatToFormatString(getYEnd() * prop, 5)+"^";
+		str += BaseObject.intToFormatString(Math.round(getX() * prop), 5)+"^";
+		str += BaseObject.intToFormatString(Math.round(getY() * 2 * prop), 5)+"^";
+		str += BaseObject.intToFormatString(Math.round(getXEnd() * prop), 5)+"^";
+		str += BaseObject.intToFormatString(Math.round(getYEnd() * 2 * prop), 5)+"^";
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		str += BaseObject.intToFormatString(0, 1)+"^";
 		str += BaseObject.boolToFormatString(mDragable, 3)+"^";
 		str += "000^000^000^000^000^00000000^00000000^00000000^00000000^0000^0000^0000^000^000";
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+		str += "^" + BaseObject.floatToFormatString(getX() * prop, 4)+"^";
+		str += BaseObject.floatToFormatString(getY() * 2 * prop, 4)+"^";
+		str += BaseObject.floatToFormatString(getXEnd() * prop, 4)+"^";
+		str += BaseObject.floatToFormatString(getYEnd() * 2 * prop, 4);
+// End op H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
 		Debug.d(TAG, "toString = [" + str + "]");
 //		Debug.d(TAG,"file string ["+str+"]");
 		return str;

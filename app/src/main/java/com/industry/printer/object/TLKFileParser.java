@@ -196,12 +196,38 @@ public class TLKFileParser  extends TlkFile{
 		}
 		object.setIndex(StringUtil.parseInt(attr[0]));
 		if (object instanceof TextObject) {
-			object.setX(StringUtil.parseInt(attr[2])/(2*mProportion));
-			object.setWidth(StringUtil.parseInt(attr[4])/(2 * mProportion)-StringUtil.parseInt(attr[2])/(2 * mProportion));
+// H.M.Wang 2026-4-23 修改为浮点数
+//			object.setX(StringUtil.parseInt(attr[2])/(2*mProportion));
+//			object.setWidth(StringUtil.parseInt(attr[4])/(2 * mProportion)-StringUtil.parseInt(attr[2])/(2 * mProportion));
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//			object.setX(StringUtil.parseFloat(attr[2])/(2*mProportion));
+//			object.setWidth(StringUtil.parseFloat(attr[4])/(2 * mProportion)-StringUtil.parseFloat(attr[2])/(2 * mProportion));
+			if(attr.length >= 26) {
+				object.setX(StringUtil.parseFloat(attr[22])/(2*mProportion));
+				object.setWidth(StringUtil.parseFloat(attr[24])/(2 * mProportion)-StringUtil.parseFloat(attr[22])/(2 * mProportion));
+			} else {
+				object.setX(StringUtil.parseFloat(attr[2])/(2*mProportion));
+				object.setWidth(StringUtil.parseFloat(attr[4])/(2 * mProportion)-StringUtil.parseFloat(attr[2])/(2 * mProportion));
+			}
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+// End of H.M.Wang 2026-4-23 修改为浮点数
 		} else {
 			Debug.d(TAG, "--->x = " + (StringUtil.parseInt(attr[2]) / mProportion));
-			object.setX(StringUtil.parseInt(attr[2]) / mProportion);
-			object.setWidth(StringUtil.parseInt(attr[4])/mProportion-StringUtil.parseInt(attr[2])/mProportion);
+// H.M.Wang 2026-4-23 修改为浮点数
+//			object.setX(StringUtil.parseInt(attr[2]) / mProportion);
+//			object.setWidth(StringUtil.parseInt(attr[4])/mProportion-StringUtil.parseInt(attr[2])/mProportion);
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//			object.setX(StringUtil.parseFloat(attr[2]) / mProportion);
+//			object.setWidth(StringUtil.parseFloat(attr[4])/mProportion-StringUtil.parseFloat(attr[2])/mProportion);
+			if(attr.length >= 26) {
+				object.setX(StringUtil.parseFloat(attr[22]) / mProportion);
+				object.setWidth(StringUtil.parseFloat(attr[24])/mProportion-StringUtil.parseFloat(attr[22])/mProportion);
+			} else {
+				object.setX(StringUtil.parseFloat(attr[2]) / mProportion);
+				object.setWidth(StringUtil.parseFloat(attr[4])/mProportion-StringUtil.parseFloat(attr[2])/mProportion);
+			}
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+// End of H.M.Wang 2026-4-23 修改为浮点数
 			Debug.d(TAG, "--->xEnd = " + object.getXEnd());
 		}
 	}
@@ -424,8 +450,21 @@ public class TLKFileParser  extends TlkFile{
 
 				obj.setIndex(Integer.parseInt(attr[0]));
 // 必须先设置Y值和高，然后在设置X和宽，否则图片变形
-				obj.setY(StringUtil.parseInt(attr[3])/(2*mProportion));
-				obj.setHeight(StringUtil.parseInt(attr[5])/(2*mProportion)-StringUtil.parseInt(attr[3])/(2*mProportion));
+// H.M.Wang 2026-4-23 修改为浮点数
+//				obj.setY(StringUtil.parseInt(attr[3])/(2*mProportion));
+//				obj.setHeight(StringUtil.parseInt(attr[5])/(2*mProportion)-StringUtil.parseInt(attr[3])/(2*mProportion));
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//				obj.setY(StringUtil.parseFloat(attr[3])/(2*mProportion));
+//				obj.setHeight(StringUtil.parseFloat(attr[5])/(2*mProportion)-StringUtil.parseFloat(attr[3])/(2*mProportion));
+				if(attr.length >= 26) {
+					obj.setY(StringUtil.parseFloat(attr[23])/(2*mProportion));
+					obj.setHeight(StringUtil.parseFloat(attr[25])/(2*mProportion)-StringUtil.parseFloat(attr[23])/(2*mProportion));
+				} else {
+					obj.setY(StringUtil.parseFloat(attr[3])/(2*mProportion));
+					obj.setHeight(StringUtil.parseFloat(attr[5])/(2*mProportion)-StringUtil.parseFloat(attr[3])/(2*mProportion));
+				}
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+// End of H.M.Wang 2026-4-23 修改为浮点数
 
 				if((obj instanceof CounterObject)||
 					obj instanceof DynamicText ||
@@ -434,13 +473,39 @@ public class TLKFileParser  extends TlkFile{
 					obj instanceof WeekOfYearObject ||
 					obj instanceof WeekDayObject)
 				{
-					obj.setX(StringUtil.parseInt(attr[2])/mProportion);
-					obj.setWidth(StringUtil.parseInt(attr[4])/mProportion-StringUtil.parseInt(attr[2])/mProportion);
+// H.M.Wang 2026-4-23 修改为浮点数
+//					obj.setX(StringUtil.parseInt(attr[2])/mProportion);
+//					obj.setWidth(StringUtil.parseInt(attr[4])/mProportion-StringUtil.parseInt(attr[2])/mProportion);
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//					obj.setX(StringUtil.parseFloat(attr[2])/mProportion);
+//					obj.setWidth(StringUtil.parseFloat(attr[4])/mProportion-StringUtil.parseFloat(attr[2])/mProportion);
+					if(attr.length >= 26) {
+						obj.setX(StringUtil.parseFloat(attr[22])/mProportion);
+						obj.setWidth(StringUtil.parseFloat(attr[24])/mProportion-StringUtil.parseFloat(attr[22])/mProportion);
+					} else {
+						obj.setX(StringUtil.parseFloat(attr[2])/mProportion);
+						obj.setWidth(StringUtil.parseFloat(attr[4])/mProportion-StringUtil.parseFloat(attr[2])/mProportion);
+					}
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+// End of H.M.Wang 2026-4-23 修改为浮点数
 				}
 				else
 				{
-					obj.setX(StringUtil.parseInt(attr[2])/(2*mProportion));
-					obj.setWidth(StringUtil.parseInt(attr[4])/(2*mProportion)-StringUtil.parseInt(attr[2])/(2*mProportion));
+// H.M.Wang 2026-4-23 修改为浮点数
+//					obj.setX(StringUtil.parseInt(attr[2])/(2*mProportion));
+//					obj.setWidth(StringUtil.parseInt(attr[4])/(2*mProportion)-StringUtil.parseInt(attr[2])/(2*mProportion));
+// H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+//					obj.setX(StringUtil.parseFloat(attr[2])/(2*mProportion));
+//					obj.setWidth(StringUtil.parseFloat(attr[4])/(2*mProportion)-StringUtil.parseFloat(attr[2])/(2*mProportion));
+					if(attr.length >= 26) {
+						obj.setX(StringUtil.parseFloat(attr[22])/(2*mProportion));
+						obj.setWidth(StringUtil.parseFloat(attr[24])/(2*mProportion)-StringUtil.parseFloat(attr[22])/(2*mProportion));
+					} else {
+						obj.setX(StringUtil.parseFloat(attr[2])/(2*mProportion));
+						obj.setWidth(StringUtil.parseFloat(attr[4])/(2*mProportion)-StringUtil.parseFloat(attr[2])/(2*mProportion));
+					}
+// End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
+// End of H.M.Wang 2026-4-23 修改为浮点数
 				}
 // 必须先设置Y值和高，然后在设置X和宽，否则图片变形
 //				obj.setY(StringUtil.parseInt(attr[3])/(2*mProportion));

@@ -252,13 +252,13 @@ public class WelcomeActivity extends Activity {
 // H.M.Wang 2025-9-24 取消开机升级
 // H.M.Wang 2025-10-24 仅A133取消开机升级
 // End of H.M.Wang 2025-10-24 仅A133取消开机升级
+			LibUpgrade libUp = new LibUpgrade();
+			libUp.upgradeSOs(true);
 			PackageInstaller installer = PackageInstaller.getInstance(this);
 			long start = System.currentTimeMillis();
 			while(System.currentTimeMillis() - start < 3000) {
 				if(ConfigPath.getUpgradePath() != null) {
 					Debug.d(TAG, "Path = [" + ConfigPath.getUpgradePath() + "]");
-					LibUpgrade libUp = new LibUpgrade();
-					ret = libUp.upgradeSOs(false);
 					if(AVOID_CROSS_UPGRADE) {
 						ret |= installer.silentUpgrade3();
 					} else {

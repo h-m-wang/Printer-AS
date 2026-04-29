@@ -18,6 +18,9 @@ extern "C"
 
 static jint *DOTS = new jint[8];
 static jint OrgLines=0, TarLines=0;
+static jint ShiftBitsOdd=0;
+static jint ShiftBitsEven=0;
+static jint OverlapBits=0;
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    ShiftImage
@@ -27,6 +30,9 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
   (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, jint head, jint orgLines, jint tarLines) {
 
 //    LOGD("ShiftImage: [%d, %d], head=%d, orgLines=%d, tarLines=%d", width, height, head, orgLines, tarLines);
+    ShiftBitsOdd = (width < 20 ? width : 0);          // 用width传递横向位移参数。小于20标识单数头位移，大于20标识双数头位移
+    ShiftBitsEven = (width < 20 ? 0 : width);          // 用width传递横向位移参数。小于20标识单数头位移，大于20标识双数头位移
+    OverlapBits = height;       // 用height传递508位重叠次数
     OrgLines = orgLines;
     TarLines = tarLines;
     return src;
@@ -96,6 +102,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     memset(rbuf_tmp, 0x00, newSize);
     int head_index = 0;
     int dot_count = 0;
+    unsigned int curr_color;
+    int shiftBits;
+    ShiftBits=0;
+    OverlapBits=0;
+    ShiftHead=0;
+    if(ShiftHead == 0) {
+        shiftBits = 0;
+    }
 
     for(int j=0; j<height * width; j+=8, rbuf_tmp++) {
         if(TarLines > 0 && dot_count == TarLines) {
@@ -109,11 +123,19 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
             }
         }
         for(int i=0; i<8; i++, dot_count++) {
+            if(OrgLines > 0 && (dot_count == OrgLines || dot_count == OrgLines + 1 || dot_count == OrgLines + 2)) {
+//                if(j<2*height)LOGD("ProcTime Skip: [%d, %d], head=%d", j, i, head_index);
+                if(curr_color < (unsigned int)0xFFF0F0F0) {     // 由于处理的原图基本上都是黑白的，因此可以简略处理，对于彩色图，需要先做灰度化
+                    *rbuf_tmp |= (0x01 << i);
+                    DOTS[head_index]++;
+                }
+                continue;
+            }
             if(OrgLines > 0 && dot_count >= OrgLines) {
 //                if(j<2*height)LOGD("ProcTime Skip: [%d, %d], head=%d", j, i, head_index);
                 continue;
             }
-            int curr_color = *cbuf_tmp++;
+            curr_color = *cbuf_tmp++;
 //            int pixR = RED(curr_color);
 //            int pixG = GREEN(curr_color);
 //            int pixB = BLUE(curr_color);
@@ -122,7 +144,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 //            int grey = (int)((float) pixR * 0.3 + (float)pixG * 0.59 + (float)pixB * 0.11);
 
 //            if(grey <= value) {
-            if(curr_color == 0xFF000000) {
+//            if(curr_color == 0xFF000000) {
+            if(curr_color < (unsigned int)0xFFF0F0F0) {     // 由于处理的原图基本上都是黑白的，因此可以简略处理，对于彩色图，需要先做灰度化
                 *rbuf_tmp |= (0x01 << i);
                 DOTS[head_index]++;
             }
@@ -272,9 +295,16 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
     return result;
 }
 
+// 2026-4-27 1.0.10 510,511也复制508的值
+// 2026-4-27 1.0.9 509复制508的值
+// 2026-4-26 1.0.8 二值化时，修改黑白判断标准，取消原来的
+//          if(curr_color == 0xFF000000) {
+// 修改为
+//          curr_color < (unsigned int)0xFF888888
+// 2026-4-14 1.0.7 新修改的版本中，由于原图做了旋转镜像，因此横轴和纵轴交换
 // 2026-4-9 1.0.6 修改GetPrintDots获取点数的方法，可以大大提高处理性能。二值化的处理暂时不修改，因为改善的不太多
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.7 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.10 Loaded.");
     for(int i=0; i<16; i++) {
         for(int j=0; j<16; j++) {
             byte_dots[i*16+j] = nibble_dots[i] + nibble_dots[j];

@@ -26,7 +26,21 @@ public class StringUtil {
 			return 0;
 		}
 	}
-	
+
+// H.M.Wang 2026-4-23 增加Float变换
+	public static float parseFloat(String string) {
+		try {
+			if (string == null) {
+				return 0f;
+			} else {
+				return Float.parseFloat(string);
+			}
+		} catch (Exception e) {
+			return 0f;
+		}
+	}
+// End of H.M.Wang 2026-4-23 增加Float变换
+
 	public static boolean parseBool(String string) {
 		try {
 			if (string == null) {
