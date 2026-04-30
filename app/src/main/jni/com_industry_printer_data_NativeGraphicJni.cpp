@@ -117,9 +117,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
                 cbuf_tmp += (TarLines - OrgLines) * head;
             }
             shiftBits = (((head_index & 0x01) == 0) ? ShiftBitsOdd : ShiftBitsEven);       // 根据当前头修改对应于当前头的位移量，head_index=0,2,4代表1，3，5头，使用ShiftBitsOdd， 1，3代表2，4头使用ShiftBitsEven
-//            if(!a) LOGD("ShiftImage: head_index=%d, shiftBits=%d, OverlapBits=%d", head_index, shiftBits, OverlapBits);
         }
         for(int i=0; i<8; i++, dot_count++) {
+            // 主要是对于108mm头的508后重叠做处理
             if(OrgLines > 0 && dot_count >= OrgLines+shiftBits && dot_count < OrgLines+shiftBits+OverlapBits) {
                 if(curr_color < (unsigned int)0xFFF0F0F0) {     // 由于处理的原图基本上都是黑白的，因此可以简略处理，对于彩色图，需要先做灰度化
                     *rbuf_tmp |= vals[i];
@@ -127,8 +127,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
                 }
                 continue;
             }
+            // 主要是对于108mm头的平行移位做处理
             if(OrgLines > 0 && (dot_count < shiftBits || dot_count >= OrgLines+shiftBits)) {
-//                if(!a) LOGD("ShiftImage: head_index=%d, dot_count=%d", head_index, dot_count);
                 continue;
             }
 
@@ -223,7 +223,8 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
         rByteBuf = cbuf;
     }
 
-    if(NULL != rByteBuf) {
+// 2026-4-29 取消jbyte->jchar的转换，经过确认，此操作没有必要，直接将jbyte数组的指针传递给SetCharArrayRegion函数，转化为jchararray就可以，节约用时一倍
+/*  if(NULL != rByteBuf) {
         rCharBuf = new jchar[length/2];
         for(int i=0; i<length/2; i++) {
             rCharBuf[i] = (jchar) (((jchar)(rByteBuf[2*i+1] << 8) & 0x0ff00) | (rByteBuf[2*i] & 0x0ff));
@@ -232,14 +233,24 @@ JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Get
             delete[] rByteBuf;
         }
     }
+*/
+// End of 2026-4-29 取消jbyte->jchar的转换，经过确认，此操作没有必要，直接将jbyte数组的指针传递给SetCharArrayRegion函数，转化为jchararray就可以
 
     jcharArray result = NULL;
     env->ReleaseByteArrayElements(src, cbuf, 0);
-    if(NULL != rCharBuf) {
+// 2026-4-29 取消jbyte->jchar的转换
+/*  if(NULL != rCharBuf) {
         result = env->NewCharArray(length/2);
         env->SetCharArrayRegion(result, 0, length/2, rCharBuf);
         delete[] rCharBuf;
     }
+*/
+    result = env->NewCharArray(length/2);
+    env->SetCharArrayRegion(result, 0, length/2, (jchar *)rByteBuf);
+    if(rByteBuf != cbuf) {
+        delete[] rByteBuf;
+    }
+// End of 2026-4-29 取消jbyte->jchar的转换
 
 //    LOGD("GetBgBuffer done");
     return result;
