@@ -1,10 +1,13 @@
 package com.industry.printer.Server1;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,8 +19,10 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -42,8 +47,13 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.HttpUtils;
+import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.SM2Cipher;
 import com.industry.printer.Utils.ToastUtil;
+import com.industry.printer.hardware.ExtGpio;
+import com.industry.printer.object.BaseObject;
+import com.industry.printer.ui.CustomerDialog.HeightSelectDialog;
+import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
@@ -99,7 +109,7 @@ public class Server1MainWindow {
 
     private Context mContext;
     private Handler mCallback;
-    private PopupWindow mPopupWindow;
+//    private PopupWindow mPopupWindow;
 
     private ListView mPostResultLV;
     private BaseAdapter mPostResultLVAdapter;
@@ -123,6 +133,12 @@ public class Server1MainWindow {
 // End of H.M.Wang 2026-1-27 修改检索的显示方法，修改为只显示命中的项目
     private int mSelectedItemNo;
 
+// H.M.Wang 2026-5-7 增加网络状态的定期检查
+    private boolean mFromConnected;
+    private LinearLayout mNetAlarm;
+    private TextView mNetAlarmQuit;
+// End of H.M.Wang 2026-5-7 增加网络状态的定期检查
+
     private static Server1MainWindow mInstance;
 
     public static Server1MainWindow getInstance(Context ctx) {
@@ -140,8 +156,9 @@ public class Server1MainWindow {
         mDispList = new ArrayList<Integer>();
         mSelectedItemNo = -1;
         mPrinting = false;
-
-        ThreadPoolManager.mThreads.execute(new Runnable() {
+        mFromConnected = false;
+// H.M.Wang 2026-5-6 启动时，不在读取文件中保存的数据，目的是为了避免上次开机前的打印数据可能因为网络连接不畅而导致的数据混乱
+/*        ThreadPoolManager.mThreads.execute(new Runnable() {
             @Override
             public void run() {
                 try{Thread.sleep(500);}catch(Exception e){}
@@ -151,7 +168,58 @@ public class Server1MainWindow {
                     for(int i=0; i<mResults.size(); i++) mDispList.add(i);
                 }
             }
-        });
+        });*/
+// End of H.M.Wang 2026-5-6 启动时，不在读取文件中保存的数据，目的是为了避免上次开机前的打印数据可能因为网络连接不畅而导致的数据混乱
+// H.M.Wang 2026-5-7 增加网络状态的定期检查
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try{
+                        Thread.sleep(3000);
+                        ConnectivityManager manager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
+                        if (activeNetwork != null && activeNetwork.isConnected()) {
+                            String ip = "175.170.155.72";		// 模式5的网络地址
+                            int timeout = 3000; // 超时时间（毫秒）
+
+//							InetAddress address = InetAddress.getByName(ip);
+//							boolean reachable = address.isReachable(timeout);
+                            Process p = Runtime.getRuntime().exec("ping -c 1 -W 1 " + ip);
+
+                            if (p.waitFor() == 0) {
+                                mFromConnected = true;
+                                continue;
+                            }
+                        }
+                        if(mFromConnected) {
+                            mNetAlarm.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mNetAlarm.setVisibility(View.VISIBLE);
+                                }
+                            });
+                            ExtGpio.playClick();
+                            try{Thread.sleep(50);}catch(Exception e){};
+                            ExtGpio.playClick();
+                            try{Thread.sleep(50);}catch(Exception e){};
+                            ExtGpio.playClick();
+// H.M.Wang 2026-5-11 断网后停止打印
+                            if(mPrinting && null != mCallback) {
+                                mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                                mPrinting = false;
+                                mPrint.setEnabled(true);
+                                mPrint.setTextColor(Color.BLACK);
+                            }
+// End of H.M.Wang 2026-5-11 断网后停止打印
+                        }
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+// End of H.M.Wang 2026-5-7 增加网络状态的定期检查
     }
 
     private void selectPosition(int pos) {
@@ -308,6 +376,319 @@ public class Server1MainWindow {
         return dispList;
     }
 
+    private ContentDialog mContentDialog = null;
+
+    private class ContentDialog extends RelightableDialog {
+        private View mAnchorView;
+        public ContentDialog(Context context, View v) {
+            super(context);
+            mContext = context;
+            mAnchorView = v;
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            // TODO Auto-generated method stub
+            super.onCreate(savedInstanceState);
+            this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            this.setContentView(R.layout.server1_data_layout);
+
+// H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            getWindow().setAttributes(lp);
+// End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
+
+            mProcessing = (ProgressBar) findViewById(R.id.processing);
+            mProcessing.setVisibility(View.GONE);
+
+            ImageView cancel = (ImageView) findViewById(R.id.cancel);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mContentDialog.dismiss();
+                    if(mAnchorView instanceof RadioButton) ((RadioButton)mAnchorView).setChecked(true);
+                }
+            });
+
+            mSearchWord = (EditText) findViewById(R.id.search_word);
+            mSearchWord.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(mPrinting && null != mCallback) {
+                        mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                        mPrinting = false;
+                        mPrint.setEnabled(true);
+                        mPrint.setTextColor(Color.BLACK);
+                    }
+                    String keyWord = editable.toString();
+                    if(!keyWord.isEmpty()) {
+                        mDispList = getDispList(keyWord);
+                        selectPosition(0);
+//                    onItemClickListener(0);
+                    }
+                }
+            });
+            mSearchWord.clearFocus();
+
+            TextView printID = (TextView) findViewById(R.id.printer_no);
+            printID.setText(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "号喷码机");
+
+            mGetFromHost = (TextView) findViewById(R.id.btn_post);
+            mGetFromHost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mPrinting && null != mCallback) {
+                        mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                        mPrinting = false;
+                        mPrint.setEnabled(true);
+                        mPrint.setTextColor(Color.BLACK);
+                    }
+                    mProcessing.setVisibility(View.VISIBLE);
+                    ThreadPoolManager.mThreads.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            final StringBuilder sb = new StringBuilder();
+                            new HttpUtils()
+                                    .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg")
+                                    .setMethod("POST")
+                                    .setParams("{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\"}}")
+                                    .setListeners(new HttpUtils.HttpResponseListener() {
+                                        @Override
+                                        public void onReceived(String str) {
+                                            if(null != str) {
+                                                sb.append(str);
+                                            } else {
+                                                if(sb.length() == 0) {
+                                                    mGetFromHost.post(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            mProcessing.setVisibility(View.GONE);
+                                                            ToastUtil.show(mContext, "Network access error!");
+                                                        }
+                                                    });
+                                                } else {
+                                                    Debug.d(TAG, sb.toString());
+                                                    ArrayList<String[]> results = pickupResults(sb.toString());
+                                                    if(results != null) {
+                                                        mResults = results;
+                                                        if(!mSearchWord.getText().toString().isEmpty()) {
+                                                            mDispList = getDispList(mSearchWord.getText().toString());
+                                                        } else {
+                                                            mDispList.clear();
+                                                            for(int i=0; i<mResults.size(); i++) mDispList.add(i);
+                                                        }
+                                                        selectPosition(0);
+                                                        mGetFromHost.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                mProcessing.setVisibility(View.GONE);
+                                                                mPostResultLV.setSelection(0);
+                                                            }
+                                                        });
+                                                    } else {
+                                                        mGetFromHost.post(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                mProcessing.setVisibility(View.GONE);
+                                                                if(!mErrMsg.isEmpty()) {
+                                                                    ToastUtil.show(mContext, mErrMsg);
+                                                                } else {
+                                                                    ToastUtil.show(mContext, "Unknown Error");
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }).access();
+                        }
+                    });
+                }
+            });
+
+            mPrint = (TextView) findViewById(R.id.btn_print);
+            mPrint.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(null != mCallback) {
+                        String filePath = ConfigPath.getTlkPath() + File.separator + Configs.GROUP_PREFIX + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].replace("#", "");
+                        if(new File(filePath).exists()) {
+                            mPrinting = true;
+                            mPrint.setEnabled(false);
+                            mPrint.setTextColor(Color.GRAY);
+                            Message msg = mCallback.obtainMessage(ControlTabActivity.MESSAGE_OPEN_PREVIEW);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("file", Configs.GROUP_PREFIX + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_PRINT_ROW_CNT].replace("#", ""));
+                            bundle.putBoolean("printAfterLoad", true);
+                            msg.setData(bundle);
+                            mCallback.sendMessage(msg);
+                        } else {
+                            ToastUtil.show(mContext, R.string.str_tlk_not_found);
+                        }
+                    }
+                }
+            });
+            mPrint.setFocusable(true);
+            mPrint.setFocusableInTouchMode(true);
+            mPrint.requestFocus();
+
+            mConfirm = (LinearLayout) findViewById(R.id.comfirm);
+            mConfirm.setVisibility(View.GONE);
+            mPromptMsg = (TextView) findViewById(R.id.prompt_msg);
+            mPromptOK = (TextView) findViewById(R.id.btn_ok);
+            mPromptOK.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                mConfirm.setVisibility(View.GONE);
+                    if(mPrinting && null != mCallback) {
+                        mCallback.sendEmptyMessage(ControlTabActivity.MESSAGE_PRINT_STOP);
+                        mPrinting = false;
+                        mPrint.setEnabled(true);
+                        mPrint.setTextColor(Color.BLACK);
+                    }
+                    mPromptMsg.setText("" + mResults.size());
+                    mPromptOK.setVisibility(View.GONE);
+                    mStopDeleting = false;
+                    deleteAll();
+                }
+            });
+            mPromptCancel = (TextView) findViewById(R.id.btn_cancel);
+            mPromptCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mStopDeleting = true;
+                    mConfirm.setVisibility(View.GONE);
+                }
+            });
+
+// H.M.Wang 2026-5-7 增加网络状态的定期检查
+            mNetAlarm = (LinearLayout) findViewById(R.id.net_shutdown_alarm);
+            mNetAlarm.setVisibility(View.GONE);
+            mNetAlarmQuit = (TextView) findViewById(R.id.btn_quit);
+            mNetAlarmQuit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mFromConnected = false;
+                    mNetAlarm.setVisibility(View.GONE);
+                }
+            });
+// End of H.M.Wang 2026-5-7 增加网络状态的定期检查
+
+            mDelete = (TextView) findViewById(R.id.btn_delete);
+            mDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mConfirm.setVisibility(View.VISIBLE);
+                }
+            });
+
+            mPostResultLV = (ListView) findViewById(R.id.post_data_list);
+            mPostResultLVAdapter = new BaseAdapter() {
+                private final int TextViewIDs[] = {
+                        R.id.printRowCnt,
+                        R.id.pieceNo,
+                        R.id.printRowMsg0,
+                        R.id.printRowMsg1,
+                        R.id.printRowMsg2,
+                        R.id.printRowMsg3,
+                        R.id.printRowMsg4,
+                        R.id.printRowMsg5,
+                        R.id.printRowMsg6,
+                        R.id.printRowMsg7,
+                        R.id.printRowMsg8,
+                        R.id.printRowMsg9,
+                };
+                private final int InnerIndexs[] = {
+                        INDEX_PRINT_ROW_CNT,
+                        INDEX_PIECE_NO,
+                        INDEX_PRINT_ROW_MSG_0,
+                        INDEX_PRINT_ROW_MSG_1,
+                        INDEX_PRINT_ROW_MSG_2,
+                        INDEX_PRINT_ROW_MSG_3,
+                        INDEX_PRINT_ROW_MSG_4,
+                        INDEX_PRINT_ROW_MSG_5,
+                        INDEX_PRINT_ROW_MSG_6,
+                        INDEX_PRINT_ROW_MSG_7,
+                        INDEX_PRINT_ROW_MSG_8,
+                        INDEX_PRINT_ROW_MSG_9,
+                };
+
+                @Override
+                public int getCount() {
+                    return mDispList == null ? 0 : mDispList.size();
+                }
+
+                @Override
+                public Object getItem(int i) {
+                    return mDispList == null ? 0 : mDispList.get(i);
+                }
+
+                @Override
+                public long getItemId(int i) {
+                    return 0;
+                }
+
+                @Override
+                public View getView(final int position, View convertView, ViewGroup parent) {
+                    if(null == convertView) {
+                        convertView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_list_item, null);
+                    }
+                    final View final_convertView = convertView;
+
+                    if(mSelectedItemNo == position) {
+                        convertView.setBackgroundColor(Color.YELLOW);
+                    } else {
+                        convertView.setBackgroundColor(Color.TRANSPARENT);
+                    }
+
+                    for(int i=0; i<TextViewIDs.length; i++) {
+                        TextView textView = (TextView) convertView.findViewById(TextViewIDs[i]);
+                        if(mResults.get(mDispList.get(position)).length > InnerIndexs[i]) {
+                            String findString = mSearchWord.getText().toString();
+                            String orgString = mResults.get(mDispList.get(position))[InnerIndexs[i]];
+                            int index = orgString.indexOf(findString);
+                            if(!findString.isEmpty() && index >= 0) {
+                                SpannableString message = new SpannableString(orgString);
+                                message.setSpan(new ForegroundColorSpan(Color.RED), index, index + findString.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                                textView.setText(message);
+                            } else {
+                                textView.setText(orgString);
+                            }
+                        }
+                        textView.setOnClickListener(new View.OnClickListener() {       // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                            @Override
+                            public void onClick(View view) {
+                                onItemClickListener(position);
+                            }
+                        });
+                        textView.setOnLongClickListener(new View.OnLongClickListener() {    // 增加这些子元素的点击事件，主要是为了在ListView中包含HoritontalScrollView时相应点击事件
+                            @Override
+                            public boolean onLongClick(View view) {
+                                return onItemLongClick(view, final_convertView, position);
+                            }
+                        });
+                    }
+
+                    return convertView;
+                }
+            };
+
+            mPostResultLV.setAdapter(mPostResultLVAdapter);
+        }
+    }
+
     public void show(final View v) {
         if (null == mContext) {
             return;
@@ -316,6 +697,9 @@ public class Server1MainWindow {
         mDispList.clear();
         for(int i=0; i<mResults.size(); i++) mDispList.add(i);
 
+        mContentDialog = new ContentDialog(mContext, v);
+        mContentDialog.show();
+/*
         View popupView = LayoutInflater.from(mContext).inflate(R.layout.server1_data_layout, null);
 
         mPopupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
@@ -491,6 +875,20 @@ public class Server1MainWindow {
                 mConfirm.setVisibility(View.GONE);
             }
         });
+
+// H.M.Wang 2026-5-7 增加网络状态的定期检查
+        mNetAlarm = (LinearLayout) popupView.findViewById(R.id.net_shutdown_alarm);
+        mNetAlarm.setVisibility(View.GONE);
+        mNetAlarmQuit = (TextView) popupView.findViewById(R.id.btn_quit);
+        mNetAlarmQuit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFromConnected = false;
+                mNetAlarm.setVisibility(View.GONE);
+            }
+        });
+// End of H.M.Wang 2026-5-7 增加网络状态的定期检查
+
         mDelete = (TextView) popupView.findViewById(R.id.btn_delete);
         mDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -592,7 +990,7 @@ public class Server1MainWindow {
 
         mPostResultLV.setAdapter(mPostResultLVAdapter);
         mPopupWindow.showAtLocation(v, Gravity.NO_GRAVITY, 0, 0);
-
+*/
         if(mSelectedItemNo == -1) selectPosition(0); else selectPosition(mSelectedItemNo);
         mPostResultLV.setSelection(mSelectedItemNo);
     }
@@ -810,5 +1208,9 @@ public class Server1MainWindow {
                 });
             }
         });
+    }
+
+    public boolean isShowing() {
+        return (null == mContentDialog ? false : mContentDialog.isShowing());
     }
 }

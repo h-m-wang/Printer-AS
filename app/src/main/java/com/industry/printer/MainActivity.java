@@ -47,6 +47,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -390,6 +391,34 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					}
 				}
 // End of H.M.Wang 2024-10-15 增加7寸屏的强制恢复正常显示，因为当前设置了反转之后，屏幕显示不正确
+// H.M.Wang 2026-5-6 增加网络状态的定期检查
+				while(true) {
+				    try{
+						Thread.sleep(3000);
+						ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+						NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
+						if (activeNetwork != null && activeNetwork.isConnected()) {
+							String ip = "175.170.155.72";		// 模式5的网络地址
+							int timeout = 3000; // 超时时间（毫秒）
+
+//							InetAddress address = InetAddress.getByName(ip);
+//							boolean reachable = address.isReachable(timeout);
+							Process p = Runtime.getRuntime().exec("ping -c 1 -W 1 " + ip);
+
+							if (p.waitFor() == 0) {
+								mNeedAlarm = true;
+								mHander.sendEmptyMessage(MainActivity.NET_CONNECTED);
+							} else {
+								mHander.sendEmptyMessage(MainActivity.NET_DISCONNECTED);
+							}
+						} else {
+							mHander.sendEmptyMessage(MainActivity.NET_DISCONNECTED);
+						}
+					} catch(Exception e) {
+				    	e.printStackTrace();
+					}
+				}
+// End of H.M.Wang 2026-5-6 增加网络状态的定期检查
 			}
 		}.start();
 	}
@@ -742,6 +771,8 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public static final int NET_CONNECTED = 3;
 	public static final int NET_DISCONNECTED = 4;
 
+	private boolean mNeedAlarm = false;
+
 	/** 低亮度模式 */
 	public static final int ENTER_LOWLIGHT_MODE = 5;
 	/** 低亮度模式 */
@@ -818,6 +849,11 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				break;
 			case NET_DISCONNECTED:
 				IP_address.setText("");
+				if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
+					if(mNeedAlarm && !Server1MainWindow.getInstance(mContext).isShowing()) {
+						ToastUtil.show(MainActivity.this, "Wifi Disconnected!");
+					}
+				}
 				break;
 			case ENTER_LOWLIGHT_MODE:
 				setScreenBrightness(true);
@@ -1603,7 +1639,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		            Enumeration<InetAddress> ias = ni.getInetAddresses();  
 		            while (ias.hasMoreElements()) {  
 		                ia = ias.nextElement(); 
-		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
+//		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
 		                if (ia instanceof Inet6Address) {  
 		                    continue;// skip ipv6  
 		                }  

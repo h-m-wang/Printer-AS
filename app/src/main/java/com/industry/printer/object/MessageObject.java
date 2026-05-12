@@ -1232,11 +1232,18 @@ public class MessageObject extends BaseObject {
 		Debug.d(TAG, "--->h: " + h + ", type=" + mPNozzle.mType);
 		return h;
 	}
-	
-	public int getPixels(String size) {
+
+	// 先通过getRealFontsize计算出来等效于12.7头的厘米数，如：
+	// 9mm的头h = size * 12.7 / 9，即9mm当中指定的size高（厘米）等效12.7(半英寸)头的厘米数
+	// 然后，根据已经定义的每个厘米对应的像素数计算实际的像素数
+// H.M.Wang 2026-5-7 修改为返回float数，提高精度，否则高度值较小时会出现很大的误差
+//	public int getPixels(String size) {
+	public float getPixels(String size) {
+// End of H.M.Wang 2026-5-7 修改为返回float数，提高精度，否则高度值较小时会出现很大的误差
 		float h = getRealFontsize(size);
-		
-		return (int)(h * PIXELS_PER_MM);
+
+//		return (int)(h * PIXELS_PER_MM);
+		return (h * PIXELS_PER_MM);
 	}
 	
 	public String getDisplayFs(float size) {
@@ -1718,10 +1725,21 @@ public class MessageObject extends BaseObject {
 		}
 
 		for (int i = 0; i < sizelist.length; i++) {
-			if ((h > type * sizelist[i] - 0.3) && (h < type * sizelist[i] + 0.3)) {
+// H.M.Wang 2026-5-7 修改判断条件，以前加减0.3的方法在数值较小的时候误差比较大，改为根据靠哪个近取那个值
+//			if ((h > type * sizelist[i] - 0.3) && (h < type * sizelist[i] + 0.3)) {
+//				h = sizelist[i] * type;
+//				break;
+//			}
+			if(i == sizelist.length-1) {	// 已经是最后一个，只能采用
 				h = sizelist[i] * type;
 				break;
-			}
+			} else {
+				if ((h >= type * sizelist[i]) && (h <= type * sizelist[i+1])) {
+					h = ((type * sizelist[i+1] - h > h - type * sizelist[i]) ? type * sizelist[i] : type * sizelist[i+1]);
+					break;
+				}
+            }
+// End of H.M.Wang 2026-5-7 修改判断条件，以前加减0.3的方法在数值较小的时候误差比较大，改为根据靠哪个近取那个值
 		}
 
 // H.M.Wang 2019-9-29 保留小数点后1位

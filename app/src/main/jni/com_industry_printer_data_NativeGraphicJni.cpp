@@ -18,9 +18,9 @@ extern "C"
 
 static jint *DOTS = new jint[8];
 static jint OrgLines=0, TarLines=0;
-static jint ShiftBitsOdd=0;
-static jint ShiftBitsEven=0;
-static jint OverlapBits=0;
+//static jint ShiftBitsOdd=0;
+//static jint ShiftBitsEven=0;
+//static jint OverlapBits=0;
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    ShiftImage
@@ -30,9 +30,9 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Shif
   (JNIEnv *env, jclass thiz, jintArray src, jint width, jint height, jint head, jint orgLines, jint tarLines) {
 
 //    LOGD("ShiftImage: [%d, %d], head=%d, orgLines=%d, tarLines=%d", width, height, head, orgLines, tarLines);
-    ShiftBitsOdd = width;          // 用width传递单数头横向位移点数。
-    ShiftBitsEven = height;        // 用height传递单数头横向位移点数。
-    OverlapBits = head;            // 用head传递508位重叠次数
+//    ShiftBitsOdd = width;          // 用width传递单数头横向位移点数。
+//    ShiftBitsEven = height;        // 用height传递单数头横向位移点数。
+//    OverlapBits = head;            // 用head传递508位重叠次数
     OrgLines = orgLines;
     TarLines = tarLines;
     return src;
@@ -103,7 +103,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     int head_index = 0;
     int dot_count = 0;
     unsigned int curr_color;
-    int shiftBits = ShiftBitsOdd;
+//    int shiftBits = ShiftBitsOdd;
     jbyte vals[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, (jbyte)0x80};
 
 //    LOGD("ShiftImage: head_index=%d, shiftBits=%d, OverlapBits=%d", head_index, shiftBits, OverlapBits);
@@ -116,19 +116,20 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
                 head_index = 0;
                 cbuf_tmp += (TarLines - OrgLines) * head;
             }
-            shiftBits = (((head_index & 0x01) == 0) ? ShiftBitsOdd : ShiftBitsEven);       // 根据当前头修改对应于当前头的位移量，head_index=0,2,4代表1，3，5头，使用ShiftBitsOdd， 1，3代表2，4头使用ShiftBitsEven
+//            shiftBits = (((head_index & 0x01) == 0) ? ShiftBitsOdd : ShiftBitsEven);       // 根据当前头修改对应于当前头的位移量，head_index=0,2,4代表1，3，5头，使用ShiftBitsOdd， 1，3代表2，4头使用ShiftBitsEven
         }
         for(int i=0; i<8; i++, dot_count++) {
             // 主要是对于108mm头的508后重叠做处理
-            if(OrgLines > 0 && dot_count >= OrgLines+shiftBits && dot_count < OrgLines+shiftBits+OverlapBits) {
-                if(curr_color < (unsigned int)0xFFF0F0F0) {     // 由于处理的原图基本上都是黑白的，因此可以简略处理，对于彩色图，需要先做灰度化
-                    *rbuf_tmp |= vals[i];
-                    DOTS[head_index]++;
-                }
-                continue;
-            }
+//            if(OrgLines > 0 && dot_count >= OrgLines+shiftBits && dot_count < OrgLines+shiftBits+OverlapBits) {
+//                if(curr_color < (unsigned int)0xFFF0F0F0) {     // 由于处理的原图基本上都是黑白的，因此可以简略处理，对于彩色图，需要先做灰度化
+//                    *rbuf_tmp |= vals[i];
+//                    DOTS[head_index]++;
+//                }
+//                continue;
+//            }
             // 主要是对于108mm头的平行移位做处理
-            if(OrgLines > 0 && (dot_count < shiftBits || dot_count >= OrgLines+shiftBits)) {
+//            if(OrgLines > 0 && (dot_count < shiftBits || dot_count >= OrgLines+shiftBits)) {
+            if(OrgLines > 0 && dot_count >= OrgLines) {
                 continue;
             }
 
@@ -151,9 +152,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
     }
     OrgLines = 0;
     TarLines = 0;
-    ShiftBitsOdd = 0;
-    ShiftBitsEven = 0;
-    OverlapBits = 0;
+//    ShiftBitsOdd = 0;
+//    ShiftBitsEven = 0;
+//    OverlapBits = 0;
 
     jbyteArray result = env->NewByteArray(newSize);
     env->SetByteArrayRegion(result, 0, newSize, rbuf);
@@ -306,6 +307,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
     return result;
 }
 
+// 2026-5-9 1.0.12 取消1.0.11中追加的单双数头位移和重叠的功能，恢复到原来的处理
 // 2026-4-29 1.0.11 增加单双数头的位移参数和重叠参数的传递和对应处理
 // 即原来1-508为实际内容，509-544填空；扩展为，加入设置位移值为n，则1-(1+n)填空，(1+n)-(508+n)填充实际值，(508+n+1)-544填空
 // 2026-4-27 1.0.10 510,511也复制508的值
@@ -317,7 +319,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 // 2026-4-14 1.0.7 新修改的版本中，由于原图做了旋转镜像，因此横轴和纵轴交换
 // 2026-4-9 1.0.6 修改GetPrintDots获取点数的方法，可以大大提高处理性能。二值化的处理暂时不修改，因为改善的不太多
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.11 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.12 Loaded.");
     for(int i=0; i<16; i++) {
         for(int j=0; j<16; j++) {
             byte_dots[i*16+j] = nibble_dots[i] + nibble_dots[j];

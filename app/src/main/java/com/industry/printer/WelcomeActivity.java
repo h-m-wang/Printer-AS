@@ -422,7 +422,14 @@ public class WelcomeActivity extends Activity {
 		private void clearData() {
 			FileUtil.deleteFolder(Configs.TLK_PATH_FLASH);
 			FileUtil.deleteFolder(Configs.CONFIG_PATH_FLASH + Configs.PICTURE_SUB_PATH);
+			FileUtil.copyFile(Configs.FILE_1, Configs.CONFIG_PATH_FLASH + "/F1.txt");
+			FileUtil.copyFile(Configs.FILE_2, Configs.CONFIG_PATH_FLASH + "/F2.txt");
 			FileUtil.deleteFolder(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
+			FileUtil.copyFile(Configs.CONFIG_PATH_FLASH + "/F1.txt", Configs.FILE_1);
+			FileUtil.copyFile(Configs.CONFIG_PATH_FLASH + "/F2.txt", Configs.FILE_2);
+			FileUtil.deleteFolder(Configs.CONFIG_PATH_FLASH + "/F1.txt");
+			FileUtil.deleteFolder(Configs.CONFIG_PATH_FLASH + "/F2.txt");
+			try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
 		}
 	}
 // End of H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity

@@ -99,6 +99,25 @@ public class LibUpgrade {
         try {
             if(PlatformInfo.isA133Product()) {
                 midPath = "/data/audio_d/"; // A133无法直接将文件复制到system/lib目录中，需要通过/data/audio_d中转
+/*                Debug.d(TAG, "Testing 1");
+
+                os.writeBytes("mount -o rw,remount /system/lib");   // 成功
+                AssetManager assetManager = PrinterApplication.getInstance().getAssets();
+                is = assetManager.open(so);
+                FileUtil.writeFile("/system/lib/a.btt", is);
+                os.writeBytes("chmod 644 /system/lib/a.btt");
+
+                os.writeBytes("mount -o rw,remount /system/app/Printer");   // 失败
+                is = assetManager.open(so);
+                FileUtil.writeFile("/system/app/Printer/a.btt", is);
+                os.writeBytes("chmod 644 /system/app/Printer/a.btt");
+
+                os.writeBytes("mount -o rw,remount /system/vendor/modules");    // 失败
+                is = assetManager.open(so);
+                FileUtil.writeFile("/system/vendor/modules/a.btt", is);
+                os.writeBytes("chmod 644 /system/vendor/modules/a.btt");
+
+                Debug.d(TAG, "Testing 2");*/
             }
 
             if(useLocalAsset) {

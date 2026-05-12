@@ -1,7 +1,5 @@
 package com.industry.printer.Utils;
 
-import com.industry.printer.Server1.Server1MainWindow;
-
 import org.bouncycastle.asn1.gm.GMNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.digests.SM3Digest;

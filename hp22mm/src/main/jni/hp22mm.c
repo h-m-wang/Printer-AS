@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.202"
+#define VERSION_CODE                            "1.0.203"
+// 1.0.203 2026-5-12
+// 恢复2025-11-4 - 11-13期间注释掉的代码段，记录ids的墨水使用情况
 // 1.0.202 2026-3-24
 // 丰富整理错误返回信息
 // 1.0.201 2026-3-23
@@ -912,7 +914,8 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
     uint32_t value;
 
     if(head == 0) {
-/*        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+// H.M.Wang 2025-11-4 - 11-13期间注释掉，2026-5-12恢复
+        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
         if (ids_check("ids_read_oem_field", ids_r)) return(-1);
 
         value += count;
@@ -926,7 +929,8 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
         if (ids_check("ids_write_oem_field", ids_r)) return(-1);
 
         ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
-        if (ids_check("ids_flush_smart_card", ids_r)) return(-1);*/
+        if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
+// End of H.M.Wang 2025-11-4 - 11-13期间注释掉，2026-5-12恢复
     } else {
         uint8_t pd_sc_result;
         PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
