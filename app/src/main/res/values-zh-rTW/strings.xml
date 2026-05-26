@@ -79,6 +79,7 @@
 	<string name="str_btn_second">秒</string>
 	<string name="str_btn_upgrade">升級</string>
 	<string name="str_urge2restart">升級已完成, 請重啓</string>
+	<string name="str_urge2reupgrade">Apk(%1$d)可能升級失敗, 點擊屏幕重新升級.(%2$d)</string>
 	<string name="str_btn_setDate">日期設置</string>
 	<string name="str_btn_setTime">時間設置</string>
 	<string name="str_btn_image">圖形</string>
@@ -558,6 +559,7 @@
 	<string name="str_setting_time">時間設置</string>
 	<string name="str_system_setting">系統設置</string>
 	<string name="str_upgrade_progress">系統升級中....</string>
+	<string name="str_upgrade_failed">升級失敗</string>
 	<string name="str_time_format">%1$02d:%2$02d:%3$02d %4$02d:%5$02d:%6$02d</string>
 	<string name="str_toast_ink_unvalid">墨點大小超出範圍，重置為默認值: 800</string>
 	<string name="str_toast_photoelectricity_delay">光電延時超出範圍，重置為默認值:100</string>

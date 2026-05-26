@@ -62,6 +62,7 @@
 	<string name="str_btn_second">Seconde</string>
 	<string name="str_btn_upgrade">Surclassement</string>
 	<string name="str_urge2restart">Upgraded, please restart</string>
+	<string name="str_urge2reupgrade">Apk(%1$d) upgrading may failed, click screen to redo it.(%2$d)</string>
 	<string name="str_btn_setDate">Installer date</string>
 	<string name="str_btn_setTime">Installer temps</string>
 	<string name="str_btn_image">Logo</string>
@@ -515,6 +516,7 @@
 	<string name="str_setting_time">Heure</string>
 	<string name="str_system_setting">Paramètres</string>
 	<string name="str_upgrade_progress">Mise à niveau du système....</string>
+	<string name="str_upgrade_failed">Upgrading failed</string>
 	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
 	<string name="str_toast_ink_unvalid">Niveau d\'encre dotle, défini par défaut：800</string>
 	<string name="str_toast_photoelectricity_delay">Détection photoélectrique haut niveau réglé sur défaut:100</string>

@@ -84,6 +84,12 @@ public class Hp22mm {
     static public native int test100msInterval(int start);
     static public native int[] getErrorCounts();
 // End of 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+    static public native float[] getUsedInkVolume();
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+    static public native int setMaxVolmue(int maxvol);
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
 
 //    static public native String startPrint();
 //    static public native String dumpRegisters();

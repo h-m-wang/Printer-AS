@@ -31,6 +31,7 @@ import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
+import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.interceptor.ExtendInterceptor;
 import com.industry.printer.interceptor.ExtendInterceptor.ExtendStat;
 import com.industry.printer.object.BarcodeObject;
@@ -433,7 +434,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2025-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
-		if (bSave) {
+// H.M.Wang 2026-5-25 虚拟打印模式。每次打印保存print.bin
+//		if (bSave) {
+		if (bSave || Hp22mmSCManager.VIRTUAL_PRINT_MODE) {
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
 			FileUtil.deleteFolder("/mnt/sdcard/print.bin");
 			BinCreater.saveBin("/mnt/sdcard/print.bin", mBuffer, mBinInfo.mBytesPerHFeed * 8 * mTask.getNozzle().mHeads);
 		}

@@ -11,10 +11,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
- 
 
 
-
+import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.R;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
@@ -37,6 +37,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -50,6 +51,10 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 	public RelativeLayout mPageNext;
 	public TextView mDelete;
 	public TextView mGroup;
+// H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+	public ImageView mPreviewBtn;
+// End of H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+
 	public RelativeLayout mLoadingLy;
 
 	public EditText mSearch;
@@ -160,6 +165,14 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 		mDelete = (TextView) findViewById(R.id.btn_delete);
 		mDelete.setOnClickListener(this);
 
+// H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+		mPreviewBtn = (ImageView) findViewById(R.id.btn_enlarge);
+		if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			mPreviewBtn.setVisibility(View.VISIBLE);
+			mPreviewBtn.setOnClickListener(this);
+		}
+// End of H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+
 		mGroup = (TextView) findViewById(R.id.btn_multi_select);
 		mGroup.setOnClickListener(this);
 		if (mFrom == OpenFrom.OPEN_EDIT) {
@@ -225,6 +238,18 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 		mDispIndex.remove(selected);
 	}
 
+// H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+	private void showItemPreview(Integer selected) {
+		if(selected < 0) return;
+		String title = mTotalContents[selected];
+        if(!title.startsWith(Configs.USER_GROUP_PREFIX) && !title.startsWith(Configs.QUICK_GROUP_PREFIX) && !title.startsWith(Configs.GROUP_PREFIX)) {
+            Debug.d(TAG, "Show enlarged preview: " + title + "@" + selected);
+            PreviewEnlarge pre = new PreviewEnlarge(mContext, title);
+            pre.show(mPreviewBtn);
+        }
+	}
+// End of H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+
 	@Override
 	public void onClick(View arg0) {
 		switch (arg0.getId()) {
@@ -268,7 +293,14 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 				}
 				mFileAdapter.setContentIndex(mDispIndex);
 				break;
-				
+// H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+			case R.id.btn_enlarge:
+				if (!mMultiMode) {
+					showItemPreview(mFileAdapter.getSelectedSingle());
+				}
+			break;
+// End of H.M.Wang 2026-5-21 在选择信息列表中增加启动放大显示预览图的按键
+
 			case R.id.btn_multi_select:
 				switchMultiSelect();
 				break;
@@ -298,7 +330,7 @@ public class MessageBrowserDialog extends CustomerDialogBase implements android.
 			mTitles.add(mTotalContents[mDispIndex.get(position)]);
 		} else {
 			String title = mTotalContents[mDispIndex.get(position)];
-			if (title == null || title.startsWith(Configs.GROUP_PREFIX)) {
+			if (title == null || title.startsWith(Configs.USER_GROUP_PREFIX) || title.startsWith(Configs.QUICK_GROUP_PREFIX) || title.startsWith(Configs.GROUP_PREFIX)) {
 				return;
 			}
 			if (mTitles.contains(title)) {

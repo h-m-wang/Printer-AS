@@ -759,11 +759,11 @@ public enum PrinterNozzle {
             case MessageType.NOZZLE_INDEX_32X2:
 // End of H.M.Wang 2022-5-27 追加32x2头类型
 // H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
-            case NozzleType.NOZZLE_TYPE_32X3:
-            case NozzleType.NOZZLE_TYPE_32X4:
-            case NozzleType.NOZZLE_TYPE_32X5:
-            case NozzleType.NOZZLE_TYPE_32X6:
-            case NozzleType.NOZZLE_TYPE_32X7:
+            case MessageType.NOZZLE_INDEX_32X3:
+            case MessageType.NOZZLE_INDEX_32X4:
+            case MessageType.NOZZLE_INDEX_32X5:
+            case MessageType.NOZZLE_INDEX_32X6:
+            case MessageType.NOZZLE_INDEX_32X7:
 // End of H.M.Wang 2025-12-9 增加32X3 - 32X7打印头类型
             case MessageType.NOZZLE_INDEX_64_DOT:
 // H.M.Wang 2020-8-26 追加64SN打印头

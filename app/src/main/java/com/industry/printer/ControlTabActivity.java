@@ -99,6 +99,7 @@ import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.MessageGroupsortDialog;
 import com.industry.printer.ui.CustomerDialog.MsgListOfGroupDialog;
+import com.industry.printer.ui.CustomerDialog.PreviewEnlarge;
 import com.industry.printer.ui.CustomerDialog.RemoteMsgPrompt;
 import com.industry.printer.ui.CustomerDialog.SubStepDialog;
 import com.industry.printer.ui.ExtendMessageTitleFragment;
@@ -183,6 +184,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	public HorizontalScrollView mScrollView;
 	public TextView mMsgFile;
 	private TextView tvMsg;
+
+// H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
+	private ImageView mEnlargePrevBtn;
+// End of H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
 
 // H.M.Wang 2023-6-14 追加一个监视SC初始化出现失败状态的功能，监视信息包括：初始化失败次数，致命失败次数，写锁值失败次数，致命写锁值失败次数
 	private TextView mSCMonitorInfo;
@@ -760,6 +765,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //		}
 // End of H.M.Wang 2025-11-10 增加一个为群组时长按显示群组选择对话窗的功能，作为通用功能，取消仅为UI_CUSTOMIZED0的限制
 // End of H.M.Wang 2023-7-6 增加一个用户定义界面模式，长按预览区进入编辑页面，编辑当前任务
+
+// H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
+		mEnlargePrevBtn = getView().findViewById(R.id.btn_enlarge);
+		mEnlargePrevBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PreviewEnlarge pre = new PreviewEnlarge(mContext, mObjPath);
+				pre.show(mEnlargePrevBtn);
+			}
+		});
+// End of H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
 
 		// mMsgPreview = (TextView) getView().findViewById(R.id.message_preview);
 		// mMsgPreImg = (ImageView) getView().findViewById(R.id.message_prev_img);
@@ -3038,6 +3054,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // 如果把preview的高度设成match_parent，就会获得一个竖屏模式下获取的高度，从而变大
 
 	private void dispPreview(Bitmap bmp) {
+// H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
+		if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			if(mObjPath != null && !mObjPath.startsWith(Configs.USER_GROUP_PREFIX) && !mObjPath.startsWith(Configs.QUICK_GROUP_PREFIX) && !mObjPath.startsWith(Configs.GROUP_PREFIX)) {
+				mEnlargePrevBtn.setVisibility(View.VISIBLE);
+			}
+		}
+// End of H.M.Wang 2026-5-15 增加启动放大显示预览图的按键
 // H.M.Wang 2023-2-13 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
 		if(TxtDT.getInstance(mContext).isTxtDT()) {
 			TxtDT.getInstance(mContext).dispPreview();

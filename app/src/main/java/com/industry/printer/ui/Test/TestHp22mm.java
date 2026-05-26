@@ -95,7 +95,11 @@ public class TestHp22mm implements ITestOperation {
             "21 -- Toggle PI4",
             "22 -- Toggle PI5",
             "23 -- SPI Writing Test @24Mbps",    // H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
-            "24 -- Read Print Head Error every 100ms"
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+//            "24 -- Read Print Head Error every 100ms"
+            "24 -- Read Print Head Error every 100ms",
+            "25 -- Read Used Ink Volumes",
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
     };
 
     private String[] Registers = new String[] {
@@ -182,6 +186,9 @@ public class TestHp22mm implements ITestOperation {
 // End of H.M.Wang 2024-6-20 追加一个22mm通过SPI进行24M速率的写试验
 // H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
     private final static int HP22MM_100MS_FRESH                       = 28;
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+    private final static int HP22MM_GET_USED_INK_VOLS                 = 29;
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
     private boolean m100msFreshRunning;
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
@@ -718,6 +725,13 @@ public class TestHp22mm implements ITestOperation {
                                 m100msFreshRunning = true;
                             }
                             Hp22mm.test100msInterval(m100msFreshRunning?1:0);
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+                            break;
+                        case HP22MM_GET_USED_INK_VOLS:
+                            float[] usedVols = Hp22mm.getUsedInkVolume();
+                            mHp22mmTestResult[index] = "P1:" + usedVols[0] + ", P2:" + usedVols[1];
+                            break;
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;

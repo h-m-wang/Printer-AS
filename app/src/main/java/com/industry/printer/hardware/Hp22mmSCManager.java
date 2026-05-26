@@ -24,6 +24,13 @@ public class Hp22mmSCManager implements IInkDevice {
 //    private static int MAX_BAG_INK_VOLUME         = 3150;
 //    private static int MAX_PEN_INK_VOLUME         = MAX_BAG_INK_VOLUME * PEN_VS_BAG_RATIO;
 // End of H.M.Wang 2024-12-11 墨水最大值
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+    private int mMaxBagInkVolume;
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+
+// H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
+    public static boolean VIRTUAL_PRINT_MODE = false;    // true: 启动虚拟打印；false: 关闭虚拟打印
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
 
     private Context mContext;
     private Handler mCallback;
@@ -73,11 +80,18 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public void init(Handler callback) {
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+        mMaxBagInkVolume = MAX_BAG_INK_VOLUME_MAXIMUM;
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f);
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         }
+        Debug.d(TAG, "mMaxBagInkVolume = " + mMaxBagInkVolume);
         switch(penArg) {
             case 0x01:
                 mHeads = new Hp22mmHead[] {
@@ -113,6 +127,12 @@ public class Hp22mmSCManager implements IInkDevice {
                 RFIDDevice rf = RFIDDevice.getInstance();
                 rf.disableRfid();
 // End of H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
+// H.M.Wang 2026-5-25 虚拟打印模式，直接跳出，不进行实际的初始化和守护
+                if(VIRTUAL_PRINT_MODE) {
+                    Debug.d(TAG, "VIRTUAL_PRINT_MODE");
+                    return;
+                }
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
                 while(true) {
                     synchronized (LockObj) {
                         if (!mInitialized) {
@@ -122,6 +142,9 @@ public class Hp22mmSCManager implements IInkDevice {
                             if(error == 0) {
                                 mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, 0, "").sendToTarget();
                                 mInitialized = true;
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+                                Hp22mm.setMaxVolmue(mMaxBagInkVolume);
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
                             } else {
                                 String errString;
 // H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧
@@ -228,6 +251,16 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public float getLocalInk(int head) {
+// H.M.Wang 2026-5-25 虚拟打印模式。返回最大墨量
+        if(VIRTUAL_PRINT_MODE) {
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+//            mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * MAX_BAG_INK_VOLUME_MAXIMUM;
+            mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * mMaxBagInkVolume;
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+            mHeads[head].mValid = true;
+            return mHeads[head].mInkLevel;
+        };
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
 // H.M.Wang 2024-12-10 从SC的OEM中读取当前值
         if(mInitialized && mHeads[head].mInkLevel == -1) {
             int level = Hp22mm.getLocalInk(mHeads[head].mID);        // 目的是将IDS的序号变为0，其它的头的序号从1开始计数
@@ -235,7 +268,10 @@ public class Hp22mmSCManager implements IInkDevice {
                 mHeads[head].mInkLevel = -1;
                 mHeads[head].mValid = false;
             } else {
-                mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * MAX_BAG_INK_VOLUME_MAXIMUM - level;   // PEN的最大值是IDS的5倍
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+//                mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * MAX_BAG_INK_VOLUME_MAXIMUM - level;   // PEN的最大值是IDS的5倍
+                mHeads[head].mInkLevel = ((head == mHeads.length-1) ? 1 : 7) * mMaxBagInkVolume - level;   // PEN的最大值是IDS的5倍
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
                 mHeads[head].mValid = true;
             }
         }
@@ -245,12 +281,20 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public float getLocalInkPercentage(int head) {
+// H.M.Wang 2026-5-25 虚拟打印模式。返回最大墨量
+        if(VIRTUAL_PRINT_MODE) {
+            return 100.0f;
+        };
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
 // H.M.Wang 2024-12-10 从SC的OEM中读取当前值
 //        int usableVol = Hp22mm.getUsableVol();
 //        if(usableVol > 0)
 //            return 100.0f - 100.0f * Hp22mm.getConsumedVol() / Hp22mm.getUsableVol();
         if(mHeads[head].mInkLevel >= 0) {
-            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * MAX_BAG_INK_VOLUME_MAXIMUM));
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+//            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * MAX_BAG_INK_VOLUME_MAXIMUM));
+            float ret = (100.0f * mHeads[head].mInkLevel / ((head == mHeads.length-1 ? 1:7) * mMaxBagInkVolume));
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
             return (ret > 100.0f ? 100.0f : ret);
 // End of H.M.Wang 2024-12-10 从SC的OEM中读取当前值
         } else if(!mInitialized)
@@ -278,6 +322,11 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public void downLocal(int dev) {
+// H.M.Wang 2026-5-25 虚拟打印模式。直接返回不减记
+        if(VIRTUAL_PRINT_MODE) {
+            return;
+        };
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
         if(mHeads[dev].mInkLevel > 0) {
 // H.M.Wang 2024-12-11 根据列数调整减记值
             mHeads[dev].mInkLevel--;
@@ -304,6 +353,11 @@ public class Hp22mmSCManager implements IInkDevice {
     }
 
     public int startPrint() {
+// H.M.Wang 2026-5-25 虚拟打印模式。直接返回
+        if(VIRTUAL_PRINT_MODE) {
+            return 0;
+        };
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
         if(mInitialized) {
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
             Hp22mm.EnableWarming(1);
@@ -313,6 +367,11 @@ public class Hp22mmSCManager implements IInkDevice {
     }
 
     public int stopPrint() {
+// H.M.Wang 2026-5-25 虚拟打印模式。直接返回
+        if(VIRTUAL_PRINT_MODE) {
+            return 0;
+        };
+// End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         Hp22mm.EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热

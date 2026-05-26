@@ -507,7 +507,7 @@ public class CounterObject extends BaseObject {
 		Debug.d(TAG,"--->getBitmap width="+mWidth+", mHeight="+mHeight);
 		mCan = new Canvas(bitmap);
 		FontMetrics fm = mPaint.getFontMetrics();
-		mPaint.setColor(Color.BLUE);//���� ���� �� λͼ �� Ϊ ��ɫ 
+		mPaint.setColor(Color.BLUE);
 	 
 		String str_new_content = mContent;
 		str_new_content =	str_new_content.replace('0', 'c');	
@@ -519,8 +519,8 @@ public class CounterObject extends BaseObject {
 		str_new_content =	str_new_content.replace('6', 'c');	
 		str_new_content =	str_new_content.replace('7', 'c');	
 		str_new_content =	str_new_content.replace('8', 'c');	
-		str_new_content =	str_new_content.replace('9', 'c');	
-		
+		str_new_content =	str_new_content.replace('9', 'c');
+// 可以使用这个更简洁		mContent = mContent.replaceAll("\\d", "c");
 		
 		mCan.drawText(str_new_content , 0, mHeight-fm.descent, mPaint);
 	

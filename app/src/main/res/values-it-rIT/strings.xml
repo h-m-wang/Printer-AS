@@ -60,6 +60,7 @@
     <string name="str_btn_second">Secondo</string>
     <string name="str_btn_upgrade">Aggiorna</string>
     <string name="str_urge2restart">Upgraded, please restart</string>
+    <string name="str_urge2reupgrade">Apk(%1$d) upgrading may failed, click screen to redo it.(%2$d)</string>
     <string name="str_btn_setDate">Imposta data</string>
     <string name="str_btn_setTime">Imposta ora</string>
     <string name="str_btn_image">Logo</string>
@@ -513,6 +514,7 @@
     <string name="str_setting_time">Orologio</string>
     <string name="str_system_setting">Android</string>
     <string name="str_upgrade_progress">Il sistema sta eseguendo l\'aggiornamento....</string>
+    <string name="str_upgrade_failed">Upgrading failed</string>
     <string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
     <string name="str_toast_ink_unvalid">Inchiostro fuori livello,impostato di default：800</string>
     <string name="str_toast_photoelectricity_delay">Fotoelettricità alto ritardo fuori livello, impostato di default:100</string>

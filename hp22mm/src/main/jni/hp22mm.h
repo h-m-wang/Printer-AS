@@ -62,6 +62,7 @@ JNIEXPORT jint JNICALL Java_com_FIFO2MCU(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_enableLogOutput(JNIEnv *env, jclass arg, jint output);
 JNIEXPORT jint JNICALL Java_com_test100msInterval(JNIEnv *env, jclass arg, jint start);
 JNIEXPORT jintArray JNICALL Java_com_getErrorCounts(JNIEnv *env, jclass arg);
+JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg);
 
 #ifdef __cplusplus
 }

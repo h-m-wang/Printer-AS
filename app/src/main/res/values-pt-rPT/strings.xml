@@ -496,6 +496,7 @@
 	<string name="str_setting_time">Clock</string>
 	<string name="str_system_setting">Settings</string>
 	<string name="str_upgrade_progress">system upgrading....</string>
+	<string name="str_upgrade_failed">Upgrading failed</string>
 	<string name="str_time_format">%1$04d-%2$02d-%3$02d %4$02d:%5$02d:%6$02d</string>
 	<string name="str_toast_ink_unvalid">Ink dot outlevel,set to default：800</string>
 	<string name="str_toast_photoelectricity_delay">Photoelectricity high delay out level set to default:100</string>

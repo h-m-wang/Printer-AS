@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
 
 import com.industry.printer.FileFormat.FilenameSuffixFilter;
 import com.industry.printer.FileFormat.XmlInputStream;
@@ -251,40 +252,47 @@ public boolean silentUpgrade3() {
 
 	Debug.e(TAG, ShowString);
 
-	new Thread() {
-		public void run() {
-			try{
-				Thread.sleep(5000);
-			}catch (Exception e) {
-				Debug.e(TAG, e.getMessage());
-			}
-
-			try {
-				File dir = new File(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
-				if (!dir.exists()) {
-					dir.mkdirs();
+	try {
+		final CountDownLatch cdl = new CountDownLatch(1);
+		new Thread() {
+			public void run() {
+				try {
+					File dir = new File(Configs.CONFIG_PATH_FLASH + Configs.SYSTEM_CONFIG_DIR);
+					if (!dir.exists()) {
+						dir.mkdirs();
+					}
+					File f2 = new File(Configs.FILE_2);
+					if(f2.exists()) f2.delete();
+					if(newVersion > 100000000 && newVersion < 1000000000) {				// 9位数
+						if(!f2.exists()) f2.createNewFile();
+						BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
+						bw.write(newVersion + "\n");
+						bw.flush();
+						bw.close();
+					}
+				} catch(FileNotFoundException e) {
+					Debug.e(TAG, e.getMessage());
+				} catch(IOException e) {
+					Debug.e(TAG, e.getMessage());
+					e.printStackTrace();
+				} catch(Exception e) {
+					Debug.e(TAG, e.getMessage());
 				}
-				File f2 = new File(Configs.FILE_2);
-				if(f2.exists()) f2.delete();
-				if(newVersion > 100000000 && newVersion < 1000000000) {				// 9位数
-					if(!f2.exists()) f2.createNewFile();
-					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f2)));
-					bw.write(newVersion + "\n");
-					bw.flush();
-					bw.close();
+				install();
+				try{
+					Thread.sleep(5000);
+				}catch (Exception e) {
+					Debug.e(TAG, e.getMessage());
 				}
-			} catch(FileNotFoundException e) {
-				Debug.e(TAG, e.getMessage());
-			} catch(IOException e) {
-				Debug.e(TAG, e.getMessage());
-				e.printStackTrace();
-			} catch(Exception e) {
-				Debug.e(TAG, e.getMessage());
+				cdl.countDown();
 			}
-			install();
-		}
-	}.start();
-	return true;
+		}.start();
+		cdl.await();
+		return true;
+	} catch(Exception e) {
+		e.printStackTrace();
+    }
+    return false;
 }
 // End of H.M.Wang 2023-11-2 最新的升级策略管理
 

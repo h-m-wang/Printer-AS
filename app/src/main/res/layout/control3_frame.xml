@@ -685,6 +685,14 @@
             android:layout_alignParentTop="true"
             android:textColor="@color/black"
             android:textSize="24sp" />
+        <ImageView
+            android:id="@+id/btn_enlarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            android:src="@drawable/zoomout" />
     </RelativeLayout>
 <!-- End of H.M.Wang 2024-12-28 添加一个显示计数器当前值的控件 -->
 

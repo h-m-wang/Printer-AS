@@ -28,7 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.203"
+#define VERSION_CODE                            "1.0.205"
+// 1.0.205 2026-5-26
+// 将墨量最大值由固定数值修改为由apk设置
+// 1.0.204 2026-5-22
+// 增加一个记录累计墨水消耗量的数值
 // 1.0.203 2026-5-12
 // 恢复2025-11-4 - 11-13期间注释掉的代码段，记录ids的墨水使用情况
 // 1.0.202 2026-3-24
@@ -437,6 +441,16 @@ int RunningState[3] = {STATE_VALID,STATE_VALID,STATE_VALID};             // [0]:
 // End of H.M.Wang 2025-2-23
 static volatile int EnableWarming = 1;
 
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+static float gInkWeight[2] = {0, 0};
+JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg) {
+    jfloatArray result = (*env)->NewFloatArray(env, 2);
+    (*env)->SetFloatArrayRegion(env, result, 0, 2, gInkWeight);
+
+    return result;
+}
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+
 void *monitorThread(void *arg) {
     int nonsecure_sec[] = {0, 0};
     int secure_sec[] = {0, 0};
@@ -598,7 +612,8 @@ int i=0;
                             LOGD("GetInkWeight[%d] failed.", i);
                         } else {
     //                    if (ink_weight > 0) ProcessInkForPILS(ink_weight);
-                            LOGD("GetInkWeight[%d] = %f", i, ink_weight);
+                            gInkWeight[penIndexs[i]] += ink_weight;
+                            LOGD("GetInkWeight[%d] = %f, Total: %f", i, ink_weight, gInkWeight[penIndexs[i]]);
                         }
                     }
 
@@ -907,7 +922,18 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
     return value;
 }
 
-#define MAX_BAG_INK_VOLUME_MAXIMUM              49600       // (15500 * 4)的80%
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+// #define MAX_BAG_INK_VOLUME_MAXIMUM              49600       // (15500 * 4)的80%
+static int sMaxBagInkVol = 49600;       // (15500 * 4)的80%
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+
+JNIEXPORT jint JNICALL Java_com_hp22mm_set_max_volume(JNIEnv *env, jclass arg, jint maxvol) {
+    LOGI("Enter %s (Max volume = %d)", __FUNCTION__, maxvol);
+
+    sMaxBagInkVol = maxvol;
+
+    return 0;
+}
 
 JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count) {
     LOGI("Enter %s (head = %d, value = %d)", __FUNCTION__, head, count);
@@ -920,7 +946,7 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
 
         value += count;
 
-        if(value >= MAX_BAG_INK_VOLUME_MAXIMUM) {
+        if(value >= sMaxBagInkVol) {
             ids_r = ids_set_out_of_ink(IDS_INSTANCE, sIdsIdx);
             if (ids_check("ids_set_out_of_ink", ids_r)) return(-1);
         }
@@ -1713,7 +1739,10 @@ static JNINativeMethod gMethods[] = {
         {"test100msInterval",	    	    "(I)I",						(void *)Java_com_test100msInterval},
         {"getErrorCounts",	    	    "()[I",						(void *)Java_com_getErrorCounts},
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔，并且启动或者停止该测试实验的功能
-
+// H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+        {"getUsedInkVolume",	    	    "()[F",						(void *)Java_com_GetUsedInkVolume},
+// End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+        {"setMaxVolmue",				        "(I)I",	                    (void *)Java_com_hp22mm_set_max_volume},
 /*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"startPrint",		            "()Ljava/lang/String;",	                    (void *)Java_com_StartPrint},

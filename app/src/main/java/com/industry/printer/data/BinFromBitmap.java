@@ -185,6 +185,15 @@ public class BinFromBitmap extends BinCreater {
 // End of H.M.Wang 2020-9-10 大字机5x5字体的时候，...
 		}
 		mDots = NativeGraphicJni.GetDots();
+// H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
+//暂时恢复
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			for(int i=1; i<mDots.length; i++) {
+				mDots[0] += mDots[i];
+				mDots[i] = 0;
+			}
+		}
+// End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 
 		// H.M.Wang 增加1行
 //		bmp.recycle();

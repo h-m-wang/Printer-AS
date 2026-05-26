@@ -271,7 +271,8 @@ public class SystemConfigFile{
 // End of H.M.Wang 2025-3-19 增加Circulation/循环间隔设置
 // H.M.Wang 2026-2-26 增加压力PSI的设置功能
 	public static final int INDEX_IDS_PRESURE_PSI = 81;
-	// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
+// End of H.M.Wang 2026-2-26 增加压力PSI的设置功能
+
 // H.M.Wang 2025-3-18 临时增加一个通过参数切换RFID和SmartCard的功能
 // H.M.Wang 2025-8-28 重新梳理以下P94的值的意义：0-自动；1-强制RFID；2-强制SC；3-强制墨袋机
 	public static final int PROC_TYPE_AUTO = 0;		// 综合根据img的种类和是否能够识别到SC卡，来决定启动RFIDManager还是SmartCardManager（包括相对应的Scheduler）

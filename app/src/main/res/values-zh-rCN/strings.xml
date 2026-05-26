@@ -79,6 +79,7 @@
 	<string name="str_btn_second">秒</string>
 	<string name="str_btn_upgrade">升级</string>
 	<string name="str_urge2restart">升级已完成, 请重启</string>
+	<string name="str_urge2reupgrade">Apk(%1$d)可能升级失败, 点击屏幕重新升级.(%2$d)</string>
 	<string name="str_btn_setDate">日期设置</string>
 	<string name="str_btn_setTime">时间设置</string>
 	<string name="str_btn_image">图形</string>
@@ -582,6 +583,7 @@
         <string name="str_setting_time">时间设置</string>
         <string name="str_system_setting">系统设置</string>
         <string name="str_upgrade_progress">系统升级中....</string>
+	<string name="str_upgrade_failed">升级失败</string>
         <string name="str_time_format">%1$02d:%2$02d:%3$02d %4$02d:%5$02d:%6$02d</string>
         <string name="str_toast_ink_unvalid">墨点大小超出范围,设为默认值: 800</string>
         <string name="str_toast_photoelectricity_delay">光电延时超出范围，设为默认值:100</string>

@@ -22,7 +22,7 @@
 				android:id="@+id/btn_ok_message_list"
 			    android:layout_width="0dp"
 			    android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="2"
 			    android:gravity="center"
 		        android:textSize="@dimen/dialogBtnTextSize"
 		        android:textColor="#000000"
@@ -35,7 +35,7 @@
 				android:id="@+id/btn_cancel_message_list"
 				android:layout_width="0dp"
 			    android:layout_height="match_parent"
-				android:layout_weight="1"
+				android:layout_weight="2"
 			    android:gravity="center"
 		        android:textSize="@dimen/dialogBtnTextSize"
 		        android:textColor="#000000"
@@ -48,7 +48,7 @@
             android:id="@+id/btn_delete"
             android:layout_width="0dp"
 	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
+	        android:layout_weight="2"
 			android:gravity="center"
 		    android:textSize="@dimen/dialogBtnTextSize"
 		    android:textColor="#000000"
@@ -59,13 +59,24 @@
 			android:id="@+id/btn_multi_select"
 			android:layout_width="0dp"
 			android:layout_height="fill_parent"
-			android:layout_weight="1"
+			android:layout_weight="2"
 			android:gravity="center"
 			android:textSize="@dimen/dialogBtnTextSize"
 			android:textColor="#000000"
 			android:text="@string/str_multi_select"
 			android:background="@drawable/style_dialog_btn"
 			/>
+<!-- H.M.Wang 2026-5-20 在选择信息列表中增加启动放大显示预览图的按键 -->
+		<ImageView
+			android:id="@+id/btn_enlarge"
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="match_parent"
+			android:visibility="gone"
+			android:src="@drawable/zoomout"
+			android:scaleType="centerInside"
+			android:background="@drawable/style_dialog_btn" />
+<!-- End of H.M.Wang 2026-5-20 在选择信息列表中增加启动放大显示预览图的按键 -->
 
 		<RelativeLayout
 		    android:id="@+id/btn_page_prev" 
@@ -114,13 +125,15 @@
 		    android:id="@+id/search" 
 		    android:layout_width="0dp"
 	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
+	        android:layout_weight="3"
+			android:background="@drawable/style_dialog_btn"
 	        >
 			<EditText
 			    android:id="@+id/et_search"
 			    android:layout_width="match_parent"
 			    android:layout_height="70dp"
-			    android:layout_marginLeft="10dp"
+				android:layout_marginTop="10dp"
+				android:layout_marginLeft="10dp"
 			    android:layout_marginRight="10dp"
 			    android:layout_centerInParent="true"
 			    android:textSize="25sp"

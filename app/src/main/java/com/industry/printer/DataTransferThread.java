@@ -2591,7 +2591,10 @@ private void setSerialProtocol9DTs(final String data) {
 				if(head == 1) {
 					mThresHolds[head] = mThresHolds[0];
 				} else if(head == 2) {
-					mThresHolds[head] = ((mThresHolds[0] + mThresHolds[1]) == 0 ? 0f : mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]));
+					if(mThresHolds[0] == 0f && mThresHolds[1] == 0f) mThresHolds[head] = 65536 * 8;
+					else if(mThresHolds[0] == 0f) mThresHolds[head] = mThresHolds[1];
+					else if(mThresHolds[1] == 0f) mThresHolds[head] = mThresHolds[0];
+					else mThresHolds[head] = ((mThresHolds[0] + mThresHolds[1]) == 0f ? 0f : mThresHolds[0] * mThresHolds[1] / (mThresHolds[0] + mThresHolds[1]));
 				} else {
 					mThresHolds[head] = 65536 * 8;
 				}

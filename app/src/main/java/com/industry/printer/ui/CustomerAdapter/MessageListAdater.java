@@ -306,12 +306,12 @@ public class MessageListAdater extends BaseAdapter {
 			{  
 				bmp_disk = Bitmap.createBitmap(1500, 100, Configs.BITMAP_CONFIG);
 				String path = ConfigPath.getTlkDir(title) + MessageTask.MSG_PREV_IMAGE;
-			   Debug.e(TAG, "===="+path);			
+//			   Debug.e(TAG, "===="+path);
 			    File file =new File(path);
 				if( file.exists() )
 				{
 					bmp_disk=BitmapFactory.decodeFile(path);
-					Debug.e(TAG, path);
+//					Debug.e(TAG, path);
 				}
 			}
 			catch (Exception e)
@@ -382,11 +382,11 @@ public class MessageListAdater extends BaseAdapter {
 				try {
 					bmp_disk = Bitmap.createBitmap(1500, 100, Configs.BITMAP_CONFIG);
 					String path = ConfigPath.getTlkDir(title) + MessageTask.MSG_PREV_IMAGE;
-					Debug.e(TAG, "====" + path);
+//					Debug.e(TAG, "====" + path);
 					File file = new File(path);
 					if (file.exists()) {
 						bmp_disk = BitmapFactory.decodeFile(path);
-						Debug.e(TAG, path);
+//						Debug.e(TAG, path);
 					}
 				} catch (Exception e) {
 

@@ -1967,7 +1967,7 @@ PDResult_t pd_get_used_ink_weight(int32_t instance, uint8_t ph_id, uint8_t slot,
         return PD_ERROR;
     }
 
-    LOGD("pd_get_dropsvolume(): instance = %d, PH Count = %f\n", instance, *ink_weight);
+    LOGD("pd_get_dropsvolume(): ph_id = %d, slot = %d, ink_weight = %f\n", ph_id, slot, *ink_weight);
 
     LOGI("%s done", __FUNCTION__);
 

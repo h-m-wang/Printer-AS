@@ -108,7 +108,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 
 //    LOGD("ShiftImage: head_index=%d, shiftBits=%d, OverlapBits=%d", head_index, shiftBits, OverlapBits);
     for(int j=0; j<height * width; j+=8, rbuf_tmp++) {
-        if(TarLines > 0 && dot_count == TarLines) {
+        if((TarLines > 0 && dot_count == TarLines) || (TarLines == 0 && dot_count == width / head)) {
 //            a--;
             dot_count = 0;
             head_index++;
@@ -307,6 +307,8 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
     return result;
 }
 
+// 2026-5-13 1.0.13 二值化调整头的算法，增加不中间填充空白操作的分头统计
+//     (TarLines == 0 && dot_count == width / head)
 // 2026-5-9 1.0.12 取消1.0.11中追加的单双数头位移和重叠的功能，恢复到原来的处理
 // 2026-4-29 1.0.11 增加单双数头的位移参数和重叠参数的传递和对应处理
 // 即原来1-508为实际内容，509-544填空；扩展为，加入设置位移值为n，则1-(1+n)填空，(1+n)-(508+n)填充实际值，(508+n+1)-544填空
@@ -319,7 +321,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 // 2026-4-14 1.0.7 新修改的版本中，由于原图做了旋转镜像，因此横轴和纵轴交换
 // 2026-4-9 1.0.6 修改GetPrintDots获取点数的方法，可以大大提高处理性能。二值化的处理暂时不修改，因为改善的不太多
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.12 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.13 Loaded.");
     for(int i=0; i<16; i++) {
         for(int j=0; j<16; j++) {
             byte_dots[i*16+j] = nibble_dots[i] + nibble_dots[j];

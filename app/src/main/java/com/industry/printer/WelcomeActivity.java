@@ -34,6 +34,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -44,7 +45,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import rx.Observable;
 import rx.functions.Action0;
@@ -113,6 +116,23 @@ public class WelcomeActivity extends Activity {
 											bw.close();
 										} else {
 											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F2版本号：" + tmpInt + "\n" + "F2存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+// H.M.Wang 2026-5-13 增加当开机出现apk版本与F2的版本不符时，提示重新升级的功能，点击屏幕开始升级
+											new AlertDialog.Builder(WelcomeActivity.this)
+                                                    .setMessage(String.format(getResources().getString(R.string.str_urge2reupgrade), tmpInt, curVersion))
+													.setOnDismissListener(new DialogInterface.OnDismissListener() {
+														@Override
+														public void onDismiss(DialogInterface dialog) {
+															PackageInstaller installer = PackageInstaller.getInstance(WelcomeActivity.this);
+															if(installer.silentUpgrade3()) {
+																new AlertDialog.Builder(WelcomeActivity.this).setMessage(R.string.str_urge2restart).create().show();
+															} else {
+																new AlertDialog.Builder(WelcomeActivity.this).setMessage(R.string.str_upgrade_failed).create().show();
+															}
+														}
+													})
+													.create()
+													.show();
+// End of H.M.Wang 2026-5-13 增加当开机出现apk版本与F2的版本不符时，提示重新升级的功能，点击屏幕开始升级
 											return;
 										}
 									}
@@ -131,6 +151,23 @@ public class WelcomeActivity extends Activity {
 											bw.close();
 										} else {
 											Debug.d(TAG, "版本号：" + curVersion + "\n" + "F1版本号：" + tmpInt + "\n" + "F1存在，记录版本号与apk版本号不一致，疑似push升级，不允许启动");
+// H.M.Wang 2026-5-13 增加当开机出现apk版本与F2的版本不符时，提示重新升级的功能，点击屏幕开始升级
+											new AlertDialog.Builder(WelcomeActivity.this)
+													.setMessage(String.format(getResources().getString(R.string.str_urge2reupgrade), tmpInt, curVersion))
+													.setOnDismissListener(new DialogInterface.OnDismissListener() {
+														@Override
+														public void onDismiss(DialogInterface dialog) {
+															PackageInstaller installer = PackageInstaller.getInstance(WelcomeActivity.this);
+															if(installer.silentUpgrade3()) {
+																new AlertDialog.Builder(WelcomeActivity.this).setMessage(R.string.str_urge2restart).create().show();
+															} else {
+																new AlertDialog.Builder(WelcomeActivity.this).setMessage(R.string.str_upgrade_failed).create().show();
+															}
+														}
+													})
+													.create()
+													.show();
+// End of H.M.Wang 2026-5-13 增加当开机出现apk版本与F2的版本不符时，提示重新升级的功能，点击屏幕开始升级
 											return;
 										}
 									}
