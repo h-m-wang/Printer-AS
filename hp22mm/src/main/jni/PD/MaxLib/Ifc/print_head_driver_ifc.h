@@ -280,6 +280,7 @@ typedef enum
     INK_REVISION_SLOTB             = 19,    // 4 bit numeric value
 
     LOCK_PARTITION_2               = 20
+    TOTAL_NUMBER_OF_ID             = 21,
  */
 } PDSmartCardOemFieldId_t;
 

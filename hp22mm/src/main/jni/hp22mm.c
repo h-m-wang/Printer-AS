@@ -444,6 +444,14 @@ static volatile int EnableWarming = 1;
 // H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
 static float gInkWeight[2] = {0, 0};
 JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg) {
+/*    PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, 14, &value, &pd_sc_result);
+    pd_check_ph("pd_sc_read_oem_field", pd_r, 0);
+    if(pd_r == PD_OK) {
+        res[0] = value;
+    } else {
+        res[0] = -1;
+    }
+*/
     jfloatArray result = (*env)->NewFloatArray(env, 2);
     (*env)->SetFloatArrayRegion(env, result, 0, 2, gInkWeight);
 
@@ -838,7 +846,7 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
 
     if(print_head_status.print_head_state == PH_STATE_POWERED_ON) {
         pd_sc_get_status(PD_INSTANCE, penIndex, &__pd_sc_status, &sc_result);
-        pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, &(__pd_sc_status.purge_complete_mark_oem), &sc_result);
+        pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_2, &(__pd_sc_status.purge_complete_mark_oem), &sc_result);
         if(__pd_sc_status.purge_complete_slot_b || (__pd_sc_status.purge_complete_mark_oem & 0x02)) {
             slot &= (~(0x02));
         }
@@ -864,8 +872,8 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
                 LOGD("Slot A = %s \n", (pd_sc_status.purge_complete_slot_a ? "Purge Complete" : "NOT PURGED"));
             }
 
-            if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, 3, &sc_result), penIndex) == PD_OK && sc_result == 0) {
-                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_1(%d)\n", 3);
+            if (pd_check_ph("pd_sc_write_oem_field", pd_sc_write_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_2, 3, &sc_result), penIndex) == PD_OK && sc_result == 0) {
+                LOGD("Purged mark written to PD_SC_OEM_RW_FIELD_2(%d)\n", 3);
             }
         } else {
             LOGD("Purge already done");
@@ -1292,7 +1300,7 @@ JNIEXPORT jint JNICALL Java_com_pd_sc_get_status(JNIEnv *env, jclass arg, jint p
         LOGE("pd_sc_get_status error\n");
         return (-1);
     }
-    if (pd_check_ph("pd_sc_read_oem_field", pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_1, &(pd_sc_status.purge_complete_mark_oem), &pd_sc_result), penIndex) || pd_sc_result != 0) {
+    if (pd_check_ph("pd_sc_read_oem_field", pd_sc_read_oem_field(PD_INSTANCE, penIndex, PD_SC_OEM_RW_FIELD_2, &(pd_sc_status.purge_complete_mark_oem), &pd_sc_result), penIndex) || pd_sc_result != 0) {
         LOGE("pd_sc_read_oem_field error\n");
         return (-1);
     }

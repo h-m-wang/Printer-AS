@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,8 +34,8 @@ import java.util.concurrent.Executors;
 
 import com.industry.printer.Baoqiao.MainFunc;
 import com.industry.printer.Bluetooth.BluetoothServerManager;
-import com.industry.printer.Collaboration.ClientManager;
-import com.industry.printer.Collaboration.ServerManager;
+import com.industry.printer.Collaboration.ControllerSide;
+import com.industry.printer.Collaboration.PrinterSide;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.ExcelDataProc.ExcelMainWindow;
 import com.industry.printer.FileFormat.DotMatrixFont;
@@ -55,12 +54,10 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 
-import com.industry.printer.Utils.ExportLog2Usb;
 import com.industry.printer.Utils.FileUtil;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.Utils.PreferenceConstants;
 import com.industry.printer.Utils.PrinterDBHelper;
-import com.industry.printer.Utils.StreamTransport;
 import com.industry.printer.Utils.SystemFs;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.BinFromBitmap;
@@ -90,9 +87,6 @@ import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
 import com.industry.printer.object.TextObject;
 import com.industry.printer.object.TlkObject;
-import com.industry.printer.object.data.BitmapWriter;
-import com.industry.printer.pccommand.ClientSocket;
-import com.industry.printer.pccommand.PCCommandHandler;
 import com.industry.printer.pccommand.PCCommandManager;
 import com.industry.printer.ui.CustomerDialog.CalendarDialog;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
@@ -123,9 +117,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -150,7 +142,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ControlTabActivity extends Fragment implements OnClickListener, InkLevelListener, OnTouchListener, DataTransferThread.Callback {
 	private static final String TAG = ControlTabActivity.class.getSimpleName();
@@ -1416,21 +1407,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mf.setCallback(this);
 		}
 // End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
-/*		if(SystemConfigFile.getInstance(mContext).getParam(89) == 0) {
-			mClientManager = new ClientManager(mContext, new ClientManager.TransferListener() {
+/*		if(SystemConfigFile.getInstance(mContext).getParam(89) == 1) {
+			mControllerSide = new ControllerSide(mContext, new ControllerSide.TransferListener() {
 				@Override
-				public void onRecv(ClientManager.ConnectedDevice dev, String recv) {
+				public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
 					Debug.d(TAG, dev.getIPAddress() + ": " + recv);
 				}
 			});
-			mClientManager.findServers();
-		} else {
-			mServerManager = new ServerManager(mContext, this);
-			mServerManager.start();
+			mControllerSide.findPrinters();
+		} else if(SystemConfigFile.getInstance(mContext).getParam(89) == 2) {
+			mPrinterSide = new PrinterSide(mContext, this);
+			mPrinterSide.start();
 		}*/
 	}
-	ClientManager mClientManager;
-	ServerManager mServerManager;
+	ControllerSide mControllerSide;
+	PrinterSide mPrinterSide;
 
 	public boolean getLevelLow() {
 		if(null != mPI11Monitor) return mPI11Monitor.getLevelLow();
@@ -2641,6 +2632,12 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 					for(int i=0; i<mRemainCount.length; i++) mRemainCount[i] = 0;
 // End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+/*					if(null != mControllerSide) mControllerSide.startPrint(new ControllerSide.TransferListener() {
+						@Override
+						public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
+							Debug.d(TAG, dev.getIPAddress() + ": " + recv);
+						}
+					});*/
 					break;
 				case MESSAGE_PRINT_STOP:
 // 2021-1-11 取消停止打印时重新下发参数

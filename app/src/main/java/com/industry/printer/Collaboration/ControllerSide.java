@@ -5,6 +5,7 @@ import android.content.Context;
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StreamTransport;
+import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.pccommand.PCCommandManager;
 
 import java.io.IOException;
@@ -22,8 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ClientManager {
-    private static final String TAG = ClientManager.class.getSimpleName();
+public class ControllerSide {
+    private static final String TAG = ControllerSide.class.getSimpleName();
 
     private static final int PORT = 4551;           // port number;
     private Context mContext;
@@ -32,7 +33,7 @@ public class ClientManager {
     private List<ConnectedDevice> mDevices;
 
     public interface TransferListener {
-//        public void onSent();
+        //        public void onSent();
         public void onRecv(ConnectedDevice dev, String recv);
 //        public void onError(String err);
     }
@@ -81,8 +82,16 @@ public class ClientManager {
                         try {
                             StreamTransport st = new StreamTransport(mSocket.getInputStream(), mSocket.getOutputStream());
                             st.writeLine(cmd);
-                            String recv = st.readLine();
-                            if(null != l) l.onRecv(ConnectedDevice.this, recv);
+                            String recv;
+                            while(true) {
+                                recv = st.readLine();
+                                if(null == recv) break;     // 连接已经断开，直接返回
+                                if(!recv.isEmpty()) {       // 如果接收到实际内容，则回调返回；如果超时返回""，则继续等待
+                                    if (null != l) l.onRecv(ConnectedDevice.this, recv);
+                                    break;
+                                }
+                                try{Thread.sleep(10);}catch(Exception e){};
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (Exception e) {
@@ -95,12 +104,12 @@ public class ClientManager {
     }
 
     private Timer mTimer;
-    private static ClientManager mInstance = null;
-    public static ClientManager getInstance() {
+    private static ControllerSide mInstance = null;
+    public static ControllerSide getInstance() {
         return mInstance;
     }
 
-    public ClientManager(Context ctx, TransferListener l) {
+    public ControllerSide(Context ctx, TransferListener l) {
         mInstance = this;
         mContext = ctx;
         mExecutor = Executors.newFixedThreadPool(20);
@@ -149,7 +158,7 @@ public class ClientManager {
                 public void run() {
                     try {
                         InetAddress addr = InetAddress.getByName(targetIp);
-                        if (addr.isReachable(200)) {
+                        if (addr.isReachable(1000)) {
                             Debug.d(TAG, "发现设备: " + targetIp);
                             synchronized (aliveIPs) {
                                 aliveIPs.add(targetIp);
@@ -175,7 +184,7 @@ public class ClientManager {
 
     private final String HelloKitty = "Hello Kitty";
 
-    public void findServers() {
+    public void findPrinters() {
         List<String> serverCandidates = findReachables();
         if(null != serverCandidates) {
             final List<ConnectedDevice> devices = new ArrayList<>();
@@ -221,23 +230,23 @@ public class ClientManager {
             Debug.d(TAG, "Done.");
         }
     }
-/*
-    private String sayHello(Socket socket) {
-        try {
-            StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
-            st.writeLine(HelloKitty);
-            String recv = st.readLine();
-            if (recv.startsWith(HelloKitty)) {
-                return recv.substring(HelloKitty.length());
+    /*
+        private String sayHello(Socket socket) {
+            try {
+                StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
+                st.writeLine(HelloKitty);
+                String recv = st.readLine();
+                if (recv.startsWith(HelloKitty)) {
+                    return recv.substring(HelloKitty.length());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
-    }
-*/
+    */
     public void startPrint(final TransferListener l) {
         String cmd = "000B|0000|100|/mnt/sdcard/MSG/1/|0|0000|0|0000|0D0A";
         for(ConnectedDevice dev : mDevices) {

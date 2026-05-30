@@ -22,7 +22,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClickListener {
+public class PWConfirmDialog extends CustomerDialogBase implements View.OnClickListener {
 
     private String mPassword1;
     private String mPassword2;
@@ -31,15 +31,12 @@ public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClick
     private Button mCancel;
     private EditText mPasswd;
 
-    public PWDialog4SaveMsg(Context context) {
+    public PWConfirmDialog(Context context) {
 // H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
 // 这里不指定Theme，然后在onCreate函数中通过指定Layout为Match_Parent的方法，既可以达到全屏的效果，也可以避免变暗
 //		super(context, R.style.Dialog_Fullscreen);
         super(context);
 // End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
-
-        mPassword1 = "ok";
-        mPassword2 = "ok";
     }
 
     @Override
@@ -60,7 +57,9 @@ public class PWDialog4SaveMsg extends CustomerDialogBase implements View.OnClick
             BufferedReader br = new BufferedReader(new FileReader(Configs.SAVE_PW_FILE));
             if (null != br) {
                 mPassword1 = br.readLine();
+                if(StringUtil.isEmpty(mPassword1)) mPassword1 = "ok";
                 mPassword2 = br.readLine();
+                if(StringUtil.isEmpty(mPassword2)) mPassword2 = "ok";
             }
         } catch (IOException e) {
             e.printStackTrace();

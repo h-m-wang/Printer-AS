@@ -241,6 +241,9 @@ public class SystemConfigFile{
 // H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
 	public static final int USER_MODE_7 	= 7;
 // End of H.M.Wang 2026-3-27 增加模式7，用来支持能够拉起用户的apk，并且与用户的apk通过socekt进行命令传递
+// H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
+	public static final int USER_MODE_8 	= 8;
+// End of H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小

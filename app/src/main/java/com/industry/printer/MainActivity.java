@@ -36,8 +36,10 @@ import rx.schedulers.Schedulers;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -102,10 +104,12 @@ import com.industry.printer.hardware.RTCDevice;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.pccommand.CustomApk;
 import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
+import com.industry.printer.ui.CustomerDialog.CustomerDialogBase;
 import com.industry.printer.ui.CustomerDialog.DialogListener;
 import com.industry.printer.ui.CustomerDialog.ImportDialog;
 import com.industry.printer.ui.CustomerDialog.ImportDialog.IListener;
 import com.industry.printer.ui.CustomerDialog.LoadingDialog;
+import com.industry.printer.ui.CustomerDialog.PWConfirmDialog;
 import com.industry.printer.ui.CustomerDialog.ScreenSaveDialog;
 import com.industry.printer.ui.Test.TestMain;
 import com.printer.corelib.JarTest;
@@ -606,6 +610,10 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		}
 	}
 
+// H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
+	private int mLastBtnId = 0;
+// End of H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
+
 	@Override
 	public void onCheckedChanged(CompoundButton arg0, boolean arg1) {
 // H.M.Wang 2024-12-20 A20时，控件被点按时，底层AudioBuzzer接收不到事件，因此在这里发出beep音；A133底层能够收到事件，因此这里就不需要主动发送beep音了，否则会听到两声
@@ -633,6 +641,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					mCtrlTabTimeArea.setVisibility(View.GONE);
 //					mHander.removeMessages(REFRESH_TIME_DISPLAY);
 // End of H.M.Wang 2020-8-11 将原来显示在画面头部的墨量和减锁信息更改为显示时间
+					mLastBtnId = R.id.btn_control;
 				}
 				
 				Debug.d(TAG, "====>control checked?"+arg1);
@@ -640,6 +649,44 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			case R.id.btn_edit:
 				Debug.d(TAG, "====>edit checked?"+arg1);
 				if( arg1 == true) {
+// H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
+					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_8) {
+						PWConfirmDialog dialog = new PWConfirmDialog(MainActivity.this);
+						dialog.setOnPositiveClickedListener(new CustomerDialogBase.OnPositiveListener() {
+							@Override
+							public void onClick() {
+								FragmentTransaction fts1 = getFragmentManager().beginTransaction();
+								if (PlatformInfo.getEditType() == PlatformInfo.LARGE_SCREEN) {
+									fts1.show(mEditFullTab);
+								} else if (PlatformInfo.getEditType() == PlatformInfo.SMALL_SCREEN_FULL) {
+									fts1.show(mEditSmallTab);
+								} else if (PlatformInfo.getEditType() == PlatformInfo.SMALL_SCREEN_PART) {
+									fts1.show(mEditTab);
+								}
+								mEditExtra.setVisibility(View.VISIBLE);
+								fts1.commit();
+							}
+
+							@Override
+							public void onClick(String content) {
+							}
+						});
+						dialog.setOnNagitiveClickedListener(new CustomerDialogBase.OnNagitiveListener() {
+							@Override
+							public void onClick() {
+								mTabGroup.check(mLastBtnId);
+							}
+						});
+						dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+							@Override
+							public void onDismiss(DialogInterface dialog) {
+								if(!mEditSmallTab.isVisible()) mTabGroup.check(mLastBtnId);
+							}
+						});
+						dialog.show();
+						return;
+					}
+// End of H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
 					if (PlatformInfo.getEditType() == PlatformInfo.LARGE_SCREEN) {
 						fts.show(mEditFullTab);
 					} else if (PlatformInfo.getEditType() == PlatformInfo.SMALL_SCREEN_FULL) {
@@ -679,6 +726,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					//mSettingTitle.setVisibility(View.GONE);
 					//mVersion.setVisibility(View.GONE);
 //					mHander.removeMessages(REFRESH_TIME_DISPLAY);
+					mLastBtnId = R.id.btn_setting;
 				}
 				break;
 			case R.id.btn_custom:
@@ -730,6 +778,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_1) {
 						fts.hide(mCustomTab1);
 						mCustomExtra.setVisibility(View.GONE);
+						mLastBtnId = R.id.btn_custom;
 					}
 				}
 				break;

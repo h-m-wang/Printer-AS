@@ -30,6 +30,7 @@ public class Hp22mmSCManager implements IInkDevice {
 
 // H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
     public static boolean VIRTUAL_PRINT_MODE = false;    // true: 启动虚拟打印；false: 关闭虚拟打印
+    public static int PrintCount = 1000;
 // End of H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
 
     private Context mContext;

@@ -98,8 +98,22 @@ typedef struct
 #define INSTALLED_LIFE_IN_WEEKS           29            // 8 bit field (Installed life in weeks)
 #define INSTALLED_LIFE_IN_DAYS            30            // 3 bit field (Installed life in days)
 #define USABLE_INK_WEIGHT                 31            // REQUIRED. 16 bit field. (Equation: Ink Weight = 0.1 * (Value) in grams)
-#define PRINTHEAD_OVERRIDE_VALID          37            // 1 (If any overrides are used)
-#define OVER_ENERGY_OVERRIDE_PERCENT      42            // 0 (No override / default over energy – 25%)
+#define INK_FORMULATOR                    32            // Ink Tree L2, e.g. 5 (Kao Collins), 6 (General)
+#define INK_VEHICLE                       33            // Ink Tree L3, e.g. 1 (Aqueous)
+#define INK_FAMILY                        34            // Ink Tree L4, 11 bit numeric field
+#define INK_FAMILY_MEMBER                 35            // Ink Tree L5, 9 bit numeric field
+#define INK_REVISION                      36            // 4 bit numeric value
+#define PRINTHEAD_OVERRIDE_VALID          37            // 1 (If any overrides are used) #1
+#define PRINTHEAD_RECIRCULATION           38            // Printhead Recirculation Configuration #1
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define PRINTHEAD_FIRING_ORDER            39            // Printhead Firing Order Configuration #1
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define PRINTHEAD_NOZZLE_DENSITY          41            // Printhead Nozzle Density Configuration #1
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define OVER_ENERGY_OVERRIDE_PERCENT      42            // 0 (No override / default over energy – 25%) #1
                                                         // 1 (10% over energy)
                                                         // 2 (15% over energy)
                                                         // 3 (20% over energy)
@@ -107,7 +121,7 @@ typedef struct
                                                         // 5 (30% over energy)
                                                         // 6 (35% over energy)
                                                         // 7 (40% over energy)
-#define PH_V_OFFSET_OVERRIDE_PERCENT      43            // 0 (No override / default voltage – 29V)
+#define PH_V_OFFSET_OVERRIDE_PERCENT      43            // 0 (No override / default voltage – 29V) #1
                                                         // 1 (-10% of default voltage)
                                                         // 2 (-8% of default voltage)
                                                         // 3 (-6% of default voltage)
@@ -118,7 +132,7 @@ typedef struct
                                                         // 8 (+6% of default voltage)
                                                         // 9 (+8% of default voltage)
                                                         // 10 (+10% of default voltage)
-#define PH_OP_TEMPERATURE_OVERRIDE        44            // 0 (Default / No Override – 55C)
+#define PH_OP_TEMPERATURE_OVERRIDE        44            // 0 (Default / No Override – 55C) #1
                                                         // 1 (Warming Off)
                                                         // 2 (30°C)
                                                         // 3 (35°C)
@@ -128,7 +142,47 @@ typedef struct
                                                         // 7 (55°C)
                                                         // 8 (60°C)
                                                         // 9 (65°C)
-#define INK_DROP+WEIGHT_OVERRIDE          48            // Value in nanograms (Program if value deviates 1 or more nanograms from default – 6 ng)
+#define INK_DROP_WEIGHT_OVERRIDE          48            // Value in nanograms (Program if value deviates 1 or more nanograms from default – 6 ng) #1
+#define PRINTHEAD_OVERRIDE_VALID          49            // 1 (If any overrides are used) #2
+#define PRINTHEAD_RECIRCULATION           50            // Printhead Recirculation Configuration #2
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define PRINTHEAD_FIRING_ORDER            51            // Printhead Firing Order Configuration #2
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define PRINTHEAD_NOZZLE_DENSITY          53            // Printhead Nozzle Density Configuration #2
+                                                        //  0 (If any overrides are used with 3UB81A)
+                                                        //  1 (If any overrides are used with 9T3V2A)
+#define OVER_ENERGY_OVERRIDE_PERCENT      54            // 0 (No override / default over energy – 25%) #2
+                                                        // 1 (10% over energy)
+                                                        // 2 (15% over energy)
+                                                        // 3 (20% over energy)
+                                                        // 4 (25% over energy)
+                                                        // 5 (30% over energy)
+                                                        // 6 (35% over energy)
+                                                        // 7 (40% over energy)
+#define PH_V_OFFSET_OVERRIDE_PERCENT      55            // 0 (No override / default voltage – 29V) #2
+                                                        // 1 (-10% of default voltage)
+                                                        // 2 (-8% of default voltage)
+                                                        // 3 (-6% of default voltage)
+                                                        // 4 (-4% of default voltage)
+                                                        // 5 (-2% of default voltage)
+                                                        // 6 (+2% of default voltage)
+                                                        // 7 (+4% of default voltage)
+                                                        // 8 (+6% of default voltage)
+                                                        // 9 (+8% of default voltage)
+                                                        // 10 (+10% of default voltage)
+#define PH_OP_TEMPERATURE_OVERRIDE        56            // 0 (Default / No Override – 55C) #2
+                                                        // 1 (Warming Off)
+                                                        // 2 (30°C)
+                                                        // 3 (35°C)
+                                                        // 4 (40°C)
+                                                        // 5 (45°C)
+                                                        // 6 (50°C)
+                                                        // 7 (55°C)
+                                                        // 8 (60°C)
+                                                        // 9 (65°C)
+#define INK_DROP_WEIGHT_OVERRIDE          60            // Value in nanograms (Program if value deviates 1 or more nanograms from default – 6 ng) #2
 #define FIELD_LOCK_PARTITION_2            73            // Ink Fill
 #define FIELD_LOCK_PARTITION_3            74            // Ink Tree L2
 #define FIELD_LOCK_PARTITION_4            75            // Ink Tree L3

@@ -16,8 +16,8 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ServerManager {
-    private static final String TAG = ServerManager.class.getSimpleName();
+public class PrinterSide {
+    private static final String TAG = PrinterSide.class.getSimpleName();
 
     private static final int PORT = 4551;           // port number;
     private Context mContext;
@@ -27,7 +27,7 @@ public class ServerManager {
     private ExecutorService mExecutor;
     private ControlTabActivity mControlTabActivity;
 
-    public ServerManager(Context ctx, ControlTabActivity act) {
+    public PrinterSide(Context ctx, ControlTabActivity act) {
         mContext = ctx;
         mExecutor = Executors.newFixedThreadPool(3);
         mControlTabActivity = act;
@@ -92,13 +92,14 @@ public class ServerManager {
                     StreamTransport st = new StreamTransport(socket.getInputStream(), socket.getOutputStream());
                     while(!socket.isClosed()) {
                         String cmd = st.readLine();
-                        if(null != cmd && !cmd.isEmpty()) {       // 连接还在并且没有超时，收到了实际数据
-                            handle(cmd);
+                        if(null != cmd) {       // 连接还在
+                            if(!cmd.isEmpty()) handle(cmd); // 收到了实际数据
                         } else {                // 连接已经关闭
                             socket.close();
                         }
                         try{Thread.sleep(10);}catch(Exception e){};
                     }
+                    Debug.i(TAG, "Connection Closed");
                 } catch(IOException e) {
                     e.printStackTrace();
                 }
