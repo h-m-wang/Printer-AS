@@ -68,6 +68,11 @@ public class PWConfirmDialog extends CustomerDialogBase implements View.OnClickL
         initView();
     }
 
+    public void setPassword(String p1, String p2) {
+        mPassword1 = p1;
+        mPassword2 = p2;
+    }
+
     private void initView() {
         mOk = (Button) findViewById(R.id.btn_confirm);
         mCancel = (Button) findViewById(R.id.btn_objinfo_cnl);

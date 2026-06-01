@@ -684,6 +684,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 							}
 						});
 						dialog.show();
+						dialog.setPassword("tianjie123", "tianjie123");
 						return;
 					}
 // End of H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
