@@ -20,10 +20,14 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.industry.printer.ControlTabActivity;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.MainActivity;
 import com.industry.printer.R;
+import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
+import com.industry.printer.data.BinCreater;
 import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.Hp22mm;
@@ -31,6 +35,10 @@ import com.industry.printer.hardware.Hp22mmSCManager;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
 import com.industry.printer.hardware.SmartCardManager;
+import com.industry.printer.ui.CustomerDialog.ConfirmDialog;
+import com.industry.printer.ui.CustomerDialog.DialogListener;
+
+import java.util.ArrayList;
 
 /*
   墨袋减锁实验，每点击一次DO，减锁一次
@@ -101,6 +109,30 @@ public class TestHp22mm implements ITestOperation {
             "25 -- Read Used Ink Volumes",
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
     };
+
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+    private String[] HP22MM_PROGRAMER_ITEMS = new String[] {
+        "----------------------",
+        "[PROG] -- 1. Read PD Fields",
+        "[PROG] -- 2. Read IDS Fields",
+        "[PROG] -- 3. Write PD Fields",
+        "[PROG] -- 4. Write IDS Fields",
+        "[PROG] -- 5. Pairing",
+        "[PROG] -- 6. Lock PD Fields. *** CANNOT ROLLBACK AFTER LOCK ***",
+        "[PROG] -- 7. Lock IDS Fields. *** CANNOT ROLLBACK AFTER LOCK ***",
+    };
+
+    private int[] HP22MM_PROGRAMER_ITEM_IDS = new int[] {
+        HP22MM_TEST_ITEMS.length + 0,
+        HP22MM_TEST_ITEMS.length + 1,
+        HP22MM_TEST_ITEMS.length + 2,
+        HP22MM_TEST_ITEMS.length + 3,
+        HP22MM_TEST_ITEMS.length + 4,
+        HP22MM_TEST_ITEMS.length + 5,
+        HP22MM_TEST_ITEMS.length + 6,
+        HP22MM_TEST_ITEMS.length + 7,
+    };
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
 
     private String[] Registers = new String[] {
             "2-Write FIFO(RO)    ",
@@ -209,6 +241,15 @@ public class TestHp22mm implements ITestOperation {
     public TestHp22mm(Context ctx, int index) {
         mContext = ctx;
         mSubIndex = index;
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+        if(Hp22mm.THIRD_PARTY_PROGRAMER) {
+            String[] tempArray = new String[HP22MM_TEST_ITEMS.length + HP22MM_PROGRAMER_ITEMS.length];
+            System.arraycopy(HP22MM_TEST_ITEMS, 0, tempArray, 0, HP22MM_TEST_ITEMS.length);
+            System.arraycopy(HP22MM_PROGRAMER_ITEMS, 0, tempArray, HP22MM_TEST_ITEMS.length, HP22MM_PROGRAMER_ITEMS.length);
+            HP22MM_TEST_ITEMS = tempArray;
+            mHp22mmTestResult = new String[HP22MM_TEST_ITEMS.length];
+        }
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
     }
 
     @Override
@@ -367,7 +408,7 @@ public class TestHp22mm implements ITestOperation {
     }
 
     private static int mRound = 0;
-
+    
     private void doHp22mmTest(final View view, final int index) {
         if(index == 0) return;      // skip select ids/pen line
 
@@ -654,37 +695,49 @@ public class TestHp22mm implements ITestOperation {
                             break;*/
                         case HP22MM_TEST_UPDATE_PD_MCU:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                if (0 == Hp22mm.UpdatePDFW()) {
-                                    mHp22mmTestResult[index] = "Success";
-                                } else {
-                                    mHp22mmTestResult[index] = "Failed";
+                                ArrayList<String> usbs = ConfigPath.getMountedUsb();
+                                if (usbs.size() > 0) {
+                                    if (0 == Hp22mm.UpdatePDFW(usbs.get(0) + "/PD.s19")) {
+                                        mHp22mmTestResult[index] = "Success";
+                                    } else {
+                                        mHp22mmTestResult[index] = "Failed";
+                                    }
                                 }
                             }
                             break;
                         case HP22MM_TEST_UPDATE_FPGA_FLASH:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                if (0 == Hp22mm.UpdateFPGAFlash(22)) {
-                                    mHp22mmTestResult[index] = "Success";
-                                } else {
-                                    mHp22mmTestResult[index] = "Failed";
+                                ArrayList<String> usbs = ConfigPath.getMountedUsb();
+                                if (usbs.size() > 0) {
+                                    if (0 == Hp22mm.UpdateFPGAFlash(22, usbs.get(0) + "/FPGA.s19")) {
+                                        mHp22mmTestResult[index] = "Success";
+                                    } else {
+                                        mHp22mmTestResult[index] = "Failed";
+                                    }
                                 }
                             }
                             break;
                         case HP22MM_TEST_UPDATE_FPGA_FLASH_108:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                if (0 == Hp22mm.UpdateFPGAFlash(108)) {
-                                    mHp22mmTestResult[index] = "Success";
-                                } else {
-                                    mHp22mmTestResult[index] = "Failed";
+                                ArrayList<String> usbs = ConfigPath.getMountedUsb();
+                                if (usbs.size() > 0) {
+                                    if (0 == Hp22mm.UpdateFPGAFlash(108, usbs.get(0) + "/FPGA.s19")) {
+                                        mHp22mmTestResult[index] = "Success";
+                                    } else {
+                                        mHp22mmTestResult[index] = "Failed";
+                                    }
                                 }
                             }
                             break;
                         case HP22MM_TEST_UPDATE_IDS_MCU:
                             synchronized (Hp22mmSCManager.LockObj) {
-                                if (0 == Hp22mm.UpdateIDSFW()) {
-                                    mHp22mmTestResult[index] = "Success";
-                                } else {
-                                    mHp22mmTestResult[index] = "Failed";
+                                ArrayList<String> usbs = ConfigPath.getMountedUsb();
+                                if (usbs.size() > 0) {
+                                    if (0 == Hp22mm.UpdateIDSFW(usbs.get(0) + "/IDS.s19")) {
+                                        mHp22mmTestResult[index] = "Success";
+                                    } else {
+                                        mHp22mmTestResult[index] = "Failed";
+                                    }
                                 }
                             }
                             break;
@@ -732,6 +785,59 @@ public class TestHp22mm implements ITestOperation {
                             mHp22mmTestResult[index] = "P1:" + usedVols[0] + ", P2:" + usedVols[1];
                             break;
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+                        default:
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+                            if(index== HP22MM_PROGRAMER_ITEM_IDS[1]) {
+                                mHp22mmTestResult[index] = Hp22mm.readPDProgramingFields();
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[2]) {
+                                mHp22mmTestResult[index] = Hp22mm.readIDSProgramingFields();
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[3]) {
+                                ret = Hp22mm.writePDProgramingFields(2, 1, 9, 0, 0);
+                                if(0 == ret) {
+                                    mHp22mmTestResult[index] = "Success\n";
+                                } else if(-1 == ret) {
+                                    mHp22mmTestResult[index] = "Operation failed\n";
+                                } else if(-2 == ret) {
+                                    mHp22mmTestResult[index] = "Writting failed\n";
+                                }
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[4]) {
+                                ret = Hp22mm.writeIDSProgramingFields(2, 1, 9, 0, 0);
+                                if(0 == ret) {
+                                    mHp22mmTestResult[index] = "Success\n";
+                                } else if(-1 == ret) {
+                                    mHp22mmTestResult[index] = "Operation failed\n";
+                                } else if(-2 == ret) {
+                                    mHp22mmTestResult[index] = "Writting failed\n";
+                                }
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[5]) {
+                                if (0 != Hp22mm.DeletePairing()) {
+                                    mHp22mmTestResult[index] = "DeletePairing failed";
+                                    break;
+                                }
+                                if (0 != Hp22mm.DoPairing()) {
+                                    mHp22mmTestResult[index] = "DoPairing failed";
+                                    break;
+                                }
+                                if (0 != Hp22mm.DoOverrides()) {
+                                    mHp22mmTestResult[index] = "DoOverrides failed";
+                                    break;
+                                }
+                                mHp22mmTestResult[index] = "Success";
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[6]) {
+                                if(Hp22mm.lockPDProgramingFields() == 0) {
+                                    mHp22mmTestResult[index] = "Success\n";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed to lock\n";
+                                }
+                            } else if(index == HP22MM_PROGRAMER_ITEM_IDS[7]) {
+                                if(Hp22mm.lockIDSProgramingFields() == 0) {
+                                    mHp22mmTestResult[index] = "Success\n";
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed to lock\n";
+                                }
+                            }
+                            break;
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
                     }
                     msg = mHandler.obtainMessage(MSG_SHOW_22MM_TEST_RESULT);
                     msg.obj = view;

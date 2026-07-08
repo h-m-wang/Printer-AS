@@ -60,7 +60,7 @@ public class ConfirmDialog extends RelightableDialog implements View.OnClickList
 		if (mMessage != null) {
 			mMsg.setText(mMessage);
 		}
-		
+
 	}
 
 	@Override

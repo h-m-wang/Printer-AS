@@ -61,9 +61,9 @@ public class Hp22mm {
 // End of H.M.Wang 2025-2-10 追加要给控制是否加热的功能
     static public native String getPressurizedValue();
     static public native int Depressurize();
-    static public native int UpdatePDFW();
-    static public native int UpdateFPGAFlash(int type);
-    static public native int UpdateIDSFW();
+    static public native int UpdatePDFW(String path);
+    static public native int UpdateFPGAFlash(int type, String path);
+    static public native int UpdateIDSFW(String path);
     static public native int pdPowerOn(int penIndex, int temp);
     static public native int pdPowerOff(int penIndex);
 // H.M.Wang 2024-11-13 追加22mm打印头purge功能
@@ -90,6 +90,14 @@ public class Hp22mm {
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
     static public native int setMaxVolmue(int maxvol);
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+    static public native String readPDProgramingFields();
+    static public native String readIDSProgramingFields();
+    static public native int writePDProgramingFields(int l2, int l3, int l4, int l5, int rev);
+    static public native int writeIDSProgramingFields(int l2, int l3, int l4, int l5, int rev);
+    static public native int lockPDProgramingFields();
+    static public native int lockIDSProgramingFields();
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
 
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
@@ -146,6 +154,8 @@ public class Hp22mm {
 
     private static boolean mIDSInitialized = false;
 
+    public static boolean THIRD_PARTY_PROGRAMER = false;        // true:第三方墨盒墨袋编程专用apk; false:正常apk
+
     public static int initHp22mm(int nozzle_sel) {
 // H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
 //        int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
@@ -167,7 +177,7 @@ public class Hp22mm {
             } else {
                 Debug.d(TAG, "ids_get_supply_status succeeded\n");
             }
-
+if(!THIRD_PARTY_PROGRAMER) {
 // H.M.Wang 2024-11-10
             if (0 != StartMonitor()) {
                 Debug.d(TAG, "StartMonitor failed\n");
@@ -186,10 +196,11 @@ public class Hp22mm {
             } else {
                 Debug.d(TAG, "Pressurize succeeded\n");
             }
-
+}
             mIDSInitialized = true;
         }
 
+if(!THIRD_PARTY_PROGRAMER) {
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
@@ -274,7 +285,14 @@ public class Hp22mm {
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
-
+} else {
+    if (0 != init_pd(0x01)) {
+        Debug.d(TAG, "init_pd failed\n");
+        return -2;
+    } else {
+        Debug.d(TAG, "init_pd succeeded\n");
+    }
+}
         return 0;
     }
 
@@ -375,6 +393,11 @@ public class Hp22mm {
 //        regs[REG09_START_ADD_P0S1_ODD] = 132;
 //        regs[REG10_START_ADD_P0S1_EVEN] = 132;
 //        regs[REG11_START_ADD_P1S0_ODD] = 132;
+// H.M.Wang 2026-6-23 接续2025-5-9取消apk对108mm数据进行加工处理的修改，设置寄存器，由FPGA处理
+        regs[REG07_START_ADD_P0S0_ODD] = (char)(0x03F & config.getParam(82));      // R7[5:0] = C83
+        regs[REG08_START_ADD_P0S0_EVEN] = (char)(0x1F & config.getParam(83));      // R8[4:0] = C84
+        regs[REG09_START_ADD_P0S1_ODD] = (char)(0x1F & config.getParam(14));      // R9[0] = 0:不倒置；R9[0] = 1:倒置
+// End of H.M.Wang 2026-6-23 接续2025-5-9取消apk对108mm数据进行加工处理的修改，设置寄存器，由FPGA处理
         regs[REG11_START_ADD_P1S0_ODD] = 0; // 只有一个喷头为0
         if(nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
             regs[REG11_START_ADD_P1S0_ODD] = 1; // 两个喷头时为1

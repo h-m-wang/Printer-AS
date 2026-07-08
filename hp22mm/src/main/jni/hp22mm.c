@@ -28,7 +28,17 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.205"
+#define VERSION_CODE                            "1.0.210"
+// 1.0.210 2026-6-30
+// 增加L2-L5的编程功能
+// 1.0.209 2026-6-26
+// 正常使用版本，getUsedInkVolume中不在执行写IDS和PD的L2-L5的操作
+// 1.0.208 2026-6-26
+// 借用 getUsedInkVolume 来写IDS和PD的L2-L5信息，不同信息IDS-L2=9
+// 1.0.207 2026-6-26
+// 借用 getUsedInkVolume 来写IDS和PD的L2-L5信息，相同信息（10, 1, 12, 13, 14）
+// 1.0.206 2026-6-5
+// 修改函数 Java_com_UpdatePDFW, Java_com_UpdateFPGAFlash, Java_com_UpdateIDSFW 的接口，将待升级文件的指定由这里固定目录+文件名修改为由apk指定
 // 1.0.205 2026-5-26
 // 将墨量最大值由固定数值修改为由apk设置
 // 1.0.204 2026-5-22
@@ -444,20 +454,230 @@ static volatile int EnableWarming = 1;
 // H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
 static float gInkWeight[2] = {0, 0};
 JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg) {
-/*    PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, 14, &value, &pd_sc_result);
-    pd_check_ph("pd_sc_read_oem_field", pd_r, 0);
-    if(pd_r == PD_OK) {
-        res[0] = value;
-    } else {
-        res[0] = -1;
-    }
-*/
+    uint32_t value;
+    uint8_t pd_sc_result;
+    PDResult_t pd_r;
+
     jfloatArray result = (*env)->NewFloatArray(env, 2);
     (*env)->SetFloatArrayRegion(env, result, 0, 2, gInkWeight);
 
     return result;
 }
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+static int read_pd_oem_field(int f_id) {
+    uint32_t value;
+    uint8_t pd_sc_result;
+    PDResult_t pd_r;
+
+    pd_r = pd_sc_read_oem_field(PD_INSTANCE, 0, f_id, &value, &pd_sc_result);
+    LOGD("PROGRAMING PD Field %d = [%d] (pd_r=%d, pd_sc_result=%d)", f_id, value, pd_r, pd_sc_result);
+    if(pd_r != PD_OK) {
+        return -1;
+    } else {
+        return value;
+    }
+}
+
+static int write_pd_oem_field(int f_id, int value) {
+    uint8_t pd_sc_result;
+    PDResult_t pd_r;
+
+    pd_r = pd_sc_write_oem_field(PD_INSTANCE, 0, f_id, value, &pd_sc_result);
+    LOGD("PROGRAMING PD Write Field %d = [%d] (pd_r=%d, pd_sc_result=%d)", f_id, value, pd_r, pd_sc_result);
+    return pd_r;
+}
+
+static int read_ids_oem_field(int f_id) {
+    uint32_t value;
+    IDSResult_t ids_r;
+
+    ids_r = ids_read_oem_field(IDS_INSTANCE, 0, f_id, &value);
+    LOGD("PROGRAMING IDS Field %d = [%d] (ids_r=%d)", f_id, value, ids_r);
+    if(ids_r != IDS_OK) {
+        return -1;
+    } else {
+        return value;
+    }
+}
+
+static int write_ids_oem_field(int f_id, int value) {
+    IDSResult_t ids_r;
+
+    ids_r = ids_write_oem_field(IDS_INSTANCE, 0, f_id, value);
+    LOGD("PROGRAMING IDS Write Field %d = [%d] (ids_r=%d)", f_id, value, ids_r);
+    return ids_r;
+}
+
+static char *pd_oem_field_2str(int f_id, int value) {
+    char strTemp[256];
+
+    sprintf(strTemp, "PD Field %d = [%d]\n", f_id, value);
+
+    return strTemp;
+}
+
+static char *ids_oem_field_2str(int f_id, int value) {
+    char strTemp[256];
+
+    sprintf(strTemp, "IDS Field %d = [%d]\n", f_id, value);
+
+    return strTemp;
+}
+
+JNIEXPORT jstring JNICALL Java_com_ReadPDProgramingFields(JNIEnv *env, jclass arg) {
+    char strRes[1024];
+
+    memset(strRes, 0x00, 1024);
+
+    strcat(strRes, pd_oem_field_2str(10, read_pd_oem_field(10)));
+    strcat(strRes, pd_oem_field_2str(11, read_pd_oem_field(11)));
+    strcat(strRes, pd_oem_field_2str(12, read_pd_oem_field(12)));
+    strcat(strRes, pd_oem_field_2str(13, read_pd_oem_field(13)));
+    strcat(strRes, pd_oem_field_2str(14, read_pd_oem_field(14)));
+    strcat(strRes, pd_oem_field_2str(15, read_pd_oem_field(15)));
+    strcat(strRes, pd_oem_field_2str(16, read_pd_oem_field(16)));
+    strcat(strRes, pd_oem_field_2str(17, read_pd_oem_field(17)));
+    strcat(strRes, pd_oem_field_2str(18, read_pd_oem_field(18)));
+    strcat(strRes, pd_oem_field_2str(19, read_pd_oem_field(19)));
+    strcat(strRes, pd_oem_field_2str(20, read_pd_oem_field(20)));
+
+    return (*env)->NewStringUTF(env, strRes);
+}
+
+JNIEXPORT jstring JNICALL Java_com_ReadIDSProgramingFields(JNIEnv *env, jclass arg) {
+    char strRes[1024];
+
+    memset(strRes, 0x00, 1024);
+
+    strcat(strRes, ids_oem_field_2str(32, read_ids_oem_field(32)));
+    strcat(strRes, ids_oem_field_2str(33, read_ids_oem_field(33)));
+    strcat(strRes, ids_oem_field_2str(34, read_ids_oem_field(34)));
+    strcat(strRes, ids_oem_field_2str(35, read_ids_oem_field(35)));
+    strcat(strRes, ids_oem_field_2str(36, read_ids_oem_field(36)));
+
+    strcat(strRes, ids_oem_field_2str(17, read_ids_oem_field(17)));
+    strcat(strRes, ids_oem_field_2str(18, read_ids_oem_field(18)));
+    strcat(strRes, ids_oem_field_2str(19, read_ids_oem_field(19)));
+    strcat(strRes, ids_oem_field_2str(20, read_ids_oem_field(20)));
+    strcat(strRes, ids_oem_field_2str(21, read_ids_oem_field(21)));
+    strcat(strRes, ids_oem_field_2str(22, read_ids_oem_field(22)));
+    strcat(strRes, ids_oem_field_2str(23, read_ids_oem_field(23)));
+    strcat(strRes, ids_oem_field_2str(24, read_ids_oem_field(24)));
+    strcat(strRes, ids_oem_field_2str(25, read_ids_oem_field(25)));
+    strcat(strRes, ids_oem_field_2str(26, read_ids_oem_field(26)));
+    strcat(strRes, ids_oem_field_2str(27, read_ids_oem_field(27)));
+    strcat(strRes, ids_oem_field_2str(28, read_ids_oem_field(28)));
+    strcat(strRes, ids_oem_field_2str(29, read_ids_oem_field(29)));
+    strcat(strRes, ids_oem_field_2str(30, read_ids_oem_field(30)));
+    strcat(strRes, ids_oem_field_2str(31, read_ids_oem_field(31)));
+
+    strcat(strRes, ids_oem_field_2str(37, read_ids_oem_field(37)));
+    strcat(strRes, ids_oem_field_2str(38, read_ids_oem_field(38)));
+    strcat(strRes, ids_oem_field_2str(39, read_ids_oem_field(39)));
+
+    strcat(strRes, ids_oem_field_2str(41, read_ids_oem_field(41)));
+    strcat(strRes, ids_oem_field_2str(42, read_ids_oem_field(42)));
+    strcat(strRes, ids_oem_field_2str(43, read_ids_oem_field(43)));
+    strcat(strRes, ids_oem_field_2str(44, read_ids_oem_field(44)));
+
+    strcat(strRes, ids_oem_field_2str(48, read_ids_oem_field(48)));
+    strcat(strRes, ids_oem_field_2str(49, read_ids_oem_field(49)));
+    strcat(strRes, ids_oem_field_2str(50, read_ids_oem_field(50)));
+    strcat(strRes, ids_oem_field_2str(51, read_ids_oem_field(51)));
+
+    strcat(strRes, ids_oem_field_2str(53, read_ids_oem_field(53)));
+    strcat(strRes, ids_oem_field_2str(54, read_ids_oem_field(54)));
+    strcat(strRes, ids_oem_field_2str(55, read_ids_oem_field(55)));
+    strcat(strRes, ids_oem_field_2str(56, read_ids_oem_field(56)));
+
+    strcat(strRes, ids_oem_field_2str(60, read_ids_oem_field(60)));
+
+    strcat(strRes, ids_oem_field_2str(73, read_ids_oem_field(73)));
+    strcat(strRes, ids_oem_field_2str(74, read_ids_oem_field(74)));
+    strcat(strRes, ids_oem_field_2str(75, read_ids_oem_field(75)));
+    strcat(strRes, ids_oem_field_2str(76, read_ids_oem_field(76)));
+    strcat(strRes, ids_oem_field_2str(77, read_ids_oem_field(77)));
+    strcat(strRes, ids_oem_field_2str(78, read_ids_oem_field(78)));
+    strcat(strRes, ids_oem_field_2str(79, read_ids_oem_field(79)));
+    strcat(strRes, ids_oem_field_2str(80, read_ids_oem_field(80)));
+
+    return (*env)->NewStringUTF(env, strRes);
+}
+
+JNIEXPORT jint JNICALL Java_com_WritePDProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev) {
+    if( PD_OK != write_pd_oem_field(10, l2) ||
+        PD_OK != write_pd_oem_field(11, l3) ||
+        PD_OK != write_pd_oem_field(12, l4) ||
+        PD_OK != write_pd_oem_field(13, l5) ||
+        PD_OK != write_pd_oem_field(14, rev) ||
+        PD_OK != write_pd_oem_field(15, l2) ||
+        PD_OK != write_pd_oem_field(16, l3) ||
+        PD_OK != write_pd_oem_field(17, l4) ||
+        PD_OK != write_pd_oem_field(18, l5) ||
+        PD_OK != write_pd_oem_field(19, rev)) {
+        return -2;              // 写失败
+    }
+
+    if( read_pd_oem_field(10) != l2 ||
+        read_pd_oem_field(11) != l3 ||
+        read_pd_oem_field(12) != l4 ||
+        read_pd_oem_field(13) != l5 ||
+        read_pd_oem_field(14) != rev ||
+        read_pd_oem_field(15) != l2 ||
+        read_pd_oem_field(16) != l3 ||
+        read_pd_oem_field(17) != l4 ||
+        read_pd_oem_field(18) != l5 ||
+        read_pd_oem_field(19) != rev) {
+        return -1;              // 数值没有写进去
+    }
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev) {
+    if( IDS_OK != write_ids_oem_field(32, l2) ||
+        IDS_OK != write_ids_oem_field(33, l3) ||
+        IDS_OK != write_ids_oem_field(34, l4) ||
+        IDS_OK != write_ids_oem_field(35, l5) ||
+        IDS_OK != write_ids_oem_field(36, rev)) {
+        return -2;              // 写失败
+    }
+
+    if( read_ids_oem_field(32) != l2 ||
+        read_ids_oem_field(33) != l3 ||
+        read_ids_oem_field(34) != l4 ||
+        read_ids_oem_field(35) != l5 ||
+        read_ids_oem_field(36) != rev) {
+        return -1;              // 数值没有写进去
+    }
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_LockPDProgramingFields(JNIEnv *env, jclass arg) {
+    uint8_t pd_sc_result;
+
+    if(PD_OK != pd_sc_lock_oem_partition(PD_INSTANCE, 0, 2, &pd_sc_result)) {
+        return -1;
+    }
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_LockIDSProgramingFields(JNIEnv *env, jclass arg) {
+    if( IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 3) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 4) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 5) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 6) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 7) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 8) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 9) ||
+        IDS_OK != ids_lock_partition(IDS_INSTANCE, 0, 10)) {
+        return -1;
+    }
+    return 0;
+}
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
 
 void *monitorThread(void *arg) {
     int nonsecure_sec[] = {0, 0};
@@ -1165,10 +1385,11 @@ JNIEXPORT jint JNICALL Java_com_ids_get_supply_status(JNIEnv *env, jclass arg) {
     if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) return (-1);
     if (supply_status.state != SUPPLY_SC_VALID) {
         LOGE("Supply state not valid: %d[0x%02x]\n", (int)supply_status.state, supply_status.status_bits);
-        return (-1);
+//        return (-1);
     }
 
-    if (supply_status.state == SUPPLY_SC_VALID) {
+//    if (supply_status.state == SUPPLY_SC_VALID) {
+    if (true) {
         if (ids_check("ids_get_supply_info", ids_get_supply_info(IDS_INSTANCE, sIdsIdx, &supply_info))) return (-1);
         if (ids_check("ids_get_supply_id", ids_get_supply_id(IDS_INSTANCE, sIdsIdx, &supply_id))) return (-1);
 
@@ -1504,8 +1725,10 @@ JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg) {
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg, jstring path) {
     PDResult_t pd_r;
+
+    const char *c_path = (*env)->GetStringUTFChars(env, path, NULL);
 
     Air_Pump_State_t a = Air_Pump_State;
     PD_Power_State_t p = PD_Power_State;
@@ -1515,23 +1738,27 @@ JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg) {
 
     sleep(1);
 
-    pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
+    pd_r = pd_micro_fw_reflash(PD_INSTANCE, c_path, true);
     if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
-        pd_r = pd_micro_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/PD.s19", true);
+        pd_r = pd_micro_fw_reflash(PD_INSTANCE, c_path, true);
         if (pd_check("pd_micro_fw_reflash_no_reset", pd_r)) {
             Air_Pump_State = a;
             PD_Power_State = p;
+            (*env)->ReleaseStringUTFChars(env, path, c_path);
             return (-1);
         }
     }
 
     Air_Pump_State = a;
     PD_Power_State = p;
+    (*env)->ReleaseStringUTFChars(env, path, c_path);
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int type) {
+JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int type, jstring path) {
     PDResult_t pd_r;
+
+    const char *c_path = (*env)->GetStringUTFChars(env, path, NULL);
 
     Air_Pump_State_t a = Air_Pump_State;
     PD_Power_State_t p = PD_Power_State;
@@ -1547,30 +1774,34 @@ JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int typ
     if (pd_check("pd_init", pd_r)) return -1;
 
     if(108 == type) {
-        pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+        pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, c_path, true);
     } else {
-        pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+        pd_r = pd_fpga_fw_reflash(PD_INSTANCE, c_path, true);
     }
     if (pd_check("pd_fpga_fw_reflash", pd_r)) {
         if(108 == type) {
-            pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+            pd_r = pd_fpga_fw_reflash_108(PD_INSTANCE, c_path, true);
         } else {
-            pd_r = pd_fpga_fw_reflash(PD_INSTANCE, "/mnt/usbhost1/FPGA.s19", true);
+            pd_r = pd_fpga_fw_reflash(PD_INSTANCE, c_path, true);
         }
         if (pd_check("pd_fpga_fw_reflash", pd_r)) {
             Air_Pump_State = a;
             PD_Power_State = p;
+            (*env)->ReleaseStringUTFChars(env, path, c_path);
             return (-1);
         }
     }
 
     Air_Pump_State = a;
     PD_Power_State = p;
+    (*env)->ReleaseStringUTFChars(env, path, c_path);
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
+JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg, jstring path) {
     IDSResult_t ids_r;
+
+    const char *c_path = (*env)->GetStringUTFChars(env, path, NULL);
 
     Air_Pump_State_t a = Air_Pump_State;
     PD_Power_State_t p = PD_Power_State;
@@ -1580,18 +1811,20 @@ JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg) {
 
     sleep(1);
 
-    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
+    ids_r = ids_micro_fw_reflash(IDS_INSTANCE, c_path, true);
     if (ids_check("ids_micro_fw_reflash", ids_r)) {
-        ids_r = ids_micro_fw_reflash(IDS_INSTANCE, "/mnt/usbhost1/IDS.s19", true);
+        ids_r = ids_micro_fw_reflash(IDS_INSTANCE, c_path, true);
         if (ids_check("ids_micro_fw_reflash", ids_r)) {
             Air_Pump_State = a;
             PD_Power_State = p;
+            (*env)->ReleaseStringUTFChars(env, path, c_path);
             return (-1);
         }
     }
 
     Air_Pump_State = a;
     PD_Power_State = p;
+    (*env)->ReleaseStringUTFChars(env, path, c_path);
     return 0;
 }
 
@@ -1737,9 +1970,9 @@ static JNINativeMethod gMethods[] = {
         {"getLocalInk",		        "(I)I",						(void *)Java_com_getLocalInk},
         {"downLocal",		        "(II)I",						(void *)Java_com_downLocal},
 // End of H.M.Wang 2024-12-10 22mm本来应该使用内部的统计系统统计墨水的消耗情况，但是暂时看似乎没有动作，因此启用独自的统计系统，计数值保存在OEM_RW区域
-        {"UpdatePDFW",		                "()I",	                    (void *)Java_com_UpdatePDFW},
-        {"UpdateFPGAFlash",		            "(I)I",	                    (void *)Java_com_UpdateFPGAFlash},
-        {"UpdateIDSFW",		                "()I",	                    (void *)Java_com_UpdateIDSFW},
+        {"UpdatePDFW",		                "(Ljava/lang/String;)I",	                    (void *)Java_com_UpdatePDFW},
+        {"UpdateFPGAFlash",		            "(ILjava/lang/String;)I",	                    (void *)Java_com_UpdateFPGAFlash},
+        {"UpdateIDSFW",		                "(Ljava/lang/String;)I",	                    (void *)Java_com_UpdateIDSFW},
 // H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
         {"enableLog",	    	    "(I)I",						(void *)Java_com_enableLogOutput},
 // End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
@@ -1751,6 +1984,15 @@ static JNINativeMethod gMethods[] = {
         {"getUsedInkVolume",	    	    "()[F",						(void *)Java_com_GetUsedInkVolume},
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
         {"setMaxVolmue",				        "(I)I",	                    (void *)Java_com_hp22mm_set_max_volume},
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+        {"readPDProgramingFields",				        "()Ljava/lang/String;",	                    (void *)Java_com_ReadPDProgramingFields},
+        {"readIDSProgramingFields",				        "()Ljava/lang/String;",	                    (void *)Java_com_ReadIDSProgramingFields},
+        {"writePDProgramingFields",		        "(IIIII)I",						(void *)Java_com_WritePDProgramingFields},
+        {"writeIDSProgramingFields",		        "(IIIII)I",						(void *)Java_com_WriteIDSProgramingFields},
+        {"lockPDProgramingFields",		        "()I",						(void *)Java_com_LockPDProgramingFields},
+        {"lockIDSProgramingFields",		        "()I",						(void *)Java_com_LockIDSProgramingFields},
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
+
 /*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
         {"startPrint",		            "()Ljava/lang/String;",	                    (void *)Java_com_StartPrint},

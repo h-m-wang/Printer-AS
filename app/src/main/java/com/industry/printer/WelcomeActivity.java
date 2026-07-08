@@ -36,6 +36,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -223,6 +224,13 @@ public class WelcomeActivity extends Activity {
 		mContext = getApplicationContext();
 
 		Debug.d(TAG, "-------- onCreate --------");
+// H.M.Wang 2026-6-23 apk的旋转角度，由原来在AndroidManifest.xml中直接定义修改为由程序定义，因为mipi屏需要旋转270度横屏(reverseLandscape)，而其它的img只需要旋转90度横屏(landscape)
+    	if(PlatformInfo.isMipiImg()) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+// End of H.M.Wang 2026-6-23 apk的旋转角度，由原来在AndroidManifest.xml中直接定义修改为由程序定义，因为mipi屏需要旋转270度横屏(reverseLandscape)，而其它的img只需要旋转90度横屏(landscape)
 // H.M.Wang 2023-8-18 将启动页面的两个图片从MainActivity移到WelcomeActivity
 		mLoading1s = (ImageView) findViewById(R.id.image1s);
 		mClickView = (View) findViewById(R.id.clickView);

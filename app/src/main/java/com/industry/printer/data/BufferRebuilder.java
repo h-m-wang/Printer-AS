@@ -225,6 +225,8 @@ public class BufferRebuilder {
     }
 // End of H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
 
+// H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
+/* 2026-7-3 暂时恢复apk插值 */
 // H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
     public BufferRebuilder reverseHp108mm(int pattern) {
         if(null == mByteBuffer) transferBuffer();
@@ -254,13 +256,19 @@ public class BufferRebuilder {
         return this;
     }
 // End of H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
+/* End of 2026-7-3 暂时恢复apk插值 */
+// End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 
     public BufferRebuilder reverse(int pattern) {
         try {
 // H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
+// H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
+/* 2026-7-3 暂时恢复apk插值 */
             if((pattern & 0x80) != 0x00) {
                 return reverseHp108mm(pattern);
             }
+/* End of 2026-7-3 暂时恢复apk插值 */
+// End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // End of H.M.Wang 2026-4-22 对于108MM头的倒置做特殊处理，由于在每个头的最后部添加了36点的空，因此倒置时这个空不能翻到最前面，而是要保留在原位
 // H.M.Wang 2025-2-17 增加22mm的倒置处理，只是将字节位置倒置，字节内倒置由FPGA处理
             if((pattern & 0x70) != 0x00) {

@@ -473,7 +473,7 @@ public enum PrinterNozzle {
             case NozzleType.NOZZLE_TYPE_108MM:
 // H.M.Wang 2026-5-9 高度修改为2560，不再每个头中间添加空隙，由FPGA处理，只是在508*5的基础上增加必要位数凑成字节的整数倍
                 mHeight = 544 * 5;
-// 暂时取消                mHeight = 2560;
+// 2026-7-3 暂时恢复apk插值                mHeight = 2560;
 // End of H.M.Wang 2026-5-9 高度修改为2560，不再每个头中间添加空隙，由FPGA处理，只是在508*5的基础上增加必要位数凑成字节的整数倍
 // End of H.M.Wang 2026-2-24 增加108mm类型打印头
         }
@@ -735,7 +735,10 @@ public enum PrinterNozzle {
 // H.M.Wang 2026-2-24 增加108mm类型打印头
             case NozzleType.NOZZLE_TYPE_108MM:
                 scaleW = 258f*5/152;
+// H.M.Wang 2026-5-9 高度修改为2560，不再每个头中间添加空隙，由FPGA处理，只是在508*5的基础上增加必要位数凑成字节的整数倍
                 scaleH = 508f*5/152;
+// 2026-7-3 暂时恢复apk插值                scaleH = 2560f/152;
+// End of H.M.Wang 2026-5-9 高度修改为2560，不再每个头中间添加空隙，由FPGA处理，只是在508*5的基础上增加必要位数凑成字节的整数倍
                 break;
 // End of H.M.Wang 2026-2-24 增加108mm类型打印头
             default:
@@ -943,7 +946,7 @@ public enum PrinterNozzle {
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 // H.M.Wang 2026-2-24 增加108mm类型打印头
             case NozzleType.NOZZLE_TYPE_108MM:
-                ratio = 1.0f * 110.0f / 304;
+                ratio = 1.0f * 108.0f / 304;
 // End of H.M.Wang 2026-2-24 增加108mm类型打印头
             default:
                 break;

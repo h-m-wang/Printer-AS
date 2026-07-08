@@ -124,7 +124,7 @@ public class BinFromBitmap extends BinCreater {
 					pixels = NativeGraphicJni.ShiftImage(pixels, 0, 0, 0, 308, 320);
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/*暂时恢复*/
+/* 2026-7-3 暂时恢复apk插值 */
 				} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 // H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
 //					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
@@ -132,18 +132,18 @@ public class BinFromBitmap extends BinCreater {
 					int c84 = SystemConfigFile.getInstance().getParam(83);
 					pixels = NativeGraphicJni.ShiftImage(pixels, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
-/**/
+/* End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 				}
 				byte[] tmpBin;
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-//暂时恢复
+/* 2026-7-3 暂时恢复apk插值 */
 				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head*5, 240, (xPos == 0 ? 1 : 0));	// 因为108MM表面上是按着1个头来管理的，但是在二值化时需要考虑头之间的间隙
 				} else {
 					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));
 				}
-//暂时恢复		tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));
+/* End of 2026-7-3 暂时恢复apk插值		tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));*/
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 				System.arraycopy(tmpBin, 0, mBinBits, xPos * binWidth, tmpBin.length);
 				xPos += tmpHeight;
@@ -161,7 +161,7 @@ public class BinFromBitmap extends BinCreater {
 			pixels = NativeGraphicJni.ShiftImage(pixels, 0, 0, 0, 308, 320);
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/*暂时恢复*/
+/* 2026-7-3 暂时恢复apk插值 */
 		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 // H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
 //			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
@@ -169,30 +169,31 @@ public class BinFromBitmap extends BinCreater {
 			int c84 = SystemConfigFile.getInstance().getParam(83);
 			pixels = NativeGraphicJni.ShiftImage(pixels, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
-/**/
+/* End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 		}
 // H.M.Wang 2020-9-10 大字机5x5字体的时候，vbin的全白问题，原来的220阈值有点低，修改为240
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-//暂时恢复
+/* 2026-7-3 暂时恢复apk插值 */
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head*5, 240, 1);
 		} else {
 			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);
 		}
-//暂时恢复		mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);
+/* End of 2026-7-3 暂时恢复apk插值 		mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);*/
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // End of H.M.Wang 2020-9-10 大字机5x5字体的时候，...
 		}
 		mDots = NativeGraphicJni.GetDots();
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-//暂时恢复
+/* 2026-7-3 暂时恢复apk插值 */
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			for(int i=1; i<mDots.length; i++) {
 				mDots[0] += mDots[i];
 				mDots[i] = 0;
 			}
 		}
+/* End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 
 		// H.M.Wang 增加1行

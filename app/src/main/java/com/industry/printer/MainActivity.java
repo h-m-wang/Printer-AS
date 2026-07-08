@@ -197,6 +197,14 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		RFIDDevice.mFd = 0;
 		ExtGpio.mFd = 0;
 
+// H.M.Wang 2026-6-23 apk的旋转角度，由原来在AndroidManifest.xml中直接定义修改为由程序定义，因为mipi屏需要旋转270度横屏(reverseLandscape)，而其它的img只需要旋转90度横屏(landscape)
+		if(PlatformInfo.isMipiImg()) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+// End of H.M.Wang 2026-6-23 apk的旋转角度，由原来在AndroidManifest.xml中直接定义修改为由程序定义，因为mipi屏需要旋转270度横屏(reverseLandscape)，而其它的img只需要旋转90度横屏(landscape)
+
 // H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_LOG_ENABLE) == Constants.LOG_OUTPUT_ENABLE) {
 			Configs.DEBUG = true;

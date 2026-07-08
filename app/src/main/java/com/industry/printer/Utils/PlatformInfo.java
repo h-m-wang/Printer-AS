@@ -149,6 +149,23 @@ public class PlatformInfo {
 			info.startsWith("FNSM");		// A20 基于M2的F屏版本
 	}
 
+// H.M.Wang 2026-6-23 增加mipi版img的判断方法
+	public static boolean isMipiImg() {
+		try {
+			Class<?> mClassType = Class.forName("android.os.SystemProperties");
+			Method mGetMethod = mClassType.getDeclaredMethod("get", String.class);
+			String verInc = (String) mGetMethod.invoke(mClassType, PROPERTY_BUILD_VERSION_INC);
+			String verString = verInc.substring(verInc.length()-5);
+			if(verString.startsWith("A8")) {
+				return true;
+			}
+		} catch (Exception e) {
+			Debug.d(TAG, "Exception: " + e.getMessage());
+		}
+		return false;
+	}
+// End of H.M.Wang 2026-6-23 增加mipi版img的判断方法
+
 /* 2025-9-4 Indicated by 吕总
 A133 版本号新规则
 

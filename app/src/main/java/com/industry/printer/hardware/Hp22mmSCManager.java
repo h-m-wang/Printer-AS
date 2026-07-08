@@ -82,14 +82,17 @@ public class Hp22mmSCManager implements IInkDevice {
     @Override
     public void init(Handler callback) {
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-        mMaxBagInkVolume = MAX_BAG_INK_VOLUME_MAXIMUM;
+// H.M.Wang 2026-6-25 修改22mm的最大墨水量计算公式，取原计算结果的81%
+//        mMaxBagInkVolume = MAX_BAG_INK_VOLUME_MAXIMUM;
+        mMaxBagInkVolume = (int)(MAX_BAG_INK_VOLUME_MAXIMUM * 0.81f);
+// End of H.M.Wang 2026-6-25 修改22mm的最大墨水量计算公式，取原计算结果的81%
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f);
+            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f * 0.7f);      // 2026-7-3 在46355的基础上下调30%，46355×0.7＝32448.5
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         }
         Debug.d(TAG, "mMaxBagInkVolume = " + mMaxBagInkVolume);
@@ -141,6 +144,7 @@ public class Hp22mmSCManager implements IInkDevice {
                             // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
                             int error = Hp22mm.initHp22mm(nozzle_sel);
                             if(error == 0) {
+if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
                                 mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, 0, "").sendToTarget();
                                 mInitialized = true;
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置

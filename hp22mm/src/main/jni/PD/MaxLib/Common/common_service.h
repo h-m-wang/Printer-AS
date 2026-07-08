@@ -100,7 +100,8 @@ typedef enum
     ERROR_INVALID_PRIMARY_SUPPLY_IDX    =32,
     ERROR_PRIMARY_SUPPLY_IDX_MISMATCH   =33,
     ERROR_SUPPLY_SYSTEM_MAX             =34,
-
+    ERROR_INVALID_SUPPLY_TYPE           =35,        // Added by H.M.Wang 2026-6-5
+    ERROR_PH_STATE_INVALID              =36         // Added by H.M.Wang 2026-6-5
 }Key_Pairing_Status_t;
 
 

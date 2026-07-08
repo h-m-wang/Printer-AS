@@ -37,9 +37,9 @@ JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enab
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg);
-JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int type);
-JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_UpdatePDFW(JNIEnv *env, jclass arg, jstring path);
+JNIEXPORT jint JNICALL Java_com_UpdateFPGAFlash(JNIEnv *env, jclass arg, int type, jstring path);
+JNIEXPORT jint JNICALL Java_com_UpdateIDSFW(JNIEnv *env, jclass arg, jstring path);
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
 JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex, jint temp);
 // End of H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容
@@ -63,6 +63,14 @@ JNIEXPORT jint JNICALL Java_com_enableLogOutput(JNIEnv *env, jclass arg, jint ou
 JNIEXPORT jint JNICALL Java_com_test100msInterval(JNIEnv *env, jclass arg, jint start);
 JNIEXPORT jintArray JNICALL Java_com_getErrorCounts(JNIEnv *env, jclass arg);
 JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg);
+// H.M.Wang 2026-6-30 增加L2-L5的编程功能
+JNIEXPORT jstring JNICALL Java_com_ReadPDProgramingFields(JNIEnv *env, jclass arg);
+JNIEXPORT jstring JNICALL Java_com_ReadIDSProgramingFields(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_WritePDProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev);
+JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev);
+JNIEXPORT jint JNICALL Java_com_LockPDProgramingFields(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_LockIDSProgramingFields(JNIEnv *env, jclass arg);
+// End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
 
 #ifdef __cplusplus
 }
