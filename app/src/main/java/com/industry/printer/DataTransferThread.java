@@ -3946,7 +3946,7 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
 //						DataRatio = (mPrintBuffer.length * 2 - 1) / (16 * 1024);
 // End of 2020-7-21 为修改计算等待时间添加倍率变量（新公式为：N=(打印缓冲区字节数-1）/16K；时长=3/(2N+4)
-						mHandler.sendEmptyMessageDelayed(MESSAGE_DATA_UPDATE, MESSAGE_EXCEED_TIMEOUT);
+// H.M.Wang 2026-7-10 取消1分钟后的自动更新，因为需要自动更新的内容已经通过mDataTask.get(index()).contentChanged()实现了						mHandler.sendEmptyMessageDelayed(MESSAGE_DATA_UPDATE, MESSAGE_EXCEED_TIMEOUT);
 						mNeedUpdate = false;
 // 2020-6-30 网络快速打印时第一次收到网络数据后下发
 // H.M.Wang 2020-7-9 追加计数器重置标识

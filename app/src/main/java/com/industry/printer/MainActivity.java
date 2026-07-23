@@ -830,6 +830,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 	public static final int NET_DISCONNECTED = 4;
 
 	private boolean mNeedAlarm = false;
+	private Boolean mConnected = false;
 
 	/** 低亮度模式 */
 	public static final int ENTER_LOWLIGHT_MODE = 5;
@@ -903,10 +904,12 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 				break;
 				
 			case NET_CONNECTED:
-				IP_address.setText(getLocalIpAddress());
+				if(!mConnected) IP_address.setText(getLocalIpAddress());
+				mConnected = true;
 				break;
 			case NET_DISCONNECTED:
-				IP_address.setText("");
+				if(mConnected) IP_address.setText("");
+				mConnected = false;
 				if(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_5) {
 					if(mNeedAlarm && !Server1MainWindow.getInstance(mContext).isShowing()) {
 						ToastUtil.show(MainActivity.this, "Wifi Disconnected!");
@@ -1696,15 +1699,15 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		            NetworkInterface ni = (NetworkInterface) nis.nextElement();
 		            Enumeration<InetAddress> ias = ni.getInetAddresses();  
 		            while (ias.hasMoreElements()) {  
-		                ia = ias.nextElement(); 
-//		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
+		                ia = ias.nextElement();
+		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
 		                if (ia instanceof Inet6Address) {  
 		                    continue;// skip ipv6  
 		                }  
 		                String ip = ia.getHostAddress();  
 		                if (!"127.0.0.1".equals(ip)) {  
 		                    hostIp = ia.getHostAddress();  
-		                    break;  
+//		                    break;
 		                }  
 		            }  
 		        }  

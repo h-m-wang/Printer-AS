@@ -47,8 +47,18 @@ import com.industry.printer.hardware.RFIDManager;
 import com.industry.printer.hardware.SmartCard;
 import com.industry.printer.hardware.SmartCardManager;
 import com.industry.printer.object.BarcodeObject;
+import com.industry.printer.pccommand.PCCommandHandler;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class TestMain {
@@ -79,6 +89,12 @@ public class TestMain {
 // H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
         R.string.str_m9_test_9555A,
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+// H.M.Wang 2026-7-8 追加一个持续读写U盘文件的测试项目
+        R.string.str_read_write_test,
+// End of H.M.Wang 2026-7-8 追加一个持续读写U盘文件的测试项目
+// H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
+        R.string.str_wifi_recv_test,
+// End of H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
 };
 // H.M.Wang 2023-10-8 临时添加一个保存1000次的强度试验，暂时放在这里，待以后再次确定
 
@@ -376,6 +392,96 @@ public class TestMain {
                     return;
                 }
 // End of H.M.Wang 2024-10-28 增加9555A的读写试验，速录在100k和200k，每次读写500次，读写结果输出log。切换速录需要切换img
+// H.M.Wang 2026-7-8 追加一个持续读写U盘文件的测试项目
+                else if(i == 9) {
+                    final ArrayList<String> usbs = ConfigPath.getMountedUsb();
+                    if (usbs.size() <= 0) {
+                        ToastUtil.show(mContext, R.string.toast_plug_usb);
+                        return;
+                    }
+
+                    final AlertDialog dlg = new AlertDialog.Builder(mContext)
+                            .setPositiveButton(R.string.str_quit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mSaving = false;
+                                }
+                            })
+                            .setMessage("")
+                            .create();
+                    dlg.show();
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final String cnt = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+                            int errCnt = 0;
+                            mSaveTestCnt = 0;
+                            mSaving = true;
+
+                            while (mSaving && !mQuit) {
+                                try {
+                                    mSaveTestCnt++;
+                                    File fd = new File(usbs.get(0) + "/wrtest.txt");
+                                    if (!fd.exists()) fd.createNewFile();
+                                    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fd), Charset.forName("UTF-8")));
+                                    FileOutputStream out = new FileOutputStream(fd, false);
+                                    out.write(cnt.getBytes(Charset.forName("UTF-8")));
+                                    out.flush();
+                                    String rcnt = in.readLine();
+                                    if (!rcnt.equals(cnt)) {
+                                        errCnt++;
+                                    }
+                                    in.close();
+                                    out.close();
+                                } catch (final IOException e) {
+                                    errCnt++;
+                                }
+                                final int f_errCnt = errCnt;
+                                mMainMenuLV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dlg.setMessage("Read/Write  " + mSaveTestCnt + "  times.\n" + f_errCnt + " errors occurred.");
+                                    }
+                                });
+                                try {Thread.sleep(100);} catch (Exception e) {}
+                            }
+                            dlg.dismiss();
+                        }
+                    }).start();
+                    return;
+                }
+// End of H.M.Wang 2026-7-8 追加一个持续读写U盘文件的测试项目
+// H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
+                else if(i == 10) {
+                    if(!PCCommandHandler.mTesting) {
+                        PCCommandHandler.launchReceiveTimeTest();
+                        ToastUtil.show(mContext, "Started");
+                    } else {
+                        PCCommandHandler.cancelReceiveTimeTest();
+                        StringBuilder sb = new StringBuilder();
+                        for(i=0; i<PCCommandHandler.mOccurredTime.size(); i++) {
+                            Date date = new Date(PCCommandHandler.mOccurredTime.get(i));
+                            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                            String formattedTime = sdf.format(date);
+                            sb.append(formattedTime + " " + PCCommandHandler.mOverTime.get(i) + "ms\n");
+                        }
+                        sb.append("Over/Total: " + PCCommandHandler.mMsgOverCount + " / " + PCCommandHandler.mMsgCount);
+                        Debug.d(TAG, sb.toString());
+                        final AlertDialog dlg = new AlertDialog.Builder(mContext)
+                                .setPositiveButton(R.string.str_quit, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mSaving = false;
+                                    }
+                                })
+                                .setMessage(sb.toString())
+                                .create();
+                        dlg.show();
+                    }
+                    return;
+                }
+// End of H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
 
                 mIFTestOp = new TestSub(mContext, i);
                 mIFTestOp.show(mClientAreaFL);

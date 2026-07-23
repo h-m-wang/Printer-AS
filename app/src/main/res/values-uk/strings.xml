@@ -611,6 +611,8 @@
 	<string name="str_test_main_al_printer">Принтер AL</string>
 	<string name="str_test_main_save_100">Зберегти Test001</string>
 	<string name="str_test_print_data_creation">Тест створення даних для друку</string>
+	<string name="str_read_write_test">Read Write Test</string>
+	<string name="str_wifi_recv_test">Wifi Receive Test</string>
 	<string name="str_test_main_m9_test">Тест M9</string>
 	<string name="str_m9_test_gpio">GPIO</string>
 	<string name="str_m9_test_clear_gpio">Очистити GPIO</string>

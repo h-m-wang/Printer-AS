@@ -241,6 +241,8 @@ public class FpgaGpioOperation {
             Debug.d(TAG, "===>wrong data type");
             return -1;
         }
+// H.M.Wang 2026-7-20 防止正在下发数据或者设置与升级FPGA冲突
+        synchronized (FpgaGpioOperation.class) {
 // H.M.Wang 2020-12-25 追加两个命令
         ioctl(fd, FPGA_CMD_DATAGENRE, dataGenre);   // 0:update; 1:new data
         Debug.d(TAG, "FPGA_CMD_DATAGENRE -> GENRE = " + dataGenre);
@@ -269,6 +271,8 @@ public class FpgaGpioOperation {
 
         // close(fd);
         return wlen;
+        }
+// End of H.M.Wang 2026-7-20 防止正在下发数据或者设置与升级FPGA冲突
     }
 
     public static int getPrintedCount() {
@@ -1068,9 +1072,13 @@ public class FpgaGpioOperation {
                 for(int i=0; i<cbuf.length; i++) {
                     cbuf[i] = (char)(((buffer[2*i+1] << 8) & 0xff00) + (buffer[2*i] & 0x00ff));
                 }
-                ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
-                ret = write(fd, cbuf, cbuf.length*2);
-                fis.close();
+// H.M.Wang 2026-7-20 防止正在下发数据或者设置与升级FPGA冲突
+                synchronized (FpgaGpioOperation.class) {
+                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+                    ret = write(fd, cbuf, cbuf.length * 2);
+                    fis.close();
+                }
+// End of H.M.Wang 2026-7-20 防止正在下发数据或者设置与升级FPGA冲突
             } catch (Exception e) {
                 Debug.d(TAG, ""+e.getMessage());
             }

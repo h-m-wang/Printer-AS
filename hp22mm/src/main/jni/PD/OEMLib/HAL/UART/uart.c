@@ -237,26 +237,26 @@ UartResult_t uart_init(int32_t instance) {
 
     UartHandle_t *handle = &uart_handle;
 
-    handle->fs = open(UART_DEVICE_NAME_A20, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
+    handle->fs = open(UART_DEVICE_NAME_A133, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
     if (handle->fs == -1) {
-        LOGE("uart_init() : Unable to open UART device : %s", UART_DEVICE_NAME_A20);
-        handle->fs = open(UART_DEVICE_NAME_A133, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
+        LOGE("uart_init() : Unable to open UART device : %s\n", UART_DEVICE_NAME_A133);
+        handle->fs = open(UART_DEVICE_NAME_A20, O_RDWR | O_NOCTTY | O_NONBLOCK/*| O_NDELAY*/);
         if (handle->fs == -1) {
-            LOGE("uart_init() : Unable to open UART device : %s", UART_DEVICE_NAME_A133);
+            LOGE("uart_init() : Unable to open UART device : %s\n", UART_DEVICE_NAME_A20);
             return UART_ERROR_NO_DEVICE;
         } else {
-            LOGI("uart_init() : UART device : %s opened as %d", UART_DEVICE_NAME_A133, handle->fs);
+            LOGI("uart_init() : UART device : %s opened as %d\n", UART_DEVICE_NAME_A20, handle->fs);
         }
     } else {
-        LOGI("uart_init() : UART device : %s opened as %d", UART_DEVICE_NAME_A20, handle->fs);
+        LOGI("uart_init() : UART device : %s opened as %d\n", UART_DEVICE_NAME_A133, handle->fs);
     }
 
     handle->switch_fd = open(UART_SWITCH_DEVICE_NAME, O_RDWR);
     if (handle->switch_fd == -1) {
-        LOGE("uart_init() : Unable to open device : %s", UART_SWITCH_DEVICE_NAME);
+        LOGE("uart_init() : Unable to open device : %s\n", UART_SWITCH_DEVICE_NAME);
         return UART_ERROR_NO_DEVICE;
     } else {
-        LOGI("uart_init() : Device : %s opened", UART_SWITCH_DEVICE_NAME);
+        LOGI("uart_init() : Device : %s opened\n", UART_SWITCH_DEVICE_NAME);
     }
 //    LOGI("Opened serial port [%s] as [%d]", UART_DEVICE_NAME, handle->fs);
 //    LOGI("Opened IDS/PD switcher [%s] as [%d]", UART_SWITCH_DEVICE_NAME, handle->switch_fd);
@@ -338,8 +338,23 @@ UartResult_t uart_select_mux(int32_t instance) {
 //    else                digitalWrite (UART_MUX_SEL_PIN, LOW);  /* Select PD  */
 //    LOGI("Enter %s", __FUNCTION__);
 
-    if(instance == 2)   ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 1)); /* Select IDS */
-    else                ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 0));  /* Select PD  */
+    int retry = 0;
+    if(instance == 2) {
+        do {
+            ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 1)); /* Select IDS */
+            retry++;
+            usleep(1000);  //1ms delay
+        } while(ioctl(uart_handle.switch_fd, 0x0E, makeGpioValue('E', 4, 0)) == 0x00 && retry <= 3);
+//        LOGE("Tried switching PE4 to high %d times", retry);
+    } else {
+        do {
+            ioctl(uart_handle.switch_fd, 0x0D, makeGpioValue('E', 4, 0));  /* Select PD  */
+            retry++;
+            usleep(1000);  //1ms delay
+        } while(ioctl(uart_handle.switch_fd, 0x0E, makeGpioValue('E', 4, 1)) != 0x00 && retry <= 3);
+//        LOGE("Tried switching PE4 to low %d times", retry);
+    }
+
     return UART_OK;
 }
 
@@ -491,6 +506,7 @@ UartResult_t uart_recv( int32_t         instance,
     fd_set          rfds;
     struct timeval  tv;
     int             retval;
+    int             retry_count = 0;        // H.M.Wang 2026-7-10 增加出现超时时重复尝试3次
 
     *recvd_size = 0; /* Initalize received size to "0" */
 
@@ -537,8 +553,11 @@ UartResult_t uart_recv( int32_t         instance,
                 return UART_OK;
             }
         } else { /* = 0 */
-            LOGE("UART_ERROR_TIMEOUT!\n");
-            return UART_ERROR_TIMEOUT;
+            retry_count++;
+            if(retry_count >= 3) {
+                LOGE("UART_ERROR_TIMEOUT!\n");
+                return UART_ERROR_TIMEOUT;
+            }
         }
     }
 

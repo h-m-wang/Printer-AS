@@ -26,6 +26,7 @@ import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.data.PC_FIFO;
 import com.industry.printer.hardware.BarcodeScanParser;
+import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
@@ -41,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by hmwan on 2021/10/28.
@@ -99,7 +102,30 @@ public class PCCommandHandler {
                 while(mWorking) {
                     String cmd = mStreamTransport.readLine();
                     if(null != cmd) {       // 连接还在
-                        if(!cmd.isEmpty()) handle(cmd);
+                        if(!cmd.isEmpty()) {
+// H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
+                            if(mTesting) {
+                                if(mLastReceivedTime == 0) mLastReceivedTime = System.currentTimeMillis();
+                                long overTime = System.currentTimeMillis() - mLastReceivedTime;
+                                mLastReceivedTime = System.currentTimeMillis();
+                                if(overTime > 1800L) {
+                                    if(mOccurredTime.size() >= 100) mOccurredTime.remove(0);
+                                    mOccurredTime.add(System.currentTimeMillis());
+                                    if(mOverTime.size() >= 100) mOverTime.remove(0);
+                                    mOverTime.add(overTime);
+                                    mMsgOverCount++;
+                                    Debug.e(TAG, overTime + "=====Over=====" + mMsgOverCount);
+                                    try{
+                                        ExtGpio.playClick();
+                                    } catch (Exception e) {
+                                        Debug.e(TAG, e.getMessage());
+                                    }
+                                }
+                            }
+                            mMsgCount++;
+// End of H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
+                            handle(cmd);
+                        }
                     } else {                // 连接已经关闭
                         mStreamTransport.close();
                         mWorking = false;
@@ -109,6 +135,28 @@ public class PCCommandHandler {
             }
         }.start();
     }
+
+// H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
+    public static boolean mTesting = false;
+    public static int mMsgCount = 0;
+    public static int mMsgOverCount = 0;
+    public static long mLastReceivedTime = 0;
+    public static ArrayList<Long> mOccurredTime = new ArrayList<>();
+    public static ArrayList<Long> mOverTime = new ArrayList<>();
+
+    public static void launchReceiveTimeTest() {
+        mOccurredTime.clear();
+        mOverTime.clear();
+        mTesting = true;
+        mMsgCount = 0;
+        mMsgOverCount = 0;
+    }
+
+    public static void cancelReceiveTimeTest() {
+        mLastReceivedTime = 0;
+        mTesting = false;
+    }
+// End of H.M.Wang 2026-7-21 增加测试网络接收延时的的操作，前提假设是PC端每个小于200ms的时间间隔发送数据，测试apk接收到数据的间隔时间，如果大于200ms则记录一次
 
     public void close() {
         mStreamTransport.close();

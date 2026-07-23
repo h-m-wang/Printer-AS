@@ -49,8 +49,8 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
     private TextView mPen0_1;
     private TextView mPen0_0;
 
-    private final int IDS1_MASK       = 0x00000400;     // 2025-7-26 0x00000800 -> 0x00000400
-    private final int IDS0_MASK       = 0x00000800;     // 2025-7-26 0x00000400 -> 0x00000800
+    private final int IDS0_MASK       = 0x00000400;
+    private final int IDS1_MASK       = 0x00000800;
     private final int PEN1_MASK       = 0x00000200;
     private final int PEN0_MASK       = 0x00000100;
     private final int PEN1_SLOT7_MASK = 0x00000080;
@@ -72,7 +72,7 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
 // End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
         mContext = context;
         mHandler = handler;
-        mValue = value;
+        mValue = ((value | 0x400) & 0x7FF);
     }
 
     private void dispState(TextView v, int mask) {
@@ -110,9 +110,9 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
         lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         getWindow().setAttributes(lp);
 // End of H.M.Wang 2023-7-20 取消Theme，因为这样生成的对话窗会在显示的时候，屏幕亮度随系统的亮度立即调整，如系统的亮度设的偏暗，则屏幕会立即变暗，看起来很费劲
-
         mIDS1 = (TextView) findViewById(R.id.hp22mm_ids1_btn);
         dispState(mIDS1, IDS1_MASK);
+/* H.M.Wang 2026-7-14 取消IDS的可选操作，固定IDS1（文字显示是IDS2）
         mIDS1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,9 +120,10 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
                 dispState(mIDS1, IDS1_MASK);
             }
         });
-
+*/
         mIDS0 = (TextView) findViewById(R.id.hp22mm_ids0_btn);
         dispState(mIDS0, IDS0_MASK);
+/* H.M.Wang 2026-7-14 取消IDS的可选操作，固定IDS1（文字显示是IDS2）
         mIDS0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,7 +131,7 @@ public class Hp22mmNozzleSelectDialog extends RelightableDialog implements andro
                 dispState(mIDS0, IDS0_MASK);
             }
         });
-
+*/
         mPen1 = (TextView) findViewById(R.id.hp22mm_pen1_btn);
         dispState(mPen1, PEN1_MASK);
         mPen1.setOnClickListener(new View.OnClickListener() {

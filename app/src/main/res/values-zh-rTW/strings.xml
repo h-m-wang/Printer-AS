@@ -696,6 +696,8 @@
 	<string name="str_test_main_al_printer">AL大字機</string>
 	<string name="str_test_main_save_100">Save Test001</string>
 	<string name="str_test_print_data_creation">打印數據生成實驗</string>
+	<string name="str_read_write_test">U盤讀寫測試</string>
+	<string name="str_wifi_recv_test">網路接收延時測試</string>
 	<string name="str_test_main_m9_test">M9測試</string>
 	<string name="str_m9_test_gpio">測GPIO</string>
 	<string name="str_m9_test_clear_gpio">清GPIO</string>

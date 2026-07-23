@@ -162,6 +162,8 @@ public class Hp22mm {
         int idsIndex = 1;
         if(((nozzle_sel >> 10) & 0x03) == 0x01) idsIndex = 0;   // IDS0=1时无论IDS1为何值，IDSINDEX=0，其余IDSINDEX=1
 // End of H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
+        idsIndex = 0;               // H.M.Wang 2026-7-15 固定选择IDS1（内部IDS0）
+        Debug.d(TAG, "nozzle_sel = " + Integer.toHexString(nozzle_sel) + "; idsIndex = " + idsIndex + "\n");
 
         if(!mIDSInitialized) {
             if (0 != init_ids(idsIndex)) {
@@ -177,26 +179,6 @@ public class Hp22mm {
             } else {
                 Debug.d(TAG, "ids_get_supply_status succeeded\n");
             }
-if(!THIRD_PARTY_PROGRAMER) {
-// H.M.Wang 2024-11-10
-            if (0 != StartMonitor()) {
-                Debug.d(TAG, "StartMonitor failed\n");
-                return -7;
-            } else {
-                Debug.d(TAG, "StartMonitor succeeded\n");
-            }
-// End of H.M.Wang 2024-11-10
-
-// H.M.Wang 2024-11-10
-//        if (0 != Pressurize()) {
-            if (0 != Pressurize(true)) {
-// End of H.M.Wang 2024-11-10
-                Debug.d(TAG, "Pressurize failed\n");
-                return -8;
-            } else {
-                Debug.d(TAG, "Pressurize succeeded\n");
-            }
-}
             mIDSInitialized = true;
         }
 
@@ -285,6 +267,26 @@ if(!THIRD_PARTY_PROGRAMER) {
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+
+// H.M.Wang 2024-11-10
+        if (0 != StartMonitor()) {
+            Debug.d(TAG, "StartMonitor failed\n");
+            return -7;
+        } else {
+            Debug.d(TAG, "StartMonitor succeeded\n");
+        }
+// End of H.M.Wang 2024-11-10
+
+// H.M.Wang 2024-11-10
+//        if (0 != Pressurize()) {
+        if (0 != Pressurize(true)) {
+// End of H.M.Wang 2024-11-10
+            Debug.d(TAG, "Pressurize failed\n");
+            return -8;
+        } else {
+            Debug.d(TAG, "Pressurize succeeded\n");
+        }
+
 } else {
     if (0 != init_pd(0x01)) {
         Debug.d(TAG, "init_pd failed\n");

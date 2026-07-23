@@ -761,6 +761,8 @@
 	<string name="str_test_main_al_printer">Impresora AL</string>
 	<string name="str_test_main_save_100">Guardar prueba001</string>
 	<string name="str_test_print_data_creation">Print Data Creation Test</string>
+	<string name="str_read_write_test">Read Write Test</string>
+	<string name="str_wifi_recv_test">Wifi Receive Test</string>
 	<string name="str_test_main_m9_test">Prueba M9</string>
 	<string name="str_m9_test_gpio">GPIO</string>
 	<string name="str_m9_test_clear_gpio">Borrar GPIO</string>

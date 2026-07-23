@@ -35,7 +35,6 @@ public class Hp22mmSCManager implements IInkDevice {
 
     private Context mContext;
     private Handler mCallback;
-    private boolean mLibInited;
 
     // 暂时只支持1个打印头，将来如果支持多个打印头的话，需要对这里一系列的参数分头管理
 // H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
@@ -61,7 +60,6 @@ public class Hp22mmSCManager implements IInkDevice {
 // H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
     private boolean mInitialized;
 // End of H.M.Wang 2024-6-15 初始化成功的标识，用来阻止初始化完成前getLocalInkPercentage函数返回0，导致ControlTabActivity出现报警的问题
-
 // H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
     public static final int MSG_HP22MM_ERROR = 23;
 // End of H.M.Wang 2024-7-10 追加错误信息返回主控制页面的功能
@@ -81,10 +79,12 @@ public class Hp22mmSCManager implements IInkDevice {
 
     @Override
     public void init(Handler callback) {
+        Debug.d(TAG, "---> enter init()");
+
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-// H.M.Wang 2026-6-25 修改22mm的最大墨水量计算公式，取原计算结果的81%
+// H.M.Wang 2026-6-25 修改22mm的最大墨水量计算公式，取原计算结果的81%。 2026-7-13 修改为71%
 //        mMaxBagInkVolume = MAX_BAG_INK_VOLUME_MAXIMUM;
-        mMaxBagInkVolume = (int)(MAX_BAG_INK_VOLUME_MAXIMUM * 0.81f);
+        mMaxBagInkVolume = (int)(MAX_BAG_INK_VOLUME_MAXIMUM * 0.71f);
 // End of H.M.Wang 2026-6-25 修改22mm的最大墨水量计算公式，取原计算结果的81%
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
@@ -95,7 +95,6 @@ public class Hp22mmSCManager implements IInkDevice {
             mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f * 0.7f);      // 2026-7-3 在46355的基础上下调30%，46355×0.7＝32448.5
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         }
-        Debug.d(TAG, "mMaxBagInkVolume = " + mMaxBagInkVolume);
         switch(penArg) {
             case 0x01:
                 mHeads = new Hp22mmHead[] {
@@ -127,10 +126,12 @@ public class Hp22mmSCManager implements IInkDevice {
         new Thread(new Runnable() {
             @Override
             public void run() {
-// H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
-                RFIDDevice rf = RFIDDevice.getInstance();
-                rf.disableRfid();
-// End of H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
+// H.M.Wang 2026-7-13 取消该操作，因为RFIDDevice与uart都会访问ttyy7，所以对于RFID的访问会跑到IDS/PD的MCU，可能是导致超时的原因
+//// H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
+//                RFIDDevice rf = RFIDDevice.getInstance();
+//                rf.disableRfid();
+//// End of H.M.Wang 2025-6-19 当选择SC的时候，使rfid停止发射信号
+// End of H.M.Wang 2026-7-13 取消该操作，因为RFIDDevice与uart都会访问ttyy7，所以对于RFID的访问会跑到IDS/PD的MCU，可能是导致超时的原因
 // H.M.Wang 2026-5-25 虚拟打印模式，直接跳出，不进行实际的初始化和守护
                 if(VIRTUAL_PRINT_MODE) {
                     Debug.d(TAG, "VIRTUAL_PRINT_MODE");

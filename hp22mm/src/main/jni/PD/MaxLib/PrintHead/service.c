@@ -33,7 +33,7 @@ Made in U.S.A.
     #define POWER_OFF_RESPONSE_TIMEOUT   3000   /* 3 sec time out on Release build */
     #define CALIB_PULSE_WIDTH_RESPONSE_TIMEOUT   10000   /* 10 sec time out on Release build */
     #define PURGING_RESPONSE_TIMEOUT    90000   /* 90 sec timeout on release build */
-    #define PAIRING_RESPONSE_TIMEOUT    5000
+    #define PAIRING_RESPONSE_TIMEOUT    10000       // 5000
 #endif
 
 static int _response_timeout = DEFAULT_RESPONSE_TIMEOUT;
@@ -844,7 +844,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
     LOGD("Service Request : %d\n", frame->service);
 
 //    LOGD("UART_Send_buffer: [%s](%d)", toHexString(buf, data_size, ','), data_size);
-                            
+
     /* Send the command to uart */
     UartResult_t ur = UART_OK;
     ur = uart_send(instance, buf, data_size);
@@ -852,9 +852,9 @@ ServiceResult_t service_execute(Frame_t             *frame,
 		uart_unlock();	// @@@ UN-LOCK UART @@@
         return SERVICE_ERROR;
     }
-    
+
 //    LOGD("About to read the response header\n");
-    
+
     /* Read the response header */
     uint8_t resp_buf[MAX_FRAME_SIZE];
     size_t  recvd_size;
@@ -863,7 +863,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
 		uart_unlock();	// @@@ UN-LOCK UART @@@
         return SERVICE_ERROR;
     }
-    
+
 //    LOGD("UART_Resp_buffer: [%s](%d)", toHexString(resp_buf, recvd_size, ','), recvd_size);
 
     fr = frame_response_init(frame, resp_buf, recvd_size);
@@ -883,11 +883,11 @@ ServiceResult_t service_execute(Frame_t             *frame,
     size_t n=0;
     ur = uart_recv(instance, resp_buf+recvd_size, rsp_data_size+1, /* +1 for crc,(FW is not sending Line break now : +1 for line break)  */
                         &n, _get_response_timeout());
-                        
+
 //    LOGD("UART_Data_buffer: [%s](%d)", toHexString(resp_buf+recvd_size, n, ','), n);
 
     /* Deserialize the frame to structure */
-    fr = frame_response_init_data(frame, resp_buf+recvd_size, n); 
+    fr = frame_response_init_data(frame, resp_buf+recvd_size, n);
     if(fr != FRAME_OK) {
 		uart_unlock();	// @@@ UN-LOCK UART @@@
         return SERVICE_ERROR;
@@ -902,7 +902,7 @@ ServiceResult_t service_execute(Frame_t             *frame,
 		memcpy(rsp_buf, frame->data, frame->data_size);
 	}
     *rsp_size = frame->data_size;
-    
+
 	uart_unlock();	// @@@ UN-LOCK UART @@@
 
 //    LOGI("%s done", __FUNCTION__);

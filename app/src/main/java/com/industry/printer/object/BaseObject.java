@@ -3,6 +3,7 @@ package com.industry.printer.object;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import org.apache.http.util.ByteArrayBuffer;
 
@@ -1802,7 +1803,7 @@ OBJECT_TYPE_MsgName											031
 //		String format = "%0" + n + "d";
 //		return String.format(format, Math.round(f));
 		String format = "%." + n + "f";
-		return String.format(format, f);
+		return String.format(Locale.US, format, f);
 // End of H.M.Wang 2026-4-23 修改浮点数变换字符串，原来的算法不对
 	}
 /*

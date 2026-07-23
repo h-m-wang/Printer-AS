@@ -28,7 +28,22 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.210"
+#define VERSION_CODE                            "1.0.217"
+// 1.0.217 2026-7-15
+// monitorThread当中检测气压值的地方，修改为0.5个气压，否则会经常报警
+// 1.0.216 2026-7-15
+// service.c中的PAIRING_RESPONSE_TIMEOUT，5000 -> 10000
+// 1.0.215 2026-7-11
+// 取消1.0.214的超时时重复尝试1000次的功能，恢复原来的样式 相当于，恢复到1.0.211
+// 1.0.214 2026-7-11
+// 1.0.213最多尝试1000次
+// 1.0.213 2026-7-11
+// 取消1.0.212，在service.c的service_execute函数中，增加超时后，再次下发命令的尝试，最多尝试3次
+// 1.0.212 2026-7-11
+// 临时版本，当发生TIMEOUT时，循环等待，一直到TIMEOUT消失，不设重新尝试次数
+// 1.0.211 2026-7-10
+// 在uart.c的uart_recv函数中，增加出现超时错误时，重复尝试3次的功能
+// 在uart.c的uart_select_mux函数中，如果切换PE4不成功，尝试3次，每次尝试切换后等待10ms
 // 1.0.210 2026-6-30
 // 增加L2-L5的编程功能
 // 1.0.209 2026-6-26
@@ -702,7 +717,7 @@ void *monitorThread(void *arg) {
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
         RunningState[IDS_STATE] = STATE_VALID;
         if(Air_Pump_State == AIR_STATE_PUMPED) {
-            if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE) {
+            if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE * 0.5) {
 //            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
                 sprintf(ERR_STRING, "ERROR: Air press low\n");
                 LOGE("[Async]WARNING: Air press low. %f\n", ADCGetPressurePSI(sIdsIdx));
