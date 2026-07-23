@@ -1700,7 +1700,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		            Enumeration<InetAddress> ias = ni.getInetAddresses();  
 		            while (ias.hasMoreElements()) {  
 		                ia = ias.nextElement();
-		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
+//		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
 		                if (ia instanceof Inet6Address) {  
 		                    continue;// skip ipv6  
 		                }  
