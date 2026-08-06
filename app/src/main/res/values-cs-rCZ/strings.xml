@@ -69,6 +69,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Šířka</string>
 	<string name="strHigh">Výška</string>
+	<string name="strCursorStyle">Cur. Style</string>
 	<string name="strXcor">X-kor</string>
 	<string name="strYcor">Y-kor</string>
 	<string name="strCnt">Obsah</string>
@@ -627,6 +628,7 @@
 	<string name="str_build_tlk_ok">TLK Úspěšná výstavba</string>
 	<string name="str_build_tlk_fail">TLK Selhání konstrukce</string>
 	<string name="str_print_thread_create_err">Vytvoření úlohy se nezdařilo</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_not_found">1.TLK Nenalezeno</string>
 	<string name="password_title">Zadejte své heslo</string>
 	<string name="toast_save_success">" Úspěšně uloženo"</string>

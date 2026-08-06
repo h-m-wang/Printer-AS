@@ -88,6 +88,7 @@ Kaydet</string>
     <string name="str_goto">Git</string>
     <string name="strWidth">Genişlik</string>
     <string name="strHigh">Yükseklik</string>
+    <string name="strCursorStyle">Cur. Style</string>
     <string name="strHightype">Adım tipi</string>
     <string name="strReverse">Ters çevir</string>
     <string name="strRevert">Geri al</string>
@@ -525,6 +526,7 @@ Kaydet</string>
     <string name="str_build_tlk_fail">TLK inşaatı başarısız oldu</string>
     <string name="str_tlk_opening">tlk ayırma...</string>
     <string name="str_print_thread_create_err">İçki yaratması başarısız oldu...</string>
+    <string name="str_unsupported_headtype">Unsupported head type!!!</string>
     <string name="str_tlk_not_found">1. TLK bulamadı</string>
     <string name="password_title">Lütfen Şifre Girin</string>
     <string name="toast_save_success">Başarılı Kaydet</string>

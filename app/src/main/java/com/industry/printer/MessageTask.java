@@ -394,7 +394,8 @@ public class MessageTask {
 		}
 		return true;
 	}
-	
+
+	// H.M.Wang 2026-7-30 这个函数在生成Vbin的同时，取得变量的估算点数，参与到总点数的统计中，但是暂时对于动态文本没有办法统计（或者可以按着正常的保存vbin，只是这个vbin不会被使用到）
 	public void saveVarBin() {
 		if (mObjects == null || mObjects.size() <= 0) {
 			return;
@@ -433,7 +434,8 @@ public class MessageTask {
 			} else if (object instanceof BarcodeObject && object.getSource() == true) {
 				int dots[] = ((BarcodeObject) object).getDotcount();
 				MessageObject msg = getMsgObject();
-				if (msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ) {
+// H.M.Wang 2026-7-30 修改计算动态二维码参考计算点数的方法，原来的方法少了倍数不够，并且不全
+/*				if (msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ) {
 					dealDot(dots, 2);
 				} else if (msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL) {
 					dealDot(dots, 2 * 4);
@@ -446,7 +448,9 @@ public class MessageTask {
 
 				} else {
 					dealDot(dots, 0.5f);
-				}
+				}*/
+				dealDot(dots, msg.getPNozzle().getScaleH() * msg.getPNozzle().getScaleH());
+// End of H.M.Wang 2026-7-30 修改计算动态二维码参考计算点数的方法，原来的方法少了倍数不够，并且不全
 			}
 		}
 	}
@@ -495,7 +499,7 @@ public class MessageTask {
 				break;
 		}*/
 		for(int i=0; i<msgObj.getPNozzle().mHeads; i++) {
-			mDots[i] = dots / msgObj.getPNozzle().mHeads;
+			mDots[i] += dots / msgObj.getPNozzle().mHeads;
 		}
 // End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 	}

@@ -608,4 +608,11 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 		return 1.0f;
 	}
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法
+
+// H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
+	@Override
+	public boolean isInitialized(int dev) {
+		return !mInitializing;
+	}
+// End of H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
 }

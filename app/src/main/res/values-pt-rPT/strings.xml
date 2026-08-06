@@ -64,6 +64,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Largura</string>
 	<string name="strHigh">Altura</string>
+	<string name="strCursorStyle">Cur. Style</string>
 	<string name="strXcor">X-Cor</string>
 	<string name="strYcor">Y-Cor</string>
 	<string name="strCnt">Conteudo</string>
@@ -547,6 +548,7 @@
 	<string name="toast_save_success">" Salvo com sucesso"</string>
 	<string name="str_tlk_not_found">1.TLK está faltando</string>
 	<string name="str_print_thread_create_err">A criação de tarefas falhou</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_opening">" Resolvendo o TLK ..."</string>
     <string name="str_btn_cancel">Cancelar</string>
 <!-- H.M.Wang 2024-9-20 增加两个字符串 -->

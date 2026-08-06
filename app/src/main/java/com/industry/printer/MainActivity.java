@@ -1690,7 +1690,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		return bmp;
 	}
 	// locahost ip
-	public static String getLocalIpAddress() {  
+	public static String getLocalIpAddress() {
 			String hostIp = null;  
 		    try {  
 		        Enumeration nis = NetworkInterface.getNetworkInterfaces();  
@@ -1700,14 +1700,14 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 		            Enumeration<InetAddress> ias = ni.getInetAddresses();  
 		            while (ias.hasMoreElements()) {  
 		                ia = ias.nextElement();
+		                if (ia instanceof Inet6Address) {
+		                    continue;// skip ipv6
+		                }
 //		                Debug.d(TAG, "--->ipAddr: " + ia.getHostAddress());
-		                if (ia instanceof Inet6Address) {  
-		                    continue;// skip ipv6  
-		                }  
-		                String ip = ia.getHostAddress();  
+		                String ip = ia.getHostAddress();
 		                if (!"127.0.0.1".equals(ip)) {  
 		                    hostIp = ia.getHostAddress();  
-//		                    break;
+		                    break;
 		                }  
 		            }  
 		        }  

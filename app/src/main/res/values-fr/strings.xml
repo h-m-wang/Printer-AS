@@ -70,7 +70,8 @@
 	<!-- object info table -->
 	<string name="strWidth">Largeur</string>
 	<string name="strHigh">Hauteur</string>
-	<string name="strHightype">Stepwise</string>	
+	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strHightype">Stepwise</string>
 	<string name="strReverse">Inversion</string>
 	<string name="strRevert">Revert</string>
 	<string name="strXcor">X-Cor</string>
@@ -592,6 +593,7 @@
 	<string name="toast_save_success">Enregistré avec succès</string>
 	<string name="str_tlk_not_found">.TLK est manquant</string>
 	<string name="str_print_thread_create_err">La création de tâche a échoué</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_opening">Résolution de TLK ...</string>
     <string name="str_btn_cancel">Annuler</string>
 <!-- H.M.Wang 2024-9-20 增加两个字符串 -->

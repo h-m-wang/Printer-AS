@@ -87,7 +87,8 @@
 	<!-- object info table -->
 	<string name="strWidth">寬</string>
 	<string name="strHigh">字號</string>
-	<string name="strHightype">位置</string>	
+	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strHightype">位置</string>
 	<string name="strReverse">反向</string>
 	<string name="strRevert">反白</string>
 	<string name="strXcor">橫向位置</string>
@@ -661,6 +662,7 @@
 	<string name="str_build_tlk_fail">TLK構建失敗</string>
 	<string name="str_tlk_opening">解析TLK中...</string>
 	<string name="str_print_thread_create_err">任務創建失敗</string>
+	<string name="str_unsupported_headtype">不支持的打印頭類型!!!</string>
 	<string name="str_tlk_not_found">1.TLK缺失</string>
 	<string name="str_quit">退出</string>
 	<string name="str_quit_confirm">確定要退出嗎？</string>

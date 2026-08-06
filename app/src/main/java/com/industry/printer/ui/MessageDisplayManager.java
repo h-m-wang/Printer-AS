@@ -50,13 +50,18 @@ public class MessageDisplayManager implements View.OnTouchListener {
 
     private HashMap<BaseObject, ViewGroup> mImageMap;
 
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
+    private int mRate;
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
     public MessageDisplayManager(Context ctx, ViewGroup container, MessageTask task) {
         mContext = ctx;
         mContainer = container;
         mTask = task;
         mShadow = new ImageView(mContext);
-        
         mImageMap = new HashMap<BaseObject, ViewGroup>();
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
+        mRate = mContext.getResources().getInteger(R.integer.expand_rate);
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
 
         reset();
     }
@@ -191,8 +196,12 @@ public class MessageDisplayManager implements View.OnTouchListener {
         Debug.d(TAG, "--->showCursor: " + x + " ," + y);
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mCursor.getLayoutParams();
 
-        lp.topMargin = y - 15 > 0 ? y - 15 : 0;
-        lp.leftMargin = x - 15 > 0 ? x - 15 : 0;
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
+//        lp.topMargin = y - 15 > 0 ? y - 15 : 0;
+//        lp.leftMargin = x - 15 > 0 ? x - 15 : 0;
+        lp.topMargin = y*mRate - 15 > 0 ? y*mRate - 15 : 0;
+        lp.leftMargin = x*mRate - 15 > 0 ? x*mRate - 15 : 0;
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
         mCursor.setLayoutParams(lp);
         mCursor.setVisibility(View.VISIBLE);
     }
@@ -222,8 +231,12 @@ public class MessageDisplayManager implements View.OnTouchListener {
         }
     	
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.leftMargin = (int)object.getX();
-        lp.topMargin = (int) object.getY();
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
+//        lp.leftMargin = (int)object.getX();
+//        lp.topMargin = (int) object.getY();
+        lp.leftMargin = (int)object.getX() * mRate;
+        lp.topMargin = (int)object.getY() * mRate;
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
 
 
 //        ImageView image = new ImageView(mContext);
@@ -236,7 +249,12 @@ public class MessageDisplayManager implements View.OnTouchListener {
         ViewGroup vg = drawEach(object, bmp);
         /** width&height must be reseted after object bitmap drawed success */
 
-        lp.height = (int)object.getHeight();
+
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
+//        lp.height = (int)object.getHeight();
+        lp.height = (int)object.getHeight()*mRate;
+        lp.width = (int)object.getWidth()*mRate;
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
         mContainer.addView(vg, -1,lp);
         mImageMap.put(object, vg);
         vg.setTag(object);
@@ -330,10 +348,16 @@ public class MessageDisplayManager implements View.OnTouchListener {
     private void showSelectRect(int x, int y, int w, int h) {
     	// mContainer.removeView(mShadow);
     	RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mShadow.getLayoutParams();
-    	lp.width = w;
-    	lp.height = h;
-    	lp.leftMargin = x;
-    	lp.topMargin = y;
+// H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
+//    	lp.width = w;
+//    	lp.height = h;
+//    	lp.leftMargin = x;
+//    	lp.topMargin = y;
+        lp.width = w*mRate;
+        lp.height = h*mRate;
+        lp.leftMargin = x*mRate;
+        lp.topMargin = y*mRate;
+// End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，相应的调整显示位置和大小
     	// mContainer.addView(mShadow, 0, lp);
     	mShadow.setVisibility(View.VISIBLE);
     	mShadow.setLayoutParams(lp);

@@ -97,6 +97,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Szerokość</string>
 	<string name="strHigh">Rozmiar</string>
+	<string name="strCursorStyle">Cur. Style</string>
 	<string name="strHightype">Skokowo</string>
 	<string name="strReverse">Odwrócenie</string>
 	<string name="strRevert">Przywróć</string>
@@ -690,6 +691,7 @@
 	
 	<string name="str_tlk_opening">tlk parsing...</string>
 	<string name="str_print_thread_create_err">print thread creation failed...</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_not_found">1.Nie znaleziono TLK</string>
 
 	<string name="password_title">Wprowadź hasło</string>

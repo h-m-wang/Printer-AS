@@ -424,7 +424,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		/*test bin*/
 ///./...		Debug.d(TAG, "--->buffer = " + mBuffer.length);
 
-// H.M.Wang 2025-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
+// H.M.Wang 2026-8-3 取消该功能
+/*// H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
 		if (sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			CharArrayBuffer caBuf = new CharArrayBuffer(0);
 			caBuf.append(mBuffer, 0, mBuffer.length);
@@ -433,7 +434,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			caBuf.append(aaa, 0, aaa.length);
 			mBuffer = caBuf.toCharArray();
 		}
-// End of H.M.Wang 2025-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
+// End of H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变 */
+// End of H.M.Wang 2026-8-3 取消该功能
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
 		if (bSave) {
@@ -1912,12 +1914,13 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
         	if(sysconf.getParam(14) > 0) revert = 0x80; else revert = 0x00;// 单头倒置。0x80标识108mm打印头
-/* End of 2026-7-3 暂时恢复apk插值 */
+ End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 			Arrays.fill(mirrors, 0x00000000);
+			revert = 0x00;
 // End of H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM) {

@@ -88,6 +88,7 @@
 	<string name="strWidth">عرض</string>
 	<string name="strHigh">حجم</string>
 <!--	<string name="strRotation">تدوير</string>-->
+	<string name="strCursorStyle">Cur. Style</string>
 	<string name="strHightype">تدريج</string>
 	<string name="strReverse">معكوس</string>
 	<string name="strRevert">Revert</string>
@@ -636,6 +637,7 @@
 
 	<string name="str_tlk_opening">تحليل TLK...</string>
 	<string name="str_print_thread_create_err">فشل إنشاء موضوع الطباعة...</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_not_found">1.TLK غير موجود</string>
 
 	<string name="password_title">الرجاء إدخال كلمة المرور</string>

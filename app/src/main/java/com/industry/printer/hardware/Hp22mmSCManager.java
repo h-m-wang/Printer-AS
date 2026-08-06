@@ -135,6 +135,7 @@ public class Hp22mmSCManager implements IInkDevice {
 // H.M.Wang 2026-5-25 虚拟打印模式，直接跳出，不进行实际的初始化和守护
                 if(VIRTUAL_PRINT_MODE) {
                     Debug.d(TAG, "VIRTUAL_PRINT_MODE");
+                    mInitialized = true;
                     return;
                 }
 // End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
@@ -396,4 +397,11 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
         else
             return 0;       // 与IDS同号，实际没有意义。在画面中，IDS显示为B
     }
+
+// H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
+    @Override
+    public boolean isInitialized(int dev) {
+        return mInitialized;
+    }
+// End of H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
 }

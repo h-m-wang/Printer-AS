@@ -70,6 +70,7 @@
     <!-- object info table -->
     <string name="strWidth">Larghezza</string>
     <string name="strHigh">Altezza</string>
+    <string name="strCursorStyle">Cur. Style</string>
     <string name="strXcor">X-Cor</string>
     <string name="strYcor">Y-Cor</string>
     <string name="strCnt">Contenuto</string>
@@ -585,6 +586,7 @@
     <string name="toast_save_success">Salvato con successo</string>
     <string name="str_tlk_not_found">"1.TLK Assente "</string>
     <string name="str_print_thread_create_err">La creazione dell\'attività non è riuscita</string>
+    <string name="str_unsupported_headtype">Unsupported head type!!!</string>
     <string name="str_tlk_opening">Risoluzione di TLK ...</string>
     <string name="str_btn_cancel">annullato</string>
 <!-- H.M.Wang 2024-9-20 增加两个字符串 -->

@@ -1784,8 +1784,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		}
 
 		if(valid) {
-			mBtnStart.setClickable(true);
-			mTvStart.setTextColor(Color.BLACK);
+// H.M.Wang 2026-7-31 在初始化完成前禁止开始打印的操作
+//			mBtnStart.setClickable(true);
+//			mTvStart.setTextColor(Color.BLACK);
+			if(mInkManager.isInitialized(Math.min(heads, mInkValues.length)-1)) {
+				mBtnStart.setClickable(true);
+				mTvStart.setTextColor(Color.BLACK);
+			} else {
+				mBtnStart.setClickable(false);
+				mTvStart.setTextColor(Color.GRAY);
+			}
+// End of H.M.Wang 2026-7-31 在初始化完成前禁止开始打印的操作
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，增加该界面当中的特殊变量
 			if(Configs.UI_TYPE == Configs.UI_CUSTOMIZED0) {
 				mUpCntPrint.setClickable(true);
@@ -2475,6 +2484,22 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //						handleError(R.string.str_print_printing, pcMsg);
 						break;
 					}
+// H.M.Wang 2026-7-30 当img是22mm时，选择了22mm及108mm以外的打印头，或者img是22mm以外时，打印头选择了22mm或者108mm是报错，不能打印
+					if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
+						if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_22MM &&
+							mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_22MMX2 &&
+							mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+							handleError(R.string.str_unsupported_headtype, pcMsg);
+						}
+					} else {
+						if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MM ||
+							mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_22MMX2 ||
+							mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+							handleError(R.string.str_unsupported_headtype, pcMsg);
+						}
+					}
+// End of H.M.Wang 2026-7-30 当img是22mm时，选择了22mm及108mm以外的打印头，或者img是22mm以外时，打印头选择了22mm或者108mm是报错，不能打印
+
 // H.M.Wang 2025-11-21 比较本APK ink_ID 和锁  ink_ID ,是否相同，  不同就报错“墨水类型不匹配/Ink  model error"
 					heads = mSysconfig.getPNozzle().mHeads * mSysconfig.getHeadFactor();
 					for(int i=0; i<heads; i++) {
@@ -3117,7 +3142,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						break;
 					}
 					Debug.d(TAG, "-->child: [" + child.getWidth() + ", " + child.getHeight() + "]; view h: " + mllPreview.getHeight() + "]; orientation: " + mContext.getResources().getConfiguration().orientation);
-					Bitmap scaledChild = Bitmap.createScaledBitmap(child, (int) (cutWidth*scale), (int) (mPreBitmap.getHeight() * scale), true);
+					Bitmap scaledChild = Bitmap.createScaledBitmap(child, (int) (cutWidth*scale), (int) (mPreBitmap.getHeight()*scale), true);
 					//child.recycle();
 					//Debug.d(TAG, "--->scaledChild  width = " + child.getWidth() + " scale= " + scale);
 					x += cutWidth;

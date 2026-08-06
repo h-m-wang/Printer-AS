@@ -75,4 +75,7 @@ public interface IInkDevice {
     float getMaxRatio(int dev);
 // End of H.M.Wang 2023-12-3 修改锁值记录方法。增加一个mStep的传递方法。1207卡使用库函数计算的值（Max/1000)。其它的类型直接返回1
 
+// H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
+    boolean isInitialized(int dev);
+// End of H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
 }

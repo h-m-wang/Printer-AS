@@ -89,6 +89,7 @@
 	<string name="str_goto">перейти до</string>
 	<string name="strWidth">Ширина</string>
 	<string name="strHigh">Розмір</string>
+	<string name="strCursorStyle">Cur. Style</string>
 	<string name="strHightype">Покроковий</string>
 	<string name="strReverse">Інверсія</string>
 	<string name="strRevert">Відновити</string>
@@ -552,6 +553,7 @@
 	
 	<string name="str_tlk_opening">аналіз tlk...</string>
 	<string name="str_print_thread_create_err">помилка створення потоку друку...</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_not_found">1. TLK не знайдено</string>
 	
 	<string name="password_title">Будь ласка, введіть пароль</string>

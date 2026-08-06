@@ -1201,4 +1201,15 @@ public class SmartCardManager implements IInkDevice {
     public int getInkCount() {
         return mCards.length;
     }
+
+// H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
+    @Override
+    public boolean isInitialized(int dev) {
+        Debug.d(TAG, "---> enter isInitialized(" + dev + ")");
+        if(dev < mPenNum + mBagNum) {
+            return mCards[dev].mInitialized;
+        }
+        return false;
+    }
+// End of H.M.Wang 2026-7-31 追加判断是否初始化完成的判断函数，在初始化完成前禁止一些如点击开始打印的操作
 }

@@ -31,6 +31,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 // H.M.Wang 2023-11-28 追加RelightableDialog作为所有对话窗的父类，用来支持点按屏幕点亮屏幕
@@ -43,6 +45,7 @@ public class CalendarDialog extends RelightableDialog {
 	public Button mPositive;
 	public Button mNegative;
 	public Button mUpgrade;
+	public LinearLayout mProgressArea;
 	public DatePicker mDPicker;
 	public TimePicker mTPicker;
 	public EditText mYear;
@@ -132,6 +135,7 @@ public class CalendarDialog extends RelightableDialog {
 			}
 		});
 
+		mProgressArea = (LinearLayout) findViewById(id.upgrade_progress);
 		mUpgrade =  (Button) findViewById(id.btn_upgrade);
 		mUpgrade.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -140,50 +144,46 @@ public class CalendarDialog extends RelightableDialog {
 //				if (PlatformInfo.PRODUCT_SMFY_SUPER3.equals(PlatformInfo.getProduct())) {
 				if (PlatformInfo.isSmfyProduct() || PlatformInfo.isA133Product()) {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
-					boolean ret;
-
-					final LoadingDialog ld = LoadingDialog.show(CalendarDialog.super.getContext(), R.string.toast_plug_usb);
-
-					ret = false;
-					for(int i=0; i<100; i++) {
-						if(!StringUtil.isEmpty(ConfigPath.getUpgradePath())) {
-							ret = true;
-							break;
-						}
-						try { Thread.sleep(100); } catch (Exception e) {}
+					if(StringUtil.isEmpty(ConfigPath.getUpgradePath())) {
+						ToastUtil.show(CalendarDialog.super.getContext(), R.string.toast_plug_usb);
+						return;
 					}
 
-					if(ret) {
-						ld.setMessage(CalendarDialog.super.getContext().getString(R.string.str_upgrade_progress));
-
-						LibUpgrade libUp = new LibUpgrade();
-						ret = libUp.upgradeSOs(false);
-
-						PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
-						if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
-							ret |= installer.silentUpgrade3();
-						} else {
-							ret |= installer.silentUpgrade();
-						}
-
-						if(ret) {
-							mUpgrade.postDelayed(new Runnable() {
-								@Override
-								public void run() {
-									ld.cancel();
-									new AlertDialog.Builder(CalendarDialog.super.getContext()).setMessage(R.string.str_urge2restart).create().show();
-								}
-							}, 10*1000);
-							return;
-						}
+					if(PlatformInfo.isA133Product()) {
+						mProgressArea.setVisibility(View.VISIBLE);
 					}
-					mUpgrade.post(new Runnable() {
+					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							ld.cancel();
-							ToastUtil.show(CalendarDialog.super.getContext(), "Upgrading failed");
+							LibUpgrade libUp = new LibUpgrade();
+							boolean ret = libUp.upgradeSOs(false);
+
+							PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
+							if(WelcomeActivity.AVOID_CROSS_UPGRADE) {
+								ret |= installer.silentUpgrade3();
+							} else {
+								ret |= installer.silentUpgrade();
+							}
+
+							if(ret) {
+								mUpgrade.postDelayed(new Runnable() {
+									@Override
+									public void run() {
+										dismiss();
+										new AlertDialog.Builder(CalendarDialog.super.getContext()).setMessage(R.string.str_urge2restart).create().show();
+									}
+								}, 10*1000);
+								return;
+							}
+							mUpgrade.post(new Runnable() {
+								@Override
+								public void run() {
+									mProgressArea.setVisibility(View.GONE);
+									ToastUtil.show(CalendarDialog.super.getContext(), "Upgrading failed");
+								}
+							});
 						}
-					});
+					}).start();
 				}
 			}
 		});

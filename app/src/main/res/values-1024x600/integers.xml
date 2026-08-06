@@ -1,0 +1,4 @@
+<resources>
+    <!-- Rate for expansion display of edit window. -->
+    <integer name="expand_rate">2</integer>
+</resources>

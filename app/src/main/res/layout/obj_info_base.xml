@@ -182,7 +182,7 @@
 	<RelativeLayout 
         android:layout_width="match_parent"
     	android:layout_height="match_parent"
-    	android:layout_weight="1">        
+    	android:layout_weight="1">
 	    <TextView android:id="@+id/highEdit"
 	        android:layout_width="@dimen/settingsItemLength"
 	        android:layout_height="wrap_content"
@@ -215,45 +215,72 @@
 	        />
 	</RelativeLayout>
 
-<!--	H.M.Wang 暂时取消通过像素指定高度的设置项目
-	<RelativeLayout 
-        android:layout_width="match_parent"
-    	android:layout_height="match_parent"
-    	android:layout_marginTop="10dp"
-    	android:layout_weight="1">        
-	    <EditText 
-	        android:id="@+id/highEdit_o"
-	        android:layout_width="@dimen/settingsItemLength"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="150dp"
-	        android:gravity="center_vertical"
-	        android:textSize="@dimen/objinfoTextsize"
-	        android:textColor="#000000"
-	        android:background="#ffffff"/>
-	      
-	    <TextView 
-	        android:id="@+id/highView_o"
-	        android:layout_marginLeft="10dp"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignBaseline="@id/highEdit_o"
-	        android:textSize="30sp"
-	        android:text="@string/strHigh"
-	        android:textColor="#000000"/>
-	      
-	    <TextView
-	        android:id="@+id/highUnitView_o"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignBaseline="@id/highEdit_o"
-	        android:layout_toRightOf="@id/highEdit_o"
-	        android:layout_marginLeft="5dp"
-	        android:text="@string/cor_unit"
-	        android:textSize="30sp"
-	        android:textColor="#000000"
-	        />
+<!-- H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_marginTop="10dp"
+		android:layout_weight="1">
+		<EditText android:id="@+id/cursorStyleEdit"
+			android:layout_width="@dimen/settingsItemLength"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="150dp"
+			android:imeOptions="flagNoExtractUi|actionDone"
+			android:textSize="30sp"
+			android:gravity="top|left"
+			android:scrollHorizontally="false"
+			android:background="#ffffff"/>
+
+		<TextView android:id="@+id/cirsorStyleView"
+			android:layout_marginLeft="10dp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBaseline="@id/cursorStyleEdit"
+			android:textSize="30sp"
+			android:text="@string/strCursorStyle"
+			android:textColor="#000000"/>
 	</RelativeLayout>
--->
+<!-- H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
+
+	<!--	H.M.Wang 暂时取消通过像素指定高度的设置项目
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1">
+            <EditText
+                android:id="@+id/highEdit_o"
+                android:layout_width="@dimen/settingsItemLength"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="150dp"
+                android:gravity="center_vertical"
+                android:textSize="@dimen/objinfoTextsize"
+                android:textColor="#000000"
+                android:background="#ffffff"/>
+
+            <TextView
+                android:id="@+id/highView_o"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/highEdit_o"
+                android:textSize="30sp"
+                android:text="@string/strHigh"
+                android:textColor="#000000"/>
+
+            <TextView
+                android:id="@+id/highUnitView_o"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/highEdit_o"
+                android:layout_toRightOf="@id/highEdit_o"
+                android:layout_marginLeft="5dp"
+                android:text="@string/cor_unit"
+                android:textSize="30sp"
+                android:textColor="#000000"
+                />
+        </RelativeLayout>
+    -->
 	<RelativeLayout 
         android:layout_width="match_parent"
     	android:layout_height="match_parent"

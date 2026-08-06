@@ -5,6 +5,7 @@ import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.R;
 import com.industry.printer.R.id;
 import com.industry.printer.R.string;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.StringUtil;
 import com.industry.printer.Utils.ToastUtil;
@@ -79,6 +80,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	public TextView mWidthView;
 	public TextView mWidthUnit;
 	public TextView mHighView;
+// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+	public EditText mCursorStyleEdit;
+// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
 	public TextView mHighUnit;
 	public TextView mCntView;
 	public TextView mFontView;
@@ -425,7 +429,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		    mHighEdit = (TextView)findViewById(R.id.highEdit);
 //		    mHeight_O = (EditText) findViewById(R.id.highEdit_o);
 		    mHighEdit.setOnClickListener(this);
-			
+// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+			mCursorStyleEdit = (EditText)findViewById(R.id.cursorStyleEdit);
+// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+
 		    mXcorEdit = (EditText)findViewById(R.id.xCorEdit);
 		    mYcorEdit = (EditText)findViewById(R.id.yCorEdit);
 		    mContent = (EditText)findViewById(R.id.cntEdit);
@@ -793,6 +800,20 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 						mObject.setReverse(mReverse.isChecked());
 						Debug.d(TAG, "--->redraw: " + mObject.isNeedDraw());
 						//mObjRefreshHandler.sendEmptyMessage(0);
+
+// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+						String[] mn = mCursorStyleEdit.getText().toString().split("/");
+						if(mn.length == 2) {
+							int m = Integer.parseInt(mn[1]);
+							int n = Integer.parseInt(mn[0]);
+							if(n >= 1 && n <= m) {
+								mObject.setHeight(1.0f * Configs.gDots / m);
+								mObject.resizeByHeight();
+								mObject.setXRatio();
+								mObject.setY(1.0f * Configs.gDots / m * (n-1));
+							}
+						}
+// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
 					}catch(NumberFormatException e)
 					{
 						System.out.println("NumberFormatException 292");

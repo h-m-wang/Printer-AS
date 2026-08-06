@@ -84,7 +84,8 @@
 	<!-- object info table -->
 	<string name="strWidth">넓이</string>
 	<string name="strHigh">글자</string>
-	<string name="strHightype">위치</string>	
+	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strHightype">위치</string>
 	<string name="strReverse">반대로</string>
 	<string name="strRevert">Revert</string>
 	<string name="strXcor">가로위치</string>
@@ -672,6 +673,7 @@
 	<string name="str_build_tlk_fail">TLK구성실패</string>
 	<string name="str_tlk_opening">TLK해석중...</string>
 	<string name="str_print_thread_create_err">임무설정실패</string>
+	<string name="str_unsupported_headtype">Unsupported head type!!!</string>
 	<string name="str_tlk_not_found">1.TLK최실</string>
 
 	<string name="str_quit">퇴출</string>
