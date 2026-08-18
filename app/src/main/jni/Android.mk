@@ -7,6 +7,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)
 LOCAL_LDLIBS += -L$(SYSROOT)/usr/lib -llog
+LOCAL_LDLIBS += -ljnigraphics
 
 LOCAL_SRC_FILES := com_industry_printer_data_NativeGraphicJni.cpp
 

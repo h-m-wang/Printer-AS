@@ -98,7 +98,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Ancho</string>
 	<string name="strHigh">Tamaño</string>
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strHightype">Paso a paso</string>
 	<string name="strReverse">Inversión</string>
 	<string name="strRevert">Revertir</string>

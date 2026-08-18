@@ -1570,7 +1570,10 @@ OBJECT_TYPE_MsgName											031
 	public void setHeight(String size)
 	{
 		float height = mTask.getMsgObject().getPixels(size);
-		setHeight(height);
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//		setHeight(height);
+		if(height > 0.0f) setHeight(height);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 	}
 
 	public String getDisplayHeight() {

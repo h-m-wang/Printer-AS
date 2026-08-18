@@ -202,7 +202,13 @@ public class TestGpioPinsNew implements ITestOperation {
                     } if(msg.arg1 == TEST_SEC_SERIAL) {
                         mResSerial.setBackgroundColor(msg.arg2);
                     }
-                    if(msg.arg2 == Color.RED) ExtGpio.playClick();
+// H.M.Wang 2026-8-12 增加报错是显示错误信息
+//                    if(msg.arg2 == Color.RED) ExtGpio.playClick();
+                    if(msg.arg2 == Color.RED) {
+                        if(null != msg.obj) ToastUtil.show(mContext, (String)msg.obj);
+                        ExtGpio.playClick();
+                    }
+// End of H.M.Wang 2026-8-12 增加报错是显示错误信息
                     break;
                 case MSG_SHOW_FPGA_UPGRADING_PROGRESS:
                     mProgressMsg.setVisibility(View.VISIBLE);
@@ -275,8 +281,21 @@ public class TestGpioPinsNew implements ITestOperation {
         }
 // End of H.M.Wang 2025-7-14 A133的22mm机型无PI7的切换
         mHandler.obtainMessage(MSG_SHOW_FPGA_UPGRADING_PROGRESS).sendToTarget();
-        if (0 == FpgaGpioOperation.updateFlash()) {
+// H.M.Wang 2026-8-12 增加报错是显示错误信息
+//        if (0 == FpgaGpioOperation.updateFlash()) {
+//            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.GREEN).sendToTarget();
+        int ret = FpgaGpioOperation.updateFlash();
+        if (0 == ret) {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.GREEN).sendToTarget();
+        } else if (-1 == ret) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED, "Upgrading failed.").sendToTarget();
+        } else if (-2 == ret) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED, "Source file not exist or too many.").sendToTarget();
+        } else if (-3 == ret) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED, "Source bin or md5 not exists.").sendToTarget();
+        } else if (-3 == ret) {
+            mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED, "Source md5 not match.").sendToTarget();
+// End of H.M.Wang 2026-8-12 增加报错是显示错误信息
         } else {
             mHandler.obtainMessage(MSG_DISP_TEST_RESULT, TEST_SEC_WRITE_FPGA, Color.RED).sendToTarget();
         }

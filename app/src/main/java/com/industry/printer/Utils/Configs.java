@@ -282,6 +282,9 @@ UserGroup 使用方法说明
 	public static final String PREFIX_RTC_DS1307_KO = "RTC_";				//"rtc-ds1307.ko";
 	public static final String KOUPDATE_FOLDER = "KOupdate";
 	public static final String PREFIX_FW = "FW_";
+// H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
+	public static final String PREFIX_GW = "GW_";
+// End of H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
 	public static final String FWUPDATE_FOLDER = "FWupdate";
 // End of H.M.Wang 2024-1-3 追加ko的升级功能
 

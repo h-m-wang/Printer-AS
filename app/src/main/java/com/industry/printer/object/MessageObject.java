@@ -11,6 +11,7 @@ import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.hardware.FpgaGpioOperation;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 public class MessageObject extends BaseObject {
 	private static final String TAG = MessageObject.class.getSimpleName();
@@ -24,8 +25,11 @@ public class MessageObject extends BaseObject {
 // H.M.Wang 2021-4-11 修改该变量为整形
 
 	public PrinterNozzle mPNozzle;
-	
-	public static final int PIXELS_PER_MM = 12;		// 最好设置为 152 / 12.7 更加准确（11.96850393700787）
+
+// H.M.Wang 2026-8-7 暂时修改为152/12.7，这个更准确，但是是否有问题还得评估
+//	public static final int PIXELS_PER_MM = 12;		// 最好设置为 152 / 12.7 更加准确（11.96850393700787）
+	public static final float PIXELS_PER_MM = (152/12.7f);		// 最好设置为 152 / 12.7 更加准确（11.96850393700787）
+// End of H.M.Wang 2026-8-7 暂时修改为152/12.7，这个更准确，但是是否有问题还得评估
 	public static final float[] mBaseList = {0.25f/* H.M.Wang 2025-7-17 增加一个更小的高度，但是这个高度在生成条码时可能会因为高度不够而无法生成 */, 0.5f, 1, 1.5f, 2, 2.5f, 3, 3.5f, 4, 4.5f, 5, 5.5f, 6, 6.5f,
 											7, 7.5f, 8, 8.5f, 9, 9.5f, 10, 10.5f, 11, 11.5f, 12, 12.7f};
 	public static final float[] mBaseList_9mm = {1, 1.5f, 2, 2.5f, 3, 3.5f, 4, 4.5f, 5, 5.5f, 6, 6.5f,7, 7.5f, 8, 8.5f, 9};
@@ -694,48 +698,102 @@ public class MessageObject extends BaseObject {
 			mPNozzle == PrinterNozzle.MESSAGE_TYPE_E5X50 ||
 // End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型
 			mPNozzle == PrinterNozzle.MESSAGE_TYPE_E6X1) {
-			return h * 12.7f / 9;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h * 12.7f / 9;
+			return Math.min(12.7f, h * 12.7f / 9);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_12_7) {
-			return h;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h;
+			return Math.min(12.7f, h);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_25_4 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH) {
-			return h/2;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/2;
+			return Math.min(12.7f, h/2);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_38_1) {
-			return h/3;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/3;
+			return Math.min(12.7f, h/3);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_50_8 || mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL) {
-			return h/4;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/4;
+			return Math.min(12.7f, h/4);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 // H.M.Wang 追加下列4行
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE) {
-			return h/6;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/6;
+			return Math.min(12.7f, h/6);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR) {
-			return h/8;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/8;
+			return Math.min(12.7f, h/8);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 // H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X5) {
-			return h/5;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/5;
+			return Math.min(12.7f, h/5);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X6) {
-			return h/6;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/6;
+			return Math.min(12.7f, h/6);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X7) {
-			return h/7;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/7;
+			return Math.min(12.7f, h/7);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_127X8) {
-			return h/8;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/8;
+			return Math.min(12.7f, h/8);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX5) {
-			return h/10;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/10;
+			return Math.min(12.7f, h/10);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX6) {
-			return h/12;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/12;
+			return Math.min(12.7f, h/12);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX7) {
-			return h/14;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/14;
+			return Math.min(12.7f, h/14);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_1INCHX8) {
-			return h/16;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h/16;
+			return Math.min(12.7f, h/16);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 // End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
-			return h * 12.7f / 22;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h * 12.7f / 22;
+			return Math.min(12.7f, h * 12.7f / 22);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 // End of H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
-			return h * 12.7f / 44;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h * 12.7f / 44;
+			return Math.min(12.7f, h * 12.7f / 44);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
-			return h * 12.7f / 108;
+// H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
+//			return h * 12.7f / 108;
+			return Math.min(12.7f, h * 12.7f / 108);
+// End of H.M.Wang 226-8-6 由于hp头改为手动输入，因此可能会出现输入的大小<=0，此时忽略该值。可能大于最大值，则取最大值
 		} else if ( mPNozzle == PrinterNozzle.MESSAGE_TYPE_16_DOT )//addbylk 喷头类型
 		{
 // H.M.Wang 2020-1-23 追加"10x8", "12x9", "14x10"字体，高度不跟16x12走
@@ -1705,17 +1763,17 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2021-8-25 追加E5X48和E5X50头类型
 				mPNozzle == PrinterNozzle.MESSAGE_TYPE_E6X1) {
 				h = type * size/152*9;
-			}
+			} else
 
 // H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
 			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MM) {
 				h = type * size/152*22;
-			}
+			} else
 // End if H.M.Wang 2024-4-2 追加HP22MM喷头类型的字高输出值数组
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
 				h = type * size/152*44;
-			}
+			} else
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 // H.M.Wang 2025-1-19 增加22mmx2打印头类型
 			if (mPNozzle == PrinterNozzle.MESSAGE_TYPE_108MM) {
@@ -1724,7 +1782,8 @@ public class MessageObject extends BaseObject {
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		}
 
-		for (int i = 0; i < sizelist.length; i++) {
+// H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，由于是直接录入，所以就不再做标准值修正了
+/*		for (int i = 0; i < sizelist.length; i++) {
 // H.M.Wang 2026-5-7 修改判断条件，以前加减0.3的方法在数值较小的时候误差比较大，改为根据靠哪个近取那个值
 //			if ((h > type * sizelist[i] - 0.3) && (h < type * sizelist[i] + 0.3)) {
 //				h = sizelist[i] * type;
@@ -1740,14 +1799,12 @@ public class MessageObject extends BaseObject {
 				}
             }
 // End of H.M.Wang 2026-5-7 修改判断条件，以前加减0.3的方法在数值较小的时候误差比较大，改为根据靠哪个近取那个值
-		}
+		}*/
+// End of H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，由于是直接录入，所以就不再做标准值修正了
 
 // H.M.Wang 2019-9-29 保留小数点后1位
-//  H.M.Wang 2019-6-24 西班牙语时，通过String.format("%.1f", h)转换会把6.0转为6,0。强制转回来
-//		return String.format("%.1f", h);	// 似乎不需要这个转换
-//		Debug.d(TAG, "String.valueOf(h) = " + String.valueOf(h) + "; size=" + size + "; h=" + h);
-		return String.valueOf(h);
-//  End of H.M.Wang 2019-6-24 西班牙语时，通过String.format("%.1f", h)转换会把6.0转为6,0。强制转回来
+		return String.format(Locale.US, "%.1f", h);
+// End of H.M.Wang 2019-9-29 保留小数点后1位
 	}
 }
 

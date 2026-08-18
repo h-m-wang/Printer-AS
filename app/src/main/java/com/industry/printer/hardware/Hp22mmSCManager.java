@@ -29,7 +29,7 @@ public class Hp22mmSCManager implements IInkDevice {
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
 
 // H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
-    public static boolean VIRTUAL_PRINT_MODE = false;    // true: 启动虚拟打印；false: 关闭虚拟打印
+    public static boolean VIRTUAL_PRINT_MODE = true;    // true: 启动虚拟打印；false: 关闭虚拟打印
     public static int PrintCount = 1000;
 // End of H.M.Wang 2026-5-25 增加一个虚拟打印模式，当该模式开启以后，忽略硬件IDS，PD的初始化而可以直接开启打印，每次打印的print.bin均输出到存储，以便于从bin文件中确认打印内容，而不知实际输出到打印机硬件
 
@@ -175,6 +175,16 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
                                 } else {    // 其它错误
                                     errString = Hp22mm.getErrString();
                                     mCallback.obtainMessage(MSG_HP22MM_ERROR, 1, 0, errString).sendToTarget();
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+                                    if(errString.equals("UART_ERROR_TIMEOUT")) {
+                                        Hp22mm.gUartErrorTimeout = true;
+                                        FpgaGpioOperation.updateSettings(mContext, null, FpgaGpioOperation.SETTING_TYPE_NORMAL);
+                                        try {Thread.sleep(2500);} catch (Exception e) {}
+                                        Hp22mm.gUartErrorTimeout = false;
+                                        FpgaGpioOperation.updateSettings(mContext, null, FpgaGpioOperation.SETTING_TYPE_NORMAL);
+                                        try {Thread.sleep(5000);} catch (Exception e) {}
+                                    }
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
                                 }
                                 ExportLog2Usb.writeHp22mmErrLog(errString + "\r\n");
 

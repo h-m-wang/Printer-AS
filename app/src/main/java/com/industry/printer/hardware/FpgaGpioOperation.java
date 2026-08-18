@@ -123,6 +123,9 @@ public class FpgaGpioOperation {
 // H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
     public static final int FPGA_STATE_HP22MM_TEST_PRINT = 0x07;
 // End of H.M.Wang 2024-3-24 追加一个从apk的测试页面启动22mm打印测试的功能
+// H.M.Wang 2026-8-12 增加GW_xxxxx文件升级, 从0x80000地址开始升级
+    public static final int FPGA_STATE_UPDATE_FLASH2 = 0x08;
+// End of H.M.Wang 2026-8-12 增加GW_xxxxx文件升级, 从0x80000地址开始升级
 
     public static final String FPGA_DRIVER_FILE = "/dev/fpga-gpio";
     public static int mFd = 0;
@@ -1041,8 +1044,8 @@ public class FpgaGpioOperation {
             try {
                 String path = ConfigPath.getFWUpgradePath();
                 if(StringUtil.isEmpty(path)) {
-                    Debug.e(TAG, "Source file not exist.");
-                    return -1;
+                    Debug.e(TAG, "Source file not exist or too many.");
+                    return -2;
                 }
 
                 File srcFWFile = new File(path.substring(0, path.lastIndexOf(".")) + ".bin");
@@ -1050,7 +1053,7 @@ public class FpgaGpioOperation {
 
                 if(!srcFWFile.exists() || !srcMD5File.exists()) {
                     Debug.e(TAG, "Source bin or md5 not exists.");
-                    return -1;
+                    return -3;
                 }
 
                 BufferedReader br = new BufferedReader(new FileReader(srcMD5File));
@@ -1062,7 +1065,7 @@ public class FpgaGpioOperation {
 
                 if(!srcMD5Read.equalsIgnoreCase(srcMD5Cal)) {
                     Debug.e(TAG, "Source md5 not match.");
-                    return -1;
+                    return -4;
                 }
 
                 FileInputStream fis = new FileInputStream(srcFWFile);
@@ -1074,7 +1077,14 @@ public class FpgaGpioOperation {
                 }
 // H.M.Wang 2026-7-20 防止正在下发数据或者设置与升级FPGA冲突
                 synchronized (FpgaGpioOperation.class) {
-                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+// H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
+//                    ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+                    if(srcFWFile.getName().startsWith(Configs.PREFIX_GW)) {
+                        ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH2);
+                    } else {
+                        ioctl(fd, FPGA_CMD_SETTING, FPGA_STATE_UPDATE_FLASH);
+                    }
+// End of H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
                     ret = write(fd, cbuf, cbuf.length * 2);
                     fis.close();
                 }

@@ -155,6 +155,9 @@ public class Hp22mm {
     private static boolean mIDSInitialized = false;
 
     public static boolean THIRD_PARTY_PROGRAMER = false;        // true:第三方墨盒墨袋编程专用apk; false:正常apk
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+    public static boolean gUartErrorTimeout = false;
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
 
     public static int initHp22mm(int nozzle_sel) {
 // H.M.Wang 2024-12-25 增加IDS和PEN的选择功能，不再使用代码中固定指定的IDS和PEN。暂时只支持IDS和PEN各选1个
@@ -400,6 +403,9 @@ if(!THIRD_PARTY_PROGRAMER) {
         regs[REG08_START_ADD_P0S0_EVEN] = (char)(0x1F & config.getParam(83));      // R8[4:0] = C84
         regs[REG09_START_ADD_P0S1_ODD] = (char)(0x1F & config.getParam(14));      // R9[0] = 0:不倒置；R9[0] = 1:倒置
 // End of H.M.Wang 2026-6-23 接续2025-5-9取消apk对108mm数据进行加工处理的修改，设置寄存器，由FPGA处理
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+        regs[REG10_START_ADD_P0S1_EVEN] = (char)(gUartErrorTimeout ? 1 : 0);      // 借用R10下发uart超时时的操作；超时R10 = 1，否则R10 = 0
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
         regs[REG11_START_ADD_P1S0_ODD] = 0; // 只有一个喷头为0
         if(nozzle == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
             regs[REG11_START_ADD_P1S0_ODD] = 1; // 两个喷头时为1

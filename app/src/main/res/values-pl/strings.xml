@@ -97,7 +97,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Szerokość</string>
 	<string name="strHigh">Rozmiar</string>
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strHightype">Skokowo</string>
 	<string name="strReverse">Odwrócenie</string>
 	<string name="strRevert">Przywróć</string>

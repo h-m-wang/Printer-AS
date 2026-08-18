@@ -37,6 +37,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
+ * Method:    Binarization
+ * Signature: (Ljava/lang/Object;III)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_BinarizeBmp
+        (JNIEnv *, jclass, jobject, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    GetDots
  * Signature: ()[I
  */

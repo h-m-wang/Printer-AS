@@ -47,12 +47,8 @@ import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.HttpUtils;
-import com.industry.printer.Utils.PlatformInfo;
-import com.industry.printer.Utils.SM2Cipher;
 import com.industry.printer.Utils.ToastUtil;
 import com.industry.printer.hardware.ExtGpio;
-import com.industry.printer.object.BaseObject;
-import com.industry.printer.ui.CustomerDialog.HeightSelectDialog;
 import com.industry.printer.ui.CustomerDialog.RelightableDialog;
 
 import org.bouncycastle.util.encoders.Hex;

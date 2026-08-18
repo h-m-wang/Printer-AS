@@ -28,7 +28,11 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.217"
+#define VERSION_CODE                            "1.0.219"
+// 1.0.219 2026-8-11
+// 将RunningState打印头在monitorThread的开始处设置为STATE_VALID，否则，由于增加了超时时PD重新上电的逻辑，之前的STATE_INVALID需要等到IDS加压完成才能够被更新
+// 1.0.218 2026-8-10
+// 当Uart发生超时的时候，借用getErrorString，向apk返回“UART_ERROR_TIMEOUT”字串，通知apk发生超时
 // 1.0.217 2026-7-15
 // monitorThread当中检测气压值的地方，修改为0.5个气压，否则会经常报警
 // 1.0.216 2026-7-15
@@ -713,9 +717,10 @@ void *monitorThread(void *arg) {
 
         pthread_mutex_lock(&mutex);
 //        LOGD("[Async] Air_Pump_State = %d, PD_Power_State = %d\n", Air_Pump_State, PD_Power_State);
-
         // 已经加压成功以后，监视压力变化，如果过低则重新开始加压
         RunningState[IDS_STATE] = STATE_VALID;
+        RunningState[PEN0_STATE] = STATE_VALID;
+        RunningState[PEN1_STATE] = STATE_VALID;
         if(Air_Pump_State == AIR_STATE_PUMPED) {
             if(ADCGetPressurePSI(sIdsIdx) < PRESSURE_OK_LINE * 0.5) {
 //            if (IDS_GPIO_ReadBit(sIdsIdx, GPIO_I_AIR_PRESS_LOW)) {
@@ -1121,12 +1126,23 @@ JNIEXPORT jint JNICALL Java_com_purge(JNIEnv *env, jclass arg, jint penIndex) {
 }
 // End of H.M.Wang 2024-11-13 追加22mm打印头purge功能
 
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+extern int gTimeoutStatus;
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+
 JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
     char err[1024];
-    sprintf(err, "%s%s", ERR_STRING1, ERR_STRING);
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+    if(gTimeoutStatus == 1) {
+        sprintf(err, "UART_ERROR_TIMEOUT");
+        gTimeoutStatus = 0;
+    } else {
+        sprintf(err, "%s%s", ERR_STRING1, ERR_STRING);
+        memset(ERR_STRING, 0x00, 1024);
+        memset(ERR_STRING1, 0x00, 1024);
+    }
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
     jstring jtemp = (*env)->NewStringUTF(env, err);
-    memset(ERR_STRING, 0x00, 1024);
-    memset(ERR_STRING1, 0x00, 1024);
     return jtemp;
 }
 

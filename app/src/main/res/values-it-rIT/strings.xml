@@ -70,7 +70,7 @@
     <!-- object info table -->
     <string name="strWidth">Larghezza</string>
     <string name="strHigh">Altezza</string>
-    <string name="strCursorStyle">Cur. Style</string>
+    <string name="strLinePosition">Line Pos</string>
     <string name="strXcor">X-Cor</string>
     <string name="strYcor">Y-Cor</string>
     <string name="strCnt">Contenuto</string>

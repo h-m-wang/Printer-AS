@@ -84,7 +84,7 @@
 	<!-- object info table -->
 	<string name="strWidth">넓이</string>
 	<string name="strHigh">글자</string>
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strHightype">위치</string>
 	<string name="strReverse">반대로</string>
 	<string name="strRevert">Revert</string>

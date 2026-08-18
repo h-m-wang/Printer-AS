@@ -424,8 +424,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		/*test bin*/
 ///./...		Debug.d(TAG, "--->buffer = " + mBuffer.length);
 
-// H.M.Wang 2026-8-3 取消该功能
-/*// H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
+// H.M.Wang 2026-8-3 取消该功能 (2026-7-3 暂时恢复apk插值的原因暂时恢复)
+// H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
 		if (sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			CharArrayBuffer caBuf = new CharArrayBuffer(0);
 			caBuf.append(mBuffer, 0, mBuffer.length);
@@ -434,8 +434,8 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			caBuf.append(aaa, 0, aaa.length);
 			mBuffer = caBuf.toCharArray();
 		}
-// End of H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变 */
-// End of H.M.Wang 2026-8-3 取消该功能
+// End of H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
+// End of H.M.Wang 2026-8-3 取消该功能 (2026-7-3 暂时恢复apk插值的原因暂时恢复)
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
 		if (bSave) {
@@ -453,6 +453,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2026-5-28 恢复原来保存print.bin的逻辑，修改为保存到u盘的根目录下，print<1000+>.bin
 
 // H.M.Wang 2020-4-18 追加12.7R5头
+
 // H.M.Wang 2020-5-9 12.7R5d打印头类型不参与信息编辑，因此不通过信息的打印头类型判断其是否为12.7R5的信息，而是通过参数来规定现有信息的打印行为
 //        SystemConfigFile sysconf = SystemConfigFile.getInstance(mContext);
 //		Debug.d(TAG, "Params = " + sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE));
@@ -1359,10 +1360,10 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // 2019-12-17 H.M.Wang 彻底取消原来的事先保存与Object对应的BinInfo的做法，因为修改为通过useSerialContent()来判断是何种打印方式的话，每次都有可能发生变化
 				// H.M.Wang 2019-10-27 修改。适应从串口来的打印数据
 				// End ------------------------------------------
-//				BinInfo info = mVarBinList.get(o);
-				BinInfo info = null;
+				BinInfo info = mVarBinList.get(o);
+//				BinInfo info = null;
 ///./...				Debug.d(TAG, "--->object index=" + o.getIndex());
-//				if (info == null) {
+				if (info == null) {
 				// H.M.Wang 2019-12-19 追加多种协议支持
 				// H.M.Wang 2019-12-5 为对应串口打印时，vbin的元素个数不是传统计数器的10位，而是128位，做了区分
 /*					if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN ||
@@ -1376,15 +1377,11 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						var = info.getVarBuffer(((CounterObject) o).getRemoteContent(), true, false);
 					} else {*/
 						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
-// H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
-//				var = info.getVarBuffer(prev? ((CounterObject) o).getContent() : ((CounterObject) o).getNext(), true, false);
-						var = info.getVarBuffer(o.getContent(), true, false);
-// End of H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
 /*					}*/
 //					info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
 					// End. 2019-12-5 -----------
-//					mVarBinList.put(o, info);
-//				}
+					mVarBinList.put(o, info);
+				}
 
 				// H.M.Wang 2019-12-4 修改变量缓冲区获取方式，如果是串口，则按ASCII进行索引，如果是普通变量则按原来处理方式处理
 				// 2019-12-17 H.M.Wang 追加对使用的数据源区分
@@ -1395,6 +1392,11 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //					var = info.getVarBuffer(prev? ((CounterObject) o).getContent() : ((CounterObject) o).getNext(), true, false);
 //				}
 				// End. .......................H.M.Wang 2019-12-4
+
+// H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
+//				var = info.getVarBuffer(prev? ((CounterObject) o).getContent() : ((CounterObject) o).getNext(), true, false);
+				var = info.getVarBuffer(o.getContent(), true, false);
+// End of H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
 
 //				BinCreater.saveBin("/sdcard/" + o.getIndex() + ".bin", var, info.getCharsPerHFeed()*16);
 
@@ -1914,13 +1916,13 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值
+/* 2026-7-3 暂时恢复apk插值 */
         	if(sysconf.getParam(14) > 0) revert = 0x80; else revert = 0x00;// 单头倒置。0x80标识108mm打印头
- End of 2026-7-3 暂时恢复apk插值 */
+/* End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 			Arrays.fill(mirrors, 0x00000000);
-			revert = 0x00;
+// 2026-7-3 暂时恢复apk插值			revert = 0x00;
 // End of H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM) {

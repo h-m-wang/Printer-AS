@@ -81,6 +81,10 @@ typedef struct
 
 //static UartHandle_t uart_handle[NUM_BLUR_INSTANCES];
 
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+int gTimeoutStatus = 0;
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+
 static UartHandle_t uart_handle;
 static bool         is_lib_initialized = false;
 static bool         is_uart_initialized = false;
@@ -556,6 +560,9 @@ UartResult_t uart_recv( int32_t         instance,
             retry_count++;
             if(retry_count >= 3) {
                 LOGE("UART_ERROR_TIMEOUT!\n");
+// H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
+                gTimeoutStatus = 1;
+// End of H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
                 return UART_ERROR_TIMEOUT;
             }
         }

@@ -34,6 +34,7 @@ import com.industry.printer.ui.CustomerDialog.CustomerDialogBase.OnPositiveListe
 import com.industry.printer.ui.Items.PictureItem;
 import com.industry.printer.widget.PopWindowSpiner;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
@@ -80,9 +81,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	public TextView mWidthView;
 	public TextView mWidthUnit;
 	public TextView mHighView;
-// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
-	public EditText mCursorStyleEdit;
-// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+// H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+	public EditText mLinePosEdit;
+// End of H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
 	public TextView mHighUnit;
 	public TextView mCntView;
 	public TextView mFontView;
@@ -96,7 +97,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	
 	
 	public EditText mWidthEdit;
-	public TextView mHighEdit;
+// H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
+//	public TextView mHighEdit;
+	public EditText mHighEdit;
+// End of H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
 	public EditText mXcorEdit;
 	public EditText mYcorEdit;
 	public EditText mContent;
@@ -179,7 +183,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	private PopWindowAdapter mTypeAdapter;
 	private PopWindowAdapter mLineAdapter;
 	private PopWindowAdapter mDirAdapter;
-	private PopWindowAdapter mHeightAdapter;
+// H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
+//	private PopWindowAdapter mHeightAdapter;
+// End of H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
 	private PopWindowAdapter mBarFormatAdapter;
 // H.M.Wang 2024-10-24 追加DM码的种类选择
 	private PopWindowAdapter mDMTypeSpinner;
@@ -426,12 +432,17 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 	 	if (! (mObject instanceof MessageObject)) {
 		
 		    mWidthEdit = (EditText)findViewById(R.id.widthEdit);
-		    mHighEdit = (TextView)findViewById(R.id.highEdit);
+// H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
+//		    mHighEdit = (TextView)findViewById(R.id.highEdit);
+			mHighEdit = (EditText)findViewById(R.id.highEdit);
+// End of H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
 //		    mHeight_O = (EditText) findViewById(R.id.highEdit_o);
-		    mHighEdit.setOnClickListener(this);
-// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
-			mCursorStyleEdit = (EditText)findViewById(R.id.cursorStyleEdit);
-// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+// H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
+//		    mHighEdit.setOnClickListener(this);
+// End of H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
+// H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+			mLinePosEdit = (EditText)findViewById(R.id.cursorStyleEdit);
+// End of H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
 
 		    mXcorEdit = (EditText)findViewById(R.id.xCorEdit);
 		    mYcorEdit = (EditText)findViewById(R.id.yCorEdit);
@@ -801,8 +812,8 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 						Debug.d(TAG, "--->redraw: " + mObject.isNeedDraw());
 						//mObjRefreshHandler.sendEmptyMessage(0);
 
-// H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
-						String[] mn = mCursorStyleEdit.getText().toString().split("/");
+// H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+						String[] mn = mLinePosEdit.getText().toString().split("/");
 						if(mn.length == 2) {
 							int m = Integer.parseInt(mn[1]);
 							int n = Integer.parseInt(mn[0]);
@@ -813,7 +824,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 								mObject.setY(1.0f * Configs.gDots / m * (n-1));
 							}
 						}
-// End of H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
+// End of H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置
 					}catch(NumberFormatException e)
 					{
 						System.out.println("NumberFormatException 292");
@@ -861,6 +872,7 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		 return mObject;
 	 }
 
+	 @SuppressLint("ClickableViewAccessibility")
 	 private void fillObjInfo()
 	 {
 		 int i=0;
@@ -881,7 +893,8 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 				float ratio = mObject.getTask().getNozzle().getPhisicalRatio();
 				mXcorEdit.setText(String.valueOf(1.0f /100 * Math.round(mObject.getX()*2*ratio*100)));
 				mYcorEdit.setText(String.valueOf(1.0f /100 * Math.round(mObject.getY()*2*ratio*100)));
-				if(mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_12_7 ||
+// H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
+/*				if(mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_12_7 ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4 ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_38_1 ||
 					mObject.getTask().getNozzle() == PrinterNozzle.MESSAGE_TYPE_50_8 ||
@@ -923,7 +936,29 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					mXCorUnit.setText(string.dot_unit);
 					mYCorUnit.setText(string.dot_unit);
 					mHighUnit.setText(string.dot_unit);
+				}*/
+				if(mObject.getTask().getNozzle().isBigdotType()) {
+					mXCorUnit.setText(string.dot_unit);
+					mYCorUnit.setText(string.dot_unit);
+					mHighUnit.setText(string.dot_unit);
+					mHighEdit.setOnTouchListener(new OnTouchListener() {
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+							if (event.getAction() == MotionEvent.ACTION_UP) {
+								HeightSelectDialog d = new HeightSelectDialog(mContext, mHandler, mObject);
+								d.show();
+								return true; // 返回true表示事件已被消费，不会再传递给EditText
+							}
+							return false;
+						}
+					});
+				} else {
+					mXCorUnit.setText(string.font_unit);
+					mYCorUnit.setText(string.font_unit);
+					mHighUnit.setText(string.font_unit);
+					mHighEdit.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 				}
+// End of H.M. Wang 2026-8-6 修改该控件为EditText, hp头时直接录入，大字机的时候，显示对话窗选择
 
 //				mXcorEdit.setText(String.valueOf((int)mObject.getX()*2));
 //				mYcorEdit.setText(String.valueOf((int)mObject.getY()*2));
@@ -1160,7 +1195,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 		mTypeAdapter = new PopWindowAdapter(mContext, null);
 		mLineAdapter = new PopWindowAdapter(mContext, null);
 		// mDirAdapter = new PopWindowAdapter(mContext, null);
-		mHeightAdapter = new PopWindowAdapter(mContext, null);
+// H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
+//		mHeightAdapter = new PopWindowAdapter(mContext, null);
+// End of H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
 		mBarFormatAdapter = new PopWindowAdapter(mContext, null);
 // H.M.Wang 2024-10-24 追加DM码的种类选择
 		mDMTypeSpinner = new PopWindowAdapter(mContext, null);
@@ -1170,7 +1207,8 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 // End of H.M.Wang 2023-2-14 追加QR码的纠错级别
 
 		// String[] heights = mContext.getResources().getStringArray(R.array.strarrayFontSize);
-		if (mObject != null) {
+// H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
+/*		if (mObject != null) {
 //			Debug.d(TAG, "--->initAdapter: " + mObject);
 			MessageObject msg = mObject.getTask().getMsgObject();
 			String[] heights = msg.getDisplayFSList();
@@ -1178,8 +1216,8 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 //				Debug.d(TAG, "--->height: " + height);
 				mHeightAdapter.addItem(height);
 			}
-			
-		}
+		}*/
+// End of H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
 
 // H.M.Wang 2020-2-4 添加Shift控件的位数项目
          String[] shiftBits = mContext.getResources().getStringArray(R.array.strShiftBitsArray);
@@ -1256,10 +1294,12 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 
 		switch (v.getId()) {
 		case R.id.highEdit:
-			// mSpiner.setAdapter(mHeightAdapter);
+// H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
+/*			// mSpiner.setAdapter(mHeightAdapter);
 			// mSpiner.showAsDropUp(v);
 			HeightSelectDialog d = new HeightSelectDialog(mContext, mHandler, mObject);
-			d.show();
+			d.show();*/
+// End of H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
 			break;
 		case R.id.headTypeSpin:
 			mSpiner.setAdapter(mTypeAdapter);
@@ -1381,9 +1421,11 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 			view.setText((String)mLineAdapter.getItem(index));
 		} else if (view == mDir) {
 			view.setText((String)mDirAdapter.getItem(index));
-		} else if (view == mHighEdit) {
+// H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
+/*		} else if (view == mHighEdit) {
 			String height = (String)mHeightAdapter.getItem(index);
-			view.setText(height);
+			view.setText(height);*/
+// End of H.M.Wang 2026-8-6 补齐当初从Spin选择修改为对话窗中选择时未清理的代码
 		} else if (view == mCode) {
 			view.setText((String)mBarFormatAdapter.getItem(index));
 // H.M.Wang 2020-2-25 追加ITF_14边框有无的设置

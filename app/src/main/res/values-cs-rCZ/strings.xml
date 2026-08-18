@@ -69,7 +69,7 @@
 	<!-- object info table -->
 	<string name="strWidth">Šířka</string>
 	<string name="strHigh">Výška</string>
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strXcor">X-kor</string>
 	<string name="strYcor">Y-kor</string>
 	<string name="strCnt">Obsah</string>

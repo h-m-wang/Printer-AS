@@ -157,7 +157,7 @@ public class BinInfo {
 	
 	public BinInfo(Context ctx, Bitmap bmp, int type, ExtendStat extend) {
 // H.M.Wang 2022-4-1 追加mType的参数设置，该参数从函数的参数中传递，否则，生成多头数据会出现乱码
-		if (type <=0 || type > 4) {
+		if (type <=0 || type > 8) {
 			mType = 1;
 		} else {
 			mType = type;
@@ -459,7 +459,7 @@ public class BinInfo {
 			blank[i] = 0;
 		}
 		boolean bFillBlank = false;
-		boolean bSkipThisZero = false;
+		boolean bIsLeadingZero = true;		// 是0 并且是前置零
 		boolean bClearZero = false;
 		SystemConfigFile mConfigFile = SystemConfigFile.getInstance();
 		if(null != mConfigFile && mConfigFile.getParam(SystemConfigFile.INDEX_CLEAR_ZERO) == 1) {
@@ -481,34 +481,19 @@ public class BinInfo {
 			} else {
 				try {
 					n = Integer.parseInt(v);
+					if(n != 0 || !bIsLeadingZero) bIsLeadingZero = false;	// 如果数值不是0，或者即使是0但已经不是前置零了的话，仍然保持不是前置零的状态
+					if(i == var.length() - 1) bIsLeadingZero = false;		// 最后一位数字即使是0，也不按前置零处理
 
-					// H.M.Wang 追加下列6行。为计数器清除前置0
-					if (bClearZero && n == 0 && !bSkipThisZero && i < var.length() - 1 && flagClearZero) {
+					// 如果参数要求清除前置零，函数参数也要求清除前置零，并且是前置零，则填空值（即清除前置零）
+					if (bClearZero && flagClearZero && bIsLeadingZero) {
 						bFillBlank = true;
 					} else {
 						bFillBlank = false;
-						bSkipThisZero = true;
 					}
-
 				} catch (Exception e) {
-					n = (int) v.charAt(0) - (int) "A".charAt(0);
+					n = 10;			// 假设一个大于最大值的值
+					bFillBlank = true;		// 非数值，填空值跳过
 				}
-			}
-
-			// H.M.Wang2019-12-4 取消查表，改为直接用ASCII码访问
-			//for(int k=0; k<SERRIAL_CODES.length; k++) {
-			//	if(code[0] == SERRIAL_CODES[k]) {
-			//		n = k;
-			//		break;
-			//	}
-			//}
-
-			// H.M.Wang 追加下列6行。为计数器清楚前置0
-			if(bClearZero && n == 0 && !bSkipThisZero && i<var.length()-1 && flagClearZero) {
-				bFillBlank = true;
-			} else {
-				bFillBlank = false;
-				bSkipThisZero = true;
 			}
 
 			if (mBuffer == null || mBuffer.length < (n+1) * mColPerElement * mBytesPerColumn) {

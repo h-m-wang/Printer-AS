@@ -88,7 +88,7 @@ Kaydet</string>
     <string name="str_goto">Git</string>
     <string name="strWidth">Genişlik</string>
     <string name="strHigh">Yükseklik</string>
-    <string name="strCursorStyle">Cur. Style</string>
+    <string name="strLinePosition">Line Pos</string>
     <string name="strHightype">Adım tipi</string>
     <string name="strReverse">Ters çevir</string>
     <string name="strRevert">Geri al</string>

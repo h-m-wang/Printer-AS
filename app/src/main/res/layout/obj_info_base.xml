@@ -183,7 +183,9 @@
         android:layout_width="match_parent"
     	android:layout_height="match_parent"
     	android:layout_weight="1">
-	    <TextView android:id="@+id/highEdit"
+<!-- H.M. Wang 2026-8-6 修改该控件为EditText
+	    <TextView android:id="@+id/highEdit" -->
+	    <EditText android:id="@+id/highEdit"
 	        android:layout_width="@dimen/settingsItemLength"
 	        android:layout_height="wrap_content"
 	        android:layout_marginLeft="150dp"
@@ -192,8 +194,8 @@
 	        android:textSize="@dimen/objinfoTextsize"
 	        android:textColor="#000000"
 	        android:background="#ffffff"/>
-	      
-	    <TextView android:id="@+id/highView" 
+
+	    <TextView android:id="@+id/highView"
 	        android:layout_marginLeft="10dp"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -201,7 +203,7 @@
 	        android:textSize="30sp"
 	        android:text="@string/strHigh"
 	        android:textColor="#000000"/>
-	      
+
 	    <TextView
 	        android:id="@+id/highUnitView"
 	        android:layout_width="wrap_content"
@@ -215,7 +217,7 @@
 	        />
 	</RelativeLayout>
 
-<!-- H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
+<!-- H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -237,10 +239,10 @@
 			android:layout_height="wrap_content"
 			android:layout_alignBaseline="@id/cursorStyleEdit"
 			android:textSize="30sp"
-			android:text="@string/strCursorStyle"
+			android:text="@string/strLinePosition"
 			android:textColor="#000000"/>
 	</RelativeLayout>
-<!-- H.M.Wang 2026-8-5 增加一个Cur. Style的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
+<!-- H.M.Wang 2026-8-5 增加一个Line Pos的项目，达到的效果是 如果输入的是 n/m(n,m为纯数字)，则该控件的高设为全高的1/m, 纵向起始位置设为全高的 n/m 的位置 -->
 
 	<!--	H.M.Wang 暂时取消通过像素指定高度的设置项目
         <RelativeLayout

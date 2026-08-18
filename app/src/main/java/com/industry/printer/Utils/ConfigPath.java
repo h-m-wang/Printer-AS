@@ -216,11 +216,17 @@ public class ConfigPath {
 		String files[] = path.list(new FilenameFilter() {
 			@Override
 			public boolean accept(File file, String s) {
-				if(s.startsWith(Configs.PREFIX_FW)) return true;
+// H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
+//				if(s.startsWith(Configs.PREFIX_FW)) return true;
+				if(s.startsWith(Configs.PREFIX_FW) || s.startsWith(Configs.PREFIX_GW)) return true;
+// End of H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
 				return false;
 			}
 		});
-		if(null != files && files.length > 0) return path.getAbsoluteFile() + File.separator + files[0]; else return null;
+// H.M.Wang 2026-8-12 FW_XXXX 和 GW_xxxx 同时存在， 是， 报失败
+//		if(null != files && files.length > 0) return path.getAbsoluteFile() + File.separator + files[0]; else return null;
+		if(null != files && files.length == 1) return path.getAbsoluteFile() + File.separator + files[0]; else return null;
+// End of H.M.Wang 2026-8-12 FW_XXXX 和 GW_xxxx 同时存在， 是， 报失败
 	}
 // End of H.M.Wang 2024-3-12 FPGA固件的升级文件改为从USB根目录下的FWupdate目录下，读取FW_xxxxx.bin的形式的文件，同时伴随有一个FW_xxxxx.txt的MD5校验文件
 

@@ -88,7 +88,7 @@
 	<string name="strWidth">عرض</string>
 	<string name="strHigh">حجم</string>
 <!--	<string name="strRotation">تدوير</string>-->
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strHightype">تدريج</string>
 	<string name="strReverse">معكوس</string>
 	<string name="strRevert">Revert</string>

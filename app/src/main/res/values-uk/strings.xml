@@ -89,7 +89,7 @@
 	<string name="str_goto">перейти до</string>
 	<string name="strWidth">Ширина</string>
 	<string name="strHigh">Розмір</string>
-	<string name="strCursorStyle">Cur. Style</string>
+	<string name="strLinePosition">Line Pos</string>
 	<string name="strHightype">Покроковий</string>
 	<string name="strReverse">Інверсія</string>
 	<string name="strRevert">Відновити</string>
