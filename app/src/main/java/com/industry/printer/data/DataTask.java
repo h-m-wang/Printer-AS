@@ -55,6 +55,7 @@ import com.industry.printer.object.RealtimeYear;
 import com.industry.printer.object.ShiftObject;
 import com.industry.printer.object.WeekDayObject;
 import com.industry.printer.object.WeekOfYearObject;
+import com.industry.printer.object.data.BitmapWriter;
 
 import org.apache.http.util.CharArrayBuffer;
 
@@ -138,8 +139,17 @@ public class DataTask {
 			Debug.e(TAG, "--->binInfo null");
 			return false;
 		}
-		mBgBuffer = mBinInfo.getBgBuffer();
-		
+// H.M.Wang 2026-8-26 增加打印头种类与文件中指定的打印头种类是否一致的判断，如果不一致，则不允许打印
+		if(mBinInfo.mBytesPerColumn*8 != mTask.getNozzle().getHeight()) {
+			Debug.e(TAG, "--->Head not match. BinInfo.Bytes = " + mBinInfo.mBytesPerColumn*8 + "; Nozzle.Height = " + mTask.getNozzle().getHeight());
+			return false;
+		}
+// End of H.M.Wang 2026-8-26 增加打印头种类与文件中指定的打印头种类是否一致的判断，如果不一致，则不允许打印
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//		mBgBuffer = mBinInfo.getBgBuffer();
+		mBgBuffer = mBinInfo.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+
 		if (mBgBuffer == null) {
 			return false;
 		}
@@ -424,18 +434,17 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 		/*test bin*/
 ///./...		Debug.d(TAG, "--->buffer = " + mBuffer.length);
 
-// H.M.Wang 2026-8-3 取消该功能 (2026-7-3 暂时恢复apk插值的原因暂时恢复)
 // H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
 		if (sysconf.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			CharArrayBuffer caBuf = new CharArrayBuffer(0);
 			caBuf.append(mBuffer, 0, mBuffer.length);
-			char[] aaa = new char[170*72];
+/* 2026-7-3 暂时恢复apk插值			char[] aaa = new char[170*72]; // 544*5(2720)点对应的存储空间 */
+			char[] aaa = new char[160*72];		// 2560点对应的存储空间
 			Arrays.fill(aaa, (char)0x0000);
 			caBuf.append(aaa, 0, aaa.length);
 			mBuffer = caBuf.toCharArray();
 		}
 // End of H.M.Wang 2026-4-30 临时在108MM的信息后部追加72列的空格，其他的参数不变
-// End of H.M.Wang 2026-8-3 取消该功能 (2026-7-3 暂时恢复apk插值的原因暂时恢复)
 
 // H.M.Wang 2020-4-18 从DataTransferThread移至此
 		if (bSave) {
@@ -867,6 +876,93 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
         return changed;
     }
 // End of H.M.Wang 2020-11-13 追加这个函数，当日，时和分有变化时重新生成打印缓冲区
+// H.M.Wang 2026-8-19 增加一个绘图坐标与打印坐标之间的转换函数
+	private int toPrintStartY(float drawStartY) {
+		int skipStart=1, skipEnd=1;
+
+		if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_12_7 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_38_1 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_50_8 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X5 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X6 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X7 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X8) {
+			skipStart = 152;
+			skipEnd = 160;
+		} else if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5) {
+
+			skipStart = 308;
+			skipEnd = 320;
+//		} else if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {	已经不再apk中插值
+//			skipStart = 508;
+//			skipEnd = 544;
+		}
+
+		int sY = (int)Math.floor(drawStartY);
+		sY += (sY / skipStart) * (skipEnd - skipStart);
+		int sYByte = (sY / 8);
+
+		return sYByte;
+	}
+
+	private boolean isMessageType127xn() {
+		if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_12_7 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_25_4 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_38_1 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_50_8 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X5 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X6 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X7 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_127X8) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isMessageType254xn() {
+		if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
+			mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5) {
+			return true;
+		}
+		return false;
+	}
+
+	private int toPrintEndY(float drawEndY) {
+		int skipStart=1, skipEnd=1;
+
+		if(isMessageType127xn()) {
+			skipStart = 152;
+			skipEnd = 160;
+		} else if(isMessageType254xn()) {
+			skipStart = 308;
+			skipEnd = 320;
+//		} else if(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {	已经不再apk中插值
+//			skipStart = 508;
+//			skipEnd = 544;
+		}
+
+		int eY = (int)Math.ceil(drawEndY);
+		eY += (eY / skipStart) * (skipEnd - skipStart);
+		int eYByte = (eY + 7) / 8;
+
+		return eYByte;
+	}
+
+// End of H.M.Wang 2026-8-19 增加一个绘图坐标与打印坐标之间的转换函数
 
 	public void refreshVariables(boolean prev)
 	{
@@ -901,6 +997,41 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		}
 
 		PrinterNozzle headType = mTask.getNozzle();
+// H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做
+		if (headType == PrinterNozzle.MESSAGE_TYPE_12_7) {
+			scaleW /= 1.0f;
+			div = scaleW;
+			scaleH /= 1.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
+			scaleW /= 2.0f;
+			div = scaleW;
+			scaleH /= 2.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_38_1) {
+			scaleW /= 3.0f;
+			div = scaleW;
+			scaleH /= 3.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_50_8) {
+			scaleW /= 4.0f;
+			div = scaleW;
+			scaleH /= 4.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X5) {
+			scaleW /= 5.0f;
+			div = scaleW;
+			scaleH /= 5.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X6) {
+			scaleW /= 6.0f;
+			div = scaleW;
+			scaleH /= 6.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X7) {
+			scaleW /= 7.0f;
+			div = scaleW;
+			scaleH /= 7.0f;
+		} else if (headType == PrinterNozzle.MESSAGE_TYPE_127X8) {
+			scaleW /= 8.0f;
+			div = scaleW;
+			scaleH /= 8.0f;
+		} else
+// End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做
 // H.M.Wang 2021-1-8 取消这个计算好像不行，12.7多头的时候似乎有问题
 // H.M.Wang 2020-10-29 取消在计算scale的计算，采用Nozzle类里面的计算值
 		if (headType == PrinterNozzle.MESSAGE_TYPE_1_INCH) {
@@ -971,10 +1102,13 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			scaleH = 1.0f * 152 / 1056;
 // End of H.M.Wang 2025-1-19 增加22mmx2打印头类型
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_108MM) {
-//			scaleW /= 1.0f * 1056 / 152;
-			scaleW /= 1.0f * 258 * 5 / 152;
+// 2026-7-3 暂时恢复apk插值
+//			scaleW /= 1.0f * 258 * 5 / 152;
+			scaleW /= 1.0f * 1280 / 152;
 			div = scaleW;
-			scaleH = 1.0f * 152 / (508 * 5);
+//			scaleH = 1.0f * 152 / (508 * 5);
+			scaleH = 1.0f * 152 / 2560;
+// End of 2026-7-3 暂时恢复apk插值
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;
 			scaleW = 152f/16;
@@ -1196,6 +1330,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				// Bitmap bmp = o.getScaledBitmap(mContext);
 //				Debug.d(TAG,"--->cover barcode w = " + o.getWidth() + "  h = " + o.getHeight() + " total=" + (mBinInfo.getBytesFeed()*8) + " " + (o.getWidth()/scaleW) + " " + (o.getHeight()/scaleH));
 
+/* H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做
 // H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
 				float wx = 1.0f, hx=1.0f;
 				if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
@@ -1223,18 +1358,49 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 // End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				}
 // End of H.M.Wang 2023-7-3 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
+End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做 */
 
 // H.M.Wang 2021-2-20 o.getY()坐标直接传递改为除以scaleH后传递，因为这个是生成打印缓冲区，需要考虑scale
-				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW*wx), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW*wx), (int)(o.getHeight()/scaleH*hx), (int)(o.getY()/scaleH*hx));
+// 2026-8-19				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW*wx), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW*wx), (int)(o.getHeight()/scaleH*hx), (int)(o.getY()/scaleH*hx));
+// H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
+//				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), (int)(o.getY()/scaleH));
+long s0 = System.currentTimeMillis();
+				Bitmap bmp = ((BarcodeObject)o).getPrintBitmapFit((int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH));
+// End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 // End of H.M.Wang 2021-2-20 o.getY()坐标直接传递改为除以scaleH后传递，因为这个是生成打印缓冲区，需要考虑scale
 				// BinCreater.saveBitmap(bmp, "bar.png");
-				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+// 				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
+long s1 = System.currentTimeMillis();
+				NativeGraphicJni.PasteBmp2Bin(
+						mPrintBuffer,
+						bmp,
+						mBinInfo.mBytesFeed*8,
+						mBinInfo.mColumn,
+						mBinInfo.mBytesPerColumn,
+						(int)(o.getX()/div),
+						(int)(o.getY()/scaleH),
+						(int)(o.getYEnd()/scaleH),
+						(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
+						(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
+						stat.getScale());
+long s2 = System.currentTimeMillis();// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
+Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
 
 // H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
 // 2023-5-19 因为PC保存的时候已经不在保存动态二维码的假图，因此此修改已无意义，取消
 // H.M.Wang 2025-7-10 取消覆盖，恢复到合并。原来因为原来修改为覆盖是哪位可能在静态二维码中包含超文本而带来内容的修改，此时如果不覆盖，会有1.bin中内容的留存。现在的处理办法是在生成1.bin时，此种情况不保存图案
 // 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式可能会重叠，改为覆盖
-				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//				info.pasteBgBuffer(mPrintBuffer, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 //				BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
 // End of 2020-12-12 二维码每次打印都会重新生成，由于PC和Android生成的不一样，而且每次生成的由于内容可能变化也可能不一样，如果用或的方式可能会重叠，改为覆盖
 // End end H.M.Wang 2025-7-10 取消覆盖，恢复到合并。原来因为原来修改为覆盖是哪位可能在静态二维码中包含超文本而带来内容的修改，此时如果不覆盖，会有1.bin中内容的留存
@@ -1259,9 +1425,31 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						can.scale(1, -1, 0, 0);
 						can.drawBitmap(bmp, 0, 0, paint);
 						can.restore();
-						BinInfo info = new BinInfo(mContext, bmp1, mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						BinInfo info = new BinInfo(mContext, bmp1, mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//						BinInfo info = new BinInfo(mContext, bmp1, mTask.getHeads(), null);
+						NativeGraphicJni.PasteBmp2Bin(
+								mPrintBuffer,
+								bmp1,
+								mBinInfo.mBytesFeed*8,
+								mBinInfo.mColumn,
+								mBinInfo.mBytesPerColumn,
+								(int)(o.getX()/div),
+								(int)(o.getY()/scaleH),
+								(int)(o.getYEnd()/scaleH),
+								(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
+								(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
+								stat.getScale());
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2026-4-14 旋转镜像转换
-						BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						BinInfo.cover(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//						info.pasteBgBuffer(mPrintBuffer, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					}
 				}
 // End of H.M.Wang 2025-6-27 对于Execl导入信息进行打印的客户，由于可能更换logo图标，所以需要实施更新
@@ -1293,6 +1481,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 // H.M.Wang 2020-10-29 修改DynamicText实时生成打印缓冲区，而不是使用Vbin贴图
 // H.M.Wang 2022-4-1 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
+/* H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做
 				float wx = 1.0f, hx=1.0f;
 				if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
 					wx = 2.0f;
@@ -1318,14 +1507,47 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 					hx = 8.0f;
 // End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 				}
-
-                Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
+End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做 */
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//                Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
+// H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
+//				Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW, scaleH, headType.getHeight());
+long s0 = System.currentTimeMillis();
+				Bitmap bmp = ((DynamicText)o).getPrintBitmapFit(scaleW, scaleH);
+// End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2022-4-1 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
 //				Debug.d(TAG, "Bitmat: Width=" + bmp.getWidth() + "; Height=" + bmp.getHeight());
-                BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+long s1 = System.currentTimeMillis();
+//                BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
+				NativeGraphicJni.PasteBmp2Bin(
+						mPrintBuffer,
+						bmp,
+						mBinInfo.mBytesFeed*8,
+						mBinInfo.mColumn,
+						mBinInfo.mBytesPerColumn,
+						(int)(o.getX()/div),
+						(int)(o.getY()/scaleH),
+						(int)(o.getYEnd()/scaleH),
+						(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
+						(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
+						stat.getScale());
+long s2 = System.currentTimeMillis();
+Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
+Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 //				Debug.d(TAG, "Overlap: x=" + (int)(o.getX()/div) + "; Height=" + info.getCharsFeed() * stat.getScale());
-				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
-
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//				info.pasteBgBuffer(mPrintBuffer, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
+//				BinCreater.saveBin("/mnt/sdcard/printTest.bin", mPrintBuffer, 160);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 /*
 				BinInfo info = null;
 				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN ||
@@ -1376,7 +1598,11 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
 						var = info.getVarBuffer(((CounterObject) o).getRemoteContent(), true, false);
 					} else {*/
-						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, null);
+						info.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 /*					}*/
 //					info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
 					// End. 2019-12-5 -----------
@@ -1395,14 +1621,19 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 // H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
 //				var = info.getVarBuffer(prev? ((CounterObject) o).getContent() : ((CounterObject) o).getNext(), true, false);
-				var = info.getVarBuffer(o.getContent(), true, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				var = info.getVarBuffer(o.getContent(), true, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-7-2 调整计数器增量策略，在打印完成时调整	，因此生成打印缓冲区的时候，只要取内容即可
 
 //				BinCreater.saveBin("/sdcard/" + o.getIndex() + ".bin", var, info.getCharsPerHFeed()*16);
 
 				// Debug.d(TAG, "--->object x=" + o.getX()/div);
 
-				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), info.getCharsFeed() * stat.getScale());
+				info.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, ((CounterObject) o).getContent(), true, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-5-22 串口数据启用DynamicText，取消代用CounterObject
 			}
 			else if(o instanceof RealtimeObject) {
@@ -1430,13 +1661,22 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						continue;
 					BinInfo info = mVarBinList.get(rtSub);
 					if (info == null) {
-						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), rtSub.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), rtSub.getIndex()), mTask, mExtendStat);
+						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), rtSub.getIndex()), mTask, null);
+						info.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 						mVarBinList.put(rtSub, info);
 					}
-					var = info.getVarBuffer(substr, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					var = info.getVarBuffer(substr, false, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					//BinCreater.saveBin("/mnt/usbhost1/v" + o.getIndex() + ".bin", var, info.mBytesPerHFeed*8);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					BinInfo.overlap(mPrintBuffer, var, (int) (rtSub.getX() / div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					BinInfo.overlap(mPrintBuffer, var, (int) (rtSub.getX() / div), info.getCharsFeed() * stat.getScale());
+					info.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, substr, false, (int)(rtSub.getX()/div), toPrintStartY(rtSub.getY()/scaleH), toPrintEndY(rtSub.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 //					Point pt = newSizeOfBin(new Point((int)(rtSub.getY()/scaleH), (int)(rtSub.getHeight()/scaleH)));
 //					info.overlap(mPrintBuffer, var, (int)(rtSub.getX()/div), pt.x, pt.y, info.getCharsFeed(), stat.getScale());
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
@@ -1450,6 +1690,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				for (BaseObject htObj : htObjs) {
 // H.M.Wang 2023-12-30 增加对DT的支持。
 					if (htObj instanceof DynamicText) {
+/* H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做
 						float wx = 1.0f, hx=1.0f;
 						if (headType == PrinterNozzle.MESSAGE_TYPE_25_4) {
 							wx = 2.0f;
@@ -1475,10 +1716,36 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 							hx = 8.0f;
 // End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
 						}
+H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置的部分做 */
 
-						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
-						BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
-						BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(htObj.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
+//						BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
+//						BinInfo.overlap(mPrintBuffer, info.getBgBuffer(), (int)(htObj.getX()/div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
+//						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW, scaleH, headType.getHeight());
+//						BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
+//						info.pasteBgBuffer(mPrintBuffer, (int)(htObj.getX()/div), toPrintStartY(htObj.getY()/scaleH), toPrintEndY(htObj.getYEnd()/scaleH), stat.getScale());
+long s0 = System.currentTimeMillis();
+						Bitmap bmp = ((DynamicText)htObj).getPrintBitmapFit(scaleW, scaleH);
+long s1 = System.currentTimeMillis();
+						NativeGraphicJni.PasteBmp2Bin(
+								mPrintBuffer,
+								bmp,
+								mBinInfo.mBytesFeed*8,
+								mBinInfo.mColumn,
+								mBinInfo.mBytesPerColumn,
+								(int)(htObj.getX()/div),
+								(int)(htObj.getY()/scaleH),
+								(int)(htObj.getYEnd()/scaleH),
+								(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
+								(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
+								stat.getScale());
+long s2 = System.currentTimeMillis();
+Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
+Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
+// End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 						continue;
 					}
 // End H.M.Wang 2023-12-30 增加对DT的支持。
@@ -1510,19 +1777,35 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 						continue;
 					BinInfo info = mVarBinList.get(htObj);
 					if (info == null) {
-						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), htObj.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//						info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), htObj.getIndex()), mTask, mExtendStat);
+						if (htObj instanceof ShiftObject) {
+							info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), htObj.getIndex()), mTask, mExtendStat);
+						} else {
+							info = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), htObj.getIndex()), mTask, null);
+							info.getBgBufferNew();
+						}
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 						mVarBinList.put(htObj, info);
 					}
 // H.M.Wang 2020-2-24 超文本班次打印崩溃问题解决
 					if (htObj instanceof ShiftObject) {
 						var = info.getVarBuffer(((ShiftObject)htObj).getShiftIndex(), ((ShiftObject)htObj).getBits());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》，对ShiftObject还按原来的方法处理
+						BinInfo.overlap(mPrintBuffer, var, (int) (htObj.getX() / div), info.getCharsFeed() * stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					} else {
-						var = info.getVarBuffer(substr, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》，对ShiftObject还按原来的方法处理
+//						var = info.getVarBuffer(substr, false, false);
+						info.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, substr, false, (int)(htObj.getX()/div), toPrintStartY(htObj.getY()/scaleH), toPrintEndY(htObj.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》，对ShiftObject还按原来的方法处理
 					}
 // End of H.M.Wang 2020-2-24 超文本班次打印崩溃问题解决
 					//BinCreater.saveBin("/mnt/usbhost1/v" + o.getIndex() + ".bin", var, info.mBytesPerHFeed*8);
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-					BinInfo.overlap(mPrintBuffer, var, (int) (htObj.getX() / div), info.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+// 取消统一处理，改为ShiftObject和其它变量分别处理					BinInfo.overlap(mPrintBuffer, var, (int) (htObj.getX() / div), info.getCharsFeed() * stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 //					Debug.d(TAG, "--->content = " + substr + "; real x=" + htObj.getX() / div);
 //					BinCreater.saveBin("/sdcard/" + o.getIndex() + substr + ".bin", var, info.getCharsFeed() * stat.getScale() * 16);
@@ -1534,13 +1817,21 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 				String vString = ((JulianDayObject)o).getContent();
 				BinInfo varbin= mVarBinList.get(o);
 				if (varbin == null) {
-					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, null);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					mVarBinList.put(o, varbin);
 				}
 //				Debug.d(TAG, "--->real x=" + o.getX()+ ", div-x=" + o.getX()/div );
-				var = varbin.getVarBuffer(vString, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				var = varbin.getVarBuffer(vString, false, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+				varbin.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, vString, false, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 
 			} else if (o instanceof ShiftObject) {
@@ -1561,35 +1852,62 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			} else if (o instanceof LetterHourObject) {
 				BinInfo varbin= mVarBinList.get(o);
 				if (varbin == null) {
-					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, 24, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, 24, mExtendStat);
+					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, 24, null);
+					varbin.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					mVarBinList.put(o, varbin);
 				}
 				String t = ((LetterHourObject) o).getContent();
-				var = varbin.getVarBuffer(t, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				var = varbin.getVarBuffer(t, false, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+				varbin.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, t, false, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 			} else if (o instanceof WeekOfYearObject) {
 				BinInfo varbin= mVarBinList.get(o);
 				if (varbin == null) {
-					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, null);
+					varbin.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					mVarBinList.put(o, varbin);
 				}
 				String t = ((WeekOfYearObject) o).getContent();
-				var = varbin.getVarBuffer(t, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				var = varbin.getVarBuffer(t, false, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+				varbin.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, t, false, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 			}  else if (o instanceof WeekDayObject) {
 				BinInfo varbin= mVarBinList.get(o);
 				if (varbin == null) {
-					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, mExtendStat);
+					varbin = new BinInfo(ConfigPath.getVBinAbsolute(mTask.getName(), o.getIndex()), mTask, null);
+					varbin.getBgBufferNew();
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 					mVarBinList.put(o, varbin);
 				}
 				String t = ((WeekDayObject) o).getContent();
-				var = varbin.getVarBuffer(t, false, false);
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				var = varbin.getVarBuffer(t, false, false);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
-				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//				BinInfo.overlap(mPrintBuffer, var, (int)(o.getX()/div), varbin.getCharsFeed() * stat.getScale());
+				varbin.pasteVarBin(mPrintBuffer, mBinInfo.mColumn, t, false, (int)(o.getX()/div), toPrintStartY(o.getY()/scaleH), toPrintEndY(o.getYEnd()/scaleH), stat.getScale());
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2020-1-2 添加 * stat.getScale()以调整1带多时的高度，info.getCharsFeed()只是取一个头的高
 			} else
 			{
@@ -1814,12 +2132,12 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 
 //		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT || object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
 // H.M.Wang 2025-12-11 将大字机的判断集中到类rinterNozzle中。并且32x3-32x7按头数区分，而不是像其他的大字节按4个头计
-		if( object.getPNozzle().isBigdotType() &&
+		if( object.getPNozzle().isBigdotType()/* 2026-9-8 取消对32x3-32x7的限制 &&
 			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X3 &&
 			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X4 &&
 			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X5 &&
 			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X6 &&
-			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X7) {
+			object.getPNozzle() != PrinterNozzle.MESSAGE_TYPE_32X7*/) {
 /*		if( object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
 			object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
 // H.M.Wang 2020-7-23 追加32DN打印头
@@ -1916,13 +2234,13 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 //		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
         	if(sysconf.getParam(14) > 0) revert = 0x80; else revert = 0x00;// 单头倒置。0x80标识108mm打印头
-/* End of 2026-7-3 暂时恢复apk插值 */
+End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 			Arrays.fill(mirrors, 0x00000000);
-// 2026-7-3 暂时恢复apk插值			revert = 0x00;
+/* 2026-7-3 暂时恢复apk插值 */			revert = 0x00;
 // End of H.M.Wang 2026-5-11 暂时取消108MM的镜像操作
 		}
 		if(object.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM) {

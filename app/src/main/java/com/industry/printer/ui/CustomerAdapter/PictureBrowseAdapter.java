@@ -47,6 +47,12 @@ public class PictureBrowseAdapter extends BaseAdapter {
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
+// H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+	public List<PictureItem> getItems() {
+		return mItems;
+	}
+// End of H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+
 	@Override
 	public View getView(final int position, View convertView, ViewGroup parent)
 	{
@@ -73,7 +79,10 @@ public class PictureBrowseAdapter extends BaseAdapter {
 			convertView.setBackgroundResource(R.drawable.grid_item_unselected);
 			convertView.setSelected(false);
 		}
-		mHolder.mImg.setImageURI(Uri.parse(mItems.get(position).getPath()));
+// H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+//		mHolder.mImg.setImageURI(Uri.parse(mItems.get(position).getPath()));
+		mHolder.mImg.setImageBitmap(mItems.get(position).getBitmap());
+// End of H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
 		mHolder.mTitle.setText(mItems.get(position).getTitle());
 		
 		return convertView;

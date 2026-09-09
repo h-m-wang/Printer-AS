@@ -13,6 +13,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
@@ -168,14 +169,18 @@ public class BinInfo {
 		BinFileMaker m = new BinFileMaker(ctx);
 		// BinCreater.saveBitmap(bmp, "bar.png");
 
-		// H.M.Wang 追加一个是否移位的参数
 // H.M.Wang 2022-4-1 根据头数设置参数，原来的固定为1是错误的
 //		m.extract(bmp, 1, false);
-		m.extract(bmp, mType, false);
+		m.extract(bmp, mType, true);		// 当直接通过bmp生成bin时，主要是动态内容（DT或者条码）即时生成，此时，将12.7xn系列的头在二值化时直接插入空挡，避免再次进行循环
 // End of H.M.Wang 2022-4-1 根据头数设置参数，原来的固定为1是错误的
 
 		mBuffer = m.getBuffer();
-		ByteArrayBuffer buffer = new ByteArrayBuffer(0);
+
+// H.M.Wang 2026-8-26 取消这部分转换，直接使用mBuffer，因为这个主要是为动态内容实时进行二值化使用的，因此下属操作没有必要，只是直接计算mBytesFeed和mColumn
+		mColumn = bmp.getHeight();
+		mBytesFeed = mBuffer.length / mColumn;
+
+/* 		ByteArrayBuffer buffer = new ByteArrayBuffer(0);
 		byte[] header = new byte[BinCreater.RESERVED_FOR_HEADER];
 // H.M.Wang 2026-4-14 旋转镜像转换
 //		int width = bmp.getWidth();
@@ -190,7 +195,8 @@ public class BinInfo {
     	buffer.append(header, 0, header.length);
     	buffer.append(mBuffer, 0, mBuffer.length);
     	mBuffer = buffer.buffer();
-    	resolve();
+    	resolve();*/
+// End of H.M.Wang 2026-8-26 取消这部分转换，直接使用mBuffer，因为这个主要是为动态内容实时进行二值化使用的，因此下属操作没有必要，只是直接计算mBytesFeed和mColumn
 	}
 
 	private synchronized void resolve() {
@@ -248,8 +254,6 @@ public class BinInfo {
 		} else {
 			mColPerElement = 0;
 		}
-
-
 	}
 
 	private boolean isVarBuffer() {
@@ -298,8 +302,82 @@ public class BinInfo {
 	public int getCharsPerHFeed() {
 		return mCharsPerHFeed;
 	}
-	
-    public synchronized char[] getBgBuffer()
+
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+	public synchronized char[] getBgBufferNew() {
+		if (mLength <= 0) {
+			return null;
+		}
+
+		int feed = (mNeedFeed==true?mColumn*mType : 0);
+		int expandScale = (mExtend != null ? mExtend.getScale() : 1);
+
+		byte[] bufferBytes = new byte[mLength];
+		mCacheStream.read(bufferBytes, 0, mLength);
+
+		mBufferChars = NativeGraphicJni.GetBgBufferNew(
+				bufferBytes,
+				mLength + feed,
+				mBytesFeed,
+				mBytesPerHFeed,
+				mBytesPerH,
+				mColumn,
+				mType,
+				expandScale
+		);
+
+		if (!isVarBuffer() && expandScale > 1) {
+			mBytesPerColumn *= expandScale;
+			mCharsPerColumn *= expandScale;
+			mBytesFeed *= expandScale;
+			mCharsFeed *= expandScale;
+			mCharsPerHFeed *= expandScale;
+			mBytesPerHFeed *= expandScale;
+		}
+
+		return mBufferChars;
+	}
+
+	/*
+		功能：将cntStr所表达的数字(0-9)串，从src中的vbin数据（对应于0-9数字的bin数据）中，提取相应部分数据，贴到mBufferChars当中，
+		贴的位置是，从startX列开始，纵向从包含startY的字节开始，到包含endY的字节位置，需要注意的是，startY和endY是实际画图区域的坐标，如果是需要打印头之间插入缝隙的情况写，需要将其换算成插入缝隙后的位置
+		参数：
+			char[] src		对应于0-9数字的vbin数据，已经做了打印头之间插值的处理（如果需要的话），数据的高为当前任务的全高，但是实际填充的是startY到endY之间的高度部分
+	 */
+	public void pasteBgBuffer(char[] dst, int startX, int startY, int endY, int expandScale) {
+		NativeGraphicJni.PasteDynamicBin(dst, mBuffer, mBytesFeed, mColumn, startX, startY, endY, expandScale);
+	}
+
+	/*
+		功能：将cntStr所表达的数字(0-9)串，从src中的vbin数据（对应于0-9数字的bin数据）中，提取相应部分数据，贴到mBufferChars当中，
+		贴的位置是，从startX列开始，纵向从包含startY的字节开始，到包含endY的字节位置，需要注意的是，startY和endY是实际画图区域的坐标，如果是需要打印头之间插入缝隙的情况写，需要将其换算成插入缝隙后的位置
+		参数：
+			char[] src		对应于0-9数字的vbin数据，已经做了打印头之间插值的处理（如果需要的话），数据的高为当前任务的全高，但是实际填充的是startY到endY之间的高度部分
+	 */
+	public void pasteVarBin(char[] dst, int columns, String cntStr, boolean flagClearZero, int startX, int startY, int endY, int expandScale) {
+		SystemConfigFile config = SystemConfigFile.getInstance();
+		if(null != config && config.getParam(SystemConfigFile.INDEX_CLEAR_ZERO) == 1) {
+			flagClearZero = flagClearZero && true;
+		} else {
+			flagClearZero = false;
+		}
+
+		int[] cnts = new int[cntStr.length()];
+		for(int i=0; i<cntStr.length(); i++) {
+			try {
+				cnts[i] = (char)Integer.parseInt(cntStr.substring(i, i + 1));
+				if(cnts[i] == 0 && flagClearZero) cnts[i] = 10;			// 借用这个10（不在0-9之间），跳空达到清除前置零
+				else flagClearZero = false;
+			} catch (Exception e) {
+				cnts[i] = 10;
+			}
+		}
+
+		NativeGraphicJni.PasteVarByVBin(dst, columns, cnts, mBufferChars, mBytesFeed, (int)mColPerElement, startX, startY, endY, expandScale);
+	}
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+
+	public synchronized char[] getBgBuffer()
     {
     	if (mLength <= 0) {
 			return null;
@@ -446,7 +524,7 @@ public class BinInfo {
 	//};
 	// End --------------------------------------------------
 
-    public synchronized char[] getVarBuffer(String var, boolean flagClearZero, boolean asciiIndex)
+	public synchronized char[] getVarBuffer(String var, boolean flagClearZero, boolean asciiIndex)
     {
     	int n;
 		byte[] feed = {0};
@@ -568,7 +646,7 @@ public class BinInfo {
     
     /*班次變量特殊處理，生成v.bin時固定爲兩位有效位，如果shift的bit爲1，那前面補0，
 	 *所以，shift變量的v.bin固定爲8位，如果bit=1，需要跳過前面的0*/
-    public synchronized char[] getVarBuffer(int shift, int bits)
+	public synchronized char[] getVarBuffer(int shift, int bits)
     {
     	int n, offset=0;
     	byte[] feed = {0};
@@ -609,7 +687,10 @@ public class BinInfo {
     	return extract();
     }
 
-    public synchronized char[] getVarBufferByAscii(String text) {
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+//	public synchronized char[] getVarBufferByAscii(String text) {
+    public synchronized char[] getVarBufferByAscii_old(String text) {
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 		int n;
 		byte[] feed = {0};
 

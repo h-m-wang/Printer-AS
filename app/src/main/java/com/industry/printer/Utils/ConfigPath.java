@@ -218,7 +218,7 @@ public class ConfigPath {
 			public boolean accept(File file, String s) {
 // H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
 //				if(s.startsWith(Configs.PREFIX_FW)) return true;
-				if(s.startsWith(Configs.PREFIX_FW) || s.startsWith(Configs.PREFIX_GW)) return true;
+				if((s.startsWith(Configs.PREFIX_FW) || s.startsWith(Configs.PREFIX_GW)) && s.endsWith(".bin")) return true;
 // End of H.M.Wang 2026-8-12 增加GW_xxxxx文件升级
 				return false;
 			}

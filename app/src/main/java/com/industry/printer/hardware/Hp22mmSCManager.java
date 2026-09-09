@@ -92,7 +92,8 @@ public class Hp22mmSCManager implements IInkDevice {
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
 // H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f * 0.7f);      // 2026-7-3 在46355的基础上下调30%，46355×0.7＝32448.5
+//            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f * 0.7f);      // 2026-7-3 在46355的基础上下调30%，46355×0.7＝32448.5
+            mMaxBagInkVolume = (int) (MAX_BAG_INK_VOLUME_MAXIMUM / 1.07f * 0.82f);      // 2026-8-26 在46355的基础上下调30%，46355×0.82＝38011
 // End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
         }
         switch(penArg) {

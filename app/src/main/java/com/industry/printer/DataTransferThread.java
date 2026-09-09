@@ -238,8 +238,16 @@ public class DataTransferThread {
 	public synchronized void resetIndex() {
 		mIndex = 0;
 		//pcReset = true;
-		char[] buffer = getLanBuffer(index());
-		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);
+// H.M.Wang 2026-8-24 增加非DATA_SOURCE_BIN时也支持重置的操作，但是再下发这个1200命令之前，需要保证需要的新DT数据要提前下发好
+//		char[] buffer = getLanBuffer(index());
+//		FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);
+		if(isLanPrint()) {
+			char[] buffer = getLanBuffer(index());
+			FpgaGpioOperation.writeData(FpgaGpioOperation.DATA_GENRE_UPDATE, FpgaGpioOperation.FPGA_STATE_OUTPUT, buffer, buffer.length * 2);
+		} else {
+			mNeedUpdate = true;
+		}
+// End of H.M.Wang 2026-8-24 增加非DATA_SOURCE_BIN时也支持重置的操作，但是再下发这个1200命令之前，需要保证需要的新DT数据要提前下发好
 	}
 
 // H.M.Wang 2025-11-14 修改为保存信息后，如果该信息正在被打印，则及时更新打印内容
@@ -247,8 +255,7 @@ public class DataTransferThread {
 		if(isRunning()) {
 			for(DataTask task : mDataTask) {
 				if(task.mTask.getName().equals(objName)) {
-					task.prepareBackgroudBuffer();
-					mNeedUpdate = true;
+					if(task.prepareBackgroudBuffer()) mNeedUpdate = true;
 				}
 			}
 		}
@@ -2324,6 +2331,7 @@ private void setSerialProtocol9DTs(final String data) {
 
 	public void resetTask(List<MessageTask> task) {
 		synchronized (DataTransferThread.class) {
+			if(null == mDataTask) return;
 			mIndex = 0;
 			mDataTask.clear();
 			for (MessageTask t : task) {
@@ -2391,7 +2399,8 @@ private void setSerialProtocol9DTs(final String data) {
 
 	public void setDotCount(List<MessageTask> messages) {
 		if (isLanPrint()) return;
-		for (int i = 0; i < mDataTask.size(); i++) {
+// H.M.Wang 2026-9-8 取消这段设置，以防止在第一次生成print.bin的时候（if(mDots == 0) calDots();）由于mDots已经设置为从tlk文件读取的数据填上了，所以就不再统计了的问题
+/*		for (int i = 0; i < mDataTask.size(); i++) {
 			DataTask t = mDataTask.get(i);
 			if (messages.size() <= i) {
 				break;
@@ -2403,7 +2412,8 @@ private void setSerialProtocol9DTs(final String data) {
 			}
 			t.setDots(totalDot);
 			t.setDotsEach(dots);
-		}
+		}*/
+// End of H.M.Wang 2026-9-8 取消这段设置，以防止在第一次生成print.bin的时候（if(mDots == 0) calDots();）由于mDots已经设置为从tlk文件读取的数据填上了，所以就不再统计了的问题
 		initCount();
 	}
 	

@@ -660,19 +660,8 @@ public class MessageTask {
 		// 生成bin文件
 		BinFileMaker maker = new BinFileMaker(mContext);
 
-		// H.M.Wang 追加一个是否移位的参数
-		mDots = maker.extract(bitmap, msg.getPNozzle().mHeads,
-					( null != msg &&
-					(msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
-					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
-					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
-// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
-					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
-					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
-					msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
-// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-					 msg.getPNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR)));
+		mDots = maker.extract(bitmap, msg.getPNozzle().mHeads, false);
+
 		// 保存bin文件
 		maker.save(ConfigPath.getBinAbsolute(mName));
 
@@ -887,13 +876,11 @@ public class MessageTask {
 // End of H.M.Wang 2021-8-16 追加96DN头
 */
 // End of H.M.Wang 2025-12-9 将大字机的判断集中到类rinterNozzle中
-			// H.M.Wang 追加一个是否移位的参数
 // H.M.Wang 2026-4-14 旋转镜像转换
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth, bHeight, false), getNozzle().mHeads, false);
 			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bHeight, bWidth, false), getNozzle().mHeads, false);
 // End of H.M.Wang 2026-4-14 旋转镜像转换
 		} else {
-			// H.M.Wang 追加一个是否移位的参数
 // H.M.Wang 2021-2-26 取消过滤选项，过滤选项的目的是使得图像平滑，但是会打乱图像的内容
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/2, bHeight, true), msgObj.getPNozzle().mHeads1
 // End of H.M.Wang 2021-2-26 取消过滤选项，过滤选项的目的是使得图像平滑，但是会打乱图像的内容
@@ -903,20 +890,7 @@ public class MessageTask {
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/(msgObj.getResolution()?1:2), bHeight, false), msgObj.getPNozzle().mHeads,
 // H.M.Wang 2026-4-14 旋转镜像转换
 //			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), bHeight, false), msgObj.getPNozzle().mHeads,
-			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bHeight, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), false), msgObj.getPNozzle().mHeads,
-// End of H.M.Wang 2026-4-14 旋转镜像转换
-// End of H.M.Wang 2021-4-9 追加ioctl的分辨率信息获取命令
-// End of H.M.Wang 2021-4-9 将msgObj.getResolution()移到大字机分支，因为如果在这里，将导致300dpi的时候不会插空
-				((getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
-// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
-// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-				  getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR)));
+			mDots = maker.extract(Bitmap.createScaledBitmap(bmp, bHeight, bWidth/(Configs.GetDpiVersion() == FpgaGpioOperation.DPI_VERSION_300 ? 1 : 2), false), msgObj.getPNozzle().mHeads, false);
 			Debug.d(TAG, "mDots[0] = " + mDots[0] + "; [1] = " + mDots[1] + "; [2] = " + mDots[2]);
 		}
 //		Debug.d(TAG, "SaveTime: - End maker.extract : " + System.currentTimeMillis());

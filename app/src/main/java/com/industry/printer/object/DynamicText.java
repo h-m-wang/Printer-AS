@@ -246,6 +246,102 @@ public class DynamicText extends BaseObject {
         return drawBmp;
     }
 
+// H.M.Wang 2026-9-1 增加一个只生成合适高度位图的函数，避免以前生成全高位图的方法(getPrintBitmap))
+    public Bitmap getPrintBitmapFit(float scaledW, float scaledH) {
+        Debug.d(TAG,"getPrintBitmap scaledW = " + scaledW + ", scaledH = " + scaledH);
+        Debug.d(TAG,"Original width = " + mWidth + ", height = " + mHeight + ", ratio = " + mRatio);
+        Debug.d(TAG,"O.Index = " + mIndex + "; DT.Index = " + mDtIndex);
+
+        Paint paint = new Paint();
+
+        // 将内部高度调整为打印高度
+        float drawHeight = mHeight / scaledH;
+
+        paint.setTextSize(drawHeight);
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true); //去除锯齿
+        paint.setFilterBitmap(true); //对位图进行滤波处理
+        try {
+            paint.setTypeface(FontCache.get(mContext, mFont));
+        } catch (Exception e) {
+
+        }
+
+        // 将系统标准打印宽度调整为必要宽度，考虑人为的调整宽度(mRatio)和特种头的宽度调整(HP头宽度减半)
+//        float ratio = mRatio * scaledH / scaledW;
+//        int drawWidth = Math.round(paint.measureText(getContent()) * ratio);
+
+        String cnt = getValidString(SystemConfigFile.getInstance().getDTBuffer(mDtIndex));
+// H.M.Wang 2024-8-30 完全遵照DT桶中的内容，不做任何修改，否则，如果是全部空格，则会由、有取消掉空格后变为空，然后用＃替代的问题
+//        if(cnt.trim().isEmpty()) {
+//            cnt = getContent();
+//        }
+// End of H.M.Wang 2024-8-30 完全遵照DT桶中的内容，不做任何修改，否则，如果是全部空格，则会由、有取消掉空格后变为空，然后用＃替代的问题
+
+        int charWidth = (int)(paint.measureText(cnt));
+        int drawWidth = (int)(mWidth / scaledW);
+//        Debug.d(TAG,"drawWidth = " + drawWidth + ", charWidth = " + charWidth);
+
+        PrinterNozzle head = mTask.getNozzle();
+
+// H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+        if(head.isBigdotType()) {
+/*        if (head == PrinterNozzle.MESSAGE_TYPE_16_DOT ||
+            head == PrinterNozzle.MESSAGE_TYPE_32_DOT ||
+            head == PrinterNozzle.MESSAGE_TYPE_32DN ||
+            head == PrinterNozzle.MESSAGE_TYPE_32SN ||
+            head == PrinterNozzle.MESSAGE_TYPE_64SN ||
+// H.M.Wang 2022-10-19 追加64SLANT头。
+            head == PrinterNozzle.MESSAGE_TYPE_64SLANT ||
+// End of H.M.Wang 2022-10-19 追加64SLANT头。
+// H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+            head == PrinterNozzle.MESSAGE_TYPE_64DOTONE ||
+// End of H.M.Wang 2024-4-29 追加64_DOT_ONE喷头类型
+// H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+            head == PrinterNozzle.MESSAGE_TYPE_16DOTX4 ||
+// End of H.M.Wang 2024-9-10 增加一个16DOTX4头类型，
+// H.M.Wang 2022-5-27 追加32x2头类型
+            head == PrinterNozzle.MESSAGE_TYPE_32X2 ||
+// End of H.M.Wang 2022-5-27 追加32x2头类型
+// H.M.Wang 2021-8-16 追加96DN头
+//            head == PrinterNozzle.MESSAGE_TYPE_64_DOT) {
+            head == PrinterNozzle.MESSAGE_TYPE_64_DOT ||
+// H.M.Wang 2023-7-29 追加48点头
+            head == PrinterNozzle.MESSAGE_TYPE_48_DOT ||
+// End of H.M.Wang 2023-7-29 追加48点头
+            head == PrinterNozzle.MESSAGE_TYPE_96DN) {
+// End of H.M.Wang 2021-8-16 追加96DN头
+*/
+// End of H.M.Wang 2025-12-12 将大字机的判断集中到类rinterNozzle中
+            paint.setTextScaleX(1.0f);
+        } else {
+            paint.setTextScaleX(1.0f * drawWidth / charWidth);
+        }
+
+        Paint.FontMetrics fm = paint.getFontMetrics();
+
+        // 按调整了大小的高度进行正常图片绘制
+// H.M.Wang 2026-4-14 旋转镜像转换
+//        Bitmap drawBmp = Bitmap.createBitmap(drawWidth, dstHeight, Configs.BITMAP_CONFIG);
+        Bitmap drawBmp = Bitmap.createBitmap((int)drawHeight, drawWidth, Configs.BITMAP_CONFIG);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+        Debug.d(TAG,"Draw [" + cnt + "] with [" + drawWidth + ", " + drawHeight + "]");
+        Canvas drawCanvas = new Canvas(drawBmp);
+        drawCanvas.drawColor(Color.WHITE);
+// H.M.Wang 2026-4-14 旋转镜像转换
+        drawCanvas.save();
+        drawCanvas.rotate(90, 0, 0);
+        drawCanvas.scale(1, -1, 0, 0);
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+        drawCanvas.drawText(cnt, 0, drawHeight - fm.descent, paint);
+// H.M.Wang 2026-4-14 旋转镜像转换
+        drawCanvas.restore();
+// End of H.M.Wang 2026-4-14 旋转镜像转换
+
+        return drawBmp;
+    }
+// End of H.M.Wang 2026-9-1 增加一个只生成合适高度位图的函数，避免以前生成全高位图的方法(getPrintBitmap))
+
     @Override
     public void generateVarbinFromMatrix(String f) {
         BinFileMaker maker = new BinFileMaker(mContext);
@@ -363,18 +459,7 @@ public class DynamicText extends BaseObject {
 
         BinFileMaker maker = new BinFileMaker(mContext);
 
-        // H.M.Wang 追加一个是否移位的参数。修改喷头数
-        dots = maker.extract(Bitmap.createScaledBitmap(gBmp, gBmp.getWidth(), dstH, false), head.mHeads,
-                (mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
-// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
-// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-                    mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR));
+        dots = maker.extract(Bitmap.createScaledBitmap(gBmp, gBmp.getWidth(), dstH, false), head.mHeads, false);
 
         Debug.d(TAG, "--->id: " + mId + " index:  " + mIndex);
         maker.save(ConfigPath.getVBinAbsolute(mTask.getName(), mIndex));

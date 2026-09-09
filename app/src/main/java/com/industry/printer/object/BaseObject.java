@@ -724,21 +724,9 @@ OBJECT_TYPE_MsgName											031
 		
 		BinFileMaker maker = new BinFileMaker(mContext);
 
-		// H.M.Wang 追加一个是否移位的参数。修改喷头数
 // H.M.Wang 2026-4-14 旋转镜像转换
 //		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, gBmp.getWidth(), dstH, false), head.mHeads,
-		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, dstH, gBmp.getHeight(), false), head.mHeads,
-// End of H.M.Wang 2026-4-14 旋转镜像转换
-				(mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH ||
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_DUAL ||
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_TRIPLE ||
-// H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX5 ||
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX6 ||
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX7 ||
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1INCHX8 ||
-// End of H.M.Wang 2025-10-29 追加12.7x5，6，7，8头及25.4x5，6，7，8头
-				mTask.getNozzle() == PrinterNozzle.MESSAGE_TYPE_1_INCH_FOUR));
+		dots = maker.extract(Bitmap.createScaledBitmap(gBmp, dstH, gBmp.getHeight(), false), head.mHeads, false);
 
 		Debug.d(TAG, "--->dots: " + dots[0]);
 		maker.save(ConfigPath.getVBinAbsolute(mTask.getName(), mIndex));
@@ -879,7 +867,6 @@ OBJECT_TYPE_MsgName											031
 		}
 		BinFileMaker maker = new BinFileMaker(mContext);
 
-		// H.M.Wang 追加一个是否移位的参数
 		dots = maker.extract(gBmp, 1, false);
 
 		Debug.d(TAG, "***************id: " + mId + " index:  " + mIndex);
@@ -926,7 +913,6 @@ OBJECT_TYPE_MsgName											031
 			// Bitmap scaledBg = Bitmap.createScaledBitmap(bg, singleW, Configs.gDots, true);
 			BinFileMaker maker = new BinFileMaker(mContext);
 
-			// H.M.Wang 追加一个是否移位的参数
 			maker.extract(bmp, 1, false);
 
 			//byte[] buffer = new byte[BinCreater.mBmpBits.length];
@@ -2004,12 +1990,11 @@ OBJECT_TYPE_MsgName											031
 	{
 		return  Bitmap.createBitmap(10 , Configs.gDots, Configs.BITMAP_CONFIG);
 	}
+
 	public int getfeed() {
 		return Math.round(mHeight);
 	}
-	
-	
-	
+
 	/**
 	 * ajust font library if print-head is either 16-dot or 32-dot
 	 * if print-head 16-dot: font-4 is bound to 7dot object, font-7 is bound to 16dot object

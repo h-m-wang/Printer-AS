@@ -28,7 +28,9 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.219"
+#define VERSION_CODE                            "1.0.220"
+// 1.0.220 2026-9-2
+// 在守护线程中，取消读温度的操作
 // 1.0.219 2026-8-11
 // 将RunningState打印头在monitorThread的开始处设置为STATE_VALID，否则，由于增加了超时时PD重新上电的逻辑，之前的STATE_INVALID需要等到IDS加压完成才能够被更新
 // 1.0.218 2026-8-10
@@ -876,7 +878,7 @@ int i=0;
                         }
                     }
                 }
-                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
+// 2026-9-2                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
 
             i++;
             if(i<penNum) {
@@ -951,7 +953,7 @@ int i=0;
                         }
                     }
                 }
-                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
+// 2026-9-2                pd_get_temperature(PD_INSTANCE, penIndexs[i], &v);
             }
 /////             }
         }

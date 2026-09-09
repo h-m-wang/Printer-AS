@@ -63,7 +63,7 @@ public class StreamTransport {
             mOutputStream.flush();
 //            Debug.d(TAG, "Send Data :[" + ByteArrayUtils.toHexString(buffer, offset, count) + "](" + count + " bytes)");
         } catch(Exception e) {
-            Debug.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 

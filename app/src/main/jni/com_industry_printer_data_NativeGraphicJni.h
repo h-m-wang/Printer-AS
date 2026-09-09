@@ -37,11 +37,19 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
- * Method:    Binarization
- * Signature: (Ljava/lang/Object;III)[B
+ * Method:    BinarizeBmp
+ * Signature: (Ljava/lang/Object;IIIII)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_BinarizeBmp
         (JNIEnv *, jclass, jobject, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     com_industry_printer_data_NativeGraphicJni
+ * Method:    PasteBmp2Bin
+* Signature: ([CLjava/lang/Object;IIIIIIIII)I
+ */
+JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2Bin
+        (JNIEnv *env, jclass thiz, jcharArray dst, jobject bmp, jint width, jint height, jint bytesPerCol, jint sX, jint sY, jint eY, jint orgLines, jint tarLines, jint expandScale);
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
@@ -58,6 +66,30 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetD
  */
 JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetBgBuffer
         (JNIEnv *, jclass, jbyteArray, jint, jint, jint, jint, jint, jint);
+
+// H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
+/*
+ * Class:     com_industry_printer_data_NativeGraphicJni
+ * Method:    GetBgBufferNew
+ * Signature: ([BIIIIIII})[C
+ */
+JNIEXPORT jcharArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetBgBufferNew
+        (JNIEnv *, jclass, jbyteArray, jint, jint, jint, jint, jint, jint, jint);
+/*
+ * Class:     com_industry_printer_data_NativeGraphicJni
+ * Method:    PasteDynamicBin
+ * Signature: ([C[BIIIIII})I
+ */
+JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteDynamicBin
+        (JNIEnv *env, jclass thiz, jcharArray dst, jbyteArray src, jint bytesPerCol, jint columns, jint sX, jint sY, jint eY, jint expandScale);
+/*
+ * Class:     com_industry_printer_data_NativeGraphicJni
+ * Method:    PasteVarByVBin
+ * Signature: ([CI[I[CIIIIII})I
+ */
+JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteVarByVBin
+        (JNIEnv *env, jclass thiz, jcharArray dst, jint columns, jintArray digits, jcharArray refDigitsBin, jint bytesPerColInRef, jint colPerElements, jint sX, jint sY, jint eY, jint expandScale);
+// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni

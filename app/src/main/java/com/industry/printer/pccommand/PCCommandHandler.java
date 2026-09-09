@@ -337,14 +337,20 @@ public class PCCommandHandler {
                 return;
             }
 
+// H.M.Wang 2026-8-28 取消这个标识的设置，这个标识的设置会导致在ControlTabActivity的Handler中，处理MESSAGE_OPEN_MSG_SUCCESS事件时，即启动MESSAGE_PRINT_CHECK_UID，又启动MESSAGE_PRINT_START消息，并且两者相差时间很短，
+// 不清除是不是这个原因，导致Mipi屏执行网络启动打印命令时，不能控制UI的控件，取消后就可以了。经过分析，之所以调用了MESSAGE_PRINT_START是因为网络命令本体无法在调用MESSAGE_PRINT_CHECK_UID后传递下去了，因为这个命令的执行在
+// 其它的类，成功或会发送MSG_RFID_CHECK_SUCCESS，失败后会发送MSG_RFID_CHECK_FAIL，均无法将这个命令本体传递下去，中途断路了，所以通过这个命令希望直达送到结果的地方，这个有点鲁莽，并且通过消息传递的方式执行连续的步骤的做法
+// 就不可取，RFID的操作也是由于同样的处理手法很难介入控制流程。暂时取消这个命令后可以避免这个问题，但是恢复1111-ok或者1111-err的时候，就无法带上原命令的本体了
+// 2026-8-30 开放该设置，导致控件不受控的原因是ControlTab两次创建，导致sendMessage给到了前面创建的控件，但是这个控件已经不再使用了
             mControlTabActivity.PrnComd = "100";
+// End of H.M.Wang 2026-8-28
             mControlTabActivity.mObjPath = msgfile.getName();
 
             DataTransferThread aDTThread = DataTransferThread.getInstance(mContext);
             if(!aDTThread.isRunning() && !aDTThread.isPurging && !aDTThread.isCleaning) {
                 Message message = mControlTabActivity.mHandler.obtainMessage(ControlTabActivity.MESSAGE_OPEN_TLKFILE);
                 Bundle bundle = new Bundle();
-                bundle.putString("file", mControlTabActivity.mObjPath);  // f表示信息名称
+//                bundle.putString("file", mControlTabActivity.mObjPath);  // f表示信息名称
                 bundle.putString(Constants.PC_CMD, msg);
                 message.setData(bundle);
                 mControlTabActivity.mHandler.sendMessage(message);

@@ -478,4 +478,9 @@ public final class BitMatrix implements Cloneable {
     return new BitMatrix(width, height, rowSize, bits.clone());
   }
 
+// H.M.Wang 2026-8-22 增加获取全部数据的函数
+  public int[] getBits() {
+    return bits;
+  }
+// End of H.M.Wang 2026-8-22 增加获取全部数据的函数
 }

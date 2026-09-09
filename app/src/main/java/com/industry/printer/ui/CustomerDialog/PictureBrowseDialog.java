@@ -4,12 +4,15 @@ import java.io.File;
 
 import com.industry.printer.R;
 import com.industry.printer.Utils.ConfigPath;
+import com.industry.printer.Utils.Configs;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.Utils.PlatformInfo;
 import com.industry.printer.ui.CustomerAdapter.PictureBrowseAdapter;
 import com.industry.printer.ui.Items.PictureItem;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -86,6 +89,9 @@ public class PictureBrowseDialog extends CustomerDialogBase implements android.v
 		 setupViews();
 		 load();
 		 mPicView.setAdapter(mAdapter);
+// H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+		 loadBitmap();
+// End of H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
 	 }
 	
 	private void setupViews() {
@@ -128,7 +134,7 @@ public class PictureBrowseDialog extends CustomerDialogBase implements android.v
 		mAdapter.notifyDataSetChanged();
 		
 	}
-	
+
 	public void load() {
 		String p = ConfigPath.getPictureDir();
 		if (TextUtils.isEmpty(p)) {
@@ -148,7 +154,56 @@ public class PictureBrowseDialog extends CustomerDialogBase implements android.v
 			mAdapter.addItem(item);
 		}
 	}
-	
+
+// H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+	public static Bitmap getThumbnail(String filePath, int targetWidth, int targetHeight) {
+		// 1. 第一次采样：只获取图片边界信息，不加载到内存
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(filePath, options);
+
+		int srcWidth = options.outWidth;
+		int srcHeight = options.outHeight;
+
+		// 2. 计算采样比例 inSampleSize (应设置为2的幂次)
+		int inSampleSize = 1;
+		if (srcWidth > targetWidth || srcHeight > targetHeight) {
+			// 简单计算，实际应用中可能需要更精细的算法
+			int halfWidth = srcWidth;
+			int halfHeight = srcHeight;
+			while ((halfWidth / inSampleSize) >= targetWidth
+					&& (halfHeight / inSampleSize) >= targetHeight) {
+				inSampleSize *= 2;
+			}
+		}
+
+		// 3. 第二次采样：真正加载缩略图
+		options.inJustDecodeBounds = false;
+		options.inSampleSize = inSampleSize;
+		// 使用 RGB_565 可以减少一半内存占用 (相比 ARGB_8888)
+		options.inPreferredConfig = Configs.BITMAP_CONFIG;
+
+		return BitmapFactory.decodeFile(filePath, options);
+	}
+
+	public void loadBitmap() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (PictureItem item : mAdapter.getItems()) {
+					item.setBitmap(getThumbnail(item.getPath(), 400, 400));
+					mPicView.post(new Runnable() {
+						@Override
+						public void run() {
+							mAdapter.notifyDataSetChanged();
+						}
+					});
+				}
+			}
+		}).start();
+	}
+// End of H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率
+
 	public PictureItem getSelect() {
 		return mItem;
 	}

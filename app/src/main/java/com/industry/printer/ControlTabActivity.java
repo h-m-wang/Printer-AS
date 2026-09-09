@@ -122,6 +122,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -531,7 +532,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		filter.addAction(ACTION_REOPEN_SERIAL);
 		filter.addAction(ACTION_CLOSE_SERIAL);
 		filter.addAction(ACTION_BOOT_COMPLETE);
-		mReceiver = new SerialEventReceiver(); 
+		mReceiver = new SerialEventReceiver();
 		mContext.registerReceiver(mReceiver, filter);
 
 // H.M.Wang 2023-2-12 增加一个工作模式，使用外接U盘当中的文件作为DT的数据源来打印。后续使用哪个方法
@@ -580,14 +581,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		//mRecords = (TextView) getView().findViewById(R.id.tv_records);
 		/*
 		 *clean the print head
-		 *this command unsupported now 
+		 *this command unsupported now
 		 */
-		
+
 		mBtnClean = (RelativeLayout) getView().findViewById(R.id.btnFlush);
 		mBtnClean.setOnClickListener(this);
 		mBtnClean.setOnTouchListener(this);
 		mTvClean = (TextView) getView().findViewById(R.id.tv_flush);
-				
+
 		mBtnOpenfile = (RelativeLayout) getView().findViewById(R.id.btnBinfile);
 		mBtnOpenfile.setOnClickListener(this);
 		mBtnOpenfile.setOnTouchListener(this);
@@ -966,7 +967,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 
 // H.M.Wang 2021-10-30 更新网络命令实现机制
 //// 暂时关闭		SocketBegin();// Beging Socket service start;
-		mPCCommandManager = new PCCommandManager(mContext, this);
+		mPCCommandManager = PCCommandManager.getInstance(mContext, this);
 // End of H.M.Wang 2021-10-30 更新网络命令实现机制
 		refreshCount();
 
@@ -2367,7 +2368,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						mHandler.sendEmptyMessage(MESSAGE_PRINT_CHECK_UID);
 					}
 
-					if("100".equals(PrnComd))	
+					if("100".equals(PrnComd))
 					{
 						 msg = mHandler.obtainMessage(MESSAGE_PRINT_START);
 
@@ -2634,7 +2635,6 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					 */
 					
 					/*鎵撳嵃杩囩▼涓姝㈠垏鎹㈡墦鍗板璞�*/
-					switchState(STATE_PRINTING);
 					FpgaGpioOperation.clean();
 					Debug.d(TAG, "--->update settings");
 // H.M.Wang 2024-3-13 当打印头为hp22mm的时候，使用22mm头的专用参数设置
@@ -2652,6 +2652,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						handleError(R.string.str_toast_no_bin, pcMsg);
 						break;
 					}
+					switchState(STATE_PRINTING);
 					Debug.d(TAG, "--->finish ThreadId=" + Thread.currentThread().getId());
 					handlerSuccess(R.string.str_print_startok, pcMsg);
 // H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
@@ -4021,10 +4022,21 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2024-6-15 再次取消强制停止打印，恢复为2022-4-8的状态，只是为了避免频繁报警和显示提示，增加一个1秒钟的时间间隔，该时间间隔内静默
 	}
 
-	private void sendToRemote(String msg) {
+	private void sendToRemote(final String msg) {
 // H.M.Wang 2021-10-30 更新网络命令实现机制
 		if(null != mPCCommandManager) {
-			mPCCommandManager.sendMessage(msg);
+// H.M.Wang 2026-8-28 增加是否在UI线程的判断，如果在UI线程，则启动线程来发送网络信息，否则会失败
+			if(Thread.currentThread() == Looper.getMainLooper().getThread()) {
+				Executors.newCachedThreadPool().execute(new Runnable() {
+					@Override
+					public void run() {
+						mPCCommandManager.sendMessage(msg);
+					}
+				});
+			} else {
+// End of H.M.Wang 2026-8-28 增加是否在UI线程的判断，如果在UI线程，则启动线程来发送网络信息，否则会失败
+				mPCCommandManager.sendMessage(msg);
+			}
 			return;
 		}
 // End of H.M.Wang 2021-10-30 更新网络命令实现机制

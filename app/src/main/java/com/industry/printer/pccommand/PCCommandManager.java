@@ -40,8 +40,17 @@ public class PCCommandManager {
         return mInstance;
     }
 
-    public PCCommandManager(Context ctx, ControlTabActivity act) {
-        mInstance = this;
+    public static PCCommandManager getInstance(Context ctx, ControlTabActivity act) {
+// H.M.Wang 2026-8-30 关闭已经打开的服务，因为ControlTab在Mipi屏的时候由于旋转会被创建两次，如果不这么处理，会将消息发送到前一次创建的控件，而其已经不再被使用
+        if(mInstance != null) {
+            mInstance.close();
+        }
+// End of H.M.Wang 2026-8-30 关闭已经打开的服务，因为ControlTab在Mipi屏的时候由于旋转会被创建两次，如果不这么处理，会将消息发送到前一次创建的控件，而其已经不再被使用
+        mInstance = new PCCommandManager(ctx , act);
+        return mInstance;
+    }
+
+    private PCCommandManager(Context ctx, ControlTabActivity act) {
         mControlTabActivity = act;
         mContext = ctx;
 

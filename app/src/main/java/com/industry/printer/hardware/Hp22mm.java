@@ -186,6 +186,25 @@ public class Hp22mm {
         }
 
 if(!THIRD_PARTY_PROGRAMER) {
+    // H.M.Wang 2024-11-10
+        if (0 != StartMonitor()) {
+            Debug.d(TAG, "StartMonitor failed\n");
+            return -7;
+        } else {
+            Debug.d(TAG, "StartMonitor succeeded\n");
+        }
+    // End of H.M.Wang 2024-11-10
+
+    // H.M.Wang 2024-11-10
+    //        if (0 != Pressurize()) {
+        if (0 != Pressurize(true)) {
+    // End of H.M.Wang 2024-11-10
+            Debug.d(TAG, "Pressurize failed\n");
+            return -8;
+        } else {
+            Debug.d(TAG, "Pressurize succeeded\n");
+        }
+
         int penArg = ((nozzle_sel >> 8) & 0x00000003);
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
             penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
@@ -270,26 +289,6 @@ if(!THIRD_PARTY_PROGRAMER) {
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
-
-// H.M.Wang 2024-11-10
-        if (0 != StartMonitor()) {
-            Debug.d(TAG, "StartMonitor failed\n");
-            return -7;
-        } else {
-            Debug.d(TAG, "StartMonitor succeeded\n");
-        }
-// End of H.M.Wang 2024-11-10
-
-// H.M.Wang 2024-11-10
-//        if (0 != Pressurize()) {
-        if (0 != Pressurize(true)) {
-// End of H.M.Wang 2024-11-10
-            Debug.d(TAG, "Pressurize failed\n");
-            return -8;
-        } else {
-            Debug.d(TAG, "Pressurize succeeded\n");
-        }
-
 } else {
     if (0 != init_pd(0x01)) {
         Debug.d(TAG, "init_pd failed\n");

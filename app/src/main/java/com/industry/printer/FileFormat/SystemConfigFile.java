@@ -613,6 +613,7 @@ public class SystemConfigFile{
 			try {
 				SharedPreferences sp = mContext.getSharedPreferences(DT_PREFS, Context.MODE_PRIVATE);
 				mDTBuffer[i] = sp.getString(TAG_DT + i, "#####");
+				mDTBuffer[i] = "" + (11111 * (i+1));
 				Debug.d(TAG, "Read: " + TAG_DT + i + " = [" + mDTBuffer[i] + "]");
 			} catch(Exception e) {
 				Debug.e(TAG, e.getMessage());

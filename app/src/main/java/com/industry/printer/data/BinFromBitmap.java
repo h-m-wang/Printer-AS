@@ -127,7 +127,7 @@ public class BinFromBitmap extends BinCreater {
 					pixels = NativeGraphicJni.ShiftImage(pixels, 0, 0, 0, 308, 320);
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
 				} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 // H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
 //					pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, tmpHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
@@ -135,18 +135,18 @@ public class BinFromBitmap extends BinCreater {
 					int c84 = SystemConfigFile.getInstance().getParam(83);
 					pixels = NativeGraphicJni.ShiftImage(pixels, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
-/* End of 2026-7-3 暂时恢复apk插值 */
+End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 				}
 				byte[] tmpBin;
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
 				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head*5, 240, (xPos == 0 ? 1 : 0));	// 因为108MM表面上是按着1个头来管理的，但是在二值化时需要考虑头之间的间隙
 				} else {
 					tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));
-				}
-/* End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理				tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));*/
+				} */
+				tmpBin = NativeGraphicJni.Binarize(pixels, mWidth, tmpHeight, head, 240, (xPos == 0 ? 1 : 0));
 				System.arraycopy(tmpBin, 0, mBinBits, xPos * binWidth, tmpBin.length);
 				xPos += tmpHeight;
 			}
@@ -163,7 +163,7 @@ public class BinFromBitmap extends BinCreater {
 			pixels = NativeGraphicJni.ShiftImage(pixels, 0, 0, 0, 308, 320);
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
 		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 // H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数。单数头位移点数=C83小于20时的值，双数头位移点数=C83大于20时C83-20的值，108头以外无此功能，均为0
 //			pixels = NativeGraphicJni.ShiftImage(pixels, mWidth, mHeight, head * 5, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
@@ -171,31 +171,31 @@ public class BinFromBitmap extends BinCreater {
 			int c84 = SystemConfigFile.getInstance().getParam(83);
 			pixels = NativeGraphicJni.ShiftImage(pixels, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
 // End of H.M.Wang 2026-4-29 临时修改，width=单数头的位移值，height=双数头的位移值，head=重叠点数
-/* End of 2026-7-3 暂时恢复apk插值 */
+End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 		}
 // H.M.Wang 2020-9-10 大字机5x5字体的时候，vbin的全白问题，原来的220阈值有点低，修改为240
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head*5, 240, 1);
 		} else {
 			mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);
-		}
-/* End of 2026-7-3 暂时恢复apk插值 		mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1); */
+		}*/
+ 		mBinBits = NativeGraphicJni.Binarize(pixels, mWidth, mHeight, head, 240, 1);
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 // End of H.M.Wang 2020-9-10 大字机5x5字体的时候，...
 		}
 		mDots = NativeGraphicJni.GetDots();
 // H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
-/* 2026-7-3 暂时恢复apk插值 */
+/* 2026-7-3 暂时恢复apk插值
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			for(int i=1; i<mDots.length; i++) {
 				mDots[0] += mDots[i];
 				mDots[i] = 0;
 			}
 		}
-/* End of 2026-7-3 暂时恢复apk插值 */
+End of 2026-7-3 暂时恢复apk插值 */
 // End of H.M.Wang 2026-5-9 取消对于108MM进行的插入空挡处理
 
 		// H.M.Wang 增加1行
@@ -204,33 +204,57 @@ public class BinFromBitmap extends BinCreater {
         return mDots; 
     }
 
+    // 2026-8-25 当needShift=true时，12.7xn系列头，由bmp生成bin时，直接插入末尾的一个字节空挡，否则不插入（不插入主要是保证预存的bin，1.bin和v.bin与旧版本保持兼容）
 	@Override
 	public int[] extract(Bitmap bmp, int heads, boolean needShift) {
 		mWidth = bmp.getWidth();         		// mWidth 是经过旋转的bmp的宽，相当于原图的高
 		mHeight = bmp.getHeight(); 				// mHeight 是经过旋转的bmp的高，相当于原图的宽
-		mHeighEachHead = mHeight / heads;
 
-		if(needShift) {
+		if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH ||
+		    SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_DUAL ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_TRIPLE ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCH_FOUR ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx5 ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx6 ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx7 ||
+			SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_1_INCHx8) {
 			NativeGraphicJni.ShiftImage(null, 0, 0, 0, 308, 320);
-		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+		} else if(needShift) {
+			if (SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_12_7 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_25_4 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_38_1 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_50_8 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x5 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x6 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x7 ||
+					SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_127x8) {
+				NativeGraphicJni.ShiftImage(null, 0, 0, 0, 152, 160);
+			} else {
+				NativeGraphicJni.ShiftImage(null, 0, 0, 0, 0, 0);
+			}
+/* 2026-7-3 暂时恢复apk插值		} else if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			int c83 = SystemConfigFile.getInstance().getParam(82);
 			int c84 = SystemConfigFile.getInstance().getParam(83);
 			NativeGraphicJni.ShiftImage(null, (c83 < 20 ? c83 : 0), (c83 >= 20 ? c83-20 : 0), c84, 508, 544);		// 108MM内部按1个头来管理，但是展开的时候按着5个头展开
-		}
-		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
-			mBinBits = NativeGraphicJni.BinarizeBmp(bmp, mWidth, mHeight, heads*5, 240, 1);
+*/
 		} else {
-			mBinBits = NativeGraphicJni.BinarizeBmp(bmp, mWidth, mHeight, heads, 240, 1);
+			NativeGraphicJni.ShiftImage(null, 0, 0, 0, 0, 0);
 		}
+/* 2026-7-3 暂时恢复apk插值		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+			mBinBits = NativeGraphicJni.BinarizeBmp(bmp, mWidth, mHeight, heads*5, 240, 1);
+		} else {*/
+			mBinBits = NativeGraphicJni.BinarizeBmp(bmp, mWidth, mHeight, heads, 240, 1);
+// 2026-7-3 暂时恢复apk插值		}
 		mDots = NativeGraphicJni.GetDots();
 
+/* 2026-7-3 暂时恢复apk插值
 		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
 			for(int i=1; i<mDots.length; i++) {
 				mDots[0] += mDots[i];
 				mDots[i] = 0;
 			}
 		}
-
+*/
 		return mDots;
 	}
 

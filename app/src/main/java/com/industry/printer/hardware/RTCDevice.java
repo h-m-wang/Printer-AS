@@ -160,6 +160,7 @@ public class RTCDevice {
 		byte[] data;
 		if(PlatformInfo.isA133Product()) {
 			data = SmartCard.readRTC((byte)mI2CGroupID, (byte)0x68, (byte)0x00, 8);
+			if(null == data || data.length < 8) return 0;
 		} else {
 			SystemFs.writeSysfs(I2C_DEVICE, getAddress());
 

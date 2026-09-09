@@ -1824,6 +1824,85 @@ public class BarcodeObject extends BaseObject {
 	}
 // End of H.M.Wang 2023-2-1 修改条码生成打印缓冲区的算法，
 
+	public Bitmap getPrintBitmapFit(int w, int h) {
+		Bitmap bitmap = null;
+
+// H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
+// H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此静态条码也可能会被重画，这里只有动态条码才使用桶里面的内容
+		if(isDynamicCode())	mHTContent.setContent(SystemConfigFile.getInstance().getBarcodeBuffer());
+// End of H.M.Wang 2024-1-12 231230-115300001版本增加的超文本支持动态文本的功能，从在动态条码中实现改为在静态条码中实现，因此静态条码也可能会被重画，这里只有动态条码才使用桶里面的内容
+// End of H.M.Wang 2023-8-23 这个getPrintBitmap是专门给动态二维码使用的，在打印过程中生成打印缓冲区的函数，此时不能以原有内容为依据，而是要使用桶里面的内容
+		String cnt = mHTContent.getExpandedContent();
+		mContent = cnt;
+
+		check();
+		mIsForBin = true;
+
+		if (!is2D()) {
+			bitmap = draw(mContent, w, h);
+		} else {
+//			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
+			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
+				bitmap = drawDataMatrix(mContent, w, h);
+// H.M.Wang 2023-11-21 追加GS1的QR和DM
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
+// H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+//				bitmap = drawOkapiQR(mContent, w, h);
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+//				bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+//				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+					Gs1.AIType = Gs1.AI_TYPE_BRACE;
+					bitmap = drawOkapiQR((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
+					Gs1.AIType = Gs1.AI_TYPE_NORMAL;
+				} else {
+					bitmap = drawOkapiQR(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+				}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+// End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1DM)) {
+// H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+//				bitmap = drawGS1Datamatrix(mContent, w, h);
+// H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+//				bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("(")) ? mContent : "[21]" + mContent), w, h);
+// H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+//				if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE) {
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_BRACE ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_LAN_GS1_BRACE ||
+// End of H.M.Wang 2024-2-22 追加一个GS1网络协议。内容与DATA_SOURCE_GS1_BRACE一样，只是数据从LAN来，走650或者600命令
+// H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_1 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_2 ||
+						SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_GS1_3) {
+// End of H.M.Wang 2024-6-12 追加GS1-1，GS1-2，GS1-3的条码解析功能
+					Gs1.AIType = Gs1.AI_TYPE_BRACE;
+					bitmap = drawGS1Datamatrix((mContent.startsWith("{")  ? mContent : "{21}" + mContent), w, h);
+					Gs1.AIType = Gs1.AI_TYPE_NORMAL;
+				} else {
+					bitmap = drawGS1Datamatrix(((mContent.startsWith("[")  || mContent.startsWith("("))  ? mContent : "[21]" + mContent), w, h);
+				}
+// End of H.M.Wang 2024-2-20 追加一个GS1串口协议。该协议使用花括号作为AI的分隔符
+// End of H.M.Wang 2024-2-3 当生成GS1DM或者GS1QR的时候，如果缺少标签，则会异常返回，导致生成的二维码为空，导致img获取不到数据而频繁发送empty，导致频繁下发，频繁的向网络发送回馈消息，修改方法为如果没有标签则加入21标签
+// End of H.M.Wang 2023-11-21 追加GS1的QR和DM
+			} else {
+				bitmap = drawQR(mContent, w, h);
+//				mBitmap = drawLcfQR(content, (int) mHeight, (int) mWidth);
+			}
+		}
+
+		mIsForBin = false;
+
+		return bitmap;
+	}
+
 	public int[] getDotcount() {
 		Bitmap bmp = getScaledBitmap(mContext);
 		BinFileMaker maker = new BinFileMaker(mContext);
