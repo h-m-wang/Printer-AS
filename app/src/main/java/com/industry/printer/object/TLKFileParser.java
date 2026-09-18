@@ -382,6 +382,9 @@ public class TLKFileParser  extends TlkFile{
 				((HyperTextObject) obj).setShiftTime(3, attr[16]);
 				((HyperTextObject) obj).setDateOffset(attr[20]);
 // End of H.M.Wang 2020-2-17 追加HyperText控件
+// H.M.Wang 2025-10-26 追加字间距标识
+				if(attr.length >= 26) ((HyperTextObject)obj).setLetterSpacing(attr[26]);
+// End of H.M.Wang 2025-10-26 追加字间距标识
 			} else if (BaseObject.OBJECT_TYPE_TEXT.equals(attr[1]))            //text
 			{
 				obj = new TextObject(mContext, 0);

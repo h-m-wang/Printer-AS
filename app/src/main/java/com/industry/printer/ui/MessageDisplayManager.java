@@ -21,7 +21,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 
+import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MessageTask;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.R;
 import com.industry.printer.Utils.Debug;
 import com.industry.printer.object.BaseObject;
@@ -60,12 +62,14 @@ public class MessageDisplayManager implements View.OnTouchListener {
         mShadow = new ImageView(mContext);
         mImageMap = new HashMap<BaseObject, ViewGroup>();
 // H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
+// H.M.Wang 2026-9-14 修改为108MM的时候放大显示，其它的原样显示
         mRate = mContext.getResources().getInteger(R.integer.expand_rate);
+        mRate = (SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM ? mRate : 1);
+// End of H.M.Wang 2026-9-14 修改为108MM的时候放大显示，其它的原样显示
 // End of H.M.Wang 2026-8-5 增加一个放大显示编辑内容的参数，从对应于相应分辨率的integers.xml中读取
 
         reset();
     }
-
 
     public void reset() {
         if (mContainer != null) {

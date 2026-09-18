@@ -779,7 +779,7 @@ OBJECT_TYPE_MsgName											031
 		/*draw Bitmap of single digit*/
 		Bitmap bmp = Bitmap.createBitmap(width, Math.round(mHeight), Configs.BITMAP_CONFIG);
 		Canvas can = new Canvas(bmp);
-		
+
 		// Debug.d(TAG, "--->id = " + mId + " Width=" + mWidth);
 		/*draw 0-9 totally 10 digits Bitmap*/
 		singleW = Math.round(mWidth/mContent.length());

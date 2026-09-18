@@ -253,10 +253,32 @@
 				android:textSize="30sp"
 				android:textColor="#000000"/>
 
+<!-- H.M.Wang 2026-9-17 增加超文本可以设置字间距 -->
+			<EditText android:id="@+id/letterSpacingET"
+				android:layout_marginLeft="150dp"
+				android:layout_width="@dimen/settingsItemLength"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/et_offset"
+				android:textSize="30sp"
+				android:singleLine="true"
+				android:inputType="number"
+				android:hint="0"
+				/>
+
+			<TextView android:id="@+id/letterSpacingTV"
+				android:layout_marginLeft="10dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignBaseline="@id/letterSpacingET"
+				android:text="@string/strLetterSpacing"
+				android:textSize="30sp"
+				android:textColor="#000000"/>
+<!-- End of H.M.Wang 2026-9-17 增加超文本可以设置字间距 -->
+
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/et_offset"
+				android:layout_below="@id/letterSpacingET"
 				android:background="#ff666666"
 				android:layout_margin="60dp"
 				android:orientation="vertical" >

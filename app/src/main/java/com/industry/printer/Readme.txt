@@ -1,3 +1,91 @@
+2026-9-18 260918-210901001
+==================
+在Server1MainWindow类中网络访问请求中追加下列两行
+                        .setHeaderParams("Content-Type", "application/json;charset=UTF-8")
+                        .setHeaderParams("Accept", "application/json;charset=UTF-8")
+（三处）
+
+2026-9-16 260916-210801001
+==================
+hp22mm.中，守护线程中，对于ids的操作，不成功的几个地方会执行continue，跳过后面的处理，这个可能会导致pd与ids的握手不被执行，需要取消
+
+2026-9-16 260916-210700001
+2026-9-15 260915-210701001
+==================
+修改参数：
+Rfid版：
+//		mFPGAParam[7] = (int) (param[6]*param[9]/(param[8]*3.14));
+		mFPGAParam[7] = (int) (1.0f*param[6]*param[9]/(param[8]*3.14)/2);
+22mm版
+//            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f);            // R16 = C7 * C10 * 64 / C9 / 3.14
+            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f / 2);            // R16 = C7 * C10 * 64 / C9 / 3.14 / 2
+目的：当前的计算公式导致循环打印时间距是正确值的两倍
+
+2026-9-15 260915-210601001-3rdPrgm
+==================
+第三方编程器。在hp22mm.c的Java_com_WriteIDSProgramingFields中，复制hp的其它参数写入相应位置
+
+2026-9-14 260914-210501001
+==================
+108mm，生成打打印数据，高度保持2560，但是图画在2540高之内
+
+2026-9-14 260914-210400001
+2026-9-14 260914-210401001
+==================
+编辑窗口，修改为108MM的时候放大显示，其它的原样显示
+
+2026-9-14 260914-210300001
+2026-9-14 260914-210301001
+==================
+在ControlTabActivity的onComplete函数中，当减少一次剩余次数后，立即更新显示锁值区，并且重新安排3秒后再显示的消息
+
+2026-9-14 260914-210200001
+2026-9-14 260914-210201001
+==================
+在ControlTabActivity类的MESSAGE_OPEN_NEXT_MSG_SUCCESS时间中，执行了resetTask后，假如了mRemainCount清零的操作，否则的话，mRemainCount不被重新计算，会导致剩余次数不被更新
+
+2026-9-11 260911-210100001
+2026-9-11 260911-210101001
+==================
+108MM禁止长清洗
+
+2026-9-11 260911-210000001
+2026-9-11 260911-210001001
+==================
+修改NativieGraphicJni的BinarizeBmp函数的colEach计算bug
+
+2026-9-11 260911-209901001
+==================
+在DataTransferThread类中，initDataBuffer或者resetTask函数中，生成新的DataTask后，调用一次getPrintBuffer，主要目的是通过生成打印缓冲区后，DataTask当中能够计算mDots，这样在setDotCount->initCount->getInkThreshold才能够参考到正确的点数，否则mDots是0
+
+2026-9-10 260910-209801001-3rdPrgm
+==================
+260910-209701001-3rdPrgm废弃
+
+2026-9-10 260910-209701001-3rdPrgm
+==================
+第三方编程专用apk，hp22mm.c与TestHp22mm.java做了增加density和usable_ink_weight写入的修改
+编程用的固件为：
+PD_FW_encrypted_0_10.s19
+Ids_Programming_FW_encrypted_0_01.s19
+
+2026-9-9 260909-209600001
+2026-9-9 260909-209601001
+==================
+1. 取消209401001和209501001的修改
+2. 一键通测加入一键通测。
+3. 测试页面的功能操作键均增加确认对话窗
+
+2026-9-9 260909-209501001
+==================
+【临时版本】 在pdPowerOn函数中，修改
+    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 13); // 200%
+
+2026-9-9 260909-209401001
+==================
+【临时版本】 在pdPowerOn函数中，修改
+    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 4); // 0%
+
 2026-9-8 260908-209300001
 ==================
 1. 取消DataTransferThread类中的setDotCount函数中从MessageTask中读取点数设置给DataTask的操作，以防止DataTask在第一次生成print.bin时不再统计点数的问题

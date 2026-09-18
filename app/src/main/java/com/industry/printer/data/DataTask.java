@@ -1364,7 +1364,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 // 2026-8-19				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW*wx), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW*wx), (int)(o.getHeight()/scaleH*hx), (int)(o.getY()/scaleH*hx));
 // H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 //				Bitmap bmp = ((BarcodeObject)o).getPrintBitmap((int)(o.getWidth()/scaleW), mBinInfo.getBytesFeed()*8, (int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH), (int)(o.getY()/scaleH));
-long s0 = System.currentTimeMillis();
 				Bitmap bmp = ((BarcodeObject)o).getPrintBitmapFit((int)(o.getWidth()/scaleW), (int)(o.getHeight()/scaleH));
 // End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 // End of H.M.Wang 2021-2-20 o.getY()坐标直接传递改为除以scaleH后传递，因为这个是生成打印缓冲区，需要考虑scale
@@ -1373,7 +1372,6 @@ long s0 = System.currentTimeMillis();
 //				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
 // H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
 // 				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
-long s1 = System.currentTimeMillis();
 				NativeGraphicJni.PasteBmp2Bin(
 						mPrintBuffer,
 						bmp,
@@ -1386,9 +1384,6 @@ long s1 = System.currentTimeMillis();
 						(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
 						(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
 						stat.getScale());
-long s2 = System.currentTimeMillis();// End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
-Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
-Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
 // End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
 
 // H.M.Wang 2024-1-12 因为静态文本当含有超文本中的可变内容时，重新画，因此这里还得改为覆盖
@@ -1512,7 +1507,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 //                Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW/wx, scaleH/hx, headType.getHeight());
 // H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 //				Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW, scaleH, headType.getHeight());
-long s0 = System.currentTimeMillis();
 				Bitmap bmp = ((DynamicText)o).getPrintBitmapFit(scaleW, scaleH);
 // End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 // End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
@@ -1521,7 +1515,6 @@ long s0 = System.currentTimeMillis();
 // H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
 //				BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), mExtendStat);
-long s1 = System.currentTimeMillis();
 //                BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
 				NativeGraphicJni.PasteBmp2Bin(
 						mPrintBuffer,
@@ -1535,9 +1528,6 @@ long s1 = System.currentTimeMillis();
 						(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
 						(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
 						stat.getScale());
-long s2 = System.currentTimeMillis();
-Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
-Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
 // End of H.M.Wang 2026-9-1 不再通过BinInfo进行二值化，然后贴图，而是使用	NativeGraphicJni.PasteBmp2Bin函数二值化并且直接贴图
 // End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 //				Debug.d(TAG, "Overlap: x=" + (int)(o.getX()/div) + "; Height=" + info.getCharsFeed() * stat.getScale());
@@ -1685,6 +1675,24 @@ Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
 				}
 // H.M.Wang 2020-2-17 追加HyperText控件
 			} else if(o instanceof HyperTextObject) {
+// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
+				if(headType.isBigdotType()) {
+					Bitmap bmp = ((HyperTextObject)o).getPrintBitmapFit(scaleW, scaleH);
+					NativeGraphicJni.PasteBmp2Bin(
+							mPrintBuffer,
+							bmp,
+							mBinInfo.mBytesFeed*8,
+							mBinInfo.mColumn,
+							mBinInfo.mBytesPerColumn,
+							(int)(o.getX()/div),
+							(int)(o.getY()/scaleH),
+							(int)(o.getYEnd()/scaleH),
+							(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
+							(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
+							stat.getScale());
+					return;
+				}
+// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
 				Vector<BaseObject> htObjs = ((HyperTextObject) o).getSubObjs();
 
 				for (BaseObject htObj : htObjs) {
@@ -1726,9 +1734,7 @@ H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置�
 //						Bitmap bmp = ((DynamicText)htObj).getPrintBitmap(scaleW, scaleH, headType.getHeight());
 //						BinInfo info = new BinInfo(mContext, bmp, mTask.getHeads(), null);
 //						info.pasteBgBuffer(mPrintBuffer, (int)(htObj.getX()/div), toPrintStartY(htObj.getY()/scaleH), toPrintEndY(htObj.getYEnd()/scaleH), stat.getScale());
-long s0 = System.currentTimeMillis();
 						Bitmap bmp = ((DynamicText)htObj).getPrintBitmapFit(scaleW, scaleH);
-long s1 = System.currentTimeMillis();
 						NativeGraphicJni.PasteBmp2Bin(
 								mPrintBuffer,
 								bmp,
@@ -1741,13 +1747,10 @@ long s1 = System.currentTimeMillis();
 								(isMessageType127xn() ? 152 : (isMessageType254xn() ? 308 : 0)),
 								(isMessageType127xn() ? 160 : (isMessageType254xn() ? 320 : 0)),
 								stat.getScale());
-long s2 = System.currentTimeMillis();
-Debug.d(TAG, "getPrintBitmap: " + (s1 - s0));
-Debug.d(TAG, "PasteBmp2Bin: " + (s2 - s1));
 // End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 // End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 						continue;
-					}
+					} else
 // End H.M.Wang 2023-12-30 增加对DT的支持。
 					if (htObj instanceof RealtimeYear) {
 						substr = ((RealtimeYear) htObj).getContent();

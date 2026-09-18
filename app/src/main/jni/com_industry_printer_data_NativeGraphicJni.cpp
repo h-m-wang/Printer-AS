@@ -210,7 +210,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
         (JNIEnv *env, jclass thiz, jobject bmp, jint width, jint height, jint head, jint value, jint reset) {
     LOGI("Enter BinarizeBmp. Width = %d, Height = %d, Head = %d, OrgLines = %d, TarLines = %d", width, height, head, OrgLines, TarLines);
 
-    int colEach = (((width % 152) == 0) ? width/8+head : width/8);       // 如果是12.7xn的头，为每个头多取得一个字节，因为12.7xn打印头的原始数据中没有预留这个空间
+//    int colEach = (((width % 152) == 0) ? width/8+head : width/8);       // 如果是12.7xn的头，为每个头多取得一个字节，因为12.7xn打印头的原始数据中没有预留这个空间
+    int colEach = (((width % 8) == 0) ? width/8 : width/8+1);       // 保持与原版本兼容性，这里不能加一个字节
     int newSize = height * colEach;                                 // 二值化后数据实际需要的字节数
     jbyte *cbuf_tmp  = NULL;                                         // 原位图数据区指针
     int pixel_step = 4;                                             // 缺省按买个像素4个字节来处理（A20的情况下，每个字节需要2个字节，因为apk使用的是RGB4444作为bitmap的配置，这个配置已经在API level 13后被取消了

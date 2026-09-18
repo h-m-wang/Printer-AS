@@ -434,6 +434,9 @@ public class TestGpioPinsNew implements ITestOperation {
         testUpgradeKOs();
         try{Thread.sleep(3000);}catch (Exception e){}
 
+        testUpgradeIME();
+        try{Thread.sleep(3000);}catch (Exception e){}
+
         Calendar c = Calendar.getInstance();
         c.set(2020, 2, 1, 3, 20,0);
         long when = c.getTimeInMillis();
@@ -582,11 +585,22 @@ public class TestGpioPinsNew implements ITestOperation {
         mGpioTestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mGpioTestBtn.setBackgroundColor(Color.DKGRAY);
-                mGpioTestBtn.setEnabled(false);
-                resetOutPins();
-                mGpioPinTesting = true;
-                mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_gpio));
+                cd.setListener(new DialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        mGpioTestBtn.setBackgroundColor(Color.DKGRAY);
+                        mGpioTestBtn.setEnabled(false);
+                        resetOutPins();
+                        mGpioPinTesting = true;
+                        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
+                    }
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
 
@@ -594,7 +608,18 @@ public class TestGpioPinsNew implements ITestOperation {
         clearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                resetOutPins();
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_clear_gpio));
+                cd.setListener(new DialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        resetOutPins();
+                    }
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
 
@@ -616,12 +641,23 @@ public class TestGpioPinsNew implements ITestOperation {
         mInitTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_init));
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        testInit();
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                testInit();
+                            }
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
 
@@ -629,12 +665,23 @@ public class TestGpioPinsNew implements ITestOperation {
         mEtherTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_net));
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        testWifiResponseTime();
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                testWifiResponseTime();
+                            }
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
         mEthProgress = (ProgressBar) mTestAreaLL.findViewById(R.id.net_progressing);
@@ -643,12 +690,23 @@ public class TestGpioPinsNew implements ITestOperation {
         mSerialTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_serial));
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        testSerial();
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                testSerial();
+                            }
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
         mSerialProgress = (ProgressBar) mTestAreaLL.findViewById(R.id.serial_progressing);
@@ -657,7 +715,18 @@ public class TestGpioPinsNew implements ITestOperation {
         mRFIDTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                testRFID();
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_rfid));
+                cd.setListener(new DialogListener() {
+                    @Override
+                    public void onConfirm() {
+                        testRFID();
+                    }
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
 
@@ -783,40 +852,51 @@ public class TestGpioPinsNew implements ITestOperation {
         totalBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Thread(new Runnable() {
+// H.M.Wang 2026-9-9 开始测试前增加确认功能
+                ConfirmDialog cd = new ConfirmDialog(mContext, mContext.getResources().getString(R.string.str_m9_test_1click_all));
+                cd.setListener(new DialogListener() {
                     @Override
-                    public void run() {
-                        totalBtn.post(new Runnable() {
+                    public void onConfirm() {
+                        new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                totalBtn.setEnabled(false);
-                                totalBtn.setBackgroundColor(Color.GRAY);
+                                totalBtn.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        totalBtn.setEnabled(false);
+                                        totalBtn.setBackgroundColor(Color.GRAY);
+                                    }
+                                });
+
+                                mGpioPinTesting = true;
+                                mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
+
+                                while(mGpioPinTesting) {
+                                    try{Thread.sleep(1000);}catch (Exception e){}
+                                }
+
+                                testInit();
+                                try{Thread.sleep(3000);}catch (Exception e){}
+                                testWifiResponseTime();
+                                try{Thread.sleep(3000);}catch (Exception e){}
+                                testSerial();
+
+                                totalBtn.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        testRFID();
+                                        totalBtn.setEnabled(true);
+                                        totalBtn.setBackgroundColor(Color.GREEN);
+                                    }
+                                });
                             }
-                        });
-
-                        mGpioPinTesting = true;
-                        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_PINSTEST_NEXT, 0, 0), 1000);
-
-                        while(mGpioPinTesting) {
-                            try{Thread.sleep(1000);}catch (Exception e){}
-                        }
-
-                        testInit();
-                        try{Thread.sleep(3000);}catch (Exception e){}
-                        testWifiResponseTime();
-                        try{Thread.sleep(3000);}catch (Exception e){}
-                        testSerial();
-
-                        totalBtn.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                testRFID();
-                                totalBtn.setEnabled(true);
-                                totalBtn.setBackgroundColor(Color.GREEN);
-                            }
-                        });
+                        }).start();
                     }
-                }).start();
+                    public void onCancel() {
+                    }
+                });
+                cd.show();
+// End of H.M.Wang 2026-9-9 开始测试前增加确认功能
             }
         });
 

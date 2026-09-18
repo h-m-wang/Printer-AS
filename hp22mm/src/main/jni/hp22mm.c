@@ -28,7 +28,21 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.220"
+#define VERSION_CODE                            "1.0.226"
+// 1.0.226 2026-9-16
+// 守护线程中，对于ids的操作，不成功的几个地方会执行continue，跳过后面的处理，这个可能会导致pd与ids的握手不被执行，需要取消
+// 1.0.225 2026-9-15
+// 在Java_com_WriteIDSProgramingFields中，复制hp的其它参数写入相应位置
+// 1.0.224 2026-9-10
+// 在Java_com_WriteIDSProgramingFields中，增加写入density和usable_ink_weight参数
+// 1.0.223 2026-9-9
+// 取消1.9.221和1.0.222的修改，恢复到1.0.220的内容
+// 1.0.222 2026-9-9
+// 在pdPowerOn函数中，修改
+// pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 13); // 200%
+// 1.0.221 2026-9-9
+// 在pdPowerOn函数中，修改
+// pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 4); // 0%
 // 1.0.220 2026-9-2
 // 在守护线程中，取消读温度的操作
 // 1.0.219 2026-8-11
@@ -656,12 +670,14 @@ JNIEXPORT jint JNICALL Java_com_WritePDProgramingFields(JNIEnv *env, jclass arg,
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev) {
+JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev, jint density, jint usable_ink_weight) {
     if( IDS_OK != write_ids_oem_field(32, l2) ||
         IDS_OK != write_ids_oem_field(33, l3) ||
         IDS_OK != write_ids_oem_field(34, l4) ||
         IDS_OK != write_ids_oem_field(35, l5) ||
-        IDS_OK != write_ids_oem_field(36, rev)) {
+        IDS_OK != write_ids_oem_field(36, rev) ||
+        IDS_OK != write_ids_oem_field(26, density) ||
+        IDS_OK != write_ids_oem_field(31, usable_ink_weight)) {
         return -2;              // 写失败
     }
 
@@ -669,9 +685,60 @@ JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg
         read_ids_oem_field(33) != l3 ||
         read_ids_oem_field(34) != l4 ||
         read_ids_oem_field(35) != l5 ||
-        read_ids_oem_field(36) != rev) {
+        read_ids_oem_field(36) != rev ||
+        read_ids_oem_field(26) != density ||
+        read_ids_oem_field(31) != usable_ink_weight) {
         return -1;              // 数值没有写进去
     }
+
+//    write_ids_oem_field(17, 8);
+//    write_ids_oem_field(18, 2);
+//    write_ids_oem_field(19, 13);
+//    write_ids_oem_field(20, 16);
+//    write_ids_oem_field(21, 4);
+//    write_ids_oem_field(22, 1);
+//    write_ids_oem_field(23, 39);
+//    write_ids_oem_field(24, 22);
+//    write_ids_oem_field(25, 0);
+//    write_ids_oem_field(27, 104);
+//    write_ids_oem_field(28, 0);
+//    write_ids_oem_field(29, 104);
+//    write_ids_oem_field(30, 0);
+    write_ids_oem_field(17, 8);
+    write_ids_oem_field(18, 1);
+    write_ids_oem_field(19, 10);
+    write_ids_oem_field(20, 43);
+    write_ids_oem_field(21, 2);
+    write_ids_oem_field(22, 16);
+    write_ids_oem_field(23, 59);
+    write_ids_oem_field(24, 52);
+    write_ids_oem_field(25, 2);
+    write_ids_oem_field(27, 104);
+    write_ids_oem_field(28, 0);
+    write_ids_oem_field(29, 104);
+    write_ids_oem_field(30, 0);
+
+    write_ids_oem_field(37, 0);
+    write_ids_oem_field(38, 0);
+    write_ids_oem_field(39, 0);
+
+    write_ids_oem_field(41, 0);
+    write_ids_oem_field(42, 0);
+    write_ids_oem_field(43, 0);
+    write_ids_oem_field(44, 0);
+
+    write_ids_oem_field(48, 0);
+    write_ids_oem_field(49, 0);
+    write_ids_oem_field(50, 0);
+    write_ids_oem_field(51, 0);
+
+    write_ids_oem_field(53, 0);
+    write_ids_oem_field(54, 0);
+    write_ids_oem_field(55, 0);
+    write_ids_oem_field(56, 0);
+
+    write_ids_oem_field(60, 0);
+
     return 0;
 }
 
@@ -753,8 +820,10 @@ void *monitorThread(void *arg) {
 //    IDS_MonitorPILS(sIdsIdx);
                 Air_Pump_State = AIR_STATE_PUMPED;
             }
-            pthread_mutex_unlock(&mutex);
-            continue;
+// H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
+//            pthread_mutex_unlock(&mutex);
+//             continue;
+// End of H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
         }
        // 如果接收到启动加压的命令，则开始加压，将当前状态修改为正在加压，从而监视压力变化
         if(Air_Pump_State == AIR_STATE_LAUNCH_PUMP) {
@@ -770,14 +839,18 @@ void *monitorThread(void *arg) {
             LOGD("[Async]Waiting on pumps...\n");
 
             Air_Pump_State = AIR_STATE_PUMPING;
-            pthread_mutex_unlock(&mutex);
-            continue;
+// H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
+//            pthread_mutex_unlock(&mutex);
+//            continue;
+// End of H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
         }
 
         // 如果读取IDS状态失败，则睡眠一秒后重新尝试，不做其它操作
         if (ids_check("ids_get_supply_status", ids_get_supply_status(IDS_INSTANCE, sIdsIdx, &supply_status))) {
-            pthread_mutex_unlock(&mutex);
-            continue;
+// H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
+//            pthread_mutex_unlock(&mutex);
+//            continue;
+// End of H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
         }
 
         // 当已经给PD上点成功的情况下，
@@ -868,7 +941,7 @@ int i=0;
                     }
 
                     // SECURE ink use
-                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {
+                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {       // 一分钟之内必须握手，否则pd断电，当前是20s握手一次
                         secure_sec[i] = 0;
                         if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
                             sprintf(ERR_STRING1, "HS2(%d)", i);
@@ -943,7 +1016,7 @@ int i=0;
                     }
 
                     // SECURE ink use
-                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {
+                    if (secure_sec[i] >= SECURE_INK_POLL_SEC * 1000000) {       // 一分钟之内必须握手，否则pd断电，当前是20s握手一次
                         secure_sec[i] = 0;
                         if (GetAndProcessInkUse(penIndexs[i], sIdsIdx) < 0) {
                             sprintf(ERR_STRING1, "HS2(%d)", i);
@@ -1052,7 +1125,9 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
     else if(temp < 70)
         pd_set_temperature_override(PD_INSTANCE, penIndex, 8);
 
-    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);
+//    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 4);    // 0%
+//    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 13);    // 200%
+    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);    // 100%
 
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex)) {
         PD_Power_State = PD_POWER_STATE_OFF;
@@ -1632,7 +1707,6 @@ JNIEXPORT jint JNICALL Java_com_pd_sc_get_info(JNIEnv *env, jclass arg, jint pen
     LOGD("ink_family_member_slotb = 0x%04X\n", pd_sc_info.ink_family_member_slotb);         /**< Ink family member. */
     LOGD("ink_revision_slotb = 0x%02X\n", pd_sc_info.ink_revision_slotb);                   /**< Ink revision number. */
 
-
     LOGD("ink_drop_wt_slota_hi = 0x%02X\n", pd_sc_info.ink_drop_wt_slota_hi);               /**< Drop weight(ng) of High Drop Weight Nozzles in Slot A */
     LOGD("ink_drop_wt_slota_lo = 0x%02X\n", pd_sc_info.ink_drop_wt_slota_lo);               /**< Drop weight(ng) of Low Drop Weight Nozzles in Slot A */
     LOGD("ink_drop_wt_slotb_hi = 0x%02X\n", pd_sc_info.ink_drop_wt_slotb_hi);               /**< Drop weight(ng) of High Drop Weight Nozzles in Slot B */
@@ -2021,7 +2095,8 @@ static JNINativeMethod gMethods[] = {
         {"readPDProgramingFields",				        "()Ljava/lang/String;",	                    (void *)Java_com_ReadPDProgramingFields},
         {"readIDSProgramingFields",				        "()Ljava/lang/String;",	                    (void *)Java_com_ReadIDSProgramingFields},
         {"writePDProgramingFields",		        "(IIIII)I",						(void *)Java_com_WritePDProgramingFields},
-        {"writeIDSProgramingFields",		        "(IIIII)I",						(void *)Java_com_WriteIDSProgramingFields},
+        {"writeIDSProgramingFields",		        "(IIIIIII)I",						(void *)Java_com_WriteIDSProgramingFields},
+        {"writeIDSProgramingFields",		        "(IIIIIII)I",						(void *)Java_com_WriteIDSProgramingFields},
         {"lockPDProgramingFields",		        "()I",						(void *)Java_com_LockPDProgramingFields},
         {"lockIDSProgramingFields",		        "()I",						(void *)Java_com_LockIDSProgramingFields},
 // End of H.M.Wang 2026-6-30 增加L2-L5的编程功能

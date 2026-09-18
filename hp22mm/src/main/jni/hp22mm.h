@@ -67,7 +67,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg)
 JNIEXPORT jstring JNICALL Java_com_ReadPDProgramingFields(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_ReadIDSProgramingFields(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_WritePDProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev);
-JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev);
+JNIEXPORT jint JNICALL Java_com_WriteIDSProgramingFields(JNIEnv *env, jclass arg, jint l2, jint l3, jint l4, jint l5, jint rev, jint density, jint usable_ink_weight);
 JNIEXPORT jint JNICALL Java_com_LockPDProgramingFields(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_LockIDSProgramingFields(JNIEnv *env, jclass arg);
 // End of H.M.Wang 2026-6-30 增加L2-L5的编程功能

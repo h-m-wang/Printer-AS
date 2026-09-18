@@ -801,7 +801,7 @@ public class TestHp22mm implements ITestOperation {
                                     mHp22mmTestResult[index] = "Writting failed\n";
                                 }
                             } else if(index == HP22MM_PROGRAMER_ITEM_IDS[4]) {
-                                ret = Hp22mm.writeIDSProgramingFields(2, 1, 9, 0, 0);
+                                ret = Hp22mm.writeIDSProgramingFields(2, 1, 9, 0, 0, 355, 8176);
                                 if(0 == ret) {
                                     mHp22mmTestResult[index] = "Success\n";
                                 } else if(-1 == ret) {

@@ -2338,6 +2338,9 @@ private void setSerialProtocol9DTs(final String data) {
 				DataTask data = new DataTask(mContext, t);
 				mDataTask.add(data);
 				data.prepareBackgroudBuffer();
+// H.M.Wang 2026-9-11 在这里调用一次getPrintBuffer，主要目的是通过生成打印缓冲区后，DataTask当中能够计算mDots，这样在setDotCount->initCount->getInkThreshold才能够参考到正确的点数，否则mDots是0
+				data.getPrintBuffer(false);
+// End of H.M.Wang 2026-9-11 在这里调用一次getPrintBuffer，主要目的是通过生成打印缓冲区后，DataTask当中能够计算mDots，这样在setDotCount->initCount->getInkThreshold才能够参考到正确的点数，否则mDots是0
 			}
 			setDotCount(task);
 			mNeedUpdate = true;
@@ -2358,6 +2361,9 @@ private void setSerialProtocol9DTs(final String data) {
 
 		for (DataTask tk : mDataTask) {
 			isBufferReady |= tk.prepareBackgroudBuffer();
+// H.M.Wang 2026-9-11 在这里调用一次getPrintBuffer，主要目的是通过生成打印缓冲区后，DataTask当中能够计算mDots，这样在setDotCount->initCount->getInkThreshold才能够参考到正确的点数，否则mDots是0
+			tk.getPrintBuffer(false);
+// End of H.M.Wang 2026-9-11 在这里调用一次getPrintBuffer，主要目的是通过生成打印缓冲区后，DataTask当中能够计算mDots，这样在setDotCount->initCount->getInkThreshold才能够参考到正确的点数，否则mDots是0
 		}
 
 // 2026-1-13		if (mScheduler == null) {
@@ -2644,7 +2650,6 @@ private void setSerialProtocol9DTs(final String data) {
 */
 		mPrintDots[head] = 0;
 		for(int j=0; j<mDataTask.size(); j++) {
-
 // H.M.Wang 2022-12-19 追加一个串口，RS232_DOT_MARKER
 			if (config.getParam(SystemConfigFile.INDEX_DATA_SOURCE) == SystemConfigFile.DATA_SOURCE_DOT_MARKER) {
 				mPrintDots[head] += mDotMarkerDotCount;
@@ -3435,7 +3440,9 @@ private void setCounterPrintedNext(DataTask task, int count) {
 // End of H.M.Wang 2020-10-23 计算点数移到DataTask的getPrintBuffer函数内
 
 // 2023-1-18 第一次生成打印缓冲区后，重新计算阈值和内部计数器，
-				recalCount();
+// H.M.Wang 2026-9-11 由于在new DataTask后立即就生成了一次打印缓冲区，得到了真实的点数，所以最初的阈值计算就是对的了，因此这里应该是不需要再重新计算了
+//				recalCount();
+// End of H.M.Wang 2026-9-11 由于在new DataTask后立即就生成了一次打印缓冲区，得到了真实的点数，所以最初的阈值计算就是对的了，因此这里应该是不需要再重新计算了
 // End of 2023-1-18 第一次生成打印缓冲区后，重新计算阈值和内部计数器，
 
 				final StringBuilder sb = new StringBuilder();

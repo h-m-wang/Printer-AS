@@ -99,7 +99,7 @@ public class TextObject extends BaseObject {
 			content = sb.toString();
 		}
 // End of H.M.Wang 2025-10-26 追加字间距标识
-Debug.d(TAG, "mLetterSpacing: [" +  mLetterSpacing + "]; Content: [" + content + "]");
+//Debug.d(TAG, "mLetterSpacing: [" +  mLetterSpacing + "]; Content: [" + content + "]");
 		if(mContent != null && !mContent.equals(content)) {
 			super.setContent(content);
 			meature();

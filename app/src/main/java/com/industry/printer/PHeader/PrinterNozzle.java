@@ -738,7 +738,7 @@ public enum PrinterNozzle {
 //                scaleW = 258f*5/152;
                 scaleW = 1280f/152;
 // 2026-7-3 暂时恢复apk插值                scaleH = 508f*5/152;
-                scaleH = 2560f/152;
+                scaleH = 2540f/152;
 // End of H.M.Wang 2026-5-9 高度修改为2560，不再每个头中间添加空隙，由FPGA处理，只是在508*5的基础上增加必要位数凑成字节的整数倍
                 break;
 // End of H.M.Wang 2026-2-24 增加108mm类型打印头

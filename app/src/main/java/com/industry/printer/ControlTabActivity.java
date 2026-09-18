@@ -2297,6 +2297,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 						break;
 					}
 					mDTransThread.resetTask(mMsgTask);
+// H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
+					for(int i=0; i<mRemainCount.length; i++) mRemainCount[i] = 0;
+// End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 
 // H.M.Wang 2022-11-29 支持显示UG的预览图片，如果子信息有指定，则显示子信息的预览，如果无，则显示母信息的预览，非UG信息照旧
 //					mPreBitmap = BitmapFactory.decodeFile(MessageTask.getPreview(mObjPath));
@@ -5050,6 +5053,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //	         }
 // H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 			for(int i=0; i<mRemainCount.length; i++) if(mRemainCount[i] > 0) mRemainCount[i]--;
+			mHandler.removeMessages(MESSAGE_SWITCH_RFID);
+			mHandler.sendEmptyMessage(MESSAGE_SWITCH_RFID);
 // End of H.M.Wang 2025-11-17 修改剩余次数的计数方法，取消原来的=R*T+C的计算方法(R:锁值，T:阈值，C阈值内剩余次数)，改为开始打印时计算一次，以后每次打印减1
 		}
 		public void onPrinted0000(int index) {

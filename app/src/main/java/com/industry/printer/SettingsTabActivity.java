@@ -7,6 +7,7 @@ import java.util.Locale;
 import com.industry.printer.Bluetooth.BluetoothServerManager;
 import com.industry.printer.Constants.Constants;
 import com.industry.printer.FileFormat.SystemConfigFile;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.Utils.*;
 import com.industry.printer.data.DataTask;
 import com.industry.printer.hardware.ExtGpio;
@@ -559,6 +560,12 @@ public static final String TAG="SettingsTabActivity";
 				break;
 
 			case R.id.btn_setting_clean:
+// H.M.Wang 2026-9-11 108MM打印头的时候，禁止长清洗
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM) {
+					ToastUtil.show(mContext, R.string.str_btn_cancel);
+					break;
+				}
+// End of H.M.Wang 2026-9-11 108MM打印头的时候，禁止长清洗
 // H.M.Wang 2020-8-21 追加正在清洗标志，此标志为ON的时候不能对FPGA进行某些操作，如开始，停止等，否则死机
 				DataTransferThread thread = DataTransferThread.getInstance(mContext);
 				if(thread.isPurging) {

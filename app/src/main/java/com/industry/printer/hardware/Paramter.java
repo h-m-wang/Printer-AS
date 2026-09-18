@@ -89,7 +89,10 @@ public class Paramter {
 		}
 		
 		// S8
-		mFPGAParam[7] = (int) (param[6]*param[9]/(param[8]*3.14));
+// H.M.Wang 2026-9-15 修改计算公式，当前的计算公式导致循环打印时间距是正确值的两倍
+//		mFPGAParam[7] = (int) (param[6]*param[9]/(param[8]*3.14));
+		mFPGAParam[7] = (int) (1.0f*param[6]*param[9]/(param[8]*3.14)/2);
+// End of H.M.Wang 2026-9-15 修改计算公式，当前的计算公式导致循环打印时间距是正确值的两倍
 		if (mFPGAParam[7] < 11) {
 			mFPGAParam[7] = 11;
 		} else if (mFPGAParam[7] > 65534) {

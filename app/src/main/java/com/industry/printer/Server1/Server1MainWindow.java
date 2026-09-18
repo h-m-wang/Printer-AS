@@ -458,10 +458,13 @@ public class Server1MainWindow {
                             new HttpUtils()
                                     .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/GetInkPrintMsg")
                                     .setMethod("POST")
+                                    .setHeaderParams("Content-Type", "application/json;charset=UTF-8")
+                                    .setHeaderParams("Accept", "application/json;charset=UTF-8")
                                     .setParams("{\"inkQryReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\"}}")
                                     .setListeners(new HttpUtils.HttpResponseListener() {
                                         @Override
                                         public void onReceived(String str) {
+                                            Debug.d(TAG, str);
                                             if(null != str) {
                                                 sb.append(str);
                                             } else {
@@ -1081,6 +1084,8 @@ public class Server1MainWindow {
             new HttpUtils()
                 .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrint")
                 .setMethod("POST")
+                .setHeaderParams("Content-Type", "application/json;charset=UTF-8")
+                .setHeaderParams("Accept", "application/json;charset=UTF-8")
                 .setParams("{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(mDispList.get(mSelectedItemNo))[INDEX_ID] + "\"}}")
                 .setListeners(new HttpUtils.HttpResponseListener() {
                     @Override
@@ -1157,6 +1162,8 @@ public class Server1MainWindow {
                     new HttpUtils()
                         .setUrl("http://175.170.155.72:9678/nancy/api-services/RV.Core.Services.SMB.InkPrintService/InkPrintTest")
                         .setMethod("POST")
+                        .setHeaderParams("Content-Type", "application/json;charset=UTF-8")
+                        .setHeaderParams("Accept", "application/json;charset=UTF-8")
                         .setParams("{\"inkPrtReq\":{\"Dvc\":\"" + SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_LOCAL_ID) + "\",\"Id\":\"" + mResults.get(0)[INDEX_ID] + "\",\"Cmd\":\"N\"}}")
                         .setListeners(new HttpUtils.HttpResponseListener() {
                             @Override

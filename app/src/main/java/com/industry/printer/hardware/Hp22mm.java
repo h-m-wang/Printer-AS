@@ -94,7 +94,7 @@ public class Hp22mm {
     static public native String readPDProgramingFields();
     static public native String readIDSProgramingFields();
     static public native int writePDProgramingFields(int l2, int l3, int l4, int l5, int rev);
-    static public native int writeIDSProgramingFields(int l2, int l3, int l4, int l5, int rev);
+    static public native int writeIDSProgramingFields(int l2, int l3, int l4, int l5, int rev, int density, int usable_ink_weight);
     static public native int lockPDProgramingFields();
     static public native int lockIDSProgramingFields();
 // End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
@@ -212,6 +212,7 @@ if(!THIRD_PARTY_PROGRAMER) {
 // H.M.Wang 2025-1-20 当C31指定为hp22mmx2打印头类型时，无论C77如何制定，均按双头处理。如果C31指定为hp22mm，但是C77指定双头时，返回-255错误
         if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2) {
             if(penArg != 3) {
+
                 return -253;    // 22MMx2的头，但是实际头没有两个，报错，头太少
             }
 // H.M.Wang 2025-2-27 增加一带二的判断。当一带二时，C31=HP22MM，但数据区被纵向方法一倍，使得每列的字节数翻倍；C77=两个头
@@ -446,7 +447,10 @@ if(!THIRD_PARTY_PROGRAMER) {
         if(config.mParam[5] == 1 && config.mParam[4] == 0) {
 //            tofFreq = param6 * 24;                                                                                 // R16=C7 * 24
 //            tofFreq = config.mParam[6] * 0;                                                                       // R16=C7 * 0 (2024-9-5)
-            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f);            // R16 = C7 * C10 * 64 / C9 / 3.14
+// H.M.Wang 2026-9-15 修改计算公式，当前的计算公式导致循环打印时间距是正确值的两倍
+//            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f);            // R16 = C7 * C10 * 64 / C9 / 3.14
+            tofFreq = (int)(1.0f * config.mParam[6] * config.mParam[9] * 64 / (config.mParam[8] == 0 ? 1 : config.mParam[8]) / 3.14f / 2);            // R16 = C7 * C10 * 64 / C9 / 3.14 / 2
+// End of H.M.Wang 2026-9-15 修改计算公式，当前的计算公式导致循环打印时间距是正确值的两倍
         }
 // End of H.M.Wang 2025-10-16 计算公式改为 R16=C7* C10*64/C9/3.14
 // H.M.Wang 2025-2-10 R15和R16处直接根据是否为清洗分别计算设置
