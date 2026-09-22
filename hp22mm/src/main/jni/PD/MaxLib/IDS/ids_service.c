@@ -698,6 +698,7 @@ ServiceResult_t ids_service_get_sys_info(int32_t instance, IdsSysInfo_t *sys_inf
     if(sr != SERVICE_OK) return SERVICE_ERROR;
 
 	/* decode values */
+	LOGD("decode_ptr = %d, data_size = %d (need size 15 bytes)", frame.decode_ptr, frame.data_size);
 	if (frame_decode8(&frame, &sys_info->fw_minor_rev) != FRAME_OK ||
 		frame_decode8(&frame, &sys_info->fw_major_rev) != FRAME_OK ||
 		frame_decode8(&frame, &sys_info->fpga_minor_rev) != FRAME_OK ||

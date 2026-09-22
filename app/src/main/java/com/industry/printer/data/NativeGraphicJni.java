@@ -28,7 +28,7 @@ public class NativeGraphicJni {
     public static native int PasteVarByVBin(char[] dst, int columns, int[] digits, char[] refDigitsBin, int bytesPerColInBase, int colPerElements, int sX, int sY, int eY, int expandScale);
     public static native int PasteDynamicBin(char[] dst, byte[] src, int bytesPerCol, int columns, int sX, int sY, int eY, int expandScale);
 // End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
-    public static native int PasteBmp2Bin(char[] dst, Object bmp, int width, int height, int bytesPerCol, int sX, int sY, int eY, int orgLines, int tarLines, int expandScale);
+    public static native int PasteBmp2Bin(char[] dst, Object bmp, int width, int height, int sX, int sY, int eY, int orgLines, int tarLines, int expandScale);
 
     public static native int[] GetPrintDots(char[] src, int length, int bytesPerHFeed, int heads);
 }

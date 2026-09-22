@@ -225,6 +225,8 @@ public class TestHp22mm implements ITestOperation {
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
     private final int MSG_SHOW_22MM_TEST_RESULT = 109;
+    private final int MSG_SHOW_CONFIRM_DLG = 110;
+    private volatile int mConfirmState = 0;              // 0: Waiting to Confirm; 1: Go; 2: Cancel
 
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
@@ -233,6 +235,19 @@ public class TestHp22mm implements ITestOperation {
                     View view = (View)msg.obj;
                     dispHp22mmTestItem(view);
                     view.invalidate();
+                    break;
+                case MSG_SHOW_CONFIRM_DLG:
+                    ConfirmDialog cd = new ConfirmDialog(mContext, (String)msg.obj);
+                    cd.setListener(new DialogListener() {
+                        @Override
+                        public void onConfirm() {
+                            mConfirmState = 1;
+                        }
+                        public void onCancel() {
+                            mConfirmState = 2;
+                        }
+                    });
+                    cd.show();
                     break;
             }
         }
@@ -792,23 +807,53 @@ public class TestHp22mm implements ITestOperation {
                             } else if(index == HP22MM_PROGRAMER_ITEM_IDS[2]) {
                                 mHp22mmTestResult[index] = Hp22mm.readIDSProgramingFields();
                             } else if(index == HP22MM_PROGRAMER_ITEM_IDS[3]) {
-                                ret = Hp22mm.writePDProgramingFields(2, 1, 9, 0, 0);
-                                if(0 == ret) {
-                                    mHp22mmTestResult[index] = "Success\n";
-                                } else if(-1 == ret) {
-                                    mHp22mmTestResult[index] = "Operation failed\n";
-                                } else if(-2 == ret) {
-                                    mHp22mmTestResult[index] = "Writting failed\n";
+// H.M.Wang 2026-9-21 追加确认对话窗
+                                mConfirmState = 0;
+                                msg = mHandler.obtainMessage(MSG_SHOW_CONFIRM_DLG);
+                                msg.obj = "Write [2,1,9,0,0] to both slots";
+                                mHandler.sendMessage(msg);
+
+                                while(mConfirmState == 0) {
+                                    try{ Thread.sleep(100);} catch(Exception e){}
                                 }
+
+                                if(mConfirmState == 1) {
+                                    ret = Hp22mm.writePDProgramingFields(2, 1, 9, 0, 0);
+                                    if(0 == ret) {
+                                        mHp22mmTestResult[index] = "Success\n";
+                                    } else if(-1 == ret) {
+                                        mHp22mmTestResult[index] = "Operation failed\n";
+                                    } else if(-2 == ret) {
+                                        mHp22mmTestResult[index] = "Writting failed\n";
+                                    }
+                                } else {
+                                    mHp22mmTestResult[index] = "Canceled\n";
+                                }
+// End of H.M.Wang 2026-9-21 追加确认对话窗
                             } else if(index == HP22MM_PROGRAMER_ITEM_IDS[4]) {
-                                ret = Hp22mm.writeIDSProgramingFields(2, 1, 9, 0, 0, 355, 8176);
-                                if(0 == ret) {
-                                    mHp22mmTestResult[index] = "Success\n";
-                                } else if(-1 == ret) {
-                                    mHp22mmTestResult[index] = "Operation failed\n";
-                                } else if(-2 == ret) {
-                                    mHp22mmTestResult[index] = "Writting failed\n";
+// H.M.Wang 2026-9-21 追加确认对话窗
+                                mConfirmState = 0;
+                                msg = mHandler.obtainMessage(MSG_SHOW_CONFIRM_DLG);
+                                msg.obj = "Write [2,1,9,0,0, 355, 8176] to IDS";
+                                mHandler.sendMessage(msg);
+
+                                while(mConfirmState == 0) {
+                                    try{ Thread.sleep(100);} catch(Exception e){}
                                 }
+
+                                if(mConfirmState == 1) {
+                                    ret = Hp22mm.writeIDSProgramingFields(2, 1, 9, 0, 0, 355, 8176);
+                                    if(0 == ret) {
+                                        mHp22mmTestResult[index] = "Success\n";
+                                    } else if(-1 == ret) {
+                                        mHp22mmTestResult[index] = "Operation failed\n";
+                                    } else if(-2 == ret) {
+                                        mHp22mmTestResult[index] = "Writting failed\n";
+                                    }
+                                } else {
+                                    mHp22mmTestResult[index] = "Canceled\n";
+                                }
+// End of H.M.Wang 2026-9-21 追加确认对话窗
                             } else if(index == HP22MM_PROGRAMER_ITEM_IDS[5]) {
                                 if (0 != Hp22mm.DeletePairing()) {
                                     mHp22mmTestResult[index] = "DeletePairing failed";

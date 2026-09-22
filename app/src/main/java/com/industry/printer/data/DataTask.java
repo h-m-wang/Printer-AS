@@ -1107,7 +1107,7 @@ b:  按slant 设置，  和=0 做相同偏移， 不过=0 是固定移动4 列�
 			scaleW /= 1.0f * 1280 / 152;
 			div = scaleW;
 //			scaleH = 1.0f * 152 / (508 * 5);
-			scaleH = 1.0f * 152 / 2560;
+			scaleH = 1.0f * 152 / 2540;
 // End of 2026-7-3 暂时恢复apk插值
 		} else if (headType == PrinterNozzle.MESSAGE_TYPE_16_DOT) {
 			div = 152f/16f;
@@ -1377,7 +1377,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 						bmp,
 						mBinInfo.mBytesFeed*8,
 						mBinInfo.mColumn,
-						mBinInfo.mBytesPerColumn,
 						(int)(o.getX()/div),
 						(int)(o.getY()/scaleH),
 						(int)(o.getYEnd()/scaleH),
@@ -1429,7 +1428,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 								bmp1,
 								mBinInfo.mBytesFeed*8,
 								mBinInfo.mColumn,
-								mBinInfo.mBytesPerColumn,
 								(int)(o.getX()/div),
 								(int)(o.getY()/scaleH),
 								(int)(o.getYEnd()/scaleH),
@@ -1508,6 +1506,7 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 // H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 //				Bitmap bmp = ((DynamicText)o).getPrintBitmap(scaleW, scaleH, headType.getHeight());
 				Bitmap bmp = ((DynamicText)o).getPrintBitmapFit(scaleW, scaleH);
+				BitmapWriter.saveBitmap(bmp, ConfigPath.getTlkPath(), "/1.bmp");
 // End of H.M.Wang 2026-9-1 修改获取Bitmap的方法，不再取全高的位图，而是取正好高度的位图
 // End of H.M.Wang 2026-8-19 为了提高变量生成的速度，启用开窗的办法贴图，详细参照WORD文档《开创处理修改说明》
 // End of H.M.Wang 2022-4-1 根据12.7的头数，调整倍率，原来的算法中没有调整，如果不调整，使用事先生成的vbin没有问题，动态生成则会生成变小的图案
@@ -1521,7 +1520,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 						bmp,
 						mBinInfo.mBytesFeed*8,
 						mBinInfo.mColumn,
-						mBinInfo.mBytesPerColumn,
 						(int)(o.getX()/div),
 						(int)(o.getY()/scaleH),
 						(int)(o.getYEnd()/scaleH),
@@ -1675,7 +1673,7 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 				}
 // H.M.Wang 2020-2-17 追加HyperText控件
 			} else if(o instanceof HyperTextObject) {
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
 				if(headType.isBigdotType()) {
 					Bitmap bmp = ((HyperTextObject)o).getPrintBitmapFit(scaleW, scaleH);
 					NativeGraphicJni.PasteBmp2Bin(
@@ -1683,7 +1681,6 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 							bmp,
 							mBinInfo.mBytesFeed*8,
 							mBinInfo.mColumn,
-							mBinInfo.mBytesPerColumn,
 							(int)(o.getX()/div),
 							(int)(o.getY()/scaleH),
 							(int)(o.getYEnd()/scaleH),
@@ -1692,7 +1689,7 @@ End of H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一
 							stat.getScale());
 					return;
 				}
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
 				Vector<BaseObject> htObjs = ((HyperTextObject) o).getSubObjs();
 
 				for (BaseObject htObj : htObjs) {
@@ -1740,7 +1737,6 @@ H.M.Wang 2026-8-19 伤处该处补加的倍率调整，回到前面统一设置�
 								bmp,
 								mBinInfo.mBytesFeed*8,
 								mBinInfo.mColumn,
-								mBinInfo.mBytesPerColumn,
 								(int)(htObj.getX()/div),
 								(int)(htObj.getY()/scaleH),
 								(int)(htObj.getYEnd()/scaleH),

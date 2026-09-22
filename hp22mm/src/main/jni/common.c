@@ -18,11 +18,11 @@ char ERR_STRING[1024];
 int ids_check(char *function, IDSResult_t result)
 {
     memset(ERR_STRING, 0x00, 1024);
-    if(result == IDS_OK) return 0;
+    if(result == IDS_OK) return IDS_OK;
     LOGE("%s() failed: %s\n", function, ids_get_error_description(result));
     sprintf(ERR_STRING, "IDS ERROR: %s failed: %s.\n", function, ids_get_error_description(result));
     RunningState[IDS_STATE] = STATE_INVALID;
-    return -1;
+    return IDS_ERROR;
 }
 
 // strings adapted from print_head_driver_ifc.h

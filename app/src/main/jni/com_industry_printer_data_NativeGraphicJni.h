@@ -46,10 +46,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_Bin
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni
  * Method:    PasteBmp2Bin
-* Signature: ([CLjava/lang/Object;IIIIIIIII)I
+* Signature: ([CLjava/lang/Object;IIIIIIII)I
  */
 JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2Bin
-        (JNIEnv *env, jclass thiz, jcharArray dst, jobject bmp, jint width, jint height, jint bytesPerCol, jint sX, jint sY, jint eY, jint orgLines, jint tarLines, jint expandScale);
+        (JNIEnv *env, jclass thiz, jcharArray dst, jobject bmp, jint width, jint height, jint sX, jint sY, jint eY, jint orgLines, jint tarLines, jint expandScale);
 
 /*
  * Class:     com_industry_printer_data_NativeGraphicJni

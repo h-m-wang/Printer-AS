@@ -388,14 +388,15 @@ static jbyte HeadMask[8] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F};    
 static jbyte TailMask[8] = {(jbyte)0xFF, 0x7F, 0x3F, 0x1F, 0x0F, 0x07, 0x03, 0x01};   // 每列数据与下一个变量的边界如果共享字节（即本变量的结束位置不是正好在字节的切割处，而是在字节的中央，则清除自己的内容，保留其它变量的内容的掩码
 
 JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2Bin
-        (JNIEnv *env, jclass thiz, jcharArray dst, jobject bmp, jint width, jint height, jint bytesPerCol, jint sX, jint sY, jint eY, jint orgLines, jint tarLines, jint expandScale) {
-    LOGI("Enter PasteBmp2Bin. Width = %d, Height = %d, BytesPerCol = %d, sX = %d, sY = %d, eY = %d, OrgLines = %d, TarLines = %d, Scale = %d", width, height, bytesPerCol, sX, sY, eY, orgLines, tarLines, expandScale);
+        (JNIEnv *env, jclass thiz, jcharArray dst, jobject bmp, jint width, jint height, jint sX, jint sY, jint eY, jint orgLines, jint tarLines, jint expandScale) {
+    LOGI("Enter PasteBmp2Bin. Width = %d, Height = %d, sX = %d, sY = %d, eY = %d, OrgLines = %d, TarLines = %d, Scale = %d", width, height, sX, sY, eY, orgLines, tarLines, expandScale);
 
     jbyte *dstBuf = (jbyte *)env->GetCharArrayElements(dst, 0);                   // 目标数据区按字节单位访问
     jbyte *rByteBuf;
     jbyte *cByteBuf = NULL;
     jint ret = 0;
     int newWidth, newHeight;
+    int bytesPerCol = width / 8;
 
     int sY0 = 0, eY0 = 0, sBitInByte = 0, eBitInByte = 0;       // sY0: 本变量在目标数据区中，在本列的开始字节，可能与上一个变量共享字节
                                                                 // sBitInByte: 本变量与下一变量共享发生时，位的开始位置，如果=1，表示本字节的第0位归上一个变量，从第1位开始为本变量使用
@@ -403,8 +404,8 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
                                                                 // eBitInByte: 本变量与下一变量共享发生时，位的结束位置，如果=1，表示本字节的第0位为本变量使用，从第1位开始为下一变量使用
     int sY1 = sY, eY1 = eY;                                     // 过度变量
     if(orgLines > 0 && tarLines > orgLines) {
-        int sY1 = sY + (sY / orgLines) * (tarLines - orgLines);
-        int eY1 = eY + (eY / orgLines) * (tarLines - orgLines);
+        sY1 = sY + (sY / orgLines) * (tarLines - orgLines);
+        eY1 = eY + (eY / orgLines) * (tarLines - orgLines);
     }
     sY0 = sY1 / 8;
     sBitInByte = sY1 % 8;
@@ -415,7 +416,7 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
     int tailIndent = (eBitInByte == 0 ? 0 : 1);                 // 每列头部延伸入下一个变量的标识
 
     int pixel_step;                                             // 缺省按买个像素4个字节来处理（A20的情况下，每个字节需要2个字节，因为apk使用的是RGB4444作为bitmap的配置，这个配置已经在API level 13后被取消了
-    unsigned int curr_color;                                        // 每个点的颜色值
+    unsigned int curr_color;                                    // 每个点的颜色值
 
     void* pixels;
     AndroidBitmapInfo info;
@@ -446,9 +447,9 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
         goto quit;
     }
 
-    newHeight = height < info.height + sX ? height - sX : info.height;
-    if(orgLines > 0 && tarLines > orgLines) {
-        if(width - (width / orgLines) * (tarLines - orgLines) < info.width + sY) {
+    newHeight = height < info.height + sX ? height - sX : info.height;      // 如果位图的高（视觉的宽）超过目标区的高（内存越界了），则将高修正为不越界的高度，否则取位图的高
+    if(orgLines > 0 && tarLines > orgLines) {                               // 如果目标区的宽（视觉的高）超过了目标区的宽，则取有效部分，否则取位图的宽。考虑需要插值和不需要插值的两种情况
+        if(width < info.width + sY + (width / orgLines) * (tarLines - orgLines)) {
             newWidth = width - (width / orgLines) * (tarLines - orgLines) - sY;
         } else {
             newWidth = info.width;
@@ -461,10 +462,9 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
         }
     }
 
-    LOGE("PasteBmp2Bin sY0 = %d, sBitInByte = %d, eY0 = %d, eBitInByte = %d, dstStartPos = %d", sY0, sBitInByte, eY0, eBitInByte, dstStartPos);
+    LOGE("PasteBmp2Bin newWidth = %d, newHeight = %d, sY0 = %d, sBitInByte = %d, eY0 = %d, eBitInByte = %d, dstStartPos = %d", newWidth, newHeight, sY0, sBitInByte, eY0, eBitInByte, dstStartPos);
     rByteBuf = dstBuf + dstStartPos;        // 在目标数据去，指向本变量的开始位置（字节）的指针（从sY0开始），没完成一行的操作后，跳到下一列的相同位置
     for(int row=0; row < newHeight; row++, rByteBuf += bytesPerCol * expandScale) {
-        int pos = sY;
         int rbuf_bit_pos = sBitInByte;
         jbyte *rBuf = rByteBuf;         // 实际进行访问的目标数据区指针
 
@@ -474,12 +474,15 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
         memset(rBuf+headOutdent, 0x00, (eY0 - tailIndent) - (sY0 + headOutdent));
 
         cByteBuf = (jbyte *)pixels + row * info.width * pixel_step;
-        for(int col=0; col<newWidth; col++) {
+        for(int col=sY; col<sY+newWidth; col++) {
             if(orgLines > 0 && tarLines > orgLines) {       // 当需要插值时，跳过需要插值的点位（即逐位跳，同时保证字节也根据必要跳）
-                if((pos+col) % orgLines == 0) {
-                    while((pos+col) % tarLines != 0) {
+                if(col > 0 && (col % orgLines == 0)) {
+                    int pos = 0;
+                    while(pos < tarLines-orgLines ) {
+//                        if(row == 0) LOGE("PasteBmp2Bin Skip Pos = %d, Tar = %d", pos+col, (rBuf-rByteBuf)*8+rbuf_bit_pos);
                         pos++;
                         rbuf_bit_pos++;
+
                         if(rbuf_bit_pos == 8) {
                             rBuf++;
                             rbuf_bit_pos = 0;
@@ -487,6 +490,8 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
                     }
                 }
             }
+
+//            if(row == 0) LOGE("PasteBmp2Bin PPos = %d, Tar = %d", col, (rBuf-rByteBuf)*8+rbuf_bit_pos);
 
             if(info.format == ANDROID_BITMAP_FORMAT_RGBA_8888) {
                 curr_color = *((jint *)cByteBuf);       // Java的颜色值位置对应 ARGB，但是Jni当中的对应关系是ABGR，不过对于我们的使用情况不影响
@@ -502,7 +507,6 @@ JNIEXPORT jint JNICALL Java_com_industry_printer_data_NativeGraphicJni_PasteBmp2
             }
 
             cByteBuf += pixel_step;
-            pos++;
             rbuf_bit_pos++;
             if(rbuf_bit_pos == 8) {
                 rBuf++;
@@ -853,6 +857,8 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
     return result;
 }
 
+// 2026-9-20 1.0.17
+// 修改PasteBmp2Bin函数bug
 // 2026-9-1 1.0.16
 // 增加PasteBmp2Bin函数，用来实现将Bitmap位图直接二值化并且插入打印数据bin数据区
 // 2026-8-26 1.0.15
@@ -876,7 +882,7 @@ JNIEXPORT jintArray JNICALL Java_com_industry_printer_data_NativeGraphicJni_GetP
 // 2026-4-14 1.0.7 新修改的版本中，由于原图做了旋转镜像，因此横轴和纵轴交换
 // 2026-4-9 1.0.6 修改GetPrintDots获取点数的方法，可以大大提高处理性能。二值化的处理暂时不修改，因为改善的不太多
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
-    LOGI("NativeGraphicJni.so 1.0.16 Loaded.");
+    LOGI("NativeGraphicJni.so 1.0.17 Loaded.");
     for(int i=0; i<16; i++) {
         for(int j=0; j<16; j++) {
             byte_dots[i*16+j] = nibble_dots[i] + nibble_dots[j];

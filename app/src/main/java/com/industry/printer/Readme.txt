@@ -1,3 +1,40 @@
+2026-9-22 260922-211401001
+==================
+【临时】在ids_service模块的ids_service_get_sys_info函数中，输出一个log
+LOGD("decode_ptr = %d, data_size = %d (need size 15 bytes)", frame.decode_ptr, frame.data_size);
+因为这个函数经常会出现DataOverflow的错误
+
+2026-9-21 260921-211301001
+==================
+在PDPowerOn处理时，根据当前的墨量残值，设置不同的循环pd_set_recirc_override，具体依据如下：
+ 锁值                Recirc
+ 100                 4(0%)
+ 95                   5(10%)
+ 85                   6(25%)
+ 75                   7(50%)
+ 65                   8(75%)
+ 50                   9(100%)
+ 40                   10(125%)
+ 25                   11(150%)
+ 15                   12(175%)
+ 5                     13(200%)
+
+2026-9-21 260921-211201001-3rdPrgm
+2026-9-21 260921-211101001-3rdPrgm
+==================
+第三方编程专用版本
+
+2026-9-21 260921-211001001
+==================
+1. 修改2560 -> 2540修改的遗漏，DataTask类的refreshVariable函数中
+			scaleH = 1.0f * 152 / 2540;
+2. 修改HypertextObject的生成方式，
+    2.1 当打印头为大字机的情况下，生成打印内容先将所有变量替换为文本后再生成bin，非大字机的情况下不变，仍然按着符合变量的逻辑处理
+    2.2 大字机的情况下，允许字符间插入空挡，在编辑页面的属性对话窗中，增加了字间距项目，填入数字代表空格数量
+3. 修改NativeGraphicJni的PasteBmp2Bin函数中的bug
+4. 修改Java_com_ReadIDSProgramingFields和Java_com_ReadPDProgramingFields返回字符串，每个项目不再换行，改为中间用<;>间隔
+5. 在启动编程IDS或者PD时，假如确认窗口
+
 2026-9-18 260918-210901001
 ==================
 在Server1MainWindow类中网络访问请求中追加下列两行

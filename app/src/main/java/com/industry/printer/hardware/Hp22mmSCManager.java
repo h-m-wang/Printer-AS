@@ -144,15 +144,15 @@ public class Hp22mmSCManager implements IInkDevice {
                     synchronized (LockObj) {
                         if (!mInitialized) {
                             Hp22mm.SetPressurePSI(SystemConfigFile.getInstance(mContext).getParam(SystemConfigFile.INDEX_IDS_PRESURE_PSI));
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+                            Hp22mm.setMaxVolmue(mMaxBagInkVolume);
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
                             // 如果还没有初始化，则尝试初始化。如果失败，则在主页面显示错误，mValid=false会导致所知显示红色，并且beep报警音，睡2秒+1秒再试
                             int error = Hp22mm.initHp22mm(nozzle_sel);
                             if(error == 0) {
 if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
                                 mCallback.obtainMessage(MSG_HP22MM_ERROR, 0, 0, "").sendToTarget();
                                 mInitialized = true;
-// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-                                Hp22mm.setMaxVolmue(mMaxBagInkVolume);
-// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
                             } else {
                                 String errString;
 // H.M.Wang 2025-1-20 修改初始化失败返回信息，当C31和C77的打印头数量一致，但是C77指定的打印头和实际安装的打印头不匹配的情况下，会发生DoPairing错误，返回-254错误及相应错误信息；如果C31指定单头，但C77指定双头时，返回-255错误，其它hp22mm库返回错误照旧

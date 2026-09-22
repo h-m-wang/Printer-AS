@@ -28,7 +28,27 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.226"
+#define VERSION_CODE                            "1.0.229"
+
+// 1.0.229 2026-9-21
+// 临时在ids_service模块的ids_service_get_sys_info函数中，输出一个log
+// LOGD("decode_ptr = %d, data_size = %d (need size 15 bytes)", frame.decode_ptr, frame.data_size);
+// 因为这个函数经常会出现DataOverflow的错误
+// 1.0.228 2026-9-21
+// 在PDPowerOn处理时，根据当前的墨量残值，设置不同的循环override，具体依据如下：
+// 锁值                Recirc
+// 100                 4(0%)
+// 95                   5(10%)
+// 85                   6(25%)
+// 75                   7(50%)
+// 65                   8(75%)
+// 50                   9(100%)
+// 40                   10(125%)
+// 25                   11(150%)
+// 15                   12(175%)
+// 5                     13(200%)
+// 1.0.227 2026-9-21
+// 修改编程读寄存器返回字串的方法，每行之间用分号，不用回车，避免一个画面显示不下
 // 1.0.226 2026-9-16
 // 守护线程中，对于ids的操作，不成功的几个地方会执行continue，跳过后面的处理，这个可能会导致pd与ids的握手不被执行，需要取消
 // 1.0.225 2026-9-15
@@ -486,6 +506,11 @@ int RunningState[3] = {STATE_VALID,STATE_VALID,STATE_VALID};             // [0]:
 // End of H.M.Wang 2025-2-23
 static volatile int EnableWarming = 1;
 
+// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+// #define MAX_BAG_INK_VOLUME_MAXIMUM              49600       // (15500 * 4)的80%
+static int sMaxBagInkVol = 49600;       // (15500 * 4)的80%
+// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
+
 // H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
 static float gInkWeight[2] = {0, 0};
 JNIEXPORT jfloatArray JNICALL Java_com_GetUsedInkVolume(JNIEnv *env, jclass arg) {
@@ -556,7 +581,7 @@ static char *pd_oem_field_2str(int f_id, int value) {
 static char *ids_oem_field_2str(int f_id, int value) {
     char strTemp[256];
 
-    sprintf(strTemp, "IDS Field %d = [%d]\n", f_id, value);
+    sprintf(strTemp, "IDS Field %d = [%d]; ", f_id, value);
 
     return strTemp;
 }
@@ -1127,6 +1152,34 @@ JNIEXPORT jint JNICALL Java_com_PDPowerOn(JNIEnv *env, jclass arg, jint penIndex
 
 //    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 4);    // 0%
 //    pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 13);    // 200%
+
+    uint32_t value;
+    IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
+    if (ids_check("ids_read_oem_field", ids_r) == IDS_OK) {
+        float ratio = 1.0f * (sMaxBagInkVol - value) / sMaxBagInkVol;
+        if (ratio == 1.0f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 4);    // 0%
+        } else if (ratio > 0.95f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 5);    // 10%
+        } else if (ratio > 0.85f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 6);    // 25%
+        } else if (ratio > 0.75f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 7);    // 50%
+        } else if (ratio > 0.65f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 8);    // 75%
+        } else if (ratio > 0.50f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);    // 100%
+        } else if (ratio > 0.40f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 10);    // 125%
+        } else if (ratio > 0.25f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 11);    // 150%
+        } else if (ratio > 0.15f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 12);    // 175%
+        } else if (ratio > 0.05f) {
+            pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 13);    // 200%
+        }
+    }
+
     pd_set_recirc_override(PD_INSTANCE, penIndex, 0, 9);    // 100%
 
     if (pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndex), penIndex)) {
@@ -1257,11 +1310,6 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
     pthread_mutex_unlock(&mutex);
     return value;
 }
-
-// H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
-// #define MAX_BAG_INK_VOLUME_MAXIMUM              49600       // (15500 * 4)的80%
-static int sMaxBagInkVol = 49600;       // (15500 * 4)的80%
-// End of H.M.Wang 2026-5-26 将墨量最大值由固定数值修改为由apk设置
 
 JNIEXPORT jint JNICALL Java_com_hp22mm_set_max_volume(JNIEnv *env, jclass arg, jint maxvol) {
     LOGI("Enter %s (Max volume = %d)", __FUNCTION__, maxvol);

@@ -572,9 +572,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 				mShiftVal4 = (EditText) findViewById(R.id.edit_shiftValue4);
 
 				mOffset = (EditText) findViewById(R.id.et_offset);
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
 				mLetterSpacing = (EditText) findViewById(id.letterSpacingET);
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
 			}
 // End of H.M.Wang 2020-2-19 追加HyperText控件
 // H.M.Wang 2020-6-10 追加DynamicText控件
@@ -752,9 +752,9 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 							((HyperTextObject) mObject).setShiftValue(3, mShiftVal4.getText().toString());
 							((HyperTextObject) mObject).setDateOffset(mOffset.getText().toString());
 // End of H.M.Wang 2020-2-19 追加HyperText控件
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
 							((HyperTextObject)mObject).setLetterSpacing(mLetterSpacing.getText().toString());
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
 // H.M.Wang 2020-6-10 追加DynamicText控件
 						} else if (mObject instanceof DynamicText) {
 							try {
@@ -997,10 +997,10 @@ public class ObjectInfoDialog extends RelightableDialog implements android.view.
 					mShiftVal4.setText(((HyperTextObject)mObject).getShiftValue(3));
 					mOffset.setText(String.valueOf(((HyperTextObject) mObject).getOffset()));
 // End of H.M.Wang 2020-2-17 追加HyperText控件
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
 					mLetterSpacing.setText(String.valueOf(((HyperTextObject)mObject).getLetterSpacing()));
 					mContent.setText(String.valueOf(((HyperTextObject)mObject).getContent().replaceAll("¡", "")));
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
 // H.M.Wang 2020-6-10 追加DynamicText控件
 				} else if(mObject instanceof DynamicText) {
 					mIndex.setText(String.valueOf(((DynamicText) mObject).getDtIndex()));

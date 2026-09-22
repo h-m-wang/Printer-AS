@@ -81,9 +81,9 @@ public class HyperTextObject extends BaseObject {
         mShiftValues[2] = " 3";
         mShiftValues[3] = " 4";
         mOffset = 0;
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
         mLetterSpacing = 0;
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
     }
 
     public HyperTextObject(Context context) {
@@ -108,7 +108,7 @@ public class HyperTextObject extends BaseObject {
         }
     }
 
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
     public void setLetterSpacing(String val) {
         PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();	// TLKFileParser在调用这个函数的时候，mTask还没有设置，因此不能从mTask中获取Nozzle类型，本来mTask中的类型也是跟随SystemConfigFile中的，所以就直接从这里获取比较稳妥
 //        Debug.d(TAG, "type = " + type);
@@ -151,7 +151,7 @@ public class HyperTextObject extends BaseObject {
     public int getLetterSpacing() {
         return mLetterSpacing;
     }
-// End of 2026-9-17 追加字间距标识
+// End of 2026-9-21 追加字间距标识
 
     @Override
     public String getContent()
@@ -177,7 +177,7 @@ public class HyperTextObject extends BaseObject {
         return sb.toString();
     }
 // End of H.M.Wang 2020-7-31 追加超文本内容，条码的内容可能是超文本
-// H.M.Wang 2026-9-17 在统一合成的字符串的字符间假如间隔
+// H.M.Wang 2026-9-21 在统一合成的字符串的字符间假如间隔
     private String insertLetterSpacing(String cnt) {
         String expandStr = cnt;
         if(mLetterSpacing > 0) {
@@ -192,7 +192,7 @@ public class HyperTextObject extends BaseObject {
         }
         return expandStr;
     }
-// End of H.M.Wang 2026-9-17 在统一合成的字符串的字符间假如间隔
+// End of H.M.Wang 2026-9-21 在统一合成的字符串的字符间假如间隔
 
     public Vector<BaseObject> getSubObjs()
     {
@@ -429,7 +429,7 @@ public class HyperTextObject extends BaseObject {
     protected void meature() {
         float width = 0f;
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 //        for (BaseObject o : mSubObjs) {
 //            o.meature();
 //            o.setX(width);
@@ -441,9 +441,8 @@ public class HyperTextObject extends BaseObject {
             TextObject tObj = new TextObject(mContext, this, 0);
             tObj.setTask(mTask);
             tObj.setFont(mFont);
-            tObj.setContent(insertLetterSpacing(getExpandedContent()));
-            Debug.d(TAG, "Content: " + insertLetterSpacing(getExpandedContent()));
-            width = tObj.getWidth();
+            tObj.setContent(insertLetterSpacing(getMeatureString()));
+            width = tObj.getWidth() * mRatio;
         } else {
             for (BaseObject o : mSubObjs) {
                 o.meature();
@@ -452,7 +451,7 @@ public class HyperTextObject extends BaseObject {
                 width += o.getWidth();
             }
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         super.setWidth(width);
         Debug.d(TAG, "Width: " + super.getWidth());
     };
@@ -525,7 +524,7 @@ public class HyperTextObject extends BaseObject {
 
 //        if(mSubObjs == null) return;
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 //        for(BaseObject o : mSubObjs) {
 //            o.setX(x);
 //            o.resizeByHeight();
@@ -536,7 +535,7 @@ public class HyperTextObject extends BaseObject {
             TextObject tObj = new TextObject(mContext, this, 0);
             tObj.setTask(mTask);
             tObj.setFont(mFont);
-            tObj.setContent(insertLetterSpacing(getExpandedContent()));
+            tObj.setContent(insertLetterSpacing(getMeatureString()));
             tObj.setX(x);
             tObj.setHeight(mHeight);
             tObj.resizeByHeight();
@@ -548,7 +547,7 @@ public class HyperTextObject extends BaseObject {
                 x = o.getXEnd();
             }
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         setWidth(x - getX());
     }
 
@@ -559,32 +558,26 @@ public class HyperTextObject extends BaseObject {
 
         if(mSubObjs == null) return;
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 //        for(BaseObject o : mSubObjs) {
 //            o.setX(x);
 //            o.setWidth(o.getWidth() * ratio);
 //            x = o.getXEnd();
 //        }
+//    }
+//    setWidth(x - getX());
         PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();
         if(type.isBigdotType()) {
-            TextObject tObj = new TextObject(mContext, this, 0);
-            tObj.setTask(mTask);
-            tObj.setFont(mFont);
-            tObj.setContent(insertLetterSpacing(getExpandedContent()));
-            tObj.setX(x);
-            tObj.setHeight(mHeight);
-            tObj.meature();
-            tObj.setWidth(tObj.getWidth() * ratio);
-            x = tObj.getXEnd();
+            setWidth(getWidth()*ratio);
         } else {
             for(BaseObject o : mSubObjs) {
                 o.setX(x);
                 o.setWidth(o.getWidth() * ratio);
                 x = o.getXEnd();
             }
+            setWidth(x - getX());
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
-        setWidth(x - getX());
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         isNeedRedraw = true;
     }
 
@@ -595,32 +588,26 @@ public class HyperTextObject extends BaseObject {
 
         if(mSubObjs == null) return;
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 //        for(BaseObject o : mSubObjs) {
 //            o.setX(x);
 //            o.setWidth(o.getWidth() * ratio);
 //            x = o.getXEnd();
 //        }
+//    }
+//    setWidth(x - getX());
         PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();
         if(type.isBigdotType()) {
-            TextObject tObj = new TextObject(mContext, this, 0);
-            tObj.setTask(mTask);
-            tObj.setFont(mFont);
-            tObj.setContent(insertLetterSpacing(getExpandedContent()));
-            tObj.setX(x);
-            tObj.setHeight(mHeight);
-            tObj.meature();
-            tObj.setWidth(tObj.getWidth() * ratio);
-            x = tObj.getXEnd();
+            setWidth(getWidth()*ratio);
         } else {
             for(BaseObject o : mSubObjs) {
                 o.setX(x);
                 o.setWidth(o.getWidth() * ratio);
                 x = o.getXEnd();
             }
+            setWidth(x - getX());
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
-        setWidth(x - getX());
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         isNeedRedraw = true;
     }
 
@@ -800,7 +787,7 @@ public class HyperTextObject extends BaseObject {
         mBitmap = Bitmap.createBitmap((int)(mXcor_end - mXcor) , (int)mHeight, Configs.BITMAP_CONFIG);
         mCan = new Canvas(mBitmap);
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 //        for(BaseObject o : mSubObjs) {
 //            try {
 //                Bitmap b = o.getScaledBitmap(context);
@@ -811,19 +798,17 @@ public class HyperTextObject extends BaseObject {
 //        }
         PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();
         if(type.isBigdotType()) {
-            TextObject tObj = new TextObject(mContext, this, 0);
-            tObj.setTask(mTask);
-            tObj.setFont(mFont);
-            Debug.d(TAG, "getExpandedContent = " + getExpandedContent());
-            tObj.setContent(insertLetterSpacing(getExpandedContent()));
-            tObj.setHeight(mHeight);
-            tObj.meature();
+            Paint paint = new Paint();
+            paint.setTextSize(getfeed());
+            paint.setAntiAlias(true);
+            paint.setFilterBitmap(true);
+            paint.setTextScaleX(mRatio);
             try {
-                Bitmap b = tObj.getScaledBitmap(context);
-                mCan.drawBitmap(b, 0, 0, mPaint);
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
+                paint.setTypeface(FontCache.get(mContext, mFont));
+            } catch (Exception e) {}
+            Paint.FontMetrics fm = paint.getFontMetrics();
+
+            mCan.drawText(insertLetterSpacing(getExpandedContent()), 0, mHeight-fm.descent, paint);
         } else {
             for(BaseObject o : mSubObjs) {
                 try {
@@ -834,7 +819,7 @@ public class HyperTextObject extends BaseObject {
                 }
             }
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
 
         isNeedRedraw = false;
 
@@ -851,12 +836,12 @@ public class HyperTextObject extends BaseObject {
 // End of H.M.Wang 2026-4-14 旋转镜像转换
         mCan = new Canvas(bmp);
         mCan.drawColor(Color.WHITE);
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡，此时没有固定背景图
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡，此时没有固定背景图
         PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();
         if(type.isBigdotType()) {
             return bmp;
         }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         for(BaseObject o : mSubObjs) {
             if(o instanceof TextObject) {
                 Bitmap b = o.makeBinBitmap(context, o.getContent(), (int)(o.getWidth() * scaleW), (int)(o.getHeight() * scaleH), o.getFont());
@@ -888,29 +873,35 @@ public class HyperTextObject extends BaseObject {
         } catch (Exception e) {}
 
         Paint.FontMetrics fm = paint.getFontMetrics();
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
-// 预览图暂时不修改，仍然还是按着组合变量来生成
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+        paint.setTextScaleX(mRatio);
 
         float xPos = 0f;
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+        PrinterNozzle type = SystemConfigFile.getInstance(mContext).getPNozzle();
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
         for(BaseObject o : mSubObjs) {
             try {
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+                String finalString;
                 if(mSubObjsTag.containsKey(o)) {
-                    float width = (int)paint.measureText(mSubObjsTag.get(o));
-                    Bitmap b = Bitmap.createBitmap(Math.round(width) , Math.round(mHeight), Configs.BITMAP_PRE_CONFIG);
-                    Canvas c = new Canvas(b);
-
+                    finalString = mSubObjsTag.get(o);
                     paint.setColor(Color.BLUE);
-                    c.drawText(mSubObjsTag.get(o) , 0, mHeight-fm.descent, paint);
-
-                    Debug.d(TAG, "xPos = " + xPos + "; o.x = " + o.getX() + "; o.width = " + o.getWidth() + "; width = " + width);
-                    can.drawBitmap(Bitmap.createScaledBitmap(b, Math.round(width), Math.round(mHeight), false), xPos, 0, paint);
-                    xPos += width;
                 } else {
-                    Debug.d(TAG, "xPos = " + xPos + "; o.x = " + o.getX() + "; o.width = " + o.getWidth());
-                    can.drawBitmap(o.getpreviewbmp(), xPos, 0, paint);
-                    xPos += (int)paint.measureText(o.getContent());
+                    finalString = o.getContent();
+                    paint.setColor(Color.BLACK);
                 }
+                if(type.isBigdotType()) {
+                    finalString = insertLetterSpacing(finalString);
+                }
+                float width = (int)paint.measureText(finalString);
+                width *= mRatio;
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，可以在字间插入空挡
+                Bitmap b = Bitmap.createBitmap(Math.round(width) , Math.round(mHeight), Configs.BITMAP_PRE_CONFIG);
+                Canvas c = new Canvas(b);
+
+                c.drawText(finalString, 0, mHeight-fm.descent, paint);
+                can.drawBitmap(Bitmap.createScaledBitmap(b, Math.round(width), Math.round(mHeight), false), xPos, 0, paint);
+                xPos += width;
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -956,7 +947,7 @@ public class HyperTextObject extends BaseObject {
         return dot;
     }
 
-// H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
+// H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
     public Bitmap getPrintBitmapFit(float scaledW, float scaledH) {
         Debug.d(TAG,"getPrintBitmapFit scaledW = " + scaledW + ", scaledH = " + scaledH);
 
@@ -1040,7 +1031,7 @@ public class HyperTextObject extends BaseObject {
 
         return drawBmp;
     }
-// End of H.M.Wang 2026-9-17 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
+// End of H.M.Wang 2026-9-21 当大字机的时候，将所有变量都统一合成字符串以后，生成最终位图，可以在字间插入空挡
 
     public String toString()
     {
@@ -1081,9 +1072,9 @@ public class HyperTextObject extends BaseObject {
         str += BaseObject.floatToFormatString(getXEnd()*2  * prop, 4)+"^";      // Tag 24    X终止坐标
         str += BaseObject.floatToFormatString(getYEnd()*2 * prop, 4);       // Tag 25    Y终止坐标
 // End of H.M.Wang 2026-4-25 在原坐标位置仍然保存整数x,y,xend,yend，在末尾增加浮点数坐标的保存，因为如果直接保存浮点数，以前版本的apk将无法将其读入，因为只识别整数
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
         str += "^" + mLetterSpacing;
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
 
         Debug.d(TAG, "toString = [" + str + "]");
 

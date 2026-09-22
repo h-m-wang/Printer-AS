@@ -253,7 +253,7 @@
 				android:textSize="30sp"
 				android:textColor="#000000"/>
 
-<!-- H.M.Wang 2026-9-17 增加超文本可以设置字间距 -->
+<!-- H.M.Wang 2026-9-21 增加超文本可以设置字间距 -->
 			<EditText android:id="@+id/letterSpacingET"
 				android:layout_marginLeft="150dp"
 				android:layout_width="@dimen/settingsItemLength"
@@ -273,7 +273,7 @@
 				android:text="@string/strLetterSpacing"
 				android:textSize="30sp"
 				android:textColor="#000000"/>
-<!-- End of H.M.Wang 2026-9-17 增加超文本可以设置字间距 -->
+<!-- End of H.M.Wang 2026-9-21 增加超文本可以设置字间距 -->
 
 			<LinearLayout
 				android:layout_width="match_parent"
