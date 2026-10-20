@@ -34,6 +34,10 @@ JNIEXPORT jint JNICALL Java_com_Pressurize(JNIEnv *env, jclass arg, jboolean asy
 JNIEXPORT jint JNICALL Java_com_SetPressurePSI(JNIEnv *env, jclass arg, jfloat psi);
 JNIEXPORT jint JNICALL Java_com_checkPenStatusAndRepowerOnIfNeed(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enable);
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
+JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg);
+JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg);
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg);
 JNIEXPORT jstring JNICALL Java_com_getPressurizedValue(JNIEnv *env, jclass arg);
 JNIEXPORT jint JNICALL Java_com_Depressurize(JNIEnv *env, jclass arg);

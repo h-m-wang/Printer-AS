@@ -195,7 +195,7 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
                         }
                         // 如果初始化成功，则每个1秒获取底层的错误信息，如果有错误，则报错。如果没有，则恢复正常
                         String errStr = Hp22mm.getErrString();
-                        Debug.d(TAG, "========ErrStr: " + errStr);
+                        Debug.d(TAG, "========ErrStr: [" + errStr + "]");
 // H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
                         String tmpErr = "";
                         if(!errStr.isEmpty()) {
@@ -380,6 +380,32 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
             Hp22mm.EnableWarming(1);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
+            final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+            int penArg = ((nozzle_sel >> 8) & 0x00000003);
+            if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+                penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
+            }
+            switch(penArg) {
+                case 0x01:
+                    if (0 != Hp22mm.pdPowerOn(0, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
+                        return -1;
+                    }
+                    break;
+                case 0x02:
+                    if (0 != Hp22mm.pdPowerOn(1, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
+                        return -1;
+                    }
+                    break;
+                case 0x03:
+                    if (0 != Hp22mm.pdPowerOn(0, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING)) ||
+                        0 != Hp22mm.pdPowerOn(1, SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING))) {
+                        return -1;
+                    }
+                    break;
+            }
+            Hp22mm.startPrint();
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
             return 0;
         } else return -1;
     }
@@ -393,6 +419,26 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
 // H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
         Hp22mm.EnableWarming(0);
 // End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
+        Hp22mm.stopPrint();
+        final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
+        int penArg = ((nozzle_sel >> 8) & 0x00000003);
+        if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+            penArg = 0x01;          // 当打印头为108MM的时候，只允许选1头的喷嘴（按只有一个头处理）
+        }
+        switch(penArg) {
+            case 0x01:
+                Hp22mm.pdPowerOff(0);
+                break;
+            case 0x02:
+                Hp22mm.pdPowerOff(1);
+                break;
+            case 0x03:
+                Hp22mm.pdPowerOff(0);
+                Hp22mm.pdPowerOff(1);
+                break;
+        }
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
         return 0;
     }
 

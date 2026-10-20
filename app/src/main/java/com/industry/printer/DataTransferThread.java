@@ -441,7 +441,13 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-			Hp22mm.EnableWarming(0);
+// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来恢复到初始状态
+//			Hp22mm.EnableWarming(0);
+			IInkDevice scm = InkManagerFactory.inkManager(mContext);
+			if(!isRunning() && scm instanceof Hp22mmSCManager) {		// 22MM非打印状态时，上电
+				((Hp22mmSCManager) scm).startPrint();
+			}
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来恢复到初始状态
 		}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
 
@@ -485,7 +491,13 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-10 22MM清洗完重开加热
 		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-			Hp22mm.EnableWarming(1);
+// H.M.Wang 2026-10-19 当22MM的时候，调用停止打印用来恢复到初始状态
+//			Hp22mm.EnableWarming(1);
+			IInkDevice scm = InkManagerFactory.inkManager(mContext);
+			if(!isRunning() && scm instanceof Hp22mmSCManager) {		// 22MM非打印状态时，上电
+				((Hp22mmSCManager) scm).stopPrint();
+			}
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用停止打印用来恢复到初始状态
 		}
 // End of H.M.Wang 2025-2-10 22MM清洗完重开加热
 
@@ -637,7 +649,12 @@ public class DataTransferThread {
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 //					remainTime *= 2.17;
-					Hp22mm.EnableWarming(0);
+// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电等操作
+//					Hp22mm.EnableWarming(0);
+					if(scm instanceof Hp22mmSCManager) {
+						((Hp22mmSCManager) scm).startPrint();
+					}
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电等操作
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
 
@@ -707,7 +724,12 @@ public class DataTransferThread {
 				FpgaGpioOperation.clean();
 // H.M.Wang 2025-2-10 22MM清洗完重开加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-					Hp22mm.EnableWarming(1);
+// H.M.Wang 2026-10-19 当22MM的时候，调用停止打印用来恢复到初始状态
+//					Hp22mm.EnableWarming(1);
+					if(scm instanceof Hp22mmSCManager) {
+						((Hp22mmSCManager) scm).stopPrint();
+					}
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用停止打印用来恢复到初始状态
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗完重开加热
 				try {
@@ -736,6 +758,9 @@ public class DataTransferThread {
 // H.M.Wang 2022-6-1 新的外部文本处理函数，支持新的PC或者串口PC当中的DT设置命令（CMD_SET_REMOTE1和CMD_SET_REMOTE1_S),接收到的10个DT对应于10个全局DT桶的顺序
 	public void setRemote1TextSeparated(final String data) {
 		Debug.d(TAG, "String from Remote = [" + data + "]");
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -814,6 +839,9 @@ public class DataTransferThread {
 // H.M.Wang 2019-12-16 将计数器和动态二维码替代部分函数化，以对应串口和网络两方面的需求
 	public void setRemoteTextSeparated(final String data) {
 		Debug.d(TAG, "String from Remote = [" + data + "]");
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {

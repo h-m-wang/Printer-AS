@@ -460,6 +460,32 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 			mFrameView.setKeepScreenOn(true);
 		}
 // End of H.M.Wang 2024-12-27 A133版本时，设置屏幕常亮，以避免屏幕休眠后只能重启
+// H.M.Wang 2026-10-19 模式9时，开机直接拉起用户的apk
+		if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_9) {
+			mHander.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					CustomApk cApk = CustomApk.getInstance(mContext);
+					cApk.setControlTabActivity(mControlTab);
+					cApk.start();
+					try {
+						PackageManager mPackageManager = mContext.getPackageManager();
+						PackageInfo mp = mPackageManager.getPackageArchiveInfo("/system/app/Custom.apk", PackageManager.GET_ACTIVITIES);
+						if(null != mp ) {
+							Debug.d(TAG, "Package Name: " + mp.applicationInfo.packageName);
+							Intent mIntent =  mPackageManager.getLaunchIntentForPackage(mp.applicationInfo.packageName);
+							if(mIntent != null) startActivity(mIntent);
+						} else {
+							ToastUtil.show(mContext, "Custom.apk not found!");
+							Debug.e(TAG, "Custom.apk not found!");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}, 1000L);
+		}
+// End of H.M.Wang 2026-10-19 模式9时，开机直接拉起用户的apk
 	}
 
 	public void drawObjects()
@@ -776,6 +802,7 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 								Intent mIntent =  mPackageManager.getLaunchIntentForPackage(mp.applicationInfo.packageName);
 								if(mIntent != null) startActivity(mIntent);
 							} else {
+								ToastUtil.show(mContext, "Custom.apk not found!");
 								Debug.e(TAG, "Custom.apk not found!");
 							}
 						} catch (Exception e) {

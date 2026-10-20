@@ -115,6 +115,10 @@ public static final String TAG="SettingsTabActivity";
 	public RelativeLayout		mTimeset;
 	public RelativeLayout		mClean;
 
+// H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+	public RelativeLayout		mPrim;
+// End of H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+
 	public Context 			mContext;
 	
 	public ScrollView			mScrollView;
@@ -179,7 +183,12 @@ public static final String TAG="SettingsTabActivity";
 		
 		mClean = (RelativeLayout) getView().findViewById(R.id.btn_setting_clean);
 		mClean.setOnClickListener(this);
-		
+
+// H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+		mPrim = (RelativeLayout) getView().findViewById(R.id.btn_setting_prim);
+		mPrim.setOnClickListener(this);
+// End of H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+
 		//mScrollView = (ScrollView) getView().findViewById(R.id.setting_frame);
 		
 		FragmentTransaction transaction = getFragmentManager().beginTransaction();
@@ -189,7 +198,7 @@ public static final String TAG="SettingsTabActivity";
 		*/
 		/*从U盘中读取系统设置，解析*/
 		mSysconfig = SystemConfigFile.getInstance(mContext);
-		
+
 		//mSettingsFragment = new SettingsFragment(mContext);
 		//transaction.replace(R.id.phsetting_fragment, mSettingsFragment);
 		mListView = (ListView) getView().findViewById(R.id.settings_list_view);
@@ -276,6 +285,9 @@ public static final String TAG="SettingsTabActivity";
 		Debug.d(TAG, "--->onHiddenChanged: " + hidden);
 		if (!hidden) {
 			mAdapter.notifyDataSetChanged();
+// H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+			if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) mPrim.setVisibility(View.VISIBLE); else mPrim.setVisibility(View.GONE);
+// End of H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
 		}
 	}
 
@@ -422,6 +434,9 @@ public static final String TAG="SettingsTabActivity";
 					@Override
 					public void onClick() {
 						saveParam();
+// H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
+						if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) mPrim.setVisibility(View.VISIBLE); else mPrim.setVisibility(View.GONE);
+// End of H.M.Wang 2026-9-24 增加增加一个“快速上墨”“Prim” 按钮按键，仅在P78不为0时显示
 // H.M.Wang 2025-7-10 增加一个参数60的值，当=5678时，输出log。当=0时，不输出log
 						if(mSysconfig.getParam(SystemConfigFile.INDEX_LOG_ENABLE) == Constants.LOG_OUTPUT_ENABLE) {
 							Configs.DEBUG = true;
@@ -583,12 +598,24 @@ public static final String TAG="SettingsTabActivity";
 // H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 				View alertView = (View)LayoutInflater.from(mContext).inflate(R.layout.clean_alert, null);
+// H.M.Wang 2026-9-24 当点击长清洗按键的时候，如果P78不为0，则添加废液瓶的提示
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
+					TextView msgTV = (TextView)alertView.findViewById(R.id.alert_message);
+					String tmp = msgTV.getText().toString();
+					msgTV.setText(mContext.getResources().getText(R.string.str_clean_confirm2) + "\n" + tmp);
+				}
+// End of H.M.Wang 2026-9-24 当点击长清洗按键的时候，如果P78不为0，则添加废液瓶的提示
 				builder.setTitle(R.string.str_setting_clean)
 //						.setMessage(R.string.str_clean_confirm)
 						.setView(alertView)
 						.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
+// H.M.Wang 2026-9-24 如果加墨和循环正在执行，则等待其完成当前步骤，并且在获得执行权后，阻断加加墨和循环的操作
+								if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
+									processCleanFlush();
+								}
+// End of H.M.Wang 2026-9-24 如果加墨和循环正在执行，则等待其完成当前步骤，并且在获得执行权后，阻断加加墨和循环的操作
 								DataTransferThread dThread = DataTransferThread.getInstance(mContext);
 								if (dThread.isCleaning) {
 									dThread.interruptClean();
@@ -629,6 +656,27 @@ public static final String TAG="SettingsTabActivity";
 				builder.create().show();
 // End of H.M.Wang 2020-8-21 追加点按清洗按键以后提供确认对话窗
 				break;
+// H.M.Wang 2026-9-24 “快速上墨”“Prim” 按钮按键的处理逻辑
+			case R.id.btn_setting_prim:
+				builder = new AlertDialog.Builder(mContext);
+				builder.setTitle(R.string.str_btn_prim)
+						.setMessage(R.string.str_prim_confirm)
+						.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								processPrim();
+								dialog.dismiss();
+							}
+						})
+						.setNegativeButton(R.string.str_btn_cancel, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						});
+				builder.create().show();
+				break;
+// End of H.M.Wang 2026-9-24 “快速上墨”“Prim” 按钮按键的处理逻辑
 			default :
 				Debug.d(TAG, "===>unknown view clicked");
 				break;
@@ -682,4 +730,112 @@ public static final String TAG="SettingsTabActivity";
 		}
 		Debug.i(TAG, "===>onclick: " + mSysconfig.getParam(30));
 	}
+
+// H.M.Wang 2026-9-24 长清洗/FLUSH 处理逻辑
+/*
+A.按“长清洗”， 屏幕弹出确认窗口，
+“系统清洗, 请确认废液瓶就位， 废液瓶剩余容量大于200ml”.
+System purge, ensure waste bottle in place,  remaining capacity more than 200ml.
+“确认”,”取消”。
+B.停掉 “加墨和循环”逻辑。    直到下次重新开机。
+C.开启PE4 =1  10s , 其他=0.  （切换阀开， 允许缓冲期中液体回流）
+D.PE4=0, 其他=0
+E.PE4/PE5/PH26/PH27=1,     3s.  (所有都开，  抽清洁液充满同时放 废液)
+F.PE4/PE5/PH26/=1，  PH27=0，1s.  (用清洁液加压， 维持清洗打印)
+G.PE4/PE5/PH26/PH27=0，8s.  ( 溶解管路沉积, 维持清洗打印)
+H.E-G   循环10次。    （这个是否会消耗他多清洁液？    还跟管路长度相关）
+I. PE4/PE5/PH26/=0，  PH27=1，5s.   （放空 剩余压力）
+J.PE4/PE5/PH26PH27=0，  结束
+ */
+	private void processCleanFlush() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(ControlTabActivity.PressChecking) {
+					try{Thread.sleep(100);}catch(Exception e){}
+				}
+				ControlTabActivity.PressCheckEnable = false;
+
+				// C.开启PE4 =1  10s , 其他=0
+				ExtGpio.writeGpioTestPin('E', 4, 1);
+				ExtGpio.writeGpioTestPin('E', 5, 0);
+				ExtGpio.writeGpioTestPin('H', 26, 0);
+				ExtGpio.writeGpioTestPin('H', 27, 0);
+				try{Thread.sleep(10*1000);}catch(Exception e){};
+
+				// D.PE4=0, 其他=0
+				ExtGpio.writeGpioTestPin('E', 4, 0);
+				try{Thread.sleep(100);}catch(Exception e){};	// 额外添加
+
+				// H.E-G   循环10次
+				for(int i=0; i<10; i++) {
+					// E.PE4/PE5/PH26/PH27=1,     3s.
+					ExtGpio.writeGpioTestPin('E', 4, 1);
+					ExtGpio.writeGpioTestPin('E', 5, 1);
+					ExtGpio.writeGpioTestPin('H', 26, 1);
+					ExtGpio.writeGpioTestPin('H', 27, 1);
+					try{Thread.sleep(3*1000);}catch(Exception e){};
+
+					// F.PE4/PE5/PH26/=1，  PH27=0，1s.
+					ExtGpio.writeGpioTestPin('E', 4, 1);
+					ExtGpio.writeGpioTestPin('E', 5, 1);
+					ExtGpio.writeGpioTestPin('H', 26, 1);
+					ExtGpio.writeGpioTestPin('H', 27, 0);
+					try{Thread.sleep(1000);}catch(Exception e){};
+
+					// G.PE4/PE5/PH26/PH27=0，8s.
+					ExtGpio.writeGpioTestPin('E', 4, 0);
+					ExtGpio.writeGpioTestPin('E', 5, 0);
+					ExtGpio.writeGpioTestPin('H', 26, 0);
+					ExtGpio.writeGpioTestPin('H', 27, 0);
+					try{Thread.sleep(8*1000);}catch(Exception e){};
+				}
+
+				// I. PE4/PE5/PH26/=0，  PH27=1，5s.
+				ExtGpio.writeGpioTestPin('E', 4, 0);
+				ExtGpio.writeGpioTestPin('E', 5, 0);
+				ExtGpio.writeGpioTestPin('H', 26, 0);
+				ExtGpio.writeGpioTestPin('H', 27, 1);
+				try{Thread.sleep(5*1000);}catch(Exception e){};
+
+				// J.PE4/PE5/PH26PH27=0，  结束
+				ExtGpio.writeGpioTestPin('E', 4, 0);
+				ExtGpio.writeGpioTestPin('E', 5, 0);
+				ExtGpio.writeGpioTestPin('H', 26, 0);
+				ExtGpio.writeGpioTestPin('H', 27, 0);
+			}
+		}).start();
+	}
+// End of H.M.Wang 2026-9-24 长清洗/FLUSH 处理逻辑
+
+// H.M.Wang 2026-9-24 快速上墨处理逻辑
+/*
+A.按“初始化上墨” .“Prim”按钮
+B.弹出确认。 “请确认废液瓶就位”  “确认” ‘取消’
+C.PE4/PE5 /PH27=1,   PH26=1  5s.  (抽墨水充满管路， 同时放 废液)
+D.PE4/PE5 /PH27PH26=0.
+E.恢复“加墨+循环”， 控制逻辑。
+ */
+	private void processPrim() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// C.PE4/PE5 /PH27=1,   PH26=1  5s.
+				ExtGpio.writeGpioTestPin('E', 4, 1);
+				ExtGpio.writeGpioTestPin('E', 5, 1);
+				ExtGpio.writeGpioTestPin('H', 26, 1);
+				ExtGpio.writeGpioTestPin('H', 27, 1);
+				try{Thread.sleep(5*1000);}catch(Exception e){};
+
+				// PE4/PE5 /PH27PH26=0.
+				ExtGpio.writeGpioTestPin('E', 4, 0);
+				ExtGpio.writeGpioTestPin('E', 5, 0);
+				ExtGpio.writeGpioTestPin('H', 26, 0);
+				ExtGpio.writeGpioTestPin('H', 27, 0);
+
+				ControlTabActivity.PressCheckEnable = true;
+			}
+		}).start();
+	}
+// End of H.M.Wang 2026-9-24 快速上墨处理逻辑
 }

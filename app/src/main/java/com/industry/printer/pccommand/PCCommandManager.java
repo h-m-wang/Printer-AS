@@ -118,7 +118,7 @@ public class PCCommandManager {
             while(!isInterrupted()) {
                 try {
                     client = mServerSocket.accept();
-                    client.setSoTimeout(2 * 1000);
+                    client.setSoTimeout(15 * 1000);
                     //client.setSoTimeout(5000);
 
                     if(null != mSocketHandler) {

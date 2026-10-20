@@ -25,7 +25,7 @@ public class PI11Monitor {
         public void onStopPrint();
         public void onMirror();
         public void onResetCounter();
-        public void onPrintFile(int index);
+        public void onPrintFile(int index, boolean skipZero);
         public void onLevelLow();
         public void onSolventLow();
         public void onLevelHigh();
@@ -98,7 +98,7 @@ public class PI11Monitor {
                             }
                         }
 
-                        if (mInPinState == newState) continue;
+                        if (mInPinState == newState && mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) != SystemConfigFile.INPUT_PROTO_8) continue;
                         Debug.d(TAG, "oldState = " + mInPinState + "; newState = " + newState);
 
                         // H.M.Wang 2022-12-15 修改在线程当中生成DataTransferThread类的实例的话，会造成初始化是Handler生命部分异常，因为Handler不能在线程中生成
@@ -107,12 +107,13 @@ public class PI11Monitor {
 
                         //     协议２：　
                         //            0x01：是打印开始停止
-                        //     协议４：
+                        //     协议４，８：
                         //            0x01：是打印“开始／停止”控制位。其中，打印开始停止是在apk里面处理的，方向控制是在img里面控制的
                         //     协议６：　
                         //            0x01：是打印开始停止
                         if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_2 ||
                                 mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 ||
+                                mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_8 ||
                                 mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
                             if ((mInPinState & 0x01) != (newState & 0x01) && (newState & 0x01) == 0x01) {
                                 if (null != mCallbackFunc) mCallbackFunc.onStartPrint();
@@ -130,11 +131,12 @@ public class PI11Monitor {
                                 FpgaGpioOperation.setMirror(newState & 0x01);
                             }
                         }
-                        //     协议４：
+                        //     协议４，８：
                         //            0x04：方向切换
                         //     协议６：　
                         //            0x04：方向切换
                         if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 ||
+                            mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_8 ||
                             mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6) {
                             if ((mInPinState & 0x04) != (newState & 0x04)) {
                                 Debug.d(TAG, "设置方向调整：" + ((newState & 0x04) != 0 ? 1 : 0));
@@ -144,12 +146,13 @@ public class PI11Monitor {
 
                         //     协议５：
                         //            0x01：是计数器清零，包括RTC的数据和正在打印的数据
-                        //     协议４：
+                        //     协议４，８：
                         //            0x02：是计数器清零，包括RTC的数据和正在打印的数据
                         //     协议６：　
                         //            0x02：是计数器清零，包括RTC的数据和正在打印的数据
                         if ((mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_5 && (mInPinState & 0x01) == 0x00 && (newState & 0x01) == 0x01) ||
                             (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
+                            (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_8 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02) ||
                             (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_6 && (mInPinState & 0x02) == 0x00 && (newState & 0x02) == 0x02)) {
                             Debug.d(TAG, "Clear counters");
                             SystemConfigFile sysConfigFile = SystemConfigFile.getInstance();
@@ -196,9 +199,18 @@ public class PI11Monitor {
                         if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_4) {
                             if ((mInPinState & 0x0F0) != (newState & 0x0F0)) {
                                 if (null != mCallbackFunc)
-                                    mCallbackFunc.onPrintFile(0x0F & (newState >> 4));
+                                    mCallbackFunc.onPrintFile(0x0F & (newState >> 4), true);
                             }
                         }
+
+// H.M.Wang 2026-10-10 增加协议8，因为用户有IN56都高选择信息0的需求，而初始值是0，所以取消有变化才选的限制
+                        //     协议８：
+                        //            0xF0段，即0x00 - 0xF0)为打印文件的文件名（数字形式，0-15）
+                        if (mSysconfig.getParam(SystemConfigFile.INDEX_IPURT_PROC) == SystemConfigFile.INPUT_PROTO_8) {
+                            if (null != mCallbackFunc)
+                                mCallbackFunc.onPrintFile(0x0F & (newState >> 4), false);
+                        }
+// End of H.M.Wang 2026-10-10 增加协议8，因为用户有IN56都高选择信息0的需求，而初始值是0，所以取消有变化才选的限制
 
                         //     协议６：　
                         //            0x10：墨位低（Output1输出，弹窗）

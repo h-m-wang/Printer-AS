@@ -30,6 +30,7 @@ import com.industry.printer.hardware.ExtGpio;
 import com.industry.printer.hardware.FpgaGpioOperation;
 import com.industry.printer.hardware.IInkDevice;
 import com.industry.printer.hardware.InkManagerFactory;
+import com.industry.printer.hardware.LRADCBattery;
 import com.industry.printer.hardware.RTCDevice;
 import com.industry.printer.object.BaseObject;
 import com.industry.printer.object.CounterObject;
@@ -211,12 +212,6 @@ public class PCCommandHandler {
         // End of H.M.Wang 2020-1-8 提取命令ID
 
 // H.M.Wang 当解析命令失败时，抛弃这个命令
-// H.M.Wang 2019-12-30 收到空命令的时候，返回错误
-        if(null == cmd) {
-            sendmsg(Constants.pcErr("<Null Command>"));
-            return;
-        }
-// End of H.M.Wang 2019-12-30 收到空命令的时候，返回错误
 
         if (PCCommand.CMD_SEND_BIN.equalsIgnoreCase(cmd.command) ||  // LAN Printing
             PCCommand.CMD_SEND_BIN_S.equalsIgnoreCase(cmd.command)) {  // LAN Printing
@@ -253,6 +248,9 @@ public class PCCommandHandler {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
                 PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
                 if(pc_FIFO.PCFIFOEnabled()) {
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+                    if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
                     showPromptDlg(cmd.content);
                     if(pc_FIFO.appendToFIFO(cmd.content)) {
                         sendmsg(Constants.pcOk(msg));
@@ -270,6 +268,9 @@ public class PCCommandHandler {
                 } else {
 // H.M.Wang 2022-6-13 即使没有开始打印，也能够设置DT
                     SystemConfigFile.getInstance().setRemoteSeparated(cmd.content);
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+                    if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
                     showPromptDlg(cmd.content);
 //                    sendmsg(Constants.pcErr(msg));
                     sendmsg(Constants.pcOk(msg));
@@ -301,6 +302,9 @@ public class PCCommandHandler {
 // H.M.Wang 2023-3-11 追加网络通讯前置缓冲区功能
                 PC_FIFO pc_FIFO = PC_FIFO.getInstance(mContext);
                 if(pc_FIFO.PCFIFOEnabled()) {
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+                    if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
                     showPromptDlg(cmd.content);
                     if(pc_FIFO.appendToFIFO(cmd.content)) {
                         sendmsg(Constants.pcOk(msg));
@@ -318,6 +322,9 @@ public class PCCommandHandler {
                 } else {
 // H.M.Wang 2022-6-13 即使没有开始打印，也能够设置DT
                     SystemConfigFile.getInstance().setRemoteSeparated(cmd.content);
+// H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
+                    if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) != SystemConfigFile.USER_MODE_9)
+// End of H.M.Wang 2026-10-19 模式9时，禁止显示接收到信息的提示窗
                     showPromptDlg(cmd.content);
 //                    sendmsg(Constants.pcErr(msg));
                     sendmsg(Constants.pcOk(msg));
@@ -703,6 +710,16 @@ public class PCCommandHandler {
                 sendmsg(Constants.pcErr(msg));
             }
 // End of H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
+// H.M.Wang 2026-10-19 增加三个协议
+        } else if(PCCommand.CMD_BEEP.equalsIgnoreCase(cmd.command)) {
+            ExtGpio.playClick();
+            sendmsg(Constants.pcOk(msg));
+        } else if(PCCommand.CMD_PARAM_RELOAD.equalsIgnoreCase(cmd.command)) {
+            SystemConfigFile.getInstance().init();
+            sendmsg(Constants.pcOk(msg));
+        } else if(PCCommand.CMD_QUERY_BATTERY.equalsIgnoreCase(cmd.command)) {
+            sendmsg(Constants.pcOk("000B|0000|" + cmd.command + "|" + LRADCBattery.getPower() + "|0000|0000|0000|0000|0D0A"));
+// End of H.M.Wang 2026-10-19 增加三个协议
         } else {
             sendmsg(Constants.pcErr(msg));
         }
@@ -780,18 +797,18 @@ public class PCCommandHandler {
 
             fos = new FileOutputStream(savePath, false);
 
-            byte[] buffer = new byte[length];
+            byte[] buffer = new byte[8192];
             int totalReceived = 0;
 
             while (totalReceived < length) {
-                int readBytes = 0;
+                int readBytes = Math.min(length-totalReceived, 8192);
 
-                readBytes = mStreamTransport.read(buffer);
-                if(readBytes == -1) Constants.pcErr(msg);
+                readBytes = mStreamTransport.read(buffer, 0, readBytes);
+                if(readBytes == -1) return Constants.pcErr(msg);
                 fos.write(buffer, 0, readBytes);
                 totalReceived += readBytes;
-                Debug.d(TAG, "--->read: " + totalReceived);
             }
+            Debug.d(TAG, "--->read: " + totalReceived + "; total: " + length);
             retString = Constants.pcOk(msg);
         } catch(Exception e){
             Debug.e(TAG, e.getMessage());

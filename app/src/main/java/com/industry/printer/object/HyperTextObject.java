@@ -59,9 +59,9 @@ public class HyperTextObject extends BaseObject {
     public int mShiftTimes[];
     public String mShiftValues[];
 
-// H.M.Wang 2026-9-17 追加字间距标识
+// H.M.Wang 2026-9-21 追加字间距标识
     protected int mLetterSpacing;
-// End of H.M.Wang 2026-9-17 追加字间距标识
+// End of H.M.Wang 2026-9-21 追加字间距标识
 
     public HyperTextObject(Context context, float x) {
         super(context, BaseObject.OBJECT_TYPE_HYPERTEXT, x);

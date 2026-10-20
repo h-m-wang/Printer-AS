@@ -101,6 +101,17 @@ public class PCCommand {
     public static final String CMD_ENCPPR = "encppr";
     public static final String CMD_SLANT = "slant";
 // End of H.M.Wang 2023-11-2 追加两个网络命令，同步器(encppr)和旋转(slant)
+// H.M.Wang 2026-10-19 增加三个协议
+// 2.如果让修改的system_config.xml生效。最好有生效命令，而不是重新启动
+//    加网路命令吗，  相当于我们设参数， 按 OK
+// 3.新增beep协议，发送后这个协议后，直接响一声
+//            加网络命令
+//4.新增一个电池电量协议。
+//    网络查询命令里面有电池电量吗， 没有加上，或者加一条网络命令
+    public static final String CMD_BEEP = "Beep";
+    public static final String CMD_PARAM_RELOAD = "ParamReload";
+    public static final String CMD_QUERY_BATTERY = "QueryBattery";
+// End of H.M.Wang 2026-10-19 增加三个协议
 
     /** 包头 */
     public String header;

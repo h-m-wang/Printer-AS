@@ -200,7 +200,16 @@ public class RFIDData {
 		}
 		return 0x00;
 	}
-	
+
+// H.M.Wang 2026-9-23
+	public byte getStatus() {
+		if (mRealData != null && mRealData.length > 5) {
+			return (byte) (mRealData[5] & 0x0ff);
+		}
+		return (byte)0xFF;
+	}
+// End of H.M.Wang 2026-9-23
+
 	public byte[] getData() {
 		
 		if (mRealData == null || mRealData.length < 4) {

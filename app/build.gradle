@@ -8,12 +8,10 @@ android {
         applicationId "com.industry.printer"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 211400001          //next: 211500001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
-        versionName "260922-211400001"
+        versionCode 212800001          //next: 212900001    // A133格式：nnnnx1mmm；A20格式：nnnnx0mmm。国外版本号5000起步
+        versionName "261019-212800001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         useLibrary 'org.apache.http.legacy'
-
-
         ndk {
             moduleName "MainJni"
             abiFilters "armeabi-v7a"//, "x86" "armeabi"0
@@ -27,7 +25,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true      // 2026-9-30 true 启动混淆
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

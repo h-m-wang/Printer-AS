@@ -504,7 +504,6 @@ UserGroup 使用方法说明
 		}
 	}
 	
-	
 	public static int getMessageDir(int index) {
 		int dir=0;
 		switch (index) {

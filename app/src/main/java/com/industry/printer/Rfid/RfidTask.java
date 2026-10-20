@@ -166,6 +166,15 @@ public class RfidTask implements RfidCallback{
 			dev.setState(RFIDDevice.STATE_RFID_CONNECTED);
 			return;
 		}
+
+// H.M.Wang 2026-9-23 借用打印过程中的Scheduler机制，检验是否有卡，包括写错误，不正常就报警
+		if(data.getStatus() == 0x00) {
+			dev.mValid = true;
+		} else {
+			dev.mValid = false;
+		}
+// End of H.M.Wang 2026-9-23 借用打印过程中的Scheduler机制，检验是否有卡，包括写错误，不正常就报警
+
 		Debug.d(TAG, "--->onFinish: 0x" + Integer.toHexString(data.getCommand()));
 		switch (data.getCommand()) {
 			case RFIDDevice.RFID_CMD_CONNECT:

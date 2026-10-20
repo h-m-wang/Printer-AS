@@ -201,7 +201,7 @@ public class WelcomeActivity extends Activity {
 						if(SmartCardManager.SMARTCARD_ACCESS) SmartCard.loadLibrary();
 						SerialPort.loadLibrary();
 						Hp22mm.loadLibrary();
-						/*初始化系统配置*/
+						/*初始化系统配置 SystemConfigFile的首个instance在这里初始化*/
 						Configs.initConfigs(mContext);
 // End of H.M.Wang 2026-1-22 由PrinterApplication类转移过来，目的是只有升级成功才load库，否则库的api接口有修改时，A133会出现先load（旧的so）后升级（新的so）的问题，导致apk的api与so的api不匹配而崩溃的问题
 						mHander.sendEmptyMessageDelayed(LAUNCH_MAINACTIVITY, 5000);
@@ -292,13 +292,13 @@ public class WelcomeActivity extends Activity {
 // End of H.M.Wang 2024-11-5 增加A133平台的判断
 			//FileUtil.deleteFolder(Configs.FONT_DIR);
 			LibUpgrade libUp = new LibUpgrade();
-			ret = libUp.upgradeSOs(true);
+			ret = libUp.upgradeSOs("");
 		} else {
 // H.M.Wang 2025-9-24 取消开机升级
 // H.M.Wang 2025-10-24 仅A133取消开机升级
 // End of H.M.Wang 2025-10-24 仅A133取消开机升级
 			LibUpgrade libUp = new LibUpgrade();
-			libUp.upgradeSOs(true);
+			libUp.upgradeSOs("");
 			PackageInstaller installer = PackageInstaller.getInstance(this);
 			long start = System.currentTimeMillis();
 			while(System.currentTimeMillis() - start < 3000) {

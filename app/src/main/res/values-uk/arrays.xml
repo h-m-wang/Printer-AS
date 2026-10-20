@@ -346,6 +346,7 @@
         <item>P-5</item>
         <item>P-6</item>
         <item>P-7</item>
+        <item>P-8</item>
     </string-array>
 <string-array name="enc_dir_item_entries">
         <item>Немає</item>
@@ -368,6 +369,7 @@
         <item>Режим 6</item>
         <item>Режим 7</item>
         <item>Режим 8</item>
+        <item>Режим 9</item>
     </string-array>
 <string-array name="param_ad">
         <item>Немає</item>

@@ -88,7 +88,7 @@ public class LibUpgrade {
         return ret;
     }
 
-    private boolean upgradeSO(DataOutputStream os, String so, boolean useLocalAsset) {
+    private boolean upgradeSO(DataOutputStream os, String so, String fromFile) {
         boolean ret = false;
         InputStream is = null;
         String dstPath = "/system/lib/";
@@ -120,17 +120,18 @@ public class LibUpgrade {
                 Debug.d(TAG, "Testing 2");*/
             }
 
-            if(useLocalAsset) {
+            if(StringUtil.isEmpty(fromFile)) {
                 AssetManager assetManager = PrinterApplication.getInstance().getAssets();
                 is = assetManager.open(so);
             } else {
-                if(null != ConfigPath.getUpgradePath()) {
-                    xlsxFile = new ZipFile(new File(ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE));
+//                if(null != ConfigPath.getUpgradePath()) {
+//                    xlsxFile = new ZipFile(new File(ConfigPath.getUpgradePath() + Configs.UPGRADE_APK_FILE));
+                xlsxFile = new ZipFile(new File(fromFile + Configs.UPGRADE_APK_FILE));
                     solib = xlsxFile.getEntry("assets/" + so);
                     is = xlsxFile.getInputStream(solib);
-                } else {
-                    return false;
-                }
+//                } else {
+//                    return false;
+//                }
             }
             File file = new File(dstPath + so);
 
@@ -152,7 +153,7 @@ public class LibUpgrade {
                 os.writeBytes("chmod 777 " + dstPath + so);
                 Thread.sleep(100);
 
-                if(useLocalAsset) {
+                if(StringUtil.isEmpty(fromFile)) {
                     is.reset();
                 } else {
                     is = xlsxFile.getInputStream(solib);        // 在获取一次，因为计算MD5已经使用了。但reset不能执行，会报错
@@ -172,17 +173,17 @@ public class LibUpgrade {
         return ret;
     }
 
-    public boolean upgradeSOs(boolean useLocalAsset) {
+    public boolean upgradeSOs(String fromFile) {
         boolean ret = false;
         try {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(process.getOutputStream());
             Thread.sleep(100);
-            ret |= upgradeSO(os, Configs.HARDWARE_SO, useLocalAsset);
-            ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO, useLocalAsset);
-            ret |= upgradeSO(os, Configs.SMARTCARD_SO, useLocalAsset);
-            ret |= upgradeSO(os, Configs.SERIAL_SO, useLocalAsset);
-            ret |= upgradeSO(os, Configs.HP22MM_SO, useLocalAsset);
+            ret |= upgradeSO(os, Configs.HARDWARE_SO, fromFile);
+            ret |= upgradeSO(os, Configs.NATIVEGRAPHIC_SO, fromFile);
+            ret |= upgradeSO(os, Configs.SMARTCARD_SO, fromFile);
+            ret |= upgradeSO(os, Configs.SERIAL_SO, fromFile);
+            ret |= upgradeSO(os, Configs.HP22MM_SO, fromFile);
             try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
         } catch(IOException e) {
             Debug.e(TAG, e.getMessage());
@@ -216,29 +217,31 @@ public class LibUpgrade {
         return ret;
     }
 
-    public boolean copyToTempForA133(String file, String dst) {
-        String tmpPath, srcPath, dstPath;
-        File srcFile;
+    public boolean copyToTempForA133(String file, String srcPath, String dstPath) {
+        String tmpFile, srcFile, dstFile;
+        File sFile;
 
         try {
-            tmpPath = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
-            if(ConfigPath.getUpgradePath() == null) return false;
-            srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "" : File.separator) + file;
-            dstPath = dst + (file.startsWith(File.separator) ? "" : File.separator) + file;
-            Debug.d(TAG, "Upgrade [" + srcPath + "] -> [" + tmpPath + "] -> [" + dstPath + "]");
+            tmpFile = "/data/audio_d" + (file.startsWith(File.separator) ? "" : File.separator) + file;
+//            if(ConfigPath.getUpgradePath() == null) return false;
+//            srcPath = ConfigPath.getUpgradePath() + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            if(srcPath == null) return false;
+            srcFile = srcPath + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            dstFile = dstPath + (file.startsWith(File.separator) ? "" : File.separator) + file;
+            Debug.d(TAG, "Upgrade [" + srcFile + "] -> [" + tmpFile + "] -> [" + dstFile + "]");
 
-            srcFile = new File(srcPath);
-            if(srcFile.exists()) {
-                if(!CypherUtils.getFileMD5(srcFile).equalsIgnoreCase(CypherUtils.getFileMD5(dstPath))) {
-                    FileUtil.writeFile(tmpPath, new FileInputStream(srcFile));
+            sFile = new File(srcFile);
+            if(sFile.exists()) {
+                if(!CypherUtils.getFileMD5(sFile).equalsIgnoreCase(CypherUtils.getFileMD5(dstFile))) {
+                    FileUtil.writeFile(tmpFile, new FileInputStream(sFile));
                     Debug.d(TAG, "Done");
                     try {Runtime.getRuntime().exec("sync");} catch (IOException e) {}
                     return true;
                 } else {
-                    Debug.d(TAG, "[" + srcPath + "] is same as [" + dstPath + "]");
+                    Debug.d(TAG, "[" + srcFile + "] is same as [" + dstFile + "]");
                 }
             } else {
-                Debug.d(TAG, "[" + srcPath + "] not exist.");
+                Debug.d(TAG, "[" + srcFile + "] not exist.");
             }
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());

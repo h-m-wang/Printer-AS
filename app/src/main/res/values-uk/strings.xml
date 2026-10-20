@@ -464,9 +464,14 @@
 	<string name="str_time_unit_100us">100мкс</string>
 	<string name="str_unit_ps">к/с</string>
 	<string name="str_unit_kPa">кПа</string>
-<string name="str_time_unit_min">хв</string>
+<!-- H.M.Wang 2026-9-24 增加按P78非0时启动长清洗时的提示内容 -->
+	<string name="str_clean_confirm2">System purge, ensure waste bottle in place, remaining capacity more than 200ml.</string>
+	<string name="str_prim_confirm">Ensure waste bottle in place</string>
+	<string name="str_btn_prim">Prim</string>
+<!-- End of H.M.Wang 2026-9-24 增加按P78非0时启动长清洗时的提示内容 -->
+	<string name="str_time_unit_min">хв</string>
 	<string name="str_temperature">℃</string>
-<string name="str_setting_time">Годинник</string>
+	<string name="str_setting_time">Годинник</string>
 	<string name="str_system_setting">Налаштування</string>
 	<string name="str_upgrade_progress">система оновлюється....</string>
 	<string name="str_upgrade_failed">Upgrading failed</string>

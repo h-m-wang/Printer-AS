@@ -1200,14 +1200,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mTimeCheckInterval++;
 				if(mTimeCheckInterval % 10 == 0) {
 					long timeDiff = rtcDevice.compareRTCvSystemTime();
-					if ((rtcDevice.getCtrlReg() & 0x20) != 0x00) {		// 旨在OSF由0变为1时计数，与前次值无变化时不计数
+					if ((rtcDevice.getCtrlReg() & 0x20) != 0x00) {		// RTC中途出现过故障，旨在OSF由0变为1时计数，与前次值无变化时不计数
 						if (mLastOSF == 0) mOSFCount++;
 						mLastOSF = 1;
 					} else {
 						mLastOSF = 0;
 					}
 
-					if ((rtcDevice.getSecReg() & 0x80) != 0x00) {		// 旨在WH由0变为1时计数，与前次值无变化时不计数
+					if ((rtcDevice.getSecReg() & 0x80) != 0x00) {		// RTC停止位，旨在WH由0变为1时计数，与前次值无变化时不计数
 						if (mLastWH == 0) mWHCount++;
 						mLastWH = 1;
 					} else {
@@ -1321,11 +1321,14 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				}
 
 				@Override
-				public void onPrintFile(int index) {
-					if(index != 0x00) {
+// H.M.Wang 2026-10-10 因为用户有IN56都高选择信息0的需求，所以取消0不选信息，改为都选，但是同名的话就不再选了
+//				public void onPrintFile(int index) {
+				public void onPrintFile(int index, boolean skipZero) {
+// End of H.M.Wang 2026-10-10 因为用户有IN56都高选择信息0的需求，所以取消0不选信息，改为都选，但是同名的话就不再选了
+					if(index != 0x00 || !skipZero) {
 						String fileName = "" + index;
 						Debug.d(TAG, "IN8-IN5 select file: " + fileName);
-						if(new File(ConfigPath.getTlkDir(fileName)).exists()) {
+						if(new File(ConfigPath.getTlkDir(fileName)).exists() && !mObjPath.equals(fileName)) {
 							Message msg = mHandler.obtainMessage(MESSAGE_OPEN_PREVIEW);
 							Bundle bundle = new Bundle();
 							bundle.putString("file", fileName);
@@ -1408,18 +1411,17 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mf.setCallback(this);
 		}
 // End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
-/*		if(SystemConfigFile.getInstance(mContext).getParam(89) == 1) {
-			mControllerSide = new ControllerSide(mContext, new ControllerSide.TransferListener() {
+		if(SystemConfigFile.getInstance(mContext).getParam(89) == 1) {
+			mControllerSide = new ControllerSide(mContext, new ControllerSide.CmdTransferListener() {
 				@Override
 				public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
 					Debug.d(TAG, dev.getIPAddress() + ": " + recv);
 				}
 			});
-			mControllerSide.findPrinters();
 		} else if(SystemConfigFile.getInstance(mContext).getParam(89) == 2) {
 			mPrinterSide = new PrinterSide(mContext, this);
 			mPrinterSide.start();
-		}*/
+		}
 	}
 	ControllerSide mControllerSide;
 	PrinterSide mPrinterSide;
@@ -1715,6 +1717,13 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				valid = false;
 
 				mHandler.obtainMessage(MESSAGE_RFID_ALARM,2, 0, null).sendToTarget();
+// H.M.Wang 2026-10-1 暂时取消这个报警就停止打印
+/*// H.M.Wang 2026-9-24 只要是报警就停止打印
+				if (mDTransThread != null && mDTransThread.isRunning()) {
+					mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+				}
+// End of H.M.Wang 2026-9-24 只要是报警就停止打印*/
+// End of H.M.Wang 2026-10-1 暂时取消这个报警就停止打印
 			} else if (mInkManager instanceof SmartCardManager && ink >= 5.0f ||
 					mInkManager instanceof Hp22mmSCManager && ink >= 5.0f ||
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
@@ -2910,6 +2919,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 // End of H.M.Wang 2026-2-3 修改错误显示策略，假如数次获取错误码的序列为 0，0，0，0，14，0，0，14，15，15，0，0，0，则显示出来的错误信息为 14(2),15(3),并且在收到非0时报警，收到0时不报警
 // H.M.Wang 2025-1-20 当22mm的初始化失败时，显示提示窗
 					if(!((String)msg.obj).isEmpty()) {
+						Debug.d(TAG, "========ErrStr: [" + ((String)msg.obj) + "]");
 						if(null == mHp22mmErrorDlg) {
 							AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 							builder.setView(R.layout.toast_layout);
@@ -3715,8 +3725,18 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
+				mControllerSide.sendSettings(new ControllerSide.FileTransferListener() {
+					@Override
+					public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
+//						Debug.d(TAG, recv);
+					}
 
-				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+					@Override
+					public void onProgress(ControllerSide.ConnectedDevice dev, float percentage) {
+//						Debug.d(TAG, "Progress: " + String.format("%0.2f%%", percentage * 100.0f));
+					}
+				});
+/*				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3725,10 +3745,20 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg.show();
+				dlg.show();*/
 				break;
 			case R.id.ctrl_btn_down:
-				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+				mControllerSide.upgradeAPK(new ControllerSide.FileTransferListener() {
+					@Override
+					public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
+						Debug.d(TAG, recv);
+					}
+					@Override
+					public void onProgress(ControllerSide.ConnectedDevice dev, float percentage) {
+//						Debug.d(TAG, "Progress: " + String.format("%0.2f%%", percentage * 100.0f));
+					}
+				});
+/*				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg1.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3737,7 +3767,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg1.show();
+				dlg1.show();*/
 				break;
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			case R.id.upward_cnt_print:
@@ -5185,6 +5215,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	volatile private long mLastPE4HighTime;			// 上一次拉高PE4的时间
 	volatile private long mLastPE5HighTime;			// 上一次拉高PE5的时间
 // End of H.M.Wang 2025-10-15 修改变量属性为volatile
+// H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
+    public static volatile boolean PressCheckEnable = true;      // 测压使能开关
+    public static volatile boolean PressChecking = false;        // 正在测压工作中标识
+// End of H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
 
 	private void pressCheckInit() {
 		mLastPressCheckTime = System.currentTimeMillis();
@@ -5195,6 +5229,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 	}
 
 	private void checkPress() {
+// H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
+        if(!PressCheckEnable) return;
+// End of H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
 		long curTimeMills = System.currentTimeMillis();
 
 		if(curTimeMills - mLastPE5HighTime > 1000) {	// 拉高了PE5，并且持续了1秒
@@ -5211,6 +5248,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mHandler.obtainMessage(MESSAGE_RFID_ALARM,1, 0, null).sendToTarget();
 		}
 
+// H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
+        if(ExtGpio.readGpioTestPin('E', 5) == 0 && ExtGpio.readGpioTestPin('E', 4) == 0) PressChecking = false;
+// End of H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
 		// 加墨
 		int press = 0;
 // H.M.Wang 2025-9-20 检查泵压时间由10s改为5s
@@ -5222,6 +5262,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			Debug.d(TAG, "Pressure: " + press + "; Param: " + mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE));
 			if(press < mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE)) {	// 当测得压力小于P78设置的压力值
 				if(inkStatus != 0) {		// 没有缺墨报警（0=不缺墨；0<>缺墨）
+// H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
+                    PressChecking = true;
+// End of H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
 					Debug.d(TAG, "Read PG9 high");
 					mLastPE4HighTime = curTimeMills;
 					Debug.d(TAG, "Set PE4 high");
@@ -5236,6 +5279,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 		// 循环
 		if(mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) > 60) {
 			if(curTimeMills - mLastPE5HighTime > mSysconfig.getParam(SystemConfigFile.INDEX_PUMP_CIRCU) * 1000) {
+// H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
+                PressChecking = true;
+// End of H.M.Wang 2026-9-24 增加一个逻辑开关，当启动长清洗时，禁止[加墨和循环](即本操作)操作
 				mLastPE5HighTime = curTimeMills;
 				Debug.d(TAG, "Set PE5 high");
 				ExtGpio.writeGpioTestPin('E', 5, 1);

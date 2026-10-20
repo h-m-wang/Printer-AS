@@ -156,7 +156,7 @@ public class CalendarDialog extends RelightableDialog {
 						@Override
 						public void run() {
 							LibUpgrade libUp = new LibUpgrade();
-							boolean ret = libUp.upgradeSOs(false);
+							boolean ret = libUp.upgradeSOs(ConfigPath.getUpgradePath());
 
 							PackageInstaller installer = PackageInstaller.getInstance(CalendarDialog.super.getContext());
 							if(WelcomeActivity.AVOID_CROSS_UPGRADE) {

@@ -97,7 +97,6 @@ public class RFIDManager implements RfidCallback, IInkDevice {
 				}
 				// mDevice.connect();
 				break;
-				
 			case MSG_RFID_CHECK_SWITCH_DEVICE:
 				mDevice.removeListener(RFIDManager.this);
 				Debug.d(TAG, "--->dev: " + mCurrent + "  ink:" + mDevice.getLocalInk());

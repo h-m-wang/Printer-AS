@@ -1124,8 +1124,8 @@ public class BarcodeObject extends BaseObject {
 			int[] pixels = BitMatrix2IntArray(matrix, width, height, true,
 					(mRevert ? 0xffffffff : 0xff000000),
 					(mRevert ? 0xff000000 : 0xffffffff));
-			bitmap = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
-			bitmap.setPixels(pixels, 0, height, 0, 0, height, width);
+			bitmap = Bitmap.createBitmap(drawH, drawW, Configs.BITMAP_CONFIG);
+			bitmap.setPixels(pixels, 0, height, Math.max(0,(drawH-height)/2), Math.max(0,(drawW-width)/2), height, width);
 			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
 					(width != w || height != h)) {
 				return Bitmap.createScaledBitmap(bitmap, h, w, false);
@@ -1134,8 +1134,8 @@ public class BarcodeObject extends BaseObject {
 			int[] pixels = BitMatrix2IntArray(matrix, width, height, false,
 					(mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000)),
 					(mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff));
-			bitmap = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
-			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+			bitmap = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+			bitmap.setPixels(pixels, 0, width, Math.max(0,(drawW-width)/2), Math.max(0,(drawH-height)/2), width, height);
 			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
 					(width != w || height != h)) {
 				return Bitmap.createScaledBitmap(bitmap, w, h, false);

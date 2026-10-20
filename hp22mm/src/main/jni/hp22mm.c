@@ -28,8 +28,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.229"
+#define VERSION_CODE                            "1.0.230"
 
+// 1.0.230 2026-9-21
+// 增加startPrint和stopPrint接口，用来设置打印中标识，目的是在守护线程中，只有在打印状态下维护打印头的状态，非打印状态时不维护
 // 1.0.229 2026-9-21
 // 临时在ids_service模块的ids_service_get_sys_info函数中，输出一个log
 // LOGD("decode_ptr = %d, data_size = %d (need size 15 bytes)", frame.decode_ptr, frame.data_size);
@@ -419,6 +421,10 @@ static pthread_mutex_t mutex;
 // H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
 char gOutputLog = 1;
 // End of H.M.Wang 2025-6-11 修改为log可设置为输出和不输出
+
+// H.M.Wang 2026-10-16 增加一个打印中的标识，在打印开始后才上电，并且在守护线程中维护打印头状态，非打印状态下，打印头不上电
+static volatile int sPrinting = 0;
+// End of H.M.Wang 2026-10-16 增加一个打印中的标识，在打印开始后才上电，并且在守护线程中维护打印头状态，非打印状态下，打印头不上电
 
 void CmdDepressurize();
 int CmdPressurize(jboolean async);
@@ -878,6 +884,13 @@ void *monitorThread(void *arg) {
 // End of H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
         }
 
+// H.M.Wang 2026-10-16 当不处于打印状态时，打印头不上电，因此不再维护打印头的状态，包括与IDS的握手
+        if(!sPrinting) {
+            pthread_mutex_unlock(&mutex);
+            continue;
+        }
+// End of H.M.Wang 2026-10-16 当不处于打印状态时，打印头不上电，因此不再维护打印头的状态，包括与IDS的握手
+
         // 当已经给PD上点成功的情况下，
         if(PD_Power_State == PD_POWER_STATE_ON) {
             int penNum;
@@ -1106,6 +1119,18 @@ JNIEXPORT jint JNICALL Java_com_EnableWarming(JNIEnv *env, jclass arg, jint enab
     return 0;
 }
 
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
+JNIEXPORT jint JNICALL Java_com_StartPrint(JNIEnv *env, jclass arg) {
+    sPrinting = 1;
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_com_StopPrint(JNIEnv *env, jclass arg) {
+    sPrinting = 0;
+    return 0;
+}
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
+
 JNIEXPORT jint JNICALL Java_com_StartMonitor(JNIEnv *env, jclass arg) {
     CancelMonitor = false;
 
@@ -1264,7 +1289,7 @@ JNIEXPORT jstring JNICALL Java_com_GetErrorString(JNIEnv *env, jclass arg) {
     char err[1024];
 // H.M.Wang 2026-8-10 增加一个保存超时状态的变量，当发生超时时=1，初始状况=0
     if(gTimeoutStatus == 1) {
-        sprintf(err, "UART_ERROR_TIMEOUT");
+        sprintf(err, "UART_TIMEOUT");
         gTimeoutStatus = 0;
     } else {
         sprintf(err, "%s%s", ERR_STRING1, ERR_STRING);
@@ -2148,6 +2173,10 @@ static JNINativeMethod gMethods[] = {
         {"lockPDProgramingFields",		        "()I",						(void *)Java_com_LockPDProgramingFields},
         {"lockIDSProgramingFields",		        "()I",						(void *)Java_com_LockIDSProgramingFields},
 // End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
+        {"startPrint",		        "()I",						(void *)Java_com_StartPrint},
+        {"stopPrint",		        "()I",						(void *)Java_com_StopPrint},
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
 
 /*
 // H.M.Wang 2023-7-27 将startPrint函数的返回值修改为String型，返回错误的具体内容

@@ -122,7 +122,10 @@ public class StreamTransport {
                 if(ret == -1) break;
                 recv += ret;
             }
-            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
+//            Debug.d(TAG, "Recv Data :[" + ByteArrayUtils.toHexString(buffer, offset, recv) + "](" + recv + " bytes)");
+        } catch(SocketTimeoutException e) {
+            Debug.e(TAG, e.getMessage());
+            return 0;
         } catch(Exception e) {
             Debug.e(TAG, e.getMessage());
             return -1;

@@ -244,6 +244,9 @@ public class SystemConfigFile{
 // H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
 	public static final int USER_MODE_8 	= 8;
 // End of H.M.Wang 2026-5-30 追加用户模式8，进入编辑页面需要验证密码
+// H.M.Wang 2026-10-19 增加模式9，该模式下，禁止接收到网络数据时显示提示窗，并且开机后直接启用用户apk（与模式7相同）
+	public static final int USER_MODE_9 	= 9;
+// End of H.M.Wang 2026-10-19 增加模式9，该模式下，禁止接收到网络数据时显示提示窗，并且开机后直接启用用户apk（与模式7相同）
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
@@ -514,7 +517,9 @@ public class SystemConfigFile{
 // H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮终点的时候， 比如60细分， 到了60次，报警灯亮20s
 	public static final int INPUT_PROTO_7           = 6;
 // End of H.M.Wang 2023-10-16 追加协议7。当细分计数器到达本轮终点的时候， 比如60细分， 到了60次，报警灯亮20s
-
+// H.M.Wang 2026-10-10 增加协议8，copy 协议 4 ，增加的功能是 IN5 和 IN6 全是 1 的时候，选中信息 0
+	public static final int INPUT_PROTO_8           = 7;
+// End of H.M.Wang 2026-10-10 增加协议8，copy 协议 4 ，增加的功能是 IN5 和 IN6 全是 1 的时候，选中信息 0
 // End of H.M.Wang 追加输入设置参数
 
 // H.M.Wang 2020-3-3 镜像方向定义，影响到参数12，13，20，21

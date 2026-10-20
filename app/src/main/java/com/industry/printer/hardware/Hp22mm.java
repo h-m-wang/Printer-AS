@@ -98,6 +98,10 @@ public class Hp22mm {
     static public native int lockPDProgramingFields();
     static public native int lockIDSProgramingFields();
 // End of H.M.Wang 2026-6-30 增加L2-L5的编程功能
+// H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
+    static public native int startPrint();
+    static public native int stopPrint();
+// End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，当前只设置打印中的标识，EnableWarming仍然由源路径设置
 
 //    static public native String startPrint();
 //    static public native String dumpRegisters();
@@ -283,6 +287,9 @@ if(!THIRD_PARTY_PROGRAMER) {
                 return -9;
             } else {
                 Debug.d(TAG, "PD power on succeeded\n");
+// H.M.Wang 2026-10-16 初始化阶段上电成功后就断电，然后在开始打印时再上电
+                pdPowerOff(penIdxs[i]);
+// End of H.M.Wang 2026-10-16 初始化阶段上电成功后就断电，然后在开始打印时再上电
             }
 // End of H.M.Wang 2024-9-26 暂时改为初始化的时候打印头上电
         }
