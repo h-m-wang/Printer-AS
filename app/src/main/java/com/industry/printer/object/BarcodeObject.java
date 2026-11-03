@@ -34,6 +34,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.text.TextUtils;
 import android.util.Log;
@@ -578,19 +579,24 @@ public class BarcodeObject extends BaseObject {
 		} else {
 			if (mWidth <= 0) {
 				mWidth = mHeight;
-// H.M.Wang 2024-10-24 追加DM码的种类选择
-				if(mDMType == DM_TYPE_RECTANGLE) {
-					Debug.d(TAG, "DM_TYPE_RECTANGLE");
-					mWidth = mHeight * 18 / 8;		// 生成的DM码，当高度为8的时候，宽度为18，因此16点的时候，如果简单的以高度的倍数取宽，则32不能满足36个点，因此DM生成时会主动缩小，为避免这个情况，宽度设为*18/2
-				}
-// End of H.M.Wang 2024-10-24 追加DM码的种类选择
+// H.M.Wang 2026-10-27 由于DM码的长方形码存在宽度随内容可能发生变化的问题，因此取消这里的固定设置，改为在生成DM码时进行调整
+//// H.M.Wang 2024-10-24 追加DM码的种类选择
+//				if(mDMType == DM_TYPE_RECTANGLE) {
+//					Debug.d(TAG, "DM_TYPE_RECTANGLE");
+//					mWidth = mHeight * 18 / 8;		// 生成的DM码，当高度为8的时候，宽度为18，因此16点的时候，如果简单的以高度的倍数取宽，则32不能满足36个点，因此DM生成时会主动缩小，为避免这个情况，宽度设为*18/2
+//				}
+//// End of H.M.Wang 2024-10-24 追加DM码的种类选择
+// End of H.M.Wang 2026-10-27 由于DM码的长方形码存在宽度随内容可能发生变化的问题，因此取消这里的固定设置，改为在生成DM码时进行调整
 			}
 //			mWidth = mRatio * 152;
 //			mWidth = mRatio * mHeight;
 //            mWidth = mHeight;
 //			if (mFormat.equalsIgnoreCase("DM") || mFormat.equalsIgnoreCase("DATA_MATRIX")) {
 			if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_DM)) {
-				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
+// H.M.Wang 2026-10-27 由于DM码长方形时宽度不确定，因此宽度传入0，这样可以让ZXing库给出合适的大小
+//				mBitmap = drawDataMatrix(mContent, (int) mWidth, (int) mHeight);
+				mBitmap = drawDataMatrix(mContent, 0, (int) mHeight);
+// End of H.M.Wang 2026-10-27 由于DM码长方形时宽度不确定，因此宽度传入0，这样可以让ZXing库给出合适的大小
 // H.M.Wang 2023-11-21 追加GS1的QR和DM
 			} else if (mFormat.equalsIgnoreCase(BARCODE_FORMAT_GS1QR)) {
 				mBitmap = drawOkapiQR(mContent, (int) mWidth, (int) mHeight);
@@ -1034,16 +1040,21 @@ public class BarcodeObject extends BaseObject {
 //        BitMatrix matrix = writer.encode(content, getBarcodeFormat(mFormat), w-2, h-2, hints);
         int drawW = w, drawH = h;
         BitMatrix matrix;
-        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM)) {
-            if(mDMType == DM_TYPE_RECTANGLE) {
-                drawH = Math.min(w*8, h*18)/18;
-                drawW = drawH*18/8;
-            } else {
-                drawH = Math.min(w, h);
-                drawW = drawH;
-            }
-        }
-        matrix = writer.encode(content, getBarcodeFormat(mFormat), drawW-2, drawH-2, hints);
+// H.M.Wang 2026-10-27 由于初始调用时宽度传入的是0，这里的计算没有意义了，后续传入实际参数时，在后部调整宽度
+//        if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM)) {
+//            if(mDMType == DM_TYPE_RECTANGLE) {
+//                drawH = Math.min(w*8, h*18)/18;
+//                drawW = drawH*18/8;
+//            } else {
+//                drawH = Math.min(w, h);
+//                drawW = drawH;
+//            }
+//        }
+// End of H.M.Wang 2026-10-27 由于初始调用时宽度传入的是0，这里的计算没有意义了，后续传入实际参数时，在后部调整宽度
+// H.M.Wang 2026-10-27 调用ZXing库时，传入参数0，0，用来提示库给出实际的宽度和高度。此时生成的尺寸是如，正方形 10x10，14x14等，或者长方形8x18，8*32等的尺寸
+//		matrix = writer.encode(content, getBarcodeFormat(mFormat), drawW-2, drawH-2, hints);
+        matrix = writer.encode(content, getBarcodeFormat(mFormat), 0, 0, hints);
+// End of H.M.Wang 2026-10-27 调用ZXing库时，传入参数0，0，用来提示库给出实际的宽度和高度
 // End of H.M.Wang 2025-7-22 当打印头是hp22mm或者hp22mmx2时，生成打印缓冲区时宽度和高度缩小的倍率不一样，导致生成的二维码会按着短边生成一个缩小的图，修改为按着短边生成的图放大至全空间
 //			BitMatrix matrix = encode(content, w, h, hints);
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
@@ -1053,7 +1064,7 @@ public class BarcodeObject extends BaseObject {
 
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
-		Debug.d(TAG, "Content: " + content + "; drawW: " + drawW + "; drawH: " + drawH + "; Width: " + width + "; Height: " + height);
+//		Debug.d(TAG, "Content: " + content + "; drawW: " + drawW + "; drawH: " + drawH + "; Width: " + width + "; Height: " + height);
 
 // H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
 /*
@@ -1124,25 +1135,120 @@ public class BarcodeObject extends BaseObject {
 			int[] pixels = BitMatrix2IntArray(matrix, width, height, true,
 					(mRevert ? 0xffffffff : 0xff000000),
 					(mRevert ? 0xff000000 : 0xffffffff));
-			bitmap = Bitmap.createBitmap(drawH, drawW, Configs.BITMAP_CONFIG);
-			bitmap.setPixels(pixels, 0, height, Math.max(0,(drawH-height)/2), Math.max(0,(drawW-width)/2), height, width);
-			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
-					(width != w || height != h)) {
-				return Bitmap.createScaledBitmap(bitmap, h, w, false);
+// H.M.Wang 2026-10-27 修改DM码的生成方法，先生成符合DM码标准大小的DM码，然后根据给定的变量的高和DM码的高计算出放大倍率，当模式10并且是16点打印头并且是长方形DM码时，不留白，其余类型留一个像素的留白，然后将位图均匀放大到目标区域
+			int ratio;
+			if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+				SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+				mDMType == DM_TYPE_RECTANGLE) {
+				ratio = h / height;						// 无四周留白放大倍数
+			} else {
+				ratio = (h - 2) / height;				// 有四周留白放大倍数
 			}
+			if(ratio > 0) {
+				drawH = height * ratio;
+				drawW = width * ratio + 2;
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+						SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+						mDMType == DM_TYPE_RECTANGLE) {
+					if(width == 18 && height == 8) {	// 将宽度为8x18时，强制延长到8*32
+						drawW = 32 * ratio + 2;
+					}
+				}
+			} else {
+				drawH = height;
+				drawW = width + 2;
+			}
+//			Debug.d(TAG, "ratio: " + ratio + "; drawW: " + drawW + "; drawH: " + drawH + "; w: " + w + "; h: " + h);
+
+			Bitmap tmpBmp = Bitmap.createBitmap(height, width, Configs.BITMAP_CONFIG);
+			tmpBmp.setPixels(pixels, 0, height, 0, 0, height, width);
+
+			bitmap = Bitmap.createBitmap(h, drawW, Configs.BITMAP_CONFIG);
+			Canvas canvas = new Canvas(bitmap);
+			Paint paint = new Paint();
+			paint.setColor(Color.WHITE);
+			paint.setAntiAlias(false);
+			paint.setFilterBitmap(false);
+
+			Matrix mtx = new Matrix();
+			mtx.setScale(ratio, ratio);
+			if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+					SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+					mDMType == DM_TYPE_RECTANGLE) {
+//				mtx.postTranslate(0,0);
+			} else {
+				mtx.postTranslate((h-drawH)/2,1);
+			}
+			canvas.drawBitmap(tmpBmp, mtx, paint);
+			return bitmap;
+//
+//			bitmap.setPixels(pixels, 0, height, Math.max(0,(drawH-height)/2), Math.max(0,(drawW-width)/2), height, width);
+//			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+//					(width != w || height != h)) {
+//				return Bitmap.createScaledBitmap(bitmap, h, w, false);
+//			}
+// End of H.M.Wang 2026-10-27 修改DM码的生成方法，先生成符合DM码标准大小的DM码，然后根据给定的变量的高和DM码的高计算出放大倍率，当模式10并且是16点打印头并且是长方形DM码时，不留白，其余类型留一个像素的留白，然后将位图均匀放大到目标区域
 		} else {
 			int[] pixels = BitMatrix2IntArray(matrix, width, height, false,
 					(mRevert ? 0xffffffff : (needRedraw() ? 0xff0000ff : 0xff000000)),
 					(mRevert ? (needRedraw() ? 0xff0000ff : 0xff000000) : 0xffffffff));
-			bitmap = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
-			bitmap.setPixels(pixels, 0, width, Math.max(0,(drawW-width)/2), Math.max(0,(drawH-height)/2), width, height);
-			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
-					(width != w || height != h)) {
-				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+// H.M.Wang 2026-10-27 修改DM码的生成方法，先生成符合DM码标准大小的DM码，然后根据给定的变量的高和DM码的高计算出放大倍率，当模式10并且是16点打印头并且是长方形DM码时，不留白，其余类型留一个像素的留白，然后将位图均匀放大到目标区域
+			int ratio;
+			if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+					SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+					mDMType == DM_TYPE_RECTANGLE) {
+				ratio = h / height;						// 无四周留白放大倍数
+			} else {
+				ratio = (h - 2) / height;				// 有四周留白放大倍数
 			}
+			if(ratio > 0) {
+				drawH = height * ratio;
+				drawW = width * ratio + 2;
+				if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+						SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+						mDMType == DM_TYPE_RECTANGLE) {
+					if(width == 18 && height == 8) {	// 将宽度为8x18时，强制延长到8*32
+						drawW = 32 * ratio + 2;
+					}
+				}
+			} else {
+				drawH = height;
+				drawW = width + 2;
+			}
+			mWidth = drawW;				// 设置正确的宽度
+			Debug.d(TAG, "ratio: " + ratio + "; drawW: " + drawW + "; drawH: " + drawH + "; w: " + w + "; h: " + h);
+
+			Bitmap tmpBmp = Bitmap.createBitmap(width, height, Configs.BITMAP_CONFIG);
+			tmpBmp.setPixels(pixels, 0, width, 0, 0, width, height);
+
+			bitmap = Bitmap.createBitmap(drawW, h, Configs.BITMAP_CONFIG);
+			Canvas canvas = new Canvas(bitmap);
+			Paint paint = new Paint();
+			paint.setColor(Color.WHITE);
+			paint.setAntiAlias(false);
+			paint.setFilterBitmap(false);
+
+			Matrix mtx = new Matrix();
+			mtx.setScale(ratio, ratio);
+			if( SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_USER_MODE) == SystemConfigFile.USER_MODE_10 &&
+					SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_16_DOT &&
+					mDMType == DM_TYPE_RECTANGLE) {
+//				mtx.postTranslate(0,0);
+			} else {
+				mtx.postTranslate(1, (h-drawH)/2);
+			}
+			canvas.drawBitmap(tmpBmp, mtx, paint);
+			return bitmap;
+//			bitmap = Bitmap.createBitmap(drawW, drawH, Configs.BITMAP_CONFIG);
+//			bitmap.setPixels(pixels, 0, width, Math.max(0,(drawW-width)/2), Math.max(0,(drawH-height)/2), width, height);
+//			if((SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MM || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_22MMX2 || SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) &&
+//					(width != w || height != h)) {
+//				return Bitmap.createScaledBitmap(bitmap, w, h, false);
+//			}
+// End of H.M.Wang 2026-10-27 修改DM码的生成方法，先生成符合DM码标准大小的DM码，然后根据给定的变量的高和DM码的高计算出放大倍率，当模式10并且是16点打印头并且是长方形DM码时，不留白，其余类型留一个像素的留白，然后将位图均匀放大到目标区域
 		}
 // End of H.M.Wang 2026-4-14 将BitMatrix到pixels的转换转移到BitMatrix2IntArray函数中执行，并且在BitMatrix2IntArray函数中，实现生成bin数据时的旋转镜像转换
-		return bitmap;
+//		return bitmap;
 //		return Bitmap.createScaledBitmap(bitmap, w, h, false);
 // End of H.M.Wang 2023-2-1 因为参数的width和height已经是目标宽高，因此不必再次调整位图大小
 //			return Bitmap.createScaledBitmap(bitmap, (int) mWidth, (int) mHeight, false);
@@ -1498,7 +1604,6 @@ public class BarcodeObject extends BaseObject {
 				content = check();
 
 				matrix = writer.encode(content, format, width, height, null);
-
 //				int tl[] = matrix.getTopLeftOnBit();
 //				int br[] = matrix.getBottomRightOnBit();
 

@@ -247,6 +247,9 @@ public class SystemConfigFile{
 // H.M.Wang 2026-10-19 增加模式9，该模式下，禁止接收到网络数据时显示提示窗，并且开机后直接启用用户apk（与模式7相同）
 	public static final int USER_MODE_9 	= 9;
 // End of H.M.Wang 2026-10-19 增加模式9，该模式下，禁止接收到网络数据时显示提示窗，并且开机后直接启用用户apk（与模式7相同）
+// H.M.Wang 2026-10-27 增加用户模式10，该模式下，用户使用16点大字机，生成的DM码为长方形时，主要内容为8-10个数字，生成的DM码无论为8*18还是8*32，均按8*32计算宽度，并且不要四周留白，放大到16*36或者16*64宽
+	public static final int USER_MODE_10 	= 10;
+// End of H.M.Wang 2026-10-27 增加用户模式10，该模式下，用户使用16点大字机，生成的DM码为长方形时，主要内容为8-10个数字，生成的DM码无论为8*18还是8*32，均按8*32计算宽度，并且不要四周留白，放大到16*36或者16*64宽
 // H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小
 	public static final int INDEX_PC_FIFO = 71;
 // End of H.M.Wang 2023-3-12 增加一个PC_FIFO的参数，用来定义PC_FIFO的大小

@@ -370,6 +370,7 @@
         <item>Режим 7</item>
         <item>Режим 8</item>
         <item>Режим 9</item>
+        <item>Режим 10</item>
     </string-array>
 <string-array name="param_ad">
         <item>Немає</item>

@@ -613,7 +613,7 @@ public static final String TAG="SettingsTabActivity";
 							public void onClick(DialogInterface dialog, int which) {
 // H.M.Wang 2026-9-24 如果加墨和循环正在执行，则等待其完成当前步骤，并且在获得执行权后，阻断加加墨和循环的操作
 								if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
-									processCleanFlush();
+									processCleanFlush(false);
 								}
 // End of H.M.Wang 2026-9-24 如果加墨和循环正在执行，则等待其完成当前步骤，并且在获得执行权后，阻断加加墨和循环的操作
 								DataTransferThread dThread = DataTransferThread.getInstance(mContext);
@@ -632,6 +632,16 @@ public static final String TAG="SettingsTabActivity";
 							}
 						});
 // H.M.Wang 2025-3-6 追加Hp22mm类型的打印头询问清洗哪个头的功能
+// H.M.Wang 2026-10-23 增加要求：长清洗确认弹窗里面增加1个“泄压”按钮 ，只开废液阀 （ PE4/PE5/PH26/=0，  PH27=1，30s.   （放空 剩余压力））。
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_PRESURE) > 0) {
+					builder.setNeutralButton(mContext.getResources().getText(R.string.str_btn_release), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							processCleanFlush(true);
+						}
+					});
+				}
+// End of H.M.Wang 2026-10-23 增加要求：长清洗确认弹窗里面增加1个“泄压”按钮 ，只开废液阀 （ PE4/PE5/PH26/=0，  PH27=1，30s.   （放空 剩余压力））。
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 					LinearLayout penSelectV = (LinearLayout) alertView.findViewById(R.id.pen_select);
 					penSelectV.setVisibility(View.VISIBLE);
@@ -744,10 +754,12 @@ E.PE4/PE5/PH26/PH27=1,     3s.  (所有都开，  抽清洁液充满同时放 �
 F.PE4/PE5/PH26/=1，  PH27=0，1s.  (用清洁液加压， 维持清洗打印)
 G.PE4/PE5/PH26/PH27=0，8s.  ( 溶解管路沉积, 维持清洗打印)
 H.E-G   循环10次。    （这个是否会消耗他多清洁液？    还跟管路长度相关）
-I. PE4/PE5/PH26/=0，  PH27=1，5s.   （放空 剩余压力）
+I. PE4/PE5/PH26/=0，  PH27=1，5s.   （放空 剩余压力）             2026-10-23 5s -> 30s
 J.PE4/PE5/PH26PH27=0，  结束
- */
-	private void processCleanFlush() {
+2026-10-23 增加只泄压的选项，true=只泄压，false=全操作
+增加要求：长清洗确认弹窗里面增加1个“泄压”按钮 ，只开废液阀 （ PE4/PE5/PH26/=0，  PH27=1，30s.   （放空 剩余压力））。
+*/
+	private void processCleanFlush(final boolean onlyRelease) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -756,39 +768,42 @@ J.PE4/PE5/PH26PH27=0，  结束
 				}
 				ControlTabActivity.PressCheckEnable = false;
 
-				// C.开启PE4 =1  10s , 其他=0
-				ExtGpio.writeGpioTestPin('E', 4, 1);
-				ExtGpio.writeGpioTestPin('E', 5, 0);
-				ExtGpio.writeGpioTestPin('H', 26, 0);
-				ExtGpio.writeGpioTestPin('H', 27, 0);
-				try{Thread.sleep(10*1000);}catch(Exception e){};
-
-				// D.PE4=0, 其他=0
-				ExtGpio.writeGpioTestPin('E', 4, 0);
-				try{Thread.sleep(100);}catch(Exception e){};	// 额外添加
-
-				// H.E-G   循环10次
-				for(int i=0; i<10; i++) {
-					// E.PE4/PE5/PH26/PH27=1,     3s.
+				if(!onlyRelease) {
+					// C.开启PE4 =1  10s , 其他=0
 					ExtGpio.writeGpioTestPin('E', 4, 1);
-					ExtGpio.writeGpioTestPin('E', 5, 1);
-					ExtGpio.writeGpioTestPin('H', 26, 1);
-					ExtGpio.writeGpioTestPin('H', 27, 1);
-					try{Thread.sleep(3*1000);}catch(Exception e){};
-
-					// F.PE4/PE5/PH26/=1，  PH27=0，1s.
-					ExtGpio.writeGpioTestPin('E', 4, 1);
-					ExtGpio.writeGpioTestPin('E', 5, 1);
-					ExtGpio.writeGpioTestPin('H', 26, 1);
-					ExtGpio.writeGpioTestPin('H', 27, 0);
-					try{Thread.sleep(1000);}catch(Exception e){};
-
-					// G.PE4/PE5/PH26/PH27=0，8s.
-					ExtGpio.writeGpioTestPin('E', 4, 0);
 					ExtGpio.writeGpioTestPin('E', 5, 0);
 					ExtGpio.writeGpioTestPin('H', 26, 0);
 					ExtGpio.writeGpioTestPin('H', 27, 0);
-					try{Thread.sleep(8*1000);}catch(Exception e){};
+					try{Thread.sleep(10*1000);}catch(Exception e){};
+
+					// D.PE4=0, 其他=0
+					ExtGpio.writeGpioTestPin('E', 4, 0);
+					try{Thread.sleep(100);}catch(Exception e){};	// 额外添加
+
+					// H.E-G   循环10次
+					for(int i=0; i<10; i++) {
+						// E.PE4/PE5/PH26/PH27=1,     3s.
+						ExtGpio.writeGpioTestPin('E', 4, 1);
+						ExtGpio.writeGpioTestPin('E', 5, 1);
+						ExtGpio.writeGpioTestPin('H', 26, 1);
+						ExtGpio.writeGpioTestPin('H', 27, 1);
+						try{Thread.sleep(3*1000);}catch(Exception e){};
+
+						// F.PE4/PE5/PH26/=1，  PH27=0，1s.
+						ExtGpio.writeGpioTestPin('E', 4, 1);
+						ExtGpio.writeGpioTestPin('E', 5, 1);
+						ExtGpio.writeGpioTestPin('H', 26, 1);
+						ExtGpio.writeGpioTestPin('H', 27, 0);
+						try{Thread.sleep(1000);}catch(Exception e){};
+
+						// G.PE4/PE5/PH26/PH27=0，8s.
+						ExtGpio.writeGpioTestPin('E', 4, 0);
+						ExtGpio.writeGpioTestPin('E', 5, 0);
+						ExtGpio.writeGpioTestPin('H', 26, 0);
+						ExtGpio.writeGpioTestPin('H', 27, 0);
+						try{Thread.sleep(8*1000);}catch(Exception e){};
+					}
+
 				}
 
 				// I. PE4/PE5/PH26/=0，  PH27=1，5s.
@@ -796,7 +811,7 @@ J.PE4/PE5/PH26PH27=0，  结束
 				ExtGpio.writeGpioTestPin('E', 5, 0);
 				ExtGpio.writeGpioTestPin('H', 26, 0);
 				ExtGpio.writeGpioTestPin('H', 27, 1);
-				try{Thread.sleep(5*1000);}catch(Exception e){};
+				try{Thread.sleep(30*1000);}catch(Exception e){};	// 2026-10-23 5s -> 30s
 
 				// J.PE4/PE5/PH26PH27=0，  结束
 				ExtGpio.writeGpioTestPin('E', 4, 0);
@@ -812,7 +827,7 @@ J.PE4/PE5/PH26PH27=0，  结束
 /*
 A.按“初始化上墨” .“Prim”按钮
 B.弹出确认。 “请确认废液瓶就位”  “确认” ‘取消’
-C.PE4/PE5 /PH27=1,   PH26=1  5s.  (抽墨水充满管路， 同时放 废液)
+C.PE4/PE5 /PH27=1,   PH26=1  5s.  (抽墨水充满管路， 同时放 废液)    2026-10-23 PH26=1  5s -> PH26=0  10s
 D.PE4/PE5 /PH27PH26=0.
 E.恢复“加墨+循环”， 控制逻辑。
  */
@@ -823,9 +838,9 @@ E.恢复“加墨+循环”， 控制逻辑。
 				// C.PE4/PE5 /PH27=1,   PH26=1  5s.
 				ExtGpio.writeGpioTestPin('E', 4, 1);
 				ExtGpio.writeGpioTestPin('E', 5, 1);
-				ExtGpio.writeGpioTestPin('H', 26, 1);
+				ExtGpio.writeGpioTestPin('H', 26, 0);           // 2026-10-23 PH26=1  5s -> PH26=0  10s
 				ExtGpio.writeGpioTestPin('H', 27, 1);
-				try{Thread.sleep(5*1000);}catch(Exception e){};
+				try{Thread.sleep(10*1000);}catch(Exception e){};              // 2026-10-23 PH26=1  5s -> PH26=0  10s
 
 				// PE4/PE5 /PH27PH26=0.
 				ExtGpio.writeGpioTestPin('E', 4, 0);

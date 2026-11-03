@@ -108,7 +108,11 @@ public class TestHp22mm implements ITestOperation {
             "24 -- Read Print Head Error every 100ms",
             "25 -- Read Used Ink Volumes",
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
-    };
+// H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+            "26 -- Resume Pens ink to 80% for 108MM (Max = 266,077)",
+            "27 -- Resume Pens ink to 90% for 108MM  (Max = 266,077)",
+// End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+   };
 
 // H.M.Wang 2026-6-30 增加L2-L5的编程功能
     private String[] HP22MM_PROGRAMER_ITEMS = new String[] {
@@ -221,6 +225,10 @@ public class TestHp22mm implements ITestOperation {
 // H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
     private final static int HP22MM_GET_USED_INK_VOLS                 = 29;
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+// H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+    private final static int HP22MM_RESUME_80                         = 30;
+    private final static int HP22MM_RESUME_90                         = 31;
+// End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
     private boolean m100msFreshRunning;
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
@@ -800,6 +808,22 @@ public class TestHp22mm implements ITestOperation {
                             mHp22mmTestResult[index] = "P1:" + usedVols[0] + ", P2:" + usedVols[1];
                             break;
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
+// H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+                        case HP22MM_RESUME_80:
+                            if(0 == Hp22mm.downLocal(1, -1)) {            // 借用-1作为参数，表示恢复到80%
+                                mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\n";
+                            }
+                            break;
+                        case HP22MM_RESUME_90:
+                            if(0 == Hp22mm.downLocal(1, -2)) {            // 借用-1作为参数，表示恢复到90%
+                                mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\n";
+                            }
+                            break;
+// End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
                         default:
 // H.M.Wang 2026-6-30 增加L2-L5的编程功能
                             if(index== HP22MM_PROGRAMER_ITEM_IDS[1]) {

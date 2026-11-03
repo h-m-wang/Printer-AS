@@ -364,7 +364,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					mRadioCustom.setChecked(true);
 				}
 			}, 500);
-//			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
 		}
 // End of H.M.Wang 2025-9-9 追加模式5，支持从网络获取全部打印数据，通过界面选择
 // End of H.M.Wang 2025-9-11 将模式5的开始显示开关从ControlTabActivity类中的点按Print按键启动改为这里启动
@@ -375,7 +374,6 @@ public class MainActivity extends Activity implements OnCheckedChangeListener, O
 					mRadioCustom.setVisibility(View.VISIBLE);
 				}
 			});
-//			Server1MainWindow emw = Server1MainWindow.getInstance(mContext);
 		}
 
         BarcodeScanParser.setContext(this);

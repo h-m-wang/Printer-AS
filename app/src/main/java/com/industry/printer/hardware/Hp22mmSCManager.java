@@ -267,6 +267,15 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
         return slotCount;
     }
 
+// H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
+    public int getCosumedInk(int head) {
+        if(mHeads[head].mInkLevel >= 0) {
+            return ((head == mHeads.length-1) ? 1 : 7) * mMaxBagInkVolume - mHeads[head].mInkLevel;     // 实际就是初始化时读来的SC的RW中保存的数值，加上打印过程中消耗掉锁值数量
+        }
+        return 0;
+    }
+// End of H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
+
     @Override
     public float getLocalInk(int head) {
 // H.M.Wang 2026-5-25 虚拟打印模式。返回最大墨量
@@ -377,9 +386,6 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
         };
 // End of H.M.Wang 2026-5-25 增加一个虚拟打印模式
         if(mInitialized) {
-// H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
-            Hp22mm.EnableWarming(1);
-// End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
 // H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
             final int nozzle_sel = SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_22MM_NOZZLE_SEL);
             int penArg = ((nozzle_sel >> 8) & 0x00000003);
@@ -404,6 +410,15 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
                     }
                     break;
             }
+// H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
+// H.M.Wang 2026-10-20 当P63=1时，禁止加热
+            if(SystemConfigFile.getInstance().getParam(SystemConfigFile.INDEX_WARMING) == 1) {
+                Hp22mm.EnableWarming(0);
+            } else {
+                Hp22mm.EnableWarming(1);
+            }
+// End of H.M.Wang 2026-10-20 当P63=1时，禁止加热
+// End of H.M.Wang 2025-2-17 上电后停止加热，只有开始打印后再加热
             Hp22mm.startPrint();
 // End of H.M.Wang 2026-10-16 增加开始打印和停止打印接口，开始打印时，设置打印中标识，并且启动上电。停止打印时关闭打印中标识，断电
             return 0;

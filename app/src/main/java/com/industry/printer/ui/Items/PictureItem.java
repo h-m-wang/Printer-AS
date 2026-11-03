@@ -2,6 +2,8 @@ package com.industry.printer.ui.Items;
 
 import android.graphics.Bitmap;
 
+import com.industry.printer.Utils.Debug;
+
 public class PictureItem {
 
 	private String mPath;
@@ -28,6 +30,11 @@ public class PictureItem {
 		mBitmap = bmp;
 	}
 	public Bitmap getBitmap() {
+//		if(null == mBitmap) {
+//			Debug.d("PictureItem", "Bitmap = null");
+//		} else {
+//			Debug.d("PictureItem", "Width = " + mBitmap.getWidth() + "; Height = " + mBitmap.getHeight());
+//		}
 		return mBitmap;
 	}
 // End of H.M.Wang 2026-9-6 修改读取和显示图片的逻辑，提高显示图片的效率

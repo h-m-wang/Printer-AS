@@ -441,13 +441,13 @@ public class DataTransferThread {
 
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 		if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
-// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来恢复到初始状态
+// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电加热等操作
 //			Hp22mm.EnableWarming(0);
 			IInkDevice scm = InkManagerFactory.inkManager(mContext);
 			if(!isRunning() && scm instanceof Hp22mmSCManager) {		// 22MM非打印状态时，上电
 				((Hp22mmSCManager) scm).startPrint();
 			}
-// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来恢复到初始状态
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电加热等操作
 		}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
 
@@ -649,12 +649,12 @@ public class DataTransferThread {
 // H.M.Wang 2025-2-10 22MM清洗时停止加热
 				if(PlatformInfo.getImgUniqueCode().startsWith("22MM")) {
 //					remainTime *= 2.17;
-// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电等操作
+// H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电加热等操作
 //					Hp22mm.EnableWarming(0);
 					if(scm instanceof Hp22mmSCManager) {
 						((Hp22mmSCManager) scm).startPrint();
 					}
-// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电等操作
+// End of H.M.Wang 2026-10-19 当22MM的时候，调用开始打印用来上电加热等操作
 				}
 // End of H.M.Wang 2025-2-10 22MM清洗时停止加热
 

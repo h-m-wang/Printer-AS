@@ -118,6 +118,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -126,6 +127,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -141,6 +143,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -1423,8 +1426,9 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mPrinterSide.start();
 		}
 	}
-	ControllerSide mControllerSide;
-	PrinterSide mPrinterSide;
+	private PopupWindow mPopupWindow = null;
+	private ControllerSide mControllerSide;
+	private PrinterSide mPrinterSide;
 
 	public boolean getLevelLow() {
 		if(null != mPI11Monitor) return mPI11Monitor.getLevelLow();
@@ -1665,13 +1669,25 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				level = (i == ((SmartCardManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (i + 1)) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
 // H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 			} else if(mInkManager instanceof Hp22mmSCManager) {
-				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+// H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
+//				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM &&
+					i != ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {		// 108MM的打印头（不包括IDS）
+					level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (!valid ? ((Hp22mmSCManager)mInkManager).getCosumedInk(i) : mContext.getResources().getString(R.string.strPrintok));
+				} else {
+					level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
+				}
+// End of H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
 // End of H.M.Wang 2025-2-19 修改能够显示两个头的寿命锁值功能
 			} else {
 				level = "P" + (i + 1) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int)ink + "." + ((int)(ink*10))%10 + "%")));
 			}
 
-			level = level + (down.isEmpty() || down.equals("0") ? "" : "-" + down);
+// H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
+			if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_108MM ||
+					i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {
+				level = level + (down.isEmpty() || down.equals("0") ? "" : "-" + down);
+			}
 
 			Debug.d(TAG,  "Pen" + (i+1) + "[" + level + "]");
 
@@ -1729,47 +1745,62 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					mInkManager instanceof RFIDManager && ink >= 1.0f){
 				mInkValues[i].setBackgroundColor(mContext.getResources().getColor(R.color.transparent));
 				mInkValues[i].setText(level);
-				if(mInkLow)	{
-					mFlagAlarming = false;
-					mInkLow = false;
-					mHandler.removeMessages(MESSAGE_RFID_LOW);
+// H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_108MM ||
+					i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {
+					if(mInkLow)	{
+						mFlagAlarming = false;
+						mInkLow = false;
+						mHandler.removeMessages(MESSAGE_RFID_LOW);
+					}
+					if(mInkZero)	{
+						mFlagAlarming = false;
+						mInkZero = false;
+						mHandler.removeMessages(MESSAGE_RFID_ZERO);
+					}
 				}
-				if(mInkZero)	{
-					mFlagAlarming = false;
-					mInkZero = false;
-					mHandler.removeMessages(MESSAGE_RFID_ZERO);
-				}
+// End of H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
 			} else if (ink > 0.1f){
-				mInkValues[i].setBackgroundColor(Color.YELLOW);
-				mInkValues[i].setText(level);
-				if(!mInkLow)	{
-					mInkLow = true;
-					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
+// H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_108MM ||
+						i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {
+					mInkValues[i].setBackgroundColor(Color.YELLOW);
+					mInkValues[i].setText(level);
+					if(!mInkLow)	{
+						mInkLow = true;
+						mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_LOW, 200);
+					}
 				}
+// End of H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
 			} else {
-				mInkValues[i].setBackgroundColor(Color.RED);
-				mInkValues[i].setText(level);
+// H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
+				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) != PrinterNozzle.MessageType.NOZZLE_INDEX_108MM ||
+						i == ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {
+					mInkValues[i].setBackgroundColor(Color.RED);
+					mInkValues[i].setText(level);
 // H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
-				invalidCount++;
-				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
-					mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
+					invalidCount++;
+					if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X48 ||
+							mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_E6X50) {
 // H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
-					if(invalidCount < 4) continue;
+						if(invalidCount < 4) continue;
 // End of H.M.Wang 2026-1-5 放宽到有三个以上的锁值读不到时才禁止打印
-				}
+					}
 // End of H.M.Wang 2025-11-25 在一个检测打印头状态的循环中，如果是鸡蛋机，则统计出现有问题头的数量，当有两个以上头有问题时报警禁止打印，只有一个头时红色显示，但不报警，也不禁止打印
-				valid = false;
-				if(mInkLow)	{
-					mHandler.removeMessages(MESSAGE_RFID_LOW);
-					mInkLow = false;
+					valid = false;
+					if(mInkLow)	{
+						mHandler.removeMessages(MESSAGE_RFID_LOW);
+						mInkLow = false;
+					}
+					if(!mInkZero)	{
+						mInkZero = true;
+						mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 200);
+					}
+					if (mDTransThread != null && mDTransThread.isRunning()) {
+						mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
+					}
 				}
-				if(!mInkZero)	{
-					mInkZero = true;
-					mHandler.sendEmptyMessageDelayed(MESSAGE_RFID_ZERO, 200);
-				}
-				if (mDTransThread != null && mDTransThread.isRunning()) {
-					mHandler.sendEmptyMessage(MESSAGE_PRINT_STOP);
-				}
+// End of H.M.Wang 2026-11-3 108MM的打印头不做警报处理，IDS和其他类型的头照旧
 			}
 /* H.M.Wang 2025-11-4 取消这段代码，合并到上面代码中，本段代码的else部分会导致报警被取消
 			if((mInkManager instanceof SmartCardManager && ink < 5.0f ||
@@ -3725,7 +3756,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 				mScrollView.smoothScrollBy(400, 0);
 				break;
 			case R.id.ctrl_btn_up:
-				mControllerSide.sendSettings(new ControllerSide.FileTransferListener() {
+/*				mControllerSide.sendSettings(new ControllerSide.FileTransferListener() {
 					@Override
 					public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
 //						Debug.d(TAG, recv);
@@ -3735,8 +3766,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					public void onProgress(ControllerSide.ConnectedDevice dev, float percentage) {
 //						Debug.d(TAG, "Progress: " + String.format("%0.2f%%", percentage * 100.0f));
 					}
-				});
-/*				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+				});*/
+				ConfirmDialog dlg = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3745,10 +3776,10 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg.show();*/
+				dlg.show();
 				break;
 			case R.id.ctrl_btn_down:
-				mControllerSide.upgradeAPK(new ControllerSide.FileTransferListener() {
+/*				mControllerSide.upgradeAPK(new ControllerSide.FileTransferListener() {
 					@Override
 					public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
 						Debug.d(TAG, recv);
@@ -3757,8 +3788,8 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					public void onProgress(ControllerSide.ConnectedDevice dev, float percentage) {
 //						Debug.d(TAG, "Progress: " + String.format("%0.2f%%", percentage * 100.0f));
 					}
-				});
-/*				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
+				});*/
+				ConfirmDialog dlg1 = new ConfirmDialog(mContext, R.string.message_confirm_printnext);
 				dlg1.setListener(new DialogListener() {
 					@Override
 					public void onConfirm() {
@@ -3767,7 +3798,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 					}
 
 				});
-				dlg1.show();*/
+				dlg1.show();
 				break;
 // H.M.Wang 2023-6-27 增加一个用户定义界面模式，响应“向上连续打印”和“向下连续打印”
 			case R.id.upward_cnt_print:

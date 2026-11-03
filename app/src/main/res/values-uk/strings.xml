@@ -468,6 +468,7 @@
 	<string name="str_clean_confirm2">System purge, ensure waste bottle in place, remaining capacity more than 200ml.</string>
 	<string name="str_prim_confirm">Ensure waste bottle in place</string>
 	<string name="str_btn_prim">Prim</string>
+	<string name="str_btn_release">Release</string>
 <!-- End of H.M.Wang 2026-9-24 增加按P78非0时启动长清洗时的提示内容 -->
 	<string name="str_time_unit_min">хв</string>
 	<string name="str_temperature">℃</string>

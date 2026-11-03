@@ -28,8 +28,13 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.230"
+#define VERSION_CODE                            "1.0.232"
 
+// 1.0.232 2026-11-3
+// 1. 增加IDS和PD的锁值备份保存功能。IDS在写RW1的同时，写入RW2，RW2的低位三个字节为锁值数值，到位字节为低位三字节的异或。PD写入RW1的同时写入LOCKABLE_1（RW2已经被Purge标识占用），写入内容的组织方法与ids同
+// 2. 取消monitorThread中非打印状态不守护的操作，改为全时守护，但非打印状态下，不对POWER_OFF及PRESENT状态做重新上电处理
+// 1.0.231 2026-10-29
+// 在downLocal函数中，借用特殊参数，count=-1时，恢复打印头的锁值到80%；count=-2时，恢复打印头的锁值到90%
 // 1.0.230 2026-9-21
 // 增加startPrint和stopPrint接口，用来设置打印中标识，目的是在守护线程中，只有在打印状态下维护打印头的状态，非打印状态时不维护
 // 1.0.229 2026-9-21
@@ -884,12 +889,14 @@ void *monitorThread(void *arg) {
 // End of H.M.Wang 2026-9-16 取消该操作，否则可能不会发生握手
         }
 
+// H.M.Wang 2026-11-3 取消不守护的处理，改为非打印状态也守护
 // H.M.Wang 2026-10-16 当不处于打印状态时，打印头不上电，因此不再维护打印头的状态，包括与IDS的握手
-        if(!sPrinting) {
-            pthread_mutex_unlock(&mutex);
-            continue;
-        }
+//        if(!sPrinting) {
+//            pthread_mutex_unlock(&mutex);
+//            continue;
+//        }
 // End of H.M.Wang 2026-10-16 当不处于打印状态时，打印头不上电，因此不再维护打印头的状态，包括与IDS的握手
+// End of H.M.Wang 2026-11-3 取消不守护的处理，改为非打印状态也守护
 
         // 当已经给PD上点成功的情况下，
         if(PD_Power_State == PD_POWER_STATE_ON) {
@@ -929,25 +936,33 @@ int i=0;
                             print_head_status.print_head_error,
                             ph_error_description(print_head_status.print_head_error));
                     LOGE("%s", ERR_STRING);
-                }
-
-                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF) {
-// H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
-                    sprintf(ERR_STRING1, "PS1(%d)", i);
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                }
-                if(print_head_status.print_head_state == PH_STATE_PRESENT) {
-// H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
-                    sprintf(ERR_STRING1, "PS2(%d)", i);
-                    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                }
-//                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
-                    sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
-                    if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
-                        gPrintHeadErrorCount[print_head_status.print_head_error]++;
+// H.M.Wang 2026-11-3 任何时候把卡或未插卡报警，打印中掉电报警
+                    if(print_head_status.print_head_state == PH_STATE_NOT_PRESENT) {
+                        RunningState[PEN0_STATE+i] = STATE_INVALID;
                     }
+                    if(sPrinting) {
+                        if(print_head_status.print_head_state == PH_STATE_POWERED_OFF) {
+// H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
+                            RunningState[PEN0_STATE+i] = STATE_INVALID;
+                            sprintf(ERR_STRING1, "PS1(%d)", i);
+                            pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                        }
+                        if(print_head_status.print_head_state == PH_STATE_PRESENT) {
+// H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
+                            RunningState[PEN0_STATE+i] = STATE_INVALID;
+                            sprintf(ERR_STRING1, "PS2(%d)", i);
+                            pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                            pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                        }
+//                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
+                        sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+                        if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
+                            gPrintHeadErrorCount[print_head_status.print_head_error]++;
+                        }
 //                }
+                    }
+// End of H.M.Wang 2026-11-3 任何时候把卡或未插卡报警，打印中掉电报警
+                }
 
                 uint8_t v;
 // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
@@ -1006,24 +1021,31 @@ int i=0;
                             print_head_status.print_head_error,
                             ph_error_description(print_head_status.print_head_error));
                     LOGE("%s", ERR_STRING);
-                }
-                if(print_head_status.print_head_state == PH_STATE_POWERED_OFF) {
+// H.M.Wang 2026-11-3 任何时候把卡或未插卡报警，打印中掉电报警
+                    if(print_head_status.print_head_state == PH_STATE_NOT_PRESENT) {
+                        RunningState[PEN0_STATE+i] = STATE_INVALID;
+                    }
+                    if(sPrinting) {
+                        if(print_head_status.print_head_state == PH_STATE_POWERED_OFF) {
 // H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
-                    sprintf(ERR_STRING1, "PS1(%d)", i);
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                }
-                if(print_head_status.print_head_state == PH_STATE_PRESENT) {
+                            sprintf(ERR_STRING1, "PS1(%d)", i);
+                            pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                        }
+                        if(print_head_status.print_head_state == PH_STATE_PRESENT) {
 // H.M.Wang 2026-2-3 正式版时带重新上电，测试版时不带重新上电。平时保持在正式版上
-                    sprintf(ERR_STRING1, "PS2(%d)", i);
-                    pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                    pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
-                }
+                            sprintf(ERR_STRING1, "PS2(%d)", i);
+                            pd_check_ph("pd_power_off", pd_power_off(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                            pd_check_ph("pd_power_on", pd_power_on(PD_INSTANCE, penIndexs[i]), penIndexs[i]);       // H.M.Wang 2025-12-3 暂时禁止重新上电 2026-1-29 恢复重新上电 2026-1-31 再次暂时禁止
+                        }
 //                if (print_head_status.print_head_state != PH_STATE_POWERED_ON || print_head_status.print_head_error != PH_NO_ERROR) {
-                sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
-                if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
-                    gPrintHeadErrorCount[print_head_status.print_head_error]++;
-                }
+                        sprintf(ERR_STRING1, "%d", print_head_status.print_head_error);
+                        if(print_head_status.print_head_error <= PRINTHEAD_TARGETTEMP_NOTREACHED_ERROR && print_head_status.print_head_error >= 0) {
+                            gPrintHeadErrorCount[print_head_status.print_head_error]++;
+                        }
 //                }
+                    }
+// End of H.M.Wang 2026-11-3 任何时候把卡或未插卡报警，打印中掉电报警
+                }
 
                 uint8_t v;
                 // 暂时取消这个临时错误            pd_check_ph("pd_get_voltage_override", pd_get_voltage_override(PD_INSTANCE, penIndexs[i], &v), penIndexs[i]);
@@ -1321,16 +1343,37 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
     LOGI("Enter %s (head = %d)", __FUNCTION__, head);
 
     uint32_t value;
+    uint32_t value_with_parity;
     pthread_mutex_lock(&mutex);
     if(head == 0) {
         IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
         if (ids_check("ids_read_oem_field", ids_r)) return(-1);
-        LOGD("IDS_OEM_RW_1 = %d", value);
+        LOGD("IDS_OEM_RW_1 = 0x%08X", value);
+// H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
+        ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_2, &value_with_parity);
+        if (ids_check("ids_read_oem_field", ids_r)) return(-1);
+        if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
+            if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
+                value = (value_with_parity & 0x00FFFFFF);
+            }
+        }
+        LOGD("IDS_OEM_RW_1 = 0x%08X", value_with_parity);
+// End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
     } else {
         uint8_t pd_sc_result;
         PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
         if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
-        LOGD("PD_OEM_RW_1[%d] = %d", head-1, value);
+        LOGD("PD_OEM_RW_1[%d] = 0x%08X", head-1, value);
+// H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
+        pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_LOCKABLE_FIELD_1, &value_with_parity, &pd_sc_result);
+        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+        if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
+            if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
+                value = (value_with_parity & 0x00FFFFFF);
+            }
+        }
+        LOGD("PD_SC_OEM_LOCKABLE_FIELD_1[%d] = 0x%08X", head-1, value_with_parity);
+// End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
     }
     pthread_mutex_unlock(&mutex);
     return value;
@@ -1363,18 +1406,39 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
         ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, value);
         if (ids_check("ids_write_oem_field", ids_r)) return(-1);
 
+// H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
+        if(value & 0xFF000000 == 0x00000000) {
+            ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_2, ((((value & 0x000000FF) ^ ((value >> 8) & 0x000000FF) ^ ((value >> 16) & 0x000000FF)) << 24) | value));
+            if (ids_check("ids_write_oem_field", ids_r)) return(-1);
+        }
+// End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
+
         ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
         if (ids_check("ids_flush_smart_card", ids_r)) return(-1);
 // End of H.M.Wang 2025-11-4 - 11-13期间注释掉，2026-5-12恢复
     } else {
         uint8_t pd_sc_result;
-        PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
-        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+        PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head - 1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
+        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head - 1) || pd_sc_result != 0) return (-1);
 
+// H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
         value += count;
+        if (count == -1) {    // 恢复到80%
+            value = 1.4 * sMaxBagInkVol;
+        } else if (count == -2) {     // 恢复到90%
+            value = 0.7 * sMaxBagInkVol;
+        }
+// End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
 
         pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, value, &pd_sc_result);
         if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+
+// H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
+        if(value & 0xFF000000 == 0x00000000) {
+            pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_LOCKABLE_FIELD_1, ((((value & 0x000000FF) ^ ((value >> 8) & 0x000000FF) ^ ((value >> 16) & 0x000000FF)) << 24) | value), &pd_sc_result);
+            if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
+        }
+// End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
     }
 
     return 0;

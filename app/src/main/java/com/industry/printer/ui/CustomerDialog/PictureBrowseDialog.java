@@ -167,12 +167,13 @@ public class PictureBrowseDialog extends CustomerDialogBase implements android.v
 
 		// 2. 计算采样比例 inSampleSize (应设置为2的幂次)
 		int inSampleSize = 1;
+//		Debug.d(TAG, "srcWidth = " + srcWidth + "； srcHeight = " + srcHeight + "； targetWidth = " + targetWidth + "； targetHeight = " + targetHeight);
 		if (srcWidth > targetWidth || srcHeight > targetHeight) {
 			// 简单计算，实际应用中可能需要更精细的算法
 			int halfWidth = srcWidth;
 			int halfHeight = srcHeight;
-			while ((halfWidth / inSampleSize) >= targetWidth
-					&& (halfHeight / inSampleSize) >= targetHeight) {
+//			Debug.d(TAG, "halfWidth = " + halfWidth + "； halfHeight = " + halfHeight + "； inSampleSize = " + inSampleSize);
+			while ((halfWidth / inSampleSize) >= targetWidth || (halfHeight / inSampleSize) >= targetHeight) {
 				inSampleSize *= 2;
 			}
 		}
@@ -182,7 +183,7 @@ public class PictureBrowseDialog extends CustomerDialogBase implements android.v
 		options.inSampleSize = inSampleSize;
 		// 使用 RGB_565 可以减少一半内存占用 (相比 ARGB_8888)
 		options.inPreferredConfig = Configs.BITMAP_CONFIG;
-
+//Debug.d(TAG, "inSampleSize = " + inSampleSize);
 		return BitmapFactory.decodeFile(filePath, options);
 	}
 
