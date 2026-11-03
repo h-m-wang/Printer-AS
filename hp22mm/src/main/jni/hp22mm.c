@@ -28,8 +28,10 @@ extern "C"
 {
 #endif
 
-#define VERSION_CODE                            "1.0.232"
+#define VERSION_CODE                            "1.0.233"
 
+// 1.0.233 2026-11-3
+// 修改保存和读取锁值备份保存的功能
 // 1.0.232 2026-11-3
 // 1. 增加IDS和PD的锁值备份保存功能。IDS在写RW1的同时，写入RW2，RW2的低位三个字节为锁值数值，到位字节为低位三字节的异或。PD写入RW1的同时写入LOCKABLE_1（RW2已经被Purge标识占用），写入内容的组织方法与ids同
 // 2. 取消monitorThread中非打印状态不守护的操作，改为全时守护，但非打印状态下，不对POWER_OFF及PRESENT状态做重新上电处理
@@ -1352,12 +1354,14 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
 // H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
         ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_2, &value_with_parity);
         if (ids_check("ids_read_oem_field", ids_r)) return(-1);
-        if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
-            if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
-                value = (value_with_parity & 0x00FFFFFF);
+        if(value_with_parity != 0) {
+            if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
+                if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
+                    value = (value_with_parity & 0x00FFFFFF);
+                }
             }
         }
-        LOGD("IDS_OEM_RW_1 = 0x%08X", value_with_parity);
+        LOGD("IDS_OEM_RW_2 = 0x%08X", value_with_parity);
 // End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
     } else {
         uint8_t pd_sc_result;
@@ -1367,9 +1371,11 @@ JNIEXPORT jint JNICALL Java_com_getLocalInk(JNIEnv *env, jclass arg, jint head) 
 // H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
         pd_r = pd_sc_read_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_LOCKABLE_FIELD_1, &value_with_parity, &pd_sc_result);
         if (pd_check_ph("pd_sc_read_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
-        if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
-            if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
-                value = (value_with_parity & 0x00FFFFFF);
+        if(value_with_parity != 0) {
+            if(((value_with_parity & 0x000000FF) ^ ((value_with_parity >> 8) & 0x000000FF) ^ ((value_with_parity >> 16) & 0x000000FF)) == ((value_with_parity >> 24) & 0x000000FF)) {
+                if((value & 0x00FFFFFF) != (value_with_parity & 0x00FFFFFF)) {
+                    value = (value_with_parity & 0x00FFFFFF);
+                }
             }
         }
         LOGD("PD_SC_OEM_LOCKABLE_FIELD_1[%d] = 0x%08X", head-1, value_with_parity);
@@ -1389,28 +1395,22 @@ JNIEXPORT jint JNICALL Java_com_hp22mm_set_max_volume(JNIEnv *env, jclass arg, j
 
 JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, jint count) {
     LOGI("Enter %s (head = %d, value = %d)", __FUNCTION__, head, count);
-    uint32_t value;
 
     if(head == 0) {
 // H.M.Wang 2025-11-4 - 11-13期间注释掉，2026-5-12恢复
-        IDSResult_t ids_r = ids_read_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, &value);
-        if (ids_check("ids_read_oem_field", ids_r)) return(-1);
+        IDSResult_t ids_r;
 
-        value += count;
-
-        if(value >= sMaxBagInkVol) {
+        if(count >= sMaxBagInkVol) {
             ids_r = ids_set_out_of_ink(IDS_INSTANCE, sIdsIdx);
             if (ids_check("ids_set_out_of_ink", ids_r)) return(-1);
         }
 
-        ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, value);
+        ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_1, count);
         if (ids_check("ids_write_oem_field", ids_r)) return(-1);
 
 // H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
-        if(value & 0xFF000000 == 0x00000000) {
-            ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_2, ((((value & 0x000000FF) ^ ((value >> 8) & 0x000000FF) ^ ((value >> 16) & 0x000000FF)) << 24) | value));
-            if (ids_check("ids_write_oem_field", ids_r)) return(-1);
-        }
+        ids_r = ids_write_oem_field(IDS_INSTANCE, sIdsIdx, OEM_RW_2, ((((count & 0x000000FF) ^ ((count >> 8) & 0x000000FF) ^ ((count >> 16) & 0x000000FF)) << 24) | count));
+        if (ids_check("ids_write_oem_field", ids_r)) return(-1);
 // End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
 
         ids_r = ids_flush_smart_card(IDS_INSTANCE, sIdsIdx);
@@ -1418,26 +1418,22 @@ JNIEXPORT jint JNICALL Java_com_downLocal(JNIEnv *env, jclass arg, jint head, ji
 // End of H.M.Wang 2025-11-4 - 11-13期间注释掉，2026-5-12恢复
     } else {
         uint8_t pd_sc_result;
-        PDResult_t pd_r = pd_sc_read_oem_field(PD_INSTANCE, head - 1, PD_SC_OEM_RW_FIELD_1, &value, &pd_sc_result);
-        if (pd_check_ph("pd_sc_read_oem_field", pd_r, head - 1) || pd_sc_result != 0) return (-1);
+        PDResult_t pd_r;
 
 // H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
-        value += count;
         if (count == -1) {    // 恢复到80%
-            value = 1.4 * sMaxBagInkVol;
+            count = 1.4 * sMaxBagInkVol;
         } else if (count == -2) {     // 恢复到90%
-            value = 0.7 * sMaxBagInkVol;
+            count = 0.7 * sMaxBagInkVol;
         }
 // End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
 
-        pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, value, &pd_sc_result);
+        pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_RW_FIELD_1, count, &pd_sc_result);
         if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
 
 // H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
-        if(value & 0xFF000000 == 0x00000000) {
-            pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_LOCKABLE_FIELD_1, ((((value & 0x000000FF) ^ ((value >> 8) & 0x000000FF) ^ ((value >> 16) & 0x000000FF)) << 24) | value), &pd_sc_result);
-            if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
-        }
+        pd_r = pd_sc_write_oem_field(PD_INSTANCE, head-1, PD_SC_OEM_LOCKABLE_FIELD_1, ((((count & 0x000000FF) ^ ((count >> 8) & 0x000000FF) ^ ((count >> 16) & 0x000000FF)) << 24) | count), &pd_sc_result);
+        if (pd_check_ph("pd_sc_write_oem_field", pd_r, head-1) || pd_sc_result != 0) return(-1);
 // End of H.M.Wang 2026-11-2 增加带校验的备份保存，以避免写入时发生意外，导致再开机时读数错误
     }
 

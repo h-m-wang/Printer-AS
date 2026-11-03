@@ -431,7 +431,7 @@ IDSResult_t ids_write_field(int32_t instance, int32_t supply_idx, int32_t field_
 }
 
 IDSResult_t ids_write_oem_field(int32_t instance, int32_t supply_idx, int32_t field_id, uint32_t value) {
-    LOGI("Enter %s", __FUNCTION__);
+    LOGI("Enter %s, FieldID = %d, Value = %d", __FUNCTION__, field_id, value);
 
     if(_is_lib_initialized == false) {
         LOGE("Not initialized!");

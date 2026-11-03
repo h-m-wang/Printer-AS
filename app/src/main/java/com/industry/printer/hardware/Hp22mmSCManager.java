@@ -268,7 +268,7 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
     }
 
 // H.M.Wang 2026-11-3 直接读消耗掉的锁值，用于108mm的打印头显示，108mm的打印头不再显示百分比，而是显示实际消耗的锁值
-    public int getCosumedInk(int head) {
+    public int getConsumedInk(int head) {
         if(mHeads[head].mInkLevel >= 0) {
             return ((head == mHeads.length-1) ? 1 : 7) * mMaxBagInkVolume - mHeads[head].mInkLevel;     // 实际就是初始化时读来的SC的RW中保存的数值，加上打印过程中消耗掉锁值数量
         }
@@ -358,7 +358,7 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
 // H.M.Wang 2024-12-11 根据列数调整减记值
             mHeads[dev].mInkLevel--;
             if(mInitialized) {
-                Hp22mm.downLocal(mHeads[dev].mID, 1);    // 减记PENx
+                Hp22mm.downLocal(mHeads[dev].mID, mHeads[dev].mInkLevel);    // 减记PENx
             }
 // End of H.M.Wang 2024-12-11 根据列数调整减记值
         }

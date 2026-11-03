@@ -1673,7 +1673,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 //				level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
 				if(mSysconfig.getParam(SystemConfigFile.INDEX_HEAD_TYPE) == PrinterNozzle.MessageType.NOZZLE_INDEX_108MM &&
 					i != ((Hp22mmSCManager)mInkManager).getInkCount()-1 ) {		// 108MM的打印头（不包括IDS）
-					level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (!valid ? ((Hp22mmSCManager)mInkManager).getCosumedInk(i) : mContext.getResources().getString(R.string.strPrintok));
+					level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (!valid ? ((Hp22mmSCManager)mInkManager).getConsumedInk(i) : mContext.getResources().getString(R.string.strPrintok));
 				} else {
 					level = (i == ((Hp22mmSCManager) mInkManager).getInkCount() - 1 ? "B" : "P" + (((Hp22mmSCManager)mInkManager).getHeadId(i))) + "-" + (ink >= 100f ? "100%" : (ink < 0f ? "0" : ((int) ink + "." + ((int) (ink * 10)) % 10 + "%")));
 				}

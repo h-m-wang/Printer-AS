@@ -2531,7 +2531,7 @@ PDResult_t pd_sc_lock_oem_partition(int32_t instance, uint8_t ph_id, uint8_t par
 }
 
 PDResult_t pd_sc_write_oem_field(int32_t instance, uint8_t ph_id, PDSmartCardOemFieldId_t field_id, uint32_t data, uint8_t *sc_result) {
-    LOGI("Enter %s", __FUNCTION__);
+    LOGI("Enter %s, FieldID = %d, Value = %d", __FUNCTION__, field_id, data);
 
     if(_is_lib_initialized == false) {
 		LOGE("Not initialized!");
