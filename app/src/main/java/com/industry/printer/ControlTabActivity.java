@@ -1414,21 +1414,7 @@ public class ControlTabActivity extends Fragment implements OnClickListener, Ink
 			mf.setCallback(this);
 		}
 // End of H.M.Wang 2026-2-7 增加模式6，宝桥特殊功能
-		if(SystemConfigFile.getInstance(mContext).getParam(89) == 1) {
-			mControllerSide = new ControllerSide(mContext, new ControllerSide.CmdTransferListener() {
-				@Override
-				public void onRecv(ControllerSide.ConnectedDevice dev, String recv) {
-					Debug.d(TAG, dev.getIPAddress() + ": " + recv);
-				}
-			});
-		} else if(SystemConfigFile.getInstance(mContext).getParam(89) == 2) {
-			mPrinterSide = new PrinterSide(mContext, this);
-			mPrinterSide.start();
-		}
 	}
-	private PopupWindow mPopupWindow = null;
-	private ControllerSide mControllerSide;
-	private PrinterSide mPrinterSide;
 
 	public boolean getLevelLow() {
 		if(null != mPI11Monitor) return mPI11Monitor.getLevelLow();

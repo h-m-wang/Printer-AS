@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class ControllerSide {
@@ -251,30 +252,29 @@ public class ControllerSide {
 
     private final String HelloKitty = "Hello Kitty";
 
-    public void handShakeWith(final String server) {
-        try {
-            ConnectedDevice existedDevice = null;
-            for(ConnectedDevice d : mDevices) {
-                if(d.mIPAddress.equals(server)) {
-                    if(!d.isConnected()) {
-                        existedDevice = d;
-                        break;
-                    } else {
-                        return;
-                    }
-                }
+    private ConnectedDevice findDevice(String ipAddr) {
+        for(ConnectedDevice d : mDevices) {
+            if(d.mIPAddress.equals(ipAddr)) {
+                return d;
             }
+        }
+        return null;
+    }
+
+    public void handShakeWith(final String ipAddr) {
+        try {
+            ConnectedDevice existedDevice = findDevice(ipAddr);
 
             Socket socket = new Socket();
             socket.setSoTimeout(15*000);
 
-            Debug.d(TAG, "Connect to: [" + server + "]");
-            socket.connect(new InetSocketAddress(server, PORT),1000);
+            Debug.d(TAG, "Connect to: [" + ipAddr + "]");
+            socket.connect(new InetSocketAddress(ipAddr, PORT),1000);
 
             // 对于已经存在的设备，设置新的socket，对于不存在的设备，生成新的设备
             final boolean isNewDevice = (null == existedDevice);
             if(null == existedDevice) {
-                existedDevice = new ConnectedDevice("", server, socket);
+                existedDevice = new ConnectedDevice("", ipAddr, socket);
             } else {
                 existedDevice.setSocket(socket);
             }
@@ -287,18 +287,18 @@ public class ControllerSide {
                         device.setConnected(true);
                         if(isNewDevice) {
                             mDevices.add(device);
-                            Debug.d(TAG, "Device: [" + server + "] added.");
+                            Debug.d(TAG, "Device: [" + ipAddr + "] added.");
                         } else {
-                            Debug.d(TAG, "Device: [" + server + "] reconnected.");
+                            Debug.d(TAG, "Device: [" + ipAddr + "] reconnected.");
                         }
                     }
                 }
             });
         } catch (IOException e) {
-            Debug.d(TAG, "Connect failed to: [" + server + "]");
+            Debug.d(TAG, "Connect failed to: [" + ipAddr + "]");
             e.printStackTrace();
         } catch (Exception e) {
-            Debug.d(TAG, "Connect failed to: [" + server + "]");
+            Debug.d(TAG, "Connect failed to: [" + ipAddr + "]");
             e.printStackTrace();
         }
     }

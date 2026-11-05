@@ -32,7 +32,14 @@
         android:layout_margin="4dp"
         android:layout_weight="1"
         android:background="@color/white"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical">
+        <ListView
+            android:id="@+id/param_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/gray"
+            android:dividerHeight="1dp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

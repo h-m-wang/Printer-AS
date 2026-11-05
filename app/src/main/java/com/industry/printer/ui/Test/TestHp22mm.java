@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.industry.printer.ControlTabActivity;
 import com.industry.printer.FileFormat.SystemConfigFile;
 import com.industry.printer.MainActivity;
+import com.industry.printer.PHeader.PrinterNozzle;
 import com.industry.printer.R;
 import com.industry.printer.Utils.ConfigPath;
 import com.industry.printer.Utils.Debug;
@@ -112,6 +113,9 @@ public class TestHp22mm implements ITestOperation {
             "26 -- Resume Pens ink to 80% for 108MM (Max = 266,077)",
             "27 -- Resume Pens ink to 90% for 108MM  (Max = 266,077)",
 // End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+// H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
+            "28 -- Resume IDS ink to 100% for 108MM  (Max = 38,011)",
+// End of H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
    };
 
 // H.M.Wang 2026-6-30 增加L2-L5的编程功能
@@ -229,6 +233,9 @@ public class TestHp22mm implements ITestOperation {
     private final static int HP22MM_RESUME_80                         = 30;
     private final static int HP22MM_RESUME_90                         = 31;
 // End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+// H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
+    private final static int HP22MM_RESUME_IDS                         = 32;
+// End of H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
     private boolean m100msFreshRunning;
 // End of H.M.Wang 2026-2-5 增加在monitorThread中缩小读取状态的时间间隔（到0.1秒），并且启动或者停止该测试实验的功能
 
@@ -810,20 +817,41 @@ public class TestHp22mm implements ITestOperation {
 // End of H.M.Wang 2026-5-22 增加一个记录累计墨水消耗量的数值
 // H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
                         case HP22MM_RESUME_80:
-                            if(0 == Hp22mm.downLocal(1, -1)) {            // 借用-1作为参数，表示恢复到80%
-                                mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                            if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+                                if(0 == Hp22mm.downLocal(1, -1)) {            // 借用-1作为参数，表示恢复到80%
+                                    mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed\n";
+                                }
                             } else {
-                                mHp22mmTestResult[index] = "Failed\n";
+                                mHp22mmTestResult[index] = "Failed\nOnly for 108MM";
                             }
                             break;
                         case HP22MM_RESUME_90:
-                            if(0 == Hp22mm.downLocal(1, -2)) {            // 借用-1作为参数，表示恢复到90%
-                                mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                            if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+                                if(0 == Hp22mm.downLocal(1, -2)) {            // 借用-1作为参数，表示恢复到90%
+                                    mHp22mmTestResult[index] = "Success\nPen1: " + String.format("%.2f%%\n", (266077 - 1.0f * Hp22mm.getLocalInk(1)) / 266077 * 100);
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed\n";
+                                }
                             } else {
-                                mHp22mmTestResult[index] = "Failed\n";
+                                mHp22mmTestResult[index] = "Failed\nOnly for 108MM";
                             }
                             break;
 // End of H.M.Wang 2026-10-29 增加两个命令，用来恢复喷头的剩余数量到80%和90%
+// H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
+                        case HP22MM_RESUME_IDS:
+                            if(SystemConfigFile.getInstance().getPNozzle() == PrinterNozzle.MESSAGE_TYPE_108MM) {
+                                if(0 == Hp22mm.downLocal(0, 0)) {            // 直接给ids写0，恢复消耗量为0
+                                    mHp22mmTestResult[index] = "Success\nIDS: " + String.format("%.2f%%\n", (38011 - 1.0f * Hp22mm.getLocalInk(0)) / 38011 * 100);
+                                } else {
+                                    mHp22mmTestResult[index] = "Failed\n";
+                                }
+                            } else {
+                                mHp22mmTestResult[index] = "Failed\nOnly for 108MM";
+                            }
+                            break;
+// End of H.M.Wang 2026-11-4 增加为108mm恢复IDS的功能
                         default:
 // H.M.Wang 2026-6-30 增加L2-L5的编程功能
                             if(index== HP22MM_PROGRAMER_ITEM_IDS[1]) {

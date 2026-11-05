@@ -358,7 +358,7 @@ if(Hp22mm.THIRD_PARTY_PROGRAMER) return;
 // H.M.Wang 2024-12-11 根据列数调整减记值
             mHeads[dev].mInkLevel--;
             if(mInitialized) {
-                Hp22mm.downLocal(mHeads[dev].mID, mHeads[dev].mInkLevel);    // 减记PENx
+                Hp22mm.downLocal(mHeads[dev].mID, ((dev == mHeads.length-1) ? 1 : 7) * mMaxBagInkVolume - mHeads[dev].mInkLevel);    // 减记PENx
             }
 // End of H.M.Wang 2024-12-11 根据列数调整减记值
         }
